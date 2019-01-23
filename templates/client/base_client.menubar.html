@@ -1,0 +1,26 @@
+{% load static %}
+
+<nav class="navbar fixed-bottom">
+    <div class="jumbotron">
+        <div class="container">
+            <div class="row">
+                  <div class="col my-auto"><a href="{{ previousUrl }}"><span class="btn btn-hhcBlue">Previous</span></a></div>
+                  <div class="col fixed-bottom_heading">Introduction</div>
+                  <div class="col text-center fixed-bottom_heading"><div><img src="{% static 'img/icons/topup_icon.png' %}" width="75px"></div><span>Top-Up</span></div>
+                  <div class="col fixed-bottom_heading"><div><img src="{% static 'img/icons/give_icon.png' %}" width="75px"></div><span>Give</span></div>
+                  <div class="col fixed-bottom_heading"><div><img src="{% static 'img/icons/live_icon.png' %}" width="75px"></div><span>Live</span></div>
+                  <div class="col fixed-bottom_heading"><div><img src="{% static 'img/icons/move_icon.png' %}" width="75px"></div><span>Move</span></div>
+                  <div class="col fixed-bottom_heading">Results</div>
+                  {% if nextIsButton %}
+                  <div class="col my-auto"><button type="submit" value='Submit' form="clientForm" class="btn btn-hhcBlue">&nbsp;&nbsp;Next&nbsp;&nbsp;</button> </div>
+                  {% else %}
+                  <div class="col my-auto"><a href="{{ nextUrl }}"><span class="btn btn-hhcBlue">&nbsp;&nbsp;Next&nbsp;&nbsp;</span></a> </div>
+                  {% endif %}
+             </div>
+        </div>
+    </div>
+</nav>
+
+<!--Navigation URLs are passed in the context.
+For some pages the next URL is a submit button linked to a form.
+Navigation is achieved through processing the form (i.,e., successURL  -->

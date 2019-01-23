@@ -1,0 +1,156 @@
+
+
+/* Fonts */
+@font-face {
+  font-family: 'MaisonNeue';
+  src: url('../fonts/MaisonNeue-Book.otf')  format("truetype"),
+       local('MaisonNeue');
+}
+
+@font-face {
+  font-family: 'MercuryDisplay';
+  src: url('../fonts/MercuryDisplay-Semibold.otf')  format("truetype"),
+       local('MercuryDisplay');
+}
+
+/* Text*/
+
+
+body {
+display: block;
+margin-top: 0px;
+margin-right: 0px;
+margin-bottom: 0px;
+margin-left: 0px;
+}
+
+a {
+	font-family: MaisonNeue;
+    font-size: normal;
+}
+
+.title {
+    font-family: MercuryDisplay;
+    font-size: 50px;
+}
+
+.secondary_title {
+    font-family: MercuryDisplay;
+    font-size: 30px;
+}
+
+
+/* NavBar*/
+
+.navbar {
+    padding-bottom: 75px;
+}
+
+.navbar-nav > li > a {
+    color: black;
+}
+
+/* Navbar Footer */
+.fixed-bottom {
+    background-color: rgb(249,248,245);
+    display: block;
+    padding-bottom: 0px;
+}
+
+.fixed-bottom_heading {
+    font-family: MercuryDisplay;
+    font-size: 18px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+
+/* Buttons */
+.btn-hhcBlue{
+    background-color: rgb(25,38,63);
+    color: white;
+    font-family: MaisonNeue;
+    font-weight: normal;
+    font-size: 12px;
+    border-radius: 35px;
+}
+
+
+/* Jumbotron */
+.jumbotron {
+    background-color: rgb(249,248,245);
+    margin-bottom: 0px;
+}
+
+.jumbotron small {
+    font-size: 12px;
+    margin-left:10px;
+}
+
+.jumbotron {
+    padding: 0.5rem 0.5rem;
+
+}
+
+
+@media (min-width:576px) {
+    .jumbotron {
+        padding: 0.5rem 0.5rem
+    }
+}
+
+
+
+
+
+/* Printing */
+
+@page {
+  size: A4; /* Change from the default size of A4 */
+  margin: 0cm; /* Set margin on each page */
+}
+
+.Section1 {
+    width: 21cm;
+    height: 29.7cm;
+    background-image: url("/static/img/document/SummaryPage1.jpg");
+    background-size:cover;
+}
+
+.Section2 {
+    width: 21cm;
+    height: 29.7cm;
+    background-image: url("/static/img/document/SummaryPage2.jpg");
+    background-size:cover;
+    page-break-before: always;
+}
+
+.Section3 {
+    width: 21cm;
+    height: 29.7cm;
+    background-image: url("/static/img/document/SummaryPage3.jpg");
+    background-size:cover;
+    page-break-before: always;
+}
+
+.Section4 {
+    width: 21cm;
+    height: 29.7cm;
+    page-break-before: always;
+}
+
+.Section5 {
+    width: 21cm;
+    height: 29.7cm;
+    page-break-before: always;
+}
+
+.Section6 {
+    width: 21cm;
+    height: 29.7cm;
+    background-image: url("/static/img/document/SummaryPage6.jpg");
+    background-size:cover;
+    page-break-before: always;
+}

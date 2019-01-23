@@ -1,0 +1,57 @@
+{% extends 'client/base_client.html' %}
+{% load static %}
+
+
+{% block message_display %}
+
+    <div class="container">
+
+      {% if messages %}
+                <div class="row">
+                    <div class="col-12">
+                        {% for message in messages %}
+                            <p{% if message.tags == 'success' %}
+                                class="alert alert-success"{% endif %}>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+      {% endif %}
+
+        <div class="row">
+
+         </div>
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+        <div class="row">
+
+            <div class="col-lg-6">
+
+                <br>
+                <div class="secondary_title">Are your available funds getting low?</div>
+                <br>
+                <a>During your working life, you have saved in your superannuation and in your home ownership. Household Capital's Household Loan draws together super home equity and any pension to provide funds for life at home. </a><br><br>
+                <a>A Household Loan can:</a><br>
+                <a>- Boost your retirement income</a><br>
+                <a>- Give to your family when they need it most</a><br>
+                <a>- Renovate your home</a><br>
+                <a>- Cover transport and travel</a><br>
+
+            </div>
+
+            <div class="col-lg-6">
+
+                <br>
+                <img src="{% static 'img/introPicture.png' %}" class="img-fluid" alt="Responsive image">
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}

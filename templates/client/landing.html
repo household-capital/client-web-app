@@ -1,0 +1,50 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+        <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- The above 2 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    {% include 'client/base_client.css.html' %}
+
+    <title>Household.app</title>
+  </head>
+
+
+<body class="landing">
+{% include 'client/base_client.navbar.html' %}
+
+<div class="container">
+
+    <div class="row" style="height: 30vh">
+    </div>
+
+    <div class="row align-items-center" >
+        <div class="col-md-12 text-center">
+            <img src="{% static 'img/HC_Logo_Flat.png' %}" class="img-fluid" alt="Responsive image" width="40%">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <br>
+            {% if clientSet %}
+                <a href='{% url "client:introduction1" %}'><span class="btn btn-hhcBlue">&nbsp;&nbsp;&nbsp;Start Meeting&nbsp;&nbsp;&nbsp;</span></a>
+            {% else %}
+                <a href='{% url "client:setClient" %}'><span class="btn btn-hhcBlue">&nbsp;&nbsp;Set Client&nbsp;&nbsp;</span></a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+{% include 'base/base.js.html' %}
+</body>
+</html>
+

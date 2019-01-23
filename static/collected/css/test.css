@@ -1,0 +1,59 @@
+
+@page {
+  size: A4; /* Change from the default size of A4 */
+  margin: 0cm; /* Set margin on each page */
+}
+
+
+
+.Section1 {
+    width: 21cm;
+    height: 29.7cm;
+    background-image: url("/static/img/SummaryPage1.jpg");
+    background-size:cover;
+}
+
+.Section2 {
+    width: 21cm;
+    height: 29.7cm;
+    background-image: url("/static/img/SummaryPage2.jpg");
+    background-size:cover;
+    page-break-before: always;
+}
+
+.Section3 {
+    width: 21cm;
+    height: 29.7cm;
+    background-image: url("/static/img/SummaryPage3.jpg");
+    background-size:cover;
+    page-break-before: always;
+}
+
+.Section4 {
+    width: 21cm;
+    height: 29.7cm;
+    page-break-before: always;
+}
+
+.Section5 {
+    width: 21cm;
+    height: 29.7cm;
+    page-break-before: always;
+}
+
+.Section6 {
+    width: 21cm;
+    height: 29.7cm;
+    background-image: url("/static/img/SummaryPage6.jpg");
+    background-size:cover;
+    page-break-before: always;
+}
+
+
+body {
+display: block;
+margin-top: 0px;
+margin-right: 0px;
+margin-bottom: 0px;
+margin-left: 0px;
+}

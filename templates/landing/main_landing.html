@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block jumbotron %}
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+
+          <div class="row">
+             <div class="col-lg-12">
+                 <h4>Hello {{ user.get_short_name  }}</h4>
+                 <p>{{ page_description }}</p>
+              </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+      {% if messages %}
+                <div class="row">
+                    <div class="col-12">
+                        {% for message in messages %}
+                            <p{% if message.tags == 'success' %}
+                                class="alert alert-success"{% endif %}>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+      {% endif %}
+
+        <div class="row">
+
+            <div class="col-sm-2 text-center">
+                <a href="{% url 'eligibility:landing' %}">
+                <div class="appLogo">
+                    <img src="{% static 'img/icons/eligibility_icon.png' %}" class="img-fluid" alt="Responsive image">
+                </div>
+                <h6>Eligibility Calculator</h6></a>
+            </div>
+
+            <div class="col-sm-2 text-center">
+                <a href="{% url 'client:landing' %}">
+                <div class="appLogo">
+                    <img src="{% static 'img/icons/client_icon.png' %}" class="img-fluid" alt="Responsive image">
+                </div>
+                <h6>Client Interface</h6></a>
+            </div>
+
+         </div>
+    </div>
+
+{% endblock %}

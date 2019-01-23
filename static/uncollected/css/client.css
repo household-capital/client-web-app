@@ -1,0 +1,253 @@
+
+
+/* Fonts */
+@font-face {
+  font-family: 'MaisonNeue';
+  src: url('../fonts/MaisonNeue-Book.otf')  format("truetype"),
+       local('MaisonNeue');
+}
+
+@font-face {
+  font-family: 'MercuryDisplay';
+  src: url('../fonts/MercuryDisplay-Semibold.otf')  format("truetype"),
+       local('MercuryDisplay');
+}
+
+/* Text*/
+
+
+body {
+display: block;
+margin-top: 0px;
+margin-right: 0px;
+margin-bottom: 0px;
+margin-left: 0px;}
+
+a,p {
+	font-family: MaisonNeue;
+    padding: 0;
+    margin:0;
+    line-height: normal;
+}
+
+p.small {
+    font-family: MaisonNeue;
+    line-height: 150%;
+    font-size: 90%;
+}
+
+.larger {
+    font-family: MaisonNeue;
+    font-size: larger;
+}
+
+.x-large {
+    font-family: MaisonNeue;
+    font-size: x-large;
+}
+
+
+.title {
+    font-family: MercuryDisplay;
+    font-size: 50px;
+}
+
+.secondary_title {
+    font-family: MercuryDisplay;
+    font-size: 30px;
+}
+
+.imgContainer{
+    padding-bottom: 5px;
+}
+
+.message{
+    padding-top: 15px;
+}
+
+.alert-household{
+    background-color: rgb(249,248,245);
+}
+
+.alert-HHCBlue{
+    background-color: rgb(25,38,63);
+    color: white
+}
+
+.alert{
+    margin-bottom:0px;
+}
+
+/* NavBar*/
+
+.navbar {
+    padding-bottom: 40px;
+}
+
+.navbar-nav > li > a {
+    color: grey;
+}
+
+/* Navbar Footer */
+.fixed-bottom {
+    background-color: rgb(249,248,245);
+    display: block;
+    padding-bottom: 0px;
+}
+
+.fixed-bottom_heading {
+    font-family: MercuryDisplay;
+    font-size: 18px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+/* Forms */
+.form-control-hidden {
+    display: block;
+    width: 100%;
+    height: calc(2.25rem + 2px);
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 0px;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out
+}
+
+.input-group-text{
+    background-color: rgb(249,248,245)
+}
+
+.incomeSlider{
+    margin-top: 7px ;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+
+/* Images */
+
+.imgHidden{
+    visibility: hidden;
+}
+
+
+
+/* Landing Page */
+
+.landing{
+    background-color: rgb(249,248,245);
+}
+
+/* Buttons */
+.btn-hhcBlue{
+    background-color: rgb(25,38,63);
+    color: white;
+    font-family: MaisonNeue;
+    font-weight: normal;
+    font-size: 14px;
+    border-radius: 35px;
+}
+
+.btn-hhcGold{
+    background-color: rgb(253,182,0);
+    color: black !important;
+    font-family: MaisonNeue;
+    font-weight: normal;
+    font-size: 14px;
+    border-radius: 35px;
+}
+
+/* Jumbotron */
+.jumbotron {
+    background-color: rgb(249,248,245);
+    margin-bottom: 0px;
+}
+
+.jumbotron-HHCBlue{
+        background-color: rgb(25,38,63);
+        color: white;
+
+
+}
+
+.jumbotron small {
+    font-size: 12px;
+    margin-left:10px;
+}
+
+.jumbotron {
+    padding: 0.5rem 0.5rem;
+
+}
+
+
+@media (min-width:576px) {
+    .jumbotron {
+        padding: 0.5rem 0.5rem
+    }
+}
+
+
+
+
+
+/* Printing */
+
+@page {
+  size: A4; /* Change from the default size of A4 */
+  margin: 0cm; /* Set margin on each page */
+}
+
+.Section1 {
+    width: 21cm;
+    height: 29.7cm;
+    background-image: url("/static/img/document/SummaryPage1.jpg");
+    background-size:cover;
+}
+
+.Section2 {
+    width: 21cm;
+    height: 29.7cm;
+    background-image: url("/static/img/document/SummaryPage2.jpg");
+    background-size:cover;
+    page-break-before: always;
+}
+
+.Section3 {
+    width: 21cm;
+    height: 29.7cm;
+    background-image: url("/static/img/document/SummaryPage3.jpg");
+    background-size:cover;
+    page-break-before: always;
+}
+
+.Section4 {
+    width: 21cm;
+    height: 29.7cm;
+    page-break-before: always;
+}
+
+.Section5 {
+    width: 21cm;
+    height: 29.7cm;
+    page-break-before: always;
+}
+
+.Section6 {
+    width: 21cm;
+    height: 29.7cm;
+    background-image: url("/static/img/document/SummaryPage6.jpg");
+    background-size:cover;
+    page-break-before: always;
+}
