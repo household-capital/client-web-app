@@ -1,14 +1,6 @@
-
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import get_template
-from django.urls import reverse_lazy
-from django.contrib import messages
 
-from django.views.generic import FormView, TemplateView, View
-
-from apps.utilities import chkCreditCriteria
+from django.views.generic import TemplateView
 
 
 # Create your views here.

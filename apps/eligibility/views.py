@@ -6,11 +6,10 @@ from django.template.loader import get_template
 from django.urls import reverse_lazy
 from django.contrib import messages
 
-from django.views.generic import FormView, TemplateView, View
-
+from django.views.generic import FormView
 
 from .forms import ValidateForm, EmailForm
-from apps.utilities import chkCreditCriteria
+from .lib.chkEligibility import chkCreditCriteria
 
 
 # Create your views here.

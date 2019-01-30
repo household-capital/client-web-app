@@ -1,0 +1,20 @@
+/* Theme */
+.jumbotron {
+    background-color: rgba(81, 132, 161, 0.15);
+}
+
+.jumbotron small {
+    font-size: 12px;
+    margin-left:10px;
+}
+
+.jumbotron {
+    padding: 1.5rem 1rem;
+
+}
+
+@media (min-width:576px) {
+    .jumbotron {
+        padding: 1.5rem 2rem
+    }
+}

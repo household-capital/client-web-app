@@ -31,18 +31,20 @@
 
     <div class="container">
 
-        <div class="row">
-            <div class="col-lg-12">
-                <br>
-                <div class="secondary_title">How could a Household Transfer help fund your retirement?</div>
+        {% if post_id > 1 %}
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <br>
+                    <div class="secondary_title">How could a Household Transfer help fund your retirement?</div>
+                </div>
             </div>
-        </div>
 
         <br>
 
         <div class="row">
             <div class="col-lg-1"></div>
-            <div class="col-lg-5">
+            <div class="col-lg-6">
                 <div class='alert alert-household'>
                     <p>You could access <span class="larger">{{ maxLVR }}%</span> of your home savings</p>
                 </div>
@@ -52,30 +54,67 @@
         <div class="row">
             <div class="col-lg-1"></div>
 
-            <div class="col-lg-5">
+            <div class="col-lg-6 text-right">
                 <br>
 
                 {% if maxLVR < 23 %}
-                <img src="{% static 'img/icons/release_19_icon.png' %}" class="img-fluid" alt="Responsive image">
+                <img src="{% static 'img/icons/release_19_icon.png' %}" class="img-fluid" alt="Responsive image" width="400px">
                 {% elif maxLVR < 30 %}
-                <img src="{% static 'img/icons/release_26_icon.png' %}" class="img-fluid" alt="Responsive image">
+                <img src="{% static 'img/icons/release_26_icon.png' %}" class="img-fluid" alt="Responsive image" width="400p">
                 {% else %}
-                <img src="{% static 'img/icons/release_35_icon.png' %}" class="img-fluid" alt="Responsive image">
+                <img src="{% static 'img/icons/release_35_icon.png' %}" class="img-fluid" alt="Responsive image" width="400px">
                 {% endif %}
-
 
             </div>
 
+
              <div class="col-lg-4">
                 <br><br>
-                <p>By taking out a Household Loan, you can gain access to your home savings to <br>Live Well At Home  </p>
+                <p>By taking out a Household Loan, you can gain access to your home savings to Live Well At Home  </p>
                 <br>
                  <p>How would you like to use your available funds?
             </div>
         </div>
 
+    {% else %}
+
+        <div class="row">
+            <div class="col-lg-12">
+                <br>
+                <div class="secondary_title">How does a Household Loan work?</div>
+            </div>
+        </div>
+
+        <br>
+
+        <div class="row">
+                    <div class="col-lg-1"></div>
+            <div class="col-lg-8">
+                    <p>A Household Loan can transfer some of your home equity into other uses.</p>
+                    <p>Click the image below to see your avaialble home savings </p>
+            </div>
+        </div>
+
+        <p class="padding-15px"></p>
+
+        <div class="row">
+            <div class="col-lg-1"></div>
+
+            <div class="col-lg-6 text-right">
+                <br>
 
 
+                 <a href="{% url 'client:introduction3' %}/2"><img src="{% static 'img/icons/release_cash_icon.png' %}" class="img-fluid" alt="Responsive image" width="400px" ></a>
+
+
+            </div>
+        </div>
+
+
+
+    {% endif %}
+
+        </div>
 
 
 {% endblock %}

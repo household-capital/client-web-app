@@ -21,13 +21,39 @@ display: block;
 margin-top: 0px;
 margin-right: 0px;
 margin-bottom: 0px;
-margin-left: 0px;
+margin-left: 0px;}
+
+a,p, a:link, a:visited {
+	font-family: MaisonNeue;
+    padding: 0;
+    margin:0;
+    line-height: normal;
 }
 
-a {
-	font-family: MaisonNeue;
-    font-size: normal;
+p.small {
+    font-family: MaisonNeue;
+    line-height: 150%;
+    font-size: 90%;
 }
+
+.larger {
+    font-family: MaisonNeue;
+    font-size: larger;
+}
+
+.padding-15px{
+    padding-bottom: 15px;
+}
+
+.padding-10px{
+    padding-bottom: 10px;
+}
+
+.x-large {
+    font-family: MaisonNeue;
+    font-size: x-large;
+}
+
 
 .title {
     font-family: MercuryDisplay;
@@ -39,15 +65,65 @@ a {
     font-size: 30px;
 }
 
+.tertiary_title {
+    font-family: MercuryDisplay;
+    font-size: 18px;
+}
+
+
+.fas.hhcLightBlue{
+    color: rgb(81,132,161);
+}
+
+.fas.hhcTealShade{
+    color: rgba(134,179,181,0.5);
+}
+
+a.menu_title:link,
+a.menu_title:visited,
+a.menu_title:hover,
+a.menu_title:active{
+    font-family: MercuryDisplay;
+    color: black;
+    font-size: 18px;
+    text-align: center;
+    text-decoration:none;
+}
+
+.imgContainer{
+    padding-bottom: 5px;
+}
+
+.imgResults{
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+
+.message{
+    padding-top: 15px;
+}
+
+.alert-household{
+    background-color: rgb(249,248,245);
+}
+
+.alert-HHCBlue{
+    background-color: rgb(25,38,63);
+    color: white
+}
+
+.alert{
+    margin-bottom:0px;
+}
 
 /* NavBar*/
 
 .navbar {
-    padding-bottom: 75px;
+    padding-bottom: 40px;
 }
 
 .navbar-nav > li > a {
-    color: black;
+    color: grey;
 }
 
 /* Navbar Footer */
@@ -58,14 +134,87 @@ a {
 }
 
 .fixed-bottom_heading {
-    font-family: MercuryDisplay;
-    font-size: 18px;
     text-align: center;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
 }
 
+/* Right Sidebar */
+
+.wrapper {
+    display: flex;
+
+}
+
+.sidebar {
+    width: 275px;
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    color: grey;
+    transition: all 0.3s;
+}
+
+
+.sub-container{
+    padding-left: 0px;
+}
+
+/* Forms */
+.form-control-hidden {
+    display: block;
+    width: 100%;
+    height: calc(2.25rem + 2px);
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 0px;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out
+}
+
+.input-group-text{
+    background-color: rgb(249,248,245)
+}
+
+.incomeSlider{
+    margin-top: 7px ;
+}
+
+.asteriskField {
+    display: none !important;
+}
+
+.narrow-row .form-group{
+    margin-bottom: 0px !important;
+}
+
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+
+/* Images */
+
+.imgHidden{
+    visibility: hidden;
+}
+
+
+
+/* Landing Page */
+
+.landing{
+    background-color: rgb(249,248,245);
+}
 
 /* Buttons */
 .btn-hhcBlue{
@@ -73,15 +222,31 @@ a {
     color: white;
     font-family: MaisonNeue;
     font-weight: normal;
-    font-size: 12px;
+    font-size: 14px;
     border-radius: 35px;
 }
 
+a.btn-hhcGold{
+    font-size: 20px;
+    font-weight: normal;
+    font-family: MaisonNeue;
+    color: black !important;
+}
+
+.btn-hhcGold{
+    background-color: rgb(253,182,0);
+    border-radius: 35px;
+}
 
 /* Jumbotron */
 .jumbotron {
     background-color: rgb(249,248,245);
     margin-bottom: 0px;
+}
+
+.jumbotron-HHCBlue{
+        background-color: rgb(25,38,63);
+        color: white;
 }
 
 .jumbotron small {
@@ -93,7 +258,6 @@ a {
     padding: 0.5rem 0.5rem;
 
 }
-
 
 @media (min-width:576px) {
     .jumbotron {
@@ -154,3 +318,5 @@ a {
     background-size:cover;
     page-break-before: always;
 }
+
+

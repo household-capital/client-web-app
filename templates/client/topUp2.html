@@ -37,7 +37,8 @@
                 <br>
                 <div class="secondary_title">What is your target income?</div>
                 <br>
-                <p>Select a target boosted income Boosted income increases with inflation </a>
+                <p>Select a boosted income (and Super Top-up amount) </p>
+                <p class="small">Boosted income increases with inflation </p>
                 <br>
             </div>
 
@@ -145,7 +146,8 @@
                     $("topUp").html(numberWithCommas(sliderData[ui.value].topUp));
                     $("newSuperBalance").html(numberWithCommas(sliderData[ui.value].newSuperBalance));
                     $("homeEquity").html(sliderData[ui.value].homeEquity);
-                    $('#id_topUpAmount').val(sliderData[ui.value].topUp)
+                    $('#id_topUpAmount').val(sliderData[ui.value].topUp);
+                    $('#id_topUpIncome').val(sliderData[ui.value].superIncome)
 
 
                     $("#equityImage").attr("src", imagePath.replace('10',sliderData[ui.value].percentile));

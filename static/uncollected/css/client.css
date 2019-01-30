@@ -23,7 +23,7 @@ margin-right: 0px;
 margin-bottom: 0px;
 margin-left: 0px;}
 
-a,p {
+a,p, a:link, a:visited {
 	font-family: MaisonNeue;
     padding: 0;
     margin:0;
@@ -39,6 +39,14 @@ p.small {
 .larger {
     font-family: MaisonNeue;
     font-size: larger;
+}
+
+.padding-15px{
+    padding-bottom: 15px;
+}
+
+.padding-10px{
+    padding-bottom: 10px;
 }
 
 .x-large {
@@ -57,8 +65,38 @@ p.small {
     font-size: 30px;
 }
 
+.tertiary_title {
+    font-family: MercuryDisplay;
+    font-size: 18px;
+}
+
+
+.fas.hhcLightBlue{
+    color: rgb(81,132,161);
+}
+
+.fas.hhcTealShade{
+    color: rgba(134,179,181,0.5);
+}
+
+a.menu_title:link,
+a.menu_title:visited,
+a.menu_title:hover,
+a.menu_title:active{
+    font-family: MercuryDisplay;
+    color: black;
+    font-size: 18px;
+    text-align: center;
+    text-decoration:none;
+}
+
 .imgContainer{
     padding-bottom: 5px;
+}
+
+.imgResults{
+    padding-bottom: 10px;
+    padding-top: 10px;
 }
 
 .message{
@@ -96,12 +134,32 @@ p.small {
 }
 
 .fixed-bottom_heading {
-    font-family: MercuryDisplay;
-    font-size: 18px;
     text-align: center;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+}
+
+/* Right Sidebar */
+
+.wrapper {
+    display: flex;
+
+}
+
+.sidebar {
+    width: 275px;
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    color: grey;
+    transition: all 0.3s;
+}
+
+
+.sub-container{
+    padding-left: 0px;
 }
 
 /* Forms */
@@ -127,6 +185,15 @@ p.small {
 .incomeSlider{
     margin-top: 7px ;
 }
+
+.asteriskField {
+    display: none !important;
+}
+
+.narrow-row .form-group{
+    margin-bottom: 0px !important;
+}
+
 
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
@@ -159,12 +226,15 @@ input[type=number]::-webkit-outer-spin-button {
     border-radius: 35px;
 }
 
+a.btn-hhcGold{
+    font-size: 20px;
+    font-weight: normal;
+    font-family: MaisonNeue;
+    color: black !important;
+}
+
 .btn-hhcGold{
     background-color: rgb(253,182,0);
-    color: black !important;
-    font-family: MaisonNeue;
-    font-weight: normal;
-    font-size: 14px;
     border-radius: 35px;
 }
 
@@ -177,8 +247,6 @@ input[type=number]::-webkit-outer-spin-button {
 .jumbotron-HHCBlue{
         background-color: rgb(25,38,63);
         color: white;
-
-
 }
 
 .jumbotron small {
@@ -190,7 +258,6 @@ input[type=number]::-webkit-outer-spin-button {
     padding: 0.5rem 0.5rem;
 
 }
-
 
 @media (min-width:576px) {
     .jumbotron {
@@ -251,3 +318,5 @@ input[type=number]::-webkit-outer-spin-button {
     background-size:cover;
     page-break-before: always;
 }
+
+

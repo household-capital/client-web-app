@@ -1,10 +1,14 @@
 {% load static %}
+{% load humanize %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Test</title>
     <link href="/static/css/client.css" rel="stylesheet">
+     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
 </head>
 <body>
 
@@ -19,8 +23,299 @@
 </div>
 
 <div class="Section4">
-    <br><br><br><br><br>
-    <p style="text-align:center">[Projections Go here]</p>
+        <div class="container">
+
+
+    <div class="row">
+                    <div class="col-lg-10">
+                        <br>
+                        <div class="secondary_title">Your income, drawn from your savings</div>
+
+                        <p>These projections are not guaranteed </p>
+                        <br>
+                    </div>
+
+                </div>
+
+
+        <div class="row ">
+
+            <div class="col-lg-8">
+                <div class="secondary_title padding-10px">Your income</div>
+            </div>
+        </div>
+
+        <div class="row ">
+            <div class="col-lg-2"></div>
+            <div class="col-lg-6 padding-10px tertiary_title">
+                <p>Cumulative amount paid from boosted super </p>
+            </div>
+        </div>
+        <div class="row justify-content-md-center">
+            <div class="col-lg-3 text-center">
+                <p class="small">At age {{ resultsAge.0 }} you have been paid a total of
+                    ${{ resultsCumulative.0|intcomma }}</p>
+            </div>
+            <div class="col-lg-3 text-center">
+                <p class="small">At age {{ resultsAge.1 }} you have been paid a total of
+                    ${{ resultsCumulative.1|intcomma }}</p>
+            </div>
+
+            <div class="col-lg-3 text-center">
+                <p class="small">At age {{ resultsAge.2 }} you have been paid a total of
+                    ${{ resultsCumulative.2|intcomma }}</p>
+            </div>
+            <div class="col-lg-3 text-center">
+                <p class="small">At age {{ resultsAge.3 }} you have been paid a total of
+                    ${{ resultsCumulative.3|intcomma }}</p>
+            </div>
+        </div>
+
+        <div class="row justify-content-md-center">
+            <div class="col-lg-2 text-center my-auto">
+                <div class="imgResults"><img class="img-fluid" src="{% static 'img/icons/dollar_icon.png' %}"
+                                             width="{{ resultsCumulative.4 }}px"></div>
+            </div>
+            <div class="col-lg-2 text-center my-auto">
+                <div class="imgResults"><img class="img-fluid" src="{% static 'img/icons/dollar_icon.png' %}"
+                                             width="{{ resultsCumulative.5 }}px"></div>
+            </div>
+
+            <div class="col-lg-2 text-center my-auto">
+                <div class="imgResults"><img class="img-fluid" src="{% static 'img/icons/dollar_icon.png' %}"
+                                             width="{{ resultsCumulative.6 }}px"></div>
+            </div>
+            <div class="col-lg-2 text-center my-auto">
+                <div class="imgResults"><img class="img-fluid" src="{% static 'img/icons/dollar_icon.png' %}"
+                                             width="{{ resultsCumulative.7 }}px"></div>
+            </div>
+        </div>
+        <br>
+
+        <div class="row ">
+            <div class="col-lg-2"></div>
+            <div class="col-lg-6 padding-10px tertiary_title">
+                <p>Annual income </p>
+            </div>
+        </div>
+        <div class="row padding-10px">
+            <div class="col-lg-2"></div>
+            <div class="col-lg-4 ">
+                <p class="small"><i class="fas fa-square hhcTealShade"></i>&nbsp;Super
+                    Drawdown&nbsp;&nbsp;&nbsp;&nbsp;<i class="fas fa-square hhcLightBlue"></i>&nbsp;Age Pension </p>
+            </div>
+        </div>
+
+        <div class="row justify-content-md-center">
+            <div class="col-lg-2 text-center">
+                <p class="small">Total annual income at age {{ resultsAge.0 }}: ${{ resultsTotalIncome.0|intcomma }}</p>
+            </div>
+            <div class="col-lg-2 text-center">
+                <p class="small">Total annual income at age {{ resultsAge.1 }}: ${{ resultsTotalIncome.1|intcomma }}</p>
+            </div>
+            <div class="col-lg-2 text-center">
+                <p class="small">Total annual income at age {{ resultsAge.2 }}: ${{ resultsTotalIncome.2|intcomma }}</p>
+            </div>
+            <div class="col-lg-2 text-center">
+                <p class="small">Total annual income at age {{ resultsAge.3 }}: ${{ resultsTotalIncome.3|intcomma }}</p>
+            </div>
+
+        </div>
+
+
+        <div class="row justify-content-md-center align-items-end">
+            <div class="col-lg-2 text-center">
+                <div class="imgResults"><img src="{{ resultsIncomeImages.0 }}" width="120px"
+                                             height="{{ resultsTotalIncome.4 }}px"></div>
+            </div>
+            <div class="col-lg-2 text-center">
+                <div class="imgResults"><img src="{{ resultsIncomeImages.1 }}" width="120px"
+                                             height="{{ resultsTotalIncome.5 }}px"></div>
+            </div>
+
+            <div class="col-lg-2 text-center ">
+                <div class="imgResults"><img src="{{ resultsIncomeImages.2 }}" width="120px"
+                                             height="{{ resultsTotalIncome.6 }}px"></div>
+            </div>
+            <div class="col-lg-2 text-center">
+                <div class="imgResults"><img src="{{ resultsIncomeImages.3 }}" width="120px"
+                                             height="{{ resultsTotalIncome.7 }}px"></div>
+            </div>
+        </div>
+
+        <div class="row justify-content-md-center align-items-end">
+            <div class="col-lg-2 text-center">
+                <p class="larger">{{ resultsAge.0 }}</p>
+            </div>
+            <div class="col-lg-2 text-center">
+                <p class="larger">{{ resultsAge.1 }}</p>
+            </div>
+            <div class="col-lg-2 text-center ">
+                <p class="larger">{{ resultsAge.2 }}</p>
+            </div>
+            <div class="col-lg-2 text-center">
+                <p class="larger">{{ resultsAge.3 }}</p>
+            </div>
+        </div>
+
+        <br>
+
+        <div class="row ">
+            <div class="col-lg-2"></div>
+            <div class="col-lg-8">
+                <div class="secondary_title padding-10px">Your savings</div>
+            </div>
+        </div>
+
+        <div class="row ">
+            <div class="col-lg-2"></div>
+            <div class="col-lg-6 padding-10px tertiary_title">
+                <p>Boosted super balance </p>
+            </div>
+        </div>
+
+
+        <div class="row justify-content-md-center">
+            <div class="col-lg-2 text-center">
+                <p class="small">Boosted super balance ${{ resultsSuperBalance.0|intcomma }}</p>
+            </div>
+            <div class="col-lg-2 text-center">
+                <p class="small">Boosted super balance ${{ resultsSuperBalance.1|intcomma }}</p>
+            </div>
+            <div class="col-lg-2 text-center">
+                <p class="small">Boosted super balance ${{ resultsSuperBalance.2|intcomma }}</p>
+            </div>
+            <div class="col-lg-2 text-center">
+                <p class="small">Boosted super balance ${{ resultsSuperBalance.3|intcomma }}</p>
+            </div>
+        </div>
+
+        <div class="row justify-content-md-center">
+            <div class="col-lg-2 text-center my-auto">
+                <div class="imgResults"><img class="img-fluid" src="{% static 'img/icons/nestEgg_icon.png' %}"
+                                             width="{{ resultsSuperBalance.4 }}px"></div>
+            </div>
+            <div class="col-lg-2 text-center my-auto">
+                <div class="imgResults"><img class="img-fluid" src="{% static 'img/icons/nestEgg_icon.png' %}"
+                                             width="{{ resultsSuperBalance.5 }}px"></div>
+            </div>
+
+            <div class="col-lg-2 text-center my-auto">
+                <div class="imgResults"><img class="img-fluid" src="{% static 'img/icons/nestEgg_icon.png' %}"
+                                             width="{{ resultsSuperBalance.6 }}px"></div>
+            </div>
+            <div class="col-lg-2 text-center my-auto">
+                <div class="imgResults"><img class="img-fluid" src="{% static 'img/icons/nestEgg_icon.png' %}"
+                                             width="{{ resultsSuperBalance.7 }}px"></div>
+            </div>
+        </div>
+        <br>
+
+        <div class="row ">
+            <div class="col-lg-2"></div>
+            <div class="col-lg-6 padding-10px tertiary_title">
+                <p>Home equity </p>
+            </div>
+        </div>
+
+
+        <div class="row justify-content-md-center">
+            <div class="col-lg-2 text-center">
+                <p class="small">Home value: ${{ resultsHouseValue.0|intcomma }}</p>
+                <p class="small">Home ownership: %{{ resultsHomeEquityPC.0|intcomma }}</p>
+                <p class="small">Home equity: ${{ resultsHomeEquity.0|intcomma }}</p>
+            </div>
+            <div class="col-lg-2 text-center">
+                <p class="small">Home value: ${{ resultsHouseValue.1|intcomma }}</p>
+                <p class="small">Home ownership: %{{ resultsHomeEquityPC.1|intcomma }}</p>
+                <p class="small">Home equity: ${{ resultsHomeEquity.1|intcomma }}</p>
+            </div>
+            <div class="col-lg-2 text-center">
+                <p class="small">Home value: ${{ resultsHouseValue.2|intcomma }}</p>
+                <p class="small">Home ownership: %{{ resultsHomeEquityPC.2|intcomma }}</p>
+                <p class="small">Home equity: ${{ resultsHomeEquity.2|intcomma }}</p>
+            </div>
+            <div class="col-lg-2 text-center">
+                <p class="small">Home value: ${{ resultsHouseValue.3|intcomma }}</p>
+                <p class="small">Home ownership: %{{ resultsHomeEquityPC.3|intcomma }}</p>
+                <p class="small">Home equity: ${{ resultsHomeEquity.3|intcomma }}</p>
+            </div>
+
+        </div>
+
+        <div class="row justify-content-md-center">
+            <div class="col-lg-2 text-center my-auto">
+                <div class="imgResults"><img class="img-fluid" src="{{ resultsHomeImages.0 }}" width="{{ resultsHouseValue.4 }}px"></div>
+            </div>
+            <div class="col-lg-2 text-center my-auto">
+                <div class="imgResults"><img class="img-fluid" src="{{ resultsHomeImages.1 }}" width="{{ resultsHouseValue.5 }}px"></div>
+            </div>
+
+            <div class="col-lg-2 text-center my-auto ">
+                <div class="imgResults"><img class="img-fluid" src="{{ resultsHomeImages.2 }}" width="{{ resultsHouseValue.6 }}px"></div>
+            </div>
+            <div class="col-lg-2 text-center my-auto">
+                <div class="imgResults"><img class="img-fluid" src="{{ resultsHomeImages.3 }}" width="{{ resultsHouseValue.7 }}px"></div>
+            </div>
+        </div>
+
+         <div class="row justify-content-md-center align-items-end">
+            <div class="col-lg-2 text-center">
+                <p class="larger">{{ resultsAge.0 }}</p>
+            </div>
+            <div class="col-lg-2 text-center">
+                <p class="larger">{{ resultsAge.1 }}</p>
+            </div>
+            <div class="col-lg-2 text-center ">
+                <p class="larger">{{ resultsAge.2 }}</p>
+            </div>
+            <div class="col-lg-2 text-center">
+                <p class="larger">{{ resultsAge.3 }}</p>
+            </div>
+        </div>
+        <br><br>
+
+
+
+        <div class="row ">
+            <div class="col-lg-2"></div>
+            <div class="col-lg-6 padding-10px tertiary_title">
+                <p>Notes and Assumptions</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-2"></div>
+            <div class="col-lg-6 padding-10px small">
+                <p>The total Household Transfer (loan amount) is ${{ totalLoanAmount |intcomma }}</p>
+                <p>This includes an establishment fee of  ${{ establishmentFee |intcomma }}</p>
+                <br>
+                <p>The equity in your home might reach $0 when you are
+                    {% if resultsNegAge > 100 %}
+                    over 100 years old
+                    {% else %}
+                    {{ resultsNegAge }} years old{% endif %}</p>
+
+                <br>
+                <p>This is an estimate, not a guarantee.  You may end up with more or less equity in your home </p>
+                <br>
+                <p>These projections assume:</p>
+                <p>- House value: as estimated</p>
+                <p>- An annual increase in home value of {{ housePriceInflation }}% pa</p>
+                <p>- Superannuation growth rate of {{ investmentReturn }}% pa </p>
+                <p>- Inflation rate of {{ inflation }}% pa</p>
+                <p>- Loan interest rate of {{ totalInterestRate }}% pa </p>
+                <br>
+
+
+            </div>
+        </div>
+
+        <br><br><br><br><br><br>
+
+
+    </div>
+
 </div>
 
 <div class="Section5">

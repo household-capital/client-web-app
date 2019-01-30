@@ -56,7 +56,7 @@
                     <p> Current income projection</p>
                     <p class="small">(age pension plus super) </p>
                     <p class="x-large">$ {{currentIncomeProj|intcomma}}</p>
-                    <p class="small"> Paid each year until aged 90</p>
+                    <p class="small"> Paid each year until aged {{ projectionAge }}</p>
                     <p class="small">Indexed to inflation</p>
                    <br><br>
             </div>
@@ -66,11 +66,11 @@
                     <p> Boosted potential income </p>
                     <p class="small">(age pension plus boosted super) </p>
                     {% if post_id != 1 %}
-                    <a href="{% url 'client:topUp1' %}/1" class="btn btn-hhcGold">Estimate Income</a>
+                    <a href="{% url 'client:topUp1' %}/1" class="btn btn-hhcGold">&nbsp;Estimate Income&nbsp;</a>
                     {% else %}
                     <p class="x-large">$ {{ boostedIncomeProj|intcomma }}</p>
                     {% endif %}
-                    <p class="small"> Paid each year until aged 90</p>
+                    <p class="small"> Paid each year until aged {{ projectionAge }}</p>
                     <p class="small">Indexed to inflation</p>
                    <br><br>
         </div>
