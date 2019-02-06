@@ -42,3 +42,7 @@ The main Django configuration / settings files are located in this directory.
 #### Manage.py
 This simple file is at the top of the structure and is used to start the application (e.g., python manage.py runserver)
 
+## Client App Example
+A request to https://householdcapital.app/client/live1 will:
+- be routed from urls.py to a view ```path('live1', views.Live1.as_view(), name='live1')```
+
