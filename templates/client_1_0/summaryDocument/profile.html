@@ -1,0 +1,84 @@
+{% load static %}
+{% load humanize %}
+
+
+    <!-- Include -->
+    <div class="print-container">
+
+        <br><br>
+        <div class="row">
+            <div class="col-lg-3 text-center">
+                    {% if clientType == 'Single' %}
+                        <div class="imgContainer"><img src="{% static 'img/icons/person_icon.png' %}" width="125px"></div>
+                    {% else %}
+                        <div class="imgContainer"><img src="{% static 'img/icons/couple_icon.png' %}" width="125px"></div>
+                    {% endif %}
+            </div>
+
+            <div class="col-lg-3 text-center">
+                    <div class="imgContainer"><img src="{% static 'img/logos/sunsuper_logo.jpg' %}"
+                                                   class="rounded-circle" alt="SuperFund" width="125px" height="125px">
+                    </div>
+            </div>
+
+            <div class="col-lg-3 text-center">
+
+                    <div class="imgContainer"><img src="{% static 'img/properties/house_pic.jpeg' %}"
+                                                   class="rounded-circle" alt="SuperFund" width="125px" height="125px">
+                    </div>
+            </div>
+
+            <div class="col-lg-3 text-center">
+                    <div class="imgContainer"><img src="{% static 'img/logos/centrelink_logo.png' %}"
+                                                   class="rounded-circle" alt="SuperFund" width="125px" height="125px">
+                    </div>
+             </div>
+        </div>
+
+    <br>
+
+    <div class="row">
+            <div class="col-lg-3 text-center">
+
+                    <p class="print-text"> {{ clientFirstname }}&nbsp;{{ clientSurname }}</p>
+            </div>
+
+            <div class="col-lg-3 text-center">
+                <p class="print-text">Superannuation</p>
+            </div>
+
+            <div class="col-lg-3 text-center">
+                    <p class="print-text"> {{ clientStreet }}</p>
+            </div>
+
+            <div class="col-lg-3 text-center">
+                    <p class="print-text">Age Pension<p>
+            </div>
+        </div>
+
+
+     <br>
+        <div class="row">
+            <div class="col-lg-3 text-center">
+
+                    <p class="print-text">{{ clientAge }} years old</p>
+
+            </div>
+
+            <div class="col-lg-3 text-center">
+
+                    <p class="print-text">Balance</p>
+                    <p class="print-text">${{ clientSuperAmount|intcomma }}</p>
+            </div>
+
+            <div class="col-lg-3 text-center">
+                    <p class="print-text">Estimated value</p>
+                    <p class="print-text">${{ clientValuation|intcomma }}</p>
+            </div>
+
+            <div class="col-lg-3 text-center">
+                    <p class="print-text">Annual Payment<p>
+                    <p class="print-text">${{ annualPensionIncome|intcomma }}</p></div>
+        </div>
+    </div>
+    <!-- End Include -->

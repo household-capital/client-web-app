@@ -27,7 +27,7 @@ urlpatterns = [
     path('accounts/', include('apps.accounts.urls')),
     path('landing/', include('apps.landing.urls')),
     path('eligibility/', include('apps.eligibility.urls')),
-    path('client/', include('apps.client.urls')),
+    path('client/', include('apps.client_1_0.urls')),
     path('hhcadmin/', admin.site.urls),
     re_path(r'^media/Users/developmentaccount/Development/hhc/static/media/(.*)',serve, {'document_root': settings.MEDIA_ROOT})
 ]

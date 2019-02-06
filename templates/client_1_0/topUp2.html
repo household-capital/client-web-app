@@ -1,0 +1,164 @@
+{% extends 'client_1_0/base/base_client.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+
+{% block message_display %}
+
+    <div class="container">
+
+      {% if messages %}
+                <div class="row justify-content-md-center">
+                    <div class="col-6 text-center">
+                    <br>
+                        {% for message in messages %}
+                            <p{% if message.tags == 'error' %}
+                                class="alert alert-warning"{% endif %}>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+      {% endif %}
+
+        <div class="row">
+
+         </div>
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+    {% crispy form %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <br>
+                <div class="secondary_title">What is your target income?</div>
+                <br>
+                <p>Select a boosted income (and Super Top-up amount) </p>
+                <p class="small">Boosted income increases with inflation </p>
+                <br>
+            </div>
+
+        </div>
+        <br>
+
+        <div class="row">
+
+            <div class="col-lg-1">
+                <p class="larger">${{ currentIncomeProj|intcomma }}</p>
+
+            </div>
+            <div class="col-lg-7">
+
+
+                    <div id="incomeSlider" class="incomeSlider"></div>
+
+            </div>
+            <div class="col-lg-1">
+                <p class="larger">${{ boostedIncomeProj|intcomma }}</p>
+
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-lg-1"></div>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-lg-1">
+
+                <p class="small">Current Income Projection</p>
+            </div>
+            <div class="col-lg-1"></div>
+
+            <div class="col-lg-5">
+                <br>
+                <div class='alert alert-HHCBlue text-center '>
+
+                    <p>Boosted Income: $<income>0</income>&nbsp;&nbsp;&nbsp; Super Top Up $<topUp>0</topUp></p>
+                </div>
+
+            </div>
+            <div class="col-lg-1"></div>
+            <div class="col-lg-1">
+            <p class="small">Maximum Boosted Income </p>
+        </div>
+        </div>
+    <br>
+    <div class="row">
+
+        <div class="col-lg-2"></div>
+
+        <div class="col-lg-2 text-center">
+            <img id="equityImage" src="{% static '/img/icons/equity_10_icon.png' %}" width="80px" class="img-fluid">
+        </div>
+        <div class="col-lg-1">
+
+        </div>
+        <div class="col-lg-2 text-center">
+            <div class="imgContainer"><img id="equityImage" src="{% static '/img/icons/nestEgg_icon.png' %}" width="80px" class="img-fluid"></div>
+        </div>
+        </div>
+
+    <div class="row">
+
+        <div class="col-lg-2"></div>
+
+        <div class="col-lg-2">
+            <p class="small">Projected Home Equity at aged 90: %&nbsp;<homeEquity>100</homeEquity></p>
+        </div>
+         <div class="col-lg-1"></div>
+        <div class="col-lg-2">
+            <p class="small">Super balance after top-up: $<newSuperBalance>{{ clientSuperAmount|intcomma }}</newSuperBalance></p>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+    </div>
+    </div>
+    </div>
+
+{% endblock %}
+
+
+{% block javascript %}
+    <script>
+        var sliderData = {{ sliderData|safe }};
+        var imagePath='{{ imgPath }}';
+
+        $(document).ready(function() {
+
+            $("#incomeSlider").slider({
+                min: 0,
+                max: {{ sliderPoints }},
+                slide: function (event, ui) {
+                    $("income").html(numberWithCommas(sliderData[ui.value].income));
+                    $("topUp").html(numberWithCommas(sliderData[ui.value].topUp));
+                    $("newSuperBalance").html(numberWithCommas(sliderData[ui.value].newSuperBalance));
+                    $("homeEquity").html(sliderData[ui.value].homeEquity);
+                    $('#id_topUpAmount').val(sliderData[ui.value].topUp);
+                    $('#id_topUpIncome').val(sliderData[ui.value].superIncome)
+
+
+                    $("#equityImage").attr("src", imagePath.replace('10',sliderData[ui.value].percentile));
+
+                }
+            })
+        function numberWithCommas(x) {
+                return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+        })
+
+
+    </script>
+{% endblock %}

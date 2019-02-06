@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     # my apps
     'apps.accounts',
     'apps.landing',
-    'apps.client',
+    'apps.client_1_0',
     'apps.eligibility',
 ]
 
