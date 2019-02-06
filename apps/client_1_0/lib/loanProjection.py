@@ -22,7 +22,8 @@ class LoanProjection():
         self.currentSuperIncome=self.calcDrawdown(self.aggDict['clientSuperAmount'])  #Calculate initial super income
         self.pensionIncome=self.aggDict['clientPension']*26
 
-        self.totalInterestRate = self.aggDict['interestRate'] + self.aggDict['lendingMargin']
+        self.totalInterestRate = self.effectiveAnnual(self.aggDict['interestRate'] + self.aggDict['lendingMargin'],12)
+        # Important convert interest rate to effective annual (monthly compounded)
 
         if self.noPeriods<2:
             raise Exception("Too short period")
@@ -180,9 +181,12 @@ class LoanProjection():
 
         intRate=self.totalInterestRate
         if 'intRateStress' in kwargs:
-            intRate=intRate+kwargs['intRateStress']
+            intRate = self.effectiveAnnual(
+                self.aggDict['interestRate'] + self.aggDict['lendingMargin'] + kwargs['intRateStress'], 12)
         if 'intRateStressLevel' in kwargs:
-            intRate = kwargs['intRateStressLevel']
+            intRate = self.effectiveAnnual(kwargs['intRateStressLevel'],12)
+
+
 
         hpi=self.aggDict['housePriceInflation']
         if 'hpiStress' in kwargs:
@@ -242,3 +246,6 @@ class LoanProjection():
         periods=log(1/(self.aggDict['totalLoanAmount']/self.aggDict['clientValuation']))/log((1+self.totalInterestRate/100)/(1 + self.aggDict['housePriceInflation']/100))
 
         return self.aggDict['clientAge']+ int(periods)
+
+    def effectiveAnnual(self, rate, compounding):
+        return (((1 + rate/(compounding * 100)) ** compounding)-1)*100

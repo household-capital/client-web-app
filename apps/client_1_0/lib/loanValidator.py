@@ -74,19 +74,22 @@ class LoanValidator():
 
         self.status = {}
         self.calcLVR()
-        self.maxEstablishmentFee=LOAN_LIMITS['establishmentFee']*self.loanLimit
+        self.maxEstablishmentFee=self.loanLimit*(LOAN_LIMITS['establishmentFee']/(1+LOAN_LIMITS['establishmentFee']))
 
         self.totalLoanAmount= (self.aggDict['topUpAmount'] + self.aggDict['refinanceAmount'] + self.aggDict['giveAmount'] + self.aggDict['renovateAmount']
-                               +self.aggDict['travelAmount'] + self.aggDict['careAmount'])/(1-LOAN_LIMITS['establishmentFee'])
+                               +self.aggDict['travelAmount'] + self.aggDict['careAmount'])*(1+LOAN_LIMITS['establishmentFee'])
 
-        self.availableAmount=int(round(self.loanLimit - self.totalLoanAmount*(1-LOAN_LIMITS['establishmentFee'])-self.maxEstablishmentFee,0))
+
+
+        self.availableAmount=round(self.loanLimit - self.totalLoanAmount/(1+LOAN_LIMITS['establishmentFee'])-self.maxEstablishmentFee,0)
         #Available amount always deducts the maximum establishment fee, so need to add back the calculated establsihment
         #fee from the total Loan Amount
 
+
         self.status['maxLVR']=self.maxLvr
-        self.status['maxNetLoanAmount']=int(self.loanLimit)-self.maxEstablishmentFee
-        self.status['availableAmount']=int(self.availableAmount)
-        self.status['establishmentFee']=self.totalLoanAmount*LOAN_LIMITS['establishmentFee']
+        self.status['maxNetLoanAmount']=round(self.loanLimit-self.maxEstablishmentFee,0)
+        self.status['availableAmount']=int(round(self.availableAmount,0))
+        self.status['establishmentFee']=self.totalLoanAmount/(1+LOAN_LIMITS['establishmentFee'])*LOAN_LIMITS['establishmentFee']
         self.status['totalLoanAmount']=self.totalLoanAmount
 
         self.status['errors']=False
