@@ -46,10 +46,23 @@ This simple file is at the top of the structure and is used to start the applica
 A request to https://householdcapital.app/client/live1 will:
 - be routed from urls.py to a view ```path('live1', views.Live1.as_view(), name='live1')```
 - the view in views.py will construct the response using a template and in this case a form 
-```class Live1(LoginRequiredMixin, ClientDataMixin, FormView): 
-template_name = "client_1_0/live1.html"
-form_class=renovateAmountForm
-success_url = reverse_lazy('client:live2') ```
-Hello
-   
+```
+class Live1(LoginRequiredMixin, ClientDataMixin, FormView): 
+   template_name = "client_1_0/live1.html"
+   form_class=renovateAmountForm
+   success_url = reverse_lazy('client:live2') 
+```
+- the template is in the templates directory
+- the form is in forms.py
+```
+class renovateAmountForm(forms.Form):
+        #Form Fields
+        renovateAmount = forms.CharField(max_length=10, label='Amount', required=True)
+        renovateDescription = forms.CharField(max_length=40, label='Description', required=False)
 
+        #Form Layout
+        helper = FormHelper()
+        helper.form_id = 'clientForm'
+        helper.form_method = 'POST'
+```
+- an http response will be returned putting these components together.
