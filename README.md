@@ -45,4 +45,11 @@ This simple file is at the top of the structure and is used to start the applica
 ## Client App Example
 A request to https://householdcapital.app/client/live1 will:
 - be routed from urls.py to a view ```path('live1', views.Live1.as_view(), name='live1')```
+- the view in views.py will construct the response using a template and in this case a form 
+```class Live1(LoginRequiredMixin, ClientDataMixin, FormView): 
+template_name = "client_1_0/live1.html"
+form_class=renovateAmountForm
+success_url = reverse_lazy('client:live2') ```
+Hello
+   
 
