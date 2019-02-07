@@ -66,3 +66,10 @@ class renovateAmountForm(forms.Form):
         helper.form_method = 'POST'
 ```
 - an http response will be returned putting these components together.
+
+## Class Based Views
+This app utilises CBVs which are standard view classes that perform the main Create, Read, Update, Delete tasks.  These views can be overiddend and added to (mixins) using pythons ability to multi-subclass.
+
+The main CBVs used here are TemplateView (renders a template) and FormView (renders a template and a form).
+
+
