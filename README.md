@@ -42,7 +42,7 @@ The main Django configuration / settings files are located in this directory.
 #### Manage.py
 This simple file is at the top of the structure and is used to start the application (e.g., python manage.py runserver)
 
-## Client App Example
+## Background - Client App Example
 A request to https://householdcapital.app/client/live1 will:
 - be routed from urls.py to a view ```path('live1', views.Live1.as_view(), name='live1')```
 - the view in views.py will construct the response using a template and in this case a form 
@@ -67,7 +67,7 @@ class renovateAmountForm(forms.Form):
 ```
 - an http response will be returned putting these components together.
 
-## Class Based Views
+## Background - Class Based Views
 This app utilises CBVs which are standard view classes that perform the main Create, Read, Update, Delete tasks.  These views can be overiddend and added to (mixins) using pythons ability to multi-subclass.
 
 The main CBVs used here are TemplateView (renders a template) and FormView (renders a template and a form).
