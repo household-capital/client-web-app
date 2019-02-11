@@ -1,5 +1,7 @@
+import csv
 
-from .globals import LOAN_LIMITS
+from apps.lib.globals import LOAN_LIMITS
+from django.conf import settings
 
 class LoanValidator():
 
@@ -14,15 +16,20 @@ class LoanValidator():
         self.aggDict.update(loanDict)
         self.aggDict.update(clientDict)
 
-        if self.aggDict['clientBuilding']=='House':
-            self.aggDict['isApartment']=False
+        if self.aggDict['dwellingType']==0:
+            self.isApartment=False
         else:
-            self.aggDict['isApartment'] = True
+            self.isApartment = True
 
-        if self.aggDict['clientType'] == 'Couple':
-            self.aggDict['isCouple'] = True
+        if self.aggDict['loanType']==1:
+            self.isCouple = True
+            self.clientAge = min(self.aggDict['age_1'],self.aggDict['age_2'])
         else:
-            self.aggDict['isCouple'] = False
+            self.isCouple = False
+            self.clientAge = self.aggDict['age_1']
+
+        if 'protectedEquity' not in self.aggDict.keys():
+            self.aggDict['protectedEquity']=0
 
         #Limits
         self.maxLvr =0
@@ -39,24 +46,50 @@ class LoanValidator():
 
     def chkClientDetails(self):
         #Checks basic borrower / loan restrictions
+        status={}
+        status['status']="Ok"
+
+        #Check for minimum data points
+        minimumData=['dwellingType','loanType','age_1','valuation', 'postcode']
+        for item in minimumData:
+            if self.aggDict[item]==None:
+                status['status'] = "Error"
+                status['details'] = 'Insufficient data'
+                return status
+
+        #Check Postcode
+
+        reader = csv.reader(open(settings.BASE_DIR + '/apps/lib/Postcodes.csv', 'r'))
+        pcodeDict = dict(reader)
+
+        if str(self.aggDict['postcode']) in pcodeDict:
+            pass
+        else:
+            status['status'] = "Error"
+            status['details'] = 'Invalid Postcode'
+
+
+        if self.aggDict['loanType'] == 1 and self.aggDict['age_2'] == None:
+            status['status'] = "Error"
+            status['details'] = 'Missing Age'
+            return status
+
+        # Check Age
+        if self.clientAge < LOAN_LIMITS['minSingleAge']:
+            status['status']="Error"
+            status['details']='Youngest borrower must be 60'
+            return status
+
+        elif self.isCouple and self.clientAge < LOAN_LIMITS['minCoupleAge']:
+            status['status'] = "Error"
+            status['details'] = 'Youngest joint borrower must be 65'
+            return status
 
         #Perform LVR calculations (for loan size validation)
         self.calcLVR()
 
-        status={}
-        status['status']="Ok"
-
-        # Check Age
-        if self.aggDict['clientAge'] < LOAN_LIMITS['minSingleAge']:
-            status['status']="Error"
-            status['details']='Youngest borrower must be 60'
-
-        elif self.aggDict['isCouple'] and self.aggDict['clientAge'] < LOAN_LIMITS['minCoupleAge']:
-            status['status'] = "Error"
-            status['details'] = 'Youngest joint borrower must be 65'
-
         # Check Min Loan Size
-        if self.maxLvr/100 * self.aggDict['clientValuation'] < LOAN_LIMITS['minLoanSize']:
+        if self.maxLvr/100 * self.aggDict['valuation'] < LOAN_LIMITS['minLoanSize']:
             status['status'] = "Error"
             status['details'] = 'Minimum Loan Size cannot be met'
 
@@ -86,14 +119,16 @@ class LoanValidator():
         #fee from the total Loan Amount
 
 
-        self.status['maxLVR']=self.maxLvr
+        self.status['maxLVR']=int(round(self.maxLvr,0))
         self.status['maxNetLoanAmount']=round(self.loanLimit-self.maxEstablishmentFee,0)
         self.status['availableAmount']=int(round(self.availableAmount,0))
-        self.status['establishmentFee']=self.totalLoanAmount/(1+LOAN_LIMITS['establishmentFee'])*LOAN_LIMITS['establishmentFee']
-        self.status['totalLoanAmount']=self.totalLoanAmount
+        self.status['establishmentFee']=int(round(self.totalLoanAmount/(1+LOAN_LIMITS['establishmentFee'])*LOAN_LIMITS['establishmentFee'],0))
+        self.status['totalLoanAmount']=int(round(self.totalLoanAmount,0))
 
         self.status['errors']=False
         self.chkStatusItem('availableStatus',self.availableAmount,int(0),"LT")
+        self.chkStatusItem('minloanAmountStatus',int(round(self.totalLoanAmount,0)),LOAN_LIMITS['minLoanSize'],"LT")
+        self.chkStatusItem('maxloanAmountStatus',int(round(self.totalLoanAmount,0)),self.loanLimit,"GTE")
         self.chkStatusItem('topUpStatus', self.aggDict['topUpAmount'], LOAN_LIMITS['maxTopUp'], "GTE")
         self.chkStatusItem('refinanceStatus', self.aggDict['refinanceAmount'], self.refinanceLimit, "GTE")
         self.chkStatusItem('giveStatus', self.aggDict['giveAmount'], self.giveLimit, "GTE")
@@ -113,7 +148,7 @@ class LoanValidator():
             else:
                 itemStatus = "Ok"
         else:
-            if amount > limit or amount > self.loanLimit:
+            if amount > limit:
                 itemStatus = "Error"
                 self.status["errors"] = True
             else:
@@ -125,10 +160,10 @@ class LoanValidator():
     def calcLVR(self):
 
         # Calculate LVR
-        lvr = LOAN_LIMITS['baseLvr'] + (self.aggDict['clientAge'] - LOAN_LIMITS['baseLvrAge']) * LOAN_LIMITS['baseLvrIncrement']
+        lvr = LOAN_LIMITS['baseLvr'] + (self.clientAge - LOAN_LIMITS['baseLvrAge']) * LOAN_LIMITS['baseLvrIncrement']
 
         # Apartment Adjustment
-        if self.aggDict['isApartment']:
+        if self.isApartment:
             lvr = max(lvr - LOAN_LIMITS['apartmentLvrAdj'], 0)
 
         #Protected Equity
@@ -141,8 +176,8 @@ class LoanValidator():
         self.maxLvr = lvr * 100
 
         #Limits
-        self.loanLimit = int(round(lvr * self.aggDict['clientValuation'], 0))
-        self.refinanceLimit=int(lvr * self.aggDict['clientValuation'] * LOAN_LIMITS['maxRefi'])
-        self.giveLimit=int(lvr * self.aggDict['clientValuation'] * LOAN_LIMITS['maxGive'])
-        self.travelLimit = int(lvr * self.aggDict['clientValuation'] * LOAN_LIMITS['maxTravel'])
+        self.loanLimit = int(round(lvr * self.aggDict['valuation'], 0))
+        self.refinanceLimit=int(lvr * self.aggDict['valuation'] * LOAN_LIMITS['maxRefi'])
+        self.giveLimit=int(lvr * self.aggDict['valuation'] * LOAN_LIMITS['maxGive'])
+        self.travelLimit = int(lvr * self.aggDict['valuation'] * LOAN_LIMITS['maxTravel'])
 

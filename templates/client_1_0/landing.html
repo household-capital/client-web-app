@@ -34,13 +34,64 @@
     <div class="row">
         <div class="col-md-12 text-center">
             <br>
-            {% if clientSet %}
+            {% if post_id == 1 %}
+                <button type="button" class="btn btn-hhcBlue" data-toggle="modal" data-target="#electronicConsent">Electronic Consent</button>
+
+            {% elif post_id == 2 %}
                 <a href='{% url "client:introduction1" %}'><span class="btn btn-hhcBlue">&nbsp;&nbsp;&nbsp;Start Meeting&nbsp;&nbsp;&nbsp;</span></a>
+
             {% else %}
-                <a href='{% url "client:setClient" %}'><span class="btn btn-hhcBlue">&nbsp;&nbsp;Set Client&nbsp;&nbsp;</span></a>
+                <button type="button" class="btn btn-hhcBlue" data-toggle="modal" data-target="#privacyConsent">Privacy Consent</button>
             {% endif %}
         </div>
     </div>
+</div>
+
+
+
+
+
+
+<!-- Privacy Consent -->
+<div class="modal fade" id="privacyConsent" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Consent to Use Your Information </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+       {% include 'client_1_0/privacy.html' %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+          <a href='{% url "client:meetingStart" %}/1'><button type="button" class="btn btn-warning">Agree</button></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Electronic Consent -->
+<div class="modal fade" id="electronicConsent" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Consent to Contact You Electronically </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+       {% include 'client_1_0/electronic.html' %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+          <a href='{% url "client:meetingStart" %}/2'><button type="button" class="btn btn-warning">Agree</button></a>
+      </div>
+    </div>
+  </div>
 </div>
 
 

@@ -8,7 +8,7 @@
         <br><br>
         <div class="row">
             <div class="col-lg-3 text-center">
-                    {% if clientType == 'Single' %}
+                    {% if loanType == 0 %}
                         <div class="imgContainer"><img src="{% static 'img/icons/person_icon.png' %}" width="125px"></div>
                     {% else %}
                         <div class="imgContainer"><img src="{% static 'img/icons/couple_icon.png' %}" width="125px"></div>
@@ -39,8 +39,13 @@
 
     <div class="row">
             <div class="col-lg-3 text-center">
+                    {% if loanType == 0 %}
+                        <p class="print-text"> {{ firstname_1 }}&nbsp;{{ surname_1 }}</p><br>
+                    {% else %}
+                         <p class="print-text"> {{ firstname_1 }}&nbsp;{{ surname_1 }}</p>
+                         <p class="print-text"> {{ firstname_2 }}&nbsp;{{ surname_2 }}</p><br>
+                    {% endif %}
 
-                    <p class="print-text"> {{ clientFirstname }}&nbsp;{{ clientSurname }}</p>
             </div>
 
             <div class="col-lg-3 text-center">
@@ -48,7 +53,7 @@
             </div>
 
             <div class="col-lg-3 text-center">
-                    <p class="print-text"> {{ clientStreet }}</p>
+                    <p class="print-text"> {{ street }}</p>
             </div>
 
             <div class="col-lg-3 text-center">
@@ -61,19 +66,23 @@
         <div class="row">
             <div class="col-lg-3 text-center">
 
-                    <p class="print-text">{{ clientAge }} years old</p>
+                {% if loanType == 0 %}
+                    <p class="print-text">{{ age_1 }} years old</p>
+                    {% else %}
+                    <p class="print-text">{{ age_1 }} and {{ age_2 }} years old</p>
+                    {% endif %}
 
             </div>
 
             <div class="col-lg-3 text-center">
 
                     <p class="print-text">Balance</p>
-                    <p class="print-text">${{ clientSuperAmount|intcomma }}</p>
+                    <p class="print-text">${{ superAmount|intcomma }}</p>
             </div>
 
             <div class="col-lg-3 text-center">
                     <p class="print-text">Estimated value</p>
-                    <p class="print-text">${{ clientValuation|intcomma }}</p>
+                    <p class="print-text">${{ valuation|intcomma }}</p>
             </div>
 
             <div class="col-lg-3 text-center">

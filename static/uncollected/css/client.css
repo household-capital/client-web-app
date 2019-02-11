@@ -30,6 +30,13 @@ a,p, a:link, a:visited {
     line-height: normal;
 }
 
+td a, td a:link, td a:visited  {
+   display: block;
+	font-family: MaisonNeue;
+    color: black;
+}
+
+
 p.small {
     font-family: MaisonNeue;
     line-height: 150%;
@@ -53,9 +60,14 @@ p.small {
     padding-bottom: 10px;
 }
 
-.padding-5x{
+.padding-5px{
     padding-bottom: 5px;
 }
+
+.padding-7px{
+    padding-bottom: 7px;
+}
+
 
 .x-large {
     font-family: MaisonNeue;

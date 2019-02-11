@@ -1,96 +1,116 @@
 #Django Imports
 from django import forms
+from django.forms import widgets
 
 #Third-party Imports
 from crispy_forms.bootstrap import (PrependedText, InlineCheckboxes,PrependedAppendedText, FormActions, InlineRadios)
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, Div, Fieldset, Button, HTML
 
+from apps.case.models import Case, Loan, ModelSetting
 
 # FORMS
 
-class ClientDetailsForm(forms.Form):
+class ClientDetailsForm(forms.ModelForm):
     #Form Data
-    CLIENT = (
-        ('Murray - Neutral Bay', u"Murray - Neutral Bay"),
-    )
 
-    BORROWER=(('Single',u'Single'),
-              ('Couple', u'Couple'))
+    valuation = forms.IntegerField(required=False, localize=True, widget=widgets.TextInput())
+    mortgageDebt = forms.IntegerField(required=False, localize=True, widget=widgets.TextInput())
+    superAmount = forms.IntegerField(required=False, localize=True, widget=widgets.TextInput())
+    pensionAmount = forms.IntegerField(required=False, localize=True, widget=widgets.TextInput())
 
-    BUILDING=(('House',u'House'),
-              ('Apartment', u'Apartment'))
-
-    #Form Fields
-    clientDescription = forms.ChoiceField(choices=CLIENT)
-    clientSurname=forms.CharField(max_length=25)
-    clientFirstname=forms.CharField(max_length=25)
-    clientAge=forms.IntegerField()
-    clientType = forms.ChoiceField(choices=BORROWER)
-    clientStreet=forms.CharField(max_length=35)
-    clientPostcode=forms.CharField(max_length=4)
-    clientValuation=forms.IntegerField()
-    clientBuilding=forms.ChoiceField(choices=BUILDING)
-    clientMortgageDebt=forms.IntegerField()
-    clientSuperName=forms.CharField(max_length=25)
-    clientSuperAmount=forms.IntegerField()
-    clientPension = forms.IntegerField()
+    class Meta:
+        model = Case
+        fields = ['loanType',
+                  'clientType1','surname_1','firstname_1','birthdate_1','age_1','sex_1',
+                  'clientType2','surname_2','firstname_2','birthdate_2','age_2','sex_2',
+                  'street','postcode','valuation','dwellingType','mortgageDebt','superName',
+                  'superAmount','pensionType', 'pensionAmount']
+        widgets = {
+            'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
+        }
 
     #Form Layout
     helper = FormHelper()
     helper.form_method = 'POST'
-    helper.form_class = 'form-horizontal'
+    helper.form_class = 'form-horizontal col-lg-12'
     helper.field_class = 'col-lg-12'
     helper.form_show_labels = False
     helper.form_show_errors = True
     helper.layout = Layout(
                         Div (
-                            Div(
-                                Div(
-                                    Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;<small>Borrower(s)</small>")),
-                                    Div(Field('clientDescription', placeholder='Client Description')),
-                                    Div(Field('clientSurname', placeholder='Client Surname')),
-                                    Div(Field('clientFirstname', placeholder='Client Firstname')),
-                                    Div(Field('clientAge', placeholder='Client Age')),
-                                    Div(Field('clientType', placeholder='Client Type')),
+                            Div(Div(Submit('submit', 'Update Information', css_class='btn btn-warning'),
+                                HTML("<br>"),
+                                HTML("<br>"),css_class="col-lg-4")
+                            ,css_class="row"),
 
-                                    css_class="col-md-4"),
-                                Div(
-                                    Div(HTML("<i class='fas fa-home'> </i>&nbsp;&nbsp;<small>Property</small>")),
-                                    Div(Field('clientStreet', placeholder='Client Street')),
-                                    Div(Field('clientPostcode', placeholder='Post Code')),
-                                    Div(Field('clientBuilding', placeholder='Building Type')),
-                                    Div(HTML("<i class='fas fa-tag'> </i>&nbsp;&nbsp;<small>Valuation</small>")),
-                                    Div(PrependedText('clientValuation', "<i class='fas fa-dollar-sign'></i>"), placeholder='Estimated Valuation'),
-                                    Div(HTML("<i class='fas fa-university'> </i>&nbsp;&nbsp;<small>Mortgage</small>")),
-                                    Div(PrependedText('clientMortgageDebt', "<i class='fas fa-dollar-sign'></i>"), placeholder='Outstanding Mortgage'),
-                                    css_class="col-md-4"),
-                                Div(
-                                    Div(HTML("<i class='fas fa-piggy-bank'> </i>&nbsp;&nbsp;<small>Superannuation</small>")),
-                                    Div(Field('clientSuperName', placeholder='Super Fund Name')),
-                                    Div(PrependedText('clientSuperAmount',"<i class='fas fa-dollar-sign'></i>"), placeholder='Super Amount'),
-                                    Div(Div(HTML('<br>'),css_class="form-control-hidden"),css_class="form-group row"),
-                                    Div(HTML("<i class='fas fa-hand-holding-usd'> </i>&nbsp;&nbsp;<small>Pension</small>")),
-                                    Div(PrependedText('clientPension', "<i class='fas fa-dollar-sign'></i>"),placeholder='Pension Amount'),
-                                    css_class="col-md-4"),
-                                css_class='row'),
                             Div(
-                                Div(
+                                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;<small>Loan Type</small>"),
+                                    Field('loanType', placeholder='Loan Type'),
                                     HTML("<br>"),
-                                    Div(Submit('submit', 'Set Client Data', css_class='btn btn-warning')),
-                                    css_class="col lg-12, text-center"),
-                                css_class='row')
-                        )
-    )
+                                    HTML("<i class='fas fa-user'></i>&nbsp;&nbsp;<small>Client Details</small>"),
+                                    Field('birthdate_1', placeholder='Birthdate'),
+                                    Field('age_1', placeholder='Age'),
+                                    Field('surname_1', placeholder='Surname'),
+                                    Field('firstname_1', placeholder='Firstname'),
+                                    Field('sex_1', placeholder='Gender'),
+                                    Field('clientType1', placeholder='Client Type'),
+                                    HTML("<br>"),
+                                    HTML("<i class='far fa-user'></i>&nbsp;&nbsp;<small>Client Details</small>"),
+                                    Field('birthdate_2', placeholder='Birthdate'),
+                                    Field('age_2', placeholder='Age'),
+                                    Field('surname_2', placeholder='Surname'),
+                                    Field('firstname_2', placeholder='Firstname'),
+                                    Field('sex_2', placeholder='Gender'),
+                                    Field('clientType2', placeholder='Client Type'),
+                                    css_class="col-lg-4"),
+                                Div(HTML("<i class='fas fa-home'></i>&nbsp;&nbsp;<small>Property</small>"),
+                                    Field('postcode', placeholder='Postcode'),
+                                    Field('dwellingType', placeholder='Dwelling Type'),
+                                    Field('street', placeholder='Street Address'),
+                                    Field('valuation', placeholder='Valuation'),
+                                    Field('mortgageDebt', placeholder='Existing Mortgage'),
+                                    css_class="col-lg-4"),
+                                Div(HTML("<i class='fas fa-piggy-bank'></i>&nbsp;&nbsp;<small>Super/Investments</small>"),
+                                    Field('superName', placeholder='Super Name'),
+                                    Field('superAmount', placeholder='Super Amount'),
+                                    HTML("<br>"),
+                                    HTML("<i class='fas fa-hand-holding-usd'></i>&nbsp;&nbsp;<small>Pension</small>"),
+                                    Field('pensionAmount', placeholder='Pension Amount (per fortnight)'),
+                                    Field('pensionType', placeholder='Pension Type'),
+                                    css_class="col-lg-4"),
+                                css_class="row")
+                            ))
+
+
+    def clean(self):
+        loanType=self.cleaned_data['loanType']
+
+        if loanType==0:
+            if self.cleaned_data['birthdate_1']==None and self.cleaned_data['age_1']==None:
+                raise forms.ValidationError("Enter age or birthdate for Borrower")
+
+        if loanType==1:
+            if self.cleaned_data['birthdate_1']==None and self.cleaned_data['age_1']==None:
+                raise forms.ValidationError("Enter age or birthdate for Borrower 1")
+            if self.cleaned_data['birthdate_2']==None and self.cleaned_data['age_2']==None:
+                raise forms.ValidationError("Enter age or birthdate for Borrower 2")
+
+        if self.cleaned_data['postcode']!=None:
+            if self.cleaned_data['dwellingType'] == None:
+                raise forms.ValidationError("Enter property type")
+            if self.cleaned_data['valuation'] == None:
+                raise forms.ValidationError("Enter property valuation estimate")
 
 
 
-class SettingsForm(forms.Form):
+
+
+class SettingsForm(forms.ModelForm):
     #Form Fields
-    inflation = forms.FloatField()
-    investmentReturn = forms.FloatField()
-    housePriceInflation=forms.FloatField()
-    interestRate=forms.FloatField()
+    class Meta:
+        model = ModelSetting
+        fields = ['housePriceInflation', 'interestRate', 'investmentRate', 'inflationRate', 'projectionAge' ]
 
     #Form Layout
     helper = FormHelper()
@@ -105,15 +125,17 @@ class SettingsForm(forms.Form):
                                 Div(
                                     Div(HTML("<i class='fas fa-home'></i>&nbsp;&nbsp;<small>House Price Inflation</small>")),
                                     Div(PrependedText('housePriceInflation','%'),placeholder='House Price Inflation'),
-                                    Div(HTML("<i class='fas fa-heart-rate'></i>&nbsp;&nbsp;<small>Interest Rate</small>")),
+                                    Div(HTML("<i class='fas fa-chart-bar'></i>&nbsp;&nbsp;<small>Interest Rate</small>")),
                                     Div(PrependedText('interestRate','%') ,placeholder='Interest Rate'),
+                                    Div(HTML("<i class='fas fa-user'></i>&nbsp;&nbsp;<small>Projection Age</small>")),
+                                    Div(Field('projectionAge', placeholder='Projection Age')),
                                     css_class="col-md-4"),
 
                                  Div(
                                     Div(HTML("<i class='fas fa-piggy-bank'></i>&nbsp;&nbsp;<small>Investment Return)</small>")),
-                                    Div(PrependedText('investmentReturn', '%'), placeholder='Investment Return'),
+                                    Div(PrependedText('investmentRate', '%'), placeholder='Investment Return'),
                                     Div(HTML("<i class='fas fa-chart-line'></i>&nbsp;&nbsp;<small>Inflation</small>")),
-                                    Div(PrependedText('inflation', '%'), placeholder='inflation'),
+                                    Div(PrependedText('inflationRate', '%'), placeholder='inflation'),
                                     css_class="col-md-4"),
                                 css_class='row justify-content-md-center'),
                             Div(
@@ -127,15 +149,15 @@ class SettingsForm(forms.Form):
 
 
 
-class IntroChkBoxForm(forms.Form):
+class IntroChkBoxForm(forms.ModelForm):
     #Form Fields
-    clientChoices = forms.MultipleChoiceField(
-        choices=(
-            ('clientRetireAtHome', "Retire at home"),
-            ('clientAvoidDownsizing', 'Avoid downsizing'),
-            ('clientAccessFunds', 'Access additional retirement funds')),
-        label="",
-        widget = forms.CheckboxSelectMultiple)
+    choiceRetireAtHome=forms.BooleanField(label="Retire at home",required=True)
+    choiceAvoidDownsizing=forms.BooleanField(label="Avoid downsizing",required=True)
+    choiceAccessFunds=forms.BooleanField(label="Access additional retirement funds",required=True)
+
+    class Meta:
+        model = Loan
+        fields = ['choiceRetireAtHome', 'choiceAvoidDownsizing', 'choiceAccessFunds']
 
     #Form Layout
     helper = FormHelper()
@@ -143,14 +165,16 @@ class IntroChkBoxForm(forms.Form):
     helper.form_method = 'POST'
     helper.form_class = 'form-horizontal'
     helper.field_class = 'col-lg-12'
-    helper.form_show_labels = False
+    helper.form_show_labels = True
     helper.form_show_errors = True
     helper.layout = Layout(
         Div(
-            Div(
-                InlineCheckboxes('clientChoices', style="background: #F9F8F5; padding: 10px;"))
+            Div(Div(Field('choiceRetireAtHome'), css_class='checkbox-inline col-lg-3'),
+                Div(Field('choiceAvoidDownsizing'), css_class='checkbox-inline col-lg-3'),
+                Div(Field('choiceAccessFunds', css_class='checkbox-inline col-lg-5')), css_class='row justify-content-md-center'),
+                style="background: #F9F8F5; padding: 5px;")
         )
-    )
+
 
 
 class topUpForm(forms.Form):
@@ -171,10 +195,13 @@ class topUpForm(forms.Form):
             Field('topUpIncome')))
 
 
-
-class debtRepayForm(forms.Form):
+class debtRepayForm(forms.ModelForm):
     #Form Fields
-    clientMortgageDebt = forms.CharField(max_length=10)
+    class Meta:
+        model = Loan
+        fields = ['refinanceAmount']
+
+    mortgageDebt = forms.IntegerField(required=False, localize=True, widget=widgets.TextInput())
 
     #Form Layout
     helper = FormHelper()
@@ -185,29 +212,25 @@ class debtRepayForm(forms.Form):
     helper.form_show_labels = False
     helper.form_show_errors = True
     helper.layout = Layout(
-        Div(PrependedText('clientMortgageDebt','$') ))
-
-    #Custom form validation
-    def clean_clientMortgageDebt(self):
-        'Check can convert to int'
-        try:
-            dataInput = int(self.cleaned_data['clientMortgageDebt'].replace(",", ""))
-        except:
-            raise forms.ValidationError("Please enter a mortgage debt amount")
-        return self.cleaned_data['clientMortgageDebt'].replace(",", "")
+        Div(PrependedText('refinanceAmount','$') ))
 
 
 
-class giveAmountForm(forms.Form):
+
+class giveAmountForm(forms.ModelForm):
     #Nb: Uses two helpers to creata single form
 
     #Form Fields
+    class Meta:
+        model = Loan
+        fields = ['giveAmount','giveDescription','protectedEquity']
+
     giveAmount = forms.CharField(max_length=10, label='Give Amount',required=True)
     giveDescription=forms.CharField(max_length=40, label='Description',required=False)
     protectedEquity = forms.ChoiceField(
         choices = (
             (0, "0%"),
-            (15, "5%"),
+            (5, "5%"),
             (10, "10%"),
             (15, "15%"),
             (20, "20%"),
@@ -246,52 +269,49 @@ class giveAmountForm(forms.Form):
               Div(InlineRadios('protectedEquity'))
         ))
 
-    #Custom Form Validation
-    def clean_giveAmount(self):
-        'Check can convert to int'
-        try:
-            dataInput = int(self.cleaned_data['giveAmount'].replace(",", ""))
-        except:
-            raise forms.ValidationError("Please enter a give amount")
-        return self.cleaned_data['giveAmount'].replace(",", "")
 
 
+class renovateAmountForm(forms.ModelForm):
+    # Form Fields
+    class Meta:
+        model = Loan
+        fields = ['renovateAmount','renovateDescription']
+        labels = {
+            "renovateAmount": "Amount",
+            "renovateDescription": "Description"
+        }
 
-class renovateAmountForm(forms.Form):
-        #Form Fields
-        renovateAmount = forms.CharField(max_length=10, label='Amount', required=True)
-        renovateDescription = forms.CharField(max_length=40, label='Description', required=False)
+    renovateAmount = forms.IntegerField(required=False, localize=True,label='Amount',widget=widgets.TextInput())
 
-        #Form Layout
-        helper = FormHelper()
-        helper.form_id = 'clientForm'
-        helper.form_method = 'POST'
-        helper.form_class = 'form-horizontal'
-        helper.label_class = 'col-lg-2'
-        helper.field_class = 'col-lg-4'
-        helper.form_show_labels = True
-        helper.form_show_errors = True
-        helper.layout = Layout(
-            Div(
-                Div(PrependedText('renovateAmount', '$')),
-                Div(Field('renovateDescription'))
-            )
+
+    #Form Layout
+    helper = FormHelper()
+    helper.form_id = 'clientForm'
+    helper.form_method = 'POST'
+    helper.form_class = 'form-horizontal'
+    helper.label_class = 'col-lg-2'
+    helper.field_class = 'col-lg-4'
+    helper.form_show_labels = True
+    helper.form_show_errors = True
+    helper.layout = Layout(
+        Div(
+            Div(PrependedText('renovateAmount', '$')),
+            Div(Field('renovateDescription'))
         )
-
-        def clean_renovateAmount(self):
-            'Check can convert to int'
-            try:
-                dataInput = int(self.cleaned_data['renovateAmount'].replace(",", ""))
-            except:
-                raise forms.ValidationError("Please enter a renovate amount")
-            return self.cleaned_data['renovateAmount'].replace(",", "")
+    )
 
 
+class travelAmountForm(forms.ModelForm):
+    # Form Fields
+    class Meta:
+        model = Loan
+        fields = ['travelAmount','travelDescription']
+        labels = {
+            "travelAmount": "Amount",
+            "travelDescription": "Description"
+        }
 
-class travelAmountForm(forms.Form):
-    #Form Fields
-    travelAmount = forms.CharField(max_length=10, label='Amount', required=True)
-    travelDescription = forms.CharField(max_length=40, label='Description', required=False)
+        travelAmount = forms.IntegerField(required=False, localize=True,label='Amount',widget=widgets.TextInput())
 
     #Form Layout
     helper = FormHelper()
@@ -309,21 +329,20 @@ class travelAmountForm(forms.Form):
         )
     )
 
-    #Custom Field Validation
-    def clean_travelAmount(self):
-        'Check can convert to int'
-        try:
-            dataInput = int(self.cleaned_data['travelAmount'].replace(",", ""))
-        except:
-            raise forms.ValidationError("Please enter a travel amount")
-        return self.cleaned_data['travelAmount'].replace(",", "")
 
-
-
-class careAmountForm(forms.Form):
+class careAmountForm(forms.ModelForm):
     #Form Fields
-    careAmount = forms.CharField(max_length=10, label='Amount', required=True)
-    careDescription = forms.CharField(max_length=40, label='Description', required=False)
+
+    class Meta:
+        model = Loan
+        fields = ['careAmount','careDescription']
+        labels = {
+            "careAmount": "Amount",
+            "careDescription": "Description"
+        }
+
+    careAmount = forms.IntegerField(required=False, localize=True,label='Amount',widget=widgets.TextInput())
+
 
     #Form Layout
     helper = FormHelper()
@@ -341,48 +360,45 @@ class careAmountForm(forms.Form):
         )
     )
 
-    #Custom Form Validation
-    def clean_careAmount(self):
-        'Check can convert to int'
-        try:
-            dataInput = int(self.cleaned_data['careAmount'].replace(",", ""))
-        except:
-            raise forms.ValidationError("Please enter a care amount")
-        return self.cleaned_data['careAmount'].replace(",", "")
 
-
-class DetailedChkBoxForm(forms.Form):
+class DetailedChkBoxForm(forms.ModelForm):
     #Form Data
+    class Meta:
+        model = Loan
+        fields = ['choiceTopUp','choiceRefinance','choiceGive','choiceReserve','choiceLive','choiceCare','choiceFuture',
+                  'choiceCenterlink','choiceVariable']
+    
+    
     CHOICES= ((True,u'Yes'),
               (False, u'No'))
 
     #Form Fields
-    clientTopUp = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(),
+    choiceTopUp = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(),
                                                label='I would like to top-up my income/superannuation',required=True)
 
-    clientRefinance=forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(),
+    choiceRefinance=forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(),
                                                label='I would like to refinance an existing mortgage',required=True)
 
 
-    clientGive = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(),
+    choiceGive = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(),
                                                label='I would like to give money to others',required=True)
 
-    clientReserve = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(),
+    choiceReserve = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(),
                                                label='I would like to reserve some equity in my home',required=True)
 
-    clientLive = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(),
+    choiceLive = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(),
                                                label='I would like money for renovations, transport or travel',required=True)
 
-    clientCare = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(),
+    choiceCare = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(),
                                                label='I would like money to fund current aged care requirements',required=True)
 
-    clientFuture = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect,
+    choiceFuture = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect,
                                                label='I understand that I will need to consider future age care',required=True)
 
-    clientCenterlink = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect,
+    choiceCenterlink = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect,
                                                label='I understand that I will need to consider impacts on my Centerlink benefits',required=True)
 
-    clientVariable = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect,
+    choiceVariable = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect,
                                               label='I  understand that a Household Loan has a variable interest rate',required=True)
 
     #Form Layout
@@ -397,40 +413,40 @@ class DetailedChkBoxForm(forms.Form):
     helper.layout = Layout(
         Div(
             Div(
-                InlineRadios('clientTopUp' )),
+                InlineRadios('choiceTopUp' )),
             Div(
-                InlineRadios('clientRefinance')),
+                InlineRadios('choiceRefinance')),
             Div(
-                InlineRadios('clientGive')),
+                InlineRadios('choiceGive')),
             Div(
-                InlineRadios('clientReserve')),
+                InlineRadios('choiceReserve')),
             Div(
-                InlineRadios('clientLive')),
+                InlineRadios('choiceLive')),
             Div(
-                InlineRadios('clientCare')),
+                InlineRadios('choiceCare')),
             Div(
-                InlineRadios('clientFuture')),
+                InlineRadios('choiceFuture')),
             Div(
-                InlineRadios('clientCenterlink')),
+                InlineRadios('choiceCenterlink')),
             Div(
-                InlineRadios('clientVariable')),
+                InlineRadios('choiceVariable')),
             css_class='narrow-row small'
         )
     )
 
-    def clean_clientVariable(self):
-        if self.cleaned_data['clientVariable']!="True":
+    def clean_choiceVariable(self):
+        if self.cleaned_data['choiceVariable']!="True":
             raise forms.ValidationError("Please acknowledge Interest Rate notice")
-        return self.cleaned_data['clientVariable']
+        return self.cleaned_data['choiceVariable']
 
-    def clean_clientFuture(self):
-        if self.cleaned_data['clientFuture']!="True":
+    def clean_choiceFuture(self):
+        if self.cleaned_data['choiceFuture']!="True":
             raise forms.ValidationError("Please acknowledge Future Care Needs notice")
-        return self.cleaned_data['clientFuture']
+        return self.cleaned_data['choiceFuture']
 
-    def clean_clientCenterlink(self):
-        if self.cleaned_data['clientCenterlink']!="True":
+    def clean_choiceCenterlink(self):
+        if self.cleaned_data['choiceCenterlink']!="True":
             raise forms.ValidationError("Please acknowledge Centerlink Benefits notice")
-        return self.cleaned_data['clientCenterlink']
+        return self.cleaned_data['choiceCenterlink']
 
 

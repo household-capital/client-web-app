@@ -35,25 +35,27 @@
                 <br>
             </div>
         </div>
-        <div class="row justify-content-md-center">
-            <div class="col-lg-7 text-center">
+        <div class="row justify-content-md-center padding-15px">
+            <div class="col-lg-8 text-center">
             {% crispy form %}
             </div>
         </div>
 
         <div class="row">
             <div class="col-lg-3 text-center">
-                    {% if clientType == 'Single' %}
+                    {% if loanType == 0 %}
                     <div class="imgContainer"><img src="{% static 'img/icons/person_icon.png' %}" width="75px"></div>
+                    <p>{{ age_1 }} years old</p>
                     {% else %}
                     <div class="imgContainer"><img src="{% static 'img/icons/couple_icon.png' %}" width="75px"></div>
+                    <p>{{ age_1 }} and {{ age_2 }} years old</p>
                     {% endif %}
-                    <p>{{ clientAge }} years old</p>
+
             </div>
 
             <div class="col-lg-3 text-center">
                     <div class="imgContainer"><img src="{% static 'img/icons/nestEgg_icon.png' %}" width="75px"></div>
-                    <p>${{clientSuperAmount|intcomma}}</p>
+                    <p>${{superAmount|intcomma}}</p>
                     <br><p class="small">We know that retiring Australians' superannuation too often falls short, so at Household Capital, we are focused on providing lifelong, holistic access to all your savings</p>
             </div>
 
@@ -61,7 +63,7 @@
 
                 <div class="col">
                     <div class="imgContainer"><img src="{% static 'img/icons/home_icon.png' %}" width="75px"></div>
-                    <p>${{ clientValuation|intcomma }}</p></div>
+                    <p>${{ valuation|intcomma }}</p></div>
                     <br><p class="small">Many retiring Australians have significant savings in their home ownership. Household Capital enables you to access thse savings to top up your superannuation and draw a Household Income</p>
 
             </div>
@@ -69,7 +71,7 @@
             <div class="col-lg-3 text-center">
                 <div class="col">
                     <div class="imgContainer"><img src="{% static 'img/icons/dollar_icon.png' %}" width="75px"></div>
-                    <p>Age Pension, ${{ clientPension|intcomma }}/fornight</p></div>
+                    <p>Age Pension, ${{ pensionAmount|intcomma }}/fortnight</p></div>
                     <br><p class="small">The age pension is an important source of income for many retired Australians</p>
 
 

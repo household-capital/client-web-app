@@ -43,14 +43,16 @@
             <div class="col-lg-3 text-center">
 
                 {% if post_id >= 1 %}
-                    {% if clientType == 'Single' %}
+                    {% if loanType == 0 %}
                         <div class="imgContainer"><img src="{% static 'img/icons/person_icon.png' %}" width="125px"></div>
+                        <p> {{ firstname_1 }}&nbsp;{{ surname_1 }}</p><br>
+                        <p>{{ age_1 }} years old</p>
                     {% else %}
                         <div class="imgContainer"><img src="{% static 'img/icons/couple_icon.png' %}" width="125px"></div>
+                         <p> {{ firstname_1 }}&nbsp;{{ surname_1 }}</p>
+                         <p> {{ firstname_2 }}&nbsp;{{ surname_2 }}</p><br>
+                         <p>{{ age_1 }} and {{ age_2 }} years old</p>
                     {% endif %}
-                    <p> {{ clientFirstname }}&nbsp;{{ clientSurname }}</p>
-                    <br>
-                    <p>{{ clientAge }} years old</p>
                 {% else %}
                     <div class="imgContainer"><a href="{% url 'client:introduction4' %}/1"><img src="{% static 'img/icons/person_icon.png' %}" width="125px"></a></div>
                     <p> You</p>&nbsp;
@@ -63,9 +65,9 @@
                     <div class="imgContainer"><img src="{% static 'img/logos/sunsuper_logo.jpg' %}"
                                                    class="rounded-circle" alt="SuperFund" width="125px" height="125px">
                     </div>
-                    <p>{{ clientSuperName }}</p>
+                    <p>{{ superName }}</p>
                     <br><p>Balance</p>
-                    <p>${{ clientSuperAmount|intcomma }}</p>
+                    <p>${{ superAmount|intcomma }}</p>
                 {% else %}
                     <div class="imgContainer"><a href="{% url 'client:introduction4' %}/2"><img id="imgSuper"
                                                                                                 src="{% static 'img/icons/nestEgg_icon.png' %}"
@@ -81,9 +83,9 @@
                     <div class="imgContainer"><img src="{% static 'img/properties/house_pic.jpeg' %}"
                                                    class="rounded-circle" alt="SuperFund" width="125px" height="125px">
                     </div>
-                    <p> {{ clientStreet }}</p>
+                    <p> {{ street }}</p>
                     <br><p>Estimated value</p>
-                    <p>${{ clientValuation|intcomma }}</p>
+                    <p>${{ valuation|intcomma }}</p>
                 {% else %}
                     <div class="imgContainer"><a href="{% url 'client:introduction4' %}/3"><img
                             src="{% static 'img/icons/home_icon.png' %}" width="125px"></a></div>
@@ -99,7 +101,7 @@
                     </div>
                     <p>Age Pension<p>
                     <br><p>Annual Payment<p>
-                    <p>${{ clientPensionAnnual|intcomma }}</p></div>
+                    <p>${{ annualPensionIncome|intcomma }}</p></div>
                 {% else %}
                     <div class="imgContainer"><a href="{% url 'client:introduction4' %}/4"><img
                             src="{% static 'img/icons/dollar_icon.png' %}" width="125px"></a></div>
