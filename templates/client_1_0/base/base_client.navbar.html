@@ -18,8 +18,8 @@
 
             <ul class="nav navbar-nav ml-auto">
                 <li><a href="{% url 'client:settings' %}"><i class="fas fa-cog"></i>&nbsp;Settings&nbsp;&nbsp;&nbsp;</a></li>
-                {%  if clientSurname is not None %}
-                    <li><a href="{% url 'client:setClient' %}"><i class="fas fa-user-circle"></i>  {{ clientSurname }}&nbsp;&nbsp;&nbsp;</a></li>
+                {%  if surname_1 is not None %}
+                    <li><a href="{% url 'client:setClient' %}"><i class="fas fa-user-circle"></i>  {{ surname_1 }}&nbsp;&nbsp;&nbsp;</a></li>
                 {% endif %}
                 <li><a href='{% url "accounts:logout" %}'><i class="fas fa-sign-out-alt"></i>  Exit </a></li>
             </ul>

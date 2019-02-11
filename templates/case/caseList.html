@@ -1,0 +1,97 @@
+{% extends 'client_1_0/base/base_client.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div class="row justify-content-md-center">
+                <div class="col-6 text-center">
+                    <br>
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning"{% endif %}>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+        <br><br>
+        <div class="row justify-content-center">
+            <div class="col-10">
+
+                <div class="row justify-content-center">
+                    <div class="col-12">
+
+                        <form method='GET' action=''>
+
+                            <div class="form-group row justify-content-center">
+
+                                <label for="search" class="col-form-label"><i class="fas fa-search fa-lg"></i></label>
+
+                                  <div class="col-5">
+                                <input class='form-control' type='text' name='search' placeholder='Search cases'
+                                       value='{{ request.GET.search }}'/>
+                                  </div>
+
+                                <div class="col-2"><a href="{% url 'case:caseCreate' %}"><div class="btn btn-warning">New Case</div></a></div>
+
+                            </div>
+
+                        </form>
+                        <br>
+                    </div>
+                </div>
+
+             <table class="table table-hover">
+            <thead>
+            <tr>
+                <th scope="col">Case Status</th>
+                <th scope="col">Description</th>
+                <th scope="col">Owner</th>
+                <th scope="col">Adviser</th>
+                <th scope="col">Last Updated</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            {% for obj in object_list %}
+                <tr>
+                <td><a href="{{ obj.get_absolute_url }}">{% if obj.caseType == 0 %}Lead{% else %}Opportunity{% endif %}</a></td>
+                <td><a href="{{ obj.get_absolute_url }}">{{ obj.caseDescription }}</a></td>
+                <td><a href="{{ obj.get_absolute_url }}">{{ obj.user }}</a></td>
+                <td><a href="{{ obj.get_absolute_url }}">{{ obj.adviser }}</a></td>
+                <td><a href="{{ obj.get_absolute_url }}">{{ obj.updated|timesince }} ago</a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+            </div>
+        </div>
+
+
+    </div>
+
+
+{% endblock %}
+
+
+{% block javascript %}
+
+{% endblock %}

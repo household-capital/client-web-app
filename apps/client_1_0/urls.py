@@ -6,8 +6,11 @@ from . import views
 app_name = 'client'
 
 urlpatterns = [
-    path('', views.LandingView.as_view(), name='landing'),
-    path('setclient', views.SetClientView.as_view(), name='setClient'),
+    path('meeting/<uuid:uid>', views.LandingView.as_view(), name='meeting'),
+    path('meeting/start', views.LandingView.as_view(), name='meetingStart'),
+    path('meeting/start/<int:post_id>/', views.LandingView.as_view()),
+
+    path('reviewclient', views.SetClientView.as_view(), name='setClient'),
     path('settings', views.SettingsView.as_view(), name='settings'),
 
     path('introduction1', views.IntroductionView1.as_view(), name='introduction1'),
@@ -32,10 +35,13 @@ urlpatterns = [
     path('results1', views.Results1.as_view(), name='results1'),
     path('results2', views.Results2.as_view(), name='results2'),
     path('results3', views.Results3.as_view(), name='results3'),
+    path('results4', views.Results4.as_view(), name='results4'),
 
-    path('pdfProduction', views.pdfProduction.as_view(), name='pdfResults'),
-    path('pdfReport', views.pdfReport.as_view())
+    path('final', views.Final.as_view(), name='final'),
 
+    path('pdfProduction', views.pdfProduction.as_view(), name='pdfProduction'),
+    path('pdfReport/<uuid:uid>', views.pdfReport.as_view()),
+    path('pdfTest', views.pdfReport.as_view())
 ]
 
 

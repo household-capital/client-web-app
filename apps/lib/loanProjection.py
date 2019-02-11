@@ -1,27 +1,28 @@
-from .globals import APP_SETTINGS
+from apps.lib.globals import APP_SETTINGS
 from math import log
 
 class LoanProjection():
 
     # CLASS VARIABLES
 
-    projectionAge=APP_SETTINGS['projectionAge']
     incomeIntervals=APP_SETTINGS['incomeIntervals']
     minProjectionPeriods=APP_SETTINGS['minProjectionPeriods']
 
-    def __init__(self,loanDict,clientDict,economicDict, loanStatusDict):
+    def __init__(self,aggregateDictionary):
 
         #Initialisation Variables
         self.aggDict = {}
-        self.aggDict.update(loanDict)
-        self.aggDict.update(clientDict)
-        self.aggDict.update(economicDict)
-        self.aggDict.update(loanStatusDict)
+        self.aggDict.update(aggregateDictionary)
 
-        self.noPeriods=self.projectionAge - self.aggDict['clientAge']
-        self.currentSuperIncome=self.calcDrawdown(self.aggDict['clientSuperAmount'])  #Calculate initial super income
-        self.pensionIncome=self.aggDict['clientPension']*26
+        self.projectionAge = self.aggDict['projectionAge']
+        if self.aggDict['loanType']==0:
+            self.minAge=self.aggDict['age_1']
+        else:
+            self.minAge = min(self.aggDict['age_1'],self.aggDict['age_2'])
 
+        self.noPeriods=self.projectionAge - self.minAge
+        self.currentSuperIncome=self.calcDrawdown(self.aggDict['superAmount'])  #Calculate initial super income
+ 
         self.totalInterestRate = self.effectiveAnnual(self.aggDict['interestRate'] + self.aggDict['lendingMargin'],12)
         # Important convert interest rate to effective annual (monthly compounded)
 
@@ -33,16 +34,16 @@ class LoanProjection():
 
     def getInitialIncome(self):
         #returns initial projected income (pension + super)
-        return self.currentSuperIncome+self.pensionIncome
+        return self.currentSuperIncome+self.aggDict['annualPensionIncome']
 
     def getEnhancedIncome(self,superTopUp):
         #returns the enhanced income from a given super topUp (existing super, topUp and pension income)
-        income=self.calcDrawdown(self.aggDict['clientSuperAmount'] + superTopUp) + self.pensionIncome
+        income=self.calcDrawdown(self.aggDict['superAmount'] + superTopUp) + self.aggDict['annualPensionIncome']
         return income
 
     def getEnhancedSuperIncome(self,superTopUp):
         #returns the enhanced income from a given super topUp (existing super, topUp and pension income)
-        income=self.calcDrawdown(self.aggDict['clientSuperAmount'] + superTopUp)
+        income=self.calcDrawdown(self.aggDict['superAmount'] + superTopUp)
         return income
 
 
@@ -61,33 +62,33 @@ class LoanProjection():
         incomeArray = []
         maxSuperTopUp=self.aggDict['maxNetLoanAmount']
 
-      #  maxIncome=self.calcDrawdown( self.aggDict['clientSuperAmount'] + maxSuperTopUp) + self.pensionIncome
-      # initialIncome=self.currentSuperIncome+self.pensionIncome
+      #  maxIncome=self.calcDrawdown( self.aggDict['superAmount'] + maxSuperTopUp) + self.aggDict['annualPensionIncome']
+      # initialIncome=self.currentSuperIncome+self.aggDict['annualPensionIncome']
 
         for item in range(self.incomeIntervals+1):
             #number of intervals is specified as a class variable
             topUpAmount = item*maxSuperTopUp / self.incomeIntervals
-            superIncome= self.calcDrawdown(self.aggDict['clientSuperAmount'] +topUpAmount)
-            income = superIncome+ self.pensionIncome
+            superIncome= self.calcDrawdown(self.aggDict['superAmount'] +topUpAmount)
+            income = superIncome+ self.aggDict['annualPensionIncome']
 
 
             projectedEquity=round((1-((topUpAmount * ( 1 + self.totalInterestRate / 100) ** self.noPeriods)
-                               /(self.aggDict['clientValuation'] * ( 1 + self.aggDict['housePriceInflation'] /100 ) ** self.noPeriods)))*100,0)
+                               /(self.aggDict['valuation'] * ( 1 + self.aggDict['housePriceInflation'] /100 ) ** self.noPeriods)))*100,0)
 
             incomeArray.append({"item":item,"income":int(income),"topUp":int(topUpAmount),
                                 "homeEquity":round(projectedEquity,2),"percentile":int(round(projectedEquity/100,1)*10),
-                                "newSuperBalance":int(topUpAmount+self.aggDict['clientSuperAmount']),
+                                "newSuperBalance":int(topUpAmount+self.aggDict['superAmount']),
                                 "superIncome":int(superIncome)})
 
         return incomeArray
 
     def getRequiredTopUp(self,totalIncome):
         #Returns the required topUp amount for a given target income
-        topUp = self.calcBalance( totalIncome - self.currentSuperIncome - self.pensionIncome)
+        topUp = self.calcBalance( totalIncome - self.currentSuperIncome - self.aggDict['annualPensionIncome'])
         return topUp
 
     def getProjectionAge(self):
-        return self.aggDict['clientAge']+self.noPeriods
+        return self.minAge+self.noPeriods
 
     # INTERNAL METHODS
 
@@ -163,15 +164,15 @@ class LoanProjection():
         calcArray[0]["BOPBalance"]=superBalance
         calcArray[0]["Drawdown"]=drawdown
 
-        calcArray[0]["Return"]= (calcArray[0]["BOPBalance"]-calcArray[0]["Drawdown"]/2) * self.aggDict['investmentReturn']/100
+        calcArray[0]["Return"]= (calcArray[0]["BOPBalance"]-calcArray[0]["Drawdown"]/2) * self.aggDict['investmentRate']/100
                                 #Return applied to average balance (assuming drawdown of income evenly over year)
         calcArray[0]["EOPBalance"]= calcArray[0]["BOPBalance"] - calcArray[0]["Drawdown"] + calcArray[0]["Return"]
 
         # Loop through future periods
         for period in range(1,self.noPeriods):
             calcArray[period]["BOPBalance"] = calcArray[period-1]["EOPBalance"]
-            calcArray[period]["Drawdown"] = calcArray[period-1]["Drawdown"] * (1 + self.aggDict['inflation']/100)
-            calcArray[period]["Return"] = (calcArray[period]["BOPBalance"] - calcArray[period]["Drawdown"] / 2) * self.aggDict['investmentReturn']/100
+            calcArray[period]["Drawdown"] = calcArray[period-1]["Drawdown"] * (1 + self.aggDict['inflationRate']/100)
+            calcArray[period]["Return"] = (calcArray[period]["BOPBalance"] - calcArray[period]["Drawdown"] / 2) * self.aggDict['investmentRate']/100
             calcArray[period]["EOPBalance"] = calcArray[period]["BOPBalance"] - calcArray[period]["Drawdown"] + calcArray[period]["Return"]
 
         return calcArray[self.noPeriods-1]["EOPBalance"]
@@ -201,19 +202,19 @@ class LoanProjection():
                     'BOPLoanValue':0,'BOPHomeEquity':0,'BOPHomeEquityPC':0} for periods in range(self.minProjectionPeriods)]
 
         #Initial Period
-        calcArray[0]["BOPAge"] = self.aggDict['clientAge']
-        calcArray[0]["BOPBalance"]=self.aggDict['clientSuperAmount']+self.aggDict['topUpAmount']
+        calcArray[0]["BOPAge"] = self.minAge
+        calcArray[0]["BOPBalance"]=self.aggDict['superAmount']+self.aggDict['topUpAmount']
         calcArray[0]["Drawdown"]=superIncome
 
-        calcArray[0]["Return"]= (calcArray[0]["BOPBalance"]-calcArray[0]["Drawdown"]/2) * self.aggDict['investmentReturn']/100
+        calcArray[0]["Return"]= (calcArray[0]["BOPBalance"]-calcArray[0]["Drawdown"]/2) * self.aggDict['investmentRate']/100
 
         #Return applied to average balance (assuming drawdown of income evenly over year)
         calcArray[0]["EOPBalance"]= calcArray[0]["BOPBalance"] - calcArray[0]["Drawdown"] + calcArray[0]["Return"]
-        calcArray[0]["PensionIncome"]=self.pensionIncome
+        calcArray[0]["PensionIncome"]=self.aggDict['annualPensionIncome']
         calcArray[0]["TotalIncome"]=calcArray[0]["Drawdown"]+calcArray[0]["PensionIncome"]
-        calcArray[0]["PensionIncomePC"] = calcArray[0]["PensionIncome"]/calcArray[0]["TotalIncome"]*100
+        calcArray[0]["PensionIncomePC"] = self.chkDivZero(calcArray[0]["PensionIncome"],calcArray[0]["TotalIncome"])*100
         calcArray[0]['CumulativeSuperIncome']=calcArray[0]["Drawdown"]
-        calcArray[0]['BOPHouseValue']=self.aggDict['clientValuation']
+        calcArray[0]['BOPHouseValue']=self.aggDict['valuation']
         calcArray[0]['BOPLoanValue']=self.aggDict['totalLoanAmount']
         calcArray[0]['BOPHomeEquity']=calcArray[0]['BOPHouseValue'] #Prior to loan
         calcArray[0]['BOPHomeEquityPC']=100 #Prior to loan
@@ -223,17 +224,17 @@ class LoanProjection():
             calcArray[period]["BOPAge"] = calcArray[period-1]["BOPAge"]+1
             calcArray[period]["BOPBalance"] = calcArray[period-1]["EOPBalance"]
 
-            calcArray[period]["Drawdown"] = calcArray[period-1]["Drawdown"] * (1 + self.aggDict['inflation']/100)
-            calcArray[period]["Return"] = (calcArray[period]["BOPBalance"] - calcArray[period]["Drawdown"] / 2) * self.aggDict['investmentReturn']/100
+            calcArray[period]["Drawdown"] = calcArray[period-1]["Drawdown"] * (1 + self.aggDict['inflationRate']/100)
+            calcArray[period]["Return"] = (calcArray[period]["BOPBalance"] - calcArray[period]["Drawdown"] / 2) * self.aggDict['investmentRate']/100
             #Check for exhausted Super Balance
             if calcArray[period]["BOPBalance"]<calcArray[period]["Drawdown"]:
                 calcArray[period]["Drawdown"]=calcArray[period]["BOPBalance"]
                 calcArray[period]["Return"]=0
             calcArray[period]["EOPBalance"] = calcArray[period]["BOPBalance"] - calcArray[period]["Drawdown"] + calcArray[period]["Return"]
 
-            calcArray[period]["PensionIncome"] = calcArray[period-1]["PensionIncome"]* (1 + self.aggDict['inflation']/100)
+            calcArray[period]["PensionIncome"] = calcArray[period-1]["PensionIncome"]* (1 + self.aggDict['inflationRate']/100)
             calcArray[period]["TotalIncome"] = calcArray[period]["Drawdown"] + calcArray[period]["PensionIncome"]
-            calcArray[period]["PensionIncomePC"] = calcArray[period]["PensionIncome"] / calcArray[period]["TotalIncome"] * 100
+            calcArray[period]["PensionIncomePC"] = self.chkDivZero(calcArray[period]["PensionIncome"] , calcArray[period]["TotalIncome"]) * 100
             calcArray[period]['CumulativeSuperIncome'] = calcArray[period]["Drawdown"]+calcArray[period-1]['CumulativeSuperIncome']
             calcArray[period]['BOPHouseValue'] = calcArray[period-1]['BOPHouseValue']*(1 + hpi/100)
             calcArray[period]['BOPLoanValue'] = calcArray[period-1]['BOPLoanValue']*(1+intRate/100)
@@ -243,9 +244,16 @@ class LoanProjection():
 
 
     def calcNegAge(self):
-        periods=log(1/(self.aggDict['totalLoanAmount']/self.aggDict['clientValuation']))/log((1+self.totalInterestRate/100)/(1 + self.aggDict['housePriceInflation']/100))
+        periods=log(1/(self.aggDict['totalLoanAmount']/self.aggDict['valuation']))/log((1+self.totalInterestRate/100)/(1 + self.aggDict['housePriceInflation']/100))
 
-        return self.aggDict['clientAge']+ int(periods)
+        return self.minAge+ int(periods)
 
     def effectiveAnnual(self, rate, compounding):
         return (((1 + rate/(compounding * 100)) ** compounding)-1)*100
+
+    def chkDivZero(self,numerator, divisor):
+        if divisor==0:
+            return 0
+        else:
+            return numerator/divisor
+

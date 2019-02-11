@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'apps.landing',
     'apps.client_1_0',
     'apps.eligibility',
+    'apps.case'
 ]
 
 MIDDLEWARE = [
@@ -118,8 +119,11 @@ EMAIL_USE_TLS = True
 LANGUAGE_CODE = 'en-gb'
 TIME_ZONE = 'Australia/Melbourne'
 USE_I18N = True
-USE_L10N = False
+USE_L10N = True
 USE_TZ = True
+USE_THOUSAND_SEPARATOR=True
+THOUSAND_SEPARATOR = ','
+
 
 DATE_INPUT_FORMATS = (
     '%Y-%m-%d',     # '2013-03-21'
