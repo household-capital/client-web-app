@@ -2,52 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="476185f0-e37f-46f1-97a7-4a9ed5e7f20e" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/static/collected/img/document/FrontPage.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/collected/img/document/HC_Logo_Craken.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/collected/img/document/HC_Logo_Inv_Colour.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/collected/img/hhc/HC-Hero-FamilyInside.jpeg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/collected/img/hhc/HC-Hero-FamilyOutside.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/collected/img/hhc/HC_Logo.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/collected/img/hhc/HC_Logo_Flat.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/collected/img/hhc/HC_Logo_Inv_Colour.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/collected/img/icons/report_icon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/uncollected/img/icons/report_icon.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/case/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/case/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/client_1_0/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/client_1_0/forms.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/eligibility/lib/Postcodes.csv" beforeDir="false" afterPath="$PROJECT_DIR$/apps/eligibility/lib/Postcodes.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/django.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/django.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/collected/css/base.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/collected/css/base_hero.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/collected/css/bootstrap.min.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/collected/css/client.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/collected/css/client.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/collected/css/jumbotron.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/collected/css/registration.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/collected/css/test.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/collected/img/HC-hero-002.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/collected/img/HC_Logo_Flat.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/collected/img/HouseholdLogo.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/collected/img/SummaryPage1.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/collected/img/SummaryPage2.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/collected/img/SummaryPage3.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/collected/img/SummaryPage6.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/collected/img/introPicture.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/media/SFDocuments/tmp3t8x0a9m_mJSoayy.pdf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/media/SFDocuments/tmp4ztmaxwk_ZJxixQb.pdf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/media/SFDocuments/tmp5i47tgsk_VbsdqIX.pdf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/media/SFDocuments/tmpk2fylwtm_rg4JDly.pdf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/media/SFDocuments/tmpucykaaqw_XSkSVkR.pdf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/media/clientDict" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/media/economicDict" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/media/loanDict" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/media/loanStatusDict" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/uncollected/css/registration.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/collected/css/site.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/uncollected/css/site.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/uncollected/css/site.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/client_1_0/introduction3.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/client_1_0/introduction3.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/registration/base_reg.css.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/registration/base_reg.css.html" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -62,13 +20,13 @@
     <session id="-1272188189">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="60" />
+          <entry key="project.closed" value="62" />
           <entry key="project.open.time.11" value="1" />
           <entry key="project.open.time.12" value="3" />
           <entry key="project.open.time.13" value="2" />
           <entry key="project.open.time.14" value="2" />
-          <entry key="project.open.time.15" value="5" />
-          <entry key="project.open.time.16" value="5" />
+          <entry key="project.open.time.15" value="7" />
+          <entry key="project.open.time.16" value="6" />
           <entry key="project.open.time.17" value="4" />
           <entry key="project.open.time.18" value="7" />
           <entry key="project.open.time.19" value="5" />
@@ -83,18 +41,18 @@
           <entry key="project.open.time.6" value="1" />
           <entry key="project.open.time.7" value="2" />
           <entry key="project.open.time.9" value="1" />
-          <entry key="project.opened" value="62" />
+          <entry key="project.opened" value="65" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="css" value="55" />
           <entry key="csv" value="2" />
-          <entry key="gitignore" value="2" />
+          <entry key="gitignore" value="3" />
           <entry key="html" value="303" />
           <entry key="jpg" value="1" />
           <entry key="png" value="2" />
-          <entry key="py" value="288" />
+          <entry key="py" value="289" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
@@ -102,24 +60,24 @@
           <entry key="CSS" value="55" />
           <entry key="HTML" value="303" />
           <entry key="Image" value="3" />
-          <entry key="PLAIN_TEXT" value="4" />
-          <entry key="Python" value="288" />
+          <entry key="PLAIN_TEXT" value="5" />
+          <entry key="Python" value="289" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="css" value="2521" />
-          <entry key="gitignore" value="14" />
+          <entry key="gitignore" value="20" />
           <entry key="html" value="20669" />
           <entry key="py" value="31078" />
-          <entry key="txt" value="5913" />
+          <entry key="txt" value="5970" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="CSS" value="2521" />
           <entry key="HTML" value="20669" />
-          <entry key="PLAIN_TEXT" value="5927" />
+          <entry key="PLAIN_TEXT" value="5990" />
           <entry key="Python" value="31078" />
         </counts>
       </usages-collector>
@@ -140,7 +98,7 @@
         <entry file="file://$PROJECT_DIR$/.gitignore">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="60">
-              <caret line="4" selection-start-line="4" selection-end-line="4" />
+              <caret line="4" column="6" selection-start-line="4" selection-start-column="6" selection-end-line="4" selection-end-column="6" />
             </state>
           </provider>
         </entry>
@@ -359,7 +317,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -370,18 +327,26 @@
             <path>
               <item name="hhc" type="b2602c69:ProjectViewProjectNode" />
               <item name="hhc" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
+              <item name="config" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="hhc" type="b2602c69:ProjectViewProjectNode" />
               <item name="hhc" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-              <item name="registration" type="462c0819:PsiDirectoryNode" />
+              <item name="config" type="462c0819:PsiDirectoryNode" />
+              <item name="settings" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="hhc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="hhc" type="462c0819:PsiDirectoryNode" />
+              <item name="config" type="462c0819:PsiDirectoryNode" />
+              <item name="settings" type="462c0819:PsiDirectoryNode" />
+              <item name="deployment" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -470,7 +435,14 @@
       <option name="project" value="LOCAL" />
       <updated>1549865558398</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Re-synch after force commit (mistake)">
+      <created>1549950007726</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1549950007726</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TodoView">
@@ -484,8 +456,9 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1322" height="797" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49928877" visible="true" weight="0.3125" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49928877" visible="true" weight="0.3265625" />
       <window_info id="Structure" order="1" sideWeight="0.50071126" side_tool="true" weight="0.3171734" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -520,12 +493,10 @@
     <MESSAGE value="Credential change" />
     <MESSAGE value="Updated calculation of establishment fee.  Fee charged on advanced funds - not total loan amount." />
     <MESSAGE value="// Major Update - Database Backend and Case app&#10;&#10;1. Database - back end. Prior temporary approach of persisting data using three dictionaries (Client, Loan and Economic) saved to the session replaced.  All data now saved to the postgressql backend using three models (case, loan and modellsettings) which are essentially the same as the dictionaries.&#10;&#10;- Some of the fieldnames were changed leading to small changes in the Views, Forms and Templates&#10;&#10;- The Django class based views handle most of the database interaction, so the View base classes were changes (Update, Create and List views) and code required to work with the dictionaries removed.  This implementation is less involved than the initial.&#10;&#10;- The loan and modelsettings models are extensions of case (one to one foreign keys) and are separated mainly for convenience.&#10;&#10;- A custom model manager returns either a queryset (which can be updated) or a dictionary (to add to the context)&#10;&#10;- The model is associated with the app 'case' not with 'client'&#10;&#10;2. A new Case app has been created to manage the list of outstanding cases (leads and opportunities).  This simple app is comprised of a ListView of cases and enables a user to select an individual case (Update View).  From there the user can navigate to a client meeting/interface app (client).  This is now the landing app of the site.&#10;&#10;  For security/navigation purposes (inadvertent navigation to another customer's information) the case app hands off to the client app via a UUID URL keyword.  There is no practical way to navigate to the client app unless passed across by the case app.&#10;  &#10; 3. Integration of API2PDF - the html templates used for the pdf were finalised.  That URL/View is never rendered by a user and is used by the API to render the page and convert to pdf.  The pdf is retrieved, stored on the app server, added to the case record and served to the browser.  The API uses the UUID to access the page.  Additional security (e.g., temporary UUID rather than the actual should be developed).&#10; &#10; 4. Consents - these were implemented using modals. Acceptance is recorded in the database as well as specific meeting time.  The consents were also added to the Summary PDF. Consent wording is maintained in HTML template components.&#10; &#10; 5. Loan utilities - the validation and projection classes were enhanced (changing field names and error handling).  These were moved out of the client app to the apps directory under a lib folder.&#10; &#10; 6. The eligibility app is still within the project folders but not reachable.  Most of the functionality is now in the case app (when client details are entered).  The remaining functionality will be included in Analyis functionality in case (then the app removed)&#10; &#10; NB Deployment risk/effort has increased somewhat with the use of models.  It is fine for a clean install - but making app changes with an existing database requires database migrations to be applied." />
-    <option name="LAST_COMMIT_MESSAGE" value="// Major Update - Database Backend and Case app&#10;&#10;1. Database - back end. Prior temporary approach of persisting data using three dictionaries (Client, Loan and Economic) saved to the session replaced.  All data now saved to the postgressql backend using three models (case, loan and modellsettings) which are essentially the same as the dictionaries.&#10;&#10;- Some of the fieldnames were changed leading to small changes in the Views, Forms and Templates&#10;&#10;- The Django class based views handle most of the database interaction, so the View base classes were changes (Update, Create and List views) and code required to work with the dictionaries removed.  This implementation is less involved than the initial.&#10;&#10;- The loan and modelsettings models are extensions of case (one to one foreign keys) and are separated mainly for convenience.&#10;&#10;- A custom model manager returns either a queryset (which can be updated) or a dictionary (to add to the context)&#10;&#10;- The model is associated with the app 'case' not with 'client'&#10;&#10;2. A new Case app has been created to manage the list of outstanding cases (leads and opportunities).  This simple app is comprised of a ListView of cases and enables a user to select an individual case (Update View).  From there the user can navigate to a client meeting/interface app (client).  This is now the landing app of the site.&#10;&#10;  For security/navigation purposes (inadvertent navigation to another customer's information) the case app hands off to the client app via a UUID URL keyword.  There is no practical way to navigate to the client app unless passed across by the case app.&#10;  &#10; 3. Integration of API2PDF - the html templates used for the pdf were finalised.  That URL/View is never rendered by a user and is used by the API to render the page and convert to pdf.  The pdf is retrieved, stored on the app server, added to the case record and served to the browser.  The API uses the UUID to access the page.  Additional security (e.g., temporary UUID rather than the actual should be developed).&#10; &#10; 4. Consents - these were implemented using modals. Acceptance is recorded in the database as well as specific meeting time.  The consents were also added to the Summary PDF. Consent wording is maintained in HTML template components.&#10; &#10; 5. Loan utilities - the validation and projection classes were enhanced (changing field names and error handling).  These were moved out of the client app to the apps directory under a lib folder.&#10; &#10; 6. The eligibility app is still within the project folders but not reachable.  Most of the functionality is now in the case app (when client details are entered).  The remaining functionality will be included in Analyis functionality in case (then the app removed)&#10; &#10; NB Deployment risk/effort has increased somewhat with the use of models.  It is fine for a clean install - but making app changes with an existing database requires database migrations to be applied." />
+    <MESSAGE value="Re-synch after force commit (mistake)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Re-synch after force commit (mistake)" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/apps/lib/Postcodes.csv">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/apps/eligibility/lib/chkEligibility.py">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -792,6 +763,13 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/config/settings/deployment/production.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="22" lean-forward="true" selection-start-line="2" selection-end-line="22" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/static/uncollected/css/site.css">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="435">
@@ -856,7 +834,7 @@
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="60">
-          <caret line="4" selection-start-line="4" selection-end-line="4" />
+          <caret line="4" column="6" selection-start-line="4" selection-start-column="6" selection-end-line="4" selection-end-column="6" />
         </state>
       </provider>
     </entry>

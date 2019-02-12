@@ -35721,3 +35721,16 @@ TypeError: unsupported operand type(s) for *: 'NoneType' and 'int'
 "GET /accounts/password_reset/ HTTP/1.1" 200 4292
 Not Found: /favicon.ico
 "GET /favicon.ico HTTP/1.1" 404 2616
+"GET / HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 302 0
+"GET /accounts/login/?next=/landing/ HTTP/1.1" 200 4563
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /static/img/hhc/HC_Logo_Flat.png HTTP/1.1" 200 35859
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2616
+"POST /accounts/login/?next=/landing/ HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 200 5961
+"GET /static/css/client.css HTTP/1.1" 304 0
+"GET /case/caseDetail/9 HTTP/1.1" 200 12530
+"GET /accounts/logout/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 4821
