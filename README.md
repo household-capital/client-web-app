@@ -1,5 +1,19 @@
 # client-web-app
 
+## Environment and Execution
+As a python framework, Django is very dependent on python and its dependencies.  This application is written for Django 2.2.1 or later, which is itself dependent on Python3.  Python provides a light container to keep all the related python files together (virtualenv).  When in the virtual environment, anything installed using PIP will be saved to that environment only.  You can review the contents of that envionment by running
+ PIP freeze.
+
+The provisioning script calls for a virtualenv called 'env' located at ~/.virtualenvs.  This is separate from the project directory at ~/django_project
+
+To execute the program you must enter the virtual environment first and then run.  Specifically:
+```
+source ~/.virtualenvs/myenv/bin/activate
+cd ~/django_project
+python manage.py runserver
+``` 
+
+
 ## Background - Django
 ```
 Django is a high-level Python Web framework that encourages rapid development and clean, pragmatic design. 
