@@ -30,6 +30,13 @@ a,p, a:link, a:visited {
     line-height: normal;
 }
 
+td a, td a:link, td a:visited  {
+   display: block;
+	font-family: MaisonNeue;
+    color: black;
+}
+
+
 p.small {
     font-family: MaisonNeue;
     line-height: 150%;
@@ -41,6 +48,10 @@ p.small {
     font-size: larger;
 }
 
+.padding-30px{
+    padding-bottom: 30px;
+}
+
 .padding-15px{
     padding-bottom: 15px;
 }
@@ -49,11 +60,24 @@ p.small {
     padding-bottom: 10px;
 }
 
+.padding-5px{
+    padding-bottom: 5px;
+}
+
+.padding-7px{
+    padding-bottom: 7px;
+}
+
+
 .x-large {
     font-family: MaisonNeue;
     font-size: x-large;
 }
 
+.xx-large {
+    font-family: MaisonNeue;
+    font-size: xx-large;
+}
 
 .title {
     font-family: MercuryDisplay;
@@ -70,6 +94,17 @@ p.small {
     font-size: 18px;
 }
 
+.title-inverse{
+    font-family: MercuryDisplay;
+    font-size: 96px;
+    color: white;
+    line-height: 120%;
+}
+
+.HHCBlue{
+    background-color: rgb(25,38,63);
+    color: white
+}
 
 .fas.hhcLightBlue{
     color: rgb(81,132,161);
@@ -204,11 +239,6 @@ input[type=number]::-webkit-outer-spin-button {
 
 /* Images */
 
-.imgHidden{
-    visibility: hidden;
-}
-
-
 
 /* Landing Page */
 
@@ -272,51 +302,139 @@ a.btn-hhcGold{
 /* Printing */
 
 @page {
-  size: A4; /* Change from the default size of A4 */
-  margin: 0cm; /* Set margin on each page */
+  size: A4;
+  margin: 0!important;
+
+}
+@media print {
+    html, body {
+        width: 210mm;
+        height: 297mm;
+    }
 }
 
-.Section1 {
-    width: 21cm;
-    height: 29.7cm;
-    background-image: url("/static/img/document/SummaryPage1.jpg");
-    background-size:cover;
-}
+.page {width: 100%;
 
-.Section2 {
-    width: 21cm;
-    height: 29.7cm;
-    background-image: url("/static/img/document/SummaryPage2.jpg");
-    background-size:cover;
-    page-break-before: always;
-}
+    top:0px;
+    bottom:0px;
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+    float: none;
 
-.Section3 {
-    width: 21cm;
-    height: 29.7cm;
-    background-image: url("/static/img/document/SummaryPage3.jpg");
-    background-size:cover;
-    page-break-before: always;
-}
+    }
 
-.Section4 {
-    width: 21cm;
-    height: 29.7cm;
-    page-break-before: always;
-}
 
-.Section5 {
-    width: 21cm;
-    height: 29.7cm;
-    page-break-before: always;
-}
-
-.Section6 {
-    width: 21cm;
-    height: 29.7cm;
-    background-image: url("/static/img/document/SummaryPage6.jpg");
-    background-size:cover;
-    page-break-before: always;
+html, body {
+    height: 100%;
+    width:100%;
 }
 
 
+.print-text {
+    font-family: MaisonNeue;
+    line-height: 130%;
+    font-size: larger;
+}
+
+.print-container {
+    width: 100%;
+    padding-left: 50px;
+    padding-right: 50px;
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+.print-edge-row {
+    margin-left: -50px;
+    margin-right: -50px;
+}
+
+.print-edge-col{
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+
+.borderless{
+    padding-left:0px;
+    padding-right: 0px;
+    margin-left: 0px;
+    margin-right:0px;
+
+}
+.HHCBlueBackground-Printed{
+    background-color: #19263F;
+    color: white
+}
+
+.HHCLightBlue-Printed{
+    color: #5184A1 !important;
+}
+
+.border-spacing{
+    line-height: 250% !important;
+}
+
+@media print {
+
+    .col-sm-12,
+    .col-md-12,
+    .col-lg-12 {
+        width: 100%
+    }
+    .col-sm-11,
+    .col-md-11,
+    .col-lg-11 {
+        width: 91.66666667%
+    }
+    .col-sm-10,
+    .col-md-10,
+    .col-lg-10 {
+        width: 83.33333333%
+    }
+    .col-sm-9,
+    .col-md-9,
+    .col-lg-9 {
+        width: 75%
+    }
+    .col-sm-8,
+    .col-md-8,
+    .col-lg-8 {
+        width: 66.66666667%
+    }
+    .col-sm-7,
+    .col-md-7,
+    .col-lg-7 {
+        width: 58.33333333%
+    }
+    .col-sm-6,
+    .col-md-6,
+    .col-lg-6 {
+        width: 50%
+    }
+    .col-sm-5,
+    .col-md-5,
+    .col-lg-5 {
+        width: 41.66666667%
+    }
+    .col-sm-4,
+    .col-md-4,
+    .col-lg-4 {
+        width: 33.33333333%
+    }
+    .col-sm-3,
+    .col-md-3,
+    .col-lg-3 {
+        width: 25%
+    }
+    .col-sm-2,
+    .col-md-2,
+    .col-lg-2 {
+        width: 16.66666667%
+    }
+    .col-sm-1,
+    .col-md-1,
+    .col-lg-1 {
+        width: 8.33333333%
+    }
+}

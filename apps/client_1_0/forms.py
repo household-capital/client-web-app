@@ -396,7 +396,7 @@ class DetailedChkBoxForm(forms.ModelForm):
                                                label='I understand that I will need to consider future age care',required=True)
 
     choiceCenterlink = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect,
-                                               label='I understand that I will need to consider impacts on my Centerlink benefits',required=True)
+                                               label='I understand that I will need to consider impacts on my Centrelink benefits',required=True)
 
     choiceVariable = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect,
                                               label='I  understand that a Household Loan has a variable interest rate',required=True)

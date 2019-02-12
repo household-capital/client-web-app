@@ -34778,3 +34778,946 @@ Not Found: /favicon.ico
 "GET / HTTP/1.1" 302 0
 "GET /landing/ HTTP/1.1" 302 0
 "GET /accounts/login/?next=/landing/ HTTP/1.1" 200 4571
+"GET / HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 302 0
+"GET /accounts/login/?next=/landing/ HTTP/1.1" 200 4571
+"GET /static/css/registration.css HTTP/1.1" 304 0
+"GET /static/img/hhc/HC-Hero-FamilyOutside.jpg HTTP/1.1" 304 0
+"POST /accounts/login/?next=/landing/ HTTP/1.1" 200 4797
+"POST /accounts/login/?next=/landing/ HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 200 6362
+"GET /static/css/client.css HTTP/1.1" 200 6279
+"GET /static/fonts/MercuryDisplay-Semibold.otf HTTP/1.1" 304 0
+"GET /static/fonts/MaisonNeue-Book.otf HTTP/1.1" 304 0
+"GET /case/caseCreate HTTP/1.1" 200 11947
+"GET /case/caseCreate HTTP/1.1" 200 12138
+"GET /case/caseCreate HTTP/1.1" 200 12158
+"GET /case/caseCreate HTTP/1.1" 200 12117
+"GET /case/caseCreate HTTP/1.1" 200 12111
+"GET /case/caseCreate HTTP/1.1" 200 12115
+"GET /case/caseCreate HTTP/1.1" 200 12119
+"GET /case/caseCreate HTTP/1.1" 200 12119
+"GET /case/caseCreate HTTP/1.1" 200 12115
+"GET /case/caseList HTTP/1.1" 200 6348
+"GET /case/caseDetail/7 HTTP/1.1" 200 12946
+"POST /case/caseDetail/7 HTTP/1.1" 302 0
+"GET /case/caseDetail/7 HTTP/1.1" 200 13186
+"GET /case/caseList HTTP/1.1" 200 6354
+"GET /case/caseDetail/7 HTTP/1.1" 200 13186
+"POST /case/caseDetail/7 HTTP/1.1" 200 13344
+"POST /case/caseDetail/7 HTTP/1.1" 302 0
+"GET /case/caseDetail/7 HTTP/1.1" 200 12930
+Internal Server Error: /case/caseDetail/7
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 83, in rendered_content
+    content = template.render(context, self._request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 150, in render
+    return compiled_parent._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/templatetags/crispy_forms_tags.py", line 199, in render
+    c = self.get_render(context).flatten()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/templatetags/crispy_forms_tags.py", line 118, in get_render
+    actual_form.form_html = helper.render_layout(actual_form, node_context, template_pack=self.template_pack)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/helper.py", line 308, in render_layout
+    template_pack=template_pack
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 140, in render
+    return self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 361, in render
+    fields = self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 361, in render
+    fields = self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 361, in render
+    fields = self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 403, in render
+    return Template(text_type(self.html)).render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 156, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 194, in compile_nodelist
+    return parser.parse()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 478, in parse
+    raise self.error(token, e)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 476, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/defaulttags.py", line 951, in do_if
+    nodelist = parser.parse(('elif', 'else', 'endif'))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 483, in parse
+    self.unclosed_block_tag(parse_until)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 544, in unclosed_block_tag
+    raise self.error(token, msg)
+django.template.exceptions.TemplateSyntaxError: Unclosed tag on line 1: 'if'. Looking for one of: elif, else, endif.
+"GET /case/caseDetail/7 HTTP/1.1" 500 378091
+Internal Server Error: /case/caseDetail/7
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 83, in rendered_content
+    content = template.render(context, self._request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 150, in render
+    return compiled_parent._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/templatetags/crispy_forms_tags.py", line 199, in render
+    c = self.get_render(context).flatten()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/templatetags/crispy_forms_tags.py", line 118, in get_render
+    actual_form.form_html = helper.render_layout(actual_form, node_context, template_pack=self.template_pack)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/helper.py", line 308, in render_layout
+    template_pack=template_pack
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 140, in render
+    return self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 361, in render
+    fields = self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 361, in render
+    fields = self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 361, in render
+    fields = self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 403, in render
+    return Template(text_type(self.html)).render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 156, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 194, in compile_nodelist
+    return parser.parse()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 478, in parse
+    raise self.error(token, e)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 476, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/defaulttags.py", line 951, in do_if
+    nodelist = parser.parse(('elif', 'else', 'endif'))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 483, in parse
+    self.unclosed_block_tag(parse_until)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 544, in unclosed_block_tag
+    raise self.error(token, msg)
+django.template.exceptions.TemplateSyntaxError: Unclosed tag on line 1: 'if'. Looking for one of: elif, else, endif.
+"GET /case/caseDetail/7 HTTP/1.1" 500 378091
+Internal Server Error: /case/caseDetail/7
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 83, in rendered_content
+    content = template.render(context, self._request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 150, in render
+    return compiled_parent._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/templatetags/crispy_forms_tags.py", line 199, in render
+    c = self.get_render(context).flatten()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/templatetags/crispy_forms_tags.py", line 118, in get_render
+    actual_form.form_html = helper.render_layout(actual_form, node_context, template_pack=self.template_pack)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/helper.py", line 308, in render_layout
+    template_pack=template_pack
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 140, in render
+    return self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 361, in render
+    fields = self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 361, in render
+    fields = self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 361, in render
+    fields = self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 403, in render
+    return Template(text_type(self.html)).render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 156, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 194, in compile_nodelist
+    return parser.parse()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 478, in parse
+    raise self.error(token, e)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 476, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/defaulttags.py", line 951, in do_if
+    nodelist = parser.parse(('elif', 'else', 'endif'))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 483, in parse
+    self.unclosed_block_tag(parse_until)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 544, in unclosed_block_tag
+    raise self.error(token, msg)
+django.template.exceptions.TemplateSyntaxError: Unclosed tag on line 1: 'if'. Looking for one of: elif, else, endif.
+"GET /case/caseDetail/7 HTTP/1.1" 500 377792
+Internal Server Error: /case/caseDetail/7
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 83, in rendered_content
+    content = template.render(context, self._request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 150, in render
+    return compiled_parent._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/templatetags/crispy_forms_tags.py", line 199, in render
+    c = self.get_render(context).flatten()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/templatetags/crispy_forms_tags.py", line 118, in get_render
+    actual_form.form_html = helper.render_layout(actual_form, node_context, template_pack=self.template_pack)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/helper.py", line 308, in render_layout
+    template_pack=template_pack
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 140, in render
+    return self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 361, in render
+    fields = self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 361, in render
+    fields = self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 361, in render
+    fields = self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 403, in render
+    return Template(text_type(self.html)).render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 156, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 194, in compile_nodelist
+    return parser.parse()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 478, in parse
+    raise self.error(token, e)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 476, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/defaulttags.py", line 951, in do_if
+    nodelist = parser.parse(('elif', 'else', 'endif'))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 483, in parse
+    self.unclosed_block_tag(parse_until)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 544, in unclosed_block_tag
+    raise self.error(token, msg)
+django.template.exceptions.TemplateSyntaxError: Unclosed tag on line 1: 'if'. Looking for one of: elif, else, endif.
+"GET /case/caseDetail/7 HTTP/1.1" 500 377792
+Internal Server Error: /case/caseDetail/7
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 83, in rendered_content
+    content = template.render(context, self._request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 150, in render
+    return compiled_parent._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/templatetags/crispy_forms_tags.py", line 199, in render
+    c = self.get_render(context).flatten()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/templatetags/crispy_forms_tags.py", line 118, in get_render
+    actual_form.form_html = helper.render_layout(actual_form, node_context, template_pack=self.template_pack)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/helper.py", line 308, in render_layout
+    template_pack=template_pack
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 140, in render
+    return self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 361, in render
+    fields = self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 361, in render
+    fields = self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 361, in render
+    fields = self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 403, in render
+    return Template(text_type(self.html)).render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 156, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 194, in compile_nodelist
+    return parser.parse()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 478, in parse
+    raise self.error(token, e)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 476, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/defaulttags.py", line 951, in do_if
+    nodelist = parser.parse(('elif', 'else', 'endif'))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 483, in parse
+    self.unclosed_block_tag(parse_until)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 544, in unclosed_block_tag
+    raise self.error(token, msg)
+django.template.exceptions.TemplateSyntaxError: Unclosed tag on line 1: 'if'. Looking for one of: elif, else, endif.
+"GET /case/caseDetail/7 HTTP/1.1" 500 377792
+"GET /case/caseDetail/7 HTTP/1.1" 200 12930
+"GET /static/css/client.css HTTP/1.1" 200 6279
+"GET /static/img/hhc/HC_Logo_Flat.png HTTP/1.1" 200 35859
+"GET /static/fonts/MercuryDisplay-Semibold.otf HTTP/1.1" 200 112596
+"GET /static/fonts/MaisonNeue-Book.otf HTTP/1.1" 200 67752
+"POST /case/caseDetail/7 HTTP/1.1" 302 0
+"GET /case/caseDetail/7 HTTP/1.1" 200 13202
+"GET /case/caseDetail/7 HTTP/1.1" 200 13202
+"GET /case/caseDetail/7 HTTP/1.1" 200 13202
+Internal Server Error: /case/caseDetail/7
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 470, in parse
+    compile_func = self.tags[command]
+KeyError: 'media'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 83, in rendered_content
+    content = template.render(context, self._request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 150, in render
+    return compiled_parent._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/templatetags/crispy_forms_tags.py", line 199, in render
+    c = self.get_render(context).flatten()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/templatetags/crispy_forms_tags.py", line 118, in get_render
+    actual_form.form_html = helper.render_layout(actual_form, node_context, template_pack=self.template_pack)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/helper.py", line 308, in render_layout
+    template_pack=template_pack
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 140, in render
+    return self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 361, in render
+    fields = self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 361, in render
+    fields = self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 361, in render
+    fields = self.get_rendered_fields(form, form_style, context, template_pack, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in get_rendered_fields
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 104, in <genexpr>
+    for field in self.fields
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/utils.py", line 62, in render_field
+    form, form_style, context, template_pack=template_pack,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/crispy_forms/layout.py", line 403, in render
+    return Template(text_type(self.html)).render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 156, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 194, in compile_nodelist
+    return parser.parse()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 478, in parse
+    raise self.error(token, e)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 476, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/defaulttags.py", line 951, in do_if
+    nodelist = parser.parse(('elif', 'else', 'endif'))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 472, in parse
+    self.invalid_block_tag(token, command, parse_until)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 528, in invalid_block_tag
+    get_text_list(["'%s'" % p for p in parse_until], 'or'),
+django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 1: 'media', expected 'elif', 'else' or 'endif'. Did you forget to register or load this tag?
+"GET /case/caseDetail/7 HTTP/1.1" 500 384011
+"GET /case/caseDetail/7 HTTP/1.1" 200 13202
+"GET /case/caseDetail/7 HTTP/1.1" 200 13202
+Internal Server Error: /case/caseDetail/7
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 190, in get
+    return super().get(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 133, in get
+    return self.render_to_response(self.get_context_data())
+  File "/Users/developmentaccount/Development/hhc/apps/case/views.py", line 80, in get_context_data
+    if context['houseImage'] != None:
+KeyError: 'houseImage'
+"GET /case/caseDetail/7 HTTP/1.1" 500 89061
+"GET /case/caseDetail/7 HTTP/1.1" 200 13279
+"POST /case/caseDetail/7 HTTP/1.1" 302 0
+"GET /case/caseDetail/7 HTTP/1.1" 200 13279
+"GET /case/caseDetail/7 HTTP/1.1" 200 13279
+"GET /case/caseDetail/7 HTTP/1.1" 200 13278
+Not Found: /media/customerDocuments/HouseholdLogo_GJ5m9yh.png
+"GET /media/customerDocuments/HouseholdLogo_GJ5m9yh.png HTTP/1.1" 404 2895
+Internal Server Error: /case/caseDetail/7
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 190, in get
+    return super().get(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 133, in get
+    return self.render_to_response(self.get_context_data())
+  File "/Users/developmentaccount/Development/hhc/apps/case/views.py", line 81, in get_context_data
+    context['houseImageURL']=settings.STATIC+"/media/"+clientDict['houseImage']
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/conf/__init__.py", line 58, in __getattr__
+    val = getattr(self._wrapped, name)
+AttributeError: 'Settings' object has no attribute 'STATIC'
+"GET /case/caseDetail/7 HTTP/1.1" 500 93189
+"GET /case/caseDetail/7 HTTP/1.1" 200 13286
+"GET /static//media/customerDocuments/HouseholdLogo_GJ5m9yh.png HTTP/1.1" 404 1774
+"GET /case/caseDetail/7 HTTP/1.1" 200 13285
+"GET /static/media/customerDocuments/HouseholdLogo_GJ5m9yh.png HTTP/1.1" 404 1771
+Not Found: /hhcadminuser
+"GET /hhcadminuser HTTP/1.1" 404 2619
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2616
+Not Found: /hhcadminr
+"GET /hhcadminr HTTP/1.1" 404 2610
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2616
+"GET /hhcadmin HTTP/1.1" 301 0
+"GET /hhcadmin/ HTTP/1.1" 302 0
+"GET /hhcadmin/login/?next=/hhcadmin/ HTTP/1.1" 200 1835
+"GET /static/admin/css/responsive.css HTTP/1.1" 200 17976
+"GET /static/admin/css/login.css HTTP/1.1" 200 1203
+"GET /static/admin/css/base.css HTTP/1.1" 200 16225
+"GET /static/admin/css/fonts.css HTTP/1.1" 200 423
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2616
+"GET /static/admin/fonts/Roboto-Regular-webfont.woff HTTP/1.1" 200 80304
+"GET /static/admin/fonts/Roboto-Light-webfont.woff HTTP/1.1" 200 81348
+"POST /hhcadmin/login/?next=/hhcadmin/ HTTP/1.1" 200 2003
+"GET /static/admin/fonts/Roboto-Bold-webfont.woff HTTP/1.1" 200 82564
+"POST /hhcadmin/login/?next=/hhcadmin/ HTTP/1.1" 302 0
+"GET /hhcadmin/ HTTP/1.1" 200 7435
+"GET /static/admin/css/dashboard.css HTTP/1.1" 200 412
+"GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+"GET /static/admin/img/icon-deletelink.svg HTTP/1.1" 200 392
+"GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2616
+"GET /hhcadmin/case/case/ HTTP/1.1" 200 5007
+"GET /static/admin/css/changelists.css HTTP/1.1" 200 6170
+"GET /static/admin/js/actions.js HTTP/1.1" 200 6538
+"GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 271751
+"GET /static/admin/js/core.js HTTP/1.1" 200 7134
+"GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 6918
+"GET /static/admin/js/jquery.init.js HTTP/1.1" 200 363
+"GET /static/admin/js/urlify.js HTTP/1.1" 200 8972
+"GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1530
+"GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 128820
+"GET /hhcadmin/jsi18n/ HTTP/1.1" 200 5734
+"GET /static/admin/img/tooltag-add.svg HTTP/1.1" 200 331
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2616
+"GET /hhcadmin/case/case/7/change/ HTTP/1.1" 200 22186
+"GET /static/admin/css/forms.css HTTP/1.1" 200 8505
+"GET /static/admin/js/calendar.js HTTP/1.1" 200 7777
+"GET /static/admin/js/admin/DateTimeShortcuts.js HTTP/1.1" 200 20281
+"GET /static/admin/js/change_form.js HTTP/1.1" 200 712
+"GET /static/admin/js/prepopulate_init.js HTTP/1.1" 200 495
+"GET /static/admin/css/widgets.css HTTP/1.1" 200 10340
+"GET /hhcadmin/jsi18n/ HTTP/1.1" 200 5734
+"GET /static/admin/img/tooltag-arrowright.svg HTTP/1.1" 200 280
+"GET /static/admin/img/icon-calendar.svg HTTP/1.1" 200 1086
+"GET /static/admin/img/icon-clock.svg HTTP/1.1" 200 677
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2616
+"GET /hhcadmin/case/case/ HTTP/1.1" 200 5007
+"GET /hhcadmin/jsi18n/ HTTP/1.1" 200 5734
+"POST /hhcadmin/case/case/ HTTP/1.1" 200 3567
+"GET /static/admin/js/cancel.js HTTP/1.1" 200 410
+"POST /hhcadmin/case/case/ HTTP/1.1" 302 0
+"GET /hhcadmin/case/case/ HTTP/1.1" 200 4901
+"GET /hhcadmin/jsi18n/ HTTP/1.1" 200 5734
+"GET /static/admin/img/icon-yes.svg HTTP/1.1" 200 436
+Not Found: /case/caseDetail/7
+"GET /case/caseDetail/7 HTTP/1.1" 404 1753
+Not Found: /case/caseDetail/7
+"GET /case/caseDetail/7 HTTP/1.1" 404 1753
+Not Found: /case/caseDetail
+"GET /case/caseDetail HTTP/1.1" 404 3077
+Not Found: /case/caseDetail/3
+"GET /case/caseDetail/3 HTTP/1.1" 404 1753
+"GET /case/caseList HTTP/1.1" 200 5960
+"GET /case/caseList HTTP/1.1" 200 5960
+Internal Server Error: /case/caseDetail/10
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 190, in get
+    return super().get(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 133, in get
+    return self.render_to_response(self.get_context_data())
+  File "/Users/developmentaccount/Development/hhc/apps/case/views.py", line 80, in get_context_data
+    if clientDict['houseImage'] != None:
+KeyError: 'houseImage'
+"GET /case/caseDetail/10 HTTP/1.1" 500 89033
+"GET /case/caseDetail/10 HTTP/1.1" 200 12348
+"POST /case/caseDetail/10 HTTP/1.1" 200 12487
+"POST /case/caseDetail/10 HTTP/1.1" 302 0
+"GET /case/caseDetail/10 HTTP/1.1" 200 12356
+"GET /case/caseList HTTP/1.1" 200 5948
+"GET / HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 200 5949
+"GET /case/caseDetail/10 HTTP/1.1" 200 12356
+"GET /case/caseDetail/4 HTTP/1.1" 200 12665
+"GET /client/meeting/6e27c88a-041f-4f01-bb8f-ec144edf726d HTTP/1.1" 200 18318
+"GET /client/meeting/start/1/ HTTP/1.1" 200 18325
+"GET /client/meeting/start/2/ HTTP/1.1" 200 18321
+"GET /static/img/icons/care_icon.png HTTP/1.1" 304 0
+"GET /static/img/icons/give_icon.png HTTP/1.1" 304 0
+"GET /static/img/icons/live_icon.png HTTP/1.1" 304 0
+"GET /static/img/icons/topup_icon.png HTTP/1.1" 304 0
+"GET /static/img/hhc/HC-Hero-FamilyInside.jpeg HTTP/1.1" 304 0
+"GET /client/introduction1 HTTP/1.1" 200 5920
+"GET /static/img/icons/nestEgg_icon.png HTTP/1.1" 304 0
+"GET /static/img/icons/equity_8_icon.png HTTP/1.1" 304 0
+"GET /static/img/icons/equity_10_icon.png HTTP/1.1" 304 0
+"GET /static/img/icons/dollar_icon.png HTTP/1.1" 304 0
+"GET /static/img/icons/income_5_icon.png HTTP/1.1" 304 0
+"GET /client/results1 HTTP/1.1" 302 0
+"GET /client/results2 HTTP/1.1" 200 14418
+"GET /client/introduction1 HTTP/1.1" 200 5920
+"GET /static/img/icons/person_icon.png HTTP/1.1" 304 0
+"GET /static/img/icons/home_icon.png HTTP/1.1" 304 0
+"GET /client/introduction2 HTTP/1.1" 200 8713
+"GET /static/img/icons/couple_icon.png HTTP/1.1" 304 0
+"POST /client/introduction2 HTTP/1.1" 302 0
+"GET /client/introduction3 HTTP/1.1" 200 5958
+"GET /static/img/icons/release_cash_icon.png HTTP/1.1" 304 0
+"GET /static/img/icons/release_19_icon.png HTTP/1.1" 304 0
+"GET /static/img/icons/release_26_icon.png HTTP/1.1" 304 0
+"GET /client/introduction3/2/ HTTP/1.1" 200 6271
+"GET /client/introduction4 HTTP/1.1" 200 6609
+"GET /client/introduction3 HTTP/1.1" 200 5958
+"GET /client/introduction3 HTTP/1.1" 200 5958
+"GET /client/results1 HTTP/1.1" 302 0
+"GET /client/results2 HTTP/1.1" 200 14418
+"GET / HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 200 5949
+"GET /accounts/logout/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 4829
+"GET /accounts/login/ HTTP/1.1" 200 4571
+"GET /accounts/login/ HTTP/1.1" 200 4571
+"GET /accounts/login/ HTTP/1.1" 200 4571
+"GET /accounts/login/ HTTP/1.1" 200 4571
+"GET /static/css/registration.css HTTP/1.1" 200 1284
+"GET /static/img/hhc/HC_Logo_Flat.png HTTP/1.1" 200 35859
+"GET /static/img/hhc/HC-Hero-FamilyOutside.jpg HTTP/1.1" 200 588175
+"GET /accounts/login/ HTTP/1.1" 200 4571
+"GET /accounts/login/ HTTP/1.1" 200 4571
+Not Found: /apple-touch-icon-precomposed.png
+"GET /apple-touch-icon-precomposed.png HTTP/1.1" 404 2679
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2616
+Not Found: /apple-touch-icon.png
+"GET /apple-touch-icon.png HTTP/1.1" 404 2643
+"GET /accounts/login/ HTTP/1.1" 200 4571
+"GET /accounts/login/ HTTP/1.1" 200 4571
+"GET /accounts/login/ HTTP/1.1" 200 4563
+"GET /static/css/site.css HTTP/1.1" 200 2141
+"GET /static/fonts/MaisonNeue-Book.otf HTTP/1.1" 200 67752
+"GET /accounts/login/ HTTP/1.1" 200 4563
+"GET /accounts/login/ HTTP/1.1" 200 4571
+"GET /accounts/login/ HTTP/1.1" 200 4571
+"GET /accounts/login/ HTTP/1.1" 200 4571
+"GET /accounts/login/ HTTP/1.1" 200 4571
+"GET /accounts/login/ HTTP/1.1" 200 4571
+"POST /accounts/login/ HTTP/1.1" 200 4797
+"POST /accounts/login/ HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 200 5956
+"GET /static/css/client.css HTTP/1.1" 200 6279
+"GET /static/fonts/MercuryDisplay-Semibold.otf HTTP/1.1" 200 112596
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2616
+"GET /case/caseDetail/10 HTTP/1.1" 200 12356
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2616
+"GET /case/caseDetail/9 HTTP/1.1" 200 12500
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2616
+Internal Server Error: /client/meeting/612503e9-0913-43ea-b33f-d9f91804f5da
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/Development/hhc/apps/client_1_0/views.py", line 150, in get
+    return super(LandingView,self).get(self, request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 149, in get
+    context = self.get_context_data(**kwargs)
+  File "/Users/developmentaccount/Development/hhc/apps/client_1_0/views.py", line 121, in get_context_data
+    loanObj.update(annualPensionIncome=self.extra_context['pensionAmount']*26)
+TypeError: unsupported operand type(s) for *: 'NoneType' and 'int'
+"GET /client/meeting/612503e9-0913-43ea-b33f-d9f91804f5da HTTP/1.1" 500 91861
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2616
+"GET /case/caseDetail/4 HTTP/1.1" 200 12665
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2616
+"GET /client/meeting/6e27c88a-041f-4f01-bb8f-ec144edf726d HTTP/1.1" 200 18321
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2616
+"GET /client/introduction1 HTTP/1.1" 200 5920
+"GET /static/img/icons/live_icon.png HTTP/1.1" 200 5988
+"GET /static/img/icons/give_icon.png HTTP/1.1" 200 6580
+"GET /static/img/icons/topup_icon.png HTTP/1.1" 200 8019
+"GET /static/img/hhc/HC-Hero-FamilyInside.jpeg HTTP/1.1" 200 94528
+"GET /static/img/icons/care_icon.png HTTP/1.1" 200 9100
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2616
+"GET /landing/ HTTP/1.1" 200 5956
+"GET /case/caseDetail/10 HTTP/1.1" 200 12356
+"GET /case/caseDetail/9 HTTP/1.1" 200 12500
+Internal Server Error: /client/meeting/612503e9-0913-43ea-b33f-d9f91804f5da
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/Development/hhc/apps/client_1_0/views.py", line 150, in get
+    return super(LandingView,self).get(self, request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 149, in get
+    context = self.get_context_data(**kwargs)
+  File "/Users/developmentaccount/Development/hhc/apps/client_1_0/views.py", line 121, in get_context_data
+    loanObj.update(annualPensionIncome=self.extra_context['pensionAmount']*26)
+TypeError: unsupported operand type(s) for *: 'NoneType' and 'int'
+"GET /client/meeting/612503e9-0913-43ea-b33f-d9f91804f5da HTTP/1.1" 500 91861
+Internal Server Error: /client/meeting/612503e9-0913-43ea-b33f-d9f91804f5da
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/Development/hhc/apps/client_1_0/views.py", line 150, in get
+    return super(LandingView,self).get(self, request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 149, in get
+    context = self.get_context_data(**kwargs)
+  File "/Users/developmentaccount/Development/hhc/apps/client_1_0/views.py", line 121, in get_context_data
+    loanObj.update(annualPensionIncome=self.extra_context['pensionAmount']*26)
+TypeError: unsupported operand type(s) for *: 'NoneType' and 'int'
+"GET /client/meeting/612503e9-0913-43ea-b33f-d9f91804f5da HTTP/1.1" 500 91861
+"POST /case/caseDetail/9 HTTP/1.1" 302 0
+"GET /case/caseDetail/9 HTTP/1.1" 200 12530
+"GET /client/meeting/612503e9-0913-43ea-b33f-d9f91804f5da HTTP/1.1" 200 18176
+"GET /accounts/logout/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 4829
+"GET /accounts/login/ HTTP/1.1" 200 4571
+"GET /accounts/login/ HTTP/1.1" 200 4571
+"GET /accounts/login/ HTTP/1.1" 200 4563
+"GET /static/css/site.css HTTP/1.1" 200 2235
+"GET /accounts/login/ HTTP/1.1" 200 4563
+"GET /static/css/site.css HTTP/1.1" 200 2234
+"GET /accounts/login/ HTTP/1.1" 200 4563
+"GET /static/css/site.css HTTP/1.1" 200 2251
+"GET /accounts/login/ HTTP/1.1" 200 4563
+"GET /static/css/site.css HTTP/1.1" 200 2246
+"GET /accounts/login/ HTTP/1.1" 200 4563
+"GET /static/css/site.css HTTP/1.1" 200 2235
+"GET /accounts/login/ HTTP/1.1" 200 4563
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /accounts/password_reset/ HTTP/1.1" 200 4292
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2616

@@ -1,4 +1,4 @@
 /config/settings/deployment/production.py
 *__pycache__*
 *.DS_Store
-*migrations
+migrations/

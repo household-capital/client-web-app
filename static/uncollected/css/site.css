@@ -100,7 +100,7 @@ body {
 
 .hero::after {
   content: "";
-  background-image: url("/static/img/HC-hero-002.jpg");
+  background-image: url("/static/img/hhc/HC-Hero-FamilyOutside.jpg");
   opacity: 0.3;
   top: 0;
   left: 0;
@@ -135,4 +135,13 @@ body {
 
 .padding-10px{
     padding-bottom: 10px;
+}
+
+
+
+body {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    overflow: hidden;
 }
