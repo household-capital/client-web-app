@@ -7,6 +7,25 @@ from django.db import models
 from django.utils.encoding import smart_text
 from django.urls import reverse_lazy
 
+from apps.lib.enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,pensionTypesEnum, loanTypesEnum
+
+
+
+class FundDetail(models.Model):
+    fundID=models.AutoField(primary_key=True)
+    fundName=models.CharField(max_length=30,blank=False, null=False)
+    fundImage = models.ImageField(null=False, blank=False, upload_to='fundImages')
+
+    def __str__(self):
+        return smart_text(self.fundName)
+
+    def __unicode__(self):
+        return smart_text(self.fundName)
+
+
+    class Meta:
+        ordering = ('fundName',)
+
 
 class CaseManager(models.Manager):
     #Custom model manager to return related querysets (using UID)
@@ -23,37 +42,35 @@ class CaseManager(models.Manager):
 
 
 class Case(models.Model):
-
-    caseTypes = (
-        (0, 'Lead'),
-        (1, 'Opportunity'),
-        (2, 'Application'),
-        (3, 'Settlement'),
-        (4, 'Funded'),
-        (5, 'Closed'))
+    caseTypes=(
+                  (caseTypesEnum.LEAD.value,"Lead"),
+                  (caseTypesEnum.OPPORTUNITY.value, "Opportunity"),
+                  (caseTypesEnum.MEETING_HELD.value, "Meeting Held"),
+                  (caseTypesEnum.CLOSED.value, "Closed"),
+    )
 
     clientTypes=(
-    (0, 'Borrower'),
-    (1, 'Nominated Occupant'),
-    (2, 'Power of Attorney'))
+        (clientTypesEnum.BORROWER.value, 'Borrower'),
+        (clientTypesEnum.NOMINATED_OCCUPANT.value, 'Nominated Occupant'),
+        (clientTypesEnum.POWER_OF_ATTORNEY.value, 'Power of Attorney'),)
 
     clientSex=(
-    (0, 'Female'),
-    (1, 'Male'))
+        (clientSexEnum.FEMALE.value, 'Female'),
+        (clientSexEnum.MALE.value, 'Male'))
 
     dwellingTypes=(
-    (0, 'House'),
-    (1, 'Apartment'))
+        (dwellingTypesEnum.HOUSE.value, 'House'),
+        (dwellingTypesEnum.APARTMENT.value, 'Apartment'))
 
     pensionTypes=(
-        (0, 'Full'),
-        (1, 'Partial'),
-        (2, 'None')
+        (pensionTypesEnum.FULL_PENSION.value, 'Full'),
+        (pensionTypesEnum.PARTIAL_PENSION.value, 'Partial'),
+        (pensionTypesEnum.NO_PENSION.value, 'None')
     )
 
     loanTypes=(
-        (0,'Single'),
-        (1,'Joint')
+        (loanTypesEnum.SINGLE_BORROWER.value,'Single'),
+        (loanTypesEnum.JOINT_BORROWER.value,'Joint')
     )
 
     caseID = models.AutoField(primary_key=True)
@@ -81,8 +98,9 @@ class Case(models.Model):
     postcode=models.IntegerField(null=True, blank=True)
     valuation=models.IntegerField(null=True, blank=True)
     dwellingType=models.IntegerField(choices=dwellingTypes,null=True, blank=True)
+    propertyImage=models.ImageField(null=True, blank=True,upload_to='customerImages')
     mortgageDebt=models.IntegerField(null=True, blank=True)
-    superName=models.CharField(max_length=30, null=True, blank=True)
+    superFund=models.ForeignKey(FundDetail,null=True, blank=True, on_delete=models.SET_NULL)
     superAmount=models.IntegerField(null=True, blank=True)
     pensionType=models.IntegerField(choices=pensionTypes,default=2)
     pensionAmount=models.IntegerField(null=True, blank=True)
@@ -103,6 +121,9 @@ class Case(models.Model):
 
     def __unicode__(self):
         return smart_text(self.caseDescription)
+
+    def enumCaseType(self):
+        return self.caseTypes[self.caseType][1]
 
 
     class Meta:
@@ -168,10 +189,10 @@ class Loan(models.Model):
     objects=CaseManager()
 
     def __str__(self):
-        return smart_text(self.localLoanID)
+        return smart_text(self.case.caseDescription)
 
     def __unicode__(self):
-        return smart_text(self.localLoanID)
+        return smart_text(self.case.caseDescription)
 
 
 class ModelSetting(models.Model):

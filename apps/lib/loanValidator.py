@@ -92,9 +92,31 @@ class LoanValidator():
         if self.maxLvr/100 * self.aggDict['valuation'] < LOAN_LIMITS['minLoanSize']:
             status['status'] = "Error"
             status['details'] = 'Minimum Loan Size cannot be met'
+            return status
+
+         # Check Mortgage Debt
+        if 'mortgageDebt' in self.aggDict:
+            if int(self.aggDict['mortgageDebt'])>int(self.maxLvr/100 * self.aggDict['valuation'] * LOAN_LIMITS['maxRefi']):
+                status['status'] = "Error"
+                status['details'] = 'Mortgage debt too large to be refinanced'
+                return status
+
+        # Restrictions
+        restrictions={}
+
+        restrictions['maxLoan'] = int(self.maxLvr/100 * self.aggDict['valuation'])
+        restrictions['maxFee']=int(restrictions['maxLoan'] * LOAN_LIMITS['establishmentFee']/(1+LOAN_LIMITS['establishmentFee']))
+        restrictions['maxLVR']=int(self.maxLvr)
+        restrictions['maxTopUp'] = LOAN_LIMITS['maxTopUp']
+        restrictions['maxCare'] = LOAN_LIMITS['maxCare']
+        restrictions['maxReno'] = LOAN_LIMITS['maxReno']
+        restrictions['maxRefi'] = int(self.maxLvr/100  * self.aggDict['valuation']  * LOAN_LIMITS['maxRefi'])
+        restrictions['maxGive'] = int(self.maxLvr/100 * self.aggDict['valuation']  * LOAN_LIMITS['maxGive'])
+        restrictions['maxTravel'] = int(self.maxLvr/100 * self.aggDict['valuation']  * LOAN_LIMITS['maxTravel'])
+
+        status['restrictions']=restrictions
 
         return status
-
 
     def getStatus(self):
         # Provides detailed array based on primary purposes. Designed to be utilsied as the app procedures throught the application
@@ -136,7 +158,6 @@ class LoanValidator():
         self.chkStatusItem('travelStatus', self.aggDict['travelAmount'], self.travelLimit, "GTE")
         self.chkStatusItem('careStatus', self.aggDict['careAmount'], LOAN_LIMITS['maxCare'], "GTE")
 
-        print(self.status)
         return self.status
 
     def chkStatusItem(self,label,amount,limit,condition):

@@ -227,9 +227,6 @@ class LoanProjection():
             calcArray[period]["Drawdown"] = calcArray[period-1]["Drawdown"] * (1 + self.aggDict['inflationRate']/100)
             calcArray[period]["Return"] = (calcArray[period]["BOPBalance"] - calcArray[period]["Drawdown"] / 2) * self.aggDict['investmentRate']/100
             #Check for exhausted Super Balance
-            if calcArray[period]["BOPBalance"]<calcArray[period]["Drawdown"]:
-                calcArray[period]["Drawdown"]=calcArray[period]["BOPBalance"]
-                calcArray[period]["Return"]=0
             calcArray[period]["EOPBalance"] = calcArray[period]["BOPBalance"] - calcArray[period]["Drawdown"] + calcArray[period]["Return"]
 
             calcArray[period]["PensionIncome"] = calcArray[period-1]["PensionIncome"]* (1 + self.aggDict['inflationRate']/100)
@@ -256,4 +253,5 @@ class LoanProjection():
             return 0
         else:
             return numerator/divisor
+
 

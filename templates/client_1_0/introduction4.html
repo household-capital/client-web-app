@@ -43,7 +43,7 @@
             <div class="col-lg-3 text-center">
 
                 {% if post_id >= 1 %}
-                    {% if loanType == 0 %}
+                    {% if loanType == loanTypesEnum.SINGLE_BORROWER.value %}
                         <div class="imgContainer"><img src="{% static 'img/icons/person_icon.png' %}" width="125px"></div>
                         <p> {{ firstname_1 }}&nbsp;{{ surname_1 }}</p><br>
                         <p>{{ age_1 }} years old</p>
@@ -62,10 +62,11 @@
             <div class="col-lg-3 text-center">
 
                 {% if post_id >= 2 %}
-                    <div class="imgContainer"><img src="{% static 'img/logos/sunsuper_logo.jpg' %}"
+                    <div class="imgContainer"><img src="{% if obj.superFund  %}{{ obj.superFund.fundImage.url }}{% else%}{% static 'img/icons/nestEgg_icon.png' %}{% endif %}"
                                                    class="rounded-circle" alt="SuperFund" width="125px" height="125px">
                     </div>
-                    <p>{{ superName }}</p>
+
+                    <p>{{ obj.superFund.fundName }}</p>
                     <br><p>Balance</p>
                     <p>${{ superAmount|intcomma }}</p>
                 {% else %}
@@ -80,7 +81,7 @@
 
                 {% if post_id >= 3 %}
 
-                    <div class="imgContainer"><img src="{% static 'img/properties/house_pic.jpeg' %}"
+                    <div class="imgContainer"><img src="{% if obj.propertyImage  %}{{ obj.propertyImage.url }}{% else%}{% static 'img/icons/home_icon.png' %}{% endif %}"
                                                    class="rounded-circle" alt="SuperFund" width="125px" height="125px">
                     </div>
                     <p> {{ street }}</p>

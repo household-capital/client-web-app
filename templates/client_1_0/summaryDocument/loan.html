@@ -17,7 +17,7 @@
                     {% if renovateAmount == 0 and travelAmount == 0 %} style="filter: grayscale(100%)" {% endif %};></div>
         </div>
         <div class="col-lg-3 text-center">
-            <div class="imgContainer"><img src="{% static 'img/icons/give_icon.png' %}" width="125px" {% if giveAmount == 0 %}
+            <div class="imgContainer"><img src="{% static 'img/icons/give_icon.png' %}" width="125px" {% if giveAmount == 0 and protectedEquity == 0 %}
                                            style="filter: grayscale(100%)" {% endif %};></div>
         </div>
         <div class="col-lg-3 text-center">
@@ -89,6 +89,12 @@
             {% else %}
                 <p class="print-text">You would like to give: N/A</p>
             {% endif %}
+            <br>
+            {% if protectedEquity != 0 %}
+                <p class="print-text">You have chosen to reserve <b>{{ protectedEquity }}</b>% of your home equity</p>
+            {% endif %}
+
+
         </div>
         <div class="col-lg-3 ">
             {% if careAmount != 0 %}

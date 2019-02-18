@@ -179,7 +179,7 @@
         above.</h5><br>
 
 
-    <b>Agreed by {{ firstname_1 }} {{ surname_1 }} {% if loanType == 1 %} and {{ firstname_2 }}
+    <b>Agreed by {{ firstname_1 }} {{ surname_1 }} {% if loanType == loanTypeEnum.JOINT_BORROWER.value %} and {{ firstname_2 }}
         {{ surname_2 }}{% endif %}
         <br>
         Signed electronically: {{ meetingDate }}</b>

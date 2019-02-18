@@ -1,12 +1,19 @@
 #Python Imports
 import datetime
+import os
 
 #Django Imports
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.db.models import Q
-from django.views.generic import ListView, UpdateView, CreateView
+from django.core.mail import EmailMultiAlternatives
+from django.http import HttpResponseRedirect
+from django.template.loader import get_template
+from django.urls import reverse_lazy, reverse
+from django.views.generic import ListView, UpdateView, CreateView, TemplateView
 
+from apps.lib.enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,pensionTypesEnum, loanTypesEnum
 
 #Third-party Imports
 
@@ -82,16 +89,27 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         obj = form.save(commit=False)
 
-        # Update age if birthdate present
+        # Update age if birthdate present and user
         if obj.birthdate_1 != None:
             obj.age_1 = datetime.date.today().year-obj.birthdate_1.year
-
         if obj.birthdate_2 != None:
             obj.age_2 = datetime.date.today().year - obj.birthdate_2.year
-
-        obj.user=self.request.user
-
         obj.save()
+
+        import pathlib
+
+        if obj.propertyImage:
+            path,filename=obj.propertyImage.name.split("/")
+            ext=pathlib.Path(obj.propertyImage.name).suffix
+            print(ext)
+
+
+            newFilename=settings.MEDIA_ROOT+"/"+path+"/"+str(obj.caseUID)+"."+ext
+            os.rename(settings.MEDIA_ROOT+"/"+obj.propertyImage.name,
+                      newFilename)
+            obj.propertyImage = path+"/"+str(obj.caseUID)+"."+ext
+            obj.save(update_fields=['propertyImage'])
+
         return super(CaseDetailView, self).form_valid(form)
 
 class CaseCreateView(LoginRequiredMixin, CreateView):
@@ -123,3 +141,34 @@ class CaseCreateView(LoginRequiredMixin, CreateView):
 
         obj.save()
         return super(CaseCreateView,self).form_valid(form)
+
+
+class EmailSummary(LoginRequiredMixin, TemplateView):
+
+     def get(self, request, **kwargs):
+
+            caseID=kwargs['pk']
+            email_context={}
+
+            template_html = "case/email.html"
+            caseDict=Case.objects.filter(caseID=caseID).values()[0]
+            email_context.update(caseDict)
+
+            loanObj = LoanValidator([], caseDict)
+            email_context['status'] = loanObj.chkClientDetails()
+
+            subject, from_email, to = "Household Loan Enquiry - "+email_context['caseDescription'], \
+                                      settings.DEFAULT_FROM_EMAIL, \
+                                      request.user.email
+            text_content = "Text Message"
+
+            html = get_template(template_html)
+            html_content = html.render(email_context)
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+            print(email_context)
+            messages.success(request, "Case information has been emailed to you")
+
+            return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs= {'pk':caseID}))
+

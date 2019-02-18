@@ -36,6 +36,10 @@ td a, td a:link, td a:visited  {
     color: black;
 }
 
+a:hover, a:active {
+    text-decoration: none;
+}
+
 
 p.small {
     font-family: MaisonNeue;

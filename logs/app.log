@@ -1,0 +1,17 @@
+2019-02-16 00:24:30.201016|INFO|LandingView|get|Meeting commenced by Murray for -6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-02-16 00:28:16.401201|ERROR|pdfProduction|get|Api2Pdf timeout error -6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-02-16 00:28:16.403530|INFO|pdfProduction|get|Meeting ended for -6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-02-16 15:53:41.638985|INFO|LandingView|get|Meeting commenced by Murray for -6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-02-16 15:54:04.929000|INFO|pdfProduction|get|Api2Pdf success -6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-02-16 15:54:07.278097|INFO|pdfProduction|get|Summary Report Saved-6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-02-16 15:54:12.151367|INFO|pdfProduction|get|Meeting ended for:6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-02-16 16:07:05.338937|INFO|LandingView|get|Meeting commenced by Murray for -6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-02-16 16:08:55.881036|INFO|PdfProduction|get|Api2Pdf success -6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-02-16 16:08:57.916579|INFO|PdfProduction|get|Summary Report Saved-6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-02-16 16:09:02.725458|INFO|PdfProduction|get|Meeting ended for:6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-02-16 16:27:46.667854|INFO|LandingView|get|Meeting commenced by Murray for -6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-02-16 16:41:57.173887|INFO|LandingView|get|Meeting commenced by Murray for -6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-02-16 16:43:26.416901|INFO|PdfProduction|get|Api2Pdf success -6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-02-16 16:43:28.873326|INFO|PdfProduction|get|Summary Report Saved-6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-02-16 16:43:34.186322|INFO|PdfProduction|get|Meeting ended for:6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-02-16 19:09:56.264024|INFO|LandingView|get|Meeting commenced by Murray for -6e27c88a-041f-4f01-bb8f-ec144edf726d
