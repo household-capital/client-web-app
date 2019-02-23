@@ -13,8 +13,6 @@ from django.template.loader import get_template
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, UpdateView, CreateView, TemplateView
 
-from apps.lib.enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,pensionTypesEnum, loanTypesEnum
-
 #Third-party Imports
 
 #Local Application Imports

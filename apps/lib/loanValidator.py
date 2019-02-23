@@ -3,6 +3,9 @@ import csv
 from apps.lib.globals import LOAN_LIMITS
 from django.conf import settings
 
+from apps.lib.enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,pensionTypesEnum, loanTypesEnum
+
+
 class LoanValidator():
 
     #Utility class to validate whether a loan meets HHC lending guidelines and restrictions
@@ -16,12 +19,12 @@ class LoanValidator():
         self.aggDict.update(loanDict)
         self.aggDict.update(clientDict)
 
-        if self.aggDict['dwellingType']==0:
+        if self.aggDict['dwellingType']==dwellingTypesEnum.HOUSE.value:
             self.isApartment=False
         else:
             self.isApartment = True
 
-        if self.aggDict['loanType']==1:
+        if self.aggDict['loanType']==loanTypesEnum.JOINT_BORROWER.value:
             self.isCouple = True
             self.clientAge = min(self.aggDict['age_1'],self.aggDict['age_2'])
         else:
@@ -69,7 +72,7 @@ class LoanValidator():
             status['details'] = 'Invalid Postcode'
 
 
-        if self.aggDict['loanType'] == 1 and self.aggDict['age_2'] == None:
+        if self.aggDict['loanType'] == loanTypesEnum.JOINT_BORROWER.value and self.aggDict['age_2'] == None:
             status['status'] = "Error"
             status['details'] = 'Missing Age'
             return status

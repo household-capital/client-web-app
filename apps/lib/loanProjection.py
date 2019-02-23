@@ -1,6 +1,9 @@
 from apps.lib.globals import APP_SETTINGS
 from math import log
 
+from apps.lib.enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,pensionTypesEnum, loanTypesEnum
+
+
 class LoanProjection():
 
     # CLASS VARIABLES
@@ -15,7 +18,7 @@ class LoanProjection():
         self.aggDict.update(aggregateDictionary)
 
         self.projectionAge = self.aggDict['projectionAge']
-        if self.aggDict['loanType']==0:
+        if self.aggDict['loanType']==loanTypesEnum.SINGLE_BORROWER.value:
             self.minAge=self.aggDict['age_1']
         else:
             self.minAge = min(self.aggDict['age_1'],self.aggDict['age_2'])

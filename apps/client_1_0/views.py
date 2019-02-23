@@ -883,3 +883,25 @@ class PdfReport(ResultsHelper, TemplateView):
         return context
 
 
+class PdfRespLending(TemplateView):
+    #This page is not designed to be viewed - it is to be called by the pdf generator
+    #It requires a UID to be passed to it
+
+    template_name = "client_1_0/summaryDocument/respLending.html"
+
+    def get_context_data(self, **kwargs):
+
+        context = super(PdfRespLending, self).get_context_data(**kwargs)
+
+        if 'uid' in kwargs:
+
+            caseUID=str(kwargs['uid'])
+
+            # get dictionaries from model
+            clientDict = Case.objects.dictionary_byUID(caseUID)
+            loanDict = Loan.objects.dictionary_byUID(caseUID)
+
+            context.update(clientDict)
+            context.update(loanDict)
+
+        return context

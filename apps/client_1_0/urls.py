@@ -42,6 +42,7 @@ urlpatterns = [
 
     path('PdfProduction', views.PdfProduction.as_view(), name='PdfProduction'),
     path('PdfReport/<uuid:uid>', views.PdfReport.as_view()),
+    path('PdfRespLending/<uuid:uid>', views.PdfRespLending.as_view())
 
 ]
 

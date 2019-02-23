@@ -1,0 +1,420 @@
+{% load static %}
+{% load humanize %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- The above 2 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="{% static 'img/favicon/favicon.png' %}"/>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.6.1/css/all.css"
+          integrity="sha384-NJXGk7R+8gWGBdutmr+/d6XDokLwQhF1U3VA7FhvBDlOq7cNdI69z7NQdnXxcF7k" crossorigin="anonymous">
+    <link href="/static/css/calculator.css" rel="stylesheet">
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+
+    <title>Household Capital Calculator</title>
+</head>
+
+
+<body>
+
+<div class="container justify-content-md-center">
+    <div class="row justify-content-md-center">
+        <div class="col-lg-9">
+            <br><br>
+            <div class="container cal_background">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form id="clientForm" method="post">
+                            {% csrf_token %}
+
+                            <div class="row">
+
+                                <div class="col-lg-7">
+                                    <br>
+                                    <p class="x-large">Your Household Transfer</p>
+                                    <p>You may be eligible for a transfer of up to:*</p>
+
+                                    <div class="row">
+                                        <div class="col-lg-8 pr-0">
+
+                                            <br>
+
+                                            <img class="img-fluid" src="{% static 'img/icons/' %}{{ transfer_img }}">
+                                        </div>
+
+                                        <div class="col-lg-4 pl-0">
+
+                                            <br><br><br>
+                                            <p class="xx-large">${{ obj.maxLoanAmount }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="row pt-2">
+                                        {% if success %}
+                                            <div class="col-lg-12 text-center">
+                                                <br>
+                                                {% for message in messages %}
+                                                    <p{% if message.tags == 'error' %}
+                                                        class="alert alert-info"{% endif %}
+                                                            {% if message.tags == 'success' %}
+                                                        class="alert alert-success"{% endif %}>
+                                                        {{ message }}</p>
+                                                {% endfor %}
+
+                                            </div>
+
+                                        {% else %}
+                                            <div class="col-lg-8">
+                                                <br>
+
+                                                <p class="small">For a summary and further information</p>
+                                                <input type="email" name="email" required autofocus
+                                                       placeholder="Enter your email"
+                                                       maxlength="70" class="textinput textInput form-control"
+                                                       id="id_email"
+                                                       {% if form.email.value != None %}value="{{ form.email.value }}"{% endif %}>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <br><br>
+                                                <button type="submit" value="Submit" form="clientForm"
+                                                        class="btn btn-hhcGold">
+                                                    &nbsp;&nbsp;Send&nbsp;&nbsp;
+                                                </button>
+                                                <br> <br>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                </div>
+
+
+                                <div class="col-lg-5">
+                                    <br>
+                                    <p class="x-large">Your purposes</p>
+                                    <p>How might you use a Household Transfer? </p>
+
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-3">
+
+                                            <div class="check-hide">
+                                                <input type="checkbox" name="isTopUp"
+                                                       id="id_isTopUp">
+                                                <label class="check-label TopUp" for=id_isTopUp></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-9">
+                                            <p class="small">Top Up - increase superannuation, boost retirement
+                                                income </p>
+                                        </div>
+                                    </div>
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-3">
+
+                                            <div class="check-hide">
+                                                <input type="checkbox" name="isRefi"
+                                                       id="id_isRefi">
+                                                <label class="check-label Refi" for=id_isRefi></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-9 text-left">
+                                            <p class="small">Refinance - an existing mortgage without monthly
+                                                repayments</p>
+                                        </div>
+
+                                    </div>
+                                    <div class="row align-items-center">
+
+                                        <div class="col-lg-3">
+
+                                            <div class="check-hide">
+                                                <input type="checkbox" name="isLive"
+                                                       id="id_isLive">
+                                                <label class="check-label Live" for=id_isLive></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-9 text-left">
+                                            <p class="small">Live - planned renovations, transport and travel</p>
+                                        </div>
+
+                                    </div>
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-3">
+
+                                            <div class="check-hide">
+                                                <input type="checkbox" name="isGive"
+                                                       id="id_isGive">
+                                                <label class="check-label Give" for=id_isGive></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-9 text-left">
+                                            <p class="small">Give - when needed most, home deposit, education expenses,
+                                                etc</p>
+                                        </div>
+
+                                    </div>
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-3">
+
+                                            <div class="check-hide">
+                                                <input type="checkbox" name="isCare"
+                                                       id="id_isCare">
+                                                <label class="check-label Care" for=id_isCare></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-9 text-left">
+                                            <p class="small">Care - medical expenses, in-home care or aged care </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-12">
+                                            <p class="small">Please select one or more purposes</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 text-center ">
+                        <br>
+                        <p class="x-small">*This calculation does not constitute an approval but provides an indicator
+                            of the maximum possible loan. Household Loans are subject to loan approval criteria, which
+                            includes a home valuation. Full terms and conditions will be included in any loan
+                            application.</p>
+                        <br>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+
+{% load static %}
+{% load humanize %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- The above 2 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="{% static 'img/favicon/favicon.png' %}"/>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.6.1/css/all.css"
+          integrity="sha384-NJXGk7R+8gWGBdutmr+/d6XDokLwQhF1U3VA7FhvBDlOq7cNdI69z7NQdnXxcF7k" crossorigin="anonymous">
+    <link href="/static/css/calculator.css" rel="stylesheet">
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+
+    <title>Household Capital Calculator</title>
+</head>
+
+
+<body>
+
+<div class="container justify-content-md-center">
+    <div class="row justify-content-md-center">
+        <div class="col-lg-9">
+            <br><br>
+            <div class="container cal_background">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form id="clientForm" method="post">
+                            {% csrf_token %}
+
+                            <div class="row">
+
+                                <div class="col-lg-7">
+                                    <br>
+                                    <p class="x-large">Your Household Transfer</p>
+                                    <p>You may be eligible for a transfer of up to:*</p>
+
+                                    <div class="row">
+                                        <div class="col-lg-8 pr-0">
+
+                                            <br>
+
+                                            <img class="img-fluid" src="{% static 'img/icons/' %}{{ transfer_img }}">
+                                        </div>
+
+                                        <div class="col-lg-4 pl-0">
+
+                                            <br><br><br>
+                                            <p class="xx-large">${{ obj.maxLoanAmount }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="row pt-2">
+                                        {% if success %}
+                                            <div class="col-lg-12 text-center">
+                                                <br>
+                                                {% for message in messages %}
+                                                    <p{% if message.tags == 'error' %}
+                                                        class="alert alert-info"{% endif %}
+                                                            {% if message.tags == 'success' %}
+                                                        class="alert alert-success"{% endif %}>
+                                                        {{ message }}</p>
+                                                {% endfor %}
+
+                                            </div>
+
+                                        {% else %}
+                                            <div class="col-lg-8">
+                                                <br>
+
+                                                <p class="small">For a summary and further information</p>
+                                                <input type="email" name="email" required autofocus
+                                                       placeholder="Enter your email"
+                                                       maxlength="50" class="textinput textInput form-control"
+                                                       id="id_email"
+                                                       {% if form.email.value != None %}value="{{ form.email.value }}"{% endif %}>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <br><br>
+                                                <button type="submit" value="Submit" form="clientForm"
+                                                        class="btn btn-hhcGold">
+                                                    &nbsp;&nbsp;Send&nbsp;&nbsp;
+                                                </button>
+                                                <br> <br>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                </div>
+
+
+                                <div class="col-lg-5">
+                                    <br>
+                                    <p class="x-large">Your purposes</p>
+                                    <p>How might you use a Household Transfer? </p>
+
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-3">
+
+                                            <div class="check-hide">
+                                                <input type="checkbox" name="isCare"
+                                                       id="id_isTopUp">
+                                                <label class="check-label TopUp" for=id_isTopUp></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-9">
+                                            <p class="small">Top Up - increase superannuation, boost retirement
+                                                income </p>
+                                        </div>
+                                    </div>
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-3">
+
+                                            <div class="check-hide">
+                                                <input type="checkbox" name="isRefi"
+                                                       id="id_isRefi">
+                                                <label class="check-label Refi" for=id_isRefi></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-9 text-left">
+                                            <p class="small">Refinance - an existing mortgage without monthly
+                                                repayments</p>
+                                        </div>
+
+                                    </div>
+                                    <div class="row align-items-center">
+
+                                        <div class="col-lg-3">
+
+                                            <div class="check-hide">
+                                                <input type="checkbox" name="isLive"
+                                                       id="id_isLive">
+                                                <label class="check-label Live" for=id_isLive></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-9 text-left">
+                                            <p class="small">Live - planned renovations, transport and travel</p>
+                                        </div>
+
+                                    </div>
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-3">
+
+                                            <div class="check-hide">
+                                                <input type="checkbox" name="isGive"
+                                                       id="id_isGive">
+                                                <label class="check-label Give" for=id_isGive></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-9 text-left">
+                                            <p class="small">Give - when needed most, home deposit, education expenses,
+                                                etc</p>
+                                        </div>
+
+                                    </div>
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-3">
+
+                                            <div class="check-hide">
+                                                <input type="checkbox" name="isCare"
+                                                       id="id_isCare">
+                                                <label class="check-label Care" for=id_isCare></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-9 text-left">
+                                            <p class="small">Care - medical expenses, in-home care or aged care </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-12">
+                                            <p class="small">Please select one or more purposes</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 text-center ">
+                        <br>
+                        <p class="x-small">*This calculation does not constitute an approval but provides an indicator
+                            of the maximum possible loan. Household Loans are subject to loan approval criteria, which
+                            includes a home valuation. Full terms and conditions will be included in any loan
+                            application.</p>
+                        <br>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+
