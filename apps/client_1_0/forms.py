@@ -24,7 +24,7 @@ class ClientDetailsForm(forms.ModelForm):
         fields = ['loanType',
                   'clientType1','surname_1','firstname_1','birthdate_1','age_1','sex_1',
                   'clientType2','surname_2','firstname_2','birthdate_2','age_2','sex_2',
-                  'street','postcode','valuation','dwellingType','mortgageDebt','superName',
+                  'street','postcode','valuation','dwellingType','mortgageDebt','superFund',
                   'superAmount','pensionType', 'pensionAmount']
         widgets = {
             'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
@@ -72,7 +72,7 @@ class ClientDetailsForm(forms.ModelForm):
                                     Field('mortgageDebt', placeholder='Existing Mortgage'),
                                     css_class="col-lg-4"),
                                 Div(HTML("<i class='fas fa-piggy-bank'></i>&nbsp;&nbsp;<small>Super/Investments</small>"),
-                                    Field('superName', placeholder='Super Name'),
+                                    Field('superFund', placeholder='Super Fund'),
                                     Field('superAmount', placeholder='Super Amount'),
                                     HTML("<br>"),
                                     HTML("<i class='fas fa-hand-holding-usd'></i>&nbsp;&nbsp;<small>Pension</small>"),
@@ -396,7 +396,7 @@ class DetailedChkBoxForm(forms.ModelForm):
                                                label='I understand that I will need to consider future age care',required=True)
 
     choiceCenterlink = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect,
-                                               label='I understand that I will need to consider impacts on my Centerlink benefits',required=True)
+                                               label='I understand that I will need to consider impacts on my Centrelink benefits',required=True)
 
     choiceVariable = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect,
                                               label='I  understand that a Household Loan has a variable interest rate',required=True)

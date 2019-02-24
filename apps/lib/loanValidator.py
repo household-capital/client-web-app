@@ -3,6 +3,9 @@ import csv
 from apps.lib.globals import LOAN_LIMITS
 from django.conf import settings
 
+from apps.lib.enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,pensionTypesEnum, loanTypesEnum
+
+
 class LoanValidator():
 
     #Utility class to validate whether a loan meets HHC lending guidelines and restrictions
@@ -16,12 +19,12 @@ class LoanValidator():
         self.aggDict.update(loanDict)
         self.aggDict.update(clientDict)
 
-        if self.aggDict['dwellingType']==0:
+        if self.aggDict['dwellingType']==dwellingTypesEnum.HOUSE.value:
             self.isApartment=False
         else:
             self.isApartment = True
 
-        if self.aggDict['loanType']==1:
+        if self.aggDict['loanType']==loanTypesEnum.JOINT_BORROWER.value:
             self.isCouple = True
             self.clientAge = min(self.aggDict['age_1'],self.aggDict['age_2'])
         else:
@@ -69,7 +72,7 @@ class LoanValidator():
             status['details'] = 'Invalid Postcode'
 
 
-        if self.aggDict['loanType'] == 1 and self.aggDict['age_2'] == None:
+        if self.aggDict['loanType'] == loanTypesEnum.JOINT_BORROWER.value and self.aggDict['age_2'] == None:
             status['status'] = "Error"
             status['details'] = 'Missing Age'
             return status
@@ -92,9 +95,31 @@ class LoanValidator():
         if self.maxLvr/100 * self.aggDict['valuation'] < LOAN_LIMITS['minLoanSize']:
             status['status'] = "Error"
             status['details'] = 'Minimum Loan Size cannot be met'
+            return status
+
+         # Check Mortgage Debt
+        if 'mortgageDebt' in self.aggDict:
+            if int(self.aggDict['mortgageDebt'])>int(self.maxLvr/100 * self.aggDict['valuation'] * LOAN_LIMITS['maxRefi']):
+                status['status'] = "Error"
+                status['details'] = 'Mortgage debt too large to be refinanced'
+                return status
+
+        # Restrictions
+        restrictions={}
+
+        restrictions['maxLoan'] = int(self.maxLvr/100 * self.aggDict['valuation'])
+        restrictions['maxFee']=int(restrictions['maxLoan'] * LOAN_LIMITS['establishmentFee']/(1+LOAN_LIMITS['establishmentFee']))
+        restrictions['maxLVR']=int(self.maxLvr)
+        restrictions['maxTopUp'] = LOAN_LIMITS['maxTopUp']
+        restrictions['maxCare'] = LOAN_LIMITS['maxCare']
+        restrictions['maxReno'] = LOAN_LIMITS['maxReno']
+        restrictions['maxRefi'] = int(self.maxLvr/100  * self.aggDict['valuation']  * LOAN_LIMITS['maxRefi'])
+        restrictions['maxGive'] = int(self.maxLvr/100 * self.aggDict['valuation']  * LOAN_LIMITS['maxGive'])
+        restrictions['maxTravel'] = int(self.maxLvr/100 * self.aggDict['valuation']  * LOAN_LIMITS['maxTravel'])
+
+        status['restrictions']=restrictions
 
         return status
-
 
     def getStatus(self):
         # Provides detailed array based on primary purposes. Designed to be utilsied as the app procedures throught the application
@@ -136,7 +161,6 @@ class LoanValidator():
         self.chkStatusItem('travelStatus', self.aggDict['travelAmount'], self.travelLimit, "GTE")
         self.chkStatusItem('careStatus', self.aggDict['careAmount'], LOAN_LIMITS['maxCare'], "GTE")
 
-        print(self.status)
         return self.status
 
     def chkStatusItem(self,label,amount,limit,condition):

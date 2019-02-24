@@ -23,7 +23,7 @@ TEMPLATE_PATH=BASE_DIR+'/templates/'
 # Project Settings
 ROOT_URLCONF = 'config.urls'
 WSGI_APPLICATION = 'config.wsgi.application'
-ALLOWED_HOSTS = ['127.0.0.1','householdcapital.app', 'www.householdcapital.app']
+ALLOWED_HOSTS = ['127.0.0.1','178.128.78.61','householdcapital.app', 'www.householdcapital.app']
 
 
 # Application definition
@@ -43,8 +43,8 @@ INSTALLED_APPS = [
     'apps.accounts',
     'apps.landing',
     'apps.client_1_0',
-    'apps.eligibility',
-    'apps.case'
+    'apps.case',
+    'apps.calculator'
 ]
 
 MIDDLEWARE = [
@@ -112,6 +112,11 @@ EMAIL_MAIN='no_reply@householdcapital.app'
 DEFAULT_FROM_EMAIL='no_reply@householdcapital.app'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+
+#Admin Settings
+ADMINS=[
+    ('Paul','paul.murray@householdcapital.com')
+]
 
 
 # Internationalization

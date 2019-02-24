@@ -19,6 +19,8 @@ from django.http import HttpResponseRedirect
 from django.views.static import serve
 from django.urls import path, re_path
 from django.conf import settings
+from django.conf.urls.static import static
+
 
 from apps.landing.views import LandingView
 
@@ -26,10 +28,14 @@ urlpatterns = [
     path('', lambda r: HttpResponseRedirect('landing/')),
     path('accounts/', include('apps.accounts.urls')),
     path('landing/', include('apps.landing.urls')),
-    path('eligibility/', include('apps.eligibility.urls')),
     path('case/', include('apps.case.urls')),
     path('client/', include('apps.client_1_0.urls')),
-    path('hhcadmin/', admin.site.urls),
-    re_path(r'^media/Users/developmentaccount/Development/hhc/static/media/(.*)',serve, {'document_root': settings.MEDIA_ROOT})
+    path('calculator/', include('apps.calculator.urls')),
+    path('hhcadmin/', admin.site.urls)
 ]
+
+urlpatterns+=static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns+=static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
 

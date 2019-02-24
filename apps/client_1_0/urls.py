@@ -38,10 +38,12 @@ urlpatterns = [
     path('results4', views.Results4.as_view(), name='results4'),
 
     path('final', views.Final.as_view(), name='final'),
+    path('final_error', views.FinalError.as_view(), name='final_error'),
 
-    path('pdfProduction', views.pdfProduction.as_view(), name='pdfProduction'),
-    path('pdfReport/<uuid:uid>', views.pdfReport.as_view()),
-    path('pdfTest', views.pdfReport.as_view())
+    path('PdfProduction', views.PdfProduction.as_view(), name='PdfProduction'),
+    path('PdfReport/<uuid:uid>', views.PdfReport.as_view()),
+    path('PdfRespLending/<uuid:uid>', views.PdfRespLending.as_view())
+
 ]
 
 

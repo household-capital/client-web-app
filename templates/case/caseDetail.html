@@ -10,10 +10,10 @@
             <div class="row justify-content-md-center">
                 <div class="col-6 text-center">
                     {% for message in messages %}
-                        <p{% if message.tags == 'error' %}
-                            class="alert alert-warning"{% endif %}>{{ message }}</p>
+                        <p{% if message.tags == 'error' %} class="alert alert-warning"{% endif %}{% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                        {{ message }}</p>
                     {% endfor %}
-                 <br>
+                    <br>
                 </div>
 
             </div>
@@ -30,65 +30,96 @@
 
         <div class="row">
 
-            <div class="col-lg-7">
+            <div class="col-lg-8">
 
-            <br>
-            {% if status.status == 'Ok' %}
-                 <i class="far fa-check-circle fa-lg btn-outline-success">&nbsp;Valid Loan</i>
-                 <br><br>
-            {% elif status.status == 'Error' %}
-                 <i class="far fa-times-circle fa-lg btn-outline-danger">&nbsp;Invalid  - {{ status.details }}</i>
-                <br><br>
-            {% endif %}
+                <br>
 
-            </div>
-             <br>
+                {% if form.errors %}
 
-            {% if isUpdate %}
-
-                <div class="col-lg-1">
-                 </div>
-
-                {% if obj.caseType == 1 %}
-                    <div class="col-lg-1">
-                        <br>
-                        <div></div><a href="{% url 'client:meeting' uid=obj.caseUID %}"><div class="btn btn-success">Meeting</div></a>
-                    </div>
+                    <i class="far fa-times-circle fa-lg btn-outline-danger">&nbsp;Form errors - refer below</i>
                 {% else %}
-                    <div class="col-lg-1">
-                    </div>
+                    {% if status.status == 'Ok' %}
+                        <i class="far fa-check-circle fa-lg btn-outline-success">&nbsp;Eligible Case</i>
+                        <br><br>
+                    {% elif status.status == 'Error' %}
+                        <i class="far fa-times-circle fa-lg btn-outline-danger">&nbsp;Ineligible
+                            - {{ status.details }}</i>
+                        <br><br>
+                    {% endif %}
                 {% endif %}
 
-           <div class="col-lg-1">
+            </div>
+            <div class="col-lg-3 text-left">
                 <br>
-                <div></div><a href=""><div class="btn btn-outline-secondary">Analysis</div></a>
+                <div></div>
+                <a href="{% url 'case:caseList' %}">
+                    &nbsp;<div class="btn btn-outline-secondary">Back to Case List</div>
+                </a>
+            </div>
+            <br>
+
+
+            <div class="row">
+
+                <div class="col-lg-8">
+
+                    {% crispy form %}
+
+
+                </div>
+
+                <div class="col-lg-4">
+
+                    <br>
+                    <div class="padding-15px">
+                        {% if isUpdate %}
+                            {% if obj.caseType == 1 %}
+                                <a href="{% url 'client:meeting' uid=obj.caseUID %}">
+                                <div class="btn btn-success">Meeting</div>
+                            </a>
+                            {% endif %}
+
+                            <a href="">
+                                <div class="btn btn-outline-secondary">Loan Analysis</div>
+                            </a>
+                              <a href="{% url 'case:emailSummary' pk=obj.caseID %}">
+                                <div class="btn btn-outline-secondary">Email Summary</div>
+                            </a>
+
+                        {% endif %}
+                    </div>
+
+
+                    <div class="jumbotron">
+
+
+                        {% if status.status == 'Ok' %}
+                        <p class="larger">Max LVR is: {{ status.restrictions.maxLVR|intcomma }}%</p>
+                            <br>
+                            <p class="small"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
+                        <p class="small">Max Loan is: ${{ status.restrictions.maxLoan|intcomma }} (incl establishment fee)</p>
+                        <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxTopUp %}Max for Super Top Up is: ${{ status.restrictions.maxTopUp|intcomma }}</p>{% endif %}
+                        <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxCare %}Max for Age Care is: ${{ status.restrictions.maxCare|intcomma }}</p>{% endif %}
+                        <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxReno %}Max for Renovations is: ${{ status.restrictions.maxReno|intcomma }}</p>{% endif %}
+                        <p class="small">Max for Refinance is: ${{ status.restrictions.maxRefi|intcomma }}</p>
+                        <p class="small">Max for Giving is: ${{ status.restrictions.maxGive|intcomma }}</p>
+                        <p class="small">Max for Transport and Travel is: ${{ status.restrictions.maxTravel|intcomma }}</p>
+                        {% endif %}
+                        <br>
+
+                        <br>
+                        {% if obj.propertyImage %}<img src='{{ obj.propertyImage.url }}' width='150px' height="150px">{% endif %}&nbsp;&nbsp;
+                        {% if obj.superFund %}<img src='{{ obj.superFund.fundImage.url }}' width='150px height="150px"'>{% endif %}
+
+                    </div>
+                </div>
+
+
             </div>
 
-            <div class="col-lg-1">
-                <br>
-                <div></div><a href="{% url 'case:caseList' %}"><div class="btn btn-outline-secondary">Back to  Case List</div></a>
-            </div>
-
-            {% else %}
-
-            <div class="col-lg-3"></div>
-            <div class="col-lg-1">
-                <br>
-                <div></div><a href="{% url 'case:caseList' %}"><div class="btn btn-outline-secondary">Back to  Case List</div></a>
-            </div>
-            {% endif %}
 
         </div>
 
-        <div class="row">
-
-            <div class="col-lg-12">
-
-            {% crispy form %}
-
-
-            </div>
-         </div>
     </div>
 
 

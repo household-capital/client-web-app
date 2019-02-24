@@ -2,6 +2,7 @@
 import datetime
 import json
 from math import log
+from email.mime.text import MIMEText
 import requests
 
 #Django Imports
@@ -14,6 +15,9 @@ from django.http import HttpResponseRedirect
 from django.http import HttpResponse
 from django.urls import reverse_lazy, reverse
 from django.views.generic import FormView, TemplateView, View, UpdateView
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import get_template
+
 
 #Third-party Imports
 from api2pdf import Api2Pdf
@@ -24,7 +28,8 @@ from .forms import giveAmountForm, renovateAmountForm, travelAmountForm, careAmo
 from apps.lib.globals import ECONOMIC, APP_SETTINGS
 from apps.lib.loanValidator import LoanValidator
 from apps.lib.loanProjection import LoanProjection
-
+from apps.lib.enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,pensionTypesEnum, loanTypesEnum
+from apps.logging import write_applog
 from apps.case.models import ModelSetting, Loan, Case
 
 
@@ -36,6 +41,12 @@ class LoginRequiredMixin(object):
     def as_view(cls, **kwargs):
         view = super(LoginRequiredMixin, cls).as_view(**kwargs)
         return login_required(view)
+
+class SessionReqiredMixin(object):
+    def dispatch(self, request, *args, **kwargs):
+        if 'caseUID' not in request.session:
+            return HttpResponseRedirect(reverse_lazy('case:caseList'))
+        return super(SessionReqiredMixin, self).dispatch(request, *args, **kwargs)
 
 #Utilities
 class ResultsHelper():
@@ -63,7 +74,7 @@ class ResultsHelper():
         return figuresList + scaleList
 
     def logOrZero(self, val):
-        if val == 0:
+        if val <= 0:
             return 0
         return log(val)
 
@@ -97,7 +108,14 @@ class ContextHelper():
         context.update(loanDict)
         context.update(modelDict)
         context.update(loanStatus)
-        
+
+        context['caseTypesEnum']=caseTypesEnum
+        context['clientSexEnum'] = clientSexEnum
+        context['clientTypesEnum'] = clientTypesEnum
+        context['dwellingTypesEnum'] = dwellingTypesEnum
+        context['pensionTypesEnum'] = pensionTypesEnum
+        context['loanTypesEnum'] = loanTypesEnum
+
         return context
 
 
@@ -143,15 +161,19 @@ class LandingView(LoginRequiredMixin, ContextHelper ,TemplateView):
 
             caseUID=str(kwargs['uid'])
             request.session['caseUID']=caseUID
+            write_applog("INFO", 'LandingView', 'get', "Meeting commenced by "+str(request.user)+" for -"+ caseUID )
 
             obj=ModelSetting.objects.queryset_byUID(caseUID)
             obj.update(**ECONOMIC)
+
+        if 'caseUID' not in request.session:
+            return HttpResponseRedirect(reverse_lazy('caase:caseList'))
 
         return super(LandingView,self).get(self, request, *args, **kwargs)
 
 
 # Settings Views
-class SetClientView(LoginRequiredMixin, ContextHelper, UpdateView):
+class SetClientView(LoginRequiredMixin, SessionReqiredMixin, ContextHelper, UpdateView):
     # Sets the initial client data (in associated dictionary)
 
     template_name = "client_1_0/settings.html"
@@ -194,7 +216,7 @@ class SetClientView(LoginRequiredMixin, ContextHelper, UpdateView):
             return self.render_to_response(context)
 
 
-class SettingsView(LoginRequiredMixin, ContextHelper, UpdateView):
+class SettingsView(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
     template_name = "client_1_0/settings.html"
     form_class = SettingsForm
     model = ModelSetting
@@ -217,7 +239,7 @@ class SettingsView(LoginRequiredMixin, ContextHelper, UpdateView):
 
 
 # Introduction Views
-class IntroductionView1(LoginRequiredMixin, ContextHelper, TemplateView):
+class IntroductionView1(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, TemplateView):
 
     template_name = "client_1_0/introduction1.html"
 
@@ -232,7 +254,7 @@ class IntroductionView1(LoginRequiredMixin, ContextHelper, TemplateView):
 
         return context
 
-class IntroductionView2(LoginRequiredMixin, ContextHelper,UpdateView):
+class IntroductionView2(LoginRequiredMixin, SessionReqiredMixin,ContextHelper,UpdateView):
 
     template_name = "client_1_0/introduction2.html"
     form_class=IntroChkBoxForm
@@ -255,7 +277,7 @@ class IntroductionView2(LoginRequiredMixin, ContextHelper,UpdateView):
         obj= queryset.get()
         return obj
 
-class IntroductionView3(LoginRequiredMixin, ContextHelper,TemplateView):
+class IntroductionView3(LoginRequiredMixin, SessionReqiredMixin, ContextHelper,TemplateView):
 
     template_name = "client_1_0/introduction3.html"
 
@@ -270,7 +292,7 @@ class IntroductionView3(LoginRequiredMixin, ContextHelper,TemplateView):
 
         return context
 
-class IntroductionView4(LoginRequiredMixin, ContextHelper, TemplateView):
+class IntroductionView4(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, TemplateView):
 
     template_name = "client_1_0/introduction4.html"
 
@@ -285,14 +307,18 @@ class IntroductionView4(LoginRequiredMixin, ContextHelper, TemplateView):
 
         #Page uses post_id (slug) to expose images using same view
         context['post_id']=kwargs.get("post_id")
-
         context['imgPath'] = settings.STATIC_URL + 'img/'
 
+        #use object to retrieve image
+        queryset = Case.objects.queryset_byUID(self.request.session['caseUID'])
+        obj = queryset.get()
+
+        context['obj']=obj
         return context
 
 
 # Top Up Views
-class TopUp1(LoginRequiredMixin, ContextHelper, TemplateView):
+class TopUp1(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, TemplateView):
         template_name = "client_1_0/topUp1.html"
 
         def get_context_data(self, **kwargs):
@@ -319,7 +345,7 @@ class TopUp1(LoginRequiredMixin, ContextHelper, TemplateView):
 
             return context
 
-class TopUp2(LoginRequiredMixin, ContextHelper, FormView):
+class TopUp2(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, FormView):
     template_name = "client_1_0/topUp2.html"
     form_class=topUpForm
     success_url = reverse_lazy('client:topUp3')
@@ -357,12 +383,11 @@ class TopUp2(LoginRequiredMixin, ContextHelper, FormView):
         loanQS.update(topUpAmount=int(form.cleaned_data['topUpAmount']),
                       topUpIncome=int(form.cleaned_data['topUpIncome']),
                       incomeObjective=form.cleaned_data['topUpIncome']+loanDict['annualPensionIncome'])
-        print(form.cleaned_data['topUpIncome']+loanDict['annualPensionIncome'])
 
         return super(TopUp2, self).form_valid(form)
 
 
-class TopUp3(LoginRequiredMixin, ContextHelper, UpdateView):
+class TopUp3(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
     template_name = "client_1_0/topUp3.html"
     form_class=debtRepayForm
     model=Loan
@@ -389,12 +414,13 @@ class TopUp3(LoginRequiredMixin, ContextHelper, UpdateView):
          # Pre-populate with existing debt
         initFormData= super(TopUp3, self).get_initial()
         clientDict = Case.objects.dictionary_byUID(self.request.session['caseUID'])
-        initFormData["refinanceAmount"] = clientDict['mortgageDebt']
+        if 'refinanceAmount' not in clientDict:
+            initFormData["refinanceAmount"] = clientDict['mortgageDebt']
         return initFormData
 
 
 # Live Views
-class Live1(LoginRequiredMixin, ContextHelper, UpdateView):
+class Live1(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
     template_name = "client_1_0/live1.html"
     form_class=renovateAmountForm
     model=Loan
@@ -418,7 +444,7 @@ class Live1(LoginRequiredMixin, ContextHelper, UpdateView):
 
 
 
-class Live2(LoginRequiredMixin, ContextHelper, UpdateView):
+class Live2(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
     template_name = "client_1_0/live2.html"
     form_class=travelAmountForm
     model=Loan
@@ -444,7 +470,7 @@ class Live2(LoginRequiredMixin, ContextHelper, UpdateView):
 
 
 # Give Views
-class Give(LoginRequiredMixin, ContextHelper, UpdateView):
+class Give(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
     template_name = "client_1_0/give.html"
     form_class=giveAmountForm
     model = Loan
@@ -468,7 +494,7 @@ class Give(LoginRequiredMixin, ContextHelper, UpdateView):
 
 
 # Care Views
-class Care(LoginRequiredMixin, ContextHelper, UpdateView):
+class Care(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
     template_name = "client_1_0/care.html"
     form_class=careAmountForm
     model = Loan
@@ -493,7 +519,7 @@ class Care(LoginRequiredMixin, ContextHelper, UpdateView):
 
 # Results Views
 
-class Results1(LoginRequiredMixin, ContextHelper, TemplateView):
+class Results1(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, TemplateView):
     template_name = "client_1_0/results1.html"
 
     def get(self, request, *args, **kwargs):
@@ -516,7 +542,7 @@ class Results1(LoginRequiredMixin, ContextHelper, TemplateView):
         return context
 
 
-class Results2(LoginRequiredMixin, ContextHelper, UpdateView):
+class Results2(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
     template_name = "client_1_0/results2.html"
     form_class=DetailedChkBoxForm
     model=Loan
@@ -563,7 +589,7 @@ class Results2(LoginRequiredMixin, ContextHelper, UpdateView):
         self.initFormData[fieldName]=initial
 
 
-class Results3(ResultsHelper, LoginRequiredMixin, ContextHelper, TemplateView):
+class Results3(ResultsHelper, LoginRequiredMixin, SessionReqiredMixin,ContextHelper, TemplateView):
     template_name = "client_1_0/results3.html"
 
     def get_context_data(self, **kwargs):
@@ -610,7 +636,7 @@ class Results3(ResultsHelper, LoginRequiredMixin, ContextHelper, TemplateView):
         return context
 
 
-class Results4(ResultsHelper, LoginRequiredMixin, ContextHelper, TemplateView):
+class Results4(ResultsHelper, LoginRequiredMixin, SessionReqiredMixin, ContextHelper, TemplateView):
     template_name = "client_1_0/results4.html"
 
     def get_context_data(self, **kwargs):
@@ -624,84 +650,132 @@ class Results4(ResultsHelper, LoginRequiredMixin, ContextHelper, TemplateView):
 
         return context
 
-class Final(ResultsHelper, LoginRequiredMixin, ContextHelper, TemplateView):
+class Final(ResultsHelper, LoginRequiredMixin, SessionReqiredMixin, ContextHelper, TemplateView):
     template_name = "client_1_0/final.html"
 
     def get_context_data(self, **kwargs):
 
         context = super(ResultsHelper, self).get_context_data(**kwargs)
 
-        context['pdfURL'] = self.request.build_absolute_uri(reverse('client:pdfProduction'))
+        context['pdfURL'] = self.request.build_absolute_uri(reverse('client:PdfProduction'))
 
         return context
 
+class FinalError(ResultsHelper, LoginRequiredMixin, ContextHelper, TemplateView):
+    template_name = "client_1_0/final_error.html"
 
-# / PDF Generation View (not rendered)
 
-class pdfProduction(LoginRequiredMixin,View):
+
+# / PDF Generation View
+
+class PdfProduction(LoginRequiredMixin, SessionReqiredMixin, View):
+    #This view is called via javascript from the final page to generate the report pdf
+    #It uses api2pdf to render the report and then saves, emails and serves the pdf
 
     def __init__(self):
-            self.a2p_client = Api2Pdf(APP_SETTINGS['Api2PdfKey'])
+        self.a2p_client = Api2Pdf(APP_SETTINGS['Api2PdfKey'])
+        super(PdfProduction,self).__init__()
 
     def get(self,request):
 
         ## GET PDF FILE FROM API AND SAVE LOCALLY
+        try:
+            sourceUrl='https://householdcapital.app/client/PdfReport/'+self.request.session['caseUID']
 
-        sourceUrl='https://householdcapital.app/client/pdfReport/'+self.request.session['caseUID']
+            #Make API request to Api2Pdf
+            options = {'preferCSSPageSize': True, 'marginBottom': 0, 'marginLeft': 0, 'marginRight': 0, 'marginTop': 0,
+                       'paperWidth': 8.27, 'paperHeight': 11.69}
+            api_response = self.a2p_client.HeadlessChrome.convert_from_url(sourceUrl, file_name='HouseholdSummary.pdf',
+                                                                           **options)
+            if api_response.result['success'] == True:
+                write_applog("INFO", 'PdfProduction', 'get', "Api2Pdf success: " + self.request.session['caseUID'])
+            else:
+                write_applog("ERROR", 'PdfProduction', 'get', "Api2Pdf failue: " + self.request.session['caseUID'] + "-"
+                             + str(api_response))
+                return HttpResponseRedirect(reverse_lazy('client:final_error'))()
+        except:
+            write_applog("ERROR", 'PdfProduction', 'get', "Presumed timeout error: " + self.request.session['caseUID'] + "-"
+                         + str(api_response))
+            return HttpResponseRedirect(reverse_lazy('client:final_error'))()
 
-        #Make API request to Api2Pdf
-        options={'preferCSSPageSize':True, 'marginBottom':0, 'marginLeft':0, 'marginRight':0,'marginTop':0,
-                 'paperWidth':8.27,'paperHeight':11.69}
-        api_response = self.a2p_client.HeadlessChrome.convert_from_url(sourceUrl, file_name='HouseholdSummary.pdf',**options)
-
-        #Get response url
+        # Get response url
         sourceUrl = api_response.result['pdf']
 
-        #Save the target file
-        targetFileName=settings.MEDIA_ROOT+"/"+"Summary-"+ self.request.session['caseUID'][-12:]+".pdf"
+        # Save the target file
+        try:
 
-        responseObj = requests.get(sourceUrl, verify=False, stream=True)
-        responseObj.raw.decode_content = True
+            targetFileName = settings.MEDIA_ROOT + "/customerReports/Summary-" + self.request.session['caseUID'][
+                                                                                 -12:] + ".pdf"
 
-        with open(targetFileName, 'wb') as fileWriter:
-            for chunk in responseObj.iter_content(chunk_size=128):
-                fileWriter.write(chunk)
-            fileWriter.close()
+            responseObj = requests.get(sourceUrl, verify=False, stream=True)
+            responseObj.raw.decode_content = True
 
+            with open(targetFileName, 'wb') as fileWriter:
+                for chunk in responseObj.iter_content(chunk_size=128):
+                    fileWriter.write(chunk)
+                fileWriter.close()
+            write_applog("INFO", 'PdfProduction', 'get', "Summary Report Saved: " + self.request.session['caseUID'])
 
-        ## SAVE TO DATABASE
+        except:
+            write_applog("ERROR", 'PdfProduction', 'get',
+                         "Failed to save Summary Report: " + self.request.session['caseUID'])
 
-        localfile = open(targetFileName, 'rb')
+        try:
+            # SAVE TO DATABASE
 
-        qsCase=Case.objects.queryset_byUID(self.request.session['caseUID'])
-        qsCase.update( summaryDocument=File(localfile))
+            localfile = open(targetFileName, 'rb')
 
-        localfile.close()
+            qsCase = Case.objects.queryset_byUID(self.request.session['caseUID'])
+            qsCase.update(summaryDocument=File(localfile), )
 
+            pdf_contents = localfile.read()
+        except:
+            write_applog("ERROR", 'PdfProduction', 'get',
+                         "Failed to save Summary Report in Database: " + self.request.session['caseUID'])
+
+        ## EMAIL REPORT
+        try:
+            email_context = {}
+            template_html = "client_1_0/email/email.html"
+            caseObj = Case.objects.queryset_byUID(self.request.session['caseUID']).get()
+
+            email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+            email_context['obj']=caseObj
+
+            subject, from_email, to = "Household Loan Summary Report", settings.DEFAULT_FROM_EMAIL, request.user.email
+            text_content = "Text Message"
+
+            html = get_template(template_html)
+            html_content = html.render(email_context)
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+            msg.attach_alternative(html_content, "text/html")
+            msg.attach('HouseholdLoanSummary.pdf', pdf_contents, 'application/pdf')
+            msg.send()
+        except:
+            write_applog("ERROR", 'PdfProduction', 'get',
+                         "Failed to email Summary Report:" + self.request.session['caseUID'])
 
         ## RENDER FILE TO HTTP RESPONSE
-
-        localfile = open(targetFileName, 'rb')
-        pdf_contents = localfile.read()
+        response = HttpResponse(pdf_contents, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment'
         localfile.close()
 
-        response= HttpResponse(pdf_contents, content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment'
-
-
-        #log user out
+        # log user out
+        write_applog("INFO", 'PdfProduction', 'get',
+                     "Meeting ended for:" + self.request.session['caseUID'])
         logout(self.request)
         return response
 
 
-class pdfReport(ResultsHelper ,TemplateView):
+class PdfReport(ResultsHelper, TemplateView):
     #This page is not designed to be viewed - it is to be called by the pdf generator
+    #It requires a UID to be passed to it
 
     template_name = "client_1_0/summaryDocument/mainDocument.html"
 
     def get_context_data(self, **kwargs):
 
-        context = super(pdfReport, self).get_context_data(**kwargs)
+        context = super(PdfReport, self).get_context_data(**kwargs)
 
         if 'uid' in kwargs:
 
@@ -721,6 +795,12 @@ class pdfReport(ResultsHelper ,TemplateView):
             context.update(loanDict)
             context.update(modelDict)
             context.update(loanStatus)
+            context['caseTypesEnum'] = caseTypesEnum
+            context['clientSexEnum'] = clientSexEnum
+            context['clientTypesEnum'] = clientTypesEnum
+            context['dwellingTypesEnum'] = dwellingTypesEnum
+            context['pensionTypesEnum'] = pensionTypesEnum
+            context['loanTypesEnum'] = loanTypesEnum
 
             # Loan Projections
             loanProj = LoanProjection(context)
@@ -794,6 +874,34 @@ class pdfReport(ResultsHelper ,TemplateView):
             context['resultsHouseValue3'] = self.createResultsList(projectionRateUp, 'BOPHouseValue', imageSize=100,
                                                                     imageMethod='lin')
 
+            # use object to retrieve image
+            queryset = Case.objects.queryset_byUID(caseUID)
+            obj = queryset.get()
+
+            context['obj'] = obj
+
         return context
 
 
+class PdfRespLending(TemplateView):
+    #This page is not designed to be viewed - it is to be called by the pdf generator
+    #It requires a UID to be passed to it
+
+    template_name = "client_1_0/summaryDocument/respLending.html"
+
+    def get_context_data(self, **kwargs):
+
+        context = super(PdfRespLending, self).get_context_data(**kwargs)
+
+        if 'uid' in kwargs:
+
+            caseUID=str(kwargs['uid'])
+
+            # get dictionaries from model
+            clientDict = Case.objects.dictionary_byUID(caseUID)
+            loanDict = Loan.objects.dictionary_byUID(caseUID)
+
+            context.update(clientDict)
+            context.update(loanDict)
+
+        return context

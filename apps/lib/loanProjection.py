@@ -1,6 +1,9 @@
 from apps.lib.globals import APP_SETTINGS
 from math import log
 
+from apps.lib.enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,pensionTypesEnum, loanTypesEnum
+
+
 class LoanProjection():
 
     # CLASS VARIABLES
@@ -15,7 +18,7 @@ class LoanProjection():
         self.aggDict.update(aggregateDictionary)
 
         self.projectionAge = self.aggDict['projectionAge']
-        if self.aggDict['loanType']==0:
+        if self.aggDict['loanType']==loanTypesEnum.SINGLE_BORROWER.value:
             self.minAge=self.aggDict['age_1']
         else:
             self.minAge = min(self.aggDict['age_1'],self.aggDict['age_2'])
@@ -227,9 +230,6 @@ class LoanProjection():
             calcArray[period]["Drawdown"] = calcArray[period-1]["Drawdown"] * (1 + self.aggDict['inflationRate']/100)
             calcArray[period]["Return"] = (calcArray[period]["BOPBalance"] - calcArray[period]["Drawdown"] / 2) * self.aggDict['investmentRate']/100
             #Check for exhausted Super Balance
-            if calcArray[period]["BOPBalance"]<calcArray[period]["Drawdown"]:
-                calcArray[period]["Drawdown"]=calcArray[period]["BOPBalance"]
-                calcArray[period]["Return"]=0
             calcArray[period]["EOPBalance"] = calcArray[period]["BOPBalance"] - calcArray[period]["Drawdown"] + calcArray[period]["Return"]
 
             calcArray[period]["PensionIncome"] = calcArray[period-1]["PensionIncome"]* (1 + self.aggDict['inflationRate']/100)
@@ -256,4 +256,5 @@ class LoanProjection():
             return 0
         else:
             return numerator/divisor
+
 

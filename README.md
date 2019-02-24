@@ -2,8 +2,8 @@
 
 ## Background - Django
 ```
-Django is a high-level Python Web framework that encourages rapid development and clean, pragmatic design. 
-Built by experienced developers, it takes care of much of the hassle of Web development, so you can focus on writing your app without needing to reinvent the wheel. 
+Django is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.
+Built by experienced developers, it takes care of much of the hassle of Web development, so you can focus on writing your app without needing to reinvent the wheel.
 It’s free and open source.
 ```
 Django's documentation is excellent (https://docs.djangoproject.com/en/2.1/)
@@ -11,7 +11,7 @@ Django's documentation is excellent (https://docs.djangoproject.com/en/2.1/)
 
 
 ## Background - Django Structure
-Django follows a Model:View:Controller design with a slight twist - it is more accurately Model:Template:View.  
+Django follows a Model:View:Controller design with a slight twist - it is more accurately Model:Template:View.
 
 In Django you have:
 #### The Model
@@ -32,14 +32,14 @@ So the basic request-response cycle is:
 
 ## Background - Django File Structure
 Based on the above - the file structure becomes clearer:
-#### Apps 
+#### Apps
 Applications can be as narrow or as broader as appropriate, but with a conventional approach to be smaller and specific - do one thing well, rather than sprawling.  Each app has the same substructure:
 - urls.py  - mapping of urls to views
 - views.py - contains all of the views which control the content/response - typically will point to a template
 - forms.py - contains the definition information for forms to be rendered on a page (called from the view)
 - models.py - has the database definitions and procedures to retrieve/save data (called from the view)
 
-#### Templates 
+#### Templates
 HTML templates are saved here (referenced by views).  This is straight HTML but include template references {{establishmentFee}} and logic {% if template != 0 %} {% endif %} etc.
 
 #### Static
@@ -54,12 +54,12 @@ This simple file is at the top of the structure and is used to start the applica
 ## Background - Client App Example
 A request to https://householdcapital.app/client/live1 will:
 - be routed from urls.py to a view ```path('live1', views.Live1.as_view(), name='live1')```
-- the view in views.py will construct the response using a template and in this case a form 
+- the view in views.py will construct the response using a template and in this case a form
 ```
-class Live1(LoginRequiredMixin, ClientDataMixin, FormView): 
+class Live1(LoginRequiredMixin, ClientDataMixin, FormView):
    template_name = "client_1_0/live1.html"
    form_class=renovateAmountForm
-   success_url = reverse_lazy('client:live2') 
+   success_url = reverse_lazy('client:live2')
 ```
 - the template is in the templates directory
 - the form is in forms.py
@@ -80,5 +80,3 @@ class renovateAmountForm(forms.Form):
 This app utilises CBVs which are standard view classes that perform the main Create, Read, Update, Delete tasks.  These views can be overiddend and added to (mixins) using pythons ability to multi-subclass.
 
 The main CBVs used here are TemplateView (renders a template) and FormView (renders a template and a form).
-
-

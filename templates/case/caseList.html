@@ -72,7 +72,7 @@
             <tbody>
             {% for obj in object_list %}
                 <tr>
-                <td><a href="{{ obj.get_absolute_url }}">{% if obj.caseType == 0 %}Lead{% else %}Opportunity{% endif %}</a></td>
+                <td><a href="{{ obj.get_absolute_url }}">{{ obj.enumCaseType}}</a></td>
                 <td><a href="{{ obj.get_absolute_url }}">{{ obj.caseDescription }}</a></td>
                 <td><a href="{{ obj.get_absolute_url }}">{{ obj.user }}</a></td>
                 <td><a href="{{ obj.get_absolute_url }}">{{ obj.adviser }}</a></td>
@@ -84,7 +84,6 @@
 
             </div>
         </div>
-
 
     </div>
 

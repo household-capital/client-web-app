@@ -1,0 +1,209 @@
+{% load static %}
+{% load humanize %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load calc_extras %}
+
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- The above 2 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="{% static 'img/favicon/favicon.png' %}"/>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.6.1/css/all.css"
+          integrity="sha384-NJXGk7R+8gWGBdutmr+/d6XDokLwQhF1U3VA7FhvBDlOq7cNdI69z7NQdnXxcF7k" crossorigin="anonymous">
+    <link href="/static/css/calculator.css" rel="stylesheet">
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+    <title>Household Capital Calculator</title>
+</head>
+
+
+<body>
+
+<div class="container justify-content-md-center">
+    <div class="row justify-content-md-center">
+        <div class="col-lg-9">
+            <br><br>
+            <div class="container cal_background">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form id="clientForm" method="post">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <br>
+                                    <p class="x-large">About you</p><br>
+
+
+                                    <p>Your name:</p>
+                                    <div id="div_id_name" class="form-group row pt-1">
+                                        <div class="col-10">
+                                            <input type="text" name="name" autofocus placeholder="Enter name (optional)"
+                                                   class="textinput textInput form-control" id="id_name"
+                                                   {% if form.name.value != None %}value="{{ form.name.value }}"{% endif %}>
+                                        </div>
+                                    </div>
+
+                                    <div class="radio-hide">
+                                        <p>Relationship Status:</p>
+                                        <div class="row pt-1 pb-2">
+                                            {% for choice in form.loanType.field.choices %}
+                                                <div class="col-lg-4 d-flex align-items-center">
+                                                    <input {% if choice.0|intval == form.loanType.value|intval %}checked="checked" {% endif %}
+                                                           id=loanType_{{ choice.1 }} type="radio"
+                                                           name="loanType"
+                                                           value={{ choice.0 }}>
+
+                                                    <label class="radio-label {{ choice.1 }}"
+                                                           for=loanType_{{ choice.1 }}></label>
+                                                    <p class="small">{{ choice.1 }}</p>
+
+                                                </div>
+
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+
+                                    <p>Your age:</p>
+                                    <div id="div_id_name" class="form-group row pt-1">
+                                        <div class="col-lg-5">
+                                            <input type="text" name="age_1" autofocus required placeholder="Your age"
+                                                   class="textinput textInput form-control" id="id_age_1"
+                                                   {% if form.age_1.value != None %}value="{{ form.age_1.value }}"{% endif %}>
+                                        </div>
+                                        <div class="col-lg-5">
+                                            <input type="text" name="age_2" autofocus placeholder="Spouse age"
+                                                   class="textinput textInput form-control" id="id_age_2"
+                                                   {% if form.age_2.value != None %}value="{{ form.age_2.value }}"{% endif %}>
+
+                                        </div>
+
+                                        <br><br>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6">
+                                    <br>
+                                    <p class="x-large">About your home</p><br>
+
+                                    <p>Your postcode:</p>
+                                    <div class="col-lg-5">
+                                        <div id="div_id_name" class="form-group row pt-1">
+                                            <input type="text" name="postcode" autofocus required placeholder="Postcode"
+                                                   class="textinput textInput form-control" id="id_postcode"
+                                                   {% if form.postcode.value != None %}value="{{ form.postcode.value }}"{% endif %}>
+                                        </div>
+                                    </div>
+
+                                    <div class="radio-hide">
+                                        <p>Home type:</p>
+                                        <div class="row pt-1 pb-2">
+                                            {% for choice in form.dwellingType.field.choices %}
+                                                <div class="col-lg-5 d-flex align-items-center">
+                                                    <input {% if choice.0|intval == form.dwellingType.value|intval %}checked="checked" {% endif %}
+                                                           id={{ choice.1 }} type="radio"
+                                                           name="dwellingType"
+                                                           value={{ choice.0 }}>
+                                                    <label class="radio-label {{ choice.1 }}"
+                                                           for={{ choice.1 }}></label>
+                                                    <p class="small">{{ choice.1 }}</p>
+
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <p>Home value:</p>
+                                    <div class="col-lg-5">
+                                        <div id="div_id_valuation" class="form-group row pt-1">
+                                            <input type="text" name="valuation" autofocus placeholder="Estimated value"
+                                                   class="textinput textInput form-control" required id="id_valuation"
+                                                   {% if form.valuation.value != None %}value="{{ form.valuation.value }}"{% endif %}>
+                                        </div>
+
+                                        <br>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="row justify-content-center">
+                                <div class="col-lg-2">
+                                    <button type="submit" value="Submit" form="clientForm" class="btn btn-hhcGold">
+                                        &nbsp;&nbsp;Calculate&nbsp;&nbsp;
+                                    </button>
+                                    <br> <br>
+                                </div>
+                            </div>
+
+                        </form>
+
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8 text-center">
+                                {% for message in messages %}
+                                    <p{% if message.tags == 'error' %} class="alert alert-info"{% endif %}
+                                            {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                                        {{ message }}</p>
+                                {% endfor %}
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function hideAge2(obj) {
+        if (obj.is(':checked')) {
+            $('#id_age_2').removeAttr('required');
+            $('#id_age_2').hide();
+
+        }
+    };
+
+    function showAge2(obj) {
+        if (obj.is(':checked')) {
+            $('#id_age_2').show();
+            $('#id_age_2').attr("required", "")
+        }
+    };
+
+    $(document).ready(function () {
+
+        hideAge2($('#loanType_Single'));
+
+        showAge2($('#loanType_Couple'));
+
+        $('#id_name').focus();
+
+
+        $('#loanType_Single').click(function () {
+            hideAge2($(this));
+        });
+
+        $('#loanType_Couple').click(function () {
+            showAge2($(this));
+        });
+
+    })
+
+</script>
+
+</body>
+
+

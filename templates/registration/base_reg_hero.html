@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -8,11 +9,11 @@
     <!-- The above 2 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
+    <link rel="icon" href="{% static 'img/favicon/favicon.png' %}"/>
 
     {% include 'registration/base_reg.css.html' %}
 
-    <title>Household.app</title>
+    <title>HouseholdCapital.app</title>
   </head>
 
 <body>
