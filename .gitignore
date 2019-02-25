@@ -14,3 +14,4 @@ collected/
 /lib/python3.7
 /logs/django.log
 production.py
+.vagrant
