@@ -48053,3 +48053,725 @@ Not Found: /wjsoidj
 "GET /wjsoidj HTTP/1.1" 404 2856
 Not Found: /favicon.ico
 "GET /favicon.ico HTTP/1.1" 404 2868
+"GET /static/css/client.css HTTP/1.1" 304 0
+"GET / HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 200 6355
+"GET /static/img/icons/transfer_35.png HTTP/1.1" 304 0
+"GET /static/img/icons/refi_icon.png HTTP/1.1" 304 0
+"GET /static/css/calculator.css HTTP/1.1" 200 3916
+Internal Server Error: /calculator/output/b17d1e82-8042-4f4f-b147-88d85a8d7be8
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/Development/hhc/apps/calculator/views.py", line 92, in get
+    return super(OutputView,self).get(self, request, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 189, in get
+    self.object = self.get_object()
+  File "/Users/developmentaccount/Development/hhc/apps/calculator/views.py", line 102, in get_object
+    queryset = WebCalculator.objects.queryset_byUID(self.caseUID)
+  File "/Users/developmentaccount/Development/hhc/apps/calculator/models.py", line 11, in queryset_byUID
+    searchWeb = WebCalculator.objects.get(calcUID=uuid.UUID(uidString)).pk
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/db/models/manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/db/models/query.py", line 399, in get
+    self.model._meta.object_name
+apps.calculator.models.WebCalculator.DoesNotExist: WebCalculator matching query does not exist.
+"GET /calculator/output/b17d1e82-8042-4f4f-b147-88d85a8d7be8 HTTP/1.1" 500 95300
+"GET /static/img/icons/apartment_icon.png HTTP/1.1" 304 0
+"GET /static/img/icons/house_icon.png HTTP/1.1" 304 0
+"GET /calculator/ HTTP/1.1" 200 10162
+"GET /static/img/icons/single_icon.png HTTP/1.1" 304 0
+"POST /calculator/ HTTP/1.1" 302 0
+"GET /calculator/output/80061c44-6eb6-4a0b-986a-ca469ccd1d2b HTTP/1.1" 200 9839
+"GET /static/img/icons/transfer_25.png HTTP/1.1" 304 0
+"POST /calculator/output/80061c44-6eb6-4a0b-986a-ca469ccd1d2b HTTP/1.1" 200 9164
+"GET / HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 302 0
+"GET /accounts/login/?next=/landing/ HTTP/1.1" 200 4586
+"GET /static/css/site.css HTTP/1.1" 200 2235
+"GET /static/img/hhc/HC_Logo_Flat.png HTTP/1.1" 200 35859
+"GET /static/img/hhc/HC-Hero-FamilyOutside.jpg HTTP/1.1" 200 588175
+"GET /static/fonts/MaisonNeue-Book.otf HTTP/1.1" 200 67752
+"GET /static/img/favicon/favicon.png HTTP/1.1" 200 2757
+"POST /accounts/login/?next=/landing/ HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 200 6423
+Internal Server Error: /landing/
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 150, in render
+    return compiled_parent._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 176, in render
+    template = context.template.engine.get_template(template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/engine.py", line 144, in get_template
+    template, origin = self.find_template(template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/engine.py", line 130, in find_template
+    raise TemplateDoesNotExist(name, tried=tried)
+django.template.exceptions.TemplateDoesNotExist: site/base.header.html
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 83, in rendered_content
+    content = template.render(context, self._request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 63, in render
+    reraise(exc, self.backend)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 84, in reraise
+    raise new from exc
+django.template.exceptions.TemplateDoesNotExist: site/base.header.html
+"GET /landing/ HTTP/1.1" 500 142246
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2868
+"GET /landing/ HTTP/1.1" 200 6795
+"GET /landing/ HTTP/1.1" 200 6589
+"GET /landing/ HTTP/1.1" 200 6589
+"GET /landing/ HTTP/1.1" 302 0
+Internal Server Error: /accounts/login/
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 150, in render
+    return compiled_parent._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 176, in render
+    template = context.template.engine.get_template(template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/engine.py", line 144, in get_template
+    template, origin = self.find_template(template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/engine.py", line 130, in find_template
+    raise TemplateDoesNotExist(name, tried=tried)
+django.template.exceptions.TemplateDoesNotExist: site/base.navbar.html
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 83, in rendered_content
+    content = template.render(context, self._request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 63, in render
+    reraise(exc, self.backend)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 84, in reraise
+    raise new from exc
+django.template.exceptions.TemplateDoesNotExist: site/base.navbar.html
+"GET /accounts/login/?next=/landing/ HTTP/1.1" 500 138606
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2868
+"GET / HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 302 0
+Internal Server Error: /accounts/login/
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 150, in render
+    return compiled_parent._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 176, in render
+    template = context.template.engine.get_template(template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/engine.py", line 144, in get_template
+    template, origin = self.find_template(template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/engine.py", line 130, in find_template
+    raise TemplateDoesNotExist(name, tried=tried)
+django.template.exceptions.TemplateDoesNotExist: site/base.navbar.html
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 83, in rendered_content
+    content = template.render(context, self._request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 63, in render
+    reraise(exc, self.backend)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 84, in reraise
+    raise new from exc
+django.template.exceptions.TemplateDoesNotExist: site/base.navbar.html
+"GET /accounts/login/?next=/landing/ HTTP/1.1" 500 138294
+"GET / HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 302 0
+Internal Server Error: /accounts/login/
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 150, in render
+    return compiled_parent._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 176, in render
+    template = context.template.engine.get_template(template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/engine.py", line 144, in get_template
+    template, origin = self.find_template(template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/engine.py", line 130, in find_template
+    raise TemplateDoesNotExist(name, tried=tried)
+django.template.exceptions.TemplateDoesNotExist: site/base.navbar.html
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 83, in rendered_content
+    content = template.render(context, self._request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 63, in render
+    reraise(exc, self.backend)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 84, in reraise
+    raise new from exc
+django.template.exceptions.TemplateDoesNotExist: site/base.navbar.html
+"GET /accounts/login/?next=/landing/ HTTP/1.1" 500 138294
+"GET / HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 302 0
+Internal Server Error: /accounts/login/
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 150, in render
+    return compiled_parent._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 176, in render
+    template = context.template.engine.get_template(template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/engine.py", line 144, in get_template
+    template, origin = self.find_template(template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/engine.py", line 130, in find_template
+    raise TemplateDoesNotExist(name, tried=tried)
+django.template.exceptions.TemplateDoesNotExist: site/base.navbar.html
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 83, in rendered_content
+    content = template.render(context, self._request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 63, in render
+    reraise(exc, self.backend)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 84, in reraise
+    raise new from exc
+django.template.exceptions.TemplateDoesNotExist: site/base.navbar.html
+"GET /accounts/login/?next=/landing/ HTTP/1.1" 500 138294
+Internal Server Error: /accounts/login/
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 150, in render
+    return compiled_parent._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 176, in render
+    template = context.template.engine.get_template(template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/engine.py", line 144, in get_template
+    template, origin = self.find_template(template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/engine.py", line 130, in find_template
+    raise TemplateDoesNotExist(name, tried=tried)
+django.template.exceptions.TemplateDoesNotExist: site/base.navbar.html
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 83, in rendered_content
+    content = template.render(context, self._request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 63, in render
+    reraise(exc, self.backend)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 84, in reraise
+    raise new from exc
+django.template.exceptions.TemplateDoesNotExist: site/base.navbar.html
+"GET /accounts/login/?next=/landing/ HTTP/1.1" 500 138294
+"GET /accounts/login/?next=/landing/ HTTP/1.1" 200 4586
+"GET /static/css/site.css HTTP/1.1" 200 2301
+"GET /static/img/hhc/HC_Logo_Flat.png HTTP/1.1" 200 35859
+"GET /static/img/hhc/HC-Hero-FamilyOutside.jpg HTTP/1.1" 200 588175
+"GET /static/fonts/MaisonNeue-Book.otf HTTP/1.1" 200 67752
+"GET /static/img/favicon/favicon.png HTTP/1.1" 200 2757
+"GET /accounts/password_reset/ HTTP/1.1" 200 4315
+"POST /accounts/login/?next=/landing/ HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 200 6589
+"GET /static/fonts/MercuryDisplay-Semibold.otf HTTP/1.1" 200 112596
+"GET /accounts/logout/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 4844
+"GET /accounts/login/ HTTP/1.1" 200 4586
+"GET /accounts/login/ HTTP/1.1" 200 4586
+Not Found: /accounts/login//
+"GET /accounts/login// HTTP/1.1" 404 3947
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2868
+"GET /accounts/login/ HTTP/1.1" 200 4586
+"POST /accounts/login/ HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 200 6589
+"GET /landing/ HTTP/1.1" 200 6697
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /landing/ HTTP/1.1" 200 6702
+"GET /landing/ HTTP/1.1" 200 6702
+"GET /landing/ HTTP/1.1" 200 6711
+"GET /landing/ HTTP/1.1" 200 6711
+"GET /landing/ HTTP/1.1" 200 6718
+"GET /landing/ HTTP/1.1" 200 6718
+"GET /landing/ HTTP/1.1" 200 6752
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /landing/ HTTP/1.1" 200 6764
+"GET /landing/ HTTP/1.1" 200 6773
+"GET /landing/ HTTP/1.1" 200 6773
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /landing/ HTTP/1.1" 200 6773
+"GET /landing/ HTTP/1.1" 200 6773
+"GET /landing/ HTTP/1.1" 200 6773
+"GET /landing/ HTTP/1.1" 200 6773
+"GET /static/css/site.css HTTP/1.1" 200 2249
+"GET /landing/ HTTP/1.1" 200 6774
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /landing/ HTTP/1.1" 200 6779
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseDetail/4 HTTP/1.1" 200 15239
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /media/fundImages/Unknown.png HTTP/1.1" 200 6981
+"GET /media/customerImages/6e27c88a-041f-4f01-bb8f-ec144edf726d..png HTTP/1.1" 200 427408
+"GET /landing/ HTTP/1.1" 200 6779
+"GET /case/caseDetail/4 HTTP/1.1" 200 15239
+"GET /case/caseList HTTP/1.1" 200 6779
+"GET /case/caseDetail/4 HTTP/1.1" 200 15239
+"GET /case/caseDetail/4 HTTP/1.1" 200 15239
+"GET /case/caseList HTTP/1.1" 200 6779
+"GET /case/caseList HTTP/1.1" 200 6864
+"GET /case/caseList HTTP/1.1" 200 6869
+"GET /case/caseList HTTP/1.1" 200 6876
+"GET /case/caseList HTTP/1.1" 200 6888
+"GET /case/caseList HTTP/1.1" 200 6888
+"GET /case/caseList HTTP/1.1" 200 6912
+"GET /case/caseList HTTP/1.1" 200 6912
+"GET /case/caseList HTTP/1.1" 200 6912
+"GET /case/caseCreate HTTP/1.1" 200 13465
+"GET /case/caseList HTTP/1.1" 200 6912
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseList HTTP/1.1" 200 6912
+"GET /eligibility HTTP/1.1" 301 0
+"GET /eligibility/ HTTP/1.1" 200 6939
+Internal Server Error: /eligibility/
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 142, in post
+    return self.form_valid(form)
+  File "/Users/developmentaccount/Development/hhc/apps/eligibility/views.py", line 44, in form_valid
+    validationDict=LoanValidator({},form.cleaned_data)
+  File "/Users/developmentaccount/Development/hhc/apps/lib/loanValidator.py", line 22, in __init__
+    if self.aggDict['dwellingType']==dwellingTypesEnum.HOUSE.value:
+KeyError: 'dwellingType'
+"POST /eligibility/ HTTP/1.1" 500 88610
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2980
+"GET /eligibility/ HTTP/1.1" 200 7088
+"GET /eligibility/ HTTP/1.1" 200 7062
+"GET /eligibility/ HTTP/1.1" 200 7060
+"GET /eligibility/ HTTP/1.1" 200 7065
+"GET /eligibility/ HTTP/1.1" 200 7065
+"GET /eligibility/ HTTP/1.1" 200 7065
+"GET /eligibility/ HTTP/1.1" 200 7065
+"GET /eligibility/ HTTP/1.1" 302 0
+"GET /accounts/login/?next=/eligibility/ HTTP/1.1" 200 4673
+"GET /static/css/site.css HTTP/1.1" 200 2249
+"GET /static/img/hhc/HC_Logo_Flat.png HTTP/1.1" 200 35859
+"GET /static/img/hhc/HC-Hero-FamilyOutside.jpg HTTP/1.1" 200 588175
+"GET /static/fonts/MaisonNeue-Book.otf HTTP/1.1" 200 67752
+"GET /static/img/favicon/favicon.png HTTP/1.1" 200 2757
+"POST /accounts/login/?next=/eligibility/ HTTP/1.1" 302 0
+"GET /eligibility/ HTTP/1.1" 200 7065
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /static/fonts/MercuryDisplay-Semibold.otf HTTP/1.1" 200 112596
+"GET /eligibility/ HTTP/1.1" 200 6487
+"GET /static/css/site.css HTTP/1.1" 200 2249
+"GET /static/img/hhc/HC_Logo_Flat.png HTTP/1.1" 200 35859
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /eligibility/ HTTP/1.1" 200 7020
+Internal Server Error: /eligibility/
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 142, in post
+    return self.form_valid(form)
+  File "/Users/developmentaccount/Development/hhc/apps/eligibility/views.py", line 44, in form_valid
+    validationDict=LoanValidator({},form.cleaned_data)
+  File "/Users/developmentaccount/Development/hhc/apps/lib/loanValidator.py", line 32, in __init__
+    self.clientAge = self.aggDict['age_1']
+KeyError: 'age_1'
+"POST /eligibility/ HTTP/1.1" 500 88560
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2980
+Internal Server Error: /eligibility/
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 142, in post
+    return self.form_valid(form)
+  File "/Users/developmentaccount/Development/hhc/apps/eligibility/views.py", line 49, in form_valid
+    context.update(validationDict)
+TypeError: 'LoanValidator' object is not iterable
+"POST /eligibility/ HTTP/1.1" 500 85331
+Internal Server Error: /eligibility/
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 142, in post
+    return self.form_valid(form)
+  File "/Users/developmentaccount/Development/hhc/apps/eligibility/views.py", line 48, in form_valid
+    validationDict=loanObj.chkClientDetails()
+  File "/Users/developmentaccount/Development/hhc/apps/lib/loanValidator.py", line 81, in chkClientDetails
+    if self.clientAge < LOAN_LIMITS['minSingleAge']:
+TypeError: '<' not supported between instances of 'str' and 'int'
+"POST /eligibility/ HTTP/1.1" 500 97985
+Internal Server Error: /eligibility/
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 142, in post
+    return self.form_valid(form)
+  File "/Users/developmentaccount/Development/hhc/apps/eligibility/views.py", line 48, in form_valid
+    validationDict=loanObj.chkClientDetails()
+  File "/Users/developmentaccount/Development/hhc/apps/lib/loanValidator.py", line 92, in chkClientDetails
+    self.calcLVR()
+  File "/Users/developmentaccount/Development/hhc/apps/lib/loanValidator.py", line 203, in calcLVR
+    self.loanLimit = int(round(lvr * self.aggDict['valuation'], 0))
+TypeError: can't multiply sequence by non-int of type 'float'
+"POST /eligibility/ HTTP/1.1" 500 101297
+Internal Server Error: /eligibility/
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 142, in post
+    return self.form_valid(form)
+  File "/Users/developmentaccount/Development/hhc/apps/eligibility/views.py", line 52, in form_valid
+    if validationDict['eligible']==True:
+KeyError: 'eligible'
+"POST /eligibility/ HTTP/1.1" 500 86197
+Internal Server Error: /eligibility/
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 142, in post
+    return self.form_valid(form)
+  File "/Users/developmentaccount/Development/hhc/apps/eligibility/views.py", line 52, in form_valid
+    if validationDict['eligible']==True:
+KeyError: 'eligible'
+"POST /eligibility/ HTTP/1.1" 500 86226
+"POST /eligibility/ HTTP/1.1" 200 7055
+"GET /static/css/site.css HTTP/1.1" 304 0
+"POST /eligibility/ HTTP/1.1" 200 7055
+"POST /eligibility/ HTTP/1.1" 200 7255
+"GET /static/css/site.css HTTP/1.1" 304 0
+"POST /eligibility/ HTTP/1.1" 200 7234
+"POST /eligibility/ HTTP/1.1" 200 7234
+"POST /eligibility/ HTTP/1.1" 200 7234
+"GET /static/css/site.css HTTP/1.1" 304 0
+"POST /eligibility/ HTTP/1.1" 200 7234
+"POST /eligibility/ HTTP/1.1" 200 7234
+"GET /eligibility/ HTTP/1.1" 200 7178
+"POST /eligibility/ HTTP/1.1" 200 7903
+"POST /eligibility/ HTTP/1.1" 200 7908
+"POST /eligibility/ HTTP/1.1" 200 7908
+"GET /static/css/site.css HTTP/1.1" 304 0
+"POST /eligibility/ HTTP/1.1" 200 7908
+"POST /eligibility/ HTTP/1.1" 200 7944
+"POST /eligibility/ HTTP/1.1" 200 7935
+Internal Server Error: /eligibility/
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 83, in rendered_content
+    content = template.render(context, self._request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 150, in render
+    return compiled_parent._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/defaulttags.py", line 309, in render
+    return nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/defaulttags.py", line 442, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/urls/base.py", line 90, in reverse
+    return iri_to_uri(resolver._reverse_with_prefix(view, prefix, *args, **kwargs))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/urls/resolvers.py", line 622, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'emailSummary' not found. 'emailSummary' is not a valid view function or pattern name.
+"POST /eligibility/ HTTP/1.1" 500 179749
+"POST /eligibility/ HTTP/1.1" 200 8102
+"GET /static/css/site.css HTTP/1.1" 304 0
+"POST /eligibility/ HTTP/1.1" 200 8105
+"POST /eligibility/ HTTP/1.1" 200 8105
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /eligibility/email HTTP/1.1" 200 5674
+"POST /eligibility/email HTTP/1.1" 302 0
+"GET /eligibility/ HTTP/1.1" 200 7317
+"POST /eligibility/ HTTP/1.1" 200 8105
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /eligibility/email HTTP/1.1" 200 5674
+"POST /eligibility/email HTTP/1.1" 200 6110
+"POST /eligibility/email HTTP/1.1" 200 6110
+"POST /eligibility/ HTTP/1.1" 200 8105
+"GET /eligibility/email HTTP/1.1" 200 5674
+"POST /eligibility/email HTTP/1.1" 200 6113
+"POST /eligibility/email HTTP/1.1" 200 6113
+"POST /eligibility/ HTTP/1.1" 200 8105
+"GET /eligibility/email HTTP/1.1" 200 5674
+"POST /eligibility/email HTTP/1.1" 200 6114
+"GET /static/css/site.css HTTP/1.1" 304 0
+"POST /eligibility/ HTTP/1.1" 200 8105
+"GET /eligibility/email HTTP/1.1" 200 5674
+"POST /eligibility/email HTTP/1.1" 200 6075
+"GET /accounts/logout/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 4931
+"POST /accounts/login/ HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 200 6912
+"GET /landing/ HTTP/1.1" 200 6912
+"GET /eligibility/ HTTP/1.1" 200 7034
+"GET /eligibility/ HTTP/1.1" 200 7034
+"POST /eligibility/ HTTP/1.1" 200 8069
+"GET /eligibility/email HTTP/1.1" 200 5674
+"POST /eligibility/email HTTP/1.1" 200 6079
+"GET /accounts/logout/ HTTP/1.1" 302 0
+"GET /accounts/login/ HTTP/1.1" 200 4931
+"POST /accounts/login/ HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 200 6912
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /eligibility/email HTTP/1.1" 200 5674
+"GET /eligibility/ HTTP/1.1" 200 7034
+"GET /eligibility/ HTTP/1.1" 200 7034
+"POST /eligibility/ HTTP/1.1" 200 8189
+"GET /eligibility/email HTTP/1.1" 200 5674
+"POST /eligibility/email HTTP/1.1" 200 6073
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /eligibility/email HTTP/1.1" 200 5674
+"GET /eligibility/email HTTP/1.1" 200 5674
+"GET /eligibility/email HTTP/1.1" 200 5674
+"GET / HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 200 6912
+Not Found: /case/caseL:ist
+"GET /case/caseL:ist HTTP/1.1" 404 3638
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2980
+"GET /case/caseList HTTP/1.1" 200 6912
+"GET /case/caseDetail/4 HTTP/1.1" 200 15372
+"GET /media/customerImages/6e27c88a-041f-4f01-bb8f-ec144edf726d..png HTTP/1.1" 200 427408
+"GET /media/fundImages/Unknown.png HTTP/1.1" 200 6981
+"GET /client/meeting/6e27c88a-041f-4f01-bb8f-ec144edf726d HTTP/1.1" 200 18343
+"GET /static/css/client.css HTTP/1.1" 200 6329
+"GET /case/caseList HTTP/1.1" 200 6912
