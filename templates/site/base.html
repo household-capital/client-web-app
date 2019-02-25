@@ -17,12 +17,12 @@
   </head>
 
 <body>
-{% include 'site/base.navbar.html' %}
+{% include 'site/base_navbar.html' %}
 
-{% block jumbotron %}{% endblock %}
+    {% load static %}
 
-<!--<div class="container">
- -->
+    {% block jumbotron %}{% endblock %}
+
     {% block message_display %}{% endblock %}
 
     {% block content %}{% endblock %}
