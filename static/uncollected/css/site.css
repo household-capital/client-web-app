@@ -38,9 +38,6 @@ a,p, a:link, a:visited {
     color: grey;
 }
 
-.navbar-inverse .navbar-brand {
-    color: white;
-}
 
 .navbar {
     padding-bottom: 30px;
@@ -58,6 +55,11 @@ body {
 
 .appLogo {
     padding: 15px;
+}
+
+.title {
+    font-family: MercuryDisplay;
+    font-size: 36px;
 }
 
 /* Theme */

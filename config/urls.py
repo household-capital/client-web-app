@@ -31,6 +31,7 @@ urlpatterns = [
     path('case/', include('apps.case.urls')),
     path('client/', include('apps.client_1_0.urls')),
     path('calculator/', include('apps.calculator.urls')),
+    path('eligibility/',include('apps.eligibility.urls')),
     path('hhcadmin/', admin.site.urls)
 ]
 

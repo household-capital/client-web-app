@@ -1,0 +1,78 @@
+{% extends 'site/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12 title">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div class="row justify-content-md-center">
+                <div class="col-6 text-center">
+                    <br>
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %} class="alert alert-warning"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row pt-4">
+                <div class="col-6 text-left">
+
+                    {% crispy form %}
+
+                </div>
+
+                <div class="col-lg-6 pt-4">
+                     <div class="jumbotron">
+
+                        {% if status.status == 'Ok' %}
+                        <p class="larger">Max LVR is: {{ status.restrictions.maxLVR|intcomma }}%</p>
+                            <br>
+                            <p class="small"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
+                        <p class="small">Max Loan is: ${{ status.restrictions.maxLoan|intcomma }} (incl establishment fee)</p>
+                        <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxTopUp %}Max for Super Top Up is: ${{ status.restrictions.maxTopUp|intcomma }}</p>{% endif %}
+                        <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxCare %}Max for Age Care is: ${{ status.restrictions.maxCare|intcomma }}</p>{% endif %}
+                        <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxReno %}Max for Renovations is: ${{ status.restrictions.maxReno|intcomma }}</p>{% endif %}
+                        <p class="small">Max for Refinance is: ${{ status.restrictions.maxRefi|intcomma }}</p>
+                        <p class="small">Max for Giving is: ${{ status.restrictions.maxGive|intcomma }}</p>
+                        <p class="small">Max for Transport and Travel is: ${{ status.restrictions.maxTravel|intcomma }}</p>
+                        {% endif %}
+
+                </div>
+
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block javascript %}
+
+{% endblock %}
