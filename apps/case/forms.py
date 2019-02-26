@@ -14,10 +14,10 @@ from .models import Case
 class CaseDetailsForm(forms.ModelForm):
     #Form Data
 
-    valuation = forms.IntegerField(required=True, localize=True, widget=widgets.TextInput())
-    mortgageDebt = forms.IntegerField(required=True, localize=True, widget=widgets.TextInput())
-    superAmount = forms.IntegerField(required=True, localize=True, widget=widgets.TextInput())
-    pensionAmount = forms.IntegerField(required=True, localize=True, widget=widgets.TextInput())
+    valuation = forms.IntegerField(required=False, localize=True, widget=widgets.TextInput())
+    mortgageDebt = forms.IntegerField(required=False,localize=True, widget=widgets.TextInput())
+    superAmount = forms.IntegerField(required=False,localize=True, widget=widgets.TextInput())
+    pensionAmount = forms.IntegerField(required=False,localize=True, widget=widgets.TextInput())
     propertyImage=forms.ImageField(required=False,widget=forms.FileInput)
 
     class Meta:

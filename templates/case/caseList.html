@@ -26,7 +26,10 @@
                     <br>
                     {% for message in messages %}
                         <p{% if message.tags == 'error' %}
-                            class="alert alert-warning"{% endif %}>{{ message }}</p>
+                                class="alert alert-warning"{% endif %}
+                          {% if message.tags == 'success' %}
+                                class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
                     {% endfor %}
                 </div>
             </div>

@@ -7,11 +7,12 @@
 
     <div class="container">
         {% if messages %}
-            <div class="row justify-content-md-center">
+            <div class="row justify-content-md-center pt-3">
                 <div class="col-6 text-center">
                     {% for message in messages %}
-                        <p{% if message.tags == 'error' %} class="alert alert-warning"{% endif %}{% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
-                        {{ message }}</p>
+                        <p{% if message.tags == 'error' %} class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
                     {% endfor %}
                     <br>
                 </div>
@@ -23,6 +24,16 @@
 
 {% endblock %}
 
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12 title">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
 
 {% block content %}
 
@@ -49,78 +60,130 @@
                 {% endif %}
 
             </div>
-            <div class="col-lg-3 text-left">
-                <br>
-                <div></div>
-                <a href="{% url 'case:caseList' %}">
-                    &nbsp;<div class="btn btn-outline-secondary">Back to Case List</div>
-                </a>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-lg-8">
+
+                {% crispy form %}
+
+
             </div>
-            <br>
+
+            <div class="col-lg-4">
 
 
-            <div class="row">
+                <div class="row">
+                    <div class="col-lg-12">
 
-                <div class="col-lg-8">
+                        <br>
+                        <div class="padding-15px">
+                            {% if isUpdate %}
+                                {% if obj.caseType == caseTypesEnum.OPPORTUNITY.value %}
+                                    <a href="{% url 'client:meeting' uid=obj.caseUID %}">
+                                        <div class="btn btn-success">Meeting</div>
+                                    </a>
+                                {% endif %}
 
-                    {% crispy form %}
+                                {% if status.status == 'Ok' %}
+
+                                    <a href="">
+                                        <div class="btn btn-outline-secondary">Loan Analysis</div>
+                                    </a>{% endif %}
+
+                                {% if obj.caseType == caseTypesEnum.LEAD.value %}
+
+                                    <button type="button" class="btn btn-outline-secondary" data-toggle="modal"
+                                            data-target="#deleteModal">
+                                        Delete
+                                    </button>
+
+                                {% endif %}
 
 
-                </div>
-
-                <div class="col-lg-4">
-
-                    <br>
-                    <div class="padding-15px">
-                        {% if isUpdate %}
-                            {% if obj.caseType == 1 %}
-                                <a href="{% url 'client:meeting' uid=obj.caseUID %}">
-                                <div class="btn btn-success">Meeting</div>
-                            </a>
                             {% endif %}
-
-                            <a href="">
-                                <div class="btn btn-outline-secondary">Loan Analysis</div>
-                            </a>
-                              <a href="{% url 'case:emailSummary' pk=obj.caseID %}">
-                                <div class="btn btn-outline-secondary">Email Summary</div>
-                            </a>
-
-                        {% endif %}
-                    </div>
-
-
-                    <div class="jumbotron">
-
-
-                        {% if status.status == 'Ok' %}
-                        <p class="larger">Max LVR is: {{ status.restrictions.maxLVR|intcomma }}%</p>
-                            <br>
-                            <p class="small"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
-                        <p class="small">Max Loan is: ${{ status.restrictions.maxLoan|intcomma }} (incl establishment fee)</p>
-                        <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxTopUp %}Max for Super Top Up is: ${{ status.restrictions.maxTopUp|intcomma }}</p>{% endif %}
-                        <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxCare %}Max for Age Care is: ${{ status.restrictions.maxCare|intcomma }}</p>{% endif %}
-                        <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxReno %}Max for Renovations is: ${{ status.restrictions.maxReno|intcomma }}</p>{% endif %}
-                        <p class="small">Max for Refinance is: ${{ status.restrictions.maxRefi|intcomma }}</p>
-                        <p class="small">Max for Giving is: ${{ status.restrictions.maxGive|intcomma }}</p>
-                        <p class="small">Max for Transport and Travel is: ${{ status.restrictions.maxTravel|intcomma }}</p>
-                        {% endif %}
-                        <br>
-
-                        <br>
-                        {% if obj.propertyImage %}<img src='{{ obj.propertyImage.url }}' width='150px' height="150px">{% endif %}&nbsp;&nbsp;
-                        {% if obj.superFund %}<img src='{{ obj.superFund.fundImage.url }}' width='150px height="150px"'>{% endif %}
-
+                        </div>
                     </div>
                 </div>
 
+                {% if status.status == 'Ok' %}
 
+                    <div class="row">
+                        <div class="col-lg-12">
+
+                            <div class="jumbotron">
+
+                                <p class="larger">Max LVR is: {{ status.restrictions.maxLVR|intcomma }}%</p>
+                                <br>
+                                <p class="small"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
+                                <p class="small">Max Loan is: ${{ status.restrictions.maxLoan|intcomma }} (incl
+                                    establishment fee)</p>
+                                <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxTopUp %}
+                                    Max for
+                                    Super Top Up is: ${{ status.restrictions.maxTopUp|intcomma }}</p>{% endif %}
+                                <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxCare %}
+                                    Max for
+                                    Age Care is: ${{ status.restrictions.maxCare|intcomma }}</p>{% endif %}
+                                <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxReno %}
+                                    Max for
+                                    Renovations is: ${{ status.restrictions.maxReno|intcomma }}</p>{% endif %}
+                                <p class="small">Max for Refinance is:
+                                    ${{ status.restrictions.maxRefi|intcomma }}</p>
+                                <p class="small">Max for Giving is: ${{ status.restrictions.maxGive|intcomma }}</p>
+                                <p class="small">Max for Transport and Travel is:
+                                    ${{ status.restrictions.maxTravel|intcomma }}</p>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="jumbotron">
+                        <p class="small"><i class='fa fa-camera fa-fw'></i>&nbsp;&nbsp;Images</p>
+                        <div class="row pt-1">
+                            <div class="col-lg-6">
+                                {% if obj.propertyImage %}
+                                    <img class="img-fluid" src='{{ obj.propertyImage.url }}'>
+                                {% endif %}&nbsp;&nbsp;
+                            </div>
+                            <div class="col-lg-6">
+                                {% if obj.superFund %}
+                                    <img class="img-fluid" src='{{ obj.superFund.fundImage.url }}'>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                {% endif %}
             </div>
 
 
         </div>
 
     </div>
+    {% if isUpdate %}
+   <!-- Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Delete lead?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                <p>Do you want to delete the lead (as opposed closing it)?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <a href="{% url 'case:caseDelete' uid=obj.caseUID %}"><div class="btn btn-primary">Yes, delete this</div></a>
+
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
 
 {% endblock %}

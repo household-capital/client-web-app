@@ -47,11 +47,12 @@ class LandingView(LoginRequiredMixin, FormView):
         loanObj=LoanValidator({},form.cleaned_data)
         status=loanObj.chkClientDetails()
 
+        print(clientDict)
+
         context['status']=status
 
-        if status['status']=='Ok':
-            self.request.session['eligibilityStatus']=status
-            print(status)
+        self.request.session['eligibilityStatus']=status
+        self.request.session['eligibilityData']=form.cleaned_data
 
         return self.render_to_response(context)
 
@@ -60,7 +61,7 @@ class EmailView(LoginRequiredMixin, FormView):
 
     template_name = "eligibility/main_eligibility.html"
     form_class=EmailForm
-    success_url = reverse_lazy('case:caselist')
+    success_url = reverse_lazy('case:caseList')
 
     def get_context_data(self, **kwargs):
         context = super(EmailView,self).get_context_data(**kwargs)
@@ -74,13 +75,14 @@ class EmailView(LoginRequiredMixin, FormView):
 
         template_html = "eligibility/email.html"
 
-        print(self.request.session.items())
+        if 'eligibilityStatus' in self.request.session.keys():
 
-        if 'eligibilityStatus' in self.request.session.items():
+            email_context={}
+            email_context.update(self.request.session['eligibilityStatus'])
+            email_context.update(self.request.session['eligibilityData'])
+            email_context.update(form.cleaned_data)
 
-            email_context = self.request.session['eligibilityStatus']
-            email_context.update(form.cleaned_data.items)
-
+            print(email_context)
 
             subject, from_email, to = "Household Loan Enquiry - "+email_context['client_reference'], \
                                       settings.DEFAULT_FROM_EMAIL, \
