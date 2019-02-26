@@ -12,6 +12,6 @@ collected/
 /bin
 /include/python3.7m
 /lib/python3.7
-/logs/django.log
+/logs/
 production.py
 .vagrant
