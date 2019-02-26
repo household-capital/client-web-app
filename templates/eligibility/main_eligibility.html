@@ -42,37 +42,56 @@
 {% block content %}
 
     <div class="container">
-        <div class="row pt-4">
-                <div class="col-lg-6 text-left">
+    <div class="row pt-4">
+        <div class="col-lg-5 text-left">
 
-                    {% crispy form %}
+            {% crispy form %}
+
+        </div>
+
+        {% if status.status == 'Ok' %}
+            <div class="col-lg-5 pt-4">
+            <div class="jumbotron">
+
+                <p><i class="far fa-check-circle fa-lg btn-outline-success"></i>&nbsp;Eligible Opportunity</p>
+                <br>
+                <p class="larger">Max LVR is: {{ status.restrictions.maxLVR|intcomma }}%</p>
+                <br>
+                <p class="small"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
+                <p class="small">Max Loan is: ${{ status.restrictions.maxLoan|intcomma }} (incl establishment fee)</p>
+                <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxTopUp %}Max for Super Top Up
+                    is: ${{ status.restrictions.maxTopUp|intcomma }}</p>{% endif %}
+                <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxCare %}Max for Age Care is:
+                    ${{ status.restrictions.maxCare|intcomma }}</p>{% endif %}
+                <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxReno %}Max for Renovations
+                    is: ${{ status.restrictions.maxReno|intcomma }}</p>{% endif %}
+                <p class="small">Max for Refinance is: ${{ status.restrictions.maxRefi|intcomma }}</p>
+                <p class="small">Max for Giving is: ${{ status.restrictions.maxGive|intcomma }}</p>
+                <p class="small">Max for Transport and Travel is: ${{ status.restrictions.maxTravel|intcomma }}</p>
+
+                <br>
+                <a href="{% url 'eligibility:email' %}">
+                    <div class="btn btn-outline-secondary">Email Summary</div>
+                </a>
+
+            </div>
+
+        {% endif %}
+
+
+        {% if status.status == 'Error' %}
+
+            <div class="col-lg-5 pt-4">
+                <div class="jumbotron">
+
+
+                    <p><i class="far fa-times-circle fa-lg btn-outline-danger"></i>&nbsp;Ineligible
+                        - {{ status.details }}</p>
 
                 </div>
+            </div>
 
-                {% if status.status == 'Ok' %}
-                <div class="col-lg-6 pt-4">
-                     <div class="jumbotron">
-
-
-                        <p class="larger">Max LVR is: {{ status.restrictions.maxLVR|intcomma }}%</p>
-                            <br>
-                            <p class="small"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
-                        <p class="small">Max Loan is: ${{ status.restrictions.maxLoan|intcomma }} (incl establishment fee)</p>
-                        <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxTopUp %}Max for Super Top Up is: ${{ status.restrictions.maxTopUp|intcomma }}</p>{% endif %}
-                        <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxCare %}Max for Age Care is: ${{ status.restrictions.maxCare|intcomma }}</p>{% endif %}
-                        <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxReno %}Max for Renovations is: ${{ status.restrictions.maxReno|intcomma }}</p>{% endif %}
-                        <p class="small">Max for Refinance is: ${{ status.restrictions.maxRefi|intcomma }}</p>
-                        <p class="small">Max for Giving is: ${{ status.restrictions.maxGive|intcomma }}</p>
-                        <p class="small">Max for Transport and Travel is: ${{ status.restrictions.maxTravel|intcomma }}</p>
-
-                     <br>
-                     <a href="{% url 'eligibility:email' %}">
-                                <div class="btn btn-outline-secondary">Email Summary</div>
-                            </a>
-
-                </div>
-
-                {% endif %}
+        {% endif %}
 
         </div>
     </div>

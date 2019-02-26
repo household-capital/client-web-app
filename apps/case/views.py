@@ -1,6 +1,7 @@
 #Python Imports
 import datetime
 import os
+import uuid
 
 #Django Imports
 from django.conf import settings
@@ -11,7 +12,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.http import HttpResponseRedirect
 from django.template.loader import get_template
 from django.urls import reverse_lazy, reverse
-from django.views.generic import ListView, UpdateView, CreateView, TemplateView
+from django.views.generic import ListView, UpdateView, CreateView, TemplateView, DeleteView, View
 
 #Third-party Imports
 
@@ -19,6 +20,8 @@ from django.views.generic import ListView, UpdateView, CreateView, TemplateView
 from .models import Case
 from .forms import CaseDetailsForm
 from apps.lib.loanValidator import LoanValidator
+from apps.lib.enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,pensionTypesEnum, loanTypesEnum
+
 
 # MIXINS
 
@@ -73,11 +76,12 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(CaseDetailView,self).get_context_data(**kwargs)
         context['title'] = 'Case Detail'
-        context['hideMenu']=True
         context['isUpdate']=True
+        context['caseTypesEnum']=caseTypesEnum
 
         clientDict={}
-        clientDict=self.get_queryset().values()[0]
+        clientDict=self.get_queryset().filter(caseID=self.object.caseID).values()[0]
+
 
         loanObj = LoanValidator([],clientDict)
         context['status']=loanObj.chkClientDetails()
@@ -99,7 +103,7 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
         if obj.propertyImage:
             path,filename=obj.propertyImage.name.split("/")
             ext=pathlib.Path(obj.propertyImage.name).suffix
-            print(ext)
+
 
 
             newFilename=settings.MEDIA_ROOT+"/"+path+"/"+str(obj.caseUID)+"."+ext
@@ -138,35 +142,16 @@ class CaseCreateView(LoginRequiredMixin, CreateView):
         obj.user=self.request.user
 
         obj.save()
+        messages.success(self.request,"Lead Created")
         return super(CaseCreateView,self).form_valid(form)
 
 
-class EmailSummary(LoginRequiredMixin, TemplateView):
+class CaseDeleteView(LoginRequiredMixin, View):
 
-     def get(self, request, **kwargs):
+    def get(self, request, *args, **kwargs):
 
-            caseID=kwargs['pk']
-            email_context={}
+        if "uid" in kwargs:
+            Case.objects.filter(caseUID=kwargs['uid']).delete()
+            messages.success(self.request, "Lead deleted")
 
-            template_html = "case/email.html"
-            caseDict=Case.objects.filter(caseID=caseID).values()[0]
-            email_context.update(caseDict)
-
-            loanObj = LoanValidator([], caseDict)
-            email_context['status'] = loanObj.chkClientDetails()
-
-            subject, from_email, to = "Household Loan Enquiry - "+email_context['caseDescription'], \
-                                      settings.DEFAULT_FROM_EMAIL, \
-                                      request.user.email
-            text_content = "Text Message"
-
-            html = get_template(template_html)
-            html_content = html.render(email_context)
-            msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-            msg.attach_alternative(html_content, "text/html")
-            msg.send()
-            print(email_context)
-            messages.success(request, "Case information has been emailed to you")
-
-            return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs= {'pk':caseID}))
-
+        return HttpResponseRedirect(reverse_lazy('case:caseList'))

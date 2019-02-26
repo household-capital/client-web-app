@@ -19,6 +19,8 @@ class LoanValidator():
         self.aggDict.update(loanDict)
         self.aggDict.update(clientDict)
 
+        print(self.aggDict['loanType'],loanTypesEnum.JOINT_BORROWER.value)
+
         if self.aggDict['dwellingType']==dwellingTypesEnum.HOUSE.value:
             self.isApartment=False
         else:

@@ -1,0 +1,46 @@
+{% load static %}
+<nav class="navbar navbar-light navbar-expand-lg navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar"
+                    aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+
+            </button>
+
+                <a class="navbar-brand pl-3" href="{% url 'landing:landing' %}">
+                <img src="{% static '/img/hhc/HC_Logo_Flat.png' %}" height="40">
+            </a>
+
+        </div>
+
+        <div class="collapse navbar-collapse" id="navbar">
+
+            <ul class="nav navbar-nav pl-4">
+                {% if request.user.is_authenticated %}
+                <li><a href="{% url 'eligibility:input' %}"><i class="fas fa-user-check"></i> Eligibility</a>&nbsp;&nbsp;&nbsp;&nbsp;</li>
+
+                <li><a href="{% url 'case:caseList' %}"><i class="far fa-list-alt"></i> Case List </a>&nbsp;&nbsp;&nbsp;&nbsp;</li>
+
+                {% endif %}
+            </ul>
+
+            <ul class="nav navbar-nav ml-auto">
+                {% if request.user.is_authenticated %}
+                <li><a href=""><i class="fas fa-user-circle"></i>  {{ request.user.username }}&nbsp;&nbsp;&nbsp;</a></li>
+                <li><a href='{% url "accounts:logout" %}'><i class="fas fa-sign-out-alt"></i>  Logout </a></li>
+                {% else %}
+                <li><a href='{% url "accounts:login" %}'><i class="fas fa-sign-in-alt"></i>  Log In </a></li>
+                {% endif %}
+            </ul>
+
+        </div><!--/.navbar-collapse -->
+    </div>
+</nav>
+

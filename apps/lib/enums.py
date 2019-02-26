@@ -35,12 +35,12 @@ class pensionTypesEnum(Enum):
 
 @accessInTemplate
 class loanTypesEnum(Enum):
-    SINGLE_BORROWER=int(0)
-    JOINT_BORROWER=int(1)
+    SINGLE_BORROWER=0
+    JOINT_BORROWER=1
 
 @accessInTemplate
 class dwellingTypesEnum(Enum):
-    HOUSE=int(0)
-    APARTMENT=int(1)
+    HOUSE=0
+    APARTMENT=1
 
 

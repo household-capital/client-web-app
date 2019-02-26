@@ -48775,3 +48775,1473 @@ Not Found: /favicon.ico
 "GET /client/meeting/6e27c88a-041f-4f01-bb8f-ec144edf726d HTTP/1.1" 200 18343
 "GET /static/css/client.css HTTP/1.1" 200 6329
 "GET /case/caseList HTTP/1.1" 200 6912
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET / HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 200 6912
+"GET /landing/ HTTP/1.1" 200 6912
+"GET / HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 200 6912
+"GET /eligibility/ HTTP/1.1" 200 7034
+"GET /eligibility/ HTTP/1.1" 200 7034
+"POST /eligibility/ HTTP/1.1" 200 8067
+"GET /eligibility/email HTTP/1.1" 200 5674
+"POST /eligibility/email HTTP/1.1" 200 6097
+"POST /eligibility/email HTTP/1.1" 200 6097
+Internal Server Error: /eligibility/email
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 142, in post
+    return self.form_valid(form)
+  File "/Users/developmentaccount/Development/hhc/apps/eligibility/views.py", line 81, in form_valid
+    email_context.update(form.cleaned_data.items)
+TypeError: 'builtin_function_or_method' object is not iterable
+"POST /eligibility/email HTTP/1.1" 500 85184
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2980
+Internal Server Error: /eligibility/email
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 142, in post
+    return self.form_valid(form)
+  File "/Users/developmentaccount/Development/hhc/apps/eligibility/views.py", line 82, in form_valid
+    email_context.update(form.cleaned_data.items)
+TypeError: 'builtin_function_or_method' object is not iterable
+"POST /eligibility/email HTTP/1.1" 500 85160
+Internal Server Error: /eligibility/email
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 142, in post
+    return self.form_valid(form)
+  File "/Users/developmentaccount/Development/hhc/apps/eligibility/views.py", line 82, in form_valid
+    email_context.update(form.cleaned_data.items)
+TypeError: 'builtin_function_or_method' object is not iterable
+"POST /eligibility/email HTTP/1.1" 500 85160
+Internal Server Error: /eligibility/email
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 142, in post
+    return self.form_valid(form)
+  File "/Users/developmentaccount/Development/hhc/apps/eligibility/views.py", line 97, in form_valid
+    return super(EmailView, self).form_valid(form)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 57, in form_valid
+    return HttpResponseRedirect(self.get_success_url())
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 51, in get_success_url
+    if not self.success_url:
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/utils/functional.py", line 108, in __wrapper__
+    res = func(*self.__args, **self.__kw)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/urls/base.py", line 90, in reverse
+    return iri_to_uri(resolver._reverse_with_prefix(view, prefix, *args, **kwargs))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/urls/resolvers.py", line 622, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'caselist' not found. 'caselist' is not a valid view function or pattern name.
+"POST /eligibility/email HTTP/1.1" 500 111886
+"POST /eligibility/email HTTP/1.1" 302 0
+"GET /case/caseList HTTP/1.1" 200 7277
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /eligibility/email HTTP/1.1" 200 5674
+"GET /eligibility/ HTTP/1.1" 200 7034
+"GET /eligibility HTTP/1.1" 301 0
+"GET /eligibility/ HTTP/1.1" 200 7034
+"GET /static/css/site.css HTTP/1.1" 304 0
+"POST /eligibility/ HTTP/1.1" 200 8187
+"GET /eligibility/email HTTP/1.1" 200 5674
+"POST /eligibility/email HTTP/1.1" 302 0
+"GET /case/caseList HTTP/1.1" 200 7195
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /eligibility/ HTTP/1.1" 200 7034
+"GET /eligibility/email HTTP/1.1" 200 5650
+"GET /eligibility/ HTTP/1.1" 200 7034
+"GET /eligibility/ HTTP/1.1" 200 7034
+"GET /static/css/site.css HTTP/1.1" 304 0
+"POST /eligibility/ HTTP/1.1" 200 8108
+"GET /eligibility/email HTTP/1.1" 200 5650
+"POST /eligibility/email HTTP/1.1" 302 0
+"GET /case/caseList HTTP/1.1" 200 7195
+"GET /eligibility/ HTTP/1.1" 200 7034
+"GET /eligibility/ HTTP/1.1" 200 7034
+"POST /eligibility/ HTTP/1.1" 200 8068
+"GET /eligibility/email HTTP/1.1" 200 5650
+"POST /eligibility/email HTTP/1.1" 302 0
+"GET /case/caseList HTTP/1.1" 200 7195
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET / HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 200 6912
+"GET /eligibility/ HTTP/1.1" 200 7034
+"GET /eligibility/ HTTP/1.1" 200 7034
+"POST /eligibility/ HTTP/1.1" 200 8069
+"GET /eligibility/email HTTP/1.1" 200 5650
+"POST /eligibility/email HTTP/1.1" 302 0
+"GET /case/caseList HTTP/1.1" 200 7195
+"GET /case/caseList HTTP/1.1" 302 0
+"GET /accounts/login/?next=/case/caseList HTTP/1.1" 200 4673
+Not Found: /apple-touch-icon-precomposed.png
+"GET /apple-touch-icon-precomposed.png HTTP/1.1" 404 3043
+Not Found: /apple-touch-icon.png
+"GET /apple-touch-icon.png HTTP/1.1" 404 3007
+"GET /static/img/favicon/favicon.png HTTP/1.1" 200 2757
+"GET /case/caseList HTTP/1.1" 302 0
+"GET /accounts/login/?next=/case/caseList HTTP/1.1" 200 4673
+Not Found: /apple-touch-icon-precomposed.png
+"GET /apple-touch-icon-precomposed.png HTTP/1.1" 404 3043
+Not Found: /apple-touch-icon.png
+"GET /apple-touch-icon.png HTTP/1.1" 404 3007
+"GET /static/img/favicon/favicon.png HTTP/1.1" 200 2757
+"GET / HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 200 6912
+Not Found: /apple-touch-icon-precomposed.png
+"GET /apple-touch-icon-precomposed.png HTTP/1.1" 404 3043
+Not Found: /apple-touch-icon.png
+"GET /apple-touch-icon.png HTTP/1.1" 404 3007
+"GET /eligibility/ HTTP/1.1" 200 7034
+"GET /eligibility/ HTTP/1.1" 200 7034
+"POST /eligibility/ HTTP/1.1" 200 8068
+"GET /eligibility/email HTTP/1.1" 200 5650
+"POST /eligibility/email HTTP/1.1" 302 0
+"GET /case/caseList HTTP/1.1" 200 7195
+"GET /eligibility/ HTTP/1.1" 200 7034
+"GET /eligibility/ HTTP/1.1" 200 7034
+"POST /eligibility/ HTTP/1.1" 200 8105
+"GET /eligibility/email HTTP/1.1" 200 5650
+"POST /eligibility/email HTTP/1.1" 302 0
+"GET /case/caseList HTTP/1.1" 200 7195
+"GET /eligibility/ HTTP/1.1" 200 7034
+"GET /eligibility/ HTTP/1.1" 200 7034
+"POST /eligibility/ HTTP/1.1" 200 7089
+"POST /eligibility/ HTTP/1.1" 200 7089
+"GET /eligibility/ HTTP/1.1" 200 7009
+"POST /eligibility/ HTTP/1.1" 200 7362
+"POST /eligibility/ HTTP/1.1" 200 7348
+"POST /eligibility/ HTTP/1.1" 200 7348
+"POST /eligibility/ HTTP/1.1" 200 7897
+"POST /eligibility/ HTTP/1.1" 200 7897
+"POST /eligibility/ HTTP/1.1" 200 7897
+"POST /eligibility/ HTTP/1.1" 200 7897
+"POST /eligibility/ HTTP/1.1" 200 8028
+"POST /eligibility/ HTTP/1.1" 200 7348
+"GET /static/css/site.css HTTP/1.1" 304 0
+"POST /eligibility/ HTTP/1.1" 200 8028
+"GET /eligibility/ HTTP/1.1" 200 7009
+"POST /eligibility/ HTTP/1.1" 200 7362
+"POST /eligibility/ HTTP/1.1" 200 8028
+"GET /eligibility/ HTTP/1.1" 200 7009
+"POST /eligibility/ HTTP/1.1" 200 8028
+"GET /eligibility/ HTTP/1.1" 200 7009
+"POST /eligibility/ HTTP/1.1" 200 8028
+"GET /eligibility/ HTTP/1.1" 200 7009
+"POST /eligibility/ HTTP/1.1" 200 8084
+"POST /eligibility/ HTTP/1.1" 200 8084
+"POST /eligibility/ HTTP/1.1" 200 8084
+"POST /eligibility/ HTTP/1.1" 200 7366
+"POST /eligibility/ HTTP/1.1" 200 8084
+"POST /eligibility/ HTTP/1.1" 200 7366
+"POST /eligibility/ HTTP/1.1" 200 8084
+"GET /eligibility/email HTTP/1.1" 200 5625
+"POST /eligibility/email HTTP/1.1" 302 0
+"GET /case/caseList HTTP/1.1" 200 7195
+"GET /eligibility/ HTTP/1.1" 200 7009
+"GET /eligibility/ HTTP/1.1" 200 7009
+"POST /eligibility/ HTTP/1.1" 200 8028
+"GET /eligibility/email HTTP/1.1" 200 5625
+"POST /eligibility/email HTTP/1.1" 302 0
+"GET /case/caseList HTTP/1.1" 200 7195
+"POST /eligibility/email HTTP/1.1" 302 0
+Internal Server Error: /case/caseList
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 470, in parse
+    compile_func = self.tags[command]
+KeyError: 'endif'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 81, in rendered_content
+    template = self.resolve_template(self.template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 63, in resolve_template
+    return select_template(template, using=self.using)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader.py", line 42, in select_template
+    return engine.get_template(template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 34, in get_template
+    return Template(self.engine.get_template(template_name), self)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/engine.py", line 144, in get_template
+    template, origin = self.find_template(template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/engine.py", line 126, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loaders/base.py", line 30, in get_template
+    contents, origin, origin.template_name, self.engine,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 156, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 194, in compile_nodelist
+    return parser.parse()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 478, in parse
+    raise self.error(token, e)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 476, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 266, in do_extends
+    nodelist = parser.parse()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 478, in parse
+    raise self.error(token, e)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 476, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 209, in do_block
+    nodelist = parser.parse(('endblock',))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 478, in parse
+    raise self.error(token, e)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 476, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/defaulttags.py", line 951, in do_if
+    nodelist = parser.parse(('elif', 'else', 'endif'))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 478, in parse
+    raise self.error(token, e)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 476, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/defaulttags.py", line 810, in do_for
+    nodelist_loop = parser.parse(('empty', 'endfor',))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 472, in parse
+    self.invalid_block_tag(token, command, parse_until)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 528, in invalid_block_tag
+    get_text_list(["'%s'" % p for p in parse_until], 'or'),
+django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 37: 'endif', expected 'empty' or 'endfor'. Did you forget to register or load this tag?
+"GET /case/caseList HTTP/1.1" 500 192615
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2980
+"GET /case/caseList HTTP/1.1" 200 7311
+"GET /case/caseList HTTP/1.1" 200 6925
+"GET /eligibility/ HTTP/1.1" 200 7022
+"POST /eligibility/ HTTP/1.1" 200 7362
+"POST /eligibility/ HTTP/1.1" 200 7374
+"POST /eligibility/ HTTP/1.1" 200 7374
+"GET /eligibility/ HTTP/1.1" 200 7022
+"GET /eligibility/ HTTP/1.1" 200 7038
+"GET /eligibility/ HTTP/1.1" 200 7038
+"GET /eligibility/ HTTP/1.1" 200 7038
+"GET /eligibility/ HTTP/1.1" 200 7038
+"GET /eligibility/ HTTP/1.1" 200 7036
+"GET /case/caseList HTTP/1.1" 200 6939
+"GET /eligibility/ HTTP/1.1" 200 7036
+"GET /case/caseList HTTP/1.1" 200 6939
+"GET /eligibility/ HTTP/1.1" 200 7036
+"GET /case/caseList HTTP/1.1" 200 6939
+"GET /eligibility/ HTTP/1.1" 200 7036
+"GET /case/caseList HTTP/1.1" 200 6939
+"GET /case/caseCreate HTTP/1.1" 200 13492
+"GET /case/caseCreate HTTP/1.1" 200 13293
+"GET /case/caseList HTTP/1.1" 200 6939
+"GET /case/caseDetail/4 HTTP/1.1" 200 15391
+"GET /case/caseDetail/4 HTTP/1.1" 200 15467
+"GET /case/caseDetail/4 HTTP/1.1" 200 15468
+"GET /case/caseDetail/4 HTTP/1.1" 200 15467
+"GET /case/caseDetail/4 HTTP/1.1" 200 15467
+"GET /case/caseDetail/4 HTTP/1.1" 200 15310
+"GET /case/caseList HTTP/1.1" 200 6939
+"GET /case/caseCreate HTTP/1.1" 200 13293
+"GET /case/caseCreate HTTP/1.1" 200 13293
+"GET /case/caseCreate HTTP/1.1" 200 13284
+"GET /case/caseCreate HTTP/1.1" 200 13257
+"POST /case/caseCreate HTTP/1.1" 302 0
+"GET /case/caseDetail/12 HTTP/1.1" 200 13709
+"GET /case/caseList HTTP/1.1" 200 7321
+"GET /case/caseDetail/12 HTTP/1.1" 200 13709
+"POST /case/caseDetail/12 HTTP/1.1" 200 13724
+"POST /case/caseDetail/12 HTTP/1.1" 302 0
+"GET /case/caseDetail/12 HTTP/1.1" 200 13720
+"GET /case/caseDetail/12 HTTP/1.1" 200 13720
+"GET /case/caseDetail/12 HTTP/1.1" 200 13720
+"GET /case/caseList HTTP/1.1" 200 7321
+"GET /eligibility/ HTTP/1.1" 200 7036
+"GET /case/caseDetail/12 HTTP/1.1" 200 13720
+"GET /case/caseDetail/12 HTTP/1.1" 200 13720
+"GET /case/caseDetail/12 HTTP/1.1" 200 13920
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseDetail/12 HTTP/1.1" 200 13920
+"GET /case/caseDetail/12 HTTP/1.1" 302 0
+"GET /accounts/login/?next=/case/caseDetail/12 HTTP/1.1" 200 4673
+"GET /static/css/site.css HTTP/1.1" 200 2247
+"GET /static/img/hhc/HC_Logo_Flat.png HTTP/1.1" 200 35859
+"GET /static/img/hhc/HC-Hero-FamilyOutside.jpg HTTP/1.1" 200 588175
+"GET /static/fonts/MaisonNeue-Book.otf HTTP/1.1" 200 67752
+"GET /static/img/favicon/favicon.png HTTP/1.1" 200 2757
+Not Found: /apple-touch-icon-precomposed.png
+"GET /apple-touch-icon-precomposed.png HTTP/1.1" 404 3043
+Not Found: /apple-touch-icon.png
+"GET /apple-touch-icon.png HTTP/1.1" 404 3007
+"POST /accounts/login/?next=/case/caseDetail/12 HTTP/1.1" 302 0
+"GET /case/caseDetail/12 HTTP/1.1" 200 13920
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /static/fonts/MercuryDisplay-Semibold.otf HTTP/1.1" 200 112596
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseDetail/12 HTTP/1.1" 200 13572
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseList HTTP/1.1" 200 7321
+"GET /case/caseDetail/4 HTTP/1.1" 200 13763
+"GET /case/caseDetail/4 HTTP/1.1" 200 13494
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseList HTTP/1.1" 200 7321
+"GET /case/caseDetail/4 HTTP/1.1" 200 13494
+"GET /case/caseDetail/9 HTTP/1.1" 200 13425
+"GET /case/caseDetail/4 HTTP/1.1" 200 13494
+"GET /case/caseDetail/4 HTTP/1.1" 200 13482
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseList HTTP/1.1" 200 7322
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseDetail/4 HTTP/1.1" 200 13482
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseDetail/4 HTTP/1.1" 200 13482
+Internal Server Error: /case/caseDetail/4
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 190, in get
+    return super().get(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 133, in get
+    return self.render_to_response(self.get_context_data())
+  File "/Users/developmentaccount/Development/hhc/apps/case/views.py", line 79, in get_context_data
+    print(self.request.kwargs)
+AttributeError: 'WSGIRequest' object has no attribute 'kwargs'
+"GET /case/caseDetail/4 HTTP/1.1" 500 87744
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2980
+"GET /case/caseDetail/4 HTTP/1.1" 200 13482
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseDetail/4 HTTP/1.1" 200 13482
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /static/css/site.css HTTP/1.1" 304 0
+Internal Server Error: /case/caseDetail/4
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 190, in get
+    return super().get(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 133, in get
+    return self.render_to_response(self.get_context_data())
+  File "/Users/developmentaccount/Development/hhc/apps/case/views.py", line 81, in get_context_data
+    clientDict=self.object.get()
+AttributeError: 'Case' object has no attribute 'get'
+"GET /case/caseDetail/4 HTTP/1.1" 500 87796
+Internal Server Error: /case/caseDetail/4
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 190, in get
+    return super().get(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 133, in get
+    return self.render_to_response(self.get_context_data())
+  File "/Users/developmentaccount/Development/hhc/apps/case/views.py", line 81, in get_context_data
+    clientDict=self.object.get()
+AttributeError: 'Case' object has no attribute 'get'
+"GET /case/caseDetail/4 HTTP/1.1" 500 87796
+"GET /static/css/site.css HTTP/1.1" 304 0
+Internal Server Error: /case/caseDetail/4
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 190, in get
+    return super().get(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 133, in get
+    return self.render_to_response(self.get_context_data())
+  File "/Users/developmentaccount/Development/hhc/apps/case/views.py", line 81, in get_context_data
+    clientDict=self.object.values()
+AttributeError: 'Case' object has no attribute 'values'
+"GET /case/caseDetail/4 HTTP/1.1" 500 87839
+"GET /static/css/site.css HTTP/1.1" 304 0
+Internal Server Error: /case/caseDetail/4
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 190, in get
+    return super().get(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 133, in get
+    return self.render_to_response(self.get_context_data())
+  File "/Users/developmentaccount/Development/hhc/apps/case/views.py", line 81, in get_context_data
+    clientDict=self.get_queryset().filter(caseID=self.obj.caseID).values()
+AttributeError: 'CaseDetailView' object has no attribute 'obj'
+"GET /case/caseDetail/4 HTTP/1.1" 500 87945
+Internal Server Error: /case/caseDetail/4
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 190, in get
+    return super().get(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 133, in get
+    return self.render_to_response(self.get_context_data())
+  File "/Users/developmentaccount/Development/hhc/apps/case/views.py", line 81, in get_context_data
+    clientDict=self.get_queryset().filter(caseID=self.obj.caseID).values()
+AttributeError: 'CaseDetailView' object has no attribute 'obj'
+"GET /case/caseDetail/4 HTTP/1.1" 500 87945
+Internal Server Error: /case/caseDetail/4
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 190, in get
+    return super().get(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 133, in get
+    return self.render_to_response(self.get_context_data())
+  File "/Users/developmentaccount/Development/hhc/apps/case/views.py", line 84, in get_context_data
+    loanObj = LoanValidator([],clientDict)
+  File "/Users/developmentaccount/Development/hhc/apps/lib/loanValidator.py", line 20, in __init__
+    self.aggDict.update(clientDict)
+ValueError: dictionary update sequence element #0 has length 36; 2 is required
+"GET /case/caseDetail/4 HTTP/1.1" 500 94628
+Internal Server Error: /case/caseDetail/4
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 190, in get
+    return super().get(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 133, in get
+    return self.render_to_response(self.get_context_data())
+  File "/Users/developmentaccount/Development/hhc/apps/case/views.py", line 84, in get_context_data
+    loanObj = LoanValidator([],clientDict)
+  File "/Users/developmentaccount/Development/hhc/apps/lib/loanValidator.py", line 20, in __init__
+    self.aggDict.update(clientDict)
+ValueError: dictionary update sequence element #0 has length 36; 2 is required
+"GET /case/caseDetail/4 HTTP/1.1" 500 94614
+Internal Server Error: /case/caseDetail/4
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 190, in get
+    return super().get(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 133, in get
+    return self.render_to_response(self.get_context_data())
+  File "/Users/developmentaccount/Development/hhc/apps/case/views.py", line 84, in get_context_data
+    loanObj = LoanValidator([],clientDict)
+  File "/Users/developmentaccount/Development/hhc/apps/lib/loanValidator.py", line 20, in __init__
+    self.aggDict.update(clientDict)
+ValueError: dictionary update sequence element #0 has length 36; 2 is required
+"GET /case/caseDetail/4 HTTP/1.1" 500 94606
+"GET /static/css/site.css HTTP/1.1" 304 0
+Internal Server Error: /case/caseDetail/4
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 190, in get
+    return super().get(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 133, in get
+    return self.render_to_response(self.get_context_data())
+  File "/Users/developmentaccount/Development/hhc/apps/case/views.py", line 84, in get_context_data
+    loanObj = LoanValidator([],clientDict)
+  File "/Users/developmentaccount/Development/hhc/apps/lib/loanValidator.py", line 20, in __init__
+    self.aggDict.update(clientDict)
+TypeError: cannot convert dictionary update sequence element #0 to a sequence
+"GET /case/caseDetail/4 HTTP/1.1" 500 91681
+Internal Server Error: /case/caseDetail/4
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 190, in get
+    return super().get(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 133, in get
+    return self.render_to_response(self.get_context_data())
+  File "/Users/developmentaccount/Development/hhc/apps/case/views.py", line 84, in get_context_data
+    loanObj = LoanValidator([],clientDict)
+  File "/Users/developmentaccount/Development/hhc/apps/lib/loanValidator.py", line 20, in __init__
+    self.aggDict.update(clientDict)
+TypeError: cannot convert dictionary update sequence element #0 to a sequence
+"GET /case/caseDetail/4 HTTP/1.1" 500 91681
+"GET /case/caseDetail/4 HTTP/1.1" 200 15166
+"GET /media/customerImages/6e27c88a-041f-4f01-bb8f-ec144edf726d..png HTTP/1.1" 200 427408
+"GET /media/fundImages/Unknown.png HTTP/1.1" 200 6981
+"GET /case/caseDetail/4 HTTP/1.1" 200 15194
+"GET /case/caseDetail/4 HTTP/1.1" 200 15194
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseDetail/4 HTTP/1.1" 200 15138
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseDetail/4 HTTP/1.1" 200 15637
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseDetail/4 HTTP/1.1" 200 15637
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseDetail/4 HTTP/1.1" 200 16361
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseDetail/4 HTTP/1.1" 200 16361
+"GET /case/caseDetail/4 HTTP/1.1" 200 16283
+"GET /case/caseDetail/4 HTTP/1.1" 200 16283
+"GET /case/caseDetail/4 HTTP/1.1" 200 16283
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseDetail/4 HTTP/1.1" 200 16243
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseDetail/4 HTTP/1.1" 200 16237
+Internal Server Error: /case/caseDetail/4
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 470, in parse
+    compile_func = self.tags[command]
+KeyError: 'endblock'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 81, in rendered_content
+    template = self.resolve_template(self.template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 63, in resolve_template
+    return select_template(template, using=self.using)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader.py", line 42, in select_template
+    return engine.get_template(template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 34, in get_template
+    return Template(self.engine.get_template(template_name), self)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/engine.py", line 144, in get_template
+    template, origin = self.find_template(template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/engine.py", line 126, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loaders/base.py", line 30, in get_template
+    contents, origin, origin.template_name, self.engine,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 156, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 194, in compile_nodelist
+    return parser.parse()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 478, in parse
+    raise self.error(token, e)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 476, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 266, in do_extends
+    nodelist = parser.parse()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 478, in parse
+    raise self.error(token, e)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 476, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 209, in do_block
+    nodelist = parser.parse(('endblock',))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 478, in parse
+    raise self.error(token, e)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 476, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/defaulttags.py", line 951, in do_if
+    nodelist = parser.parse(('elif', 'else', 'endif'))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 472, in parse
+    self.invalid_block_tag(token, command, parse_until)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 528, in invalid_block_tag
+    get_text_list(["'%s'" % p for p in parse_until], 'or'),
+django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 158: 'endblock', expected 'elif', 'else' or 'endif'. Did you forget to register or load this tag?
+"GET /case/caseDetail/4 HTTP/1.1" 500 178027
+Internal Server Error: /case/caseDetail/4
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 470, in parse
+    compile_func = self.tags[command]
+KeyError: 'endblock'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 81, in rendered_content
+    template = self.resolve_template(self.template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 63, in resolve_template
+    return select_template(template, using=self.using)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader.py", line 42, in select_template
+    return engine.get_template(template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 34, in get_template
+    return Template(self.engine.get_template(template_name), self)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/engine.py", line 144, in get_template
+    template, origin = self.find_template(template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/engine.py", line 126, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loaders/base.py", line 30, in get_template
+    contents, origin, origin.template_name, self.engine,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 156, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 194, in compile_nodelist
+    return parser.parse()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 478, in parse
+    raise self.error(token, e)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 476, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 266, in do_extends
+    nodelist = parser.parse()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 478, in parse
+    raise self.error(token, e)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 476, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 209, in do_block
+    nodelist = parser.parse(('endblock',))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 478, in parse
+    raise self.error(token, e)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 476, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/defaulttags.py", line 951, in do_if
+    nodelist = parser.parse(('elif', 'else', 'endif'))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 472, in parse
+    self.invalid_block_tag(token, command, parse_until)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 528, in invalid_block_tag
+    get_text_list(["'%s'" % p for p in parse_until], 'or'),
+django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 158: 'endblock', expected 'elif', 'else' or 'endif'. Did you forget to register or load this tag?
+"GET /case/caseDetail/4 HTTP/1.1" 500 178027
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseDetail/4 HTTP/1.1" 200 16075
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseDetail/4 HTTP/1.1" 200 16062
+"GET /case/caseList HTTP/1.1" 200 7330
+"GET /case/caseDetail/4 HTTP/1.1" 200 16062
+"GET /case/caseDetail/4 HTTP/1.1" 200 16064
+"GET /case/caseDetail/4 HTTP/1.1" 200 16070
+"GET /case/caseDetail/4 HTTP/1.1" 200 16107
+"GET /case/caseDetail/4 HTTP/1.1" 200 16187
+"GET /case/caseDetail/4 HTTP/1.1" 200 16140
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseDetail/4 HTTP/1.1" 200 16199
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseDetail/4 HTTP/1.1" 200 16210
+"GET /case/caseDetail/4 HTTP/1.1" 200 16215
+"GET /case/caseList HTTP/1.1" 200 7331
+"GET /eligibility/ HTTP/1.1" 200 7036
+"POST /eligibility/ HTTP/1.1" 200 8233
+"POST /eligibility/ HTTP/1.1" 200 8233
+"POST /eligibility/ HTTP/1.1" 200 8203
+"POST /eligibility/ HTTP/1.1" 200 8248
+"POST /eligibility/ HTTP/1.1" 200 8248
+"POST /eligibility/ HTTP/1.1" 200 8248
+"POST /eligibility/ HTTP/1.1" 200 8248
+"GET /case/caseList HTTP/1.1" 200 7331
+"GET /eligibility/ HTTP/1.1" 200 7051
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseList HTTP/1.1" 200 7331
+"GET /case/caseList HTTP/1.1" 200 7331
+"GET /case/caseCreate HTTP/1.1" 200 13011
+"GET /case/caseDetail/4 HTTP/1.1" 200 16214
+"GET /case/caseList HTTP/1.1" 200 7331
+"GET /eligibility/ HTTP/1.1" 200 7051
+"GET /case/caseList HTTP/1.1" 200 7331
+"GET /case/caseDetail/4 HTTP/1.1" 200 16214
+"GET /case/caseDetail/12 HTTP/1.1" 200 13256
+"GET /case/caseDetail/10 HTTP/1.1" 200 15650
+"GET /media/fundImages/images.png HTTP/1.1" 200 1945
+"GET /case/caseList HTTP/1.1" 200 7331
+"GET /case/caseDetail/4 HTTP/1.1" 200 16214
+"GET /eligibility/ HTTP/1.1" 200 7051
+"GET /case/caseList HTTP/1.1" 200 7331
+"GET /eligibility/ HTTP/1.1" 200 7051
+"POST /eligibility/ HTTP/1.1" 200 7389
+"POST /eligibility/ HTTP/1.1" 200 8069
+"GET /case/caseList HTTP/1.1" 200 7331
+"GET /case/caseDetail/4 HTTP/1.1" 200 16214
+"GET /client/meeting/6e27c88a-041f-4f01-bb8f-ec144edf726d HTTP/1.1" 200 18343
+"GET /static/css/client.css HTTP/1.1" 200 6329
+"GET /client/introduction1 HTTP/1.1" 200 5927
+"GET /static/img/icons/live_icon.png HTTP/1.1" 200 5988
+"GET /static/img/hhc/HC-Hero-FamilyInside.jpeg HTTP/1.1" 200 94528
+"GET /static/img/icons/topup_icon.png HTTP/1.1" 200 8019
+"GET /static/img/icons/give_icon.png HTTP/1.1" 200 6580
+"GET /static/img/icons/care_icon.png HTTP/1.1" 200 9100
+"GET /client/live1 HTTP/1.1" 200 8310
+"GET /client/give HTTP/1.1" 200 9933
+"GET /client/care HTTP/1.1" 200 8296
+"GET /client/results1 HTTP/1.1" 302 0
+"GET /client/results2 HTTP/1.1" 200 14427
+"POST /client/results2 HTTP/1.1" 302 0
+"GET /client/results3 HTTP/1.1" 200 16082
+"GET /static/img/icons/dollar_icon.png HTTP/1.1" 200 6672
+"GET /static/img/icons/nestEgg_icon.png HTTP/1.1" 200 8731
+"GET /static/img/icons/income_5_icon.png HTTP/1.1" 200 1585
+"GET /static/img/icons/equity_10_icon.png HTTP/1.1" 200 5481
+"GET /static/img/icons/equity_8_icon.png HTTP/1.1" 200 5345
+"GET /client/results4 HTTP/1.1" 200 5397
+"GET /static/img/icons/report_icon.png HTTP/1.1" 200 447051
+"GET /client/final HTTP/1.1" 200 2261
+"GET /client/PdfProduction HTTP/1.1" 200 34910
+"GET / HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 302 0
+"GET /accounts/login/?next=/landing/ HTTP/1.1" 200 4673
+"GET /static/css/site.css HTTP/1.1" 304 0
+"POST /accounts/login/?next=/landing/ HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 200 7331
+"GET /case/caseDetail/12 HTTP/1.1" 200 13256
+"GET /case/caseDetail/4 HTTP/1.1" 200 16214
+"GET /case/caseDetail/12 HTTP/1.1" 200 13256
+"GET /case/caseDetail/12 HTTP/1.1" 200 13256
+"GET /case/caseDetail/12 HTTP/1.1" 200 13256
+"GET /case/caseDetail/4 HTTP/1.1" 200 16214
+"GET /case/caseDetail/4 HTTP/1.1" 200 15979
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseList HTTP/1.1" 200 7331
+"GET /case/caseDetail/12 HTTP/1.1" 200 13256
+"GET /case/caseDetail/4 HTTP/1.1" 200 15979
+"GET /case/caseList HTTP/1.1" 200 7331
+"GET /case/caseDetail/4 HTTP/1.1" 200 15979
+"GET /case/caseDetail/4 HTTP/1.1" 200 16252
+"GET /case/caseDetail/4 HTTP/1.1" 200 16252
+"GET /eligibility/ HTTP/1.1" 200 7051
+"GET /case/caseList HTTP/1.1" 200 7331
+"GET /case/caseDetail/12 HTTP/1.1" 200 13256
+"GET /case/caseDetail/10 HTTP/1.1" 200 15908
+"GET /case/caseDetail/10 HTTP/1.1" 200 15918
+"GET /case/caseList HTTP/1.1" 200 7332
+"GET /case/caseDetail/4 HTTP/1.1" 200 16252
+"GET /case/caseList HTTP/1.1" 200 7332
+"GET /case/caseDetail/12 HTTP/1.1" 200 13256
+"GET /case/caseDetail/10 HTTP/1.1" 200 15918
+"GET /case/caseDetail/10 HTTP/1.1" 200 15924
+"GET /eligibility/ HTTP/1.1" 200 7051
+"GET /case/caseList HTTP/1.1" 200 7332
+"GET /case/caseDetail/10 HTTP/1.1" 200 15924
+"GET /case/caseList HTTP/1.1" 200 7332
+"GET /case/caseDetail/12 HTTP/1.1" 200 14093
+Internal Server Error: /case/caseDetail/12
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 470, in parse
+    compile_func = self.tags[command]
+KeyError: 'end'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 81, in rendered_content
+    template = self.resolve_template(self.template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 63, in resolve_template
+    return select_template(template, using=self.using)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader.py", line 42, in select_template
+    return engine.get_template(template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 34, in get_template
+    return Template(self.engine.get_template(template_name), self)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/engine.py", line 144, in get_template
+    template, origin = self.find_template(template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/engine.py", line 126, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loaders/base.py", line 30, in get_template
+    contents, origin, origin.template_name, self.engine,
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 156, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 194, in compile_nodelist
+    return parser.parse()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 478, in parse
+    raise self.error(token, e)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 476, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 266, in do_extends
+    nodelist = parser.parse()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 478, in parse
+    raise self.error(token, e)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 476, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 209, in do_block
+    nodelist = parser.parse(('endblock',))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 478, in parse
+    raise self.error(token, e)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 476, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/defaulttags.py", line 951, in do_if
+    nodelist = parser.parse(('elif', 'else', 'endif'))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 478, in parse
+    raise self.error(token, e)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 476, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/defaulttags.py", line 951, in do_if
+    nodelist = parser.parse(('elif', 'else', 'endif'))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 472, in parse
+    self.invalid_block_tag(token, command, parse_until)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 528, in invalid_block_tag
+    get_text_list(["'%s'" % p for p in parse_until], 'or'),
+django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 94: 'end', expected 'elif', 'else' or 'endif'. Did you forget to register or load this tag?
+"GET /case/caseDetail/12 HTTP/1.1" 500 193941
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2980
+"GET /case/caseDetail/12 HTTP/1.1" 200 13943
+"GET /case/caseList HTTP/1.1" 200 7332
+"GET /case/caseDetail/4 HTTP/1.1" 200 16296
+"GET /case/caseDetail/10 HTTP/1.1" 200 15963
+"GET /case/caseDetail/11 HTTP/1.1" 200 15725
+"GET /case/caseDetail/12 HTTP/1.1" 200 14908
+"GET /case/caseDetail/12 HTTP/1.1" 200 14908
+"GET /case/caseDetail/12 HTTP/1.1" 200 14908
+"GET /case/caseDetail/12 HTTP/1.1" 200 14908
+"GET /case/caseDetail/12 HTTP/1.1" 200 14908
+"GET /case/caseDetail/12 HTTP/1.1" 200 14908
+"GET /case/caseDetail/12 HTTP/1.1" 200 15258
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseDetail/12 HTTP/1.1" 200 15258
+"GET /case/caseDetail/12 HTTP/1.1" 200 15258
+"GET /case/caseDetail/12 HTTP/1.1" 200 15205
+"GET /case/caseDetail/12 HTTP/1.1" 200 14916
+"GET /case/caseDetail/12 HTTP/1.1" 200 14955
+"GET /case/caseDetail/12 HTTP/1.1" 200 14954
+"GET /case/caseDetail/12 HTTP/1.1" 200 14919
+"GET /case/caseDetail/12 HTTP/1.1" 200 14688
+"GET /case/caseDetail/12 HTTP/1.1" 200 14688
+"GET /case/caseDetail/12 HTTP/1.1" 200 14954
+"GET /case/caseDetail/12 HTTP/1.1" 200 14950
+"GET /case/caseDetail/12 HTTP/1.1" 200 14737
+"GET /case/caseDetail/12 HTTP/1.1" 200 14830
+"GET /static/css/site.css HTTP/1.1" 304 0
+"GET /case/caseDetail/12 HTTP/1.1" 200 14819
+Internal Server Error: /case/caseDetail/12
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 83, in rendered_content
+    content = template.render(context, self._request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 150, in render
+    return compiled_parent._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/defaulttags.py", line 442, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/urls/base.py", line 90, in reverse
+    return iri_to_uri(resolver._reverse_with_prefix(view, prefix, *args, **kwargs))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/urls/resolvers.py", line 622, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'CaseDelete' not found. 'CaseDelete' is not a valid view function or pattern name.
+"GET /case/caseDetail/12 HTTP/1.1" 500 163630
+Internal Server Error: /case/caseDetail/12
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 83, in rendered_content
+    content = template.render(context, self._request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 150, in render
+    return compiled_parent._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/defaulttags.py", line 442, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/urls/base.py", line 90, in reverse
+    return iri_to_uri(resolver._reverse_with_prefix(view, prefix, *args, **kwargs))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/urls/resolvers.py", line 622, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'caseDelete' with keyword arguments '{'uid': UUID('8e502a39-9bfa-4cc0-a807-efd9caf3b8a5')}' not found. 1 pattern(s) tried: ['case/caseDelete/(?P<pk>[0-9]+)$']
+"GET /case/caseDetail/12 HTTP/1.1" 500 165899
+Internal Server Error: /case/caseDetail/12
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 83, in rendered_content
+    content = template.render(context, self._request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 150, in render
+    return compiled_parent._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/defaulttags.py", line 442, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/urls/base.py", line 90, in reverse
+    return iri_to_uri(resolver._reverse_with_prefix(view, prefix, *args, **kwargs))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/urls/resolvers.py", line 622, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'caseDelete' with keyword arguments '{'uid': UUID('8e502a39-9bfa-4cc0-a807-efd9caf3b8a5')}' not found. 1 pattern(s) tried: ['case/caseDelete/(?P<pk>[0-9]+)$']
+"GET /case/caseDetail/12 HTTP/1.1" 500 165899
+"GET /case/caseDetail/12 HTTP/1.1" 200 14814
+"GET /static/css/site.css HTTP/1.1" 200 2247
+"GET /static/img/hhc/HC_Logo_Flat.png HTTP/1.1" 200 35859
+"GET /static/fonts/MercuryDisplay-Semibold.otf HTTP/1.1" 200 112596
+"GET /static/fonts/MaisonNeue-Book.otf HTTP/1.1" 200 67752
+Internal Server Error: /case/caseDelete/12
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/detail.py", line 106, in get
+    self.object = self.get_object()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/detail.py", line 30, in get_object
+    queryset = self.get_queryset()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/detail.py", line 73, in get_queryset
+    'cls': self.__class__.__name__
+django.core.exceptions.ImproperlyConfigured: CaseDeleteView is missing a QuerySet. Define CaseDeleteView.model, CaseDeleteView.queryset, or override CaseDeleteView.get_queryset().
+"GET /case/caseDelete/12 HTTP/1.1" 500 86775
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2980
+"GET /case/caseDetail/12 HTTP/1.1" 200 14811
+Internal Server Error: /case/caseDelete/12
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/detail.py", line 106, in get
+    self.object = self.get_object()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/detail.py", line 30, in get_object
+    queryset = self.get_queryset()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/detail.py", line 73, in get_queryset
+    'cls': self.__class__.__name__
+django.core.exceptions.ImproperlyConfigured: CaseDeleteView is missing a QuerySet. Define CaseDeleteView.model, CaseDeleteView.queryset, or override CaseDeleteView.get_queryset().
+"GET /case/caseDelete/12 HTTP/1.1" 500 86775
+Internal Server Error: /case/caseDelete/12
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 81, in rendered_content
+    template = self.resolve_template(self.template_name)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 63, in resolve_template
+    return select_template(template, using=self.using)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader.py", line 47, in select_template
+    raise TemplateDoesNotExist(', '.join(template_name_list), chain=chain)
+django.template.exceptions.TemplateDoesNotExist: case/case_confirm_delete.html
+"GET /case/caseDelete/12 HTTP/1.1" 500 79048
+Internal Server Error: /case/caseDetail/12
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 83, in rendered_content
+    content = template.render(context, self._request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 150, in render
+    return compiled_parent._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/defaulttags.py", line 442, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/urls/base.py", line 90, in reverse
+    return iri_to_uri(resolver._reverse_with_prefix(view, prefix, *args, **kwargs))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/urls/resolvers.py", line 622, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'caseDelete' with keyword arguments '{'uis': UUID('8e502a39-9bfa-4cc0-a807-efd9caf3b8a5')}' not found. 1 pattern(s) tried: ['case/caseDelete/(?P<uid>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$']
+"GET /case/caseDetail/12 HTTP/1.1" 500 166431
+"GET /case/caseDetail/12 HTTP/1.1" 200 14845
+Internal Server Error: /case/caseDelete/8e502a39-9bfa-4cc0-a807-efd9caf3b8a5
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/Development/hhc/apps/case/views.py", line 153, in get
+    Case.objects.filter(caseUID=uuid(kwargs['uid'])).delete()
+TypeError: 'module' object is not callable
+"GET /case/caseDelete/8e502a39-9bfa-4cc0-a807-efd9caf3b8a5 HTTP/1.1" 500 78934
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2980
+"GET /case/caseDetail/12 HTTP/1.1" 200 14845
+"GET /static/css/site.css HTTP/1.1" 304 0
+Internal Server Error: /case/caseDelete/8e502a39-9bfa-4cc0-a807-efd9caf3b8a5
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/Development/hhc/apps/case/views.py", line 153, in get
+    print(Case.objects.filter(caseUID=uuid(kwargs['uid'])))
+TypeError: 'module' object is not callable
+"GET /case/caseDelete/8e502a39-9bfa-4cc0-a807-efd9caf3b8a5 HTTP/1.1" 500 79040
+"GET /case/caseDetail/12 HTTP/1.1" 200 14845
+"GET /case/caseDetail/12 HTTP/1.1" 200 14845
+Internal Server Error: /case/caseDelete/8e502a39-9bfa-4cc0-a807-efd9caf3b8a5
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/Development/hhc/apps/case/views.py", line 153, in get
+    Case.objects.filter(caseUID=uuid.UUID(kwargs['uid'])).delete()
+  File "/usr/local/Cellar/python/3.7.0/Frameworks/Python.framework/Versions/3.7/lib/python3.7/uuid.py", line 157, in __init__
+    hex = hex.replace('urn:', '').replace('uuid:', '')
+AttributeError: 'UUID' object has no attribute 'replace'
+"GET /case/caseDelete/8e502a39-9bfa-4cc0-a807-efd9caf3b8a5 HTTP/1.1" 500 84298
+"GET /case/caseDetail/12 HTTP/1.1" 200 14845
+"GET /case/caseDelete/8e502a39-9bfa-4cc0-a807-efd9caf3b8a5 HTTP/1.1" 302 0
+"GET /case/caseList HTTP/1.1" 200 7108
+"GET /case/caseList HTTP/1.1" 200 6627
+"GET /case/caseList HTTP/1.1" 200 6623
+Internal Server Error: /case/caseCreate
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 83, in rendered_content
+    content = template.render(context, self._request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 150, in render
+    return compiled_parent._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/defaulttags.py", line 442, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/urls/base.py", line 90, in reverse
+    return iri_to_uri(resolver._reverse_with_prefix(view, prefix, *args, **kwargs))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/urls/resolvers.py", line 622, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'caseDelete' with keyword arguments '{'uid': ''}' not found. 1 pattern(s) tried: ['case/caseDelete/(?P<uid>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$']
+"GET /case/caseCreate HTTP/1.1" 500 163541
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 2980
+Internal Server Error: /case/caseCreate
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 83, in rendered_content
+    content = template.render(context, self._request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 150, in render
+    return compiled_parent._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/defaulttags.py", line 442, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/urls/base.py", line 90, in reverse
+    return iri_to_uri(resolver._reverse_with_prefix(view, prefix, *args, **kwargs))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/urls/resolvers.py", line 622, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'caseDelete' with keyword arguments '{'uid': ''}' not found. 1 pattern(s) tried: ['case/caseDelete/(?P<uid>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$']
+"GET /case/caseCreate HTTP/1.1" 500 163541
+"GET /case/caseList HTTP/1.1" 200 6623
+"GET /case/caseList HTTP/1.1" 200 6623
+Internal Server Error: /case/caseCreate
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 156, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 154, in _get_response
+    response = response.render()
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 106, in render
+    self.content = self.rendered_content
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/response.py", line 83, in rendered_content
+    content = template.render(context, self._request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 150, in render
+    return compiled_parent._render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/loader_tags.py", line 62, in render
+    result = block.nodelist.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 937, in render
+    bit = node.render_annotated(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/base.py", line 904, in render_annotated
+    return self.render(context)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/template/defaulttags.py", line 442, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/urls/base.py", line 90, in reverse
+    return iri_to_uri(resolver._reverse_with_prefix(view, prefix, *args, **kwargs))
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/urls/resolvers.py", line 622, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'caseDelete' with keyword arguments '{'uid': ''}' not found. 1 pattern(s) tried: ['case/caseDelete/(?P<uid>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$']
+"GET /case/caseCreate HTTP/1.1" 500 163541
+"GET /case/caseCreate HTTP/1.1" 200 12972
+"POST /case/caseCreate HTTP/1.1" 302 0
+"GET /case/caseDetail/13 HTTP/1.1" 200 14743
+"GET /case/caseList HTTP/1.1" 200 7007
+"GET /case/caseDetail/13 HTTP/1.1" 200 14743
+"GET /case/caseDelete/e17577ae-518b-4708-92a5-ff71eb6cb20b HTTP/1.1" 302 0
+"GET /case/caseList HTTP/1.1" 200 7005
+"GET /case/caseCreate HTTP/1.1" 200 12972
+Internal Server Error: /case/caseCreate
+Traceback (most recent call last):
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/exception.py", line 34, in inner
+    response = get_response(request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 126, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/core/handlers/base.py", line 124, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/contrib/auth/decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 68, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/base.py", line 88, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 172, in post
+    return super().post(request, *args, **kwargs)
+  File "/Users/developmentaccount/.virtualenvs/myenv/lib/python3.7/site-packages/django/views/generic/edit.py", line 142, in post
+    return self.form_valid(form)
+  File "/Users/developmentaccount/Development/hhc/apps/case/views.py", line 145, in form_valid
+    messages(self.request,"Lead Created")
+TypeError: 'module' object is not callable
+"POST /case/caseCreate HTTP/1.1" 500 91849
+"POST /case/caseCreate HTTP/1.1" 302 0
+"GET /case/caseDetail/15 HTTP/1.1" 200 15101
+"GET /case/caseDetail/15 HTTP/1.1" 200 14743
+"GET /case/caseList HTTP/1.1" 200 7389
+"GET /case/caseDetail/15 HTTP/1.1" 200 14743
+"GET /case/caseDelete/d6cf7bba-a12d-4e32-9d61-a0b6e71ab5c5 HTTP/1.1" 302 0
+"GET /case/caseList HTTP/1.1" 200 7388
+"GET /case/caseDetail/14 HTTP/1.1" 200 14743
+"GET /case/caseDelete/cb1001f2-7e8f-4018-abbb-840561499882 HTTP/1.1" 302 0
+"GET /case/caseList HTTP/1.1" 200 7005
+"GET /case/caseCreate HTTP/1.1" 200 12972
+"POST /case/caseCreate HTTP/1.1" 302 0
+"GET /case/caseDetail/16 HTTP/1.1" 200 15106
+"GET /case/caseDelete/230d0150-7a53-4431-bcea-f955c311b93d HTTP/1.1" 302 0
+"GET /case/caseList HTTP/1.1" 200 7005
+"GET /case/caseCreate HTTP/1.1" 200 12972
+"POST /case/caseCreate HTTP/1.1" 302 0
+"GET /case/caseDetail/17 HTTP/1.1" 200 15106
+"GET /case/caseDelete/21b7a810-aefa-45fe-bd25-d9f268d60a5d HTTP/1.1" 302 0
+"GET /case/caseList HTTP/1.1" 200 7005

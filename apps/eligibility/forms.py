@@ -53,15 +53,15 @@ class ValidateForm(forms.Form):
     )
 
 
-    loanType = forms.ChoiceField(choices=loanTypes)
+    loanType = forms.TypedChoiceField(choices=loanTypes,coerce=int)
     youngest_age=forms.TypedChoiceField(choices=AGE, coerce=int)
-    dwellingType = forms.ChoiceField(choices=dwellingTypes)
+    dwellingType = forms.TypedChoiceField(choices=dwellingTypes,coerce=int)
     postcode=forms.CharField(max_length=4)
     valuation = forms.IntegerField()
 
     helper = FormHelper()
     helper.form_method = 'POST'
-    helper.field_class = 'col-11'
+    helper.field_class = 'col-lg-12'
     helper.form_class = 'form-horizontal'
     helper.form_show_labels = False  # Hide default error messages
     helper.form_show_errors = False
@@ -91,7 +91,7 @@ class EmailForm(forms.Form):
     adviser_name = forms.CharField(max_length=20, required=True)
     client_reference = forms.CharField(max_length=20, required=True)
     client_name=forms.CharField(max_length=20, required=False)
-    client_address=forms.CharField(max_length=50, required=False)
+    street=forms.CharField(max_length=50, required=False)
 
     helper = FormHelper()
     helper.form_method = 'POST'
@@ -104,7 +104,7 @@ class EmailForm(forms.Form):
             Div(Field('adviser_name', placeholder='Enter Adviser Firstname'), css_class="form-group"),
             Div(Field('client_reference', placeholder='Enter a Client Reference'), css_class="form-group"),
             Div(Field('client_name', placeholder='Client Name e.g.,Mr & Mrs Smith (optional)'), css_class="form-group"),
-            Div(Field('client_address', placeholder='Client Street Address (optional)'), css_class="form-group"),
+            Div(Field('street', placeholder='Client Street Address (optional)'), css_class="form-group"),
 
             Div(css_class="row"),
             Div(HTML("<br>")),
