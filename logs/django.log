@@ -50245,3 +50245,11 @@ TypeError: 'module' object is not callable
 "GET /case/caseDetail/17 HTTP/1.1" 200 15106
 "GET /case/caseDelete/21b7a810-aefa-45fe-bd25-d9f268d60a5d HTTP/1.1" 302 0
 "GET /case/caseList HTTP/1.1" 200 7005
+"GET /static/css/calculator.css HTTP/1.1" 304 0
+"GET /static/img/icons/house_icon.png HTTP/1.1" 304 0
+"GET /static/img/icons/apartment_icon.png HTTP/1.1" 304 0
+"GET /static/img/icons/single_icon.png HTTP/1.1" 304 0
+"GET / HTTP/1.1" 302 0
+"GET /landing/ HTTP/1.1" 302 0
+"GET /accounts/login/?next=/landing/ HTTP/1.1" 200 4456
+"GET /static/css/site.css HTTP/1.1" 200 2247

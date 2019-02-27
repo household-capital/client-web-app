@@ -3,6 +3,8 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.views.generic import ListView, UpdateView, CreateView, TemplateView
 from django.urls import reverse_lazy, reverse
+from django.utils.decorators import method_decorator
+from django.views.decorators.clickjacking import xframe_options_exempt
 
 
 from apps.lib.loanValidator import LoanValidator
@@ -13,6 +15,7 @@ from .forms import WebInputForm, WebOutputForm
 
 
 # VIEWS
+@method_decorator(xframe_options_exempt, name='dispatch')
 class InputView(CreateView):
 
     template_name ='calculator/input.html'
@@ -79,7 +82,7 @@ class InputView(CreateView):
         else:
             return "Calculation cannot be performed at this time."
 
-
+@method_decorator(xframe_options_exempt, name='dispatch')
 class OutputView(UpdateView):
     template_name = 'calculator/output.html'
     model=WebCalculator
