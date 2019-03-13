@@ -20,8 +20,8 @@
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.6.1/css/all.css"
           integrity="sha384-NJXGk7R+8gWGBdutmr+/d6XDokLwQhF1U3VA7FhvBDlOq7cNdI69z7NQdnXxcF7k" crossorigin="anonymous">
     <link href="/static/css/calculator.css" rel="stylesheet">
-    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
-    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
 
     <title>Household Capital Calculator</title>
@@ -32,38 +32,38 @@
 
 <div class="container justify-content-md-center">
     <div class="row justify-content-md-center">
-        <div class="col-lg-9">
+        <div class="col-md-11">
             <br><br>
             <div class="container cal_background">
                 <div class="row">
-                    <div class="col-lg-12">
+                    <div class="col-md-12">
                         <form id="clientForm" method="post">
                             {% csrf_token %}
 
                             <div class="row">
 
-                                <div class="col-lg-7">
+                                <div class="col-md-7">
                                     <br>
                                     <p class="x-large">Your Household Transfer</p>
                                     <p>You may be eligible for a transfer of up to:*</p>
 
                                     <div class="row">
-                                        <div class="col-lg-8 pr-0">
+                                        <div class="col-md-8 pr-0 pb-4">
 
-                                            <br>
-
-                                            <img class="img-fluid" src="{% static 'img/icons/' %}{{ transfer_img }}">
+                                            <img class="img-fluid d-none d-sm-none d-md-block"
+                                                 src="{% static 'img/icons/' %}{{ transfer_img }}">
                                         </div>
 
-                                        <div class="col-lg-4 pl-0">
-
-                                            <br><br><br>
-                                            <p class="xx-large">${{ obj.maxLoanAmount }}</p>
+                                        <div class="col-md-4 pl-3">
+                                            <div class="d-none d-sm-none d-md-block">
+                                                <br><br><br>
+                                            </div>
+                                            <p class="x-large">${{ obj.maxLoanAmount }}</p>
                                         </div>
                                     </div>
                                     <div class="row pt-2">
                                         {% if success %}
-                                            <div class="col-lg-12 text-center">
+                                            <div class="col-md-12 text-center">
                                                 <br>
                                                 {% for message in messages %}
                                                     <p{% if message.tags == 'error' %}
@@ -76,8 +76,8 @@
                                             </div>
 
                                         {% else %}
-                                            <div class="col-lg-8">
-                                                <br>
+                                            <div class="col-md-8">
+
 
                                                 <p class="small">For a summary and further information</p>
                                                 <input type="email" name="email" required autofocus
@@ -86,8 +86,8 @@
                                                        id="id_email"
                                                        {% if form.email.value != None %}value="{{ form.email.value }}"{% endif %}>
                                             </div>
-                                            <div class="col-lg-4">
-                                                <br><br>
+                                            <div class="col-md-4">
+                                                <br>
                                                 <button type="submit" value="Submit" form="clientForm"
                                                         class="btn btn-hhcGold">
                                                     &nbsp;&nbsp;Send&nbsp;&nbsp;
@@ -100,13 +100,13 @@
                                 </div>
 
 
-                                <div class="col-lg-5">
+                                <div class="col-md-5">
                                     <br>
                                     <p class="x-large">Your purposes</p>
                                     <p>How might you use a Household Transfer? </p>
 
                                     <div class="row align-items-center">
-                                        <div class="col-lg-3">
+                                        <div class="col-md-3 text-center">
 
                                             <div class="check-hide">
                                                 <input type="checkbox" name="isTopUp"
@@ -114,13 +114,13 @@
                                                 <label class="check-label TopUp" for=id_isTopUp></label>
                                             </div>
                                         </div>
-                                        <div class="col-lg-9">
-                                            <p class="small">Top Up - increase superannuation, boost retirement
+                                        <div class="col-md-9">
+                                            <p class="small"><b>Top Up</b>: increase superannuation, boost retirement
                                                 income </p>
                                         </div>
                                     </div>
                                     <div class="row align-items-center">
-                                        <div class="col-lg-3">
+                                        <div class="col-md-3 text-center">
 
                                             <div class="check-hide">
                                                 <input type="checkbox" name="isRefi"
@@ -128,15 +128,15 @@
                                                 <label class="check-label Refi" for=id_isRefi></label>
                                             </div>
                                         </div>
-                                        <div class="col-lg-9 text-left">
-                                            <p class="small">Refinance - an existing mortgage without monthly
+                                        <div class="col-md-9 text-left">
+                                            <p class="small"><b>Refinance</b>: an existing mortgage without monthly
                                                 repayments</p>
                                         </div>
 
                                     </div>
                                     <div class="row align-items-center">
 
-                                        <div class="col-lg-3">
+                                        <div class="col-md-3 text-center">
 
                                             <div class="check-hide">
                                                 <input type="checkbox" name="isLive"
@@ -144,13 +144,13 @@
                                                 <label class="check-label Live" for=id_isLive></label>
                                             </div>
                                         </div>
-                                        <div class="col-lg-9 text-left">
-                                            <p class="small">Live - planned renovations, transport and travel</p>
+                                        <div class="col-md-9 text-left">
+                                            <p class="small"><b>Live</b>: planned renovations, transport and travel</p>
                                         </div>
 
                                     </div>
                                     <div class="row align-items-center">
-                                        <div class="col-lg-3">
+                                        <div class="col-md-3 text-center">
 
                                             <div class="check-hide">
                                                 <input type="checkbox" name="isGive"
@@ -158,14 +158,14 @@
                                                 <label class="check-label Give" for=id_isGive></label>
                                             </div>
                                         </div>
-                                        <div class="col-lg-9 text-left">
-                                            <p class="small">Give - when needed most, home deposit, education expenses,
+                                        <div class="col-md-9 text-left">
+                                            <p class="small"><b>Give</b>: when needed most, home deposit, education expenses,
                                                 etc</p>
                                         </div>
 
                                     </div>
                                     <div class="row align-items-center">
-                                        <div class="col-lg-3">
+                                        <div class="col-md-3 text-center">
 
                                             <div class="check-hide">
                                                 <input type="checkbox" name="isCare"
@@ -173,14 +173,14 @@
                                                 <label class="check-label Care" for=id_isCare></label>
                                             </div>
                                         </div>
-                                        <div class="col-lg-9 text-left">
-                                            <p class="small">Care - medical expenses, in-home care or aged care </p>
+                                        <div class="col-md-9 text-left">
+                                            <p class="small"><b>Care</b>: medical expenses, in-home care or aged care </p>
                                         </div>
                                     </div>
 
                                     <div class="row align-items-center">
-                                        <div class="col-lg-12">
-                                            <p class="small">Please select one or more purposes</p>
+                                        <div class="col-md-12">
+                                            <p class="small">Please click on one or more icons</p>
                                         </div>
                                     </div>
 
@@ -191,7 +191,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-lg-12 text-center ">
+                    <div class="col-md-12 text-center ">
                         <br>
                         <p class="x-small">*This calculation does not constitute an approval but provides an indicator
                             of the maximum possible loan. Household Loans are subject to loan approval criteria, which
@@ -205,6 +205,15 @@
         </div>
     </div>
 </div>
+
+{%  if redirect %}
+<script>
+      $(document).ready(function () {
+            parent.location='{{ redirectURL }}';
+        });
+</script>
+{% endif %}
+
 </body>
 
 

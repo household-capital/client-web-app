@@ -3,7 +3,7 @@
 
 LOAN_LIMITS={'minSingleAge' : 60,
              'minCoupleAge' : 65,
-             'minLoanSize' : 30000,
+             'minLoanSize' : 50000,
              'maxTopUp' : 500000,
              'maxCare' : 550000,
              'maxReno' : 200000,
@@ -26,7 +26,7 @@ ECONOMIC={'inflationRate' :float(2.50),
           'projectionAge' : 90
 }
 
-APP_SETTINGS={'incomeIntervals' : 50,
+APP_SETTINGS={'incomeIntervals' : 500,
               'minProjectionPeriods': 16,
               'intRateStress':2,
               'hpiHighStressLevel':0,

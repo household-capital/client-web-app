@@ -1,10 +1,11 @@
-
+#Django Imports
 from django.contrib.auth.views import LoginView,LogoutView, PasswordResetView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views import View
 
+#Local Application Imports
 from .forms import myLoginForm, myPasswordResetForm, myPasswordResetConfirmForm
 
 
@@ -17,7 +18,7 @@ class myLoginView(LoginView):
         return response
 
 class myLogoutView(LogoutView):
-    def get(self, request):
+    def get(self, request, *args,**kwargs):
         messages.success(request, "You have been successfully logged out")
         self.request.session.flush()
         return redirect('accounts:login')
@@ -36,6 +37,6 @@ class myPasswordResetConfirmView(PasswordResetConfirmView):
     success_url = reverse_lazy('accounts:password_reset_complete')
 
 class myPasswordResetCompleteView(PasswordResetCompleteView):
-    def get(self,request):
+    def get(self,request, *args,**kwargs):
         messages.success(request, "Your password has been set - you may now log in")
         return redirect('accounts:login')

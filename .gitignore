@@ -7,6 +7,9 @@ logs/
 *.log
 customerImages/
 customerReports/
+calculatorReports/
+enquiryReports/
 fundImages/
+profileImages/
 collected/
 production.py

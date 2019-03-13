@@ -1,29 +1,31 @@
 
 
+# IMMEDIATE
+- Enquiry Email and Document generation
+- Enquiry Basic Email generation
+- Enquiry Case creation
+- Enquiry List - User filter
+- Enquiry Data Migration (button?)
+- Case - Check actions
 
-# Filtering for Case List
-    - show closed
-    - closed report
 
-# Responsible Lending Checklist
+# DEPLOYMENT
+- FULL DEPLOYMENT ONLY
+- Update Models
+- Update basesettings
+- Update base URLs
 
-# Deleting Leads / Locking Opportunities
 
-# Email approach for clients
+# LATER
 
-# Case close
-    - new screen capture additional fields
-    - extend the case object to include fields
-    - back populate with existing register
-
-# Loan Analytics
+## Loan Analytics
     - loan capture screen
     - excel based projection for advisers
 
-# Save data to SalesForce
+## Save data to SalesForce
 
-# Save responsible lending form (to
+## Locking Post SalesForce
 
-# Add other income to projections
+## Add other income to projections
     - indexed?
 

@@ -1,31 +1,44 @@
-import json
+#Python Imports
+
+#Django Imports
 from django.contrib import messages
 from django.http import HttpResponseRedirect
-from django.views.generic import ListView, UpdateView, CreateView, TemplateView
 from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.clickjacking import xframe_options_exempt
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import UpdateView, CreateView
 
+#Third-party Imports
 
+#Local Application Imports
 from apps.lib.loanValidator import LoanValidator
-from apps.lib.enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,pensionTypesEnum, loanTypesEnum
-
+from apps.lib.enums import  dwellingTypesEnum, loanTypesEnum
 from .models import WebCalculator
 from .forms import WebInputForm, WebOutputForm
 
 
 # VIEWS
-@method_decorator(xframe_options_exempt, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
 class InputView(CreateView):
 
     template_name ='calculator/input.html'
     model=WebCalculator
     form_class = WebInputForm
 
+    @xframe_options_exempt
+    def get(self,request,*args,**kwargs):
+        return super(InputView,self).get(self,request,*args,**kwargs)
+
+    @xframe_options_exempt
+    def post(self,request,*args,**kwargs):
+            return super(InputView, self).post(self,request,*args,**kwargs)
+
     def get_context_data(self, **kwargs):
         context= super(InputView, self).get_context_data(**kwargs)
         context['loanTypesEnum']=loanTypesEnum
         context['dwellingTypesEnum'] = dwellingTypesEnum
+
         return context
 
     def get_object(self, queryset=None):
@@ -82,13 +95,14 @@ class InputView(CreateView):
         else:
             return "Calculation cannot be performed at this time."
 
-@method_decorator(xframe_options_exempt, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
 class OutputView(UpdateView):
     template_name = 'calculator/output.html'
     model=WebCalculator
     caseUID=""
     form_class = WebOutputForm
 
+    @xframe_options_exempt
     def get(self, request, **kwargs):
         if 'uid' in kwargs:
             self.caseUID=str(kwargs['uid'])
@@ -96,6 +110,7 @@ class OutputView(UpdateView):
         else:
             return HttpResponseRedirect(reverse_lazy("calulator:input"))
 
+    @xframe_options_exempt
     def post(self,request, **kwargs):
         if 'uid' in kwargs:
             self.caseUID=str(kwargs['uid'])
@@ -129,7 +144,29 @@ class OutputView(UpdateView):
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.save(update_fields=['email', 'isRefi','isTopUp', 'isLive', 'isGive','isCare'])
-        messages.success(self.request,"Thank you - we will email you shortly")
         context=self.get_context_data(form=form)
         context['success']=True
+
+        obj=self.get_object()
+
+        campaignURLs=['https://householdcapital.com.au/equity-mortgage-release/',
+                      'https://householdcapital.com.au/centrelink-pension-information/',
+                      'https://householdcapital.com.au/aged-care-financing/',
+                      'https://householdcapital.com.au/reverse-mortgages/',
+                      'https://householdcapital.com.au/superannuation-and-retirement/',
+                      'https://householdcapital.com.au/retirement-planning/']
+
+
+        if obj.referrer in campaignURLs:
+            context['redirect'] = True
+            context['redirectURL']=obj.referrer[:-1]+"-thank-you"
+        else:
+            messages.success(self.request, "Thank you - we will email you shortly")
+
         return self.render_to_response(context)
+
+
+
+
+
+

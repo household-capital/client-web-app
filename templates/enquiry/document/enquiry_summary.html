@@ -1,0 +1,232 @@
+{% load static %}
+{% load humanize %}
+{% load case_tags %}
+
+<!doctype html>
+
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Other tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- CSS -->
+    {% include 'client_1_0/base/base_client.css.html' %}
+
+    <title>Household Summary</title>
+</head>
+
+<body>
+
+<div class="page HHCBlueBackground-Printed">
+
+    <div class="print-container">
+
+        <div class="row ">
+            <div class="col-sm-12  text-left">
+                <br>
+                <img src="{% static 'img/document/HC_Logo_Inv_Colour.png' %}" width="200px">
+            </div>
+
+        </div>
+        <br>
+    </div>
+</div>
+
+<div class="page">
+
+    <div class="print-container">
+
+        <div class="row ">
+            <div class="col-lg-12 "><br>
+                <p class="print-text">Thank you for your enquiry. <br><br>The following is a summary of
+                    your potential Household Transfer based on the information provided. </p>
+                <br>
+                <p class="secondary_title">Household Transfer Summary</p>
+                <br>
+                <div class="row justify-content-md-center">
+                    <div class="col-lg-2 text-center pr-2">
+
+                        <p class="print-text-larger pb-4">About You</p>
+                        {% if obj.loanType == loanTypesEnum.JOINT_BORROWER.value %}
+                            <img src="{% static 'img/icons/couple_icon.png' %}" width="130px">
+                            <br><br>
+                            <p class="print-text">Couple</p>
+                            <p class="print-text">Ages: {{ obj.age_1 }},&nbsp;{{ obj.age_2 }}</p>
+                        {% else %}
+                            <img src="{% static 'img/icons/single_icon.png' %}" width="130px">
+                            <br><br>
+                            <p class="print-text">Single</p>
+                            <p class="print-text">Age: {{ obj.age_1 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-lg-3 text-center pr-2">
+                        <p class="print-text-larger pb-4">About Your Home</p>
+                        {% if obj.dwellingType == dwellingTypesEnum.HOUSE.value %}
+                            <img src="{% static 'img/icons/house_icon.png' %}" width="130px">
+                            <br><br>
+                            <p class="print-text">House</p>
+                        {% else %}
+                            <img src="{% static 'img/icons/apartment_icon.png' %}" width="130px">
+                            <br><br>
+                            <p class="print-text">Apartment</p>
+                        {% endif %}
+                        <p class="print-text">Postcode: {{ obj.postcode|intBlank }}</p>
+                        <p class="print-text">Value: ${{ obj.valuation }}</p>
+                    </div>
+
+                    <div class="col-lg-5 text-center">
+                        <div class="row">
+                            <p class="print-text-larger pb-0">Your Indicative Household Transfer*</p>
+                        </div>
+                        <div class="row justify-content-center">
+                            <div class="col-lg-6 text-center pr-0">
+                                <img width="250px"
+                                     src="{% static 'img/icons/' %}{{ transfer_img }}">
+                            </div>
+
+                            <div class="col-md-2 pl-5">
+                                <div>
+                                    <br><br><br>
+                                </div>
+                                <p class="x-large">${{ obj.maxLoanAmount }}</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 pl-0 pt-3 text-left">
+                                <p class="print-text">Maximum {{ obj.maxLVR|intVal }}% of estimated home value</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 "><br>
+
+
+                <p class="secondary_title pb-2">Purposes</p>
+                <p class="print-text">We are passionate about helping retirees access home equity for responsible
+                    purposes. These
+                    purposes include:</p><br>
+
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-lg-12 ">
+
+                <div class="row align-items-center">
+
+                    <div class="col-md-3 text-center pb-2">
+                        <img src="{% static 'img/icons/topup_icon.png' %}" width="80px">
+                    </div>
+                    <div class="col-md-9">
+                        <p class="print-text"><b>Top Up</b>: increase superannuation, boost retirement
+                            income </p>
+                        {% if obj.isTopUp %}
+                            <p class="small"><i class="far fa-check-circle" style="color:orange"></i>&nbsp;You indicated
+                                this as a potential Household Transfer purpose.</p>{% endif %}
+                    </div>
+                </div>
+
+                <div class="row align-items-center">
+                    <div class="col-md-3 text-center pb-2">
+                        <img src="{% static 'img/icons/refi_icon.png' %}" width="80px">
+                    </div>
+
+                    <div class="col-md-9 text-left">
+                        <p class="print-text"><b>Refinance</b>: an existing mortgage without monthly repayments</p>
+                        {% if obj.isRefi %}
+                            <p class="small"><i class="far fa-check-circle" style="color:orange"></i>&nbsp;You indicated
+                                this as a potential Household Transfer purpose.</p>{% endif %}
+
+                    </div>
+                </div>
+
+                <div class="row align-items-center">
+                    <div class="col-md-3 text-center pb-2">
+                        <img src="{% static 'img/icons/live_icon.png' %}" width="80px">
+                    </div>
+                    <div class="col-md-9 text-left">
+                        <p class="print-text"><b>Live</b>: planned renovations, transport and travel</p>
+                        {% if obj.isLive %}
+                            <p class="small"><i class="far fa-check-circle" style="color:orange"></i>&nbsp;You indicated
+                                this as a potential Household Transfer purpose.</p>{% endif %}
+
+                    </div>
+                </div>
+
+                <div class="row align-items-center">
+                    <div class="col-md-3 text-center pb-2">
+                        <img src="{% static 'img/icons/give_icon.png' %}" width="80px">
+                    </div>
+                    <div class="col-md-9 text-left">
+                        <p class="print-text"><b>Give</b>: when needed most, home deposit, education expenses,
+                            etc</p>
+                        {% if obj.isGive %}
+                            <p class="small"><i class="far fa-check-circle" style="color:orange"></i>&nbsp;You indicated
+                                this as a potential Household Transfer purpose.</p>{% endif %}
+
+                    </div>
+                </div>
+
+                <div class="row align-items-center">
+                    <div class="col-md-3 text-center pb-2">
+                        <img src="{% static 'img/icons/care_icon.png' %}" width="80px">
+                    </div>
+                    <div class="col-md-9 text-left">
+                        <p class="print-text"><b>Care</b>: medical expenses, in-home care or aged care </p>
+                        {% if obj.isCare %}
+                            <p class="small"><i class="far fa-check-circle" style="color:orange"></i>&nbsp;You indicated
+                                this as a potential Household Transfer purpose.</p>{% endif %}
+
+                    </div>
+                </div>
+                <br>
+
+            </div>
+        </div>
+
+        <div class="badge-light ">
+            <p>*This calculation does not constitute an approval but provides an indicator
+                of the maximum possible loan. Household Loans are subject to loan approval criteria, which
+                includes a home valuation. Lending limits may apply for specific purposes. Full terms and conditions
+                will be included in any loan
+                application.</p>
+
+        </div>
+        <br>
+        <div class="row HHCBlueBackground-Printed print-edge-row pb-2">
+
+            <div class="print-container">
+
+                <div class="row">
+
+                    <div class="col-lg-4 ">
+                        <br>
+                        <p class="small"><i class="far fa-envelope">&nbsp;&nbsp;info@householdcapital.com</i></p>
+                        <p class="small"><i class="fas fa-phone">&nbsp;&nbsp;</i>1 300 622 100</p>
+                        <p class="small"><i class="fas fa-desktop">&nbsp;&nbsp;www.householdcapital.com</i>
+                            <br><br>
+
+                    </div>
+                    <div class="col-lg-6"></div>
+                    <div class="col-lg-2 secondary_title text-center pt-2">Live Well At Home
+                        <br>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
+

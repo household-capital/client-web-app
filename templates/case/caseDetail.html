@@ -2,6 +2,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 {% load humanize %}
+{% load case_tags %}
 
 {% block message_display %}
 
@@ -39,74 +40,95 @@
 
     <div class="container">
 
-        <div class="row">
+    <div class="row">
 
-            <div class="col-lg-8">
+        <div class="col-lg-8">
 
-                <br>
+            <br>
 
-                {% if form.errors %}
+            {% if form.errors %}
 
-                    <i class="far fa-times-circle fa-lg btn-outline-danger">&nbsp;Form errors - refer below</i>
-                {% else %}
-                    {% if status.status == 'Ok' %}
-                        <i class="far fa-check-circle fa-lg btn-outline-success">&nbsp;Eligible Case</i>
-                        <br><br>
-                    {% elif status.status == 'Error' %}
-                        <i class="far fa-times-circle fa-lg btn-outline-danger">&nbsp;Ineligible
-                            - {{ status.details }}</i>
-                        <br><br>
-                    {% endif %}
+                <i class="far fa-times-circle fa-lg btn-outline-danger">&nbsp;Form errors - refer below</i>
+            {% else %}
+                {% if status.status == 'Ok' %}
+                    <i class="far fa-check-circle fa-lg btn-outline-success">&nbsp;Eligible Case</i>
+                    <br><br>
+                {% elif status.status == 'Error' %}
+                    <i class="far fa-times-circle fa-lg btn-outline-danger">&nbsp;Ineligible
+                        - {{ status.details }}</i>
+                    <br><br>
                 {% endif %}
-
-            </div>
+            {% endif %}
 
         </div>
 
+    </div>
+
+    <div class="row">
+
+    <div class="col-lg-8">
+
+        {% crispy form %}
+
+
+    </div>
+
+    <div class="col-lg-4">
+
+
         <div class="row">
+            <div class="col-lg-12">
 
-            <div class="col-lg-8">
+                <br>
+                <div class="padding-15px">
 
-                {% crispy form %}
+                    {% if isUpdate %}
+                        <div class="btn-group">
+                        <button type="button" class="btn btn-outline-secondary dropdown-toggle"
+                                data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                            Case Actions
+                        </button>
+                        <div class="dropdown-menu">
+                            {% if obj.caseType == caseTypesEnum.OPPORTUNITY.value %}
 
+                                <a class="dropdown-item" href="{% url 'client:meeting' uid=obj.caseUID %}">
+                                    &nbsp;<i class="fas fa-users fa-fw"></i></i>&nbsp;&nbsp;Meeting
+                                </a>
 
-            </div>
+                            {% endif %}
 
-            <div class="col-lg-4">
+                            {% if obj.caseType == caseTypesEnum.LEAD.value %}
 
+                                <a class="dropdown-item" data-toggle="modal" href="#deleteModal">
+                                    &nbsp;<i class="far fa-trash-alt fa-fw"></i>&nbsp;&nbsp;Delete
+                                </a>
+                                <div class="dropdown-divider"></div>
 
-                <div class="row">
-                    <div class="col-lg-12">
-
-                        <br>
-                        <div class="padding-15px">
-                            {% if isUpdate %}
-                                {% if obj.caseType == caseTypesEnum.OPPORTUNITY.value %}
-                                    <a href="{% url 'client:meeting' uid=obj.caseUID %}">
-                                        <div class="btn btn-success">Meeting</div>
-                                    </a>
-                                {% endif %}
 
                                 {% if status.status == 'Ok' %}
 
-                                    <a href="">
-                                        <div class="btn btn-outline-secondary">Loan Analysis</div>
-                                    </a>{% endif %}
+                                    <a class="dropdown-item"
+                                       href="{% url 'case:caseEmailEligibility' uid=obj.caseUID %}">
+                                        &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Eligibility
+                                    </a>
 
-                                {% if obj.caseType == caseTypesEnum.LEAD.value %}
+                                    <div class="dropdown-divider"></div>
 
-                                    <button type="button" class="btn btn-outline-secondary" data-toggle="modal"
-                                            data-target="#deleteModal">
-                                        Delete
-                                    </button>
+                                    <a class="dropdown-item" href="">
+                                        &nbsp;<i class="fas fa-chart-line fa-fw"></i>&nbsp;&nbsp;Loan Analysis
+                                    </a>
+
 
                                 {% endif %}
 
-
                             {% endif %}
                         </div>
+                    {% endif %}
+
                     </div>
                 </div>
+
 
                 {% if status.status == 'Ok' %}
 
@@ -154,6 +176,32 @@
                         </div>
                     </div>
 
+
+                    <div class="jumbotron">
+                        <p class="small pb-1"><i class="far fa-file-pdf"></i>&nbsp;&nbsp;Documents</p>
+                        {% if obj.summaryDocument %}
+                            <p><a href="/media/customerReports/{{ obj.summaryDocument.file|filename }}">Loan Summary</a>
+                            </p>{% endif %}
+                        {% if obj.privacyDocument %}
+                            <p><a href="/media/customerReports/{{ obj.privacyDocument.file|filename }}">Privacy
+                                Consent</a></p>{% endif %}
+                        {% if obj.electronicDocument %}
+                            <p><a href="/media/customerReports/{{ obj.electronicDocument.file|filename }}">Electronic
+                                Consent</a></p>{% endif %}
+                        {% if obj.responsibleDocument %}
+                            <p><a href="/media/customerReports/{{ obj.responsibleDocument.file|filename }}">Responsible
+                                Lending Checklist</a></p>{% endif %}
+                        {% if obj.dataDocument %}
+                            <p><a href="/media/customerReports/{{ obj.dataDocument.file|filename }}">Customer
+                                Data</a></p>{% endif %}
+                        {% if obj.enquiryDocument %}
+                            <p><a href="/media/customerReports/{{ obj.enquiryDocument.file|filename }}">Enquiry
+                                Document </a></p>
+                        {% endif %}
+
+                    </div>
+
+
                 {% endif %}
             </div>
 
@@ -162,9 +210,9 @@
 
     </div>
     {% if isUpdate %}
-   <!-- Modal -->
-    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
-         aria-hidden="true">
+        <!-- Modal -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+             aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -174,16 +222,19 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                <p>Do you want to delete the lead (as opposed closing it)?</p>
+                    <p>Do you want to delete the lead (as opposed closing it)?</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <a href="{% url 'case:caseDelete' uid=obj.caseUID %}"><div class="btn btn-primary">Yes, delete this</div></a>
+                    <a href="{% url 'case:caseDelete' uid=obj.caseUID %}">
+                        <div class="btn btn-primary">Yes, delete this</div>
+                    </a>
 
+                </div>
             </div>
         </div>
-    </div>
     {% endif %}
+</div>
 
 
 {% endblock %}

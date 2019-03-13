@@ -340,6 +340,12 @@ html, body {
     font-size: larger;
 }
 
+.print-text-larger {
+    font-family: MaisonNeue;
+    line-height: 150%;
+    font-size: x-large;
+}
+
 .print-container {
     width: 100%;
     padding-left: 50px;

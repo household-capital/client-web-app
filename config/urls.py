@@ -16,13 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.http import HttpResponseRedirect
-from django.views.static import serve
-from django.urls import path, re_path
+from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
-
-from apps.landing.views import LandingView
 
 urlpatterns = [
     path('', lambda r: HttpResponseRedirect('landing/')),
@@ -31,9 +28,11 @@ urlpatterns = [
     path('case/', include('apps.case.urls')),
     path('client/', include('apps.client_1_0.urls')),
     path('calculator/', include('apps.calculator.urls')),
-    path('eligibility/',include('apps.eligibility.urls')),
+    path('enquiry/', include('apps.enquiry.urls')),
     path('hhcadmin/', admin.site.urls)
 ]
+
+
 
 urlpatterns+=static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns+=static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

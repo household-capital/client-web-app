@@ -2,8 +2,6 @@
 import datetime
 import json
 from math import log
-from email.mime.text import MIMEText
-import requests
 
 #Django Imports
 from django.conf import settings
@@ -15,22 +13,18 @@ from django.http import HttpResponseRedirect
 from django.http import HttpResponse
 from django.urls import reverse_lazy, reverse
 from django.views.generic import FormView, TemplateView, View, UpdateView
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import get_template
 
-
-#Third-party Imports
-from api2pdf import Api2Pdf
 
 #Local Application Imports
-from .forms import ClientDetailsForm, SettingsForm, IntroChkBoxForm,topUpForm, debtRepayForm
-from .forms import giveAmountForm, renovateAmountForm, travelAmountForm, careAmountForm, DetailedChkBoxForm
+from apps.case.models import ModelSetting, Loan, Case
+from apps.lib.enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,pensionTypesEnum, loanTypesEnum
 from apps.lib.globals import ECONOMIC, APP_SETTINGS
 from apps.lib.loanValidator import LoanValidator
 from apps.lib.loanProjection import LoanProjection
-from apps.lib.enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,pensionTypesEnum, loanTypesEnum
 from apps.logging import write_applog
-from apps.case.models import ModelSetting, Loan, Case
+from .forms import ClientDetailsForm, SettingsForm, IntroChkBoxForm,topUpForm, debtRepayForm
+from .forms import giveAmountForm, renovateAmountForm, travelAmountForm, careAmountForm, DetailedChkBoxForm
+from apps.lib.utilities import pdfGenerator
 
 
 # MIXINS
@@ -43,13 +37,17 @@ class LoginRequiredMixin(object):
         return login_required(view)
 
 class SessionReqiredMixin(object):
+    #Ensures any attempt to acces without UID set is redirct to list view
     def dispatch(self, request, *args, **kwargs):
         if 'caseUID' not in request.session:
             return HttpResponseRedirect(reverse_lazy('case:caseList'))
         return super(SessionReqiredMixin, self).dispatch(request, *args, **kwargs)
 
-#Utilities
+
+# UTILITIES
+
 class ResultsHelper():
+    # Used to render Loan Projection results for the GUI and Summary Document
 
     def createResultsList(self, projFigures, keyName, **kwargs):
         # Builds a results list to pass to the template
@@ -85,7 +83,8 @@ class ResultsHelper():
         return imageList
 
 class ContextHelper():
-    
+    # Most of the views require the same validation and context information
+
     def validate_and_get_context(self):
         #get dictionaries from model
         clientDict=Case.objects.dictionary_byUID(self.request.session['caseUID'])
@@ -100,8 +99,9 @@ class ContextHelper():
         loanQS = Loan.objects.queryset_byUID(self.request.session['caseUID'])
         loanQS.update(maxLVR=loanStatus['maxLVR'],
                       totalLoanAmount=loanStatus['totalLoanAmount'],
-                      establishmentFee=loanStatus['establishmentFee'])
-       
+                      establishmentFee=loanStatus['establishmentFee'],
+                      actualLVR=loanStatus['actualLVR'])
+        print(loanStatus)
         #create context
         context = {}
         context.update(clientDict)
@@ -121,11 +121,10 @@ class ContextHelper():
 
 # CLASS BASED VIEWS
 
-
 # Landing View
 class LandingView(LoginRequiredMixin, ContextHelper ,TemplateView):
 
-    template_name = "client_1_0/landing.html"
+    template_name = "client_1_0/interface/landing.html"
 
     def get_context_data(self, **kwargs):
 
@@ -176,7 +175,7 @@ class LandingView(LoginRequiredMixin, ContextHelper ,TemplateView):
 class SetClientView(LoginRequiredMixin, SessionReqiredMixin, ContextHelper, UpdateView):
     # Sets the initial client data (in associated dictionary)
 
-    template_name = "client_1_0/settings.html"
+    template_name = "client_1_0/interface/settings.html"
     form_class = ClientDetailsForm
     model = Case
     success_url = reverse_lazy('client:meetingStart')
@@ -199,6 +198,26 @@ class SetClientView(LoginRequiredMixin, SessionReqiredMixin, ContextHelper, Upda
     def form_valid(self, form):
 
         self.object = form.save()
+
+        if form.cleaned_data['resetConsents']==True:
+
+            loanQs = Loan.objects.queryset_byUID(self.request.session['caseUID'])
+            loanRecord = loanQs.get()
+
+            loanRecord.choiceFuture=False
+            loanRecord.choiceCenterlink =False
+            loanRecord.choiceVariable =False
+            loanRecord.consentPrivacy =False
+            loanRecord.consentElectronic =False
+            loanRecord.choiceRetireAtHome = False
+            loanRecord.choiceAvoidDownsizing = False
+            loanRecord.choiceAccessFunds = False
+
+
+            loanRecord.save(update_fields=['choiceFuture','choiceCenterlink','choiceVariable','consentPrivacy',
+                                           'consentElectronic','choiceRetireAtHome','choiceAvoidDownsizing',
+                                           'choiceAccessFunds'])
+
         # perform high-level validation of client data
         clientDict = {}
         clientDict = self.get_queryset().values()[0]
@@ -217,7 +236,7 @@ class SetClientView(LoginRequiredMixin, SessionReqiredMixin, ContextHelper, Upda
 
 
 class SettingsView(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
-    template_name = "client_1_0/settings.html"
+    template_name = "client_1_0/interface/settings.html"
     form_class = SettingsForm
     model = ModelSetting
     success_url = reverse_lazy('client:meetingStart')
@@ -241,7 +260,7 @@ class SettingsView(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, Update
 # Introduction Views
 class IntroductionView1(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, TemplateView):
 
-    template_name = "client_1_0/introduction1.html"
+    template_name = "client_1_0/interface/introduction1.html"
 
     def get_context_data(self, **kwargs):
         # Update and add dictionaries to context
@@ -256,7 +275,7 @@ class IntroductionView1(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, T
 
 class IntroductionView2(LoginRequiredMixin, SessionReqiredMixin,ContextHelper,UpdateView):
 
-    template_name = "client_1_0/introduction2.html"
+    template_name = "client_1_0/interface/introduction2.html"
     form_class=IntroChkBoxForm
     model=Loan
     success_url = reverse_lazy('client:introduction3')
@@ -279,7 +298,7 @@ class IntroductionView2(LoginRequiredMixin, SessionReqiredMixin,ContextHelper,Up
 
 class IntroductionView3(LoginRequiredMixin, SessionReqiredMixin, ContextHelper,TemplateView):
 
-    template_name = "client_1_0/introduction3.html"
+    template_name = "client_1_0/interface/introduction3.html"
 
     def get_context_data(self, **kwargs):
         # Update and add dictionaries to context
@@ -294,7 +313,7 @@ class IntroductionView3(LoginRequiredMixin, SessionReqiredMixin, ContextHelper,T
 
 class IntroductionView4(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, TemplateView):
 
-    template_name = "client_1_0/introduction4.html"
+    template_name = "client_1_0/interface/introduction4.html"
 
     def get_context_data(self, **kwargs):
         # Update and add dictionaries to context
@@ -319,7 +338,7 @@ class IntroductionView4(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, T
 
 # Top Up Views
 class TopUp1(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, TemplateView):
-        template_name = "client_1_0/topUp1.html"
+        template_name = "client_1_0/interface/topUp1.html"
 
         def get_context_data(self, **kwargs):
             # Update and add dictionaries to context
@@ -346,7 +365,7 @@ class TopUp1(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, TemplateView
             return context
 
 class TopUp2(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, FormView):
-    template_name = "client_1_0/topUp2.html"
+    template_name = "client_1_0/interface/topUp2.html"
     form_class=topUpForm
     success_url = reverse_lazy('client:topUp3')
 
@@ -388,7 +407,7 @@ class TopUp2(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, FormView):
 
 
 class TopUp3(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
-    template_name = "client_1_0/topUp3.html"
+    template_name = "client_1_0/interface/topUp3.html"
     form_class=debtRepayForm
     model=Loan
     success_url = reverse_lazy('client:live1')
@@ -421,7 +440,7 @@ class TopUp3(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
 
 # Live Views
 class Live1(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
-    template_name = "client_1_0/live1.html"
+    template_name = "client_1_0/interface/live1.html"
     form_class=renovateAmountForm
     model=Loan
     success_url = reverse_lazy('client:live2')
@@ -443,9 +462,8 @@ class Live1(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
         return obj
 
 
-
 class Live2(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
-    template_name = "client_1_0/live2.html"
+    template_name = "client_1_0/interface/live2.html"
     form_class=travelAmountForm
     model=Loan
     success_url = reverse_lazy('client:give')
@@ -466,12 +484,9 @@ class Live2(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
         obj= queryset.get()
         return obj
 
-
-
-
 # Give Views
 class Give(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
-    template_name = "client_1_0/give.html"
+    template_name = "client_1_0/interface/give.html"
     form_class=giveAmountForm
     model = Loan
     success_url = reverse_lazy('client:care')
@@ -495,7 +510,7 @@ class Give(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
 
 # Care Views
 class Care(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
-    template_name = "client_1_0/care.html"
+    template_name = "client_1_0/interface/care.html"
     form_class=careAmountForm
     model = Loan
     success_url = reverse_lazy('client:results1')
@@ -520,7 +535,7 @@ class Care(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
 # Results Views
 
 class Results1(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, TemplateView):
-    template_name = "client_1_0/results1.html"
+    template_name = "client_1_0/interface/results1.html"
 
     def get(self, request, *args, **kwargs):
         aggDict = self.validate_and_get_context()
@@ -543,7 +558,7 @@ class Results1(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, TemplateVi
 
 
 class Results2(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
-    template_name = "client_1_0/results2.html"
+    template_name = "client_1_0/interface/results2.html"
     form_class=DetailedChkBoxForm
     model=Loan
     success_url = reverse_lazy('client:results3')
@@ -590,7 +605,7 @@ class Results2(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView
 
 
 class Results3(ResultsHelper, LoginRequiredMixin, SessionReqiredMixin,ContextHelper, TemplateView):
-    template_name = "client_1_0/results3.html"
+    template_name = "client_1_0/interface/results3.html"
 
     def get_context_data(self, **kwargs):
         # Update and add to context
@@ -637,7 +652,7 @@ class Results3(ResultsHelper, LoginRequiredMixin, SessionReqiredMixin,ContextHel
 
 
 class Results4(ResultsHelper, LoginRequiredMixin, SessionReqiredMixin, ContextHelper, TemplateView):
-    template_name = "client_1_0/results4.html"
+    template_name = "client_1_0/interface/results4.html"
 
     def get_context_data(self, **kwargs):
 
@@ -650,79 +665,42 @@ class Results4(ResultsHelper, LoginRequiredMixin, SessionReqiredMixin, ContextHe
 
         return context
 
-class Final(ResultsHelper, LoginRequiredMixin, SessionReqiredMixin, ContextHelper, TemplateView):
-    template_name = "client_1_0/final.html"
+# Final Views
+
+class FinalView(ResultsHelper, LoginRequiredMixin, SessionReqiredMixin, ContextHelper, TemplateView):
+    template_name = "client_1_0/interface/final.html"
 
     def get_context_data(self, **kwargs):
 
         context = super(ResultsHelper, self).get_context_data(**kwargs)
 
-        context['pdfURL'] = self.request.build_absolute_uri(reverse('client:PdfProduction'))
+        context['pdfURL'] = self.request.build_absolute_uri(reverse('client:finalPdf'))
 
         return context
 
-class FinalError(ResultsHelper, LoginRequiredMixin, ContextHelper, TemplateView):
-    template_name = "client_1_0/final_error.html"
+
+class FinalErrorView(ResultsHelper, LoginRequiredMixin, ContextHelper, TemplateView):
+    template_name = "client_1_0/interface/final_error.html"
 
 
-
-# / PDF Generation View
-
-class PdfProduction(LoginRequiredMixin, SessionReqiredMixin, View):
+class FinalPDFView(LoginRequiredMixin, SessionReqiredMixin, View):
     #This view is called via javascript from the final page to generate the report pdf
-    #It uses api2pdf to render the report and then saves, emails and serves the pdf
-
-    def __init__(self):
-        self.a2p_client = Api2Pdf(APP_SETTINGS['Api2PdfKey'])
-        super(PdfProduction,self).__init__()
+    #It uses a utility to render the report and then saves, emails and serves the pdf
 
     def get(self,request):
 
-        ## GET PDF FILE FROM API AND SAVE LOCALLY
-        try:
-            sourceUrl='https://householdcapital.app/client/PdfReport/'+self.request.session['caseUID']
+        sourceUrl = 'https://householdcapital.app/client/pdfLoanSummary/' + self.request.session['caseUID']
+        targetFileName = settings.MEDIA_ROOT + "/customerReports/Summary-" + self.request.session['caseUID'][
+                                                                             -12:] + ".pdf"
 
-            #Make API request to Api2Pdf
-            options = {'preferCSSPageSize': True, 'marginBottom': 0, 'marginLeft': 0, 'marginRight': 0, 'marginTop': 0,
-                       'paperWidth': 8.27, 'paperHeight': 11.69}
-            api_response = self.a2p_client.HeadlessChrome.convert_from_url(sourceUrl, file_name='HouseholdSummary.pdf',
-                                                                           **options)
-            if api_response.result['success'] == True:
-                write_applog("INFO", 'PdfProduction', 'get', "Api2Pdf success: " + self.request.session['caseUID'])
-            else:
-                write_applog("ERROR", 'PdfProduction', 'get', "Api2Pdf failue: " + self.request.session['caseUID'] + "-"
-                             + str(api_response))
-                return HttpResponseRedirect(reverse_lazy('client:final_error'))()
-        except:
-            write_applog("ERROR", 'PdfProduction', 'get', "Presumed timeout error: " + self.request.session['caseUID'] + "-"
-                         + str(api_response))
-            return HttpResponseRedirect(reverse_lazy('client:final_error'))()
+        pdf=pdfGenerator(self.request.session['caseUID'])
+        created,text = pdf.createPdfFromUrl(sourceUrl,'HouseholdSummary.pdf',targetFileName)
 
-        # Get response url
-        sourceUrl = api_response.result['pdf']
-
-        # Save the target file
-        try:
-
-            targetFileName = settings.MEDIA_ROOT + "/customerReports/Summary-" + self.request.session['caseUID'][
-                                                                                 -12:] + ".pdf"
-
-            responseObj = requests.get(sourceUrl, verify=False, stream=True)
-            responseObj.raw.decode_content = True
-
-            with open(targetFileName, 'wb') as fileWriter:
-                for chunk in responseObj.iter_content(chunk_size=128):
-                    fileWriter.write(chunk)
-                fileWriter.close()
-            write_applog("INFO", 'PdfProduction', 'get', "Summary Report Saved: " + self.request.session['caseUID'])
-
-        except:
-            write_applog("ERROR", 'PdfProduction', 'get',
-                         "Failed to save Summary Report: " + self.request.session['caseUID'])
+        if not created:
+            return HttpResponseRedirect(reverse_lazy('client:finalError'))
 
         try:
             # SAVE TO DATABASE
-
             localfile = open(targetFileName, 'rb')
 
             qsCase = Case.objects.queryset_byUID(self.request.session['caseUID'])
@@ -734,29 +712,23 @@ class PdfProduction(LoginRequiredMixin, SessionReqiredMixin, View):
                          "Failed to save Summary Report in Database: " + self.request.session['caseUID'])
 
         ## EMAIL REPORT
-        try:
-            email_context = {}
-            template_html = "client_1_0/email/email.html"
-            caseObj = Case.objects.queryset_byUID(self.request.session['caseUID']).get()
+        email_context = {}
+        template_html = "client_1_0/email/email.html"
+        caseObj = Case.objects.queryset_byUID(self.request.session['caseUID']).get()
+        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+        email_context['obj'] = caseObj
+        text_message="Loan Summary attached"
+        attachFilename="HouseholdLoanSummary.pdf"
+        bcc=""
 
-            email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-            email_context['obj']=caseObj
+        subject, from_email, to = "Household Loan Summary Report", settings.DEFAULT_FROM_EMAIL, request.user.email
+        text_content = "Text Message"
 
-            subject, from_email, to = "Household Loan Summary Report", settings.DEFAULT_FROM_EMAIL, request.user.email
-            text_content = "Text Message"
+        sent=pdf.emailPdf(template_html,email_context,subject, from_email, to, bcc, text_message,attachFilename)
 
-            html = get_template(template_html)
-            html_content = html.render(email_context)
-            msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-            msg.attach_alternative(html_content, "text/html")
-            msg.attach('HouseholdLoanSummary.pdf', pdf_contents, 'application/pdf')
-            msg.send()
-        except:
-            write_applog("ERROR", 'PdfProduction', 'get',
-                         "Failed to email Summary Report:" + self.request.session['caseUID'])
 
         ## RENDER FILE TO HTTP RESPONSE
-        response = HttpResponse(pdf_contents, content_type='application/pdf')
+        response = HttpResponse(pdf.getContent(), content_type='application/pdf')
         response['Content-Disposition'] = 'attachment'
         localfile.close()
 
@@ -767,15 +739,17 @@ class PdfProduction(LoginRequiredMixin, SessionReqiredMixin, View):
         return response
 
 
-class PdfReport(ResultsHelper, TemplateView):
+# REPORT VIEWS
+
+class PdfLoanSummary(ResultsHelper, TemplateView):
     #This page is not designed to be viewed - it is to be called by the pdf generator
     #It requires a UID to be passed to it
 
-    template_name = "client_1_0/summaryDocument/mainDocument.html"
+    template_name = "client_1_0/documents/loanSummary.html"
 
     def get_context_data(self, **kwargs):
 
-        context = super(PdfReport, self).get_context_data(**kwargs)
+        context = super(PdfLoanSummary, self).get_context_data(**kwargs)
 
         if 'uid' in kwargs:
 
@@ -879,6 +853,7 @@ class PdfReport(ResultsHelper, TemplateView):
             obj = queryset.get()
 
             context['obj'] = obj
+            context['caseUID'] = caseUID
 
         return context
 
@@ -887,7 +862,7 @@ class PdfRespLending(TemplateView):
     #This page is not designed to be viewed - it is to be called by the pdf generator
     #It requires a UID to be passed to it
 
-    template_name = "client_1_0/summaryDocument/respLending.html"
+    template_name = "client_1_0/documents/respLending.html"
 
     def get_context_data(self, **kwargs):
 
@@ -903,5 +878,77 @@ class PdfRespLending(TemplateView):
 
             context.update(clientDict)
             context.update(loanDict)
+            context['caseUID'] = caseUID
+
+        return context
+
+
+class PdfPrivacy(TemplateView):
+    #This page is not designed to be viewed - it is to be called by the pdf generator
+    #It requires a UID to be passed to it
+
+    template_name = "client_1_0/documents/privacy.html"
+
+    def get_context_data(self, **kwargs):
+
+        context = super(PdfPrivacy, self).get_context_data(**kwargs)
+
+        if 'uid' in kwargs:
+
+            caseUID=str(kwargs['uid'])
+
+            # get dictionaries from model
+            clientDict = Case.objects.dictionary_byUID(caseUID)
+            loanDict = Loan.objects.dictionary_byUID(caseUID)
+
+            context.update(clientDict)
+            context.update(loanDict)
+            context['caseUID'] = caseUID
+
+        return context
+
+
+class PdfElectronic(TemplateView):
+    # This page is not designed to be viewed - it is to be called by the pdf generator
+    # It requires a UID to be passed to it
+
+    template_name = "client_1_0/documents/electronic.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(PdfElectronic, self).get_context_data(**kwargs)
+
+        if 'uid' in kwargs:
+            caseUID = str(kwargs['uid'])
+
+            # get dictionaries from model
+            clientDict = Case.objects.dictionary_byUID(caseUID)
+            loanDict = Loan.objects.dictionary_byUID(caseUID)
+
+            context.update(clientDict)
+            context.update(loanDict)
+            context['caseUID'] = caseUID
+
+        return context
+
+class PdfClientData(TemplateView):
+    # This page is not designed to be viewed - it is to be called by the pdf generator
+    # It requires a UID to be passed to it
+
+    template_name = "client_1_0/documents/clientData.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(PdfClientData, self).get_context_data(**kwargs)
+
+        if 'uid' in kwargs:
+            caseUID = str(kwargs['uid'])
+
+            # get dictionaries from model
+            qsClient = Case.objects.queryset_byUID(caseUID)
+            qsLoan = Loan.objects.queryset_byUID(caseUID)
+
+            context['client']=qsClient.get()
+            context['loan']=qsLoan.get()
+            context['loanTypesEnum'] = loanTypesEnum
+            context['caseUID']=caseUID
 
         return context

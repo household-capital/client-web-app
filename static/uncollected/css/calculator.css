@@ -70,7 +70,8 @@ p.small {
 }
 
 .cal_background{
-    background-color: rgb(249,248,245);
+    /*background-color: rgb(249,248,245);*/
+    background-color: #f9f9f9
 }
 
 /* Radio Button Selector */

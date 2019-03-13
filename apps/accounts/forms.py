@@ -1,7 +1,10 @@
+#Django Imports
 from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm, SetPasswordForm
+
+#Third-party Imports
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Field, Div, Fieldset, Button, HTML
-from crispy_forms.bootstrap import (PrependedText, PrependedAppendedText, FormActions)
+from crispy_forms.layout import Submit, Layout, Field, Div
+
 
 
 class myLoginForm(AuthenticationForm):

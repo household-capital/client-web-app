@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'apps.client_1_0',
     'apps.case',
     'apps.calculator',
-    'apps.eligibility'
+    'apps.enquiry'
 ]
 
 MIDDLEWARE = [

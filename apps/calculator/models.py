@@ -1,12 +1,13 @@
-
+#Python Imports
 import uuid
 
+#Django Imports
 from django.db import models
 from django.utils.encoding import smart_text
-from django.urls import reverse_lazy
+
 
 class WebManager(models.Manager):
-    #Custom model manager to return related querysets (using UID)
+    #Custom model manager to return related queryset and dictionary (using UID)
     def queryset_byUID(self,uidString):
         searchWeb = WebCalculator.objects.get(calcUID=uuid.UUID(uidString)).pk
         return super(WebManager, self).filter(pk=searchWeb)
@@ -34,15 +35,16 @@ class WebCalculator(models.Model):
     isGive=models.BooleanField(default=False, blank=True, null=True)
     isCare = models.BooleanField(default=False, blank=True, null=True)
     email=models.EmailField(blank=True, null=True)
+    referrer=models.URLField(blank=True,null=True)
+    actioned=models.IntegerField(default=0,blank=True, null=True)
+    actionedBy=models.CharField(max_length=40,blank= True,null=True)
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+    summaryDocument = models.FileField(null=True, blank=True)
 
     objects = WebManager()
 
     def __str__(self):
         return smart_text(self.pk)
-
-    def get_absolute_url(self):
-        return reverse_lazy("calculator:calcInput")#, kwargs={"uid": str(self.calcUID)})
 
 
