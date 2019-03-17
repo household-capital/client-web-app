@@ -215,4 +215,4 @@ class LoanValidator():
         if arg==None:
             return 0
         else:
-            return(int(arg))
+            return int(arg)

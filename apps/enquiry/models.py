@@ -36,6 +36,7 @@ class Enquiry(models.Model):
         (directTypesEnum.PHONE.value,'Phone'),
         (directTypesEnum.EMAIL.value, 'Email'),
         (directTypesEnum.WEB_ENQUIRY.value,'Web'),
+        (directTypesEnum.REFERRAL.value, 'Referral'),
         (directTypesEnum.OTHER.value,'Other'),
         (directTypesEnum.WEB_CALCULATOR.value, 'Calculator')
     )
@@ -44,10 +45,10 @@ class Enquiry(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
     loanType = models.IntegerField(choices=loanTypes, null=True, blank=True, default=True)
     name=models.CharField(max_length=30,blank= True,null=True)
-    age_1=models.IntegerField(blank=False, null=False)
+    age_1=models.IntegerField(blank=True, null=True)
     age_2 = models.IntegerField(blank=True, null=True)
     dwellingType=models.BooleanField(default=True, blank=False, null=False, choices=dwellingTypes)
-    valuation=models.IntegerField(blank=False, null=False)
+    valuation=models.IntegerField(blank=True, null=True)
     postcode=models.IntegerField(blank=True, null=True)
     status=models.BooleanField(default=True, blank=False, null=False)
     maxLoanAmount=models.IntegerField(blank=True, null=True)

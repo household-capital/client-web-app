@@ -11,20 +11,18 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 TEMPLATE_PATH=BASE_DIR+'/templates/'
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
+# Load Environment variables
+load_dotenv()
 
 # Project Settings
 ROOT_URLCONF = 'config.urls'
 WSGI_APPLICATION = 'config.wsgi.application'
-ALLOWED_HOSTS = ['127.0.0.1','178.128.78.61','householdcapital.app', 'www.householdcapital.app']
-
 
 # Application definition
 
@@ -56,8 +54,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.common.BrokenLinkEmailsMiddleware',
 ]
-
 
 TEMPLATES = [
     {
@@ -86,7 +84,6 @@ STATICFILES_DIRS = (BASE_DIR + '/static/uncollected',)
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
-
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 
@@ -105,19 +102,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-#Email Settings
-EMAIL_HOST = 'smtp.sendgrid.net'
-EMAIL_HOST_USER = 'apikey'
-EMAIL_HOST_PASSWORD = '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'
-EMAIL_MAIN='no_reply@householdcapital.app'
-DEFAULT_FROM_EMAIL='no_reply@householdcapital.app'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-
-#Admin Settings
-ADMINS=[
-    ('Paul','paul.murray@householdcapital.com')
-]
 
 
 # Internationalization

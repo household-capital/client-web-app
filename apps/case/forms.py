@@ -11,8 +11,7 @@ from crispy_forms.layout import Submit, Layout, Field, Div, HTML
 
 
 #Local Application Imports
-from apps.lib.enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum, pensionTypesEnum, \
-    loanTypesEnum, ragTypesEnum
+from apps.lib.enums import loanTypesEnum, ragTypesEnum
 from .models import Case, LossData
 
 
@@ -36,7 +35,6 @@ class CaseDetailsForm(forms.ModelForm):
         widgets = {
             'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
         }
-
 
     # Form Layout
     helper = FormHelper()
@@ -197,3 +195,25 @@ class LossDetailsForm(forms.ModelForm):
                 css_class="col-lg-4"),
             css_class='row')
     )
+
+
+class SFPasswordForm(forms.Form):
+    # Form Data
+
+    password = forms.CharField(required=True, widget=forms.PasswordInput)
+
+    # Form Layout
+    helper = FormHelper()
+    helper.form_method = 'POST'
+    helper.form_class = 'form-horizontal col-lg-12'
+    helper.field_class = 'col-lg-8'
+    helper.form_show_labels = False
+    helper.form_show_errors = True
+    helper.layout = Layout(
+        Div(
+            Div(
+                Field('password', placeholder='Salesforce API Password')),
+            Div(
+                Div(Submit('submit', 'Create ', css_class='btn btn-warning')),
+            ),
+        ))

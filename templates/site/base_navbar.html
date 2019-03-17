@@ -23,7 +23,7 @@
         <div class="collapse navbar-collapse" id="navbar">
 
             <ul class="nav navbar-nav pl-4">
-                {% if request.user.is_authenticated %}
+                {% if request.user.profile.isHousehold %}
                     <li><a href="{% url 'enquiry:enquiry' %}"><i class="fas fa-user-check"></i> Enquiry</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     </li>
 
@@ -50,7 +50,7 @@
                             </a>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                 <a class="dropdown-item" href="{% url 'enquiry:calcSummaryReport' %}">
-                                <i class="fas fa-calculator fa-fw"></i>&nbsp;&nbsp;Calculator Summary</a>
+                                <i class="fas fa-calculator fa-fw"></i>&nbsp;&nbsp;Calculator Summary &nbsp;&nbsp;</a>
 
                             </div>
                         </div>

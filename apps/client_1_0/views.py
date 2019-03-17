@@ -29,19 +29,26 @@ from apps.lib.utilities import pdfGenerator
 
 # MIXINS
 
-class LoginRequiredMixin(object):
-    #Ensures views will not render undless logged in, redirects to login page
+class LoginRequiredMixin():
+    # Ensures views will not render unless logged in, redirects to login page
     @classmethod
     def as_view(cls, **kwargs):
         view = super(LoginRequiredMixin, cls).as_view(**kwargs)
         return login_required(view)
 
-class SessionReqiredMixin(object):
+    # Ensures views will not render unless Household employee, redirects to Landing
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.profile.isHousehold:
+            return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
+        else:
+            return HttpResponseRedirect(reverse_lazy('landing:landing'))
+
+class SessionRequiredMixin(object):
     #Ensures any attempt to acces without UID set is redirct to list view
     def dispatch(self, request, *args, **kwargs):
         if 'caseUID' not in request.session:
             return HttpResponseRedirect(reverse_lazy('case:caseList'))
-        return super(SessionReqiredMixin, self).dispatch(request, *args, **kwargs)
+        return super(SessionRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
 # UTILITIES
@@ -101,7 +108,7 @@ class ContextHelper():
                       totalLoanAmount=loanStatus['totalLoanAmount'],
                       establishmentFee=loanStatus['establishmentFee'],
                       actualLVR=loanStatus['actualLVR'])
-        print(loanStatus)
+
         #create context
         context = {}
         context.update(clientDict)
@@ -133,10 +140,25 @@ class LandingView(LoginRequiredMixin, ContextHelper ,TemplateView):
         #Add's client information to the context (if it exists) for navigation purposes
         context = super(LandingView,self).get_context_data(**kwargs)
 
-        #Set Pension Income
+        #Set Initial Parameters - Potentially Undefined/None
+        # Pension Income
         loanObj= Loan.objects.queryset_byUID(self.request.session['caseUID'])
-        loanObj.update(annualPensionIncome=self.extra_context['pensionAmount']*26)
+        caseObj= Case.objects.queryset_byUID(self.request.session['caseUID'])
 
+        if self.extra_context['pensionAmount']!=None:
+            loanObj.update(annualPensionIncome=self.extra_context['pensionAmount']*26)
+        else:
+            loanObj.update(annualPensionIncome=0)
+
+        # mortgageDebt
+        if self.extra_context['mortgageDebt']==None:
+            caseObj.update(mortgageDebt=0)
+
+        # mortgageDebt
+        if self.extra_context['superAmount'] == None:
+            caseObj.update(superAmount=0)
+
+        # Check and set consents/meeting date
         if context['consentPrivacy']==True and context['consentElectronic']==True:
             context['post_id']=2
         else:
@@ -146,8 +168,7 @@ class LandingView(LoginRequiredMixin, ContextHelper ,TemplateView):
                     loanObj.update(consentPrivacy=True)
                 if kwargs['post_id']==2:
                     loanObj.update(consentElectronic=True)
-                    qsCase = Case.objects.queryset_byUID(self.request.session['caseUID'])
-                    qsCase.update(meetingDate = datetime.datetime.now())
+                    caseObj.update(meetingDate = datetime.datetime.now())
 
 
         return context
@@ -172,7 +193,7 @@ class LandingView(LoginRequiredMixin, ContextHelper ,TemplateView):
 
 
 # Settings Views
-class SetClientView(LoginRequiredMixin, SessionReqiredMixin, ContextHelper, UpdateView):
+class SetClientView(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
     # Sets the initial client data (in associated dictionary)
 
     template_name = "client_1_0/interface/settings.html"
@@ -199,7 +220,7 @@ class SetClientView(LoginRequiredMixin, SessionReqiredMixin, ContextHelper, Upda
 
         self.object = form.save()
 
-        if form.cleaned_data['resetConsents']==True:
+        if form.cleaned_data['resetConsents']:
 
             loanQs = Loan.objects.queryset_byUID(self.request.session['caseUID'])
             loanRecord = loanQs.get()
@@ -235,7 +256,7 @@ class SetClientView(LoginRequiredMixin, SessionReqiredMixin, ContextHelper, Upda
             return self.render_to_response(context)
 
 
-class SettingsView(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
+class SettingsView(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, UpdateView):
     template_name = "client_1_0/interface/settings.html"
     form_class = SettingsForm
     model = ModelSetting
@@ -258,7 +279,7 @@ class SettingsView(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, Update
 
 
 # Introduction Views
-class IntroductionView1(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, TemplateView):
+class IntroductionView1(LoginRequiredMixin,SessionRequiredMixin, ContextHelper, TemplateView):
 
     template_name = "client_1_0/interface/introduction1.html"
 
@@ -273,7 +294,7 @@ class IntroductionView1(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, T
 
         return context
 
-class IntroductionView2(LoginRequiredMixin, SessionReqiredMixin,ContextHelper,UpdateView):
+class IntroductionView2(LoginRequiredMixin, SessionRequiredMixin,ContextHelper,UpdateView):
 
     template_name = "client_1_0/interface/introduction2.html"
     form_class=IntroChkBoxForm
@@ -296,7 +317,7 @@ class IntroductionView2(LoginRequiredMixin, SessionReqiredMixin,ContextHelper,Up
         obj= queryset.get()
         return obj
 
-class IntroductionView3(LoginRequiredMixin, SessionReqiredMixin, ContextHelper,TemplateView):
+class IntroductionView3(LoginRequiredMixin, SessionRequiredMixin, ContextHelper,TemplateView):
 
     template_name = "client_1_0/interface/introduction3.html"
 
@@ -311,7 +332,7 @@ class IntroductionView3(LoginRequiredMixin, SessionReqiredMixin, ContextHelper,T
 
         return context
 
-class IntroductionView4(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, TemplateView):
+class IntroductionView4(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, TemplateView):
 
     template_name = "client_1_0/interface/introduction4.html"
 
@@ -337,7 +358,7 @@ class IntroductionView4(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, T
 
 
 # Top Up Views
-class TopUp1(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, TemplateView):
+class TopUp1(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, TemplateView):
         template_name = "client_1_0/interface/topUp1.html"
 
         def get_context_data(self, **kwargs):
@@ -364,7 +385,7 @@ class TopUp1(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, TemplateView
 
             return context
 
-class TopUp2(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, FormView):
+class TopUp2(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, FormView):
     template_name = "client_1_0/interface/topUp2.html"
     form_class=topUpForm
     success_url = reverse_lazy('client:topUp3')
@@ -406,7 +427,7 @@ class TopUp2(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, FormView):
         return super(TopUp2, self).form_valid(form)
 
 
-class TopUp3(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
+class TopUp3(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, UpdateView):
     template_name = "client_1_0/interface/topUp3.html"
     form_class=debtRepayForm
     model=Loan
@@ -439,7 +460,7 @@ class TopUp3(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
 
 
 # Live Views
-class Live1(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
+class Live1(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, UpdateView):
     template_name = "client_1_0/interface/live1.html"
     form_class=renovateAmountForm
     model=Loan
@@ -462,7 +483,7 @@ class Live1(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
         return obj
 
 
-class Live2(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
+class Live2(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, UpdateView):
     template_name = "client_1_0/interface/live2.html"
     form_class=travelAmountForm
     model=Loan
@@ -485,7 +506,7 @@ class Live2(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
         return obj
 
 # Give Views
-class Give(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
+class Give(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, UpdateView):
     template_name = "client_1_0/interface/give.html"
     form_class=giveAmountForm
     model = Loan
@@ -509,7 +530,7 @@ class Give(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
 
 
 # Care Views
-class Care(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
+class Care(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, UpdateView):
     template_name = "client_1_0/interface/care.html"
     form_class=careAmountForm
     model = Loan
@@ -534,13 +555,19 @@ class Care(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
 
 # Results Views
 
-class Results1(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, TemplateView):
+class Results1(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, TemplateView):
     template_name = "client_1_0/interface/results1.html"
 
     def get(self, request, *args, **kwargs):
         aggDict = self.validate_and_get_context()
 
-        if aggDict['errors']==False:
+        #Check initial check boxes
+        if  aggDict['choiceRetireAtHome']==False or aggDict['choiceAvoidDownsizing']==False or aggDict['choiceAccessFunds']==False:
+            flagError=True
+        else:
+            flagError=False
+
+        if aggDict['errors']==False and flagError==False:
             return HttpResponseRedirect(reverse_lazy('client:results2'))
         return super(Results1, self).get(request, *args, **kwargs)
 
@@ -554,10 +581,14 @@ class Results1(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, TemplateVi
         context['previousUrl'] = reverse_lazy('client:give')
         context['nextUrl']=reverse_lazy('client:results1')
 
+        #Check initial check boxes
+        if  context['choiceRetireAtHome']==False or context['choiceAvoidDownsizing']==False or context['choiceAccessFunds']==False:
+            context['flagErrors']=True
+
         return context
 
 
-class Results2(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView):
+class Results2(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, UpdateView):
     template_name = "client_1_0/interface/results2.html"
     form_class=DetailedChkBoxForm
     model=Loan
@@ -604,7 +635,7 @@ class Results2(LoginRequiredMixin, SessionReqiredMixin,ContextHelper, UpdateView
         self.initFormData[fieldName]=initial
 
 
-class Results3(ResultsHelper, LoginRequiredMixin, SessionReqiredMixin,ContextHelper, TemplateView):
+class Results3(ResultsHelper, LoginRequiredMixin, SessionRequiredMixin,ContextHelper, TemplateView):
     template_name = "client_1_0/interface/results3.html"
 
     def get_context_data(self, **kwargs):
@@ -651,7 +682,7 @@ class Results3(ResultsHelper, LoginRequiredMixin, SessionReqiredMixin,ContextHel
         return context
 
 
-class Results4(ResultsHelper, LoginRequiredMixin, SessionReqiredMixin, ContextHelper, TemplateView):
+class Results4(ResultsHelper, LoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateView):
     template_name = "client_1_0/interface/results4.html"
 
     def get_context_data(self, **kwargs):
@@ -667,7 +698,7 @@ class Results4(ResultsHelper, LoginRequiredMixin, SessionReqiredMixin, ContextHe
 
 # Final Views
 
-class FinalView(ResultsHelper, LoginRequiredMixin, SessionReqiredMixin, ContextHelper, TemplateView):
+class FinalView(ResultsHelper, LoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateView):
     template_name = "client_1_0/interface/final.html"
 
     def get_context_data(self, **kwargs):
@@ -683,9 +714,9 @@ class FinalErrorView(ResultsHelper, LoginRequiredMixin, ContextHelper, TemplateV
     template_name = "client_1_0/interface/final_error.html"
 
 
-class FinalPDFView(LoginRequiredMixin, SessionReqiredMixin, View):
+class FinalPDFView(LoginRequiredMixin, SessionRequiredMixin, View):
     #This view is called via javascript from the final page to generate the report pdf
-    #It uses a utility to render the report and then saves, emails and serves the pdf
+    #It uses a utility to render the report and then save and serves the pdf
 
     def get(self,request):
 
@@ -711,25 +742,9 @@ class FinalPDFView(LoginRequiredMixin, SessionReqiredMixin, View):
             write_applog("ERROR", 'PdfProduction', 'get',
                          "Failed to save Summary Report in Database: " + self.request.session['caseUID'])
 
-        ## EMAIL REPORT
-        email_context = {}
-        template_html = "client_1_0/email/email.html"
-        caseObj = Case.objects.queryset_byUID(self.request.session['caseUID']).get()
-        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-        email_context['obj'] = caseObj
-        text_message="Loan Summary attached"
-        attachFilename="HouseholdLoanSummary.pdf"
-        bcc=""
-
-        subject, from_email, to = "Household Loan Summary Report", settings.DEFAULT_FROM_EMAIL, request.user.email
-        text_content = "Text Message"
-
-        sent=pdf.emailPdf(template_html,email_context,subject, from_email, to, bcc, text_message,attachFilename)
-
-
         ## RENDER FILE TO HTTP RESPONSE
         response = HttpResponse(pdf.getContent(), content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment'
+        response['Content-Disposition'] = 'attachment; filename="HHC-LoanSummary.pdf"'
         localfile.close()
 
         # log user out

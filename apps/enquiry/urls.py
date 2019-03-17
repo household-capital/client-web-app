@@ -15,6 +15,9 @@ urlpatterns = [
     path('enquiryEligibility/<uuid:uid>',views.EnquiryEmailEligibility.as_view(), name='enqEligibility'),
     path('enquiryConvert/<uuid:uid>', views.EnquiryConvert.as_view(), name='enqConvert'),
 
+    path('referrer', views.ReferrerView.as_view(), name='enqReferrerCreate'),
+    path('referrer<uuid:uid>', views.ReferrerView.as_view(), name='enqReferrerUpdate'),
+
     path('calcList', views.CalcListView.as_view(), name='calcList'),
     path('calcSpam/<uuid:uid>', views.CalcMarkSpam.as_view(), name='calcSpam'),
     path('calcSendDetail/<uuid:uid>', views.CalcSendDetails.as_view(), name='calcSendDetails'),

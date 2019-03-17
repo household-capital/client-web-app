@@ -65,6 +65,22 @@ body {
     font-size: 36px;
 }
 
+.larger {
+    font-family: MaisonNeue;
+    font-size: larger;
+}
+
+.x-large {
+    font-family: MaisonNeue;
+    font-size: x-large;
+}
+
+.xx-large {
+    font-family: MaisonNeue;
+    font-size: xx-large;
+}
+
+
 /* Theme */
 .jumbotron {
     background-color: rgb(249,248,245);

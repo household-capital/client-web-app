@@ -20,6 +20,11 @@ pip install --upgrade django-crispy-forms
 pip install humanize
 pip install api2pdf
 pip install Pillow
+pip install python-dotenv
+pip install pandas
+pip install simple-salesforce
+pip install pip-upgrader
+
 
 # Install PostgreSql and create database
 brew install postgresql

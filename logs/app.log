@@ -278,3 +278,80 @@
 2019-03-11 17:03:39.326831|INFO|pdfGenerator|createPdf|Summary Report Saved: ca59f610-a172-4bed-9c8c-9a84521c6fb7
 2019-03-11 17:22:28.175945|INFO|pdfGenerator|createPdf|Api2Pdf success: 62b76b4e-8b65-4092-bb0e-3bd4fa4e4bd0
 2019-03-11 17:22:29.457723|INFO|pdfGenerator|createPdf|Summary Report Saved: 62b76b4e-8b65-4092-bb0e-3bd4fa4e4bd0
+2019-03-13 17:46:09.185540|INFO|LandingView|get|Meeting commenced by Murray for -6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-03-13 19:17:25.575195|INFO|pdfGenerator|createPdf|Api2Pdf success: 9394e85f-1269-43b3-88d3-d907cdf8247e
+2019-03-13 19:17:28.211491|INFO|pdfGenerator|createPdf|Summary Report Saved: 9394e85f-1269-43b3-88d3-d907cdf8247e
+2019-03-13 20:18:15.842985|INFO|LandingView|get|Meeting commenced by Murray for -6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-03-15 15:54:20.200377|INFO|LandingView|get|Meeting commenced by Murray for -6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-03-15 15:54:33.149619|INFO|pdfGenerator|createPdf|Api2Pdf success: 6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-03-15 15:54:37.617330|INFO|pdfGenerator|createPdf|Summary Report Saved: 6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-03-15 15:54:37.637017|INFO|PdfProduction|get|Meeting ended for:6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-03-15 23:50:44.280619|INFO|LandingView|get|Meeting commenced by Murray for -612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-16 03:52:08.538963|INFO|LandingView|get|Meeting commenced by Murray for -6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-03-16 04:48:49.917941|INFO|LandingView|get|Meeting commenced by Murray for -6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-03-16 06:05:15.714487|INFO|LandingView|get|Meeting commenced by Murray for -6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-03-16 06:38:56.026913|INFO|LandingView|get|Meeting commenced by Murray for -6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-03-16 06:54:53.491398|INFO|pdfGenerator|createPdf|Api2Pdf success: 6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-03-16 06:54:56.065252|INFO|pdfGenerator|createPdf|Summary Report Saved: 6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-03-16 06:55:00.275323|INFO|pdfGenerator|createPdf|Api2Pdf success: 6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-03-16 06:55:02.068792|INFO|pdfGenerator|createPdf|Summary Report Saved: 6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-03-16 06:55:06.242450|INFO|pdfGenerator|createPdf|Api2Pdf success: 6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-03-16 06:55:08.070306|INFO|pdfGenerator|createPdf|Summary Report Saved: 6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-03-16 06:55:12.008579|INFO|pdfGenerator|createPdf|Api2Pdf success: 6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-03-16 06:55:13.870666|INFO|pdfGenerator|createPdf|Summary Report Saved: 6e27c88a-041f-4f01-bb8f-ec144edf726d
+2019-03-16 07:13:40.487335|INFO|pdfGenerator|createPdf|Api2Pdf success: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-16 07:13:42.908996|INFO|pdfGenerator|createPdf|Summary Report Saved: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-16 07:13:47.141666|INFO|pdfGenerator|createPdf|Api2Pdf success: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-16 07:13:49.117781|INFO|pdfGenerator|createPdf|Summary Report Saved: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-16 07:13:53.217548|INFO|pdfGenerator|createPdf|Api2Pdf success: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-16 07:13:55.162040|INFO|pdfGenerator|createPdf|Summary Report Saved: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-16 07:13:59.078474|INFO|pdfGenerator|createPdf|Api2Pdf success: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-16 07:14:00.961818|INFO|pdfGenerator|createPdf|Summary Report Saved: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-16 07:46:14.452626|INFO|pdfGenerator|createPdf|Api2Pdf success: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-16 07:46:16.909486|INFO|pdfGenerator|createPdf|Summary Report Saved: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-16 07:46:21.126293|INFO|pdfGenerator|createPdf|Api2Pdf success: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-16 07:46:22.965496|INFO|pdfGenerator|createPdf|Summary Report Saved: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-16 07:46:27.252698|INFO|pdfGenerator|createPdf|Api2Pdf success: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-16 07:46:29.254389|INFO|pdfGenerator|createPdf|Summary Report Saved: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-16 07:46:33.396404|INFO|pdfGenerator|createPdf|Api2Pdf success: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-17 11:31:27.717670|INFO|pdfGenerator|createPdf|Api2Pdf success: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-17 11:31:30.520798|INFO|pdfGenerator|createPdf|Summary Report Saved: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-17 11:31:34.689495|INFO|pdfGenerator|createPdf|Api2Pdf success: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-17 11:31:36.519381|INFO|pdfGenerator|createPdf|Summary Report Saved: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-17 11:31:40.527266|INFO|pdfGenerator|createPdf|Api2Pdf success: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-17 11:31:42.497262|INFO|pdfGenerator|createPdf|Summary Report Saved: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-17 11:31:46.651764|INFO|pdfGenerator|createPdf|Api2Pdf success: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-17 11:31:48.323450|INFO|pdfGenerator|createPdf|Summary Report Saved: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-17 11:45:03.858847|INFO|pdfGenerator|createPdf|Api2Pdf success: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-17 11:45:06.494177|INFO|pdfGenerator|createPdf|Summary Report Saved: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-17 11:45:10.906476|INFO|pdfGenerator|createPdf|Api2Pdf success: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-17 11:45:12.768522|INFO|pdfGenerator|createPdf|Summary Report Saved: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-17 11:45:17.171372|INFO|pdfGenerator|createPdf|Api2Pdf success: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-17 11:45:18.935578|INFO|pdfGenerator|createPdf|Summary Report Saved: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-17 11:45:23.310723|INFO|pdfGenerator|createPdf|Api2Pdf success: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-17 11:45:25.248317|INFO|pdfGenerator|createPdf|Summary Report Saved: 612503e9-0913-43ea-b33f-d9f91804f5da
+2019-03-17 11:50:38.707172|INFO|pdfGenerator|createPdf|Api2Pdf success: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 11:50:40.691330|INFO|pdfGenerator|createPdf|Summary Report Saved: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 11:50:44.949549|INFO|pdfGenerator|createPdf|Api2Pdf success: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 11:50:46.797335|INFO|pdfGenerator|createPdf|Summary Report Saved: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 11:50:50.865339|INFO|pdfGenerator|createPdf|Api2Pdf success: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 11:50:53.443304|INFO|pdfGenerator|createPdf|Summary Report Saved: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 11:50:57.824008|INFO|pdfGenerator|createPdf|Api2Pdf success: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 11:50:59.504834|INFO|pdfGenerator|createPdf|Summary Report Saved: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 11:53:46.814193|INFO|pdfGenerator|createPdf|Api2Pdf success: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 11:53:49.213492|INFO|pdfGenerator|createPdf|Summary Report Saved: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 11:53:53.674965|INFO|pdfGenerator|createPdf|Api2Pdf success: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 11:53:55.417168|INFO|pdfGenerator|createPdf|Summary Report Saved: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 11:53:59.800010|INFO|pdfGenerator|createPdf|Api2Pdf success: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 11:54:01.697684|INFO|pdfGenerator|createPdf|Summary Report Saved: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 11:54:06.168312|INFO|pdfGenerator|createPdf|Api2Pdf success: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 11:54:07.962557|INFO|pdfGenerator|createPdf|Summary Report Saved: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 12:04:35.029615|INFO|LandingView|get|Meeting commenced by Murray for -1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 12:05:01.631120|INFO|pdfGenerator|createPdf|Api2Pdf success: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 12:05:04.149550|INFO|pdfGenerator|createPdf|Summary Report Saved: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 12:05:08.493240|INFO|pdfGenerator|createPdf|Api2Pdf success: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 12:05:10.438070|INFO|pdfGenerator|createPdf|Summary Report Saved: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 12:05:14.926984|INFO|pdfGenerator|createPdf|Api2Pdf success: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 12:05:16.614849|INFO|pdfGenerator|createPdf|Summary Report Saved: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 12:05:20.882752|INFO|pdfGenerator|createPdf|Api2Pdf success: 1429670f-a97b-4c84-b620-3a7241ead83f
+2019-03-17 12:05:22.531466|INFO|pdfGenerator|createPdf|Summary Report Saved: 1429670f-a97b-4c84-b620-3a7241ead83f

@@ -14,7 +14,6 @@ class myLoginView(LoginView):
 
     def form_valid(self, form):
         response = super(myLoginView, self).form_valid(form)
-        #Session variables Here as required
         return response
 
 class myLogoutView(LogoutView):

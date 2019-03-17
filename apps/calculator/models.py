@@ -4,6 +4,7 @@ import uuid
 #Django Imports
 from django.db import models
 from django.utils.encoding import smart_text
+from django.forms import ValidationError
 
 
 class WebManager(models.Manager):
@@ -47,4 +48,22 @@ class WebCalculator(models.Model):
     def __str__(self):
         return smart_text(self.pk)
 
+class WebContact(models.Model):
+    name=models.CharField(max_length=50,null=False, blank=False)
+    email=models.EmailField(null=True,blank=True)
+    phone=models.CharField(max_length=15,null=True,blank=True)
+    message=models.CharField(max_length=1000,null=False,blank=False)
+    timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
+    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
 
+    def __str__(self):
+        return smart_text(self.name)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if self.email!=None or self.phone!=None:
+            return cleaned_data
+        else:
+           raise ValidationError(
+                    "Please provide an email or phone number"
+                )

@@ -52,7 +52,7 @@
     <table class="table table-hover table-sm">
         <thead>
         <tr>
-            <th scope="col" class="text-center">Status</th>
+            <th scope="col" class="text-center">Action</th>
             <th>Name</th>
             <th>Borrower</th>
             <th>Age</th>
@@ -72,8 +72,10 @@
                 {% if obj.actioned == 1 %}<i style='color:green' class="far fa-check-circle"></i>
                 {% elif obj.actioned == -1 %}<i style='color:grey' class="far fa-times-circle"></i>
                 {% else %}
-                    <a href="{% url 'enquiry:calcSendDetails' uid=obj.calcUID %}"><button class="btn btn-success"><i class="far fa-envelope"></i></button></a>
-                    <a href="{% url 'enquiry:calcSpam' uid=obj.calcUID %}"><button class="btn btn-outline-secondary"><i class="fas fa-radiation-alt"></i></button></a>
+                    <a href="{% url 'enquiry:calcSendDetails' uid=obj.calcUID %}"><button class="btn btn-success" data-toggle="tooltip" data-placement="top"
+                                                 title="Assign enquiry to you"><i class="far fa-envelope"></i></button></a>
+                    <a href="{% url 'enquiry:calcSpam' uid=obj.calcUID %}"><button class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
+                                                 title="Mark as spam and remove"><i class="fas fa-radiation-alt"></i></button></a>
                 {% endif %}
                 </td>
                 <td>{{ obj.name }}</td>

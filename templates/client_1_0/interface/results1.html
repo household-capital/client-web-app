@@ -40,7 +40,9 @@
                         <br>
                         <div class="secondary_title">Results cannot be displayed</div>
                         <br>
-                        <p>The proposed Household Transfer fails one of the minimum, maximum or purpose limits </p>
+                        {% if errors %}<p>The proposed Household Transfer fails one of the minimum, maximum or purpose limits </p>{% endif %}
+                        {% if flagErrors %}<p>The checkboxes on the introduction pages have not been checked </p>{% endif %}
+
                     </div>
                  </div>
                 <br>
@@ -49,7 +51,8 @@
                       <div class="col-lg-1"></div>
 
                       <div class="col-lg-5 alert alert-warning">
-                            <p>Please review and adjust the transfer amounts </p>
+                            {% if errors %}<p>Please review and adjust the transfer amounts </p>{% endif %}
+                            {% if flagErrors %}<p>Please review the checkboxes on the introduction pages </p>{% endif %}
                       </div>
                   </div>
             </div>

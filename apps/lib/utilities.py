@@ -1,5 +1,6 @@
 # Python Imports
 import requests
+import os
 
 # Django Imports
 from django.conf import Settings
@@ -18,7 +19,7 @@ class pdfGenerator():
     # Wrapper utility for pdf API
 
     def __init__(self, pdfID):
-        self.a2p_client = Api2Pdf(APP_SETTINGS['Api2PdfKey'])
+        self.a2p_client = Api2Pdf(os.getenv('API2PDF_KEY'))
         self.pdfUrl = ""
         self.pdfContents = None
         self.pdfID = pdfID
@@ -36,11 +37,11 @@ class pdfGenerator():
             api_response = self.a2p_client.HeadlessChrome.convert_from_url(sourceUrl,
                                                                            file_name=pdfDescription,
                                                                            **options)
-            if api_response.result['success'] == True:
+            if api_response.result['success']:
                 write_applog("INFO", 'pdfGenerator', 'createPdf', "Api2Pdf success: " + self.pdfID)
 
             else:
-                write_applog("ERROR", 'pdfGenerator', 'createPdf', "Api2Pdf failue: " + self.pdfID + "-"
+                write_applog("ERROR", 'pdfGenerator', 'createPdf', "Api2Pdf failure: " + self.pdfID + "-"
                              + str(api_response))
 
                 return {'False', "API Returned Error"}
@@ -74,19 +75,19 @@ class pdfGenerator():
         return {'True', "File saved"}
 
     def emailPdf(self, template_name, email_context, subject, from_email, to, bcc, text_content, attachFilename):
-        # try:
-        html = get_template(template_name)
-        html_content = html.render(email_context)
-        msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [bcc])
-        msg.attach_alternative(html_content, "text/html")
-        msg.attach(attachFilename, self.pdfContents, 'application/pdf')
-        msg.send()
-        return True
-    # except:
-    #    write_applog("ERROR", 'pdfGenerator', 'emailPdf',
-    #            "Failed to email Summary Report:" + self.pdfID)
-    #    return False
+        try:
+            html = get_template(template_name)
+            html_content = html.render(email_context)
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [bcc])
+            msg.attach_alternative(html_content, "text/html")
+            msg.attach(attachFilename, self.pdfContents, 'application/pdf')
+            msg.send()
+            return True
+        except:
+            write_applog("ERROR", 'pdfGenerator', 'emailPdf',
+                "Failed to email Summary Report:" + self.pdfID)
+            return False
 
 
-def getContent(self):
-    return self.pdfContents
+    def getContent(self):
+        return self.pdfContents

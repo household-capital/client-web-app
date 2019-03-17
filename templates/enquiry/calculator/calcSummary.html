@@ -49,10 +49,10 @@
     <br><br>
 
     <div class="row justify-content-center">
-    <div class="col-lg-10">
+    <div class="col-lg-12">
         <div class="row">
-            <div class="col-lg-4">
-                <b>Number of Calculator Interactions</b>
+            <div class="col-lg-3">
+                <b>Calculator Interactions</b>
                 <br>
                 <p>Valid Cases</p>
                 <p>Provided Email</p>
@@ -71,7 +71,7 @@
                 <p>Minimum Loan Size</p>
 
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-1">
                 <b>{{ interactions }}</b>
                 <p>{{ valid_cases }}</p>
                 <p>{{ provided_email }}</p>
@@ -91,7 +91,7 @@
 
             </div>
 
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <b>Referrers</b>
                 <p>Website</p>
                 <p>Reverse Mortgage</p>
@@ -99,8 +99,16 @@
                 <p>Retirement Planning</p>
                 <p>Superannuation</p>
                 <p>Centrelink Pension</p>
+                <br>
+                <b>By State</b>
+                <p>NSW</p>
+                <p>VIC</p>
+                <p>QLD</p>
+                <p>SA</p>
+                <p>WA</p>
+                <p>TAS</p>
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-1">
                 <b>{{ referrers }}</b>
                 <p>{{ website }}</p>
                 <p>{{ superannuation }}</p>
@@ -108,7 +116,38 @@
                 <p>{{ equity_release }}</p>
                 <p>{{ retirement_planning }}</p>
                 <p>{{ centrelink }}</p>
+                <br>
+                <br>
+                <p>{{ NSW}}</p>
+                <p>{{ VIC}}</p>
+                <p>{{ QLD}}</p>
+                <p>{{ SA}}</p>
+                <p>{{ WA}}</p>
+                <p>{{ TAS}}</p>
+
             </div>
+             <div class="col-lg-2">
+                 <b>By Date</b>
+                 <p>{{ DayT0|date:'l'}}</p>
+                 <p>{{ DayT1|date:'l'}}</p>
+                 <p>{{ DayT2|date:'l'}}</p>
+                 <p>{{ DayT3|date:'l'}}</p>
+                 <p>{{ DayT4|date:'l'}}</p>
+                 <p>{{ DayT5|date:'l'}}</p>
+                 <p>{{ DayT6|date:'l'}}</p>
+
+             </div>
+             <div class="col-lg-1">
+                 <br>
+                 <p>{{ NumT0 }}</p>
+                 <p>{{ NumT1 }}</p>
+                 <p>{{ NumT2 }}</p>
+                 <p>{{ NumT3 }}</p>
+                 <p>{{ NumT4 }}</p>
+                 <p>{{ NumT5 }}</p>
+                 <p>{{ NumT6 }}</p>
+             </div>
+
         </div>
     </div>
 

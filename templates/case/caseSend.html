@@ -1,0 +1,74 @@
+{% extends 'site/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block message_display %}
+
+    <div class="container">
+        {% if messages %}
+            <div class="row justify-content-md-center pt-3">
+                <div class="col-6 text-center">
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %} class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                    <br>
+                </div>
+
+            </div>
+
+        {% endif %}
+    </div>
+
+{% endblock %}
+
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12 title">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+
+        <div class="row pt-5 justify-content-center">
+
+            <div class="col-lg-6">
+
+                <div class="pl-3">
+                    <p>Do you want to send to Salesforce?</p><br>
+                    <p>You will continue to be able to update the case here - but changes won't be updated in Salesforce</p><br>
+                    <p><i style="color:goldenrod" class="fas fa-exclamation-circle fa-lg "></i>&nbsp;In Salesforce, you
+                        should change the ownership of the lead to yourself and add any referrer before converting to an
+                        Opportunity
+                    <p><br>
+                    <p><i style="color:goldenrod" class="fas fa-exclamation-circle fa-lg "></i>&nbsp;Not all fields (and
+                        no
+                        documents) are currently being sent to Salesforce. You will need to re-enter certain details
+                        in the Salesforce Opportunity</p>
+                    <br>
+                </div>
+                {% crispy form %}
+
+
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}
+
+
+{% block javascript %}
+
+{% endblock %}

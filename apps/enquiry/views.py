@@ -1,5 +1,6 @@
 #Python Imports
 import os
+import datetime
 
 # Django Imports
 from django.conf import settings
@@ -20,7 +21,7 @@ from apps.lib.loanValidator import LoanValidator
 from apps.lib.enums import caseTypesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum
 from apps.lib.utilities import pdfGenerator
 from apps.logging import write_applog
-from .forms import EnquiryForm
+from .forms import EnquiryForm, ReferrerForm
 from .models import Enquiry
 
 
@@ -28,12 +29,26 @@ from .models import Enquiry
 
 # VIEWS
 
-class LoginRequiredMixin(object):
+class LoginRequiredMixin():
+    # Ensures views will not render unless logged in, redirects to login page
     @classmethod
     def as_view(cls, **kwargs):
         view = super(LoginRequiredMixin, cls).as_view(**kwargs)
         return login_required(view)
 
+    # Ensures views will not render unless Household employee, redirects to Landing
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.profile.isHousehold:
+            return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
+        else:
+            return HttpResponseRedirect(reverse_lazy('landing:landing'))
+
+class ReferrerRequiredMixin():
+    # Ensures views will not render unless logged in, redirects to login page
+    @classmethod
+    def as_view(cls, **kwargs):
+        view = super(ReferrerRequiredMixin, cls).as_view(**kwargs)
+        return login_required(view)
 
 # ENQUIRY
 
@@ -60,6 +75,9 @@ class EnquiryListView(LoginRequiredMixin, ListView):
 
             )
 
+        # ...and for open my items
+        if self.request.GET.get('myEnquiries') == "True":
+            queryset = queryset.filter(user=self.request.user)
 
         return queryset
 
@@ -72,6 +90,10 @@ class EnquiryListView(LoginRequiredMixin, ListView):
         else:
             context['search'] = ""
 
+        if self.request.GET.get('myEnquiries'):
+            context['myEnquiries'] = self.request.GET.get('myEnquiries')
+        else:
+            context['myEnquiries'] = False
         return context
 
 
@@ -111,9 +133,10 @@ class EnquiryView(LoginRequiredMixin, UpdateView):
         chkOpp = loanObj.chkClientDetails()
         print(obj.loanType)
 
-        obj.valuation = int(form.cleaned_data['valuation'])
-        if obj.user == None:
-            obj.user = self.request.user
+        if self.request.user.profile.isCreditRep==True:
+            obj.user =self.request.user
+        else:
+            obj.user = None
 
         if chkOpp['status'] == "Error":
             obj.status = 0
@@ -125,8 +148,7 @@ class EnquiryView(LoginRequiredMixin, UpdateView):
             obj.maxLVR = chkOpp['restrictions']['maxLVR']
             obj.save()
 
-        print("after")
-        print(obj.loanType)
+        messages.success(self.request, "Enquiry Saved")
 
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': str(obj.enqUID)}))
 
@@ -183,7 +205,7 @@ class SendEnquirySummary(LoginRequiredMixin, UpdateView):
         sent = pdf.emailPdf(self.template_name, email_context, subject, from_email, to, bcc, text_content,
                             attachFilename)
 
-        if sent == True:
+        if sent:
             messages.success(self.request, "Client has been emailed")
         else:
             messages.error(self.request, "Could not send email")
@@ -297,7 +319,7 @@ class EnquiryConvert(LoginRequiredMixin, View):
         enq_obj.actioned=True
         enq_obj.save()
 
-        #Copy enquiryReport across to customerReport and addto the database
+        #Copy enquiryReport across to customerReport and add to the database
         try:
             if caseDict['enquiryDocument'] != None:
 
@@ -366,9 +388,9 @@ class CalcSendDetails(LoginRequiredMixin, UpdateView):
 
         calcDict = WebCalculator.objects.dictionary_byUID(str(calcUID))
 
-        # Create enquiry using WebCalcuator Data
+        # Create enquiry using WebCalculator Data
         # Remove certain items from the dictionary
-        referrerID = calcDict['id']
+        referrer = calcDict['referrer']
         calcDict.pop('calcUID')
         calcDict.pop('actionedBy')
         calcDict.pop('id')
@@ -378,7 +400,7 @@ class CalcSendDetails(LoginRequiredMixin, UpdateView):
         calcDict.pop('actioned')
         user = self.request.user
 
-        enq_obj = Enquiry.objects.create(user=user,referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrerID,
+        enq_obj = Enquiry.objects.create(user=user,referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer,
                                          **calcDict)
         enq_obj.save()
 
@@ -425,7 +447,7 @@ class CalcSendDetails(LoginRequiredMixin, UpdateView):
         sent = pdf.emailPdf(self.template_name, email_context, subject, from_email, to, bcc, text_content,
                             attachFilename)
 
-        if sent == True:
+        if sent:
             messages.success(self.request, "Client has been emailed and enquiry created")
         else:
             messages.error(self.request, "Enquiry created - but email not sent")
@@ -474,6 +496,19 @@ class CalcSummaryReportView(LoginRequiredMixin, ListView):
         context['care'] = qs.filter(isCare=True).count()
         context['purposes'] = context['topUp'] + context['refi'] + context['live'] + context['give'] + context['care']
 
+        context['NSW'] = qs.filter(postcode__startswith='2').count()
+        context['VIC'] = qs.filter(postcode__startswith='3').count()
+        context['QLD'] = qs.filter(postcode__startswith='4').count()
+        context['SA'] = qs.filter(postcode__startswith='5').count()
+        context['WA'] = qs.filter(postcode__startswith='6').count()
+        context['TAS'] = qs.filter(postcode__startswith='7').count()
+
+        today = datetime.date.today()
+
+        for days in range(0,7):
+            context['NumT'+str(days)]=qs.filter(timestamp__contains=today-datetime.timedelta(days=days)).count()
+            context['DayT' + str(days)] =today- datetime.timedelta(days=days)
+
         return context
 
 
@@ -507,3 +542,58 @@ class CalcSummaryPdfView(TemplateView):
         context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
         return context
 
+
+# Referrer Views
+
+# Referrer Detail View
+class ReferrerView(ReferrerRequiredMixin, UpdateView):
+    template_name = "enquiry/referrer.html"
+    form_class = ReferrerForm
+    model = Enquiry
+
+    def get_object(self, queryset=None):
+        if "uid" in self.kwargs:
+            enqUID = str(self.kwargs['uid'])
+            queryset = Enquiry.objects.queryset_byUID(str(enqUID))
+            obj = queryset.get()
+            return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(ReferrerView, self).get_context_data(**kwargs)
+        context['title'] = 'Referral'
+
+        if "uid" in self.kwargs:
+            clientDict = Enquiry.objects.dictionary_byUID(str(self.kwargs['uid']))
+            loanObj = LoanValidator({}, clientDict)
+            chkOpp = loanObj.chkClientDetails()
+            context['status'] = chkOpp
+            queryset = Enquiry.objects.queryset_byUID(str(self.kwargs['uid']))
+            obj = queryset.get()
+            context['obj'] = obj
+        return context
+
+    def form_valid(self, form):
+
+        clientDict = form.cleaned_data
+        obj = form.save(commit=False)
+
+        loanObj = LoanValidator({}, clientDict)
+        chkOpp = loanObj.chkClientDetails()
+
+        obj.user = None
+        obj.referrer=directTypesEnum.REFERRAL.value
+        obj.referrerID=self.request.user.profile.referrer.companyName
+
+        if chkOpp['status'] == "Error":
+            obj.status = 0
+            obj.errorText = chkOpp['details']
+            obj.save()
+        else:
+            obj.status = 1
+            obj.maxLoanAmount = chkOpp['restrictions']['maxLoan']
+            obj.maxLVR = chkOpp['restrictions']['maxLVR']
+            obj.save()
+
+        messages.success(self.request, "Enquiry Saved")
+
+        return HttpResponseRedirect(reverse_lazy('enquiry:enqReferrerUpdate', kwargs={'uid': str(obj.enqUID)}))

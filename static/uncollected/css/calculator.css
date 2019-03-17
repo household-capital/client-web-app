@@ -74,6 +74,15 @@ p.small {
     background-color: #f9f9f9
 }
 
+.fab.hhcLightBlue{
+    color: rgb(81,132,161);
+}
+
+.crispyform .alert {
+  padding: 0.25rem 0.25rem;
+  margin-top: 2rem;
+}
+
 /* Radio Button Selector */
 .radio-hide input{
     margin:0;padding:0;

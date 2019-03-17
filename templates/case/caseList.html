@@ -66,14 +66,37 @@
 
                                 <div class="col-4 text-center">
                                     {% if request.GET.showClosed == "True" %}
-                                        <a href="?showClosed=False&search={{ search }}"><div class="btn btn-secondary"> <i class="fas fa-user-times fa-fw"></i></div></a>
+                                        <a href="?showClosed=False&search={{ search }}&myCases={{ myCases }}">
+                                            <div class="btn btn-secondary" data-toggle="tooltip" data-placement="top"
+                                                 title="Filter Open / Closed Cases"><i class="fas fa-user-times fa-fw"></i></div>
+                                        </a>
                                     {% else %}
-                                        <a href="?showClosed=True&search={{ search }}"> <div class="btn btn-outline-secondary"> <i class="fas fa-user-cog fa-fw "></i></div></a>
-                                    </a>
+                                        <a href="?showClosed=True&search={{ search }}&myCases={{ myCases }}">
+                                            <div class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
+                                                 title="Filter Open / Closed Cases"><i
+                                                    class="fas fa-user-cog fa-fw "></i></div>
+                                        </a>
+
                                     {% endif %}
-                                    <a href="{% url 'case:caseCreate' %}">
-                                        <div class="btn btn-warning"><i class="fas fa-plus fa-fw"></i></div>
-                                    </a>
+
+                                    {% if request.GET.myCases == "True" %}
+                                            <a href="?myCases=False&search={{ search }}&showClosed={{ showClosed }}">
+                                            <div class="btn btn-secondary" data-toggle="tooltip" data-placement="top"
+                                                 title="Filter for your Cases">
+                                                   <i class="fas fa-user fa-fw" style='color:white'></i></div>
+                                                                                        </a>
+                                        {% else %}
+                                            <a href="?myCases=True&search={{ search }}&showClosed={{ showClosed }}">
+                                                <div class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
+                                                 title="Filter for your Cases"><i class="fas fa-user-friends fa-fw"></i></div>
+
+                                            </a>
+                                        {% endif %}
+                                        <a href="{% url 'case:caseCreate' %}">
+                                            <div class="btn btn-warning" data-toggle="tooltip" data-placement="top"
+                                                 title="Open new case"><i class="fas fa-plus fa-fw"></i></div>
+                                        </a>
+
                                 </div>
 
                             </div>
@@ -84,7 +107,7 @@
                     </div>
                 </div>
 
-                <table class="table table-hover">
+                <table class="table table-hover table-sm">
                     <thead>
                     <tr>
                         <th scope="col" class="d-none d-sm-block">Case Status</th>
@@ -98,11 +121,14 @@
                     <tbody>
                     {% for obj in object_list %}
                         <tr>
-                            <td class="d-none d-sm-block"><a href="{{ obj.get_absolute_url }}">{{ obj.enumCaseType }}</a></td>
+                            <td class="d-none d-sm-block">
+                                <a href="{{ obj.get_absolute_url }}">
+                                    {{ obj.enumCaseType }}&nbsp;{% if obj.sfLeadID %}<i style="color:deepskyblue" class="fas fa-cloud"></i>{% endif %}</a></td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.caseDescription }}</a></td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.user }}</a></td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.adviser }}</a></td>
-                            <td class="d-none d-sm-block"><a href="{{ obj.get_absolute_url }}">{{ obj.updated|timesince }} ago</a></td>
+                            <td class="d-none d-sm-block"><a
+                                    href="{{ obj.get_absolute_url }}">{{ obj.updated|timesince }} ago</a></td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -113,30 +139,31 @@
                     <nav aria-label="Page navigation example">
                         <ul class="pagination justify-content-center pagination-sm">
                             {% if page_obj.has_previous %}
-                                    <li class="page-item">
-                                        <a class="page-link"
-                                           href="?search={{ search }}&page={{ page_obj.previous_page_number }}&showClosed={{ showClosed}}"
-                                           tabindex="-1">Previous</a>
-                                    </li>
+                                <li class="page-item">
+                                    <a class="page-link"
+                                       href="?search={{ search }}&page={{ page_obj.previous_page_number }}&showClosed={{ showClosed }}&myCases={{ myCases }}"
+                                       tabindex="-1">Previous</a>
+                                </li>
 
                             {% else %}
                                 <li class="page-item disabled">
-                                    <a class="page-link" href="#&showClosed={{ showClosed}}&search={{ search }}" tabindex="-1">Previous</a>
+                                    <a class="page-link" href="#&showClosed={{ showClosed }}&search={{ search }}&myCases={{ myCases }}"
+                                       tabindex="-1">Previous</a>
                                 </li>
                             {% endif %}
                             {% for object in page_obj.paginator.page_range %}
                                 <li class="page-item"><a class="page-link"
-                                                         href="?page={{ forloop.counter }}&search={{ search }}&showClosed={{ showClosed}}">{{ forloop.counter }}</a>
+                                                         href="?page={{ forloop.counter }}&search={{ search }}&showClosed={{ showClosed }}&myCases={{ myCases }}">{{ forloop.counter }}</a>
                                 </li>
                             {% endfor %}
                             {% if page_obj.has_next %}
-                                    <li class="page-item">
-                                        <a class="page-link"
-                                           href="?search={{ search }}&page={{ page_obj.next_page_number }}&showClosed={{ showClosed}}">Next</a>
-                                    </li>
+                                <li class="page-item">
+                                    <a class="page-link"
+                                       href="?search={{ search }}&page={{ page_obj.next_page_number }}&showClosed={{ showClosed }}&myCases={{ myCases }}">Next</a>
+                                </li>
                             {% else %}
                                 <li class="page-item disabled">
-                                    <a class="page-link" href="#&showClosed={{ showClosed}}">Next</a>
+                                    <a class="page-link" href="#&showClosed={{ showClosed }}&myCases={{ myCases }}">Next</a>
                                 </li>
                             {% endif %}
                         </ul>
@@ -150,6 +177,7 @@
         </div>
 
     </div>
+
 
 
 {% endblock %}

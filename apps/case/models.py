@@ -79,13 +79,13 @@ class Case(models.Model):
     )
 
     channelTypes=(
-        (channelTypesEnum.IND_FINANCIAL_ADVISORS.value, "Independent Financial Advisors"),
-        (channelTypesEnum.INST_FINANCIAL_ADVISORS.value, "Institutional Financial Advisors"),
-        (channelTypesEnum.SUPER_FINANCIAL_ADVISORS.value, "Super Financial Advisors"),
-        (channelTypesEnum.AGED_CARE_ADVISORS.value, "Aged Care Advisors"),
+        (channelTypesEnum.IND_FINANCIAL_ADVISERS.value, "Independent Financial Advisers"),
+        (channelTypesEnum.INST_FINANCIAL_ADVISERS.value, "Institutional Financial Advisers"),
+        (channelTypesEnum.SUPER_FINANCIAL_ADVISERS.value, "Super Financial Advisers"),
+        (channelTypesEnum.AGED_CARE_ADVISERS.value, "Aged Care Advisers"),
         (channelTypesEnum.AGED_CARE_PROVIDERS_CONSULTANTS.value, "Aged Care Provider/Consultants"),
         (channelTypesEnum.ACCOUNTANTS.value, "Accountants"),
-        (channelTypesEnum.CENTRELINK_ADVISORS.value, "Centrelink Advisors"),
+        (channelTypesEnum.CENTRELINK_ADVISERS.value, "Centrelink Advisers"),
         (channelTypesEnum.BROKERS.value, "Brokers"),
         (channelTypesEnum.BANK_REFERRAL.value, "Bank Referral"),
         (channelTypesEnum.BANK_REFI.value, "Refinance"),

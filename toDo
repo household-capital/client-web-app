@@ -1,19 +1,7 @@
 
 
 # IMMEDIATE
-- Enquiry Email and Document generation
-- Enquiry Basic Email generation
-- Enquiry Case creation
-- Enquiry List - User filter
-- Enquiry Data Migration (button?)
-- Case - Check actions
 
-
-# DEPLOYMENT
-- FULL DEPLOYMENT ONLY
-- Update Models
-- Update basesettings
-- Update base URLs
 
 
 # LATER
@@ -22,9 +10,7 @@
     - loan capture screen
     - excel based projection for advisers
 
-## Save data to SalesForce
-
-## Locking Post SalesForce
+## Tighter Salesforce Integration
 
 ## Add other income to projections
     - indexed?

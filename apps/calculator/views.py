@@ -14,8 +14,8 @@ from django.views.generic import UpdateView, CreateView
 #Local Application Imports
 from apps.lib.loanValidator import LoanValidator
 from apps.lib.enums import  dwellingTypesEnum, loanTypesEnum
-from .models import WebCalculator
-from .forms import WebInputForm, WebOutputForm
+from .models import WebCalculator, WebContact
+from .forms import WebInputForm, WebOutputForm, WebContactForm
 
 
 # VIEWS
@@ -108,7 +108,7 @@ class OutputView(UpdateView):
             self.caseUID=str(kwargs['uid'])
             return super(OutputView,self).get(self, request, **kwargs)
         else:
-            return HttpResponseRedirect(reverse_lazy("calulator:input"))
+            return HttpResponseRedirect(reverse_lazy("calculator:input"))
 
     @xframe_options_exempt
     def post(self,request, **kwargs):
@@ -142,7 +142,7 @@ class OutputView(UpdateView):
         return context
 
     def form_valid(self, form):
-        obj = form.save(commit=False)
+        obj = form.save(commit=True)
         obj.save(update_fields=['email', 'isRefi','isTopUp', 'isLive', 'isGive','isCare'])
         context=self.get_context_data(form=form)
         context['success']=True
@@ -156,12 +156,43 @@ class OutputView(UpdateView):
                       'https://householdcapital.com.au/superannuation-and-retirement/',
                       'https://householdcapital.com.au/retirement-planning/']
 
+        context['redirect'] = False
 
-        if obj.referrer in campaignURLs:
-            context['redirect'] = True
-            context['redirectURL']=obj.referrer[:-1]+"-thank-you"
-        else:
+        if obj.referrer:
+            for url in campaignURLs:
+                if url in obj.referrer:
+                    context['redirect'] = True
+                    context['redirectURL'] = obj.referrer.replace(url, url[:-1] + "-thank-you")
+
+        if context['redirect'] == False:
             messages.success(self.request, "Thank you - we will email you shortly")
+
+        return self.render_to_response(context)
+
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ContactView(CreateView):
+
+    template_name ='calculator/contact.html'
+    model=WebContact
+    form_class = WebContactForm
+
+    @xframe_options_exempt
+    def get(self,request,*args,**kwargs):
+        return super(ContactView,self).get(self,request,*args,**kwargs)
+
+    @xframe_options_exempt
+    def post(self,request,*args,**kwargs):
+            return super(ContactView, self).post(self,request,*args,**kwargs)
+
+
+    def form_valid(self, form):
+        clientDict=form.cleaned_data
+        obj = form.save(commit=True)
+
+        context={}
+        context['submitted']=True
 
         return self.render_to_response(context)
 

@@ -31,7 +31,6 @@ APP_SETTINGS={'incomeIntervals' : 500,
               'intRateStress':2,
               'hpiHighStressLevel':0,
               'hpiLowStressLevel':1.5,
-              'Api2PdfKey':'748cd2c9-6239-4c49-8d33-4dab286e4eda'
 }
 
 
