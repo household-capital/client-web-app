@@ -9,6 +9,7 @@ logs/
 *.log
 customerImages/
 customerReports/
+customerDocuments/
 calculatorReports/
 enquiryReports/
 fundImages/

@@ -9,8 +9,11 @@ from simple_salesforce import Salesforce, SalesforceMalformedRequest
 
 class apiSalesforce():
 
-    qryDefinitions={'Opportunities':
-                        "Select Id,Name,StageName,CloseDate from Opportunity where RecordType.Name=\'Household\' and StageName=\'Loan Approved\' and isDeleted=False",
+    qryDefinitions={'OpportunityRef':
+                        "Select ConvertedOpportunityId from Lead where Id=\'{0}\'",
+
+                    'LoanRef':
+                        "Select Name from Loan__c where Opportunity__c=\'{0}\'"
 
                     }
 
@@ -52,9 +55,8 @@ class apiSalesforce():
             qryResult=self.sf.query(soqlQuery)
         except Exception as e:
             errorStr = 'Error! Code: {c}, Message, {m}'.format(c=type(e).__name__, m=str(e))
-            print(errorStr)
             logging.critical(errorStr)
-            quit()
+            return
 
         isDone=qryResult['done']
         resultsTable=DataFrame(qryResult['records']) #Import results into a pandas DataFrame for easier manipulation

@@ -111,7 +111,7 @@
                     <tbody>
                     {% for obj in object_list %}
                         <tr>
-                            <td> {% if obj.user == None %}<a href="{{ obj.get_absolute_url }}">
+                            <td> {% if obj.user is null %}<a href="{{ obj.get_absolute_url }}">
                                 <button class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="top"
                                                  title="Assign enquiry to you">Action</button>
                             </a>

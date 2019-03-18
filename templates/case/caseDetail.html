@@ -100,6 +100,14 @@
                                 </button>
                                 <div class="dropdown-menu">
 
+                                    <!-- All -->
+                                    <a class="dropdown-item"
+                                               href="{% url 'case:caseOwn' uid=obj.caseUID %}">
+                                                &nbsp;<i class="fas fa-crown"></i>&nbsp;&nbsp;Take Ownership
+                                            </a>
+
+                                            <div class="dropdown-divider"></div>
+
                                     <!-- LEAD -->
                                     {% if obj.caseType == caseTypesEnum.LEAD.value %}
 
@@ -142,6 +150,13 @@
                                             Lead&nbsp;&nbsp;
                                         </a>
 
+                                         <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item" href="{% url 'case:caseSolicitor' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-gavel"></i></i>&nbsp;&nbsp;Create
+                                            Solicitor Instruction&nbsp;&nbsp;
+                                        </a>
+
                                     {% endif %}
 
                                     <!-- MEETING HELD -->
@@ -160,6 +175,13 @@
                                             &nbsp;<i class="far fa-cloud fa-fw"></i>&nbsp;&nbsp;Create
                                             Salesforce
                                             Lead&nbsp;&nbsp;
+                                        </a>
+
+                                         <div class="dropdown-divider"></div>
+
+                                         <a class="dropdown-item" href="{% url 'case:caseSolicitor' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-gavel"></i></i>&nbsp;&nbsp;Create
+                                            Solicitor Instruction&nbsp;&nbsp;
                                         </a>
                                     {% endif %}
 
@@ -246,6 +268,16 @@
                                     <p><a href="/media/customerReports/{{ obj.enquiryDocument.file|filename }}">Enquiry
                                         Document </a></p>
                                 {% endif %}
+                              {% if obj.valuationDocument %}
+                                    <p><a href="/media/customerDocuments/{{ obj.valuationDocument.file|filename }}">Auto Val
+                                        Document </a></p>
+                                {% endif %}
+                              {% if obj.instructionDocument %}
+                                    <p><a href="/media/customerReports/{{ obj.instructionDocument.file|filename }}">Solicitors Instruction </a></p>
+                                {% endif %}
+
+
+
 
                             </div>
 

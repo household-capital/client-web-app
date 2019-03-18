@@ -66,6 +66,14 @@
                 <div class="dropdown-menu">
 
 
+                    <a class="dropdown-item"
+                       href="{% url 'enquiry:enquiryOwn' uid=obj.enqUID %}">
+                        &nbsp;<i class="fas fa-crown"></i>&nbsp;&nbsp;Take Ownership
+                    </a>
+
+                    <div class="dropdown-divider"></div>
+
+
                     <a class="dropdown-item" data-toggle="modal" href="#clientModal">
                         &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Client Summary&nbsp;&nbsp;
                     </a>

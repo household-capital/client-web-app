@@ -16,7 +16,8 @@ urlpatterns = [
     path('caseEmailEligibility/<uuid:uid>', views.CaseEmailEligibility.as_view(), name='caseEmailEligibility'),
     path('caseAnalysis/<int:pk>', views.CaseAnalysisView.as_view(), name='caseAnalysis'),
     path('caseEmailLoanSummary/<uuid:uid>', views.CaseEmailLoanSummary.as_view(), name = 'caseEmailLoanSummary'),
-    path('caseSalesforce/<uuid:uid>',views.CaseSalesforce.as_view(),name='caseSalesforce')
-
+    path('caseSalesforce/<uuid:uid>',views.CaseSalesforce.as_view(),name='caseSalesforce'),
+    path('caseSolicitor/<uuid:uid>',views.CaseSolicitorView.as_view(), name='caseSolicitor'),
+    path('caseOwn/<uuid:uid>',views.CaseOwnView.as_view(),name='caseOwn')
 ]
 

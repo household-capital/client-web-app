@@ -1,0 +1,227 @@
+{% load static %}
+{% load humanize %}
+{% load case_tags %}
+
+<!doctype html>
+
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Other tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- CSS -->
+    {% include 'client_1_0/base/base_client.css.html' %}
+
+    <title>Household Client Summary</title>
+</head>
+
+<body>
+
+<div class="page">
+    <div class="print-container">
+
+        <img align="right" width="230px" src="{% static 'img/hhc/HC_Logo.png' %}">
+
+        <div class="print-container pt-3">
+            <br><br><br><br>
+
+            <div class="badge-light">
+                <div class="pl-3">
+                    <h4>Solicitors Instruction for a New Loan</h4>
+                    <p>Please prepare mortgage documents for the following loan application</p><br>
+                    <p><b>Return Address</b>: lendingservices@householdcapital.com</p><br>
+                </div>
+            </div>
+            <br>
+            <div class="pl-3">
+                <div class="row">
+
+                    <div class="col-lg-6">
+                        <div class="row">
+
+                            <div class="col-lg-4">
+                                <b>Reference</b>
+                                <p>Loan ID</p>
+                                <p>Case UID</p>
+                                <p>Date</p>
+                                <p>Requester</p>
+                                <br>
+                                <b>Borrower 1</b>
+                                <p>Surname</p>
+                                <p>Firstname(s)</p>
+                                <p>Birthdate</p>
+                                <p>Address&nbsp;</p>
+                                <p>Suburb&nbsp;</p>
+                                <p>State</p>
+                                <p>Postcode&nbsp;</p>
+                                <br>
+
+                                <b>Security</b>
+                                <p>Address&nbsp;</p>
+                                <p>Suburb&nbsp;</p>
+                                <p>State</p>
+                                <p>Postcode&nbsp;</p>
+
+                            </div>
+
+                            <div class="col-lg-8">
+                                <br>
+                                <p>{{ client.sfLoanID }}&nbsp;</p>
+                                <p>{{ client.caseUID|shortUID }}&nbsp;</p>
+                                <p>{% now "SHORT_DATETIME_FORMAT" %}</p>
+                                <p>{{ client.user.email }}&nbsp;</p>
+                                <br>
+                                <br>
+                                <p>{{ client.surname_1 }}&nbsp;</p>
+                                <p>{{ client.firstname_1 }}&nbsp;</p>
+                                <p>{{ client.birthdate_1 }}&nbsp;</p>
+                                <p>{{ client.street }}&nbsp;</p>
+                                <p>{{ client.suburb }}&nbsp;</p>
+                                <p>{{ client.enumStateType }}&nbsp;</p>
+                                <p>{{ client.postcode|intBlank }}&nbsp;</p>
+                                <br><br>
+                                <p>{{ client.street }}&nbsp;</p>
+                                <p>{{ client.suburb }}&nbsp;</p>
+                                <p>{{ client.enumStateType }}&nbsp;</p>
+                                <p>{{ client.postcode|intBlank }}&nbsp;</p>
+
+
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="row pt-3">
+
+                            <div class="col-lg-5">
+                                {% if client.loanType == loanTypesEnum.JOINT_BORROWER.value %}
+                                    <br><br><br><br><br>
+                                    <b>Borrower 2</b>
+                                    <p>Surname</p>
+                                    <p>Firstname(s)</p>
+                                    <p>Birthdate</p>
+                                    <p>Address&nbsp;</p>
+                                    <p>Suburb&nbsp;</p>
+                                    <p>State</p>
+                                    <p>Postcode&nbsp;</p>
+                                    <br>
+                                {% else %}
+                                    <br><br><br><br><br><br><br><br><br><br><br><br><br>
+                                {% endif %}
+
+                                <b>Valuation</b>
+                                <p>Home Value</p>
+                                <p>Insurance Value</p>
+                                <p>Conditions</p>
+
+                            </div>
+
+                            <div class="col-lg-7">
+
+                                {% if client.loanType == loanTypesEnum.JOINT_BORROWER.value %}
+                                    <br><br><br><br><br><br>
+                                    <p>{{ client.surname_2 }}&nbsp;</p>
+                                    <p>{{ client.firstname_2 }}&nbsp;</p>
+                                    <p>{{ client.birthdate_2 }}&nbsp;</p>
+                                    <p>{{ client.street }}&nbsp;</p>
+                                    <p>{{ client.suburb }}&nbsp;</p>
+                                    <p>{{ client.enumStateType }}&nbsp;</p>
+                                    <p>{{ client.postcode|intBlank }}&nbsp;</p>
+
+
+                                    <br>
+                                {% endif %}
+
+                                <br>
+                                <p>{{ client.valuation }}&nbsp;</p>
+                                <p>{{ client.valuation }}&nbsp;</p>
+                                <p>None&nbsp;</p>
+
+
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                </div>
+                <br>
+                <div class="row">
+
+                    <div class="col-lg-2">
+                        <b>Loan</b>
+                        <p>Loan Type</p>
+                        <p>Loan Amount</p>
+                        <p>Upfront Fee</p>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <br>
+                        <p>Reverse Mortgage</p>
+                        <p>${{ loan.totalLoanAmount }}&nbsp;</p>
+                        <p>${{ loan.establishmentFee }}&nbsp;</p>
+                    </div>
+                </div>
+                <br>
+
+                <div class="row">
+
+                    <div class="col-lg-12">
+                        <b>Special Conditions</b>
+                        {% if client.specialConditions %}
+                            <p>{{ client.specialConditions }}<br></p>
+                        {% else %}
+                            <br>None<br>
+                        {% endif %}
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+
+                    <div class="col-lg-12">
+                        <b>Additional Information</b>
+                        <p>Please undertake a title search</p><br>
+
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+
+                    <div class="col-lg-12">
+                        <b>Attachments</b>
+                        {% if client.valuationDocument %}
+                            <p>Auto valuation attached </p>
+                        {% else %}
+                            <p>None</p>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+            </div>
+            <br><br><br>
+            <div class="badge-light">
+                <div class="pl-3">
+                    <p><b>Lender</b>: Household Capital Services Pty Limited ACN 625 860 764</p>
+                    <p>Level 12, 1 Nicholson Street, Melbourne 3002</p><br>
+                    <p><b>Manager</b>: Household Capital Pty Limited, Level 12, 1 Nicholson Street, Melbourne 3002
+                    </p>
+                    <p>Authorised credit representative of Mortgage Direct Pty Limited ACN 075 721 434</p>
+                    <p>Australian Credit Licence 391876</p>
+                    <br>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</div>
+
+
+</body>
+</html>

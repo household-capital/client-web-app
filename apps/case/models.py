@@ -10,7 +10,7 @@ from django.urls import reverse_lazy
 
 #Local Application Imports
 from apps.lib.enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,\
-    pensionTypesEnum, loanTypesEnum, ragTypesEnum, channelTypesEnum
+    pensionTypesEnum, loanTypesEnum, ragTypesEnum, channelTypesEnum, stateTypesEnum
 
 
 class FundDetail(models.Model):
@@ -93,6 +93,18 @@ class Case(models.Model):
         (channelTypesEnum.DIRECT_ACQUISITION.value, "Direct Acquisition")
     )
 
+    stateTypes=(
+        (stateTypesEnum.NSW.value, "NSW"),
+        (stateTypesEnum.VIC.value, "VIC"),
+        (stateTypesEnum.ACT.value, "ACT"),
+        (stateTypesEnum.QLD.value, "QLD"),
+        (stateTypesEnum.SA.value, "SA"),
+        (stateTypesEnum.WA.value, "WA"),
+        (stateTypesEnum.TAS.value, "TAS"),
+        (stateTypesEnum.NT.value, "NT"),
+    )
+
+
     caseID = models.AutoField(primary_key=True)
     caseUID = models.UUIDField(default=uuid.uuid4, editable=False)
     caseType = models.IntegerField(choices=caseTypes)
@@ -118,7 +130,9 @@ class Case(models.Model):
     age_2=models.IntegerField(null=True, blank=True)
     sex_2=models.IntegerField(choices=clientSex,null=True, blank=True)
     street=models.CharField(max_length=60, null=True, blank=True)
+    suburb=models.CharField(max_length=30, null=True, blank=True)
     postcode=models.IntegerField(null=True, blank=True)
+    state=models.IntegerField(choices=stateTypes,null=True, blank=True)
     valuation=models.IntegerField(null=True, blank=True)
     dwellingType=models.IntegerField(choices=dwellingTypes,null=True, blank=True)
     propertyImage=models.ImageField(null=True, blank=True,upload_to='customerImages')
@@ -135,11 +149,15 @@ class Case(models.Model):
     electronicDocument= models.FileField(null=True, blank=True)
     dataDocument= models.FileField(null=True, blank=True)
     enquiryDocument = models.FileField(null=True, blank=True)
+    instructionDocument = models.FileField(null=True, blank=True)
+    valuationDocument= models.FileField(null=True, blank=True,upload_to='customerDocuments')
 
     salesChannel = models.IntegerField(choices=channelTypes,null=True, blank=True)
+    specialConditions=models.TextField(null=True, blank=True)
 
     sfLeadID = models.CharField(max_length=20, null=True, blank=True)
     sfOpportunityID = models.CharField(max_length=20, null=True, blank=True)
+    sfLoanID=models.CharField(max_length=20, null=True, blank=True)
 
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
@@ -161,6 +179,12 @@ class Case(models.Model):
     def enumLoanType(self):
         try:
             return dict(self.loanTypes)[self.loanType]
+        except:
+            return ""
+
+    def enumStateType(self):
+        try:
+            return dict(self.stateTypes)[self.state]
         except:
             return ""
 

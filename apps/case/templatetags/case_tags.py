@@ -9,6 +9,8 @@ from django import template
 # CUSTOM TEMPLATE TAGS
 
 def intVal(value):
+    if value==None:
+        return 0
     return int(value)
 
 def intStr(value):

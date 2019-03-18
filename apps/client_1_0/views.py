@@ -967,3 +967,26 @@ class PdfClientData(TemplateView):
             context['caseUID']=caseUID
 
         return context
+
+class PdfInstruction(TemplateView):
+        # This page is not designed to be viewed - it is to be called by the pdf generator
+        # It requires a UID to be passed to it
+
+        template_name = "client_1_0/documents/clientInstruction.html"
+
+        def get_context_data(self, **kwargs):
+            context = super(PdfInstruction, self).get_context_data(**kwargs)
+
+            if 'uid' in kwargs:
+                caseUID = str(kwargs['uid'])
+
+                # get dictionaries from model
+                qsClient = Case.objects.queryset_byUID(caseUID)
+                qsLoan = Loan.objects.queryset_byUID(caseUID)
+
+                context['client'] = qsClient.get()
+                context['loan'] = qsLoan.get()
+                context['loanTypesEnum'] = loanTypesEnum
+                context['caseUID'] = caseUID
+
+            return context

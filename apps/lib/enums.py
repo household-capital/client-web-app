@@ -73,3 +73,14 @@ class directTypesEnum(Enum):
     WEB_ENQUIRY = 3
     REFERRAL=4
     OTHER=100
+
+@accessInTemplate
+class stateTypesEnum(Enum):
+    NSW = 0
+    VIC = 1
+    ACT = 2
+    QLD = 3
+    SA = 4
+    WA = 5
+    TAS = 6
+    NT = 7

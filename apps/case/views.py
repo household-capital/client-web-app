@@ -24,8 +24,9 @@ from apps.lib.enums import caseTypesEnum
 from apps.lib.utilities import pdfGenerator
 from apps.lib.salesforceAPI import apiSalesforce
 from apps.logging import write_applog
-from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm
+from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, SolicitorForm
 from .models import Case, LossData
+from apps.enquiry.models import Enquiry
 
 
 
@@ -100,6 +101,10 @@ class CaseListView(LoginRequiredMixin, ListView):
             context['myCases'] = "True"
         else:
             context['myCases'] = "False"
+
+        self.request.session['webQueue'] = WebCalculator.objects.queueCount()
+        self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
+
         return context
 
 
@@ -421,3 +426,125 @@ class CaseSalesforce(LoginRequiredMixin, FormView):
             messages.error(self.request, "Lead not created: Could not log-in to Salesforce API")
             return HttpResponseRedirect(reverse_lazy('case:caseSalesforce', kwargs={'uid': caseObj.caseUID}))
 
+
+class CaseOwnView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+
+        caseUID = str(kwargs['uid'])
+        caseObj = Case.objects.queryset_byUID(caseUID).get()
+
+        if self.request.user.profile.isCreditRep==True:
+            caseObj.user=self.request.user
+            caseObj.save(update_fields=['user'])
+            messages.success(self.request,"Ownership Changed")
+
+        else:
+            messages.error(self.request, "You must be a Credit Representative to take ownership")
+
+        return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'pk': caseObj.pk}))
+
+
+class CaseSolicitorView(LoginRequiredMixin, UpdateView):
+    #template_name = 'case/loanSummary/email.html'
+    model = Case
+    template_name = 'case/caseSolicitor.html'
+
+    form_class = SolicitorForm
+
+    def get(self, request, *args, **kwargs):
+        caseUID = str(self.kwargs['uid'])
+        caseObj = Case.objects.queryset_byUID(caseUID).get()
+
+        if not caseObj.sfLeadID:
+            messages.error(self.request, "No Salesforce lead associated with this case")
+            return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'pk': caseObj.pk}))
+        else:
+            return super(CaseSolicitorView,self).get(request, *args, **kwargs)
+
+
+    def get_context_data(self, **kwargs):
+        context = super(CaseSolicitorView, self).get_context_data(**kwargs)
+        context['title'] = "Create Solicitor Instruction"
+
+        return context
+
+    def get_object(self, **kwargs):
+        obj = Case.objects.filter(caseUID=self.kwargs['uid']).get()
+        return obj
+
+    def form_valid(self, form):
+
+        caseObj = form.save(commit=False)
+        caseObj.specialConditions=form.cleaned_data['specialConditions']
+        caseObj.save()
+
+        password = form.cleaned_data['password']
+        sfAPI = apiSalesforce()
+        status = sfAPI.openAPI(password)
+
+        if status:
+            #get related OpportunityID from Lead
+            resultsTable=sfAPI.execSOQLQuery('OpportunityRef',caseObj.sfLeadID)
+            oppID=resultsTable.iloc[0]["ConvertedOpportunityId"]
+            if len(oppID)!=18:
+                    messages.error(self.request, "Instruction not created: Could not find Opportunity in Salesforce")
+                    return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'pk': caseObj.pk}))
+
+            # get related LoanID from Opportunity
+            resultsTable = sfAPI.execSOQLQuery('LoanRef', oppID)
+            loanID = resultsTable.iloc[0]["Name"]
+            if len(loanID) < 10:
+                messages.error(self.request, "Instruction not created: Could not find Loan in Salesforce")
+                return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'pk': caseObj.pk}))
+
+            # save OpportunityID and LoanID
+            caseObj.sfOpportunityID=oppID
+            caseObj.sfLoanID=loanID
+            caseObj.save(update_fields=['sfOpportunityID','sfLoanID'])
+
+            # generate pdf
+            docList=(('pdfInstruction/',"Instruction-"),
+                     )
+            sourcePath = 'https://householdcapital.app/client/'
+            targetPath = settings.MEDIA_ROOT + "/customerReports/"
+            clientUID = caseObj.caseUID
+
+            for doc in docList:
+                pdf = pdfGenerator(str(clientUID))
+                pdf.createPdfFromUrl(sourcePath + doc[0] + str(clientUID), "",
+                                     targetPath + doc[1] + str(clientUID)[-12:] + ".pdf")
+
+            caseObj.instructionDocument = targetPath + docList[0][1] + str(clientUID)[-12:] + ".pdf"
+
+            caseObj.save(update_fields=['instructionDocument'])
+
+            email_template='case/caseSolicitorEmail.html'
+            email_context={}
+            email_context['first_name']=caseObj.user.first_name
+            html = get_template(email_template)
+            html_content = html.render(email_context)
+            subject, from_email, to, bcc = "Solicitors Instructions - "+str(caseObj.sfLoanID), caseObj.user.email, \
+                                           [caseObj.user.email, 'lendingservices@householdcapital.com', 'RL-HHC-Instructions@dentons.com',
+                                            'Kelly.Ford@dentons.com'], None
+
+            msg = EmailMultiAlternatives(subject, "Solicitors Instructions", from_email, [to], [bcc])
+            msg.attach_alternative(html_content, "text/html")
+
+            # Instruction Attachment
+            msg.attach("Instruction-"+str(caseObj.sfLoanID)+".pdf", pdf.getContent(), 'application/pdf')
+
+            # RP Data Attachment
+            if caseObj.valuationDocument:
+                attachFilename = "Valuation-" + str(caseObj.sfLoanID) + ".pdf"
+                localfile = open(caseObj.valuationDocument.path, 'rb')
+                pdfContents = localfile.read()
+                msg.attach(attachFilename, pdfContents, 'application/pdf')
+
+            msg.send()
+
+            messages.success(self.request, "Instruction sent to Dentons")
+            return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'pk': caseObj.pk}))
+
+        else:
+            messages.error(self.request, "Instruction not created: Could not log-in to Salesforce API")
+            return HttpResponseRedirect(reverse_lazy('case:caseSolicitor', kwargs={'uid': str(caseObj.caseUID)}))

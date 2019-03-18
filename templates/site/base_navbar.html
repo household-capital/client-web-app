@@ -1,4 +1,6 @@
 {% load static %}
+{% load case_tags %}
+
 <nav class="navbar navbar-light navbar-expand-lg navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
@@ -27,10 +29,12 @@
                     <li><a href="{% url 'enquiry:enquiry' %}"><i class="fas fa-user-check"></i> Enquiry</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     </li>
 
-                    <li><a href="{% url 'enquiry:calcList' %}"><i class="fas fa-calculator"></i> Queue </a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <li><a href="{% url 'enquiry:calcList' %}"><i class="fas fa-calculator"></i> Queue
+                    {% if request.session.webQueue|intVal > 0 %}<span class="badge btn-success align-text-top">{{request.session.webQueue}}</span>{% endif %}</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     </li>
 
-                   <li><a href="{% url 'enquiry:enquiryList' %}"><i class="far fa-list-alt"></i> Enquiry List </a>&nbsp;&nbsp;&nbsp;&nbsp;
+                   <li><a href="{% url 'enquiry:enquiryList' %}"><i class="far fa-list-alt"></i> Enquiry List
+                   {% if request.session.enquiryQueue|intVal > 0 %}<span class="badge btn-success align-text-top">{{request.session.enquiryQueue}}</span>{% endif %}</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     </li>
 
                     <li> | &nbsp;&nbsp;&nbsp;

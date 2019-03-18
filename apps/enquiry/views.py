@@ -94,6 +94,10 @@ class EnquiryListView(LoginRequiredMixin, ListView):
             context['myEnquiries'] = self.request.GET.get('myEnquiries')
         else:
             context['myEnquiries'] = False
+
+        self.request.session['webQueue']=WebCalculator.objects.queueCount()
+        self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
+
         return context
 
 
@@ -276,8 +280,7 @@ class EnquiryEmailEligibility(LoginRequiredMixin, TemplateView):
 
 
 class EnquiryConvert(LoginRequiredMixin, View):
-    # This view does not render it creates and enquiry, sends an email, updates the calculator
-    # and redirects to the Enquiry ListView
+    # This view does not render it creates a case from an enquiry and marks it actioned
     context_object_name = 'object_list'
     model = WebCalculator
 
@@ -316,7 +319,7 @@ class EnquiryConvert(LoginRequiredMixin, View):
         case_obj.save()
 
         #Set enquiry to actioned
-        enq_obj.actioned=True
+        enq_obj.actioned=1
         enq_obj.save()
 
         #Copy enquiryReport across to customerReport and add to the database
@@ -356,6 +359,9 @@ class CalcListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(CalcListView, self).get_context_data(**kwargs)
         context['title'] = 'Web Queue'
+
+        self.request.session['webQueue'] = WebCalculator.objects.queueCount()
+        self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
 
         return context
 
@@ -597,3 +603,20 @@ class ReferrerView(ReferrerRequiredMixin, UpdateView):
         messages.success(self.request, "Enquiry Saved")
 
         return HttpResponseRedirect(reverse_lazy('enquiry:enqReferrerUpdate', kwargs={'uid': str(obj.enqUID)}))
+
+
+class EnquiryOwnView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+
+        enqUID = str(kwargs['uid'])
+        enqObj = Enquiry.objects.queryset_byUID(enqUID).get()
+
+        if self.request.user.profile.isCreditRep == True:
+            enqObj.user = self.request.user
+            enqObj.save(update_fields=['user'])
+            messages.success(self.request, "Ownership Changed")
+
+        else:
+            messages.error(self.request, "You must be a Credit Representative to take ownership")
+
+        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))

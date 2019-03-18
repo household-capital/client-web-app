@@ -1,36 +1,38 @@
-#Python Imports
+# Python Imports
 from datetime import datetime
 
-#Django Imports
+# Django Imports
 from django import forms
 from django.forms import widgets
 
-#Third-party Imports
+# Third-party Imports
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, Div, HTML
 
-
-#Local Application Imports
+# Local Application Imports
 from apps.lib.enums import loanTypesEnum, ragTypesEnum
 from .models import Case, LossData
 
 
 class CaseDetailsForm(forms.ModelForm):
-    #A model form with some overriding using form fields for rendering purposes
-    #Additional HTML rendering in the form
+    # A model form with some overriding using form fields for rendering purposes
+    # Additional HTML rendering in the form
 
     valuation = forms.IntegerField(required=False, localize=True, widget=widgets.TextInput())
     mortgageDebt = forms.IntegerField(required=False, localize=True, widget=widgets.TextInput())
     superAmount = forms.IntegerField(required=False, localize=True, widget=widgets.TextInput())
     pensionAmount = forms.IntegerField(required=False, localize=True, widget=widgets.TextInput())
     propertyImage = forms.ImageField(required=False, widget=forms.FileInput)
+    valuationDocument = forms.FileField(required=False, widget=forms.FileInput)
+
 
     class Meta:
         model = Case
         fields = ['caseDescription', 'adviser', 'caseNotes', 'loanType', 'caseType',
                   'clientType1', 'surname_1', 'firstname_1', 'birthdate_1', 'age_1', 'sex_1',
                   'clientType2', 'surname_2', 'firstname_2', 'birthdate_2', 'age_2', 'sex_2',
-                  'street', 'postcode', 'valuation', 'dwellingType', 'propertyImage', 'mortgageDebt', 'superFund',
+                  'street', 'suburb', 'postcode', 'valuation', 'dwellingType', 'propertyImage', 'mortgageDebt',
+                  'superFund', 'valuationDocument', 'state',
                   'superAmount', 'pensionType', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email']
         widgets = {
             'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
@@ -86,6 +88,8 @@ class CaseDetailsForm(forms.ModelForm):
                     Field('postcode', placeholder='Postcode'),
                     Field('dwellingType', placeholder='Dwelling Type'),
                     Field('street', placeholder='Street Address'),
+                    Field('suburb', placeholder='Suburb'),
+                    Field('state', placeholder='State'),
                     Field('valuation', placeholder='Valuation'),
                     Field('mortgageDebt', placeholder='Existing Mortgage'),
                     HTML("<i class='fas fa-piggy-bank'></i>&nbsp;&nbsp;<small>Super/Investments</small>"),
@@ -96,6 +100,8 @@ class CaseDetailsForm(forms.ModelForm):
                     Field('pensionType', placeholder='Pension Type'),
                     Div(HTML("<p class='small'><i class='fa fa-camera fa-fw'>&nbsp;&nbsp;</i>Property Image</p>"),
                         Field('propertyImage')),
+                    Div(HTML("<p class='small'><i class='far fa-file-pdf'></i>&nbsp;&nbsp;</i>Auto Valuation</p>"),
+                        Field('valuationDocument')),
                     Div(HTML("<p class='small'><i class='fas fa-funnel-dollar'></i>&nbsp;</i>Sales Channel</p>"),
                         Field('salesChannel')),
                     css_class="col-lg-6"),
@@ -212,6 +218,33 @@ class SFPasswordForm(forms.Form):
     helper.layout = Layout(
         Div(
             Div(
+                Field('password', placeholder='Salesforce API Password')),
+            Div(
+                Div(Submit('submit', 'Create ', css_class='btn btn-warning')),
+            ),
+        ))
+
+
+class SolicitorForm(forms.ModelForm):
+    class Meta:
+        model = Case
+        fields = ['specialConditions']
+
+    # Form Data
+    password = forms.CharField(required=True, widget=forms.PasswordInput)
+    specialConditions = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 6, 'cols': 100}))
+
+    # Form Layout
+    helper = FormHelper()
+    helper.form_method = 'POST'
+    helper.form_class = 'form-horizontal col-lg-12'
+    helper.field_class = 'col-lg-10'
+    helper.form_show_labels = False
+    helper.form_show_errors = True
+    helper.layout = Layout(
+        Div(
+            Div(
+                Field('specialConditions', placeholder='Enter any special conditions'),
                 Field('password', placeholder='Salesforce API Password')),
             Div(
                 Div(Submit('submit', 'Create ', css_class='btn btn-warning')),

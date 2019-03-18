@@ -20,6 +20,8 @@ class EnquiryManager(models.Manager):
     def dictionary_byUID(self,uidString):
         return self.queryset_byUID(uidString).values()[0]
 
+    def queueCount(self):
+        return Enquiry.objects.filter(user__isnull=True,actioned=0).count()
 
 class Enquiry(models.Model):
 

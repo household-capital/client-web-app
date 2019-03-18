@@ -16,6 +16,9 @@ class WebManager(models.Manager):
     def dictionary_byUID(self,uidString):
         return self.queryset_byUID(uidString).values()[0]
 
+    def queueCount(self):
+        return WebCalculator.objects.filter(email__isnull=False, actioned=0).count()
+
 
 class WebCalculator(models.Model):
     calcUID = models.UUIDField(default=uuid.uuid4, editable=False)
