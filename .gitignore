@@ -1,11 +1,11 @@
 *env
 *env-dev
 *env-prod
-*__pycache__*
-*.DS_Store
 **migrations/
-*idea/
 **logs/
-*.log
 **media/
 **collected/
+*idea/
+*.log
+*__pycache__*
+*.DS_Store
