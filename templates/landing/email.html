@@ -1,0 +1,36 @@
+{% load humanize %}
+
+<!doctype html>
+<html lang="en">
+
+<body>
+{{ adviser_name }}<br><br>
+
+Further to our recent conversation, I am pleased to be able to provide you with the following information.<br><br>
+
+I understand that your client’s details are as follows:<br>
+{% if client_name|length > 0 %}- {{ client_name }}<br>{% endif %}
+{% if isJoint %}- joint borrowers, the youngest of which is currently aged {{ youngestAge }}<br>
+{% else %}- an individual borrower who is currently aged {{ youngestAge }}<br>{% endif %}
+- living in {% if isApartment %}an apartment {% else %}a house {% endif %}
+{% if client_address|length > 0 %}at {{ client_address }}{% endif %}<br>
+- in the postcode {{ postcode }}<br>
+- with an estimated valuation of approximately ${{ valuation|intcomma }}<br><br>
+
+Based on this high level information and subject to credit assessment, we may be able to provide a Household Loan with a loan-to-value ratio of up to <b>{{maxLvr}}%</b> or <b>${{maxLoan|intcomma}}</b>.<br><br>
+
+As you know, Household has certain loan restrictions that are based on the intended purpose of the loan.  Potential restrictions may include the following:<br>
+{% if maxLoan > maxAgeCare %}- Maximum amount for Age Care: ${{ maxAgeCare|intcomma }}<br>{% endif %}
+{% if maxLoan > maxSuper %}- Maximum amount for Super Top Up: ${{ maxSuper|intcomma }}<br>{% endif %}
+{% if maxLoan > maxReno %}- Maximum amount for Renovations: ${{ maxReno|intcomma }}<br>{% endif %}
+- Maximum amount for Refinance: ${{ maxRefi|intcomma }}<br>
+- Maximum amount for Accelerated Giving: ${{ maxGive|intcomma }}<br>
+- Maximum amount for Depreciating Assets: ${{ maxSecond|intcomma }}<br><br>
+
+We would be pleased to meet with you and your client to determine whether a Household Loan might be appropriate.  If you would like any further information, please don’t hesitate to contact me.<br><br>
+
+Kind regards<br>
+
+</body>
+</html>
+

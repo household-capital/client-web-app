@@ -1,0 +1,95 @@
+{% load static %}
+{% load humanize %}
+
+
+    <!-- Include -->
+    <div class="print-container">
+
+        <br><br>
+        <div class="row">
+            <div class="col-lg-3 text-center">
+                    {% if loanType == loanTypesEnum.SINGLE_BORROWER.value %}
+                        <div class="imgContainer"><img src="{% static 'img/icons/person_icon.png' %}" width="125px"></div>
+                    {% else %}
+                        <div class="imgContainer"><img src="{% static 'img/icons/couple_icon.png' %}" width="125px"></div>
+                    {% endif %}
+            </div>
+
+            <div class="col-lg-3 text-center">
+                <div class="imgContainer"><img src="
+                        {% if obj.superFund %}{{ obj.superFund.fundImage.url }}{% else %}{% static 'img/icons/nestEgg_icon.png' %}{% endif %}"
+                                               class="rounded-circle" alt="SuperFund" width="125px" height="125px">
+                </div>
+
+            </div>
+
+            <div class="col-lg-3 text-center">
+
+                <div class="imgContainer"><img src="{% if obj.propertyImage  %}{{ obj.propertyImage.url }}{% else%}{% static 'img/icons/home_icon.png' %}{% endif %}"
+                                                   class="rounded-circle" alt="SuperFund" width="125px" height="125px">
+                    </div>
+            </div>
+
+            <div class="col-lg-3 text-center">
+                    <div class="imgContainer"><img src="{% static 'img/logos/centrelink_logo.png' %}"
+                                                   class="rounded-circle" alt="SuperFund" width="125px" height="125px">
+                    </div>
+             </div>
+        </div>
+
+    <br>
+
+    <div class="row">
+            <div class="col-lg-3 text-center">
+                    {% if loanType == loanTypesEnum.SINGLE_BORROWER.value %}
+                        <p class="print-text"> {{ firstname_1 }}&nbsp;{{ surname_1 }}</p><br>
+                    {% else %}
+                         <p class="print-text"> {{ firstname_1 }}&nbsp;{{ surname_1 }}</p>
+                         <p class="print-text"> {{ firstname_2 }}&nbsp;{{ surname_2 }}</p><br>
+                    {% endif %}
+
+            </div>
+
+            <div class="col-lg-3 text-center">
+                <p class="print-text">Superannuation</p>
+            </div>
+
+            <div class="col-lg-3 text-center">
+                    <p class="print-text"> {{ street }}</p>
+            </div>
+
+            <div class="col-lg-3 text-center">
+                    <p class="print-text">Age Pension<p>
+            </div>
+        </div>
+
+
+     <br>
+        <div class="row">
+            <div class="col-lg-3 text-center">
+
+                {% if loanType == loanTypesEnum.SINGLE_BORROWER.value %}
+                    <p class="print-text">{{ age_1 }} years old</p>
+                    {% else %}
+                    <p class="print-text">{{ age_1 }} and {{ age_2 }} years old</p>
+                    {% endif %}
+
+            </div>
+
+            <div class="col-lg-3 text-center">
+
+                    <p class="print-text">Balance</p>
+                    <p class="print-text">${{ superAmount|intcomma }}</p>
+            </div>
+
+            <div class="col-lg-3 text-center">
+                    <p class="print-text">Estimated value</p>
+                    <p class="print-text">${{ valuation|intcomma }}</p>
+            </div>
+
+            <div class="col-lg-3 text-center">
+                    <p class="print-text">Annual Payment<p>
+                    <p class="print-text">${{ annualPensionIncome|intcomma }}</p></div>
+        </div>
+    </div>
+    <!-- End Include -->
