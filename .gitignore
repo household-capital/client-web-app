@@ -7,12 +7,4 @@
 *idea/
 **logs/
 *.log
-**customerImages/
-**customerReports/
-**customerDocuments/
-**calculatorReports/
-**enquiryReports/
-**fundImages/
-**profileImages/
-**collected/
-
+**media/
