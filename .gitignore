@@ -4,7 +4,7 @@
 **migrations/
 **logs/
 **media/
-**collected/
+**/collected/
 *idea/
 *.log
 *__pycache__*
