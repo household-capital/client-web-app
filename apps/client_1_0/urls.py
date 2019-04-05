@@ -47,7 +47,8 @@ urlpatterns = [
     path('pdfPrivacy/<uuid:uid>', views.PdfPrivacy.as_view(), name='pdfPrivacy'),
     path('pdfElectronic/<uuid:uid>', views.PdfElectronic.as_view(), name='pdfElectronic'),
     path('pdfClientData/<uuid:uid>', views.PdfClientData.as_view(), name='pdfClientData'),
-    path('pdfInstruction/<uuid:uid>', views.PdfInstruction.as_view(), name='pdfInstruction')
+    path('pdfInstruction/<uuid:uid>', views.PdfInstruction.as_view(), name='pdfInstruction'),
+    path('pdfValInstruction/<uuid:uid>', views.PdfValInstruction.as_view(), name='pdfValInstruction')
 ]
 
 

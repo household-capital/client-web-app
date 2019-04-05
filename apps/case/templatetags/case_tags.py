@@ -45,6 +45,10 @@ def bspkReferrer(arg):
 def filename(value):
     return os.path.basename(value.file.name)
 
+def upto(value, delimiter=','):
+    return value.split(delimiter)[0]
+
+
 
 # REGISTRATION
 register = template.Library()
@@ -55,3 +59,4 @@ register.filter('strBlank', strBlank)
 register.filter('bspkReferrer', bspkReferrer)
 register.filter('shortUID', shortUID)
 register.filter('filename', filename)
+register.filter('upto', upto)

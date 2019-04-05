@@ -34,9 +34,7 @@ class LoanProjection():
         self.interestRate=self.zeroNone(self.aggDict['interestRate'])
         self.lendingMargin=self.zeroNone(self.aggDict['lendingMargin'])
         self.investmentRate=self.zeroNone(self.aggDict['investmentRate'])
-
-        self.topUpAmount=self.zeroNone(self.aggDict['topUpAmount'])
-        self.topUpIncome = self.zeroNone(self.aggDict['topUpIncome'])
+        self.topUpAmount = self.zeroNone(self.aggDict['topUpAmount'])
         self.totalLoanAmount = self.zeroNone(self.aggDict['totalLoanAmount'])
 
 
@@ -55,6 +53,9 @@ class LoanProjection():
          # Important convert interest rate to effective annual (monthly compounded)
 
         self.currentSuperIncome = self.calcDrawdown(self.superAmount)  # Calculate initial super income
+
+        # Calculate top-up income on the fly (saved top-up amount driver)
+        self.topUpIncome= self.getEnhancedSuperIncome(self.topUpAmount)
 
     # EXTERNAL METHODS
 
@@ -255,10 +256,21 @@ class LoanProjection():
             calcArray[period]["BOPAge"] = calcArray[period-1]["BOPAge"]+1
             calcArray[period]["BOPBalance"] = calcArray[period-1]["EOPBalance"]
 
-            calcArray[period]["Drawdown"] = calcArray[period-1]["Drawdown"] * (1 + self.inflationRate/100)
+            # If starting balance == 0, no drawdown
+            if calcArray[period]["BOPBalance"]>0:
+                calcArray[period]["Drawdown"] = calcArray[period-1]["Drawdown"] * (1 + self.inflationRate/100)
+            else:
+                calcArray[period]["Drawdown"] = 0
+
             calcArray[period]["Return"] = (calcArray[period]["BOPBalance"] - calcArray[period]["Drawdown"] / 2) * self.investmentRate/100
-            #Check for exhausted Super Balance
             calcArray[period]["EOPBalance"] = calcArray[period]["BOPBalance"] - calcArray[period]["Drawdown"] + calcArray[period]["Return"]
+
+            # Check for exhausted Super Balance in this period
+            if calcArray[period]["EOPBalance"]<0:
+                calcArray[period]["Return"] = (calcArray[period]["BOPBalance"] / 2) * self.investmentRate / 100
+                calcArray[period]["Drawdown"] =calcArray[period]["Return"]+calcArray[period]["BOPBalance"]
+                calcArray[period]["EOPBalance"] = calcArray[period]["BOPBalance"] - calcArray[period]["Drawdown"] + calcArray[period]["Return"]
+
 
             calcArray[period]["PensionIncome"] = calcArray[period-1]["PensionIncome"]* (1 + self.inflationRate/100)
             calcArray[period]["TotalIncome"] = calcArray[period]["Drawdown"] + calcArray[period]["PensionIncome"]

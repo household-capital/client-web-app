@@ -224,6 +224,8 @@ class SetClientView(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, Upd
 
             loanQs = Loan.objects.queryset_byUID(self.request.session['caseUID'])
             loanRecord = loanQs.get()
+            caseQS=Case.objects.queryset_byUID(self.request.session['caseUID'])
+            caseRecord = caseQS.get()
 
             loanRecord.choiceFuture=False
             loanRecord.choiceCenterlink =False
@@ -233,11 +235,14 @@ class SetClientView(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, Upd
             loanRecord.choiceRetireAtHome = False
             loanRecord.choiceAvoidDownsizing = False
             loanRecord.choiceAccessFunds = False
+            caseQS.meetingDate=None
 
 
             loanRecord.save(update_fields=['choiceFuture','choiceCenterlink','choiceVariable','consentPrivacy',
                                            'consentElectronic','choiceRetireAtHome','choiceAvoidDownsizing',
                                            'choiceAccessFunds'])
+
+            caseRecord.save(update_fields=['meetingDate'])
 
         # perform high-level validation of client data
         clientDict = {}
@@ -968,25 +973,49 @@ class PdfClientData(TemplateView):
 
         return context
 
+
 class PdfInstruction(TemplateView):
-        # This page is not designed to be viewed - it is to be called by the pdf generator
-        # It requires a UID to be passed to it
+    # This page is not designed to be viewed - it is to be called by the pdf generator
+    # It requires a UID to be passed to it
 
-        template_name = "client_1_0/documents/clientInstruction.html"
+    template_name = "client_1_0/documents/clientInstruction.html"
 
-        def get_context_data(self, **kwargs):
-            context = super(PdfInstruction, self).get_context_data(**kwargs)
+    def get_context_data(self, **kwargs):
+        context = super(PdfInstruction, self).get_context_data(**kwargs)
 
-            if 'uid' in kwargs:
-                caseUID = str(kwargs['uid'])
+        if 'uid' in kwargs:
+            caseUID = str(kwargs['uid'])
 
-                # get dictionaries from model
-                qsClient = Case.objects.queryset_byUID(caseUID)
-                qsLoan = Loan.objects.queryset_byUID(caseUID)
+            # get dictionaries from model
+            qsClient = Case.objects.queryset_byUID(caseUID)
+            qsLoan = Loan.objects.queryset_byUID(caseUID)
 
-                context['client'] = qsClient.get()
-                context['loan'] = qsLoan.get()
-                context['loanTypesEnum'] = loanTypesEnum
-                context['caseUID'] = caseUID
+            context['client'] = qsClient.get()
+            context['loan'] = qsLoan.get()
+            context['loanTypesEnum'] = loanTypesEnum
+            context['caseUID'] = caseUID
 
-            return context
+        return context
+
+class PdfValInstruction(TemplateView):
+    # This page is not designed to be viewed - it is to be called by the pdf generator
+    # It requires a UID to be passed to it
+
+    template_name = "client_1_0/documents/clientValInstruction.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(PdfValInstruction, self).get_context_data(**kwargs)
+
+        if 'uid' in kwargs:
+            caseUID = str(kwargs['uid'])
+
+            # get dictionaries from model
+            qsClient = Case.objects.queryset_byUID(caseUID)
+            qsLoan = Loan.objects.queryset_byUID(caseUID)
+
+            context['client'] = qsClient.get()
+            context['loan'] = qsLoan.get()
+            context['loanTypesEnum'] = loanTypesEnum
+            context['caseUID'] = caseUID
+
+        return context

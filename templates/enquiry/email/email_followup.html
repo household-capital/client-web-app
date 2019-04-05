@@ -1,0 +1,22 @@
+{% extends 'enquiry/email/email_template.html' %}
+{% load humanize %}
+{% load static %}
+
+
+{% block email_content %}
+
+<p>Hello</p>
+<br>
+<p>I am following-up on my earlier email in relation to how a Household Transfer might be able to help you meet your objectives.</p>
+<br>
+<p>I would be happy to discuss your specific circumstances with you. Please don't hesitate to contact me on {{ obj.user.profile.mobile}} or {{obj.user.email }}</p>
+<br>
+<p>Kind regards</p>
+<br>
+<p>{{ obj.user.first_name }}&nbsp;{{ obj.user.last_name }}</p>
+<br>
+<img src="{{ absolute_media_url }}{{ obj.user.profile.picture }}" width="100px">
+
+
+{% endblock %}
+

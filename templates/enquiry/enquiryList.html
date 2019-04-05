@@ -73,7 +73,8 @@
                                                 <i class="fas fa-user fa-fw" style='color:white'></i></div>
                                         </a>
                                     {% else %}
-                                        <a href="?myEnquiries=True&search={{ search }}" data-toggle="tooltip" data-placement="top"
+                                        <a href="?myEnquiries=True&search={{ search }}" data-toggle="tooltip"
+                                           data-placement="top"
                                            title="Filter your enquiries">
                                             <div class="btn btn-outline-secondary"><i
                                                     class="fas fa-user-friends fa-fw"></i></div>
@@ -81,7 +82,6 @@
                                         </a>
                                     {% endif %}
                                 </div>
-
 
 
                             </div>
@@ -98,13 +98,15 @@
                         <th scope="col">Owner</th>
                         <th>Source</th>
                         <th>Name</th>
-                        <th>Borrower</th>
                         <th>Age</th>
                         <th>Postcode</th>
                         <th>Valuation</th>
                         <th>Phone</th>
                         <th>Email</th>
-                        <th>Sent</th>
+                        <th>&nbsp;</th>
+                        <th>&nbsp;</th>
+                        <th>&nbsp;</th>
+
 
                     </tr>
                     </thead>
@@ -113,26 +115,32 @@
                         <tr>
                             <td> {% if obj.user is null %}<a href="{{ obj.get_absolute_url }}">
                                 <button class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="top"
-                                                 title="Assign enquiry to you">Action</button>
+                                        title="Assign enquiry to you">Action
+                                </button>
                             </a>
                             {% else %}
                                 <a href="{{ obj.get_absolute_url }}">{{ obj.user }}</a></td>
                             {% endif %}
-                            <td >
+                            <td>
                                 <a href="{{ obj.get_absolute_url }}">{{ obj.enumReferrerType }}</a>
                             </td>
 
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.name }}</a></td>
-                            <td><a href="{{ obj.get_absolute_url }}">{% if obj.loanType == 1 %}Couple{% else %}
-                                Single{% endif %}</a></td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.age_1 }} &nbsp;{{ obj.age_2|intBlank }}</a>
                             </td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.postcode|intBlank }}</a></td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.valuation }}</a></td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.phoneNumber }}</a></td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.email }}</a></td>
-                            <td class="text-center"><a href="{{ obj.get_absolute_url }}">{% if obj.summaryDocument %}
+                            <td data-toggle="tooltip" data-placement="top" title="Comments">
+                                {% if obj.enquiryNotes %} <i class="far fa-comments"></i>{% endif %}</td>
+                            <td data-toggle="tooltip" data-placement="top" title="Summary Document" class="text-center">
+                                <a href="{{ obj.get_absolute_url }}">{% if obj.summaryDocument %}
                                 <i class="far fa-file-pdf"></i></a>{% endif %}</td>
+                            <td data-toggle="tooltip" data-placement="top" title="Follow-up/Ineligible">
+                                {% if obj.followUp %} <i class="fas fa-reply-all"></i>{% endif %}
+                                {% if obj.status == False %}<i class="far fa-times-circle"></i>{% endif %}
+                            </td>
 
                         </tr>
                     {% endfor %}

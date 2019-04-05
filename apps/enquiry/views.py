@@ -126,6 +126,7 @@ class EnquiryView(LoginRequiredMixin, UpdateView):
             queryset = Enquiry.objects.queryset_byUID(str(self.kwargs['uid']))
             obj = queryset.get()
             context['obj'] = obj
+            context['isUpdate']=True
         return context
 
     def form_valid(self, form):
@@ -135,12 +136,9 @@ class EnquiryView(LoginRequiredMixin, UpdateView):
 
         loanObj = LoanValidator({}, clientDict)
         chkOpp = loanObj.chkClientDetails()
-        print(obj.loanType)
 
-        if self.request.user.profile.isCreditRep==True:
-            obj.user =self.request.user
-        else:
-            obj.user = None
+        if obj.user==None and self.request.user.profile.isCreditRep == True:
+            obj.user = self.request.user
 
         if chkOpp['status'] == "Error":
             obj.status = 0
@@ -292,6 +290,9 @@ class EnquiryConvert(LoginRequiredMixin, View):
         queryset = Enquiry.objects.queryset_byUID(enqUID)
         enq_obj = queryset.get()
         enqDict = Enquiry.objects.dictionary_byUID(enqUID)
+
+        if enqDict['name'] == None:
+            enqDict['name']="Unknown"
 
         #Create dictionary of Case fields from Enquiry fields
         if ' ' in enqDict['name']:
@@ -620,3 +621,46 @@ class EnquiryOwnView(LoginRequiredMixin, View):
             messages.error(self.request, "You must be a Credit Representative to take ownership")
 
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
+
+
+# Follow Up Email
+class FollowUpEmail(LoginRequiredMixin, TemplateView):
+    template_name = 'enquiry/email/email_followup.html'
+    model = Enquiry
+
+    def get(self, request, *args, **kwargs):
+        email_context = {}
+        enqID = str(kwargs['uid'])
+
+        enqObj = Enquiry.objects.queryset_byUID(enqID).get()
+
+        email_context['obj'] = enqObj
+        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+        email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
+
+        if not enqObj.user:
+            messages.error(self.request, "This enquiry is not assigned to a user. Please take ownership")
+            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
+
+        bcc=enqObj.user.email
+        subject, from_email, to = "Household Capital: Follow-up", enqObj.user.email, enqObj.email
+        text_content = "Text Message"
+
+        enqObj.followUp = datetime.datetime.now()
+        enqObj.save(update_fields=['followUp'])
+        try:
+            html = get_template(self.template_name)
+            html_content = html.render(email_context)
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [bcc])
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+            messages.success(self.request, "Follow-up emailed to client")
+
+            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
+
+        except:
+            write_applog("ERROR", 'FollowUpEmail', 'get',
+                "Failed to email follow-up:" + enqID)
+            messages.error(self.request, "Follow-up could not be emailed")
+            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
+

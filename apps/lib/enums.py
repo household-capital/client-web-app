@@ -16,6 +16,8 @@ class caseTypesEnum(Enum):
     MEETING_HELD= 2
     CLOSED=3
     APPLICATION=4
+    PRE_APPROVAL=5
+    APPROVED = 6
 
 @accessInTemplate
 class clientTypesEnum(Enum):

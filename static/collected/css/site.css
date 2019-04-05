@@ -38,8 +38,8 @@ a,p, a:link, a:visited {
     color: grey;
 }
 
-.navbar-inverse .navbar-brand {
-    color: white;
+.dropdown.navbar-color{
+    color: grey;
 }
 
 .navbar {
@@ -59,6 +59,27 @@ body {
 .appLogo {
     padding: 15px;
 }
+
+.title {
+    font-family: MercuryDisplay;
+    font-size: 36px;
+}
+
+.larger {
+    font-family: MaisonNeue;
+    font-size: larger;
+}
+
+.x-large {
+    font-family: MaisonNeue;
+    font-size: x-large;
+}
+
+.xx-large {
+    font-family: MaisonNeue;
+    font-size: xx-large;
+}
+
 
 /* Theme */
 .jumbotron {
@@ -143,5 +164,5 @@ body {
     height: 100%;
     width: 100%;
     position: absolute;
-    overflow: hidden;
+    overflow: auto;
 }

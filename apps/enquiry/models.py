@@ -49,7 +49,7 @@ class Enquiry(models.Model):
     name=models.CharField(max_length=30,blank= True,null=True)
     age_1=models.IntegerField(blank=True, null=True)
     age_2 = models.IntegerField(blank=True, null=True)
-    dwellingType=models.BooleanField(default=True, blank=False, null=False, choices=dwellingTypes)
+    dwellingType=models.IntegerField(blank=False, null=False, choices=dwellingTypes)
     valuation=models.IntegerField(blank=True, null=True)
     postcode=models.IntegerField(blank=True, null=True)
     status=models.BooleanField(default=True, blank=False, null=False)
@@ -67,6 +67,7 @@ class Enquiry(models.Model):
     actioned=models.IntegerField(default=0,blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+    followUp = models.DateTimeField(null=True, blank=True, auto_now_add=False, auto_now=False)
     summaryDocument = models.FileField(null=True, blank=True)
 
     phoneNumber=models.CharField(max_length=15,blank=True,null=True)

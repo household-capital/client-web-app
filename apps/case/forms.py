@@ -24,7 +24,7 @@ class CaseDetailsForm(forms.ModelForm):
     pensionAmount = forms.IntegerField(required=False, localize=True, widget=widgets.TextInput())
     propertyImage = forms.ImageField(required=False, widget=forms.FileInput)
     valuationDocument = forms.FileField(required=False, widget=forms.FileInput)
-
+    titleDocument = forms.FileField(required=False, widget=forms.FileInput)
 
     class Meta:
         model = Case
@@ -32,7 +32,7 @@ class CaseDetailsForm(forms.ModelForm):
                   'clientType1', 'surname_1', 'firstname_1', 'birthdate_1', 'age_1', 'sex_1',
                   'clientType2', 'surname_2', 'firstname_2', 'birthdate_2', 'age_2', 'sex_2',
                   'street', 'suburb', 'postcode', 'valuation', 'dwellingType', 'propertyImage', 'mortgageDebt',
-                  'superFund', 'valuationDocument', 'state',
+                  'superFund', 'valuationDocument', 'state', 'titleDocument',
                   'superAmount', 'pensionType', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email']
         widgets = {
             'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
@@ -98,11 +98,13 @@ class CaseDetailsForm(forms.ModelForm):
                     HTML("<i class='fas fa-hand-holding-usd'></i>&nbsp;&nbsp;<small>Pension</small>"),
                     Field('pensionAmount', placeholder='Pension Amount (per fortnight)'),
                     Field('pensionType', placeholder='Pension Type'),
-                    Div(HTML("<p class='small'><i class='fa fa-camera fa-fw'>&nbsp;&nbsp;</i>Property Image</p>"),
+                    Div(HTML("<p class='small pt-2'><i class='fa fa-camera fa-fw'>&nbsp;&nbsp;</i>Property Image</p>"),
                         Field('propertyImage')),
-                    Div(HTML("<p class='small'><i class='far fa-file-pdf'></i>&nbsp;&nbsp;</i>Auto Valuation</p>"),
+                    Div(HTML("<p class='small pt-2'><i class='far fa-file-pdf'></i>&nbsp;&nbsp;</i>Auto Valuation</p>"),
                         Field('valuationDocument')),
-                    Div(HTML("<p class='small'><i class='fas fa-funnel-dollar'></i>&nbsp;</i>Sales Channel</p>"),
+                    Div(HTML("<p class='small pt-2'><i class='far fa-file-pdf'></i>&nbsp;&nbsp;</i>TitleDocument</p>"),
+                        Field('titleDocument')),
+                    Div(HTML("<p class='small pt-2'><i class='fas fa-funnel-dollar'></i>&nbsp;</i>Sales Channel</p>"),
                         Field('salesChannel')),
                     css_class="col-lg-6"),
                 css_class="row")
@@ -134,12 +136,13 @@ class LossDetailsForm(forms.ModelForm):
 
     class Meta:
         model = LossData
-        fields = ['lossNotes', 'lossDate', 'ragStatus', 'clientNeed', 'purposeTopUp',
+        fields = ['lossNotes', 'lossDate', 'ragStatus', 'purposeTopUp',
+                  'followUp','followUpDate','followUpNotes',
                   'purposeRefi', 'purposeLive', 'purposeGive', 'purposeCare']
 
         widgets = {
             'lossNotes': forms.Textarea(attrs={'rows': 5, 'cols': 100}),
-            'clientNeed': forms.Textarea(attrs={'rows': 5, 'cols': 100})
+            'followUpNotes': forms.Textarea(attrs={'rows': 5, 'cols': 100}),
 
         }
 
@@ -169,34 +172,37 @@ class LossDetailsForm(forms.ModelForm):
                 css_class="col-lg-4"),
 
             Div(
-                HTML("<i class='fas fa-user-tag'></i>&nbsp;&nbsp;<small>Additional Client Notes</small>"),
+                HTML("<i class='fas fa-user-tag'></i>&nbsp;&nbsp;<small>Follow-up Required</small>"),
                 Div(
-                    Div(Field('clientNeed', placeholder='Client need (own words)'))),
+                    Div(Field('followUp', placeholder='Follow Up?')),
+                    Div(Field('followUpDate', placeholder='Follow Up Date')),
+                    Div(Field('followUpNotes', placeholder='Follow Up Notes')),
+                ),
                 css_class="col-lg-4"),
             Div(
                 HTML("<i class='fas fa-user-edit'></i>&nbsp;&nbsp;<small>Intended Purposes</small>"),
                 Div(
                     Div(Field('purposeTopUp'), css_class="col-lg-2"),
-                    Div(HTML("<p class='small'>Top-up</p>"), css_class="col-lg-4 pt-1 pl-0"),
+                    Div(HTML("<p>Top-up</p>"), css_class="col-lg-4 pt-1 pl-0"),
                     css_class='row'),
                 Div(
                     Div(Field('purposeRefi'), css_class="col-lg-2"),
-                    Div(HTML("<p class='small'>Refinance</p>"), css_class="col-lg-4 pt-1 pl-0"),
+                    Div(HTML("<p>Refinance</p>"), css_class="col-lg-4 pt-1 pl-0"),
                     css_class='row'),
                 Div(
                     Div(Field('purposeLive'), css_class="col-lg-2"),
-                    Div(HTML("<p class='small'>Live</p>"), css_class="col-lg-4 pt-1 pl-0 "),
+                    Div(HTML("<p>Live</p>"), css_class="col-lg-4 pt-1 pl-0 "),
                     css_class='row'),
                 Div(
                     Div(Field('purposeGive'), css_class="col-lg-2"),
-                    Div(HTML("<p class='small'>Give</p>"), css_class="col-lg-4 pt-1 pl-0"),
+                    Div(HTML("<p>Give</p>"), css_class="col-lg-4 pt-1 pl-0"),
                     css_class='row'),
                 Div(
                     Div(Field('purposeCare'), css_class="col-lg-2"),
-                    Div(HTML("<p class='small'>Care</p>"), css_class="col-lg-4 pt-1 pl-0"),
+                    Div(HTML("<p>Care</p>"), css_class="col-lg-4 pt-1 pl-0"),
                     css_class='row'),
                 Div(
-                    Div(Submit('submit', 'Close Case ', css_class='btn btn-warning')),
+                    Div(Submit('submit', 'Update ', css_class='btn btn-warning')),
                     css_class="col-lg-4 text-left"),
                 css_class="col-lg-4"),
             css_class='row')
@@ -245,6 +251,36 @@ class SolicitorForm(forms.ModelForm):
         Div(
             Div(
                 Field('specialConditions', placeholder='Enter any special conditions'),
+                Field('password', placeholder='Salesforce API Password')),
+            Div(
+                Div(Submit('submit', 'Create ', css_class='btn btn-warning')),
+            ),
+        ))
+
+
+class ValuerForm(forms.ModelForm):
+    class Meta:
+        model = Case
+        fields =['valuerFirm', 'valuerEmail', 'valuerContact']
+
+    # Form Data
+    password = forms.CharField(required=True, widget=forms.PasswordInput)
+    valuerContact = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 6, 'cols': 100}))
+
+    # Form Layout
+    helper = FormHelper()
+    helper.form_method = 'POST'
+    helper.form_class = 'form-horizontal col-lg-12'
+    helper.field_class = 'col-lg-10'
+    helper.form_show_labels = False
+    helper.form_show_errors = True
+    helper.layout = Layout(
+        Div(
+            Div(
+                Field('valuerFirm', placeholder='Firm Name'),
+                Field('valuerEmail', placeholder='Valuer Email'),
+                Field('valuerContact', placeholder='Specific Client Contact Details'),
+
                 Field('password', placeholder='Salesforce API Password')),
             Div(
                 Div(Submit('submit', 'Create ', css_class='btn btn-warning')),

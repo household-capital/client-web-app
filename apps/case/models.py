@@ -51,7 +51,9 @@ class Case(models.Model):
                   (caseTypesEnum.OPPORTUNITY.value, "Opportunity"),
                   (caseTypesEnum.MEETING_HELD.value, "Meeting Held"),
                   (caseTypesEnum.APPLICATION.value, "Application"),
+                  (caseTypesEnum.PRE_APPROVAL.value, "Pre-approval"),
                   (caseTypesEnum.CLOSED.value, "Closed"),
+                  (caseTypesEnum.APPROVED.value,"Approved")
     )
 
     clientTypes=(
@@ -143,17 +145,23 @@ class Case(models.Model):
     pensionAmount=models.IntegerField(null=True, blank=True)
 
     meetingDate = models.DateTimeField(blank=True, null=True)
-    summaryDocument = models.FileField(null=True, blank=True)
-    responsibleDocument= models.FileField(null=True, blank=True)
-    privacyDocument= models.FileField(null=True, blank=True)
-    electronicDocument= models.FileField(null=True, blank=True)
-    dataDocument= models.FileField(null=True, blank=True)
-    enquiryDocument = models.FileField(null=True, blank=True)
-    instructionDocument = models.FileField(null=True, blank=True)
-    valuationDocument= models.FileField(null=True, blank=True,upload_to='customerDocuments')
+    summaryDocument = models.FileField(max_length=150,null=True, blank=True)
+    responsibleDocument= models.FileField(max_length=150,null=True, blank=True)
+    privacyDocument= models.FileField(max_length=150,null=True, blank=True)
+    electronicDocument= models.FileField(max_length=150,null=True, blank=True)
+    dataDocument= models.FileField(max_length=150,null=True, blank=True)
+    enquiryDocument = models.FileField(max_length=150,null=True, blank=True)
+    valuationDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='customerDocuments')
+    solicitorInstruction = models.FileField(max_length=150,null=True, blank=True)
+    valuerInstruction= models.FileField(max_length=150, null=True, blank=True)
+    titleDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='customerDocuments')
+    specialConditions=models.TextField(null=True, blank=True)
+
+    valuerFirm=models.CharField(max_length=20, null=True, blank=True)
+    valuerEmail=models.EmailField(null=True, blank=True)
+    valuerContact=models.TextField(null=True, blank=True)
 
     salesChannel = models.IntegerField(choices=channelTypes,null=True, blank=True)
-    specialConditions=models.TextField(null=True, blank=True)
 
     sfLeadID = models.CharField(max_length=20, null=True, blank=True)
     sfOpportunityID = models.CharField(max_length=20, null=True, blank=True)
@@ -300,11 +308,18 @@ class LossData(models.Model):
         (ragTypesEnum.AMBER.value, 'AMBER'),
         (ragTypesEnum.GREEN.value, 'GREEN'),)
 
+    trueFalse = (
+        (False, 'No'),
+        (True,'Yes')
+    )
+
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
     lossNotes=models.TextField(blank=True, null=True)
-    lossDate = models.DateTimeField(blank=True, null=True)
-    ragStatus = models.IntegerField(default=0, choices=ragTypes)
-    clientNeed= models.TextField(blank=True, null=True)
+    lossDate = models.DateField(blank=True, null=True)
+    ragStatus = models.IntegerField(blank=True, null=True, choices=ragTypes)
+    followUp=models.BooleanField(default=False, blank=True,null=True, choices=trueFalse)
+    followUpDate=models.DateField(blank=True, null=True)
+    followUpNotes = models.TextField(blank=True, null=True)
     purposeTopUp = models.BooleanField(default=False)
     purposeRefi=models.BooleanField(default=False)
     purposeLive=models.BooleanField(default=False)

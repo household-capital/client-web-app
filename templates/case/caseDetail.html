@@ -11,9 +11,9 @@
             <div class="row justify-content-md-center pt-3">
                 <div class="col-6 text-center">
                     {% for message in messages %}
-                        <p{% if message.tags == 'error'%} class="alert alert-danger"{% endif %}
-                        {% if message.tags == 'warning'%} class="alert alert-warning"{% endif %}
-                        {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                        <p{% if message.tags == 'error' %} class="alert alert-danger"{% endif %}
+                                {% if message.tags == 'warning' %} class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
                                 {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
                             {{ message }}</p>
                     {% endfor %}
@@ -49,8 +49,8 @@
                 <br>
 
                 {% if obj.sfLeadID %}
-                    <p class="larger" style="color:deepskyblue"><i class="fas fa-cloud fa-lg pb-4"></i>&nbsp;Managed in
-                        Salesforce</p>
+                    <p class="larger" style="color:deepskyblue"><i class="fas fa-cloud fa-lg pb-4"></i>&nbsp;
+                        Salesforce {{ obj.sfLoanID }}</p>
 
                 {% else %}
 
@@ -102,14 +102,15 @@
 
                                     <!-- All -->
                                     <a class="dropdown-item"
-                                               href="{% url 'case:caseOwn' uid=obj.caseUID %}">
-                                                &nbsp;<i class="fas fa-crown"></i>&nbsp;&nbsp;Take Ownership
-                                            </a>
+                                       href="{% url 'case:caseOwn' uid=obj.caseUID %}">
+                                        &nbsp;<i class="fas fa-crown"></i>&nbsp;&nbsp;Take Ownership
+                                    </a>
 
-                                            <div class="dropdown-divider"></div>
 
                                     <!-- LEAD -->
                                     {% if obj.caseType == caseTypesEnum.LEAD.value %}
+
+                                        <div class="dropdown-divider"></div>
 
                                         <a class="dropdown-item" data-toggle="modal" href="#deleteModal">
                                             &nbsp;<i class="far fa-trash-alt fa-fw"></i>&nbsp;&nbsp;Delete
@@ -138,8 +139,10 @@
                                     <!-- OPPORTUNITY -->
                                     {% if obj.caseType == caseTypesEnum.OPPORTUNITY.value %}
 
+                                        <div class="dropdown-divider"></div>
+
                                         <a class="dropdown-item" href="{% url 'client:meeting' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-users fa-fw"></i></i>&nbsp;&nbsp;Meeting
+                                            &nbsp;<i class="fas fa-users fa-fw"></i>&nbsp;&nbsp;Meeting
                                         </a>
 
                                         <div class="dropdown-divider"></div>
@@ -150,12 +153,20 @@
                                             Lead&nbsp;&nbsp;
                                         </a>
 
-                                         <div class="dropdown-divider"></div>
+                                        <div class="dropdown-divider"></div>
 
                                         <a class="dropdown-item" href="{% url 'case:caseSolicitor' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-gavel"></i></i>&nbsp;&nbsp;Create
+                                            &nbsp;<i class="fas fa-gavel"></i>&nbsp;&nbsp;Create
                                             Solicitor Instruction&nbsp;&nbsp;
                                         </a>
+
+                                        <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item" href="{% url 'case:caseValuer' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-home"></i>&nbsp;&nbsp;Create
+                                            Valuer Instruction&nbsp;&nbsp;
+                                        </a>
+
 
                                     {% endif %}
 
@@ -163,6 +174,7 @@
                                     {% if obj.caseType == caseTypesEnum.MEETING_HELD.value %}
 
                                         {% if obj.summaryDocument and obj.email %}
+                                            <div class="dropdown-divider"></div>
                                             <a class="dropdown-item" data-toggle="modal" href="#clientModal">
                                                 &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Client Loan
                                                 Summary&nbsp;&nbsp;
@@ -177,14 +189,33 @@
                                             Lead&nbsp;&nbsp;
                                         </a>
 
-                                         <div class="dropdown-divider"></div>
+                                        <div class="dropdown-divider"></div>
 
-                                         <a class="dropdown-item" href="{% url 'case:caseSolicitor' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-gavel"></i></i>&nbsp;&nbsp;Create
+                                        <a class="dropdown-item" href="{% url 'case:caseSolicitor' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-gavel"></i>&nbsp;&nbsp;Create
                                             Solicitor Instruction&nbsp;&nbsp;
                                         </a>
+
+                                        <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item" href="{% url 'case:caseValuer' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-home"></i>&nbsp;&nbsp;Create
+                                            Valuer Instruction&nbsp;&nbsp;
+                                        </a>
+
+
                                     {% endif %}
 
+
+                                    <!-- CLOSED -->
+                                    {% if obj.caseType == caseTypesEnum.CLOSED.value %}
+
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="{% url 'case:caseClose' uid=obj.caseUID %}">
+                                            &nbsp;<i class="far fa-folder"></i>&nbsp;&nbsp;Show Close Information&nbsp;&nbsp;
+                                        </a>
+
+                                    {% endif %}
 
                                 </div>
                             {% endif %}
@@ -268,15 +299,23 @@
                                     <p><a href="/media/customerReports/{{ obj.enquiryDocument.file|filename }}">Enquiry
                                         Document </a></p>
                                 {% endif %}
-                              {% if obj.valuationDocument %}
-                                    <p><a href="/media/customerDocuments/{{ obj.valuationDocument.file|filename }}">Auto Val
+                                {% if obj.valuationDocument %}
+                                    <p><a href="/media/customerDocuments/{{ obj.valuationDocument.file|filename }}">Auto
+                                        Val
                                         Document </a></p>
                                 {% endif %}
-                              {% if obj.instructionDocument %}
-                                    <p><a href="/media/customerReports/{{ obj.instructionDocument.file|filename }}">Solicitors Instruction </a></p>
+                                {% if obj.titleDocument %}
+                                    <p><a href="/media/customerDocuments/{{ obj.titleDocument.file|filename }}">Title
+                                        Search </a></p>
                                 {% endif %}
-
-
+                                {% if obj.solicitorInstruction %}
+                                    <p><a href="/media/customerReports/{{ obj.solicitorInstruction.file|filename }}">Solicitors
+                                        Instruction </a></p>
+                                {% endif %}
+                                {% if obj.valuerInstruction %}
+                                    <p><a href="/media/customerReports/{{ obj.valuerInstruction.file|filename }}">Valuer
+                                        Instruction </a></p>
+                                {% endif %}
 
 
                             </div>
