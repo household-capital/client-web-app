@@ -202,8 +202,12 @@ class LoanValidator():
         if lvr<0:
             lvr=0
 
-        # LVR
+        #Max Loan Adjustment LVR
+        if int(round(lvr * self.aggDict['valuation'], 0)) > LOAN_LIMITS['maxLoanSize']:
+            lvr= round((LOAN_LIMITS['maxLoanSize']/self.aggDict['valuation']),2)
+            print(lvr,LOAN_LIMITS['maxLoanSize'],self.aggDict['valuation'])
         self.maxLvr = lvr * 100
+
 
         #Limits
         self.loanLimit = int(round(lvr * self.aggDict['valuation'], 0))

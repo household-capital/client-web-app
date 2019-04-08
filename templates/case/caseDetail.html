@@ -155,6 +155,14 @@
 
                                         <div class="dropdown-divider"></div>
 
+                                        <a class="dropdown-item" href="{% url 'case:caseData' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-file-csv"></i>&nbsp;&nbsp;Create
+                                            Application
+                                            CSV&nbsp;&nbsp;
+                                        </a>
+
+                                        <div class="dropdown-divider"></div>
+
                                         <a class="dropdown-item" href="{% url 'case:caseSolicitor' uid=obj.caseUID %}">
                                             &nbsp;<i class="fas fa-gavel"></i>&nbsp;&nbsp;Create
                                             Solicitor Instruction&nbsp;&nbsp;
@@ -187,6 +195,14 @@
                                             &nbsp;<i class="far fa-cloud fa-fw"></i>&nbsp;&nbsp;Create
                                             Salesforce
                                             Lead&nbsp;&nbsp;
+                                        </a>
+
+                                        <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item" href="{% url 'case:caseData' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-file-csv"></i>&nbsp;&nbsp;Create
+                                            Application
+                                            CSV&nbsp;&nbsp;
                                         </a>
 
                                         <div class="dropdown-divider"></div>
@@ -295,6 +311,9 @@
                                 {% if obj.dataDocument %}
                                     <p><a href="/media/customerReports/{{ obj.dataDocument.file|filename }}">Customer
                                         Data</a></p>{% endif %}
+                                {% if obj.dataCSV %}
+                                    <p><a href="/media/customerReports/{{ obj.dataCSV.file|filename }}">Application
+                                        CSV</a></p>{% endif %}
                                 {% if obj.enquiryDocument %}
                                     <p><a href="/media/customerReports/{{ obj.enquiryDocument.file|filename }}">Enquiry
                                         Document </a></p>

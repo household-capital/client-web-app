@@ -693,3 +693,77 @@ class CaseValuerView(LoginRequiredMixin, SFHelper, UpdateView):
             return HttpResponseRedirect(reverse_lazy('case:caseValuer', kwargs={'uid': str(caseObj.caseUID)}))
 
 
+
+class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
+    template_name = 'case/caseData.html'
+
+    form_class = SFPasswordForm
+
+    def get(self, request, *args, **kwargs):
+        caseUID = str(self.kwargs['uid'])
+        caseObj = Case.objects.queryset_byUID(caseUID).get()
+
+        if not caseObj.sfLeadID:
+            messages.error(self.request, "No Salesforce lead associated with this case")
+            return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'pk': caseObj.pk}))
+        else:
+            return super(CaseDataExtract,self).get(request, *args, **kwargs)
+
+
+    def get_context_data(self, **kwargs):
+        context = super(CaseDataExtract, self).get_context_data(**kwargs)
+        context['title'] = "Create Application Data File"
+
+        return context
+
+
+    def form_valid(self, form):
+
+        caseObj = Case.objects.filter(caseUID=self.kwargs['uid']).get()
+        password = form.cleaned_data['password']
+        sfAPI = apiSalesforce()
+        status = sfAPI.openAPI(password)
+
+        if status:
+
+            result, message = self.getSFids(sfAPI, caseObj)
+
+            if result == False and message == "Opportunity":
+                messages.error(self.request, "Could not find Opportunity in Salesforce")
+                return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'pk': caseObj.pk}))
+
+            if result == False and message == "Loan":
+                messages.error(self.request, "Could not find Loan in Salesforce")
+                return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'pk': caseObj.pk}))
+
+            # generate dictionary
+            loanDict = sfAPI.getLoanExtract(caseObj.sfOpportunityID)
+
+
+            loanDict.update(Case.objects.dictionary_byUID(str(self.kwargs['uid'])))
+
+
+            targetFile= settings.MEDIA_ROOT + "/customerReports/data-"+str(caseObj.caseUID)[-12:] + ".csv"
+
+            with open(targetFile, 'w') as f:
+                for key in loanDict.keys():
+                    f.write("%s," % key)
+                f.write("EOL\n")
+
+                for key in loanDict.keys():
+                    f.write("%s," % str(loanDict[key]).replace(",",""))
+                f.write("EOL\n")
+                f.close()
+
+            caseObj.dataCSV=targetFile
+            caseObj.save(update_fields=['dataCSV'])
+
+            messages.success(self.request, "Application Data File Created")
+            return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'pk': caseObj.pk}))
+        else:
+            messages.error(self.request, "Could not log-in to Salesforce API")
+            return HttpResponseRedirect(reverse_lazy('case:caseData', kwargs={'uid': str(caseObj.caseUID)}))
+
+
+
+
