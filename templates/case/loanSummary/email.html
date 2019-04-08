@@ -1,0 +1,25 @@
+{% extends 'case/loanSummary/email_template.html' %}
+{% load humanize %}
+{% load static %}
+
+
+{% block email_content %}
+
+    <p>{% if obj.surname_1|length > 0 %}{{ obj.firstname_1 }} {% endif %} {% if obj.surname_2|length > 0 %} and {{ obj.firstname_2 }} {% endif %}</p>
+<br>
+    <p>It was my pleasure to meet with you today to discuss how a Household Transfer might be used to help meet your objectives.</p>
+<br>
+<p>Attached below is your Summary Report from our meeting.</p>
+<br>
+<p>Please don't hesitate to contact me should you have any questions or would like to proceed to an application.</p>
+<br>
+<p>Kind regards</p>
+<br>
+<p>{{ obj.user.first_name }}&nbsp;{{ obj.user.last_name }}</p>
+<br>
+<img src="{{ absolute_media_url }}{{ obj.user.profile.picture }}" width="100px">
+
+
+{% endblock %}
+
+

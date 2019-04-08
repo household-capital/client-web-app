@@ -17,10 +17,13 @@
         <div class="collapse navbar-collapse" id="navbar">
 
             <ul class="nav navbar-nav ml-auto">
-                <li><a href="{% url 'client:settings' %}"><i class="fas fa-cog"></i>&nbsp;Settings&nbsp;&nbsp;&nbsp;</a></li>
-                {%  if surname_1 is not None %}
-                    <li><a href="{% url 'client:setClient' %}"><i class="fas fa-user-circle"></i>  {{ surname_1 }}&nbsp;&nbsp;&nbsp;</a></li>
+                {% if loanType == 0 %}
+                    <li><a href="{% url 'client:setClient' %}"><i class="fas fa-user"></i>  {{ surname_1 }}&nbsp;&nbsp;&nbsp;</a></li>
+                {% else %}
+                    <li><a href="{% url 'client:setClient' %}"><i class="fas fa-user-friends"></i>  {{ surname_1 }}&nbsp;&nbsp;&nbsp;</a></li>
                 {% endif %}
+                <li><a href="{% url 'client:settings' %}"><i class="fas fa-cog"></i>&nbsp;Settings&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp</a></li>
+                <li><a href=""><i class="fas fa-user-circle"></i> &nbsp{{ request.user.username }}&nbsp&nbsp;&nbsp;</a></li>
                 <li><a href='{% url "accounts:logout" %}'><i class="fas fa-sign-out-alt"></i>  Exit </a></li>
             </ul>
 

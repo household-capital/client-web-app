@@ -1,16 +1,19 @@
+#Python Imports
 import csv
 
-from apps.lib.globals import LOAN_LIMITS
+#Django Imports
 from django.conf import settings
 
-from apps.lib.enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,pensionTypesEnum, loanTypesEnum
+#Local Application Imports
+from apps.lib.enums import  dwellingTypesEnum , loanTypesEnum
+from apps.lib.globals import LOAN_LIMITS
 
 
 class LoanValidator():
 
     #Utility class to validate whether a loan meets HHC lending guidelines and restrictions
     #Object is established through passing loan and client dictionaries (with all required fields)
-    #Two methods: chkClientDtails and getStatus return dictionaries (JSON like) with relevant details
+    #Two methods: chkClientDtails and getStatus return dictionaries with relevant details
 
     def __init__(self,loanDict,clientDict ):
 
@@ -19,8 +22,6 @@ class LoanValidator():
         self.aggDict.update(loanDict)
         self.aggDict.update(clientDict)
 
-        print(self.aggDict['loanType'],loanTypesEnum.JOINT_BORROWER.value)
-
         if self.aggDict['dwellingType']==dwellingTypesEnum.HOUSE.value:
             self.isApartment=False
         else:
@@ -28,7 +29,10 @@ class LoanValidator():
 
         if self.aggDict['loanType']==loanTypesEnum.JOINT_BORROWER.value:
             self.isCouple = True
-            self.clientAge = min(self.aggDict['age_1'],self.aggDict['age_2'])
+            if self.aggDict['age_2']!=None:
+                self.clientAge = min(self.aggDict['age_1'],self.aggDict['age_2'])
+            else:
+                self.clientAge = self.aggDict['age_1']
         else:
             self.isCouple = False
             self.clientAge = self.aggDict['age_1']
@@ -63,7 +67,6 @@ class LoanValidator():
                 return status
 
         #Check Postcode
-
         reader = csv.reader(open(settings.BASE_DIR + '/apps/lib/Postcodes.csv', 'r'))
         pcodeDict = dict(reader)
 
@@ -73,7 +76,7 @@ class LoanValidator():
             status['status'] = "Error"
             status['details'] = 'Invalid Postcode'
 
-
+        #Check Missing Age
         if self.aggDict['loanType'] == loanTypesEnum.JOINT_BORROWER.value and self.aggDict['age_2'] == None:
             status['status'] = "Error"
             status['details'] = 'Missing Age'
@@ -101,7 +104,7 @@ class LoanValidator():
 
          # Check Mortgage Debt
         if 'mortgageDebt' in self.aggDict:
-            if int(self.aggDict['mortgageDebt'])>int(self.maxLvr/100 * self.aggDict['valuation'] * LOAN_LIMITS['maxRefi']):
+            if self.intNone(self.aggDict['mortgageDebt'])>int(self.maxLvr/100 * self.aggDict['valuation'] * LOAN_LIMITS['maxRefi']):
                 status['status'] = "Error"
                 status['details'] = 'Mortgage debt too large to be refinanced'
                 return status
@@ -146,11 +149,12 @@ class LoanValidator():
         #fee from the total Loan Amount
 
 
-        self.status['maxLVR']=int(round(self.maxLvr,0))
+        self.status['maxLVR']=round(self.maxLvr,1)
         self.status['maxNetLoanAmount']=round(self.loanLimit-self.maxEstablishmentFee,0)
         self.status['availableAmount']=int(round(self.availableAmount,0))
         self.status['establishmentFee']=int(round(self.totalLoanAmount/(1+LOAN_LIMITS['establishmentFee'])*LOAN_LIMITS['establishmentFee'],0))
         self.status['totalLoanAmount']=int(round(self.totalLoanAmount,0))
+        self.status['actualLVR']=round(self.totalLoanAmount / self.aggDict['valuation'],1)*100
 
         self.status['errors']=False
         self.chkStatusItem('availableStatus',self.availableAmount,int(0),"LT")
@@ -207,3 +211,8 @@ class LoanValidator():
         self.giveLimit=int(lvr * self.aggDict['valuation'] * LOAN_LIMITS['maxGive'])
         self.travelLimit = int(lvr * self.aggDict['valuation'] * LOAN_LIMITS['maxTravel'])
 
+    def intNone(self,arg):
+        if arg==None:
+            return 0
+        else:
+            return int(arg)

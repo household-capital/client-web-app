@@ -32,15 +32,15 @@
 
 <div class="container justify-content-md-center">
     <div class="row justify-content-md-center">
-        <div class="col-lg-9">
+        <div class="col-md-11">
             <br><br>
             <div class="container cal_background">
                 <div class="row">
-                    <div class="col-lg-12">
+                    <div class="col-md-12">
                         <form id="clientForm" method="post">
                             {% csrf_token %}
                             <div class="row">
-                                <div class="col-lg-6">
+                                <div class="col-md-6">
                                     <br>
                                     <p class="x-large">About you</p><br>
 
@@ -58,7 +58,7 @@
                                         <p>Relationship Status:</p>
                                         <div class="row pt-1 pb-2">
                                             {% for choice in form.loanType.field.choices %}
-                                                <div class="col-lg-4 d-flex align-items-center">
+                                                <div class="col-md-4 d-flex align-items-center">
                                                     <input {% if choice.0|intval == form.loanType.value|intval %}checked="checked" {% endif %}
                                                            id=loanType_{{ choice.1 }} type="radio"
                                                            name="loanType"
@@ -77,12 +77,12 @@
 
                                     <p>Your age:</p>
                                     <div id="div_id_name" class="form-group row pt-1">
-                                        <div class="col-lg-5">
+                                        <div class="col-md-5 pb-3">
                                             <input type="text" name="age_1" autofocus required placeholder="Your age"
                                                    class="textinput textInput form-control" id="id_age_1"
                                                    {% if form.age_1.value != None %}value="{{ form.age_1.value }}"{% endif %}>
                                         </div>
-                                        <div class="col-lg-5">
+                                        <div class="col-md-5">
                                             <input type="text" name="age_2" autofocus placeholder="Spouse age"
                                                    class="textinput textInput form-control" id="id_age_2"
                                                    {% if form.age_2.value != None %}value="{{ form.age_2.value }}"{% endif %}>
@@ -93,12 +93,12 @@
                                     </div>
                                 </div>
 
-                                <div class="col-lg-6">
+                                <div class="col-md-6">
                                     <br>
                                     <p class="x-large">About your home</p><br>
 
                                     <p>Your postcode:</p>
-                                    <div class="col-lg-5">
+                                    <div class="col-md-5">
                                         <div id="div_id_name" class="form-group row pt-1">
                                             <input type="text" name="postcode" autofocus required placeholder="Postcode"
                                                    class="textinput textInput form-control" id="id_postcode"
@@ -110,7 +110,7 @@
                                         <p>Home type:</p>
                                         <div class="row pt-1 pb-2">
                                             {% for choice in form.dwellingType.field.choices %}
-                                                <div class="col-lg-5 d-flex align-items-center">
+                                                <div class="col-md-5 d-flex align-items-center">
                                                     <input {% if choice.0|intval == form.dwellingType.value|intval %}checked="checked" {% endif %}
                                                            id={{ choice.1 }} type="radio"
                                                            name="dwellingType"
@@ -125,7 +125,7 @@
                                     </div>
 
                                     <p>Home value:</p>
-                                    <div class="col-lg-5">
+                                    <div class="col-md-5">
                                         <div id="div_id_valuation" class="form-group row pt-1">
                                             <input type="text" name="valuation" autofocus placeholder="Estimated value"
                                                    class="textinput textInput form-control" required id="id_valuation"
@@ -138,7 +138,7 @@
                                 </div>
                             </div>
                             <div class="row justify-content-center">
-                                <div class="col-lg-2">
+                                <div class="col-md-2">
                                     <button type="submit" value="Submit" form="clientForm" class="btn btn-hhcGold">
                                         &nbsp;&nbsp;Calculate&nbsp;&nbsp;
                                     </button>
@@ -146,10 +146,12 @@
                                 </div>
                             </div>
 
+                            <input type='hidden' name="referrer"  id="id_referrer" value="{{ request.META.HTTP_REFERER }}">
+
                         </form>
 
                         <div class="row justify-content-center">
-                            <div class="col-lg-8 text-center">
+                            <div class="col-md-8 text-center">
                                 {% for message in messages %}
                                     <p{% if message.tags == 'error' %} class="alert alert-info"{% endif %}
                                             {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
@@ -166,6 +168,7 @@
     </div>
 </div>
 
+
 <script>
 
     function hideAge2(obj) {
@@ -174,15 +177,13 @@
             $('#id_age_2').hide();
 
         }
-    };
-
+    }
     function showAge2(obj) {
         if (obj.is(':checked')) {
             $('#id_age_2').show();
             $('#id_age_2').attr("required", "")
         }
-    };
-
+    }
     $(document).ready(function () {
 
         hideAge2($('#loanType_Single'));

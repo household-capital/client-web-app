@@ -1,4 +1,6 @@
 {% load static %}
+{% load case_tags %}
+
 <nav class="navbar navbar-light navbar-expand-lg navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
@@ -14,7 +16,7 @@
 
             </button>
 
-                <a class="navbar-brand pl-3" href="{% url 'landing:landing' %}">
+            <a class="navbar-brand pl-3" href="{% url 'landing:landing' %}">
                 <img src="{% static '/img/hhc/HC_Logo_Flat.png' %}" height="40">
             </a>
 
@@ -23,20 +25,52 @@
         <div class="collapse navbar-collapse" id="navbar">
 
             <ul class="nav navbar-nav pl-4">
-                {% if request.user.is_authenticated %}
-                <li><a href="{% url 'eligibility:input' %}"><i class="fas fa-user-check"></i> Eligibility</a>&nbsp;&nbsp;&nbsp;&nbsp;</li>
+                {% if request.user.profile.isHousehold %}
+                    <li><a href="{% url 'enquiry:enquiry' %}"><i class="fas fa-user-check"></i> Enquiry</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    </li>
 
-                <li><a href="{% url 'case:caseList' %}"><i class="far fa-list-alt"></i> Case List </a>&nbsp;&nbsp;&nbsp;&nbsp;</li>
+                    <li><a href="{% url 'enquiry:calcList' %}"><i class="fas fa-calculator"></i> Queue
+                    {% if request.session.webQueue|intVal > 0 %}<span class="badge btn-success align-text-top">{{request.session.webQueue}}</span>{% endif %}</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    </li>
+
+                   <li><a href="{% url 'enquiry:enquiryList' %}"><i class="far fa-list-alt"></i> Enquiry List
+                   {% if request.session.enquiryQueue|intVal > 0 %}<span class="badge btn-success align-text-top">{{request.session.enquiryQueue}}</span>{% endif %}</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    </li>
+
+                    <li> | &nbsp;&nbsp;&nbsp;
+                    </li>
+
+                    <li><a href="{% url 'case:caseList' %}"><i class="far fa-list-alt"></i> Case List </a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    </li>
+
+                    <li> | &nbsp;&nbsp;&nbsp;
+                    </li>
+
+                    <li>
+                        <div class="dropdown navbar-color">
+                            <a class="dropdown-toggle" id="dropdownMenuButton"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                               <i class="far fa-file-alt"></i> Analysis
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="{% url 'enquiry:calcSummaryReport' %}">
+                                <i class="fas fa-calculator fa-fw"></i>&nbsp;&nbsp;Calculator Summary &nbsp;&nbsp;</a>
+
+                            </div>
+                        </div>
+                    </li>
+
 
                 {% endif %}
             </ul>
 
             <ul class="nav navbar-nav ml-auto">
                 {% if request.user.is_authenticated %}
-                <li><a href=""><i class="fas fa-user-circle"></i>  {{ request.user.username }}&nbsp;&nbsp;&nbsp;</a></li>
-                <li><a href='{% url "accounts:logout" %}'><i class="fas fa-sign-out-alt"></i>  Logout </a></li>
+                    <li><a href=""><i class="fas fa-user-circle"></i> {{ request.user.username }}&nbsp;&nbsp;&nbsp;</a>
+                    </li>
+                    <li><a href='{% url "accounts:logout" %}'><i class="fas fa-sign-out-alt"></i> Logout </a></li>
                 {% else %}
-                <li><a href='{% url "accounts:login" %}'><i class="fas fa-sign-in-alt"></i>  Log In </a></li>
+                    <li><a href='{% url "accounts:login" %}'><i class="fas fa-sign-in-alt"></i> Log In </a></li>
                 {% endif %}
             </ul>
 

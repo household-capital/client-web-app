@@ -19,17 +19,21 @@ pip install --upgrade django-crispy-forms
 pip install humanize
 pip install api2pdf
 pip install Pillow
+pip install python-dotenv
+pip install pandas
+pip install simple-salesforce
+pip install pip-upgrader
 
 # Install PostgreSql and create database
 sudo apt-get install python-pip python-dev libpq-dev postgresql postgresql-contrib
 sudo su - postgres
 psql
 CREATE DATABASE hhc;
-CREATE USER hhcadminuser WITH PASSWORD 'Household01';
-ALTER ROLE hhcadminuser SET client_encoding TO 'utf8';
-ALTER ROLE hhcadminuser SET default_transaction_isolation TO 'read committed';
-ALTER ROLE hhcadminuser SET timezone TO 'UTC';
-GRANT ALL PRIVILEGES ON DATABASE hhc TO hhcadminuser;
+CREATE USER django WITH PASSWORD 'xxxxxxxxxxxxxxx';
+ALTER ROLE django SET client_encoding TO 'utf8';
+ALTER ROLE django SET default_transaction_isolation TO 'read committed';
+ALTER ROLE django SET timezone TO 'UTC';
+GRANT ALL PRIVILEGES ON DATABASE hhc TO django;
 \q
 exit
 # COPY DJANGO PROJECT TO PROJECT DIRECTORY

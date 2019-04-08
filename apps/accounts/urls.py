@@ -1,6 +1,8 @@
+#Django Imports
 from django.urls import path
+
+#Local Application Imports
 from apps.accounts.views import myLoginView, myPasswordResetView, myPasswordResetDoneView,myLogoutView, myPasswordResetConfirmView,myPasswordResetCompleteView
-from django.contrib.auth.views import *
 
 
 app_name = 'accounts'

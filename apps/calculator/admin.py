@@ -1,7 +1,11 @@
+#Django Imports
 from django.contrib import admin
 
-from .models import WebCalculator
+#Local Application Imports
+from .models import WebCalculator,WebContact
 
-# Register your models here.
-
+# Model registration to enable maintenance in the Admin screens
 admin.site.register(WebCalculator)
+admin.site.register(WebContact)
+
+

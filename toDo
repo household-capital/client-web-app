@@ -1,29 +1,22 @@
 
 
+# IMMEDIATE
 
-# Filtering for Case List
-    - show closed
-    - closed report
+- Queue/Workflow for Web Contact
 
-# Responsible Lending Checklist
+- Analysis Tab (other reports) - missing data
 
-# Deleting Leads / Locking Opportunities
+- Send Documents to Salesforce
 
-# Email approach for clients
 
-# Case close
-    - new screen capture additional fields
-    - extend the case object to include fields
-    - back populate with existing register
 
-# Loan Analytics
+
+# LATER
+
+## Loan Analytics
     - loan capture screen
     - excel based projection for advisers
 
-# Save data to SalesForce
-
-# Save responsible lending form (to
-
-# Add other income to projections
+## Add other income to projections
     - indexed?
 
