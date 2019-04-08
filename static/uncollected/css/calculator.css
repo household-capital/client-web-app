@@ -70,7 +70,17 @@ p.small {
 }
 
 .cal_background{
-    background-color: rgb(249,248,245);
+    /*background-color: rgb(249,248,245);*/
+    background-color: #f9f9f9
+}
+
+.fab.hhcLightBlue{
+    color: rgb(81,132,161);
+}
+
+.crispyform .alert {
+  padding: 0.25rem 0.25rem;
+  margin-top: 2rem;
 }
 
 /* Radio Button Selector */

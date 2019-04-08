@@ -1,0 +1,106 @@
+{% load static %}
+{% load humanize %}
+{% load case_tags %}
+
+<!doctype html>
+
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Other tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- CSS -->
+    {% include 'client_1_0/base/base_client.css.html' %}
+
+    <title>Household Report</title>
+</head>
+
+<body>
+
+<div >
+
+        <br><br>
+        <div class="row justify-content-center">
+            <div class="col-10">
+
+
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">Case Status</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Surname</th>
+                        <th scope="col">Loan Type</th>
+                        <th scope="col">Age</th>
+                        <th scope="col">Postcode</th>
+                        <th scope="col">Valuation</th>
+                        <th scope="col">Adviser</th>
+                        <th scope="col">Owner</th>
+                        <th scope="col">RAG Status</th>
+                        <th scope="col">Top-up</th>
+                        <th scope="col">Refi</th>
+                        <th scope="col">Live</th>
+                        <th scope="col">Give</th>
+                        <th scope="col">Care</th>
+                        <th scope="col">Created</th>
+                        <th scope="col">Last Updated</th>
+                        <th scope="col">Meeting Date</th>
+                        <th scope="col">Loss Date</th>
+                        <th scope="col">Case Notes</th>
+                        <th scope="col">Loss Notes</th>
+
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for obj in object_list %}
+                        <tr>
+                            <td>{{ obj.enumCaseType }}</td>
+                            <td>{{ obj.caseDescription }}</td>
+                            <td>{{ obj.surname_1|strBlank }}</td>
+                            <td>{{ obj.enumLoanType}}</td>
+                            <td>{{ obj.age_1|intBlank }}</td>
+                            <td>{{ obj.postcode|intBlank }}</td>
+                            <td>{{ obj.valuation|intBlank }}</td>
+                            <td>{{ obj.user }}</td>
+                            <td>{{ obj.adviser }}</td>
+                            <td>{{ obj.lossdata_enumRagStatus }}</td>
+                            <td>{{ obj.lossdata_purposeTopUp}}</td>
+                            <td>{{ obj.lossdata_purposeRefi}}</td>
+                            <td>{{ obj.lossdata_purposeLive}}</td>
+                            <td>{{ obj.lossdata_purposeGive}}</td>
+                            <td>{{ obj.lossdata_purposeCare}}</td>
+                            <td>{{ obj.timestamp|date}}</td>
+                            <td>{{ obj.updated|date}}</td>
+                            <td>{{ obj.meetingdate|date}}</td>
+                            <td>{{ obj.lossdata_lossDate|date}}</td>
+                            <td>{{ obj.caseNotes}}</td>
+                            <td>{{ obj.lossdata_lossNotes}}</td>
+
+
+
+
+
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+
+
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+</body>
+</html>

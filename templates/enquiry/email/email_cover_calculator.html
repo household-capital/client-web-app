@@ -1,0 +1,25 @@
+{% extends 'enquiry/email/email_template.html' %}
+{% load humanize %}
+{% load static %}
+
+
+{% block email_content %}
+
+<p>Hello and thank you for using our website calculator.</p>
+<br>
+<p>My name is {{ user.first_name }}&nbsp;{{ user.last_name }} and I am retirement specialist here at Household Capital.</p>
+<br>
+<p>Attached is a brief summary showing how a Household Transfer might be able to meet your objectives, based on the information that you provided via our calculator. </p>
+<br>
+<p>I would be happy to speak to you personally to discuss your individual circumstances. Please don't hesitate to contact me on {{ user.profile.mobile}} or {{user.email }}</p>
+<br>
+<p>Kind regards</p>
+<br>
+<p>{{ user.first_name }}</p>
+<br>
+<img src="{{ absolute_media_url }}{{ user.profile.picture }}" width="100px">
+
+
+{% endblock %}
+
+

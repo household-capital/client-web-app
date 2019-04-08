@@ -1,0 +1,101 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+        <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- The above 2 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="{% static 'img/favicon/favicon.png' %}"/>
+
+    {% include 'client_1_0/base/base_client.css.html' %}
+
+    <title>HouseholdCapital.app</title>
+  </head>
+
+
+<body class="landing">
+{% include 'client_1_0/base/base_client.navbar.html' %}
+
+<div class="container">
+
+    <div class="row" style="height: 30vh">
+    </div>
+
+    <div class="row align-items-center" >
+        <div class="col-md-12 text-center">
+            <img src="{% static 'img/hhc/HC_Logo_Flat.png' %}" class="img-fluid" alt="Responsive image" width="40%">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <br>
+            {% if post_id == 1 %}
+                <button type="button" class="btn btn-hhcBlue" data-toggle="modal" data-target="#electronicConsent">Electronic Consent</button>
+
+            {% elif post_id == 2 %}
+                <a href='{% url "client:introduction1" %}'><span class="btn btn-hhcBlue">&nbsp;&nbsp;&nbsp;Start Meeting&nbsp;&nbsp;&nbsp;</span></a>
+
+            {% else %}
+                <button type="button" class="btn btn-hhcBlue" data-toggle="modal" data-target="#privacyConsent">Privacy Consent</button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<!-- Privacy Consent -->
+<div class="modal fade" id="privacyConsent" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Consent to Use Your Information </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+       {% include 'client_1_0/interface/privacy.html' %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+          <a href='{% url "client:meetingStart" %}/1'><button type="button" class="btn btn-warning">Agree</button></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Electronic Consent -->
+<div class="modal fade" id="electronicConsent" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Consent to Contact You Electronically </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+       {% include 'client_1_0/interface/electronic.html' %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+          <a href='{% url "client:meetingStart" %}/2'><button type="button" class="btn btn-warning">Agree</button></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% include 'client_1_0/base/base_client.js.html' %}
+</body>
+</html>
+

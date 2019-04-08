@@ -2,6 +2,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 {% load humanize %}
+{% load case_tags %}
 
 
 {% block jumbotron %}
@@ -26,7 +27,10 @@
                     <br>
                     {% for message in messages %}
                         <p{% if message.tags == 'error' %}
-                            class="alert alert-warning"{% endif %}>{{ message }}</p>
+                            class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'success' %}
+                            class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
                     {% endfor %}
                 </div>
             </div>
@@ -52,52 +56,163 @@
 
                         <form method='GET' action=''>
 
-                            <div class="form-group row justify-content-center">
+                            <div class="row form-group justify-content-center">
 
                                 <label for="search" class="col-form-label"><i class="fas fa-search fa-lg"></i></label>
 
-                                  <div class="col-5">
-                                <input class='form-control' type='text' name='search' placeholder='Search cases'
-                                       value='{{ request.GET.search }}'/>
-                                  </div>
+                                <div class="col-5">
+                                    <input class='form-control' type='text' name='search' placeholder='Search cases'
+                                           value='{{ request.GET.search }}'/>
+                                </div>
 
-                                <div class="col-2"><a href="{% url 'case:caseCreate' %}"><div class="btn btn-warning">New Case</div></a></div>
+                                <div class="col-4 text-center">
+                                    {% if request.GET.showClosed == "True" %}
+                                        <a href="?showClosed=False&search={{ search }}&myCases={{ myCases }}">
+                                            <div class="btn btn-secondary" data-toggle="tooltip" data-placement="top"
+                                                 title="Filter Open / Closed Cases"><i
+                                                    class="fas fa-user-times fa-fw"></i></div>
+                                        </a>
+                                    {% else %}
+                                        <a href="?showClosed=True&search={{ search }}&myCases={{ myCases }}">
+                                            <div class="btn btn-outline-secondary" data-toggle="tooltip"
+                                                 data-placement="top"
+                                                 title="Filter Open / Closed Cases"><i
+                                                    class="fas fa-user-cog fa-fw "></i></div>
+                                        </a>
+
+                                    {% endif %}
+
+                                    {% if request.GET.myCases == "True" %}
+                                        <a href="?myCases=False&search={{ search }}&showClosed={{ showClosed }}">
+                                            <div class="btn btn-secondary" data-toggle="tooltip" data-placement="top"
+                                                 title="Filter for your Cases">
+                                                <i class="fas fa-user fa-fw" style='color:white'></i></div>
+                                        </a>
+                                    {% else %}
+                                        <a href="?myCases=True&search={{ search }}&showClosed={{ showClosed }}">
+                                            <div class="btn btn-outline-secondary" data-toggle="tooltip"
+                                                 data-placement="top"
+                                                 title="Filter for your Cases"><i class="fas fa-user-friends fa-fw"></i>
+                                            </div>
+
+                                        </a>
+                                    {% endif %}
+                                    <a href="{% url 'case:caseCreate' %}">
+                                        <div class="btn btn-warning" data-toggle="tooltip" data-placement="top"
+                                             title="Open new case"><i class="fas fa-plus fa-fw"></i></div>
+                                    </a>
+
+                                </div>
 
                             </div>
 
                         </form>
+
                         <br>
                     </div>
                 </div>
 
-             <table class="table table-hover">
-            <thead>
-            <tr>
-                <th scope="col">Case Status</th>
-                <th scope="col">Description</th>
-                <th scope="col">Owner</th>
-                <th scope="col">Adviser</th>
-                <th scope="col">Last Updated</th>
+                <table class="table table-hover table-sm">
+                    <thead>
+                    <tr>
+                        <th scope="col" class="d-none d-sm-block"><a href="?order=-caseType">
+                            {% if order == '-caseType' %}<i class="fas fa-sort-down"></i>{% endif %}&nbsp;Case Status</a></th>
+                        <th scope="col"><a href="?order=caseDescription">
+                            {% if order == 'caseDescription' %}<i class="fas fa-sort-down"></i>{% endif %}&nbsp;Description</a></th>
+                        <th scope="col"><a href="?order=user">
+                            {% if order == 'user' %}<i class="fas fa-sort-down"></i>{% endif %}&nbsp;Owner</a></th>
+                        <th scope="col"><a href="?order=adviser">
+                            {% if order == 'adviser' %}<i class="fas fa-sort-down"></i>{% endif %}&nbsp;Adviser</a></th>
+                        <th scope="col" class="d-none d-sm-block"><a href="?order=-updated">
+                            {% if order == '-updated' %}<i class="fas fa-sort-down"></i>{% endif %}&nbsp;Last Updated</a></th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
 
-            </tr>
-            </thead>
-            <tbody>
-            {% for obj in object_list %}
-                <tr>
-                <td><a href="{{ obj.get_absolute_url }}">{{ obj.enumCaseType}}</a></td>
-                <td><a href="{{ obj.get_absolute_url }}">{{ obj.caseDescription }}</a></td>
-                <td><a href="{{ obj.get_absolute_url }}">{{ obj.user }}</a></td>
-                <td><a href="{{ obj.get_absolute_url }}">{{ obj.adviser }}</a></td>
-                <td><a href="{{ obj.get_absolute_url }}">{{ obj.updated|timesince }} ago</a></td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for obj in object_list %}
+                        <tr>
+                            <td class="d-none d-sm-block">
+                                <a href="{{ obj.get_absolute_url }}">
+                                    {{ obj.enumCaseType }}&nbsp;</a></td>
+                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.caseDescription }}</a></td>
+                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.user }}</a></td>
+                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.adviser }}</a></td>
+                            <td class="d-none d-sm-block"><a
+                                    href="{{ obj.get_absolute_url }}">{{ obj.updated|timesince|upto }} ago</a></td>
+                            <td data-toggle="tooltip" data-placement="top" title="Auto Val">
+                                {% if obj.valuationDocument %}<i class="far fa-file-image"></i>{% endif %}</td>
+                            <td data-toggle="tooltip" data-placement="top" title="Meeting Held">
+                                {% if obj.summaryDocument %}<i class="fas fa-users fa-fw"></i>{% endif %}</td>
+                            <td data-toggle="tooltip" data-placement="top" title="Post Meeting Documents">
+                                {% if obj.responsibleDocument %}<i class="far fa-file-archive fa-fw"></i>{% endif %}
+                            </td>
+                            <td data-toggle="tooltip" data-placement="top" title="Loaded to Salesforce">
+                                {% if obj.sfLeadID %}
+                                    <i style="color:deepskyblue" class="fas fa-cloud fa-fw"></i>{% endif %}</td>
+                            <td data-toggle="tooltip" data-placement="top" title="Solicitor Instruction">
+                                {% if obj.solicitorInstruction %}<i class="fas fa-gavel fa-fw"></i>{% endif %}</td>
+                            <td data-toggle="tooltip" data-placement="top" title="Title Search">
+                                {% if obj.titleDocument %}<i class="far fa-file-alt fa-fw"></i>{% endif %}</td>
+                            <td data-toggle="tooltip" data-placement="top" title="Valuer Instruction">
+                                {% if obj.valuerInstruction %}<i class="fas fa-home fa-fw"></i>{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+                {% if is_paginated %}
+                    <hr>
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center pagination-sm">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link"
+                                       href="?order={{ order }}&search={{ search }}&page={{ page_obj.previous_page_number }}&showClosed={{ showClosed }}&myCases={{ myCases }}"
+                                       tabindex="-1">Previous</a>
+                                </li>
+
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link"
+                                       href="#order={{ order }}&showClosed={{ showClosed }}&search={{ search }}&myCases={{ myCases }}"
+                                       tabindex="-1">Previous</a>
+                                </li>
+                            {% endif %}
+                            {% for object in page_obj.paginator.page_range %}
+                                <li class="page-item"><a class="page-link"
+                                                         href="?page={{ forloop.counter }}&order={{ order }}&search={{ search }}&showClosed={{ showClosed }}&myCases={{ myCases }}">{{ forloop.counter }}</a>
+                                </li>
+                            {% endfor %}
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link"
+                                       href="?search={{ search }}&order={{ order }}&page={{ page_obj.next_page_number }}&showClosed={{ showClosed }}&myCases={{ myCases }}">Next</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link"
+                                       href="#&order={{ order }}&showClosed={{ showClosed }}&myCases={{ myCases }}">Next</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+
 
             </div>
+
+
         </div>
 
     </div>
+
 
 
 {% endblock %}
