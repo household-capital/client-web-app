@@ -194,7 +194,7 @@ class LoanValidator():
 
         # Apartment Adjustment
         if self.isApartment:
-            lvr = max(lvr - LOAN_LIMITS['apartmentLvrAdj'], 0)
+            lvr = max(lvr - LOAN_LIMITS['apartmentLvrAdj'], 1)
 
         #Protected Equity
         lvr=lvr*(1-self.aggDict['protectedEquity']/100)
@@ -203,11 +203,11 @@ class LoanValidator():
             lvr=0
 
         #Max Loan Adjustment LVR
+        #If loan greater than maximum dollar amount - infer loan LVR
         if int(round(lvr * self.aggDict['valuation'], 0)) > LOAN_LIMITS['maxLoanSize']:
-            lvr= round((LOAN_LIMITS['maxLoanSize']/self.aggDict['valuation']),2)
-            print(lvr,LOAN_LIMITS['maxLoanSize'],self.aggDict['valuation'])
-        self.maxLvr = lvr * 100
+            lvr= LOAN_LIMITS['maxLoanSize']/self.aggDict['valuation']
 
+        self.maxLvr = lvr * 100
 
         #Limits
         self.loanLimit = int(round(lvr * self.aggDict['valuation'], 0))

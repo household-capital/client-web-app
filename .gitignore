@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 *env
 *env-dev
 *env-prod
@@ -6,6 +7,29 @@
 **/media/
 **/collected/
 *idea/
+=======
+**/collected/
+**logs/
+**media/
+**migrations/
+*.DS_Store
+>>>>>>> dev
 *.log
 *__pycache__*
-*.DS_Store
+*env
+*env-dev
+*env-prod
+*idea/
+.idea/
+.vagrant
+/bin
+/include/python3.7m
+/lib/python3.7
+/logs/
+collected/
+customerImages/
+customerReports/
+fundImages/
+logs/
+migrations/
+production.py
