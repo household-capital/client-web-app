@@ -4,6 +4,7 @@
 LOAN_LIMITS={'minSingleAge' : 60,
              'minCoupleAge' : 65,
              'minLoanSize' : 50000,
+             'maxLoanSize': 550000,
              'maxTopUp' : 500000,
              'maxCare' : 550000,
              'maxReno' : 200000,

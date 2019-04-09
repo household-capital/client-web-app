@@ -26,6 +26,23 @@ Check you can SSH with new username
 ssh django@your_server_ip
 ```
 
+####Change ssh port {optional} 
+````
+sudo ufw allow 2461/tcp
+````
+````
+sudo nano /etc/ssh/sshd_config
+Port 2461
+````
+
+````
+sudo systemctl restart sshd
+````
+
+Check you can SSH with new port:
+```
+ssh -p 2461 django@your_server_ip
+```
 
 ### SECTION 2 - Set Up Django with Postgres
 Install all packages
@@ -289,11 +306,22 @@ sudo nano /etc/nginx/sites-available/django_project
 ```
 
 ```
+
+limit_req_zone $binary_remote_addr zone=onepersec:10m rate=1r/s;
+limit_req_status    429;
+limit_conn_zone $binary_remote_addr zone=addr:10m;
+
+server {
+    listen 80 default_server;
+    return 444;
+}
+
 server {
     listen 80;
-    server_name householdcapital.app;
+    server_name householdcapital.app www.householdcapital.app;
     rewrite ^/(.*) https://householdcapital.app/$1 permanent;
 }
+
 server {
     listen 443 ssl;
     ssl_certificate /etc/ssl/certs/householdcapital.app.chained.crt;
@@ -302,20 +330,40 @@ server {
     ssl_prefer_server_ciphers on;
     ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
 
+    limit_conn addr 50;
+
     location = /favicon.ico { access_log off; log_not_found off; }
     location /static/ {
         alias /home/django/django_project/static/collected/;
     }
 
     location /media/ {
+        limit_req zone=onepersec burst=5;
         alias /home/django/django_project/static/media/;
     }
-
-    location / {
+    
+    location /accounts/ {
+        limit_req zone=onepersec burst=5;
         include proxy_params;
         proxy_pass http://unix:/run/gunicorn.sock;
     }
+
+    location /hhcadmin/ {
+        limit_req zone=onepersec burst=2;
+        include proxy_params;
+         proxy_pass http://unix:/run/gunicorn.sock;
+    }
+
+    location / {
+        limit_req zone=onepersec burst=5;
+        include proxy_params;
+        proxy_pass http://unix:/run/gunicorn.sock;
+    }
+
+    error_page 401 403 404 /404.html;
 }
+    
+
 ```
 
 These additional settings force any http request to be redirected to https and reference the relevant locations of the keys and certificates.

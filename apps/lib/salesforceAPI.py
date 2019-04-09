@@ -9,14 +9,39 @@ from simple_salesforce import Salesforce, SalesforceMalformedRequest
 
 class apiSalesforce():
 
-    qryDefinitions={'OpportunityRef':
-                        "Select ConvertedOpportunityId from Lead where Id=\'{0}\'",
-
-                    'LoanRef':
-                        "Select Name from Loan__c where Opportunity__c=\'{0}\'"
-
-                    }
-
+    qryDefinitions = {'OpportunityRef':
+                          "Select ConvertedOpportunityId from Lead where Id=\'{0}\'",
+                      'LoanRef':
+                          "Select Name from Loan__c where Opportunity__c=\'{0}\'",
+                      'Opportunities':
+                          "Select Id,Name,StageName,CloseDate from Opportunity where RecordType.Name=\'Household\' and StageName=\'Loan Approved\' and isDeleted=False",
+                      'Opportunity':
+                          "Select Id,Name,StageName,CloseDate, OwnerId, Establishment_Fee_Percent__c from Opportunity where Id=\'{0}\'",
+                      'Properties':
+                          "Select Id, Name, Street_Address__c,Suburb_City__c,State__c,Postcode__c,Country__c, Last_Valuation_Date__c, Home_Value_FullVal__c, Valuer__c, Insurer__c, Policy_Number__c, Minimum_Insurance_Value__c  from Properties__c where Opportunity__c=\'{0}\' and isDeleted=False",
+                      'Loan':
+                          "Select Id,Name, Loan_Type__c, Interest_Type__c, NCCP__c,Application_Amount__c, Establishment_Fee__c, Interest_Rate__c, Settlement_Date__c, Protected_Equity_Percent__c, Distribution_Partner_Contact__c FROM Loan__c where Opportunity__c=\'{0}\' and isDeleted=False",
+                      'Purposes':
+                          "Select Name, Category__c, Description__c, Intention__c, Amount__c from Purpose__c where Opportunity__c=\'{0}\' and isDeleted=False",
+                      'Purpose':
+                          "Select Name, Category__c, Description__c, Intention__c, Amount__c from Purpose__c where Name=\'{0}\' and isDeleted=False",
+                      'LoanRoles':
+                          "Select Customer_Contact__c, Role__c from Loan_Contact_Role__c where Loan__c=\'{0}\' and isDeleted=False",
+                      'Contacts':
+                          "Select Id,FirstName, LastName, Phone,MobilePhone, Email, Birthdate__c, Age__c, Gender__c, Permanent_Resident__c, Salutation, Marital_Status__c from Contact where Id=\'{0}\' and isDeleted=False",
+                      'Documents':
+                          "Select Id, Name, Status__c from Document__C where Opportunity__c=\'{0}\'",
+                      'DocumentLink':
+                          "Select contentDocumentId from ContentDocumentLink where LinkedEntityID=\'{0}\'",
+                      'ContentVersion':
+                          "Select VersionData from ContentVersion where ContentDocumentID=\'{0}\'",
+                      'DistContact':
+                          "Select FirstName, LastName, AccountId from Contact where Id=\'{0}\' and isDeleted=False",
+                      'DistCompany':
+                          "Select Name from Account where Id=\'{0}\' and isDeleted=False",
+                      'User':
+                          "Select Id, Username, Firstname, Lastname from User where Id=\'{0}\'"
+                      }
 
     def openAPI(self,password):
         logging.info("Opening Salesforce API")
@@ -74,43 +99,6 @@ class apiSalesforce():
         return resultsTable
 
 
-    def getDocumentFileStream(self, documentID):
-        # Multi-call approach as SF has restrictions on calling the link table
-
-        contentID=self.__getContentDocumentID(documentID)
-
-        fileUrl=self.__getFileUrl(contentID)
-
-        # Work-around as simple_salesforce Restful call attempts to JSON decode response
-        # This approach uses simple_salesforce utilities to make a direct call and return response
-
-        baseUrl = self.sf.base_url
-        fullUrl=baseUrl + fileUrl[-54:]
-        response = self.sf._call_salesforce(method="GET", url=fullUrl)
-        inMemoryFile = io.BytesIO(response.content)
-
-        return inMemoryFile
-
-    def updateLoanID(self, loanId, AMAL_loanId):
-
-        if len(loanId)<5 or len(AMAL_loanId)<5:
-            raise Exception
-        else:
-            self.sf.Loan__c.update(loanId,{"Loan_ID__c": AMAL_loanId})
-
-    def setResultsPrefix(self, prefix):
-        self.resultsPrefix=prefix
-
-    def createResultsTask(self,objectID,subject,status,description,owenerID):
-
-        payload={'WhatId':objectID,
-                 'Subject':subject,
-                 'Status':status,
-                 'OwnerId':'0052P000000JbVjQAK',
-                 'Description':description}
-        result=self.sf.Task.create(payload)
-        return result
-
     def createLead(self,leadDict):
 
         try:
@@ -123,4 +111,46 @@ class apiSalesforce():
             return responseDict
         except:
             return {'success':False,'message':'Unknown' }
+
+    def getLoanExtract(self,OpportunityID):
+
+        #returns full extract dictionary for specific opportunityID
+        logging.info("         Making multiple SOQL calls to produce dictionary")
+        loanDict={}
+        self.qryToDict('Opportunity', OpportunityID, 'Opp', loanDict)
+        self.qryToDict('Properties', OpportunityID, 'Prop', loanDict)
+        self.qryToDict('Loan', OpportunityID, 'Loan', loanDict)
+
+        self.qryToDict('User',loanDict['Opp.OwnerId'],'User',loanDict)
+
+        if loanDict['Loan.Distribution_Partner_Contact__c']!=None:
+            self.qryToDict('DistContact', loanDict['Loan.Distribution_Partner_Contact__c'], 'Dist', loanDict)
+            self.qryToDict('DistCompany', loanDict['Dist.AccountId'], 'Dist', loanDict)
+
+        # Nested loop - multiple purposes
+        results = self.execSOQLQuery('Purposes', OpportunityID)
+        loanDict['Purp.NoPurposes'] = len(results.index)
+        for  index, row in results.iterrows():
+            self.qryToDict('Purpose', row['Name'], "Purp" + str(index+1), loanDict)
+
+        #Nested loop - multiple borrowers
+        results = self.execSOQLQuery('LoanRoles', loanDict['Loan.Id'])
+
+        borrowerCount=0
+        poaCount=0
+        for  index, row in results.iterrows():
+            if "Borrower" in row['Role__c']:
+                borrowerCount=+1
+                loanDict["Brwr" + str(borrowerCount)+".Role"]=row['Role__c']
+                self.qryToDict('Contacts', row['Customer_Contact__c'], "Brwr" + str(borrowerCount), loanDict)
+
+            if "Attorney" in row['Role__c']:
+                poaCount = +1
+                loanDict["POA" + str(poaCount) + ".Role"] = row['Role__c']
+                self.qryToDict('Contacts', row['Customer_Contact__c'], "POA" + str(poaCount), loanDict)
+
+        loanDict['Brwr.Number'] = borrowerCount
+        loanDict['POA.Number'] = poaCount
+
+        return loanDict
 

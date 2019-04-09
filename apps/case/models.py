@@ -156,6 +156,7 @@ class Case(models.Model):
     valuerInstruction= models.FileField(max_length=150, null=True, blank=True)
     titleDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='customerDocuments')
     specialConditions=models.TextField(null=True, blank=True)
+    dataCSV = models.FileField(max_length=150, null=True, blank=True, upload_to='customerDocuments')
 
     valuerFirm=models.CharField(max_length=20, null=True, blank=True)
     valuerEmail=models.EmailField(null=True, blank=True)
