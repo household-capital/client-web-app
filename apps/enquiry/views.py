@@ -25,8 +25,6 @@ from .forms import EnquiryForm, ReferrerForm
 from .models import Enquiry
 
 
-
-
 # VIEWS
 
 class LoginRequiredMixin():

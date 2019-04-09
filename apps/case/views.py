@@ -25,7 +25,7 @@ from apps.lib.utilities import pdfGenerator
 from apps.lib.salesforceAPI import apiSalesforce
 from apps.logging import write_applog
 from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, SolicitorForm, ValuerForm
-from .models import Case, LossData
+from .models import Case, LossData, Loan
 from apps.enquiry.models import Enquiry
 
 
@@ -739,8 +739,13 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
             # generate dictionary
             loanDict = sfAPI.getLoanExtract(caseObj.sfOpportunityID)
 
-            loanDict.update(Case.objects.dictionary_byUID(str(self.kwargs['uid'])))
+            appLoanDict=Loan.objects.dictionary_byUID(str(self.kwargs['uid']))
+            appLoanList=['protectedEquity','totalLoanAmount','topUpAmount','refinanceAmount','giveAmount','renovateAmount',
+                         'travelAmount','careAmount','giveDescription','renovateDescription','travelDescription',
+                         'careDescription']
 
+            for fieldName in appLoanList:
+                loanDict['app.'+fieldName] = appLoanDict[fieldName]
 
             targetFile= settings.MEDIA_ROOT + "/customerReports/data-"+str(caseObj.caseUID)[-12:] + ".csv"
 
@@ -750,7 +755,7 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
                 f.write("EOL\n")
 
                 for key in loanDict.keys():
-                    f.write("%s," % str(loanDict[key]).replace(",",""))
+                    f.write("%s," % str(loanDict[key]).replace(",","").replace("None",""))
                 f.write("EOL\n")
                 f.close()
 
