@@ -739,7 +739,6 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
             # generate dictionary
             loanDict = sfAPI.getLoanExtract(caseObj.sfOpportunityID)
 
-
             loanDict.update(Case.objects.dictionary_byUID(str(self.kwargs['uid'])))
 
 

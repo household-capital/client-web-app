@@ -148,7 +148,6 @@ class LoanValidator():
         #Available amount always deducts the maximum establishment fee, so need to add back the calculated establsihment
         #fee from the total Loan Amount
 
-
         self.status['maxLVR']=round(self.maxLvr,1)
         self.status['maxNetLoanAmount']=round(self.loanLimit-self.maxEstablishmentFee,0)
         self.status['availableAmount']=int(round(self.availableAmount,0))
@@ -194,7 +193,7 @@ class LoanValidator():
 
         # Apartment Adjustment
         if self.isApartment:
-            lvr = max(lvr - LOAN_LIMITS['apartmentLvrAdj'], 1)
+            lvr = lvr - LOAN_LIMITS['apartmentLvrAdj']
 
         #Protected Equity
         lvr=lvr*(1-self.aggDict['protectedEquity']/100)
@@ -204,7 +203,7 @@ class LoanValidator():
 
         #Max Loan Adjustment LVR
         #If loan greater than maximum dollar amount - infer loan LVR
-        if int(round(lvr * self.aggDict['valuation'], 0)) > LOAN_LIMITS['maxLoanSize']:
+        if (lvr * self.aggDict['valuation']) > LOAN_LIMITS['maxLoanSize']:
             lvr= LOAN_LIMITS['maxLoanSize']/self.aggDict['valuation']
 
         self.maxLvr = lvr * 100
