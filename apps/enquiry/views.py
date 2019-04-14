@@ -11,6 +11,7 @@ from django.core.files import File
 from django.http import HttpResponseRedirect
 from django.db.models import Q
 from django.template.loader import get_template
+from django.utils import timezone
 from django.urls import reverse_lazy
 from django.views.generic import UpdateView, ListView, TemplateView, View
 
@@ -60,22 +61,25 @@ class EnquiryListView(LoginRequiredMixin, ListView):
     def get_queryset(self, **kwargs):
         # overrides queryset to filter search paramater
         queryset = super(EnquiryListView, self).get_queryset()
-
-        queryset=queryset.filter(actioned=0)
+        queryset=queryset.filter(actioned=0, status=True, followUp__isnull=True)
 
         if self.request.GET.get('search'):
             search = self.request.GET.get('search')
+            queryset = super(EnquiryListView, self).get_queryset().filter(actioned=0)
             queryset = queryset.filter(
                 Q(name__icontains=search) |
                 Q(email__icontains=search) |
                 Q(phoneNumber__icontains=search) |
-                Q(postcode__icontains=search)
+                Q(postcode__icontains=search) |
+                Q(enquiryNotes__icontains=search)
 
             )
 
         # ...and for open my items
         if self.request.GET.get('myEnquiries') == "True":
-            queryset = queryset.filter(user=self.request.user)
+            queryset = super(EnquiryListView, self).get_queryset().filter(user=self.request.user,actioned=0)
+
+        queryset = queryset.order_by('-updated')
 
         return queryset
 
@@ -275,6 +279,24 @@ class EnquiryEmailEligibility(LoginRequiredMixin, TemplateView):
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': obj.enqUID}))
 
 
+# Case Email
+class EnquiryMarkFollowUp(LoginRequiredMixin, View):
+    template_name = 'enquiry/email/email_eligibility_summary.html'
+    model = Enquiry
+
+    def get(self, request, *args, **kwargs):
+        email_context = {}
+        enqUID = str(kwargs['uid'])
+
+        queryset = Enquiry.objects.queryset_byUID(enqUID)
+        obj = queryset.get()
+        obj.followUp=timezone.now()
+        obj.save(update_fields=['followUp'])
+
+        messages.success(self.request, "Enquiry marked as followed-up")
+        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryList'))
+
+
 class EnquiryConvert(LoginRequiredMixin, View):
     # This view does not render it creates a case from an enquiry and marks it actioned
     context_object_name = 'object_list'
@@ -338,6 +360,11 @@ class EnquiryConvert(LoginRequiredMixin, View):
         messages.success(self.request, "Enquiry converted to a new Case")
 
         return HttpResponseRedirect(reverse_lazy("case:caseList"))
+
+
+
+
+
 
 # CALCULATOR
 
@@ -644,7 +671,7 @@ class FollowUpEmail(LoginRequiredMixin, TemplateView):
         subject, from_email, to = "Household Capital: Follow-up", enqObj.user.email, enqObj.email
         text_content = "Text Message"
 
-        enqObj.followUp = datetime.datetime.now()
+        enqObj.followUp = timezone.now()
         enqObj.save(update_fields=['followUp'])
         try:
             html = get_template(self.template_name)

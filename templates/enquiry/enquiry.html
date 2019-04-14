@@ -87,6 +87,13 @@
                                     &nbsp;<i class="fas fa-reply-all"></i>&nbsp;&nbsp;Send Client Follow-up &nbsp;&nbsp;
                                 </a>
 
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{% url 'enquiry:enqMarkFollowUp' uid=obj.enqUID %}">
+                                    &nbsp;<i class="far fa-calendar-check fa-fw"></i>&nbsp;&nbsp;Mark as followed-up
+                                    &nbsp;&nbsp;
+                                </a>
+
+
                             {% endif %}
 
 

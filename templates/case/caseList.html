@@ -132,6 +132,7 @@
                         <th scope="col"></th>
                         <th scope="col"></th>
                         <th scope="col"></th>
+                        <th scope="col"></th>
 
                     </tr>
                     </thead>
@@ -160,6 +161,8 @@
                                 {% if obj.solicitorInstruction %}<i class="fas fa-gavel fa-fw"></i>{% endif %}</td>
                             <td data-toggle="tooltip" data-placement="top" title="Title Search">
                                 {% if obj.titleDocument %}<i class="far fa-file-alt fa-fw"></i>{% endif %}</td>
+                            <td data-toggle="tooltip" data-placement="top" title="Application CSV">
+                                {% if obj.dataCSV %}<i class="fas fa-file-csv fa-fw"></i>{% endif %}</td>
                             <td data-toggle="tooltip" data-placement="top" title="Valuer Instruction">
                                 {% if obj.valuerInstruction %}<i class="fas fa-home fa-fw"></i>{% endif %}</td>
                         </tr>

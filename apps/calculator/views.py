@@ -14,8 +14,10 @@ from django.views.generic import UpdateView, CreateView
 #Local Application Imports
 from apps.lib.loanValidator import LoanValidator
 from apps.lib.enums import  dwellingTypesEnum, loanTypesEnum
+from apps.logging import write_applog
 from .models import WebCalculator, WebContact
 from .forms import WebInputForm, WebOutputForm, WebContactForm
+
 
 
 # VIEWS
@@ -28,6 +30,12 @@ class InputView(CreateView):
 
     @xframe_options_exempt
     def get(self,request,*args,**kwargs):
+        clientId=request.GET.get('clientId')
+
+        if clientId:
+            write_applog("INFO", 'InputView', 'get',
+                         "Client Id passed: " + clientId)
+
         return super(InputView,self).get(self,request,*args,**kwargs)
 
     @xframe_options_exempt

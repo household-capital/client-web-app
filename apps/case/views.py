@@ -695,8 +695,11 @@ class CaseValuerView(LoginRequiredMixin, SFHelper, UpdateView):
 
 
 class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
-    template_name = 'case/caseData.html'
+    # This view creates a data file (.csv) for use in creating the on-boarding pack
+    # The data is sourced from Salesforce
+    # This is a temporary solution only
 
+    template_name = 'case/caseData.html'
     form_class = SFPasswordForm
 
     def get(self, request, *args, **kwargs):
@@ -713,12 +716,10 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
     def get_context_data(self, **kwargs):
         context = super(CaseDataExtract, self).get_context_data(**kwargs)
         context['title'] = "Create Application Data File"
-
         return context
 
 
     def form_valid(self, form):
-
         caseObj = Case.objects.filter(caseUID=self.kwargs['uid']).get()
         password = form.cleaned_data['password']
         sfAPI = apiSalesforce()
@@ -736,18 +737,81 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
                 messages.error(self.request, "Could not find Loan in Salesforce")
                 return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'pk': caseObj.pk}))
 
-            # generate dictionary
+            # generate dictionary from Salesforce
             loanDict = sfAPI.getLoanExtract(caseObj.sfOpportunityID)
 
-            appLoanDict=Loan.objects.dictionary_byUID(str(self.kwargs['uid']))
-            appLoanList=['protectedEquity','totalLoanAmount','topUpAmount','refinanceAmount','giveAmount','renovateAmount',
+            # enrich SOQL based dictionary
+            # parse purposes from SF and enrich SOQL dictionary
+
+            appLoanList=['totalLoanAmount','topUpAmount','refinanceAmount','giveAmount','renovateAmount',
                          'travelAmount','careAmount','giveDescription','renovateDescription','travelDescription',
-                         'careDescription']
+                         'careDescription','annualPensionIncome']
 
             for fieldName in appLoanList:
-                loanDict['app.'+fieldName] = appLoanDict[fieldName]
+                loanDict['app_' + fieldName] = ""
 
-            targetFile= settings.MEDIA_ROOT + "/customerReports/data-"+str(caseObj.caseUID)[-12:] + ".csv"
+            loanDict['app_totalLoanAmount']=int(loanDict['Loan.Application_Amount__c'])+int(loanDict['Loan.Establishment_Fee__c'])
+
+            purposeMap={'Refinance':'app_refinance','Live':'app_live','Care':'app_care','Give':'app_give',"Top Up":"app_topUp"}
+
+            #loop through each purpose
+            for purpose in range(loanDict['Purp.NoPurposes']):
+                category= purposeMap[loanDict['Purp'+str(purpose+1)+".Category__c"]]
+                if category!='live':
+                    loanDict[category+"Amount"]=loanDict["Purp"+str(purpose+1)+".Amount__c"]
+                    loanDict[category + "Description"] = loanDict["Purp" + str(purpose + 1) + ".Description__c"]
+                else:
+                    if loanDict["Purp"+str(purpose+1)+".Intention__c"]=='Transport' or loanDict["Purp"+str(purpose+1)+".Intention__c"]=='Travel':
+                        loanDict["app_travelAmount"] = loanDict["Purp" + str(purpose + 1) + ".Amount__c"]
+                        loanDict["app_travelDescription"] = loanDict["Purp" + str(purpose + 1) + ".Description__c"]
+                    else:
+                        loanDict["app_renovateAmount"] = loanDict["Purp" + str(purpose + 1) + ".Amount__c"]
+                        loanDict["app_renovateDescription"] = loanDict["Purp" + str(purpose + 1) + ".Description__c"]
+
+            #enrich using app data
+            appLoanDict=Loan.objects.dictionary_byUID(str(self.kwargs['uid']))
+            appCaseObj = Case.objects.queryset_byUID(str(self.kwargs['uid'])).get()
+
+            loanDict['app_annualPensionIncome'] = appLoanDict['annualPensionIncome']
+
+            if appCaseObj.superFund:
+                loanDict['app_SuperFund']= appCaseObj.superFund.fundName
+            else:
+                loanDict['app_SuperFund'] = "Super Fund"
+
+            loanDict['app_SuperAmount'] = appCaseObj.superAmount
+            loanDict['app_MaxLoanAmount'] = round(appLoanDict['maxLVR']*appCaseObj.valuation/100,0)
+
+
+            # validation
+            if loanDict['Brwr.Number']==0:
+                messages.error(self.request, "Validation Error: There are no borrowers associated with the Loan")
+                return HttpResponseRedirect(reverse_lazy('case:caseData', kwargs={'uid': str(caseObj.caseUID)}))
+
+            if loanDict['Purp.NoPurposes'] == 0:
+                messages.error(self.request, "Validation Error: There are no purposes associated with the Opportunity")
+                return HttpResponseRedirect(reverse_lazy('case:caseData', kwargs={'uid': str(caseObj.caseUID)}))
+
+            validationFields=['Prop.Street_Address__c','Prop.Suburb_City__c','Prop.State__c','Prop.Postcode__c','Prop.Property_Type__c',
+                              'Prop.Home_Value_AVM__c','Loan.Application_Amount__c','Loan.Establishment_Fee__c','Loan.Protected_Equity_Percent__c',
+                              'Brwr1.Role',	'Brwr1.FirstName',	'Brwr1.LastName', 'Brwr1.Birthdate__c',	'Brwr1.Age__c',
+                              'Brwr1.Gender__c', 'Brwr1.Permanent_Resident__c',	'Brwr1.Salutation',	'Brwr1.Marital_Status__c']
+
+            if loanDict['Brwr.Number']==2:
+                validationFields.extend(['Brwr2.Role',	'Brwr2.FirstName',	'Brwr2.LastName', 'Brwr2.Birthdate__c',	'Brwr2.Age__c',
+                              'Brwr2.Gender__c', 'Brwr2.Permanent_Resident__c',	'Brwr2.Salutation',	'Brwr2.Marital_Status__c'])
+
+            errorList=['Salesforce Validation Errors: ']
+            for field in validationFields:
+                if loanDict[field]==None:
+                    errorList.append(field+" ")
+
+            if len(errorList)!= 1:
+                messages.error(self.request, "".join(errorList))
+                return HttpResponseRedirect(reverse_lazy('case:caseData', kwargs={'uid': str(caseObj.caseUID)}))
+
+            # write to csv file and save
+            targetFile = settings.MEDIA_ROOT + "/customerReports/data-" + str(caseObj.caseUID)[-12:] + ".csv"
 
             with open(targetFile, 'w') as f:
                 for key in loanDict.keys():
