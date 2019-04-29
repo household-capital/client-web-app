@@ -26,13 +26,3 @@ class Profile(models.Model):
     isHousehold=models.BooleanField(null=True,blank=True,default=False)
     isCreditRep=models.BooleanField(null=True,blank=True,default=False)
     referrer=models.ForeignKey(Referer ,null=True, blank=True, on_delete=models.SET_NULL)
-
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
-

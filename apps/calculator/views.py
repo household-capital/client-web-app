@@ -30,11 +30,8 @@ class InputView(CreateView):
 
     @xframe_options_exempt
     def get(self,request,*args,**kwargs):
-        clientId=request.GET.get('clientId')
+        clientId=str(request.GET.get('clientId'))
 
-        if clientId:
-            write_applog("INFO", 'InputView', 'get',
-                         "Client Id passed: " + clientId)
 
         return super(InputView,self).get(self,request,*args,**kwargs)
 
@@ -86,7 +83,9 @@ class InputView(CreateView):
             obj.maxLVR = chkOpp['restrictions']['maxLVR']
             obj.save()
 
-            success = reverse_lazy('calculator:calcOutput', kwargs={'uid': str(obj.calcUID)})
+            clientId=str(self.request.GET.get('clientId'))
+
+            success = reverse_lazy('calculator:calcOutput', kwargs={'uid': str(obj.calcUID)})+"?clientId="+clientId
             return HttpResponseRedirect(success)
 
     def clientText(self, inputString):

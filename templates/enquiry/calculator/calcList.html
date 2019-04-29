@@ -54,13 +54,13 @@
         <tr>
             <th scope="col" class="text-center">Action</th>
             <th>Name</th>
-            <th>Borrower</th>
-            <th>Age</th>
+            <th class="d-none d-sm-table-cell">Borrower</th>
+            <th class="d-none d-sm-table-cell">Age</th>
             <th>Postcode</th>
-            <th>Dwelling</th>
-            <th>Valuation</th>
-            <th>Max Loan</th>
-            <th>LVR</th>
+            <th class="d-none d-sm-table-cell">Dwelling</th>
+            <th class="d-none d-sm-table-cell">Valuation</th>
+            <th class="d-none d-sm-table-cell">Max Loan</th>
+            <th class="d-none d-sm-table-cell">LVR</th>
             <th>Email</th>
 
         </tr>
@@ -79,13 +79,13 @@
                 {% endif %}
                 </td>
                 <td>{{ obj.name }}</td>
-                <td>{% if obj.loanType == 1 %}Couple{% else %}Single{% endif %}</td>
-                <td>{{ obj.age_1 }} &nbsp;{{ obj.age_2|intBlank }}</td>
+                <td class="d-none d-sm-table-cell" >{% if obj.loanType == 1 %}Couple{% else %}Single{% endif %}</td>
+                <td class="d-none d-sm-table-cell">{{ obj.age_1 }} &nbsp;{{ obj.age_2|intBlank }}</td>
                 <td>{{ obj.postcode|intBlank }}</td>
-                <td>{% if obj.dwellingType == 0 %}House{% else %}Apartment{% endif %}</td>
-                <td>{{ obj.valuation }}</td>
-                <td>{{ obj.maxLoanAmount|intBlank|intcomma }}</td>
-                <td>{{ obj.maxLVR|intBlank }}</td>
+                <td class="d-none d-sm-table-cell">{% if obj.dwellingType == 0 %}House{% else %}Apartment{% endif %}</td>
+                <td class="d-none d-sm-table-cell">{{ obj.valuation }}</td>
+                <td class="d-none d-sm-table-cell">{{ obj.maxLoanAmount|intBlank|intcomma }}</td>
+                <td class="d-none d-sm-table-cell">{{ obj.maxLVR|intBlank }}</td>
                 <td>{{ obj.email }}</td>
 
 

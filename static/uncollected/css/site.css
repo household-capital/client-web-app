@@ -80,6 +80,10 @@ body {
     font-size: xx-large;
 }
 
+.btn-jumbotron{
+    background-color: rgb(249,248,245);
+}
+
 
 /* Theme */
 .jumbotron {

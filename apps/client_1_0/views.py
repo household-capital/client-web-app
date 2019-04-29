@@ -187,7 +187,7 @@ class LandingView(LoginRequiredMixin, ContextHelper ,TemplateView):
             obj.update(**ECONOMIC)
 
         if 'caseUID' not in request.session:
-            return HttpResponseRedirect(reverse_lazy('caase:caseList'))
+            return HttpResponseRedirect(reverse_lazy('case:caseList'))
 
         return super(LandingView,self).get(self, request, *args, **kwargs)
 

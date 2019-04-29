@@ -1,11 +1,13 @@
 #Python imports
 import uuid
+from datetime import datetime, timedelta
 
 #Django Imports
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.db import models
 from django.utils.encoding import smart_text
+from django.utils import timezone
 from django.urls import reverse_lazy
 
 #Local Application Imports
@@ -41,6 +43,16 @@ class CaseManager(models.Manager):
 
     def dictionary_byUID(self,uidString):
         return self.queryset_byUID(uidString).values()[0]
+
+    def openCases(self):
+        closedTypes = [caseTypesEnum.CLOSED.value, caseTypesEnum.APPROVED.value]
+        return Case.objects.exclude(caseType__in=closedTypes)
+
+    def pipelineHealth(self):
+        startdate = timezone.now() - timedelta(days=14)
+        openCases=self.openCases().count()
+        currentCases=self.openCases().filter(updated__gte=startdate).count()
+        return [round(currentCases/openCases,2),round(1-currentCases/openCases,2)]
 
 
 class Case(models.Model):
