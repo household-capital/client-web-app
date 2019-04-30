@@ -56,7 +56,7 @@ class CaseDetailsForm(forms.ModelForm):
                 Div(css_class="col-lg-6"),
                 css_class="row "),
             Div(
-                Div(Field('adviser', placeholder='Introducer or Advisor'), css_class="col-lg-6"),
+                Div(Field('salesChannel',placeholder='Sales Channel'),css_class="col-lg-6"),
                 Div(Field('caseType', placeholder='Case Status'), css_class="col-lg-6"),
                 css_class="row"),
             Div(Field('caseNotes', placeholder='Case Notes')),
@@ -64,6 +64,7 @@ class CaseDetailsForm(forms.ModelForm):
                 Div(HTML("<i class='far fa-address-card'></i>&nbsp;&nbsp;<small>Contact Details</small>"),
                     Field('phoneNumber', placeholder='Phone'),
                     Field('email', placeholder='Email'),
+                    Field('adviser', placeholder='Introducer or Advisor'),
                     HTML("<br>"),
                     HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;<small>Borrower(s)</small>"),
                     Field('loanType', placeholder='Loan Type'),
@@ -104,8 +105,6 @@ class CaseDetailsForm(forms.ModelForm):
                         Field('valuationDocument')),
                     Div(HTML("<p class='small pt-2'><i class='far fa-file-pdf'></i>&nbsp;&nbsp;</i>TitleDocument</p>"),
                         Field('titleDocument')),
-                    Div(HTML("<p class='small pt-2'><i class='fas fa-funnel-dollar'></i>&nbsp;</i>Sales Channel</p>"),
-                        Field('salesChannel')),
                     css_class="col-lg-6"),
                 css_class="row")
         ))

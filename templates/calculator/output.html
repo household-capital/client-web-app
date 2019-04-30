@@ -21,8 +21,45 @@
           integrity="sha384-NJXGk7R+8gWGBdutmr+/d6XDokLwQhF1U3VA7FhvBDlOq7cNdI69z7NQdnXxcF7k" crossorigin="anonymous">
     <link href="/static/css/calculator.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
-    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
+    <script async src='https://www.google-analytics.com/analytics.js'></script>
+
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-134758045-1" type="a5a4f0e3d92d2c3efa0ba656-text/javascript"></script>
+    <script type="a5a4f0e3d92d2c3efa0ba656-text/javascript">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-134758045-1');
+    </script>
+
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r;
+            i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date();
+            a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0];
+            a.async = 1;
+            a.src = g;
+            m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+        function getClientIdFromUrl() {
+            var url = window.location.href;
+            var regex = new RegExp("[?&]clientId(=([^&#]*)|&|#|$)"),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            console.log(results[2].replace(/\+/g, " "));
+            return decodeURIComponent(results[2].replace(/\+/g, " "));
+        }
+
+        ga('create', 'UA-134758045-1', 'auto', {
+            'clientId': getClientIdFromUrl()
+        })
+    </script>
 
     <title>Household Capital Calculator</title>
 </head>

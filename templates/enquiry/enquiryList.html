@@ -95,17 +95,17 @@
                 <table class="table table-hover table-sm">
                     <thead>
                     <tr>
-                        <th scope="col">Owner</th>
-                        <th>Source</th>
+                        <th class="d-none d-sm-table-cell" scope="col">Owner</th>
+                        <th class="d-none d-sm-table-cell">Source</th>
                         <th>Name</th>
-                        <th>Age</th>
+                        <th class="d-none d-sm-table-cell">Age</th>
                         <th>Postcode</th>
-                        <th>Valuation</th>
                         <th>Phone</th>
                         <th>Email</th>
-                        <th>&nbsp;</th>
-                        <th>&nbsp;</th>
-                        <th>&nbsp;</th>
+                        <th class="d-none d-sm-table-cell">Last Updated</th>
+                        <th class="d-none d-sm-table-cell">&nbsp;</th>
+                        <th class="d-none d-sm-table-cell">&nbsp;</th>
+                        <th class="d-none d-sm-table-cell">&nbsp;</th>
 
 
                     </tr>
@@ -113,7 +113,7 @@
                     <tbody>
                     {% for obj in object_list %}
                         <tr>
-                            <td> {% if obj.user is null %}<a href="{{ obj.get_absolute_url }}">
+                            <td class="d-none d-sm-table-cell"> {% if obj.user is null %}<a href="{{ obj.get_absolute_url }}">
                                 <button class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="top"
                                         title="Assign enquiry to you">Action
                                 </button>
@@ -121,23 +121,24 @@
                             {% else %}
                                 <a href="{{ obj.get_absolute_url }}">{{ obj.user }}</a></td>
                             {% endif %}
-                            <td>
+                            <td class="d-none d-sm-table-cell">
                                 <a href="{{ obj.get_absolute_url }}">{{ obj.enumReferrerType }}</a>
                             </td>
 
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.name }}</a></td>
-                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.age_1 }} &nbsp;{{ obj.age_2|intBlank }}</a>
+                            <td class="d-none d-sm-table-cell"><a href="{{ obj.get_absolute_url }}">{{ obj.age_1 }} &nbsp;{{ obj.age_2|intBlank }}</a>
                             </td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.postcode|intBlank }}</a></td>
-                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.valuation }}</a></td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.phoneNumber }}</a></td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.email }}</a></td>
-                            <td data-toggle="tooltip" data-placement="top" title="Comments">
+                            <td class="d-none d-sm-table-cell"><a
+                                    href="{{ obj.get_absolute_url }}">{{ obj.updated|timesince|upto }} ago</a></td>
+                            <td  class="d-none d-sm-table-cell"data-toggle="tooltip" data-placement="top" title="Comments">
                                 {% if obj.enquiryNotes %} <i class="far fa-comments"></i>{% endif %}</td>
-                            <td data-toggle="tooltip" data-placement="top" title="Summary Document" class="text-center">
+                            <td class="d-none d-sm-table-cell" data-toggle="tooltip" data-placement="top" title="Summary Document" class="text-center">
                                 <a href="{{ obj.get_absolute_url }}">{% if obj.summaryDocument %}
-                                <i class="far fa-file-pdf"></i></a>{% endif %}</td>
-                            <td data-toggle="tooltip" data-placement="top" title="Follow-up/Ineligible">
+                                    <i class="far fa-file-pdf"></i></a>{% endif %}</td>
+                            <td class="d-none d-sm-table-cell" data-toggle="tooltip" data-placement="top" title="Follow-up/Ineligible">
                                 {% if obj.followUp %} <i class="fas fa-reply-all"></i>{% endif %}
                                 {% if obj.status == False %}<i class="far fa-times-circle"></i>{% endif %}
                             </td>
@@ -154,29 +155,30 @@
                             {% if page_obj.has_previous %}
                                 <li class="page-item">
                                     <a class="page-link"
-                                       href="?page={{ page_obj.previous_page_number }}&myEnquiries={{ myEnquiries }}"
+                                       href="?page={{ page_obj.previous_page_number }}&myEnquiries={{ myEnquiries }}&search={{ search }}"
                                        tabindex="-1">Previous</a>
                                 </li>
 
                             {% else %}
                                 <li class="page-item disabled">
-                                    <a class="page-link" href="#&myEnquiries={{ myEnquiries }}"
+                                    <a class="page-link" href="#&myEnquiries={{ myEnquiries }}&search={{ search }}"
                                        tabindex="-1">Previous</a>
                                 </li>
                             {% endif %}
                             {% for object in page_obj.paginator.page_range %}
                                 <li class="page-item"><a class="page-link"
-                                                         href="?page={{ forloop.counter }}&myEnquiries={{ myEnquiries }}">{{ forloop.counter }}</a>
+                                                         href="?page={{ forloop.counter }}&myEnquiries={{ myEnquiries }}&search={{ search }}">{{ forloop.counter }}</a>
                                 </li>
                             {% endfor %}
                             {% if page_obj.has_next %}
                                 <li class="page-item">
                                     <a class="page-link"
-                                       href="?page={{ page_obj.next_page_number }}&myEnquiries={{ myEnquiries }}">Next</a>
+                                       href="?page={{ page_obj.next_page_number }}&myEnquiries={{ myEnquiries }}&search={{ search }}">Next</a>
                                 </li>
                             {% else %}
                                 <li class="page-item disabled">
-                                    <a class="page-link" href="#&myEnquiries={{ myEnquiries }}">Next</a>
+                                    <a class="page-link"
+                                       href="#&myEnquiries={{ myEnquiries }}&search={{ search }}">Next</a>
                                 </li>
                             {% endif %}
                         </ul>

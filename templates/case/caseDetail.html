@@ -155,23 +155,15 @@
 
                                         <div class="dropdown-divider"></div>
 
-                                        <a class="dropdown-item" href="{% url 'case:caseData' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-file-csv"></i>&nbsp;&nbsp;Create
-                                            Application
-                                            CSV&nbsp;&nbsp;
-                                        </a>
-
-                                        <div class="dropdown-divider"></div>
-
                                         <a class="dropdown-item" href="{% url 'case:caseSolicitor' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-gavel"></i>&nbsp;&nbsp;Create
+                                            &nbsp;<i class="fas fa-gavel fa-fw"></i>&nbsp;&nbsp;Create
                                             Solicitor Instruction&nbsp;&nbsp;
                                         </a>
 
                                         <div class="dropdown-divider"></div>
 
                                         <a class="dropdown-item" href="{% url 'case:caseValuer' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-home"></i>&nbsp;&nbsp;Create
+                                            &nbsp;<i class="fas fa-home fa-fw"></i>&nbsp;&nbsp;Create
                                             Valuer Instruction&nbsp;&nbsp;
                                         </a>
 
@@ -222,11 +214,24 @@
 
                                     {% endif %}
 
+                                    <!-- Application -->
+                                    {% if obj.caseType == caseTypesEnum.APPLICATION.value %}
+
+                                        <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item" href="{% url 'case:caseData' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-file-csv fa-fw"></i>&nbsp;&nbsp;Create
+                                            Application
+                                            CSV&nbsp;&nbsp;
+                                        </a>
+                                    {% endif %}
+
 
                                     <!-- CLOSED -->
                                     {% if obj.caseType == caseTypesEnum.CLOSED.value %}
 
                                         <div class="dropdown-divider"></div>
+
                                         <a class="dropdown-item" href="{% url 'case:caseClose' uid=obj.caseUID %}">
                                             &nbsp;<i class="far fa-folder"></i>&nbsp;&nbsp;Show Close Information&nbsp;&nbsp;
                                         </a>
@@ -313,7 +318,7 @@
                                         Data</a></p>{% endif %}
                                 {% if obj.dataCSV %}
                                     <p><a href="/media/customerReports/{{ obj.dataCSV.file|filename }}">Application
-                                        CSV</a></p>{% endif %}
+                                        Data File</a></p>{% endif %}
                                 {% if obj.enquiryDocument %}
                                     <p><a href="/media/customerReports/{{ obj.enquiryDocument.file|filename }}">Enquiry
                                         Document </a></p>

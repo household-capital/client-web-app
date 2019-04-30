@@ -3,8 +3,13 @@ import uuid
 
 #Django Imports
 from django.db import models
-from django.utils.encoding import smart_text
+from django.db.models import Count
+from django.db.models.functions import TruncDate,TruncDay, Cast
+from django.db.models.fields import DateField
 from django.forms import ValidationError
+from django.utils.encoding import smart_text
+from django.utils.timezone import get_current_timezone
+
 
 
 class WebManager(models.Manager):
@@ -18,6 +23,21 @@ class WebManager(models.Manager):
 
     def queueCount(self):
         return WebCalculator.objects.filter(email__isnull=False, actioned=0).count()
+
+    def timeSeries(self,seriesType,length):
+        tz=get_current_timezone()
+        if seriesType=='Interactions':
+            return WebCalculator.objects\
+                .annotate(date=Cast(TruncDay('timestamp',tzinfo=tz),DateField()))\
+                .values_list('date')\
+                .annotate(interactions=Count('calcUID'))\
+                .values_list('date','interactions').order_by('-date')[:length]
+        if seriesType=='Email':
+            return WebCalculator.objects\
+                .filter(email__isnull=False).annotate(date=Cast(TruncDay('timestamp',tzinfo=tz),DateField()))\
+                .values_list('date')\
+                .annotate(interactions=Count('calcUID'))\
+                .values_list('date','interactions').order_by('-date')[:length]
 
 
 class WebCalculator(models.Model):

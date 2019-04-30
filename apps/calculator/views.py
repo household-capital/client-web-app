@@ -14,8 +14,10 @@ from django.views.generic import UpdateView, CreateView
 #Local Application Imports
 from apps.lib.loanValidator import LoanValidator
 from apps.lib.enums import  dwellingTypesEnum, loanTypesEnum
+from apps.logging import write_applog
 from .models import WebCalculator, WebContact
 from .forms import WebInputForm, WebOutputForm, WebContactForm
+
 
 
 # VIEWS
@@ -28,6 +30,9 @@ class InputView(CreateView):
 
     @xframe_options_exempt
     def get(self,request,*args,**kwargs):
+        clientId=str(request.GET.get('clientId'))
+
+
         return super(InputView,self).get(self,request,*args,**kwargs)
 
     @xframe_options_exempt
@@ -78,7 +83,9 @@ class InputView(CreateView):
             obj.maxLVR = chkOpp['restrictions']['maxLVR']
             obj.save()
 
-            success = reverse_lazy('calculator:calcOutput', kwargs={'uid': str(obj.calcUID)})
+            clientId=str(self.request.GET.get('clientId'))
+
+            success = reverse_lazy('calculator:calcOutput', kwargs={'uid': str(obj.calcUID)})+"?clientId="+clientId
             return HttpResponseRedirect(success)
 
     def clientText(self, inputString):

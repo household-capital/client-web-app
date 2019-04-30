@@ -40,24 +40,15 @@
                     <li> | &nbsp;&nbsp;&nbsp;
                     </li>
 
-                    <li><a href="{% url 'case:caseList' %}"><i class="far fa-list-alt"></i> Case List </a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <li><a href="{% url 'case:caseList' %}"><i class="far fa-list-alt"></i> Case List </a>&nbsp;&nbsp;&nbsp;
                     </li>
 
                     <li> | &nbsp;&nbsp;&nbsp;
                     </li>
 
                     <li>
-                        <div class="dropdown navbar-color">
-                            <a class="dropdown-toggle" id="dropdownMenuButton"
-                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                               <i class="far fa-file-alt"></i> Analysis
-                            </a>
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <a class="dropdown-item" href="{% url 'enquiry:calcSummaryReport' %}">
-                                <i class="fas fa-calculator fa-fw"></i>&nbsp;&nbsp;Calculator Summary &nbsp;&nbsp;</a>
+                        <a href="{% url 'landing:dashboard' %}"><i class="fas fa-tachometer-alt fa-fw"></i> Dashboard </a>
 
-                            </div>
-                        </div>
                     </li>
 
 

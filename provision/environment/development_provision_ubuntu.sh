@@ -23,6 +23,9 @@ pip install python-dotenv
 pip install pandas
 pip install simple-salesforce
 pip install pip-upgrader
+pip install djangorestframework
+pip install markdown
+pip install django-filter
 
 # Install PostgreSql and create database
 sudo apt-get install python-pip python-dev libpq-dev postgresql postgresql-contrib

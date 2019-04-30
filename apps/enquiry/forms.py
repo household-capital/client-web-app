@@ -6,7 +6,6 @@ from django.forms import ValidationError
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, Div, HTML
 
-
 # Local Application Imports
 
 from .models import Enquiry
@@ -54,7 +53,7 @@ class EnquiryForm(forms.ModelForm):
                 Div(css_class="row"),
                 Div(Submit('submit', 'Update', css_class='btn btn-warning')),
                 css_class='col-lg-6'),
-        css_class="row ")
+            css_class="row ")
     )
 
 
@@ -94,5 +93,39 @@ class ReferrerForm(forms.ModelForm):
                 Div(css_class="row"),
                 Div(Submit('submit', 'Update', css_class='btn btn-warning')),
                 css_class='col-lg-6'),
-        css_class="row ")
+            css_class="row ")
     )
+
+
+class EnquiryFollowupForm(forms.ModelForm):
+    class Meta:
+        model = Enquiry
+        fields = ['followUpDate',
+                  'referrer', 'email', 'phoneNumber', 'enquiryNotes', 'referrerID']
+
+        widgets = {
+            'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
+        }
+
+    helper = FormHelper()
+    helper.form_method = 'POST'
+    helper.field_class = 'col-lg-12'
+    helper.form_class = 'form-horizontal'
+    helper.form_show_labels = False
+    helper.layout = Layout(
+        Div(
+            Div(
+                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;<small>Client Details</small>")),
+                Div(Field('name', placeholder='Name'), css_class="form-group"),
+                Div(Field('phoneNumber', placeholder='Phone Number'), css_class="form-group"),
+                Div(Field('email', placeholder='Email'), css_class="form-group"),
+                Div(Field('enquiryNotes', placeholder='Enquiry Notes'), css_class="form-group"),
+                Div(Field('referrer', placeholder='Referrer'), css_class="form-group"),
+                Div(Field('referrerID', placeholder='Referrer'), css_class="form-group"),
+                css_class='col-lg-6'),
+            Div(
+                Div(HTML("<i class='far fa-calendar-check fa-fw'></i>&nbsp;&nbsp;<small>Future Follow-up</small>"),css_class="form-group"),
+                Div(Field('followUpDate', placeholder='Follow-up Date (if applicable)'), css_class="form-group"),
+                Div(Submit('submit', 'Mark Follow-up', css_class='btn btn-warning'),css_class="form-group"),
+                css_class='col-lg-6'),
+            css_class="row "))

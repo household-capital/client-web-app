@@ -18,7 +18,7 @@ class apiSalesforce():
                       'Opportunity':
                           "Select Id,Name,StageName,CloseDate, OwnerId, Establishment_Fee_Percent__c from Opportunity where Id=\'{0}\'",
                       'Properties':
-                          "Select Id, Name, Street_Address__c,Suburb_City__c,State__c,Postcode__c,Country__c, Last_Valuation_Date__c, Home_Value_FullVal__c, Valuer__c, Insurer__c, Policy_Number__c, Minimum_Insurance_Value__c  from Properties__c where Opportunity__c=\'{0}\' and isDeleted=False",
+                          "Select Id, Name, Street_Address__c,Suburb_City__c,State__c,Postcode__c,Country__c, Property_Type__c, Last_Valuation_Date__c, Home_Value_FullVal__c, Home_Value_AVM__c, Valuer__c, Insurer__c, Policy_Number__c, Minimum_Insurance_Value__c  from Properties__c where Opportunity__c=\'{0}\' and isDeleted=False",
                       'Loan':
                           "Select Id,Name, Loan_Type__c, Interest_Type__c, NCCP__c,Application_Amount__c, Establishment_Fee__c, Interest_Rate__c, Settlement_Date__c, Protected_Equity_Percent__c, Distribution_Partner_Contact__c FROM Loan__c where Opportunity__c=\'{0}\' and isDeleted=False",
                       'Purposes':
@@ -28,7 +28,7 @@ class apiSalesforce():
                       'LoanRoles':
                           "Select Customer_Contact__c, Role__c from Loan_Contact_Role__c where Loan__c=\'{0}\' and isDeleted=False",
                       'Contacts':
-                          "Select Id,FirstName, LastName, Phone,MobilePhone, Email, Birthdate__c, Age__c, Gender__c, Permanent_Resident__c, Salutation, Marital_Status__c from Contact where Id=\'{0}\' and isDeleted=False",
+                          "Select Id,FirstName, LastName, Phone,MobilePhone, Email, Birthdate__c, Age__c, Gender__c, Permanent_Resident__c, Salutation, Marital_Status__c, Country_of_Citizenship__c from Contact where Id=\'{0}\' and isDeleted=False",
                       'Documents':
                           "Select Id, Name, Status__c from Document__C where Opportunity__c=\'{0}\'",
                       'DocumentLink':
@@ -140,12 +140,11 @@ class apiSalesforce():
         poaCount=0
         for  index, row in results.iterrows():
             if "Borrower" in row['Role__c']:
-                borrowerCount=+1
+                borrowerCount+=1
                 loanDict["Brwr" + str(borrowerCount)+".Role"]=row['Role__c']
                 self.qryToDict('Contacts', row['Customer_Contact__c'], "Brwr" + str(borrowerCount), loanDict)
-
             if "Attorney" in row['Role__c']:
-                poaCount = +1
+                poaCount +=1
                 loanDict["POA" + str(poaCount) + ".Role"] = row['Role__c']
                 self.qryToDict('Contacts', row['Customer_Contact__c'], "POA" + str(poaCount), loanDict)
 

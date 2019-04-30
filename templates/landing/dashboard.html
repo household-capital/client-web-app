@@ -1,0 +1,385 @@
+{% extends 'site/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load case_tags %}
+
+
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12 title">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div class="row justify-content-md-center">
+                <div class="col-6 text-center">
+                    <br>
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'success' %}
+                            class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <br>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-7 ">
+
+                <div class="row justify-content-center">
+
+                    <div class="col-5 text-center">
+                        <b>Pipeline</b><br>
+
+                        <canvas id="enquiryHealthChart"></canvas>
+                    </div>
+
+                    <div class="col-6 my-auto">
+                        <div class="row">
+
+                            <div class="col-12">
+                                <button type="button" class="btn btn-jumbotron">
+                                    Enquiries&nbsp;&nbsp;&nbsp; <span class="badge badge-success">{{ openEnquiries }}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="row justify-content-center">
+
+                    <div class="col-5 text-center">
+
+                        <canvas id="caseHealthChart"></canvas>
+                        <br>
+                        <p class="small"> % updated in <br>last 2 weeks</p>
+                    </div>
+
+                    <div class="col-6">
+                        <div class="row">
+
+                            <div class="col-12 ">
+                                <button type="button" class="btn btn-jumbotron">
+                                    Cases&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="badge badge-success">{{ openCases }}</span>
+                                </button>
+
+                            </div>
+                        </div>
+                        <div class="row">
+
+                            <div class="col-7">
+
+                                <p>Lead</p>
+                                <p>Opportunity</p>
+                                <p>Meeting Held</p>
+                                <p>Application</p>
+                                <p>Pre-Approval</p>
+                            </div>
+                            <div class="col-2">
+
+                                <p>{{ openLead }}</p>
+                                <p>{{ openOpportunity }}</p>
+                                <p>{{ openMeetingHeld }}</p>
+                                <p>{{ openApplication }}</p>
+                                <p>{{ openPreApproval }}</p>
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+                </div>
+
+
+            </div>
+
+        <div class="col-4 d-none d-sm-block">
+
+            <div class="row pt-1">
+
+                <div class="col-8">
+                    <b>Conversion</b><br>
+                    <br>
+                    <p><b>Enquiries</b></p>
+                    <p>Calculator</p>
+                    <p>Email</p>
+                    <p>Phone</p>
+                    <p>Referral</p>
+                    <br>
+                    <p><b>Cases</b></p>
+                    <p>Meetings</p>
+                    <p>Applications</p>
+                    <p>Approvals</p>
+                </div>
+
+                <div class="col-2">
+                    <b>&nbsp;</b><br>
+                    <br>
+                    <p><b>{{ totalEnquiries }}</b></p>
+                    <p>{{ webEnquiries }}</p>
+                    <p>{{ emailEnquiries }}</p>
+                    <p>{{ phoneEnquiries }}</p>
+                    <p>{{ referralEnquiries }}</p>
+                    <br>
+                    <p><b>{{ totalCases }}</b></p>
+                    <p>{{ meetings }}</p>
+                    <p>{{ applications }}</p>
+                    <p>{{ approvals }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br><br>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-9 text-center">
+            <p><b>Daily Calculator Interactions/Enquiries</b></p>
+
+            <canvas id="interactionChart"></canvas>
+
+        </div>
+    </div>
+
+    <br>
+    <div class="row justify-content-center">
+        <div class="col-lg-4">
+            <div class="row">
+                <div class="col-10">
+                    <b>Calculator Interactions</b>
+                    <br>
+                    <p>Valid Cases</p>
+                    <p>Provided Email</p>
+                    <br>
+                    <b>Purposes</b>
+                    <p>Top-up</p>
+                    <p>Refinance</p>
+                    <p>Live</p>
+                    <p>Give</p>
+                    <p>Care</p>
+                    <br>
+                    <b>Ineligible</b>
+                    <p>Postcode</p>
+                    <p>Youngest Borrower</p>
+                    <p>Youngest Joint Borrower</p>
+                    <p>Minimum Loan Size</p>
+                    <br>
+
+                </div>
+                <div class="col-2">
+                    <b>{{ interactions }}&nbsp;</b>
+                    <p>{{ valid_cases }}&nbsp;</p>
+                    <p>{{ provided_email }}&nbsp;</p>
+                    <br>
+                    <b>&nbsp;</b>
+                    <p>{{ topUp }}&nbsp;</p>
+                    <p>{{ refi }}&nbsp;</p>
+                    <p>{{ live }}&nbsp;</p>
+                    <p>{{ give }}&nbsp;</p>
+                    <p>{{ care }}&nbsp;</p>
+                    <br>
+                    <b>{{ invalid_cases }}&nbsp;</b>
+                    <p>{{ postcode }}&nbsp;</p>
+                    <p>{{ youngest_borrower }}&nbsp;</p>
+                    <p>{{ youngest_joint }}&nbsp;</p>
+                    <p>{{ minimum_loan }}&nbsp;</p>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-1">
+        </div>
+        <div class="col-lg-4">
+            <div class="row">
+
+                <div class="col-10">
+                    <b>Referrers</b>
+                    <p>Website</p>
+                    <p>Reverse Mortgage</p>
+                    <p>Equity Release</p>
+                    <p>Retirement Planning</p>
+                    <p>Superannuation</p>
+                    <p>Centrelink Pension</p>
+                    <br>
+                    <b>By State</b>
+                    <p>NSW</p>
+                    <p>VIC</p>
+                    <p>QLD</p>
+                    <p>SA</p>
+                    <p>WA</p>
+                    <p>TAS</p>
+                </div>
+                <div class="col-2">
+                    <b>&nbsp;</b>
+                    <p>{{ website }}&nbsp;</p>
+                    <p>{{ superannuation }}&nbsp;</p>
+                    <p>{{ reverse_mortgage }}&nbsp;</p>
+                    <p>{{ equity_release }}&nbsp;</p>
+                    <p>{{ retirement_planning }}&nbsp;</p>
+                    <p>{{ centrelink }}&nbsp;</p>
+                    <br>
+                    <br>
+                    <p>{{ NSW }}&nbsp;</p>
+                    <p>{{ VIC }}&nbsp;</p>
+                    <p>{{ QLD }}&nbsp;</p>
+                    <p>{{ SA }}&nbsp;</p>
+                    <p>{{ WA }}&nbsp;</p>
+                    <p>{{ TAS }}&nbsp;</p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <br><br>
+
+
+{% endblock %}
+
+
+{% block javascript %}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+
+
+    <script>
+        var ctx_interaction = document.getElementById('interactionChart').getContext('2d');
+        var ctx_case = document.getElementById('caseHealthChart').getContext('2d');
+        var ctx_enquiry = document.getElementById('enquiryHealthChart').getContext('2d');
+
+        var chartInteractionData = {{ chartInteractionData|safe}};
+        var chartEmailData = {{ chartEmailData|safe}};
+        var caseHealthData ={{ caseHealth }};
+        var enquiryHealthData ={{ enquiryHealth }};
+
+        var interactionData = [];
+        var emailData = [];
+
+        var arrayLength = chartInteractionData.length;
+        for (var i = 0; i < arrayLength; i++) {
+            interactionData.push({t: new Date(chartInteractionData[i][0]), y: chartInteractionData[i][1]});
+        }
+
+        arrayLength = chartEmailData.length;
+        for (i = 0; i < arrayLength; i++) {
+            emailData.push({t: new Date(chartEmailData[i][0]), y: chartEmailData[i][1]});
+        }
+
+
+        var interactionChart = new Chart(ctx_interaction, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: "Interactions",
+                    data: interactionData,
+                    borderColor: "#5184a1",
+                    fill: false
+                },
+                    {
+                        label: "Enquiries",
+                        data: emailData,
+                        borderColor: "#fdb600",
+                        fill: false
+                    }]
+            },
+            options: {
+                title: {
+                    display: false
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'month',
+                            tooltipFormat: 'ddd DD-MMM-YYYY',
+                        }
+
+                    }],
+                    yAxes: [{
+                        display: true,
+                        ticks: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }]
+                },
+
+                legend: false
+            }
+        });
+
+        var enquiryHealthChart = new Chart(ctx_enquiry, {
+            type: 'doughnut',
+            data: {
+                labels: ["Current", "Non-Current"],
+                datasets:
+                    [
+                        {
+                            backgroundColor: ["{{ enquiryColor }}", "#f8f9fa"],
+                            data: enquiryHealthData
+                        }
+                    ]
+            },
+            options: {
+                responsive: true,
+                legend: {
+                    display: false
+                },
+                cutoutPercentage: 60,
+            }
+        });
+
+        var caseHealthChart = new Chart(ctx_case, {
+            type: 'doughnut',
+            data: {
+                labels: ["Current", "Non-Current"],
+                datasets:
+                    [
+                        {
+                            backgroundColor: ["{{ caseColor }}", "#f8f9fa"],
+                            data: caseHealthData
+                        }
+                    ]
+            },
+            options: {
+                responsive: true,
+                legend: {
+                    display: false
+                },
+                cutoutPercentage: 60,
+            }
+        });
+
+
+    </script>
+
+{% endblock %}
