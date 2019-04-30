@@ -2,7 +2,6 @@
 *env
 *env-dev
 *env-prod
-**/migrations/
 **logs/
 **/media/
 **/collected/
@@ -10,7 +9,6 @@
 **/collected/
 **logs/
 **media/
-**migrations/
 *.DS_Store
 *.log
 *__pycache__*
@@ -29,5 +27,4 @@ customerImages/
 customerReports/
 fundImages/
 logs/
-migrations/
 production.py

@@ -34,7 +34,6 @@ exit
 
 # Install django project and create database tables
 python manage.py collectstatic
-python manage.py makemigrations
 python manage.py migrate
 
 # Doesnt work in headless mode, wont accept input from cli
