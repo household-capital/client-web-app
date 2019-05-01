@@ -27,6 +27,7 @@ pip install pip-upgrader
 pip install djangorestframework
 pip install markdown
 pip install django-filter
+pip install psycopg2-binary
 
 
 # Install PostgreSql and create database
@@ -46,6 +47,8 @@ GRANT ALL PRIVILEGES ON DATABASE hhc TO hhcadminuser;
 \q
 
 # {{ COPY DJANGO PROJECT TO PROJECT DIRECTORY }}
+
+# {{ UPDATE LOCAL .ENV FILE IN SETTINGS }}
 
 # Install django project and create database tables
 python manage.py collectstatic

@@ -1,30 +1,25 @@
 
+#Environment Files
 *env
 *env-dev
 *env-prod
-**logs/
-**/media/
-**/collected/
-*idea/
-**/collected/
-**logs/
-**media/
-*.DS_Store
-*.log
-*__pycache__*
-*env
-*env-dev
-*env-prod
-*idea/
-.idea/
 .vagrant
 /bin
 /include/python3.7m
 /lib/python3.7
-/logs/
+
+
+#IDE Files
+*__pycache__*
+*idea/
+.idea/
+*.DS_Store
+
+#Django Files
+*.log
+media/
 collected/
 customerImages/
 customerReports/
 fundImages/
-logs/
-production.py
+

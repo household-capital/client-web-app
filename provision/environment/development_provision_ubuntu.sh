@@ -1,4 +1,7 @@
+sudo apt update
+
 # Install Python and PIP
+
 sudo apt-get install python3
 sudo apt-get install -y python3-pip
 
@@ -26,6 +29,7 @@ pip install pip-upgrader
 pip install djangorestframework
 pip install markdown
 pip install django-filter
+pip install psycopg2-binary
 
 # Install PostgreSql and create database
 sudo apt-get install python-pip python-dev libpq-dev postgresql postgresql-contrib
@@ -39,7 +43,11 @@ ALTER ROLE django SET timezone TO 'UTC';
 GRANT ALL PRIVILEGES ON DATABASE hhc TO django;
 \q
 exit
-# COPY DJANGO PROJECT TO PROJECT DIRECTORY
+
+# {{ COPY DJANGO PROJECT TO PROJECT DIRECTORY }}
+
+# {{ UPDATE LOCAL .ENV FILE IN SETTINGS }}
+
 
 # Install django project and create database tables
 python manage.py collectstatic
