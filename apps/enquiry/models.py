@@ -32,7 +32,7 @@ class EnquiryManager(models.Manager):
         startdate = timezone.now() - timedelta(days=14)
         openEnq=self.openEnquiries().count()
         currentEnq=self.openEnquiries().filter(updated__gte=startdate).count()
-        return [round(currentEnq/openEnq,2),round(1-currentEnq/openEnq,2)]
+        return [0] if openEnq == 0 else [round(currentEnq/openEnq,2),round(1-currentEnq/openEnq,2)]
 
 class Enquiry(models.Model):
 

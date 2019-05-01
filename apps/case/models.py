@@ -52,7 +52,7 @@ class CaseManager(models.Manager):
         startdate = timezone.now() - timedelta(days=14)
         openCases=self.openCases().count()
         currentCases=self.openCases().filter(updated__gte=startdate).count()
-        return [round(currentCases/openCases,2),round(1-currentCases/openCases,2)]
+        return [0] if openCases == 0 else [round(currentCases/openCases,2),round(1-currentCases/openCases,2)]
 
 
 class Case(models.Model):
@@ -349,4 +349,3 @@ class LossData(models.Model):
 
     def enumRagStatus(self):
         return self.ragTypes[self.ragStatus][1]
-

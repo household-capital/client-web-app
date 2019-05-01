@@ -1,5 +1,20 @@
 # client-web-app
 
+## Dev env getting started
+
+```bash
+cp config/settings/.env-deploy .env
+# add details
+vagrant up
+vagrant ssh
+python manage.py createsuperuser
+```
+
+## Links
+- http://client-app.vm/hhcadmin
+- http://client-app.vm/landing/dashboard
+- http://client-app.vm/adminer?pgsql=127.0.0.1&username=hhcadminuser&db=hhc&ns=public
+
 ## Background - Django
 ```
 Django is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.
@@ -7,8 +22,6 @@ Built by experienced developers, it takes care of much of the hassle of Web deve
 It’s free and open source.
 ```
 Django's documentation is excellent (https://docs.djangoproject.com/en/2.1/)
-
-
 
 ## Background - Django Structure
 Django follows a Model:View:Controller design with a slight twist - it is more accurately Model:Template:View.
@@ -47,6 +60,7 @@ Static files - css, images, javascript are stored here.  Typically referenced by
 
 #### Config
 The main Django configuration / settings files are located in this directory.
+
 
 #### Manage.py
 This simple file is at the top of the structure and is used to start the application (e.g., python manage.py runserver)
