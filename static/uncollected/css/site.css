@@ -125,7 +125,7 @@ body {
 
 .hero::after {
   content: "";
-  background-image: url("/static/img/hhc/HC-Hero-FamilyOutside.jpg");
+  background-image: url("/static/img/hhc/HC-Hero.2.jpg");
   opacity: 0.3;
   top: 0;
   left: 0;

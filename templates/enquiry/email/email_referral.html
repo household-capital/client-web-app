@@ -1,0 +1,25 @@
+{% extends 'enquiry/email/email_template.html' %}
+{% load humanize %}
+{% load static %}
+{% load case_tags %}
+
+
+{% block email_content %}
+
+<p>Hello {{ obj.name|firstName }} </p>
+<br>
+<p>My name is {{ obj.user.first_name }}&nbsp;{{ obj.user.last_name }} and I am retirement specialist here at Household Capital.</p>
+<br>
+<p>You have been referred to me by {{ obj.referralUser.first_name }} {{ obj.referralUser.last_name }} from {{ obj.referralCompany }}.</p>
+<br>
+<p>I will be in contact with you shortly to discuss whether we may be able to assist you with your aged care funding needs.</p>
+<br>
+<p>Kind regards</p>
+<br>
+<p>{{ obj.user.first_name }}</p>
+<br>
+<img src="{{ absolute_media_url }}{{ obj.user.profile.picture }}" width="100px">
+
+
+{% endblock %}
+

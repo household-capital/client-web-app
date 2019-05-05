@@ -22,7 +22,8 @@ urlpatterns = [
     path('api/',include('apps.enquiry.api.urls')),
 
     path('referrer', views.ReferrerView.as_view(), name='enqReferrerCreate'),
-    path('referrer<uuid:uid>', views.ReferrerView.as_view(), name='enqReferrerUpdate'),
+    path('referrer/<uuid:uid>', views.ReferrerView.as_view(), name='enqReferrerUpdate'),
+    path('referrerEmail/<uuid:uid>', views.ReferralEmail.as_view(), name='enqReferrerEmail'),
 
     path('calcList', views.CalcListView.as_view(), name='calcList'),
     path('calcSpam/<uuid:uid>', views.CalcMarkSpam.as_view(), name='calcSpam'),

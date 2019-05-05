@@ -11,7 +11,8 @@
 
             <div class="row">
                 <div class="title col-lg-10">{{ title }}</div>
-                <div class="col-lg-2 "><img src="{{ request.user.profile.referrer.companyImage.url }}" width='150'></div>
+                <div class="col-lg-2 "><img src="{{ request.user.profile.referrer.companyImage.url }}" width='150'>
+                </div>
 
             </div>
         </div>
@@ -58,51 +59,24 @@
 
             <div class="col-lg-4 pt-4">
 
-                {% if status.status %}
-                <div class="pb-3">
-                    <a href="{% url "enquiry:enqReferrerCreate" %}">
-                        <button type="button" class="btn btn-outline-secondary">
-                            New
-                        </button>
-                    </a>
-                </div>
-                {% endif %}
-
                 {% if status.status == 'Ok' %}
                     <div class="jumbotron">
-                        <p class="small"><i class="fas fa-users-cog fa-fw"></i>&nbsp;Initial Validation</p>
-                        <br>
+                        <p class="small pb-2"><i class="fas fa-users-cog fa-fw"></i>&nbsp;Initial Validation</p>
 
                         <p><i class="far fa-check-circle fa-lg btn-outline-success"></i>&nbsp;Eligible Opportunity</p>
                         <br>
-                        <p class="larger">Max LVR is: {{ status.restrictions.maxLVR|intcomma }}%</p>
-                        <br>
-                        <p class="small"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
-                        <p class="small">Max Loan is: ${{ status.restrictions.maxLoan|intcomma }} (incl establishment
-                            fee)</p>
-                        <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxTopUp %}Max for
-                            Super
-                            Top Up
-                            is: ${{ status.restrictions.maxTopUp|intcomma }}</p>{% endif %}
-                        <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxCare %}Max for Age
-                            Care
-                            is:
-                            ${{ status.restrictions.maxCare|intcomma }}</p>{% endif %}
-                        <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxReno %}Max for
-                            Renovations
-                            is: ${{ status.restrictions.maxReno|intcomma }}</p>{% endif %}
-                        <p class="small">Max for Refinance is: ${{ status.restrictions.maxRefi|intcomma }}</p>
-                        <p class="small">Max for Giving is: ${{ status.restrictions.maxGive|intcomma }}</p>
-                        <p class="small">Max for Transport and Travel is:
-                            ${{ status.restrictions.maxTravel|intcomma }}</p>
+                        <p class="larger">Max loan is: {{ status.restrictions.maxLVR|intcomma }}%</p>
+                        <p class="small">of Home value</p>
 
                         <br>
-                        {% if obj.summaryDocument %}
-                            <p><i class="far fa-file-pdf"></i>&nbsp;Document</p>
-                            <p><a href="/media/enquiryReports/{{ obj.summaryDocument.file|filename }}">Emailed
-                                Document</a>
-                            </p>
+                        <p class="small pb-2"><i class="far fa-comment fa-fw"></i>&nbsp;Next Steps</p>
+                        <p class="small pb-3">Thanks {{ user.first_name }}</p>
+                        {% if obj.email %}
+                            <p class="small pb-3">We will send the client an email referencing
+                                this call and introducing ourselves.</p>
                         {% endif %}
+                        <p class="small">Shelley Wettenhall from Household will call the client in the next 24
+                            hours.</p>
 
                     </div>
 
@@ -112,44 +86,105 @@
 
                     <div class="jumbotron">
 
-                        <p class="small"><i class="fas fa-users-cog fa-fw"></i>&nbsp;Initial Validation</p>
-                        <br>
+                        <p class="small pb-2"><i class="fas fa-users-cog fa-fw"></i>&nbsp;Initial Validation</p>
+
                         <p><i class="far fa-times-circle fa-lg btn-outline-danger"></i>&nbsp;Ineligible
                             - {{ status.details }}</p>
+                        <br>
+                        <p class="small pb-2"><i class="far fa-comment fa-fw"></i>&nbsp;Comment</p>
+                        <p class="small pb-3">Thanks {{ user.first_name }}</p>
+
+                        {% if status.details == 'Insufficient data' %}
+                            <p class="small pb-3">There is insufficient information to assess
+                                eligibility. We will obtain this from the client directly.</p>
+
+                            {% if obj.email %}
+                                <p class="small pb-3">We will send the client an email referencing this call and introducing
+                                    ourselves.</p>
+                            {% endif %}
+                            <p class="small">Shelley Wettenhall from Household will call the client in the next 24
+                                hours.</p></p>
+
+                        {% else %}
+                            <p class="small">Unfortunately, it doesn't look like we will be able
+                                to help this client.</p>
+
+                        {% endif %}
 
                     </div>
 
+                {% endif %}
+
+                {% if not isUpdate %}
+
+                    <div class="jumbotron">
+
+                        <p class="small pb-2"><i class="far fa-comment fa-fw"></i>&nbsp;Hello {{ user.first_name }}</p>
+
+                        <p class="small">Please fill in the fields to the left.</p><br>
+                        <p class="small">Key eligibility requirements:</p>
+                        <p class="small">- Does the client own their own home? </p>
+                        <p class="small">- Is the home owned jointly? </p>
+                        <p class="small">- Ages of the home owner(s)</p>
+                        <p class="small">- Postcode of the home</p>
+                        <br>
+                        <p class="small">Hit update when you are done.</p><br>
+                        <p class="small">Based on the information you enter, an initial eligibility check will be
+                            displayed.</p>
+
+                    </div>
 
                 {% endif %}
+
+                {% if status.status %}
+                    <div class="text-center pt-3">
+                        <a href="{% url "enquiry:enqReferrerCreate" %}">
+                            <button type="button" class="btn btn-outline-secondary">
+                                New Referral
+                            </button>
+                        </a>
+                        <a data-toggle="modal" href="#deleteModal">
+                            <button class="btn btn-outline-secondary">
+                                Delete Referral
+                            </button>
+                        </a>
+
+                    </div>
+                {% endif %}
+
+
             </div>
         </div>
     </div>
 
-    {% if status.status == 'Ok' %}
-        <!-- Modal -->
-        <div class="modal fade" id="clientModal" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel"
+    {% if isUpdate %}
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
              aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="clientModalLabel">Email client?</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>You are about to send the client a summary document via email - are you sure ?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <a href="{% url 'enquiry:enqSendDetails' uid=obj.enqUID %}">
-                        <div class=" btn btn-primary">Yes, send summary</div>
-                    </a>
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel">Delete Referral?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>You are about to delete this referral</p>
+                        <p>We will no longer contact this client</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <a href="{% url 'enquiry:enqDelete' uid=obj.enqUID %}">
+                            <div class=" btn btn-primary">Yes, delete</div>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     {% endif %}
-</div>
+
+    </div>
+
 
 {% endblock %}
 

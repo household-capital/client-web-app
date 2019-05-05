@@ -48,6 +48,12 @@ def filename(value):
 def upto(value, delimiter=','):
     return value.split(delimiter)[0]
 
+def firstName(str):
+    firstname, surname = str.split(" ",1)
+    if len(firstname)>0:
+        return firstname
+    else:
+        return str
 
 
 # REGISTRATION
@@ -60,3 +66,4 @@ register.filter('bspkReferrer', bspkReferrer)
 register.filter('shortUID', shortUID)
 register.filter('filename', filename)
 register.filter('upto', upto)
+register.filter('firstName', firstName)

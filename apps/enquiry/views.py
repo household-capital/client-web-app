@@ -1,4 +1,4 @@
-#Python Imports
+# Python Imports
 import os
 import datetime
 
@@ -42,12 +42,14 @@ class LoginRequiredMixin():
         else:
             return HttpResponseRedirect(reverse_lazy('landing:landing'))
 
+
 class ReferrerRequiredMixin():
     # Ensures views will not render unless logged in, redirects to login page
     @classmethod
     def as_view(cls, **kwargs):
         view = super(ReferrerRequiredMixin, cls).as_view(**kwargs)
         return login_required(view)
+
 
 # ENQUIRY
 
@@ -61,7 +63,7 @@ class EnquiryListView(LoginRequiredMixin, ListView):
     def get_queryset(self, **kwargs):
         # overrides queryset to filter search paramater
         queryset = super(EnquiryListView, self).get_queryset()
-        queryset=queryset.filter(actioned=0, followUp__isnull=True).exclude(status=False,user__isnull=False)
+        queryset = queryset.filter(actioned=0, followUp__isnull=True).exclude(status=False, user__isnull=False)
 
         if self.request.GET.get('search'):
             search = self.request.GET.get('search')
@@ -77,7 +79,7 @@ class EnquiryListView(LoginRequiredMixin, ListView):
 
         # ...and for open my items
         if self.request.GET.get('myEnquiries') == "True":
-            queryset = super(EnquiryListView, self).get_queryset().filter(user=self.request.user,actioned=0)
+            queryset = super(EnquiryListView, self).get_queryset().filter(user=self.request.user, actioned=0)
 
         queryset = queryset.order_by('-updated')
 
@@ -97,7 +99,7 @@ class EnquiryListView(LoginRequiredMixin, ListView):
         else:
             context['myEnquiries'] = False
 
-        self.request.session['webQueue']=WebCalculator.objects.queueCount()
+        self.request.session['webQueue'] = WebCalculator.objects.queueCount()
         self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
 
         return context
@@ -128,7 +130,7 @@ class EnquiryView(LoginRequiredMixin, UpdateView):
             queryset = Enquiry.objects.queryset_byUID(str(self.kwargs['uid']))
             obj = queryset.get()
             context['obj'] = obj
-            context['isUpdate']=True
+            context['isUpdate'] = True
         return context
 
     def form_valid(self, form):
@@ -139,7 +141,7 @@ class EnquiryView(LoginRequiredMixin, UpdateView):
         loanObj = LoanValidator({}, clientDict)
         chkOpp = loanObj.chkClientDetails()
 
-        if obj.user==None and self.request.user.profile.isCreditRep == True:
+        if obj.user == None and self.request.user.profile.isCreditRep == True:
             obj.user = self.request.user
 
         if chkOpp['status'] == "Error":
@@ -155,6 +157,7 @@ class EnquiryView(LoginRequiredMixin, UpdateView):
         messages.success(self.request, "Enquiry Saved")
 
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': str(obj.enqUID)}))
+
 
 # Enquiry Delete View (Delete View)
 class EnquiryDeleteView(LoginRequiredMixin, View):
@@ -290,7 +293,7 @@ class EnquiryEmailEligibility(LoginRequiredMixin, TemplateView):
 
 class EnquiryMarkFollowUp(LoginRequiredMixin, UpdateView):
     template_name = 'enquiry/enquiry.html'
-    form_class=EnquiryFollowupForm
+    form_class = EnquiryFollowupForm
     model = Enquiry
 
     def get_object(self, queryset=None):
@@ -315,13 +318,12 @@ class EnquiryMarkFollowUp(LoginRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        obj=form.save()
+        obj = form.save()
         obj.followUp = timezone.now()
         obj.save(update_fields=['followUp'])
 
         messages.success(self.request, "Enquiry marked as followed-up")
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryList'))
-
 
 
 class EnquiryConvert(LoginRequiredMixin, View):
@@ -333,51 +335,50 @@ class EnquiryConvert(LoginRequiredMixin, View):
 
         enqUID = str(kwargs['uid'])
 
-        #get Enquiry object and dictionary
+        # get Enquiry object and dictionary
         queryset = Enquiry.objects.queryset_byUID(enqUID)
         enq_obj = queryset.get()
         enqDict = Enquiry.objects.dictionary_byUID(enqUID)
 
         if enqDict['name'] == None:
-            enqDict['name']="Unknown"
+            enqDict['name'] = "Unknown"
 
-        #Create dictionary of Case fields from Enquiry fields
+        # Create dictionary of Case fields from Enquiry fields
         if ' ' in enqDict['name']:
-            firstname, surname = enqDict['name'].split(' ',1)
+            firstname, surname = enqDict['name'].split(' ', 1)
         else:
-            firstname=""
-            surname=enqDict['name']
+            firstname = ""
+            surname = enqDict['name']
 
-        caseDict={}
-        caseDict['caseType']=caseTypesEnum.LEAD.value
-        caseDict['caseDescription']=surname +" - "+ str(enqDict['postcode'])
-        caseDict['enquiryDocument']=enqDict['summaryDocument']
-        caseDict['caseNotes']=enqDict['enquiryNotes']
-        caseDict['firstname_1']=firstname
-        caseDict['surname_1']=surname
-        caseDict['adviser']=enq_obj.enumReferrerType()
-        user=self.request.user
+        caseDict = {}
+        caseDict['caseType'] = caseTypesEnum.LEAD.value
+        caseDict['caseDescription'] = surname + " - " + str(enqDict['postcode'])
+        caseDict['enquiryDocument'] = enqDict['summaryDocument']
+        caseDict['caseNotes'] = enqDict['enquiryNotes']
+        caseDict['firstname_1'] = firstname
+        caseDict['surname_1'] = surname
+        caseDict['adviser'] = enq_obj.enumReferrerType()
+        user = self.request.user
 
-        copyFields=['loanType','age_1','age_2', 'dwellingType', 'valuation', 'postcode', 'email', 'phoneNumber']
+        copyFields = ['loanType', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode', 'email', 'phoneNumber']
         for field in copyFields:
-            caseDict[field]=enqDict[field]
+            caseDict[field] = enqDict[field]
 
-        #Create and save new Case
+        # Create and save new Case
         case_obj = Case.objects.create(user=user, **caseDict)
         case_obj.save()
 
-        #Set enquiry to actioned
-        enq_obj.actioned=1
+        # Set enquiry to actioned
+        enq_obj.actioned = 1
         enq_obj.save()
 
-        #Copy enquiryReport across to customerReport and add to the database
+        # Copy enquiryReport across to customerReport and add to the database
         try:
             if caseDict['enquiryDocument'] != None:
+                old_file = enqDict["summaryDocument"]
+                new_file = enqDict["summaryDocument"].replace('enquiryReports', 'customerReports')
 
-                old_file=enqDict["summaryDocument"]
-                new_file=enqDict["summaryDocument"].replace('enquiryReports', 'customerReports')
-
-                os.rename(old_file,new_file)
+                os.rename(old_file, new_file)
                 print(new_file)
                 case_obj.enquiryDocument.name = new_file
                 case_obj.save()
@@ -387,6 +388,7 @@ class EnquiryConvert(LoginRequiredMixin, View):
         messages.success(self.request, "Enquiry converted to a new Case")
 
         return HttpResponseRedirect(reverse_lazy("case:caseList"))
+
 
 class EnquiryOwnView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
@@ -424,7 +426,7 @@ class FollowUpEmail(LoginRequiredMixin, TemplateView):
             messages.error(self.request, "This enquiry is not assigned to a user. Please take ownership")
             return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
 
-        bcc=enqObj.user.email
+        bcc = enqObj.user.email
         subject, from_email, to = "Household Capital: Follow-up", enqObj.user.email, enqObj.email
         text_content = "Text Message"
 
@@ -442,7 +444,7 @@ class FollowUpEmail(LoginRequiredMixin, TemplateView):
 
         except:
             write_applog("ERROR", 'FollowUpEmail', 'get',
-                "Failed to email follow-up:" + enqID)
+                         "Failed to email follow-up:" + enqID)
             messages.error(self.request, "Follow-up could not be emailed")
             return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
 
@@ -474,19 +476,24 @@ class ReferrerView(ReferrerRequiredMixin, UpdateView):
             queryset = Enquiry.objects.queryset_byUID(str(self.kwargs['uid']))
             obj = queryset.get()
             context['obj'] = obj
+            context['isUpdate'] = True
         return context
 
     def form_valid(self, form):
 
         clientDict = form.cleaned_data
         obj = form.save(commit=False)
+        obj.valuation = 1000000
+        clientDict['valuation'] = obj.valuation
 
         loanObj = LoanValidator({}, clientDict)
         chkOpp = loanObj.chkClientDetails()
 
-        obj.user = None
-        obj.referrer=directTypesEnum.REFERRAL.value
-        obj.referrerID=self.request.user.profile.referrer.companyName
+        obj.referralUser = self.request.user
+        obj.referrer = directTypesEnum.REFERRAL.value
+        obj.referrerID = self.request.user.profile.referrer.companyName + " - " + \
+                         self.request.user.first_name + \
+                         " " + self.request.user.last_name
 
         if chkOpp['status'] == "Error":
             obj.status = 0
@@ -498,14 +505,48 @@ class ReferrerView(ReferrerRequiredMixin, UpdateView):
             obj.maxLVR = chkOpp['restrictions']['maxLVR']
             obj.save()
 
-        messages.success(self.request, "Enquiry Saved")
+        messages.success(self.request, "Referral Captured or Updated")
 
         return HttpResponseRedirect(reverse_lazy('enquiry:enqReferrerUpdate', kwargs={'uid': str(obj.enqUID)}))
 
 
+class ReferralEmail(LoginRequiredMixin, TemplateView):
+    template_name = 'enquiry/email/email_referral.html'
+    model = Enquiry
 
+    def get(self, request, *args, **kwargs):
+        email_context = {}
+        enqID = str(kwargs['uid'])
 
+        enqObj = Enquiry.objects.queryset_byUID(enqID).get()
 
+        email_context['obj'] = enqObj
+        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+        email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
+
+        if not enqObj.user:
+            messages.error(self.request, "This enquiry is not assigned to a user. Please take ownership")
+            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
+
+        bcc = enqObj.user.email
+        subject, from_email, to = "Household Capital: Introduction", enqObj.user.email, enqObj.email
+        text_content = "Text Message"
+
+        try:
+            html = get_template(self.template_name)
+            html_content = html.render(email_context)
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [bcc])
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+            messages.success(self.request, "Introduction emailed to client")
+
+            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
+
+        except:
+            write_applog("ERROR", 'FollowUpEmail', 'get',
+                         "Failed to email introduction:" + enqID)
+            messages.error(self.request, "Introduction could not be emailed")
+            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
 
 
 # CALCULATOR
@@ -574,7 +615,7 @@ class CalcSendDetails(LoginRequiredMixin, UpdateView):
         calcDict.pop('actioned')
         user = self.request.user
 
-        enq_obj = Enquiry.objects.create(user=user,referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer,
+        enq_obj = Enquiry.objects.create(user=user, referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer,
                                          **calcDict)
         enq_obj.save()
 
@@ -661,4 +702,3 @@ class CalcSummaryPdfView(TemplateView):
         context['dwellingTypesEnum'] = dwellingTypesEnum
         context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
         return context
-

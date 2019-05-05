@@ -1,0 +1,330 @@
+{% extends 'site/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load case_tags %}
+
+
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12 title">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div class="row justify-content-md-center">
+                <div class="col-6 text-center">
+                    <br>
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'success' %}
+                            class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <br>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-4">
+                <div class="row">
+                    <div class="col-10">
+                        <p><b>Calculator Interactions</b></p>
+                        <p class="small">Valid Cases</p>
+                        <p class="small">Provided Email</p>
+                        <br>
+                        <p><b>Purposes</b></p>
+                        <p class="small">Top-up</p>
+                        <p class="small">Refinance</p>
+                        <p class="small">Live</p>
+                        <p class="small">Give</p>
+                        <p class="small">Care</p>
+                        <br>
+                        <p><b>Ineligible</b></p>
+                        <p class="small">Postcode</p>
+                        <p class="small">Youngest Borrower</p>
+                        <p class="small">Youngest Joint Borrower</p>
+                        <p class="small">Minimum Loan Size</p>
+                        <br>
+
+                    </div>
+                    <div class="col-2 text-right">
+                        <p><b>{{ interactions }}&nbsp;</b></p>
+                        <p class="small">{{ valid_cases }}&nbsp;</p>
+                        <p class="small">{{ provided_email }}&nbsp;</p>
+                        <br>
+                        <b>&nbsp;</b>
+                        <p class="small">{{ topUp }}&nbsp;</p>
+                        <p class="small">{{ refi }}&nbsp;</p>
+                        <p class="small">{{ live }}&nbsp;</p>
+                        <p class="small">{{ give }}&nbsp;</p>
+                        <p class="small">{{ care }}&nbsp;</p>
+                        <br>
+                        <p><b>{{ invalid_cases }}&nbsp;</b></p>
+                        <p class="small">{{ postcode }}&nbsp;</p>
+                        <p class="small">{{ youngest_borrower }}&nbsp;</p>
+                        <p class="small">{{ youngest_joint }}&nbsp;</p>
+                        <p class="small">{{ minimum_loan }}&nbsp;</p>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-1">
+            </div>
+            <div class="col-lg-4">
+                <div class="row">
+
+                    <div class="col-10">
+                        <p><b>Traffic Source</b></p>
+                        <p class="small">Direct (SEO)</p>
+                        <p class="small">Keyword (SEM)</p>
+                        <p class="small">- Reverse Mortgage</p>
+                        <p class="small">- Equity Release</p>
+                        <p class="small">- Retirement Planning</p>
+                        <p class="small">- Superannuation</p>
+                        <p class="small">- Centrelink Pension</p>
+                        <br>
+                        <p><b>By State</b></p>
+                        <p class="small">NSW</p>
+                        <p class="small">VIC</p>
+                        <p class="small">QLD</p>
+                        <p class="small">SA</p>
+                        <p class="small">WA</p>
+                        <p class="small">TAS</p>
+                    </div>
+                    <div class="col-2 text-right">
+                        <b>&nbsp;</b>
+                        <p class="small">{{ website }}&nbsp;</p>
+                        <p class="small">&nbsp;</p>
+                        <p class="small">{{ superannuation }}&nbsp;</p>
+                        <p class="small">{{ reverse_mortgage }}&nbsp;</p>
+                        <p class="small">{{ equity_release }}&nbsp;</p>
+                        <p class="small">{{ retirement_planning }}&nbsp;</p>
+                        <p class="small">{{ centrelink }}&nbsp;</p>
+                        <br>
+                        <br>
+                        <p class="small">{{ NSW }}&nbsp;</p>
+                        <p class="small">{{ VIC }}&nbsp;</p>
+                        <p class="small">{{ QLD }}&nbsp;</p>
+                        <p class="small">{{ SA }}&nbsp;</p>
+                        <p class="small">{{ WA }}&nbsp;</p>
+                        <p class="small">{{ TAS }}&nbsp;</p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-9 text-left">
+
+                <b>Website Calculator Interactions by State</b>
+                <div class="chart-container pt-3" style="height:350px;">
+
+                    <canvas id="statesChart"></canvas>
+                </div>
+
+            </div>
+        </div>
+        <br>
+        <div class="row justify-content-center">
+            <div class="col-lg-9 text-left">
+
+                <b>Website Calculator Interactions by Source</b>
+                <div class="chart-container pt-3" style="height:350px;">
+
+                    <canvas id="sourceChart"></canvas>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <br><br>
+
+
+{% endblock %}
+
+
+{% block javascript %}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+
+
+    <script>
+        // Create timeseries using js dates
+        function createTimeSeries(sourceArray) {
+            var timeSeriesArray = [];
+            var arrayLength = sourceArray.length;
+            for (var i = 0; i < arrayLength; i++) {
+                timeSeriesArray.push({t: new Date(sourceArray[i][0]), y: sourceArray[i][1]});
+            }
+            return timeSeriesArray;
+        }
+
+        // Chart data
+        var dataVic = {{ dataVic|safe}};
+        var dataNSW = {{ dataNSW|safe}};
+        var dataQld = {{ dataQld|safe}};
+        var dataSA  = {{ dataSA|safe}};
+        var dataWA  = {{ dataWA|safe}};
+        var dataTas = {{ dataTas|safe}};
+
+        var dataSEO = {{ dataSEO|safe}};
+        var dataSEM = {{ dataSEM|safe}};
+
+        // Timeseries data
+        var chartDataVic = createTimeSeries(dataVic);
+        var chartDataNSW = createTimeSeries(dataNSW);
+        var chartDataQld = createTimeSeries(dataQld);
+        var chartDataSA = createTimeSeries(dataSA);
+        var chartDataWA = createTimeSeries(dataWA);
+        var chartDataTas = createTimeSeries(dataTas);
+
+        var chartDataSEO= createTimeSeries(dataSEO);
+        var chartDataSEM= createTimeSeries(dataSEM);
+
+        // Chart references
+        var ctx_states = document.getElementById('statesChart').getContext('2d');
+        var ctx_source = document.getElementById('sourceChart').getContext('2d');
+
+
+        // Chart definitions
+
+        var statesChart = new Chart(ctx_states, {
+            type: 'line',
+            data: {
+                datasets: [
+                    {label: "Vic",
+                        data: chartDataVic,
+                        fill: false,
+                        borderColor:"#5184a1",
+                        borderWidth:3},
+                    {label: "NSW",
+                        data: chartDataNSW,
+                        fill: false,
+                        borderColor:"#fdb600",
+                        borderWidth:3},
+                    {label: "Qld",
+                        data: chartDataQld,
+                        fill: false,
+                        borderColor:"#c45850",
+                        borderWidth:3},
+                    {label: "SA",
+                        data: chartDataSA,
+                        fill: false,
+                        borderColor:"#8e5ea2",
+                        borderWidth:1},
+                    {label: "WA",
+                        data: chartDataWA,
+                        fill: false,
+                        borderColor:"#3cba9f",
+                        borderWidth:1},
+                    {label: "Tas",
+                        data: chartDataTas,
+                        fill: false,
+                        borderColor:"#e8c3b9",
+                        borderWidth:1},
+                    ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                    display: false,
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'month',
+                            tooltipFormat: 'ddd DD-MMM-YYYY',
+                        }
+
+                    }],
+                    yAxes: [{
+                        display: true,
+                        ticks: {
+                            beginAtZero: true,
+                            max: 70
+                        }
+                    }]
+                },
+
+
+            }
+        });
+
+
+    var sourceChart = new Chart(ctx_source, {
+            type: 'line',
+            data: {
+                datasets: [
+                    {label: "SEO",
+                        data: chartDataSEO,
+                        fill: false,
+                        borderColor:"#5184a1",
+                        borderWidth:3},
+                    {label: "SEM",
+                        data: chartDataSEM,
+                        fill: false,
+                        borderColor:"#fdb600",
+                        borderWidth:3},
+                    ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                    display: false,
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'month',
+                            tooltipFormat: 'ddd DD-MMM-YYYY',
+                        }
+
+                    }],
+                    yAxes: [{
+                        display: true,
+                        ticks: {
+                            beginAtZero: true,
+                            max: 70
+                        }
+                    }]
+                },
+
+
+            }
+        });
+
+    </script>
+
+{% endblock %}

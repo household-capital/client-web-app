@@ -24,7 +24,7 @@ class WebManager(models.Manager):
     def queueCount(self):
         return WebCalculator.objects.filter(email__isnull=False, actioned=0).count()
 
-    def timeSeries(self,seriesType,length):
+    def timeSeries(self,seriesType,length,search=None):
         tz=get_current_timezone()
         if seriesType=='Interactions':
             return WebCalculator.objects\
@@ -38,6 +38,21 @@ class WebManager(models.Manager):
                 .values_list('date')\
                 .annotate(interactions=Count('calcUID'))\
                 .values_list('date','interactions').order_by('-date')[:length]
+        if seriesType=='InteractionsByState':
+            return WebCalculator.objects.filter(postcode__startswith=search).annotate(date=Cast(TruncDay('timestamp',tzinfo=tz),DateField()))\
+                .values_list('date')\
+                .annotate(interactions=Count('calcUID'))\
+                .values_list('date','interactions').order_by('-date')[:length]
+        if seriesType=='InteractionsBySource' and search==True:
+            return WebCalculator.objects.filter(referrer__icontains='calculator').annotate(date=Cast(TruncDay('timestamp',tzinfo=tz),DateField()))\
+                .values_list('date')\
+                .annotate(interactions=Count('calcUID'))\
+                .values_list('date','interactions').order_by('-date')[:length]
+        if seriesType == 'InteractionsBySource' and search == False:
+            return WebCalculator.objects.exclude(referrer__icontains='calculator').annotate(date=Cast(TruncDay('timestamp', tzinfo=tz), DateField())) \
+                       .values_list('date') \
+                       .annotate(interactions=Count('calcUID')) \
+                       .values_list('date', 'interactions').order_by('-date')[:length]
 
 
 class WebCalculator(models.Model):

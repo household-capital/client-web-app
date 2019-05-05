@@ -81,6 +81,7 @@ class Enquiry(models.Model):
     followUp = models.DateTimeField(null=True, blank=True, auto_now_add=False, auto_now=False)
     followUpDate=models.DateField(blank=True, null=True)
     summaryDocument = models.FileField(null=True, blank=True)
+    referralUser=models.ForeignKey(settings.AUTH_USER_MODEL, related_name='referralUser', null=True, blank=True, on_delete=models.SET_NULL)
 
     phoneNumber=models.CharField(max_length=15,blank=True,null=True)
     enquiryNotes=models.TextField(null=True,blank=True)
@@ -92,6 +93,9 @@ class Enquiry(models.Model):
 
     def enumReferrerType(self):
             return dict(self.referrerTypes)[self.referrer]
+
+    def referralCompany(self):
+            return self.referralUser.profile.referrer
 
     def __str__(self):
         return smart_text(self.email)

@@ -35,7 +35,7 @@ class WebInputForm(forms.ModelForm):
             valuation = int(valuation)
             return valuation
         except:
-            raise ValidationError("Please enter valuation amount")
+            raise ValidationError("Please enter home value estimate")
 
 
 class WebOutputForm(forms.ModelForm):

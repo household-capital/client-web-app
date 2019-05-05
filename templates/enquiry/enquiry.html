@@ -53,7 +53,6 @@
 
             </div>
 
-
             <div class="col-lg-4 pt-4">
                 {% if isUpdate %}
                     <div class="btn-group pb-3">
@@ -88,6 +87,16 @@
                                     &nbsp;&nbsp;
                                 </a>
 
+                                {% if obj.referralUser %}
+
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" data-toggle="modal" href="#referrerModal">
+                                        &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Referral
+                                        Introduction
+                                        &nbsp;&nbsp;
+                                    </a>
+                                {% endif %}
+
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" data-toggle="modal" href="#followupModal">
                                     &nbsp;<i class="fas fa-reply-all"></i>&nbsp;&nbsp;Send Client Follow-up &nbsp;&nbsp;
@@ -103,11 +112,11 @@
                                 &nbsp;<i class="far fa-folder-open"></i>&nbsp;&nbsp;Convert to Case
                             </a>
 
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="{% url 'enquiry:enqMarkFollowUp' uid=obj.enqUID %}">
-                                    &nbsp;<i class="far fa-calendar-check fa-fw"></i>&nbsp;&nbsp;Mark as followed-up
-                                    &nbsp;&nbsp;
-                                </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{% url 'enquiry:enqMarkFollowUp' uid=obj.enqUID %}">
+                                &nbsp;<i class="far fa-calendar-check fa-fw"></i>&nbsp;&nbsp;Mark as followed-up
+                                &nbsp;&nbsp;
+                            </a>
 
                         </div>
                     </div>
@@ -226,6 +235,7 @@
                 </div>
             </div>
 
+
         {% endif %}
 
         {% if isUpdate %}
@@ -246,6 +256,30 @@
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                             <a href="{% url 'enquiry:enqDelete' uid=obj.enqUID %}">
                                 <div class=" btn btn-primary">Yes, delete</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="modal fade" id="referrerModal" tabindex="-1" role="dialog" aria-labelledby="referrerModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="referrerModalLabel">Email client?</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>You are about to send an introduction email to a referred client- are you sure ?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <a href="{% url 'enquiry:enqReferrerEmail' uid=obj.enqUID %}">
+                                <div class=" btn btn-primary">Yes, send introduction</div>
                             </a>
                         </div>
                     </div>
