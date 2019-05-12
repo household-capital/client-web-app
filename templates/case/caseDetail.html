@@ -95,7 +95,7 @@
                                 <div class="btn-group">
                                 <button type="button" class="btn btn-outline-secondary dropdown-toggle"
                                         data-toggle="dropdown"
-                                        aria-haspopup="true" aria-expanded="false">
+                                        aria-haspopup="true" aria-expanded="false" id="btnCaseActions">
                                     Case Actions
                                 </button>
                                 <div class="dropdown-menu">
@@ -415,5 +415,16 @@
 
 
 {% block javascript %}
+    <script>
+        $(document).ready(function () {
+            $("form").one('click focus change', function (e) {
+                console.log("Click");
+                $('#submit-id-submit').addClass('btn-warning').removeClass('btn-outline-secondary');
+                $('#btnCaseActions').attr('disabled',true)
+
+            })
+        })
+
+    </script>
 
 {% endblock %}

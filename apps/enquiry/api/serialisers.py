@@ -5,7 +5,6 @@ from apps.enquiry.models import Enquiry
 class EnquirySeraliser(serializers.ModelSerializer):
     class Meta:
         model=Enquiry
-        fields=['user', 'loanType', 'name', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode','referrer','referrerID'
-
-        ]
+        fields=['user', 'loanType', 'name', 'age_1', 'age_2', 'dwellingType', 'valuation',
+                'postcode','referrer','referrerID']
 

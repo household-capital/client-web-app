@@ -26,24 +26,32 @@
 
             <ul class="nav navbar-nav pl-4">
                 {% if request.user.profile.isHousehold %}
-                    <li><a href="{% url 'enquiry:enquiry' %}"><i class="fas fa-user-check"></i> Enquiry</a>&nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <li><a href="{% url 'calculator:contactList' %}"><i class="fab fa-safari"></i> Queue
+                    {% if request.session.webContQueue|intVal > 0 %}<span class="badge btn-success align-text-top">{{request.session.webContQueue}}</span>{% endif %}</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     </li>
 
-                    <li><a href="{% url 'enquiry:calcList' %}"><i class="fas fa-calculator"></i> Queue
-                    {% if request.session.webQueue|intVal > 0 %}<span class="badge btn-success align-text-top">{{request.session.webQueue}}</span>{% endif %}</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <li><a href="{% url 'calculator:calcList' %}"><i class="fas fa-calculator"></i> Queue
+                    {% if request.session.webCalcQueue|intVal > 0 %}<span class="badge btn-success align-text-top">{{request.session.webCalcQueue}}</span>{% endif %}</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    </li>
+
+                    <li class="d-none d-sm-table-cell"> | &nbsp;&nbsp;&nbsp;
+                    </li>
+
+                    <li><a href="{% url 'enquiry:enquiry' %}"><i class="fas fa-user-check"></i> Enquiry</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     </li>
 
                    <li><a href="{% url 'enquiry:enquiryList' %}"><i class="far fa-list-alt"></i> Enquiry List
                    {% if request.session.enquiryQueue|intVal > 0 %}<span class="badge btn-success align-text-top">{{request.session.enquiryQueue}}</span>{% endif %}</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     </li>
 
-                    <li> | &nbsp;&nbsp;&nbsp;
+                    <li class="d-none d-sm-table-cell"> | &nbsp;&nbsp;&nbsp;
                     </li>
 
                     <li><a href="{% url 'case:caseList' %}"><i class="far fa-list-alt"></i> Case List </a>&nbsp;&nbsp;&nbsp;
                     </li>
 
-                    <li> | &nbsp;&nbsp;&nbsp;
+                    <li class="d-none d-sm-table-cell"> | &nbsp;&nbsp;&nbsp;
                     </li>
 
                     <li>

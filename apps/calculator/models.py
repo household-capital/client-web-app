@@ -2,6 +2,7 @@
 import uuid
 
 #Django Imports
+from django.conf import settings
 from django.db import models
 from django.db.models import Count
 from django.db.models.functions import TruncDate,TruncDay, Cast
@@ -9,6 +10,7 @@ from django.db.models.fields import DateField
 from django.forms import ValidationError
 from django.utils.encoding import smart_text
 from django.utils.timezone import get_current_timezone
+from django.urls import reverse_lazy
 
 
 
@@ -53,6 +55,18 @@ class WebManager(models.Manager):
                        .values_list('date') \
                        .annotate(interactions=Count('calcUID')) \
                        .values_list('date', 'interactions').order_by('-date')[:length]
+        if seriesType == 'EmailBySource' and search == True:
+            return WebCalculator.objects.filter(referrer__icontains='calculator').filter(email__isnull=False).annotate(
+                date=Cast(TruncDay('timestamp', tzinfo=tz), DateField())) \
+                       .values_list('date') \
+                       .annotate(interactions=Count('calcUID')) \
+                       .values_list('date', 'interactions').order_by('-date')[:length]
+        if seriesType == 'EmailBySource' and search == False:
+            return WebCalculator.objects.filter(email__isnull=False).exclude(referrer__icontains='calculator').annotate(
+                date=Cast(TruncDay('timestamp', tzinfo=tz), DateField())) \
+                       .values_list('date') \
+                       .annotate(interactions=Count('calcUID')) \
+                       .values_list('date', 'interactions').order_by('-date')[:length]
 
 
 class WebCalculator(models.Model):
@@ -86,13 +100,32 @@ class WebCalculator(models.Model):
     def __str__(self):
         return smart_text(self.pk)
 
+
+class WebContactManager(models.Manager):
+    def queueCount(self):
+        return WebContact.objects.filter(actioned=0).count()
+
+    def queryset_byUID(self, uidString):
+        searchWeb = WebContact.objects.get(contUID=uuid.UUID(uidString)).pk
+        return super(WebContactManager, self).filter(pk=searchWeb)
+
+    def dictionary_byUID(self, uidString):
+        return self.queryset_byUID(uidString).values()[0]
+
 class WebContact(models.Model):
+    contUID = models.UUIDField(default=uuid.uuid4, editable=False)
     name=models.CharField(max_length=50,null=False, blank=False)
     email=models.EmailField(null=True,blank=True)
     phone=models.CharField(max_length=15,null=True,blank=True)
     message=models.CharField(max_length=1000,null=False,blank=False)
+    actioned = models.IntegerField(default=0, blank=True, null=True)
+    actionNotes=models.CharField(max_length=1000,null=True,blank=True)
+    actionedBy=models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    actionDate=models.DateField(blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+    objects = WebContactManager()
 
     def __str__(self):
         return smart_text(self.name)
@@ -105,3 +138,6 @@ class WebContact(models.Model):
            raise ValidationError(
                     "Please provide an email or phone number"
                 )
+
+    def get_absolute_url(self):
+        return reverse_lazy("calculator:contactDetail", kwargs={"uid":self.contUID})

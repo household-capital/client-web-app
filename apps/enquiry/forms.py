@@ -51,7 +51,7 @@ class EnquiryForm(forms.ModelForm):
                 Div(Field('postcode', placeholder='Enter postcode'), css_class="form-group"),
                 Div(Field('valuation', placeholder='Enter valuation'), css_class="form-group"),
                 Div(css_class="row"),
-                Div(Submit('submit', 'Update', css_class='btn btn-warning')),
+                Div(Submit('submit', 'Update', css_class='btn btn-outline-secondary')),
                 css_class='col-lg-6'),
             css_class="row ")
     )

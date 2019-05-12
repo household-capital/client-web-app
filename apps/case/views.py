@@ -17,7 +17,7 @@ from django.views.generic import ListView, UpdateView, CreateView, TemplateView,
 # Third-party Imports
 
 # Local Application Imports
-from apps.calculator.models import WebCalculator
+from apps.calculator.models import WebCalculator, WebContact
 from apps.lib.loanValidator import LoanValidator
 from apps.lib.enums import caseTypesEnum
 from apps.lib.utilities import pdfGenerator
@@ -143,7 +143,8 @@ class CaseListView(LoginRequiredMixin, ListView):
         else:
             context['order'] = self.request.GET.get('order')
 
-        self.request.session['webQueue'] = WebCalculator.objects.queueCount()
+        self.request.session['webCalcQueue'] = WebCalculator.objects.queueCount()
+        self.request.session['webContQueue'] = WebContact.objects.queueCount()
         self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
 
         return context
@@ -165,10 +166,11 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
         clientDict = {}
         clientDict = self.get_queryset().filter(caseID=self.object.caseID).values()[0]
 
-        loanObj = LoanValidator([], clientDict)
-        context['status'] = loanObj.chkClientDetails()
+        loanObj = LoanValidator(clientDict)
+        context['status'] = loanObj.validateLoan()
 
         return context
+
 
     def form_valid(self, form):
 
@@ -347,8 +349,8 @@ class CaseEmailEligibility(LoginRequiredMixin, TemplateView):
         obj = queryset.get()
 
         clientDict = queryset.values()[0]
-        loanObj = LoanValidator([], clientDict)
-        email_context['enquiry'] = loanObj.chkClientDetails()
+        loanObj = LoanValidator( clientDict)
+        email_context['enquiry'] = loanObj.validateLoan()
         email_context['obj'] = obj
 
         subject, from_email, to = "Eligibility Summary", settings.DEFAULT_FROM_EMAIL, self.request.user.email
@@ -620,6 +622,14 @@ class CaseValuerView(LoginRequiredMixin, SFHelper, UpdateView):
         context['title'] = "Create Valuer Instruction"
 
         return context
+
+    def get_initial(self):
+        self.initial = {
+            "valuerFirm":'WBP Group',
+            "valuerEmail": 'valuations@wbpgroup.com.au'
+        }
+        return self.initial.copy()
+
 
     def get_object(self, **kwargs):
         obj = Case.objects.filter(caseUID=self.kwargs['uid']).get()

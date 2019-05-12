@@ -58,7 +58,7 @@
                     <div class="btn-group pb-3">
                         <button type="button" class="btn btn-outline-secondary dropdown-toggle"
                                 data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">
+                                aria-haspopup="true" aria-expanded="false" id="btnEnquiryActions">
                             Enquiry Actions
                         </button>
                         <div class="dropdown-menu">
@@ -293,5 +293,17 @@
 
 
 {% block javascript %}
+    <script>
+        $(document).ready(function () {
+            $("form").one('click focus change', function (e) {
+                 $('#submit-id-submit').addClass('btn-warning').removeClass('btn-outline-secondary');
+                 $('#btnEnquiryActions').attr('disabled',true)
+
+            })
+        })
+
+    </script>
 
 {% endblock %}
+
+

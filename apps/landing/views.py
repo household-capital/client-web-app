@@ -8,7 +8,7 @@ from django.urls import reverse_lazy
 
 from django.views.generic import TemplateView
 
-from apps.calculator.models import WebCalculator
+from apps.calculator.models import WebCalculator, WebContact
 from apps.case.models import Case
 from apps.enquiry.models import Enquiry
 from apps.lib.enums import caseTypesEnum, directTypesEnum
@@ -116,7 +116,8 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             solicitorInstruction__exact="").count()
         context['approvals'] = qsCases.filter(caseType=caseTypesEnum.APPROVED.value).count()
 
-        self.request.session['webQueue'] = WebCalculator.objects.queueCount()
+        self.request.session['webCalcQueue'] = WebCalculator.objects.queueCount()
+        self.request.session['webContQueue'] = WebContact.objects.queueCount()
         self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
 
         return context
@@ -134,9 +135,9 @@ class DashboardCalcView(LoginRequiredMixin, TemplateView):
         context['title'] = 'Dashboard'
 
         # Time Series Data
+
         context['dataNSW']= json.dumps(list(WebCalculator.objects.timeSeries('InteractionsByState', 90,2)), default=self.dateParse)
-        context['dataVic'] = json.dumps(list(WebCalculator.objects.timeSeries('InteractionsByState', 90, 3)),
-                                        default=self.dateParse)
+        context['dataVic'] = json.dumps(list(WebCalculator.objects.timeSeries('InteractionsByState', 90, 3)),default=self.dateParse)
         context['dataQld']= json.dumps(list(WebCalculator.objects.timeSeries('InteractionsByState', 90,4)), default=self.dateParse)
         context['dataSA']= json.dumps(list(WebCalculator.objects.timeSeries('InteractionsByState', 90,5)), default=self.dateParse)
         context['dataWA']= json.dumps(list(WebCalculator.objects.timeSeries('InteractionsByState', 90,6)), default=self.dateParse)
@@ -144,6 +145,9 @@ class DashboardCalcView(LoginRequiredMixin, TemplateView):
 
         context['dataSEO']= json.dumps(list(WebCalculator.objects.timeSeries('InteractionsBySource', 90,True)), default=self.dateParse)
         context['dataSEM']= json.dumps(list(WebCalculator.objects.timeSeries('InteractionsBySource', 90,False)), default=self.dateParse)
+
+        context['dataEmailSEO']= json.dumps(list(WebCalculator.objects.timeSeries('EmailBySource', 90,True)), default=self.dateParse)
+        context['dataEmailSEM']= json.dumps(list(WebCalculator.objects.timeSeries('EmailBySource', 90, False)), default=self.dateParse)
 
         # Calculator Summary Data
         qs = WebCalculator.objects.all()
@@ -177,7 +181,19 @@ class DashboardCalcView(LoginRequiredMixin, TemplateView):
         context['WA'] = qs.filter(postcode__startswith='6').count()
         context['TAS'] = qs.filter(postcode__startswith='7').count()
 
-        self.request.session['webQueue'] = WebCalculator.objects.queueCount()
-        self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
+        context['website_email'] = qs.filter(referrer__icontains='calculator', email__isnull=False).count()
+        context['superannuation_email'] = qs.filter(referrer__icontains='superannuation',email__isnull=False).count()
+        context['reverse_mortgage_email'] = qs.filter(referrer__icontains='reverse',email__isnull=False).count()
+        context['equity_release_email'] = qs.filter(referrer__icontains='equity',email__isnull=False).count()
+        context['retirement_planning_email'] = qs.filter(referrer__icontains='planning',email__isnull=False).count()
+        context['centrelink_email'] = qs.filter(referrer__icontains='centrelink',email__isnull=False).count()
+
+        context['NSW_email'] = qs.filter(postcode__startswith='2',email__isnull=False).count()
+        context['VIC_email'] = qs.filter(postcode__startswith='3',email__isnull=False).count()
+        context['QLD_email'] = qs.filter(postcode__startswith='4',email__isnull=False).count()
+        context['SA_email'] = qs.filter(postcode__startswith='5',email__isnull=False).count()
+        context['WA_email'] = qs.filter(postcode__startswith='6',email__isnull=False).count()
+        context['TAS_email'] = qs.filter(postcode__startswith='7',email__isnull=False).count()
+
 
         return context

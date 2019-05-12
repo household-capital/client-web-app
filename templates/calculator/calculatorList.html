@@ -1,0 +1,148 @@
+{% extends 'site/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load case_tags %}
+
+
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12 title">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div class="row justify-content-md-center">
+                <div class="col-6 text-center">
+                    <br>
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'success' %}
+                            class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+    <br><br>
+
+    <div class="row justify-content-center">
+        <div class="col-11">
+
+            <table class="table table-hover table-sm">
+                <thead>
+                <tr>
+                    <th scope="col" class="text-center">Action</th>
+                    <th>Name</th>
+                    <th class="d-none d-sm-table-cell">Borrower</th>
+                    <th class="d-none d-sm-table-cell">Age</th>
+                    <th>Postcode</th>
+                    <th class="d-none d-sm-table-cell">Dwelling</th>
+                    <th class="d-none d-sm-table-cell">Valuation</th>
+                    <th class="d-none d-sm-table-cell">Max Loan</th>
+                    <th class="d-none d-sm-table-cell">LVR</th>
+                    <th>Email</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                {% for obj in object_list %}
+                    <tr>
+                        <td class="text-center">
+                            {% if obj.actioned == 1 %}<i style='color:green' class="far fa-check-circle"></i>
+                            {% elif obj.actioned == -1 %}<i style='color:grey' class="far fa-times-circle"></i>
+                            {% else %}
+                                <a href="{% url 'calculator:calcSendDetails' uid=obj.calcUID %}">
+                                    <button class="btn btn-success" data-toggle="tooltip" data-placement="top"
+                                            title="Assign enquiry to you"><i class="far fa-envelope"></i></button>
+                                </a>
+                                <a href="{% url 'calculator:calcSpam' uid=obj.calcUID %}">
+                                    <button class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
+                                            title="Mark as spam and remove"><i class="fas fa-radiation-alt"></i>
+                                    </button>
+                                </a>
+                            {% endif %}
+                        </td>
+                        <td>{{ obj.name }}</td>
+                        <td class="d-none d-sm-table-cell">{% if obj.loanType == 1 %}Couple{% else %}
+                            Single{% endif %}</td>
+                        <td class="d-none d-sm-table-cell">{{ obj.age_1 }} &nbsp;{{ obj.age_2|intBlank }}</td>
+                        <td>{{ obj.postcode|intBlank }}</td>
+                        <td class="d-none d-sm-table-cell">{% if obj.dwellingType == 0 %}House{% else %}
+                            Apartment{% endif %}</td>
+                        <td class="d-none d-sm-table-cell">{{ obj.valuation }}</td>
+                        <td class="d-none d-sm-table-cell">{{ obj.maxLoanAmount|intBlank|intcomma }}</td>
+                        <td class="d-none d-sm-table-cell">{{ obj.maxLVR|intBlank }}</td>
+                        <td>{{ obj.email }}</td>
+
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            {% if is_paginated %}
+                <hr>
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-center pagination-sm">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="?page={{ page_obj.previous_page_number }}"
+                                   tabindex="-1">Previous</a>
+                            </li>
+
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Previous</a>
+                            </li>
+                        {% endif %}
+                        {% for object in page_obj.paginator.page_range %}
+                            <li class="page-item"><a class="page-link"
+                                                     href="?page={{ forloop.counter }}">{{ forloop.counter }}</a>
+                            </li>
+                        {% endfor %}
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block javascript %}
+
+{% endblock %}

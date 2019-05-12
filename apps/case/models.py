@@ -124,7 +124,7 @@ class Case(models.Model):
     caseType = models.IntegerField(choices=caseTypes)
     caseDescription = models.CharField(max_length=60, null=False, blank=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
-    adviser = models.CharField(max_length=60, null=False, blank=False)
+    adviser = models.CharField(max_length=60, null=True, blank=True)
     caseNotes = models.TextField(blank=True, null=True)
 
     phoneNumber=models.CharField(max_length=20, null=True, blank=True)
@@ -174,7 +174,7 @@ class Case(models.Model):
     valuerEmail=models.EmailField(null=True, blank=True)
     valuerContact=models.TextField(null=True, blank=True)
 
-    salesChannel = models.IntegerField(choices=channelTypes,null=True, blank=True)
+    salesChannel = models.IntegerField(choices=channelTypes,null=False, blank=False)
 
     sfLeadID = models.CharField(max_length=20, null=True, blank=True)
     sfOpportunityID = models.CharField(max_length=20, null=True, blank=True)

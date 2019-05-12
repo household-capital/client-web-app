@@ -1,5 +1,5 @@
 #Python Imports
-import datetime
+
 import json
 from math import log
 
@@ -12,7 +12,9 @@ from django.core.files import File
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse
 from django.urls import reverse_lazy, reverse
+from django.utils import timezone
 from django.views.generic import FormView, TemplateView, View, UpdateView
+
 
 
 #Local Application Imports
@@ -168,7 +170,7 @@ class LandingView(LoginRequiredMixin, ContextHelper ,TemplateView):
                     loanObj.update(consentPrivacy=True)
                 if kwargs['post_id']==2:
                     loanObj.update(consentElectronic=True)
-                    caseObj.update(meetingDate = datetime.datetime.now())
+                    caseObj.update(meetingDate = timezone.now())
 
 
         return context
@@ -249,7 +251,7 @@ class SetClientView(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, Upd
         clientDict = self.get_queryset().values()[0]
 
         loanObj = LoanValidator([], clientDict)
-        chkResponse = loanObj.chkClientDetails()
+        chkResponse = loanObj.validateLoan()
 
         if chkResponse['status'] == "Ok":
             # if ok, renders the success_url as normal

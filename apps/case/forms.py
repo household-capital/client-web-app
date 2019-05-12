@@ -51,7 +51,7 @@ class CaseDetailsForm(forms.ModelForm):
             Div(
                 Div(Field('caseDescription', placeholder='Description'), css_class="col-lg-6"),
                 Div(
-                    Div(Submit('submit', 'Update Case ', css_class='btn btn-warning')),
+                    Div(Submit('submit', 'Update Case ', css_class='btn btn-outline-secondary')),
                     css_class="col-lg-4 text-left"),
                 Div(css_class="col-lg-6"),
                 css_class="row "),
