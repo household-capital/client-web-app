@@ -147,7 +147,7 @@
 
                                             <div class="check-hide">
                                                 <input type="checkbox" name="isTopUp"
-                                                       id="id_isTopUp">
+                                                       id="id_isTopUp" {% if isTopUp%}checked{% endif %}>
                                                 <label class="check-label TopUp" for=id_isTopUp></label>
                                             </div>
                                         </div>
@@ -161,12 +161,12 @@
 
                                             <div class="check-hide">
                                                 <input type="checkbox" name="isRefi"
-                                                       id="id_isRefi">
+                                                       id="id_isRefi" {% if isRefi%}checked{% endif %}>
                                                 <label class="check-label Refi" for=id_isRefi></label>
                                             </div>
                                         </div>
                                         <div class="col-md-9 text-left">
-                                            <p class="small"><b>Refinance</b>: an existing mortgage without monthly
+                                            <p class="small"><b>Refinance</b>: an existing mortgage with or without monthly
                                                 repayments</p>
                                         </div>
 
@@ -177,7 +177,7 @@
 
                                             <div class="check-hide">
                                                 <input type="checkbox" name="isLive"
-                                                       id="id_isLive">
+                                                       id="id_isLive" {% if isLive%}checked{% endif %}>
                                                 <label class="check-label Live" for=id_isLive></label>
                                             </div>
                                         </div>
@@ -191,7 +191,7 @@
 
                                             <div class="check-hide">
                                                 <input type="checkbox" name="isGive"
-                                                       id="id_isGive">
+                                                       id="id_isGive" {% if isGive%}checked{% endif %}>
                                                 <label class="check-label Give" for=id_isGive></label>
                                             </div>
                                         </div>
@@ -206,7 +206,7 @@
 
                                             <div class="check-hide">
                                                 <input type="checkbox" name="isCare"
-                                                       id="id_isCare">
+                                                       id="id_isCare" {% if isLive%}checked{% endif %}>
                                                 <label class="check-label Care" for=id_isCare></label>
                                             </div>
                                         </div>

@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.urls import reverse_lazy
 
 #Local Application Imports
-from apps.lib.enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,\
+from apps.lib.site_Enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,\
     pensionTypesEnum, loanTypesEnum, ragTypesEnum, channelTypesEnum, stateTypesEnum
 
 
@@ -118,6 +118,16 @@ class Case(models.Model):
         (stateTypesEnum.NT.value, "NT"),
     )
 
+    valuers=(
+        ('WBP Group','WBP Group'),
+        ('Opteon Solutions','Opteon Solutions')
+    )
+
+    valuerEmails=(
+        ('valuations@wbpgroup.com.au','valuations@wbpgroup.com.au'),
+        ('instructions@opteonsolutions.com','instructions@opteonsolutions.com'),
+        ('quotes@opteonsolutions.com', 'quotes@opteonsolutions.com')
+    )
 
     caseID = models.AutoField(primary_key=True)
     caseUID = models.UUIDField(default=uuid.uuid4, editable=False)
@@ -170,11 +180,11 @@ class Case(models.Model):
     specialConditions=models.TextField(null=True, blank=True)
     dataCSV = models.FileField(max_length=150, null=True, blank=True, upload_to='customerDocuments')
 
-    valuerFirm=models.CharField(max_length=20, null=True, blank=True)
-    valuerEmail=models.EmailField(null=True, blank=True)
+    valuerFirm=models.CharField(max_length=20, null=True, blank=True, choices=valuers)
+    valuerEmail=models.EmailField(null=True, blank=True, choices=valuerEmails)
     valuerContact=models.TextField(null=True, blank=True)
 
-    salesChannel = models.IntegerField(choices=channelTypes,null=False, blank=False)
+    salesChannel = models.IntegerField(choices=channelTypes,null=True, blank=True)
 
     sfLeadID = models.CharField(max_length=20, null=True, blank=True)
     sfOpportunityID = models.CharField(max_length=20, null=True, blank=True)
@@ -349,3 +359,21 @@ class LossData(models.Model):
 
     def enumRagStatus(self):
         return self.ragTypes[self.ragStatus][1]
+
+
+class FundedData(models.Model):
+    ARN=models.CharField(max_length=9,blank=True, null=True)
+    case = models.OneToOneField(Case, on_delete=models.CASCADE)
+    advanced=models.FloatField(default=0,blank=True, null=True)
+    principal=models.FloatField(default=0,blank=True, null=True)
+    totalValuation=models.FloatField(default=0,blank=True, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
+    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+    objects = CaseManager()
+
+    def __str__(self):
+        return smart_text(self.case.caseDescription)
+
+    def __unicode__(self):
+        return smart_text(self.case.caseDescription)

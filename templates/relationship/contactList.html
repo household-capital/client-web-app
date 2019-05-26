@@ -1,0 +1,187 @@
+{% extends 'site/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load case_tags %}
+
+
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12 title">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div class="row justify-content-md-center">
+                <div class="col-6 text-center">
+                    <br>
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'success' %}
+                            class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+        <br><br>
+        <div class="row justify-content-center">
+            <div class="col-10">
+
+                <div class="row justify-content-center">
+                    <div class="col-12">
+
+                        <form method='GET' action=''>
+
+                            <div class="row form-group justify-content-center">
+
+                                <div class="form-group col-md-3">
+                                    <select class="custom-select" id="inputGroupSelect01" name="filter" onchange='this.form.submit();'>
+                                        <option {% if request.GET.filter == "" %}selected {% endif %}>Filter...</option>
+                                        <option {% if request.GET.filter == "Recent" %}selected {% endif %}value="Recent">Recent</option>
+                                        <option {% if request.GET.filter == "2" %}selected {% endif %}value="2">Capital</option>
+                                        <option {% if request.GET.filter == "6" %}selected {% endif %}value="6">Investor</option>
+                                        <option {% if request.GET.filter == "4" %}selected {% endif %}value="4">Distribution</option>
+                                        <option {% if request.GET.filter == "100" %}selected {% endif %}value="100">Platform</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-lg-5 pb-3">
+                                    <input class='form-control' type='text' name='search' placeholder='Search'
+                                           value='{{ request.GET.search }}'/>
+                                </div>
+
+                                <div class="col-3 pb-3 d-none d-sm-block">
+
+                                    <a href="{% url 'relationship:contactCreate' %}">
+                                        <div class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
+                                             title="New Contact">
+                                            <i class="fas fa-user-plus fa-fw"></i>
+                                        </div>
+                                    </a>
+                                    <a href="{% url 'relationship:organisationCreate' %}">
+                                        <div class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
+                                             title="New Organiastion">
+                                            <i class="fas fa-building fa-fw"></i>
+                                        </div>
+                                    </a>
+                                    <a href="{% url 'relationship:exportCSV' %}">
+                                        <div class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
+                                             title="Download">
+                                            <i class="fas fa-file-excel fa-fw"></i>
+                                        </div>
+                                    </a>
+
+                                </div>
+
+                        </form>
+                    </div>
+                </div>
+
+                <table class="table table-hover table-sm">
+                    <thead>
+                    <tr>
+                        <th scope="col"><a>Firstname</a></th>
+                        <th scope="col"><a>Surname</a>
+                        </th>
+                        <th scope="col"><a>Org Name</a></th>
+                        <th scope="col" class="d-none d-sm-table-cell"><a>Org Type</a></th>
+                        <th scope="col" class="d-none d-sm-table-cell"><a>Last Updated</a></th>
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for obj in object_list %}
+                        <tr>
+                            <td >
+                                <a href="{{ obj.get_absolute_url }}">
+                                    {{ obj.firstName }}&nbsp;</a></td>
+                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.surname }}</a></td>
+                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.org }}</a></td>
+                            <td class="d-none d-sm-table-cell"><a href="{{ obj.get_absolute_url }}">{{ obj.org.orgType }}</a></td>
+                            <td class="d-none d-sm-table-cell"><a href="{{ obj.get_absolute_url }}">{{ obj.updated|timesince|upto }} ago</a></td>
+                            <td class="d-none d-sm-table-cell"><a href="{{ obj.get_absolute_url }}">{% if obj.inProfileUrl %}
+                                <i class="fab fa-linkedin-in"></i>{% endif %}</a></td>
+
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+                {% if is_paginated %}
+                    <hr>
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center pagination-sm">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link"
+                                       href="?search={{ search }}&page={{ page_obj.previous_page_number }}&filter={{ request.GET.filter }}"
+                                       tabindex="-1">Previous</a>
+                                </li>
+
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link"
+                                       href="#search={{ search }}&filter={{ request.GET.filter }}"
+                                       tabindex="-1">Previous</a>
+                                </li>
+                            {% endif %}
+                            {% for object in page_obj.paginator.page_range %}
+                                <li class="page-item"><a class="page-link"
+                                                         href="?page={{ forloop.counter }}&search={{ search }}&filter={{ request.GET.filter }}">{{ forloop.counter }}</a>
+                                </li>
+                            {% endfor %}
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link"
+                                       href="?search={{ search }}&page={{ page_obj.next_page_number }}&filter={{ request.GET.filter }}">Next</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link"
+                                       href="#search={{ search }}&filter={{ request.GET.filter }}">Next</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+{% endblock %}
+
+
+{% block javascript %}
+
+{% endblock %}

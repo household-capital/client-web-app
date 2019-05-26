@@ -19,14 +19,14 @@ from django.views.generic import FormView, TemplateView, View, UpdateView
 
 #Local Application Imports
 from apps.case.models import ModelSetting, Loan, Case
-from apps.lib.enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,pensionTypesEnum, loanTypesEnum
-from apps.lib.globals import ECONOMIC, APP_SETTINGS
-from apps.lib.loanValidator import LoanValidator
-from apps.lib.loanProjection import LoanProjection
-from apps.logging import write_applog
+from apps.lib.site_Enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,pensionTypesEnum, loanTypesEnum
+from apps.lib.site_Globals import ECONOMIC, APP_SETTINGS
+from apps.lib.hhc_LoanValidator import LoanValidator
+from apps.lib.hhc_LoanProjection import LoanProjection
+from apps.lib.site_Logging import write_applog
+from apps.lib.site_Utilities import pdfGenerator
 from .forms import ClientDetailsForm, SettingsForm, IntroChkBoxForm,topUpForm, debtRepayForm
 from .forms import giveAmountForm, renovateAmountForm, travelAmountForm, careAmountForm, DetailedChkBoxForm
-from apps.lib.utilities import pdfGenerator
 
 
 # MIXINS
@@ -395,7 +395,7 @@ class TopUp1(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, TemplateVie
 class TopUp2(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, FormView):
     template_name = "client_1_0/interface/topUp2.html"
     form_class=topUpForm
-    success_url = reverse_lazy('client:topUp3')
+    success_url = reverse_lazy('client:refi')
 
     def get_context_data(self, **kwargs):
         # Update and add to context
@@ -434,8 +434,9 @@ class TopUp2(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, FormView):
         return super(TopUp2, self).form_valid(form)
 
 
-class TopUp3(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, UpdateView):
-    template_name = "client_1_0/interface/topUp3.html"
+#Refinance
+class Refi(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
+    template_name = "client_1_0/interface/refi.html"
     form_class=debtRepayForm
     model=Loan
     success_url = reverse_lazy('client:live1')
@@ -445,8 +446,8 @@ class TopUp3(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, UpdateView)
         # Update and add to context
         self.extra_context = self.validate_and_get_context()
 
-        context = super(TopUp3, self).get_context_data(**kwargs)
-        context['title'] = 'Top Up'
+        context = super(Refi, self).get_context_data(**kwargs)
+        context['title'] = 'Refinance'
         context['previousUrl'] = reverse_lazy('client:topUp2')
         context['nextIsButton']=True
 
@@ -459,7 +460,7 @@ class TopUp3(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, UpdateView)
 
     def get_initial(self):
          # Pre-populate with existing debt
-        initFormData= super(TopUp3, self).get_initial()
+        initFormData= super(Refi, self).get_initial()
         clientDict = Case.objects.dictionary_byUID(self.request.session['caseUID'])
         if 'refinanceAmount' not in clientDict:
             initFormData["refinanceAmount"] = clientDict['mortgageDebt']
@@ -479,7 +480,7 @@ class Live1(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, UpdateView):
 
         context = super(Live1, self).get_context_data(**kwargs)
         context['title'] = 'Live'
-        context['previousUrl'] = reverse_lazy('client:topUp3')
+        context['previousUrl'] = reverse_lazy('client:refi')
         context['nextIsButton']=True
 
         return context
@@ -577,7 +578,6 @@ class Results1(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, TemplateV
         if aggDict['errors']==False and flagError==False:
             return HttpResponseRedirect(reverse_lazy('client:results2'))
         return super(Results1, self).get(request, *args, **kwargs)
-
 
     def get_context_data(self, **kwargs):
         # Update and add to context

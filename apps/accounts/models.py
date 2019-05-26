@@ -25,4 +25,5 @@ class Profile(models.Model):
     picture=models.ImageField(null=True, blank=True, upload_to='profileImages')
     isHousehold=models.BooleanField(null=True,blank=True,default=False)
     isCreditRep=models.BooleanField(null=True,blank=True,default=False)
+    isCapital=models.BooleanField(null=True,blank=True,default=False)
     referrer=models.ForeignKey(Referer ,null=True, blank=True, on_delete=models.SET_NULL)

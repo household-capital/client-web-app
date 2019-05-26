@@ -18,14 +18,16 @@ from django.views.generic import ListView, UpdateView, CreateView, TemplateView,
 
 # Local Application Imports
 from apps.calculator.models import WebCalculator, WebContact
-from apps.lib.loanValidator import LoanValidator
-from apps.lib.enums import caseTypesEnum
-from apps.lib.utilities import pdfGenerator
-from apps.lib.salesforceAPI import apiSalesforce
-from apps.logging import write_applog
-from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, SolicitorForm, ValuerForm
-from .models import Case, LossData, Loan
+from apps.lib.hhc_LoanValidator import LoanValidator
+from apps.lib.site_Enums import caseTypesEnum
+from apps.lib.site_Utilities import pdfGenerator
+from apps.lib.api_Salesforce import apiSalesforce
+from apps.lib.api_Mappify import apiMappify
+from apps.lib.api_AMAL import apiAMAL
+from apps.lib.site_Logging import write_applog
 from apps.enquiry.models import Enquiry
+from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, SolicitorForm, ValuerForm
+from .models import Case, LossData, Loan, FundedData
 
 
 # // UTILITIES
@@ -414,6 +416,30 @@ class CaseSalesforce(LoginRequiredMixin, FormView):
     template_name = 'case/caseSend.html'
     form_class = SFPasswordForm
 
+    def get(self, request, *args, **kwargs):
+
+        caseUID = str(self.kwargs['uid'])
+        caseObj = Case.objects.queryset_byUID(caseUID).get()
+
+        mappify=apiMappify()
+        result=mappify.setAddress({"streetAddress":caseObj.street,"suburb":caseObj.suburb,
+                            "postcode":caseObj.postcode,"state":caseObj.enumStateType()})
+
+        if result['status']!='Ok':
+            messages.error(self.request, 'Missing address fields - please add before sending to Salesforce')
+        else:
+            result=mappify.checkPostalAddress()
+
+            if result['status']=='Error':
+                messages.error(self.request, "No Address Match - please check before sending to Salesforce")
+
+            if "Low Confidence" in result['responseText']:
+                messages.error(self.request, "Address Match - Low Confidence - please check before sending to Salesforce")
+                messages.error(self.request, "Closest Match - " + result['result']['streetAddress'])
+
+        return super(CaseSalesforce, self).get(request, *args, **kwargs)
+
+
     def get_context_data(self, **kwargs):
         context = super(CaseSalesforce, self).get_context_data(**kwargs)
         context['title'] = "Salesforce Lead"
@@ -425,9 +451,8 @@ class CaseSalesforce(LoginRequiredMixin, FormView):
         caseDict = Case.objects.dictionary_byUID(caseUID)
         caseObj = Case.objects.queryset_byUID(caseUID).get()
 
-        password = form.cleaned_data['password']
         sfAPI = apiSalesforce()
-        status = sfAPI.openAPI(password)
+        status = sfAPI.openAPI(True)
 
         if status:
 
@@ -439,7 +464,7 @@ class CaseSalesforce(LoginRequiredMixin, FormView):
                              }
 
             salesforceState = {'NSW': 'New South Wales', 'ACT': 'Australian Capital Territory', 'VIC': 'Victoria',
-                               'NT': 'Northern Territory',
+                               'NT': 'Northern Territory', 'WA':'Western Australia',
                                'QLD': 'Queensland', 'SA': 'South Australia', "TAS": "Tasmania"}
             leadDict = {}
 
@@ -505,6 +530,9 @@ class CaseSolicitorView(LoginRequiredMixin, SFHelper, UpdateView):
         caseUID = str(self.kwargs['uid'])
         caseObj = Case.objects.queryset_byUID(caseUID).get()
 
+        if not caseObj.valuationDocument:
+            messages.error(self.request, "Please add AVM to app (if available) before instructing Solicitors")
+
         if not caseObj.sfLeadID:
             messages.error(self.request, "No Salesforce lead associated with this case")
             return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'pk': caseObj.pk}))
@@ -527,9 +555,8 @@ class CaseSolicitorView(LoginRequiredMixin, SFHelper, UpdateView):
         caseObj.specialConditions = form.cleaned_data['specialConditions']
         caseObj.save()
 
-        password = form.cleaned_data['password']
         sfAPI = apiSalesforce()
-        status = sfAPI.openAPI(password)
+        status = sfAPI.openAPI(True)
 
         if status:
 
@@ -611,6 +638,10 @@ class CaseValuerView(LoginRequiredMixin, SFHelper, UpdateView):
         caseUID = str(self.kwargs['uid'])
         caseObj = Case.objects.queryset_byUID(caseUID).get()
 
+        if not caseObj.titleDocument:
+            messages.error(self.request, "Important! Please add title (from Dentons email) to app before instructing Valuer")
+
+
         if not caseObj.sfLeadID:
             messages.error(self.request, "No Salesforce lead associated with this case")
             return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'pk': caseObj.pk}))
@@ -622,14 +653,6 @@ class CaseValuerView(LoginRequiredMixin, SFHelper, UpdateView):
         context['title'] = "Create Valuer Instruction"
 
         return context
-
-    def get_initial(self):
-        self.initial = {
-            "valuerFirm":'WBP Group',
-            "valuerEmail": 'valuations@wbpgroup.com.au'
-        }
-        return self.initial.copy()
-
 
     def get_object(self, **kwargs):
         obj = Case.objects.filter(caseUID=self.kwargs['uid']).get()
@@ -644,9 +667,8 @@ class CaseValuerView(LoginRequiredMixin, SFHelper, UpdateView):
 
         caseObj.save()
 
-        password = form.cleaned_data['password']
         sfAPI = apiSalesforce()
-        status = sfAPI.openAPI(password)
+        status = sfAPI.openAPI(True)
 
         if status:
 
@@ -735,9 +757,8 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
 
     def form_valid(self, form):
         caseObj = Case.objects.filter(caseUID=self.kwargs['uid']).get()
-        password = form.cleaned_data['password']
         sfAPI = apiSalesforce()
-        status = sfAPI.openAPI(password)
+        status = sfAPI.openAPI(True)
 
         if status:
 
@@ -857,3 +878,31 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
         else:
             messages.error(self.request, "Could not log-in to Salesforce API")
             return HttpResponseRedirect(reverse_lazy('case:caseData', kwargs={'uid': str(caseObj.caseUID)}))
+
+
+class FundedDataView(LoginRequiredMixin, View):
+
+    def get(self,request, *args, **kwargs):
+
+        amalAPI = apiAMAL()
+        response=amalAPI.openAPI(True)
+
+        if response['status']!="Ok":
+            messages.error(self.request, response['responseText'])
+            return HttpResponseRedirect(reverse_lazy('case:caseList'))
+
+        qs = FundedData.objects.all()
+        for loan in qs:
+            response=amalAPI.getFundedData(loan.ARN)
+
+            if response['status']!="Ok":
+                messages.error(self.request, response['responseText'])
+                return HttpResponseRedirect(reverse_lazy('case:caseList'))
+            else:
+                loan.totalValuation=response['data']['totalValuation']
+                loan.advanced = response['data']['advanced']
+                loan.principal = response['data']['principal']
+                loan.save()
+
+        messages.success(self.request, "Funded Data Updated")
+        return HttpResponseRedirect(reverse_lazy('case:caseList'))

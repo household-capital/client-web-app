@@ -3,15 +3,21 @@ import json
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.db.models.functions import TruncDate,TruncDay, TruncMonth, Cast
+from django.db.models.fields import DateField
+from django.db.models import Sum, F, Func
+from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
+from django.utils.timezone import get_current_timezone
 
 from django.views.generic import TemplateView
 
 from apps.calculator.models import WebCalculator, WebContact
-from apps.case.models import Case
+from apps.case.models import Case, FundedData
+
 from apps.enquiry.models import Enquiry
-from apps.lib.enums import caseTypesEnum, directTypesEnum
+from apps.lib.site_Enums import caseTypesEnum, directTypesEnum
 
 
 # Create your views here.
@@ -78,13 +84,13 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         context['caseHealth'] = caseHealth
         if caseHealth[0] > .74:
-            context['caseColor'] = "#28a745"
+            context['caseColor'] = "#5184a1"
         else:
             context['caseColor'] = "#fdb600"
 
         context['enquiryHealth'] = enquiryHealth
         if enquiryHealth[0] > .74:
-            context['enquiryColor'] = "#28a745"
+            context['enquiryColor'] = "#5184a1"
         else:
             context['enquiryColor'] = "#fdb600"
 
@@ -116,9 +122,39 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             solicitorInstruction__exact="").count()
         context['approvals'] = qsCases.filter(caseType=caseTypesEnum.APPROVED.value).count()
 
+
+        #Funded Data
+        qsFunded = FundedData.objects.all()
+        context['portfolioBalance']=int(qsFunded.aggregate(Sum('principal'))['principal__sum'])
+        context['portfolioFunded'] = int(qsFunded.aggregate(Sum('advanced'))['advanced__sum'])
+
+        if context['portfolioBalance']>0:
+            hashSum = qsFunded.annotate(lvr=Sum(F('principal')/F('totalValuation')*F('principal'))).aggregate(Sum('lvr'))['lvr__sum']
+            context['portfolioLvr']=int(hashSum/context['portfolioBalance']*100)
+
+        context['portfolioLoans']=qsFunded.filter(principal__gt=0).count()
+
         self.request.session['webCalcQueue'] = WebCalculator.objects.queueCount()
         self.request.session['webContQueue'] = WebContact.objects.queueCount()
         self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
+
+        #Lead Generation
+        qsEnqs = Enquiry.objects.all()
+        tz=get_current_timezone()
+
+        test=qsEnqs.annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
+                   .values_list('date') \
+                   .annotate(leads=Count('enqUID')) \
+                   .values('referrer','date', 'leads').order_by('date')
+
+        tableData={}
+        for item in test:
+            if item['date'].strftime('%b-%y') not in tableData:
+                tableData[item['date'].strftime('%b-%y')]={item['referrer']:item['leads']}
+            else:
+                tableData[item['date'].strftime('%b-%y')][item['referrer']]=item['leads']
+
+        print(tableData)
 
         return context
 
@@ -167,6 +203,7 @@ class DashboardCalcView(LoginRequiredMixin, TemplateView):
         context['equity_release'] = qs.filter(referrer__icontains='equity').count()
         context['retirement_planning'] = qs.filter(referrer__icontains='planning').count()
         context['centrelink'] = qs.filter(referrer__icontains='centrelink').count()
+        context['refinance']= qs.filter(referrer__icontains='refinance').count()
 
         context['topUp'] = qs.filter(isTopUp=True).count()
         context['refi'] = qs.filter(isRefi=True).count()
@@ -187,6 +224,7 @@ class DashboardCalcView(LoginRequiredMixin, TemplateView):
         context['equity_release_email'] = qs.filter(referrer__icontains='equity',email__isnull=False).count()
         context['retirement_planning_email'] = qs.filter(referrer__icontains='planning',email__isnull=False).count()
         context['centrelink_email'] = qs.filter(referrer__icontains='centrelink',email__isnull=False).count()
+        context['refinance_email'] = qs.filter(referrer__icontains='refinance', email__isnull=False).count()
 
         context['NSW_email'] = qs.filter(postcode__startswith='2',email__isnull=False).count()
         context['VIC_email'] = qs.filter(postcode__startswith='3',email__isnull=False).count()

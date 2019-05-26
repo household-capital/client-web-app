@@ -20,7 +20,9 @@ urlpatterns = [
     path('caseSolicitor/<uuid:uid>',views.CaseSolicitorView.as_view(), name='caseSolicitor'),
     path('caseValuer/<uuid:uid>', views.CaseValuerView.as_view(), name='caseValuer'),
     path('caseOwn/<uuid:uid>',views.CaseOwnView.as_view(),name='caseOwn'),
-    path('caseData/<uuid:uid>',views.CaseDataExtract.as_view(),name='caseData')
+    path('caseData/<uuid:uid>',views.CaseDataExtract.as_view(),name='caseData'),
+
+    path('fundedData',views.FundedDataView.as_view())
 ]
 
 

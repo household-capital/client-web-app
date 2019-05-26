@@ -1,0 +1,53 @@
+{% load static %}
+
+<nav class="navbar fixed-bottom">
+
+            <div class="row justify-content-center d-flex align-items-center menubar">
+
+
+                {% if menuBarItems %}
+                    {% for item in menuBarItems.data %}
+                        <div class="col-lg-2">
+                        {% if item.button %}
+                            <div >
+                                <a>
+                                    <button type="submit" value='Submit' form="clientForm" class="btn btn-hhcBlue">
+                                        &nbsp;&nbsp;{{ item.text }}&nbsp;&nbsp;
+                                    </button>
+                                </a>
+                            </div>
+                        {% else %}
+                            <div >
+                                <a href="{{ item.href }}"><span class="btn btn-hhcBlue">&nbsp;&nbsp;{{ item.text }}&nbsp;&nbsp;</span></a><br>
+                            </div>
+                        {% endif %}
+
+                    {% endfor %}
+                {% endif %}
+
+
+                {% if showPurposes %}
+                    <div class="col text-center"><a href="{% url 'client:topUp1' %}" class="menu_title">
+                        <div><img src="{% static 'img/icons/topup_icon.png' %}" width="75px"></div>
+                        <span>Top-Up</span></a></div>
+                    <div class="col fixed-bottom_heading"><a href="{% url 'client:refi' %}" class="menu_title">
+                        <div><img src="{% static 'img/icons/refi_icon.png' %}" width="75px"></div>
+                        <span>Refinance</span></a></div>
+                    <div class="col fixed-bottom_heading"><a href="{% url 'client:live1' %}" class="menu_title">
+                        <div><img src="{% static 'img/icons/live_icon.png' %}" width="75px"></div>
+                        <span>Live</span></a></div>
+                    <div class="col fixed-bottom_heading"><a href="{% url 'client:give' %}" class="menu_title">
+                        <div><img src="{% static 'img/icons/give_icon.png' %}" width="75px"></div>
+                        <span>Give</span></a></div>
+                    <div class="col fixed-bottom_heading"><a href="{% url 'client:care' %}" class="menu_title">
+                        <div><img src="{% static 'img/icons/care_icon.png' %}" width="75px"></div>
+                        <span>Care</span></a></div>
+                {% endif %}
+
+
+
+                </div>
+
+        </div>
+</nav>
+

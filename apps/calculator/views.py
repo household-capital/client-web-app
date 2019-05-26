@@ -1,5 +1,4 @@
 # Python Imports
-import os
 
 #Django Imports
 from django.conf import settings
@@ -18,13 +17,13 @@ from django.urls import reverse_lazy
 #Third-party Imports
 
 #Local Application Imports
-from apps.lib.loanValidator import LoanValidator
-from apps.lib.enums import caseTypesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum
-from apps.lib.utilities import pdfGenerator
-from apps.logging import write_applog
-from .models import WebCalculator, WebContact
+from apps.lib.hhc_LoanValidator import LoanValidator
+from apps.lib.site_Enums import caseTypesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum
+from apps.lib.site_Utilities import pdfGenerator
+from apps.lib.site_Logging import write_applog
 from apps.enquiry.models import Enquiry
 
+from .models import WebCalculator, WebContact
 from .forms import WebInputForm, WebOutputForm, WebContactForm, WebContactDetail
 
 
@@ -139,20 +138,28 @@ class OutputView(UpdateView):
     def get_context_data(self, **kwargs):
         context=super(OutputView,self).get_context_data(**kwargs)
 
-        obj=WebCalculator.objects.dictionary_byUID(self.caseUID)
+        obj=self.get_object()
 
         context["obj"]=obj
-        if obj["maxLVR"]<18:
+        if obj.maxLVR <18:
             img='transfer_15.png'
-        elif obj["maxLVR"]<22:
+        elif obj.maxLVR <22:
             img = 'transfer_20.png'
-        elif obj["maxLVR"] < 27:
+        elif obj.maxLVR < 27:
             img = 'transfer_25.png'
-        elif obj["maxLVR"] < 32:
+        elif obj.maxLVR < 32:
             img = 'transfer_30.png'
         else:
             img = 'transfer_35.png'
         context["transfer_img"]=img
+
+        if obj.referrer:
+            if 'https://householdcapital.com.au/refinance-existing-mortgage' in obj.referrer:
+                context['isRefi']=True
+            if 'https://householdcapital.com.au/aged-care-financing/' in obj.referrer:
+                context['isCare'] = True
+            if 'https://householdcapital.com.au/superannuation-and-retirement/'  in obj.referrer:
+                context['isTopUp']=True
 
         return context
 
@@ -169,7 +176,8 @@ class OutputView(UpdateView):
                       'https://householdcapital.com.au/aged-care-financing/',
                       'https://householdcapital.com.au/reverse-mortgages/',
                       'https://householdcapital.com.au/superannuation-and-retirement/',
-                      'https://householdcapital.com.au/retirement-planning/']
+                      'https://householdcapital.com.au/retirement-planning/',
+                      'https://householdcapital.com.au/refinance-existing-mortgage/']
 
         context['redirect'] = False
 

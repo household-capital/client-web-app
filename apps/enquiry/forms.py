@@ -100,7 +100,7 @@ class ReferrerForm(forms.ModelForm):
 class EnquiryFollowupForm(forms.ModelForm):
     class Meta:
         model = Enquiry
-        fields = ['followUpDate',
+        fields = ['followUpDate', 'name',
                   'referrer', 'email', 'phoneNumber', 'enquiryNotes', 'referrerID']
 
         widgets = {

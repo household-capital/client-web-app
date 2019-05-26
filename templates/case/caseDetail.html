@@ -50,7 +50,8 @@
 
                 {% if obj.sfLeadID %}
                     <p class="larger" style="color:deepskyblue"><i class="fas fa-cloud fa-lg pb-4"></i>&nbsp;
-                        Salesforce {{ obj.sfLoanID }}</p>
+                        Salesforce
+                        {% if obj.sfLoanID  %}{{ obj.sfLoanID }}{% else %}- Lead Only {% endif %}</p>
 
                 {% else %}
 
@@ -266,13 +267,13 @@
                                             {% if status.restrictions.maxLoan > status.restrictions.maxCare %}
                                                 Max for
                                                 Age Care is: ${{ status.restrictions.maxCare|intcomma }}</p>{% endif %}
+                                        <p class="small">Max for Refinance is:
+                                            ${{ status.restrictions.maxRefi|intcomma }}</p>
                                         <p class="small">
                                             {% if status.restrictions.maxLoan > status.restrictions.maxReno %}
                                                 Max for
                                                 Renovations is: ${{ status.restrictions.maxReno|intcomma }}
                                                 </p>{% endif %}
-                                        <p class="small">Max for Refinance is:
-                                            ${{ status.restrictions.maxRefi|intcomma }}</p>
                                         <p class="small">Max for Giving is:
                                             ${{ status.restrictions.maxGive|intcomma }}</p>
                                         <p class="small">Max for Transport and Travel is:

@@ -143,10 +143,10 @@
                                 Care
                                 is:
                                 ${{ status.restrictions.maxCare|intcomma }}</p>{% endif %}
+                            <p class="small">Max for Refinance is: ${{ status.restrictions.maxRefi|intcomma }}</p>
                             <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxReno %}Max for
                                 Renovations
                                 is: ${{ status.restrictions.maxReno|intcomma }}</p>{% endif %}
-                            <p class="small">Max for Refinance is: ${{ status.restrictions.maxRefi|intcomma }}</p>
                             <p class="small">Max for Giving is: ${{ status.restrictions.maxGive|intcomma }}</p>
                             <p class="small">Max for Transport and Travel is:
                                 ${{ status.restrictions.maxTravel|intcomma }}</p>

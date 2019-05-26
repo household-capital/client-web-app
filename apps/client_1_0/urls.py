@@ -24,7 +24,8 @@ urlpatterns = [
     path('topUp1', views.TopUp1.as_view(), name='topUp1'),
     path('topUp1/<int:post_id>/', views.TopUp1.as_view() ),
     path('topUp2', views.TopUp2.as_view(), name='topUp2'),
-    path('topUp3', views.TopUp3.as_view(), name='topUp3'),
+
+    path('refi', views.Refi.as_view(), name='refi'),
 
     path('give', views.Give.as_view(), name='give'),
 

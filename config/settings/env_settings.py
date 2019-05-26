@@ -52,6 +52,11 @@ DATABASES = {
     }
 }
 
+# SESSION EXPIRY TIME: in seconds
+SESSION_COOKIE_AGE = 172800
+
+
+
 # HTTPS Browser Protection - only use if https access only
 SECURE_HSTS_SECONDS = intNone(os.getenv('INT_SECURE_HSTS_SECONDS'))
 SECURE_HSTS_INCLUDE_SUBDOMAINS = boolStr(os.getenv('BOOL_SECURE_HSTS_INCLUDE_SUBDOMAINS'))

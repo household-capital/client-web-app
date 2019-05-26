@@ -10,7 +10,7 @@ from django.utils.encoding import smart_text
 from django.urls import reverse_lazy
 
 #Local Imports
-from apps.lib.enums import dwellingTypesEnum, loanTypesEnum, directTypesEnum
+from apps.lib.site_Enums import dwellingTypesEnum, loanTypesEnum, directTypesEnum
 
 
 class EnquiryManager(models.Manager):

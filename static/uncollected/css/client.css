@@ -187,7 +187,7 @@ a.menu_title:active{
 }
 
 .sidebar {
-    width: 275px;
+    width: 325px;
     position: sticky;
     top: 0;
     left: 0;
@@ -195,6 +195,12 @@ a.menu_title:active{
     color: grey;
     transition: all 0.3s;
 }
+
+/* Menubar Sidebar */
+.menubar{
+    min-height: 125px;
+}
+
 
 
 .sub-container{

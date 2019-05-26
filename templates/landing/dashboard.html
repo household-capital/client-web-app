@@ -65,7 +65,7 @@
                             <div class="col-12">
                                 <button type="button" class="btn btn-jumbotron">
                                     Enquiries&nbsp;&nbsp;&nbsp; <span
-                                        class="badge badge-success">{{ openEnquiries }}</span>
+                                        class="badge badge-hhcBlue">{{ openEnquiries }}</span>
                                 </button>
                             </div>
                         </div>
@@ -89,7 +89,7 @@
                             <div class="col-12 ">
                                 <button type="button" class="btn btn-jumbotron">
                                     Cases&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span
-                                        class="badge badge-success">{{ openCases }}</span>
+                                        class="badge badge-hhcBlue">{{ openCases }}</span>
                                 </button>
 
                             </div>
@@ -127,9 +127,8 @@
 
                 <div class="row pt-1">
 
-                    <div class="col-8">
+                    <div class="col-7">
                         <b>Overall Conversion</b><br>
-                        <br>
                         <p>Enquiries</p>
                         <p>Cases</p>
                         <p>Meetings</p>
@@ -137,47 +136,70 @@
                         <p>Approvals</p>
                     </div>
 
-                    <div class="col-2 text-right">
+                    <div class="col-4 text-right pb-3">
                         <b>&nbsp;</b><br>
-                        <br>
                         <p>{{ totalEnquiries }}</p>
                         <p>{{ totalCases }}</p>
                         <p>{{ meetings }}</p>
                         <p>{{ applications }}</p>
                         <p>{{ approvals }}</p>
                     </div>
+
+                </div>
+
+                <div class="row pt-1">
+
+                    <div class="col-7">
+                        <b>Portfolio</b><br>
+                        <p>Current Balance</p>
+                        <p>Funded</p>
+                        <p>W.Ave LVR</p>
+                        <p>Number of Loans</p>
+                    </div>
+
+                    <div class="col-4 text-right">
+                        <b>&nbsp;</b><br>
+                        <p>${{ portfolioBalance|intcomma }}</p>
+                        <p>${{ portfolioFunded|intcomma }}</p>
+                        <p>{{ portfolioLvr }}%</p>
+                        <p>{{ portfolioLoans }}</p>
+                    </div>
                 </div>
             </div>
         </div>
-        <br>
+    </div>
+    <br>
 
-        <div class="row justify-content-center">
-            <div class="col-lg-9 text-left">
+    <div class="row justify-content-center">
+        <div class="col-lg-9 text-left">
 
-                <b>Website Calculator Interactions and Enquiries</b>&nbsp;&nbsp;<a role="button" class="btn btn-outline-secondary text-secondary" href="{% url 'landing:dashboardCalc'%}">&nbsp;<i class="fas fa-search-plus">&nbsp;</i></a>
-                <div class="chart-container pt-3" style="height:250px;">
+            <b>Website Calculator Interactions and Enquiries</b>&nbsp;&nbsp;<a role="button"
+                                                                               class="btn btn-outline-secondary text-secondary"
+                                                                               href="{% url 'landing:dashboardCalc' %}">&nbsp;<i
+                class="fas fa-search-plus">&nbsp;</i></a>
+            <div class="chart-container pt-3" style="height:250px;">
 
-                    <canvas id="interactionChart"></canvas>
-                </div>
+                <canvas id="interactionChart"></canvas>
+            </div>
 
+        </div>
+    </div>
+
+    <br>
+    <div class="row justify-content-center">
+        <div class="col-lg-4">
+            <div class="row">
             </div>
         </div>
 
-        <br>
-        <div class="row justify-content-center">
-            <div class="col-lg-4">
-                <div class="row">
-                </div>
-            </div>
+        <div class="col-lg-1">
+        </div>
 
-            <div class="col-lg-1">
-            </div>
-
-            <div class="col-lg-4">
-                <div class="row">
-                </div>
+        <div class="col-lg-4">
+            <div class="row">
             </div>
         </div>
+    </div>
     </div>
 
     <br><br>
@@ -196,7 +218,7 @@
 
         // Create timeseries using js dates
         function createTimeSeries(sourceArray) {
-            var timeSeriesArray=[];
+            var timeSeriesArray = [];
             var arrayLength = sourceArray.length;
             for (var i = 0; i < arrayLength; i++) {
                 timeSeriesArray.push({t: new Date(sourceArray[i][0]), y: sourceArray[i][1]});

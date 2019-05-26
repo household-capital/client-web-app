@@ -119,7 +119,7 @@
                                         {% if obj.enumReferrerType == 'Referral' %}
                                             <button class="btn btn-info btn-sm" data-toggle="tooltip"
                                                     data-placement="top"
-                                                    title="Assign enquiry to you">Action
+                                                    title="Assign enquiry to you">{{ obj.referralUser.profile.referrer.companyName }}
                                             </button>
                                         {% else %}
                                             <button class="btn btn-success btn-sm" data-toggle="tooltip"

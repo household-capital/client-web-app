@@ -18,10 +18,10 @@ from django.views.generic import UpdateView, ListView, TemplateView, View
 # Local Application Imports
 from apps.calculator.models import WebCalculator, WebContact
 from apps.case.models import Case
-from apps.lib.loanValidator import LoanValidator
-from apps.lib.enums import caseTypesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum
-from apps.lib.utilities import pdfGenerator
-from apps.logging import write_applog
+from apps.lib.hhc_LoanValidator import LoanValidator
+from apps.lib.site_Enums import caseTypesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum
+from apps.lib.site_Utilities import pdfGenerator
+from apps.lib.site_Logging import write_applog
 from .forms import EnquiryForm, ReferrerForm, EnquiryFollowupForm
 from .models import Enquiry
 
@@ -67,7 +67,7 @@ class EnquiryListView(LoginRequiredMixin, ListView):
 
         if self.request.GET.get('search'):
             search = self.request.GET.get('search')
-            queryset = super(EnquiryListView, self).get_queryset().filter(actioned=0)
+            queryset = super(EnquiryListView, self).get_queryset()
             queryset = queryset.filter(
                 Q(name__icontains=search) |
                 Q(email__icontains=search) |
@@ -79,7 +79,7 @@ class EnquiryListView(LoginRequiredMixin, ListView):
 
         # ...and for open my items
         if self.request.GET.get('myEnquiries') == "True":
-            queryset = super(EnquiryListView, self).get_queryset().filter(user=self.request.user, actioned=0)
+            queryset = super(EnquiryListView, self).get_queryset().filter(user=self.request.user)
 
         queryset = queryset.order_by('-updated')
 
@@ -177,6 +177,7 @@ class SendEnquirySummary(LoginRequiredMixin, UpdateView):
     context_object_name = 'object_list'
     model = WebCalculator
     template_name = 'enquiry/email/email_cover_enquiry.html'
+    template_name_alt = 'enquiry/email_cover_enquiry_calendar.html'
 
     def get(self, request, *args, **kwargs):
         enqUID = str(kwargs['uid'])
@@ -220,8 +221,13 @@ class SendEnquirySummary(LoginRequiredMixin, UpdateView):
         text_content = "Text Message"
         attachFilename = 'HHC-Summary'
 
-        sent = pdf.emailPdf(self.template_name, email_context, subject, from_email, to, bcc, text_content,
-                            attachFilename)
+        if request.user.username in ['Moutzikis']:
+            sent = pdf.emailPdf(self.template_name_alt, email_context, subject, from_email, to, bcc, text_content,
+                                attachFilename)
+
+        else:
+            sent = pdf.emailPdf(self.template_name, email_context, subject, from_email, to, bcc, text_content,
+                                attachFilename)
 
         if sent:
             messages.success(self.request, "Client has been emailed")
@@ -370,7 +376,7 @@ class EnquiryConvert(LoginRequiredMixin, View):
         case_obj.save()
 
         # Set enquiry to actioned
-        enq_obj.actioned = 1
+        enq_obj.actioned = -1
         enq_obj.save()
 
         # Copy enquiryReport across to customerReport and add to the database
@@ -380,7 +386,6 @@ class EnquiryConvert(LoginRequiredMixin, View):
                 new_file = enqDict["summaryDocument"].replace('enquiryReports', 'customerReports')
 
                 os.rename(old_file, new_file)
-                print(new_file)
                 case_obj.enquiryDocument.name = new_file
                 case_obj.save()
         except:
@@ -468,6 +473,7 @@ class ReferrerView(ReferrerRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(ReferrerView, self).get_context_data(**kwargs)
         context['title'] = 'Referral'
+        context['hideNavbar'] = True
 
         if "uid" in self.kwargs:
             clientDict = Enquiry.objects.dictionary_byUID(str(self.kwargs['uid']))

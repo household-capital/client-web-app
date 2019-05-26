@@ -1,0 +1,49 @@
+{% load static %}
+
+<!doctype html>
+
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Other tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="{% static 'img/favicon/favicon.png' %}"/>
+
+    <!-- CSS -->
+    {% include 'client_1_0/base/base_client.css.html' %}
+
+    <title>HouseholdCapital.app</title>
+
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    {% include 'client_2_0/base/base_client.navbar.html' %}
+
+    <!-- Menubar can be hidden -->
+    {% if not hideMenu %}
+        {% include 'client_2_0/base/base_client.menubar.html' %}
+    {% endif %}
+
+    <!-- Header Jumbotron -->
+    {% include 'client_2_0/base/base_client.header.html' %}
+
+    <!-- Message Block -->
+    {% block message_display %}{% endblock %}
+
+    <!-- Individual Page Content -->
+    {% block content %}{% endblock %}
+
+    <!-- Javascript -->
+    {% include 'client_2_0/base/base_client.js.html' %}
+    {% block javascript %}{% endblock %}
+
+</body>
+
+</html>
+

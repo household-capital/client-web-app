@@ -66,16 +66,15 @@
                         <p><i class="far fa-check-circle fa-lg btn-outline-success"></i>&nbsp;Eligible Opportunity</p>
                         <br>
                         <p class="larger">Max loan is: {{ status.restrictions.maxLVR|intcomma }}%</p>
-                        <p class="small">of Home value</p>
+                        <p >of Home value</p>
 
                         <br>
-                        <p class="small pb-2"><i class="far fa-comment fa-fw"></i>&nbsp;Next Steps</p>
-                        <p class="small pb-3">Thanks {{ user.first_name }}</p>
+                        <p class=" pb-2"><i class="far fa-comment fa-fw"></i>&nbsp;Thanks {{ user.first_name }}</p>
                         {% if obj.email %}
-                            <p class="small pb-3">We will send the client an email referencing
+                            <p class=" pb-3">We will send the client an email referencing
                                 this call and introducing ourselves.</p>
                         {% endif %}
-                        <p class="small">Shelley Wettenhall from Household will call the client in the next 24
+                        <p class="">Shelley Wettenhall from Household will call the client in the next 24
                             hours.</p>
 
                     </div>
@@ -91,22 +90,21 @@
                         <p><i class="far fa-times-circle fa-lg btn-outline-danger"></i>&nbsp;Ineligible
                             - {{ status.details }}</p>
                         <br>
-                        <p class="small pb-2"><i class="far fa-comment fa-fw"></i>&nbsp;Comment</p>
-                        <p class="small pb-3">Thanks {{ user.first_name }}</p>
+                        <p class="pb-2"><i class="far fa-comment fa-fw"></i>&nbsp;Thanks {{ user.first_name }}</p>
 
                         {% if status.details == 'Insufficient data' %}
-                            <p class="small pb-3">There is insufficient information to assess
+                            <p class="pb-3">There is insufficient information to assess
                                 eligibility. We will obtain this from the client directly.</p>
 
                             {% if obj.email %}
-                                <p class="small pb-3">We will send the client an email referencing this call and introducing
+                                <p class="pb-3">We will send the client an email referencing this call and introducing
                                     ourselves.</p>
                             {% endif %}
-                            <p class="small">Shelley Wettenhall from Household will call the client in the next 24
+                            <p >Shelley Wettenhall from Household will call the client in the next 24
                                 hours.</p></p>
 
                         {% else %}
-                            <p class="small">Unfortunately, it doesn't look like we will be able
+                            <p >Unfortunately, it doesn't look like we will be able
                                 to help this client.</p>
 
                         {% endif %}
@@ -119,17 +117,18 @@
 
                     <div class="jumbotron">
 
-                        <p class="small pb-2"><i class="far fa-comment fa-fw"></i>&nbsp;Hello {{ user.first_name }}</p>
+                        <p class="pb-2"><i class="far fa-comment fa-fw"></i><b>&nbsp;Hello {{ user.first_name }}</b></p>
 
-                        <p class="small">Please fill in the fields to the left.</p><br>
-                        <p class="small">Key eligibility requirements:</p>
-                        <p class="small">- Does the client own their own home? </p>
-                        <p class="small">- Is the home owned jointly? </p>
-                        <p class="small">- Ages of the home owner(s)</p>
-                        <p class="small">- Postcode of the home</p>
+                        <p>Please fill in the fields to the left.</p><br>
+                        <p>Key eligibility questions:</p>
+                        <p>- Does the client own their own home? </p>
+                        <p>- Is the home owned jointly? </p>
+                        <p>- Ages of the home owner(s)</p>
+                        <p>- Is this a house or an apartment?</p>
+                        <p>- Postcode of the home</p>
                         <br>
-                        <p class="small">Hit update when you are done.</p><br>
-                        <p class="small">Based on the information you enter, an initial eligibility check will be
+                        <p>Hit update when you are done.</p><br>
+                        <p>Based on the information you enter, an initial eligibility check will be
                             displayed.</p>
 
                     </div>

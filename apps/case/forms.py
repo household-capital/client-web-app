@@ -10,7 +10,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, Div, HTML
 
 # Local Application Imports
-from apps.lib.enums import loanTypesEnum, ragTypesEnum
+from apps.lib.site_Enums import loanTypesEnum, ragTypesEnum
 from .models import Case, LossData
 
 
@@ -115,19 +115,22 @@ class CaseDetailsForm(forms.ModelForm):
         if not self.errors:
             if loanType == loanTypesEnum.SINGLE_BORROWER.value:
                 if self.cleaned_data['birthdate_1'] == None and self.cleaned_data['age_1'] == None:
-                    raise forms.ValidationError("Enter age or birthdate for Borrower")
+                    raise forms.ValidationError("Please enter age or birthdate for Borrower")
 
             if loanType == loanTypesEnum.JOINT_BORROWER.value:
                 if self.cleaned_data['birthdate_1'] == None and self.cleaned_data['age_1'] == None:
-                    raise forms.ValidationError("Enter age or birthdate for Borrower 1")
+                    raise forms.ValidationError("Please nter age or birthdate for Borrower 1")
                 if self.cleaned_data['birthdate_2'] == None and self.cleaned_data['age_2'] == None:
-                    raise forms.ValidationError("Enter age or birthdate for Borrower 2")
+                    raise forms.ValidationError("Please enter age or birthdate for Borrower 2")
 
             if self.cleaned_data['postcode'] != None:
                 if self.cleaned_data['dwellingType'] == None:
                     raise forms.ValidationError("Enter property type")
                 if self.cleaned_data['valuation'] == None:
-                    raise forms.ValidationError("Enter property valuation estimate")
+                    raise forms.ValidationError("Please enter property valuation estimate")
+
+            if self.cleaned_data['salesChannel'] == None:
+                raise forms.ValidationError("Please enter a sales channel")
 
 
 class LossDetailsForm(forms.ModelForm):
@@ -209,9 +212,6 @@ class LossDetailsForm(forms.ModelForm):
 
 
 class SFPasswordForm(forms.Form):
-    # Form Data
-
-    password = forms.CharField(required=True, widget=forms.PasswordInput)
 
     # Form Layout
     helper = FormHelper()
@@ -222,8 +222,6 @@ class SFPasswordForm(forms.Form):
     helper.form_show_errors = True
     helper.layout = Layout(
         Div(
-            Div(
-                Field('password', placeholder='Salesforce API Password')),
             Div(
                 Div(Submit('submit', 'Create ', css_class='btn btn-warning')),
             ),
@@ -236,7 +234,6 @@ class SolicitorForm(forms.ModelForm):
         fields = ['specialConditions']
 
     # Form Data
-    password = forms.CharField(required=True, widget=forms.PasswordInput)
     specialConditions = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 6, 'cols': 100}))
 
     # Form Layout
@@ -249,8 +246,7 @@ class SolicitorForm(forms.ModelForm):
     helper.layout = Layout(
         Div(
             Div(
-                Field('specialConditions', placeholder='Enter any special conditions'),
-                Field('password', placeholder='Salesforce API Password')),
+                Field('specialConditions', placeholder='Enter any special conditions')),
             Div(
                 Div(Submit('submit', 'Create ', css_class='btn btn-warning')),
             ),
@@ -263,7 +259,6 @@ class ValuerForm(forms.ModelForm):
         fields =['valuerFirm', 'valuerEmail', 'valuerContact']
 
     # Form Data
-    password = forms.CharField(required=True, widget=forms.PasswordInput)
     valuerContact = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 6, 'cols': 100}))
 
     # Form Layout
@@ -278,10 +273,17 @@ class ValuerForm(forms.ModelForm):
             Div(
                 Field('valuerFirm', placeholder='Firm Name'),
                 Field('valuerEmail', placeholder='Valuer Email'),
-                Field('valuerContact', placeholder='Specific Client Contact Details'),
+                Field('valuerContact', placeholder='Specific Client Contact Details')),
 
-                Field('password', placeholder='Salesforce API Password')),
             Div(
                 Div(Submit('submit', 'Create ', css_class='btn btn-warning')),
             ),
         ))
+
+    def clean(self):
+        if self.cleaned_data['valuerFirm'] and self.cleaned_data['valuerEmail']:
+            return
+        else:
+            raise forms.ValidationError("Please choose a valuer and corresponding email")
+
+

@@ -25,7 +25,7 @@
         <div class="collapse navbar-collapse" id="navbar">
 
             <ul class="nav navbar-nav pl-4">
-                {% if request.user.profile.isHousehold %}
+                {% if not hideNavbar %}
 
                     <li><a href="{% url 'calculator:contactList' %}"><i class="fab fa-safari"></i> Queue
                     {% if request.session.webContQueue|intVal > 0 %}<span class="badge btn-success align-text-top">{{request.session.webContQueue}}</span>{% endif %}</a>&nbsp;&nbsp;&nbsp;&nbsp;

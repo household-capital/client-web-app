@@ -7,7 +7,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, Div, Fieldset, Button, HTML
 
 # Local Application Imports
-from apps.lib.enums import dwellingTypesEnum, loanTypesEnum
+from apps.lib.site_Enums import dwellingTypesEnum, loanTypesEnum
 from .models import WebCalculator, WebContact
 
 
