@@ -42,7 +42,6 @@ class LoginRequiredMixin():
 
 
 
-
 class ContactListView(LoginRequiredMixin, ListView):
     paginate_by = 50
     template_name = 'relationship/contactList.html'
@@ -53,7 +52,7 @@ class ContactListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self, **kwargs):
         # overrides queryset to filter search parameter
-        queryset = super(ContactListView, self).get_queryset().order_by('org','surname')
+        queryset = super(ContactListView, self).get_queryset().order_by('org__orgType',"org__Name",'surname')
 
         if self.request.GET.get('filter') in self.classificationList:
             if int(self.request.GET.get('filter'))<7:
@@ -119,6 +118,9 @@ class ContactDetailView(LoginRequiredMixin, UpdateView):
         contactDict = form.cleaned_data
         obj = form.save()
         obj.user=self.request.user
+        if form.cleaned_data['relationshipOwners']:
+            obj.relationshipOwners = form.cleaned_data['relationshipOwners'].replace(" ","/",).replace("-","/").replace(",","/")
+        obj.save()
 
         getData=False
         if obj.inProfileUrl:
@@ -209,6 +211,7 @@ class ExportCSV(LoginRequiredMixin,ListView):
             row=[]
             row.append(contact.firstName)
             row.append(contact.surname)
+            row.append(contact.relationshipOwners)
             row.append(contact.org.orgName)
             row.append(contact.org.orgType.orgType)
             row.append(contact.role)

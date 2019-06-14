@@ -1,72 +1,70 @@
 #Python Imports
 import uuid
+from datetime import datetime, timedelta
 
 #Django Imports
 from django.conf import settings
 from django.db import models
+from django.forms import ValidationError
+from django.utils.encoding import smart_text
+from django.urls import reverse_lazy
 from django.db.models import Count
 from django.db.models.functions import TruncDate,TruncDay, Cast
 from django.db.models.fields import DateField
-from django.forms import ValidationError
-from django.utils.encoding import smart_text
 from django.utils.timezone import get_current_timezone
-from django.urls import reverse_lazy
 
 
+# WebCalculator
 
 class WebManager(models.Manager):
-    #Custom model manager to return related queryset and dictionary (using UID)
-    def queryset_byUID(self,uidString):
+
+    # Custom model manager to return related queryset and dictionary (using UID)
+    def queryset_byUID(self, uidString):
         searchWeb = WebCalculator.objects.get(calcUID=uuid.UUID(uidString)).pk
         return super(WebManager, self).filter(pk=searchWeb)
 
-    def dictionary_byUID(self,uidString):
+    def dictionary_byUID(self, uidString):
         return self.queryset_byUID(uidString).values()[0]
 
+    # Custom data queries
     def queueCount(self):
         return WebCalculator.objects.filter(email__isnull=False, actioned=0).count()
 
-    def timeSeries(self,seriesType,length,search=None):
-        tz=get_current_timezone()
-        if seriesType=='Interactions':
-            return WebCalculator.objects\
-                .annotate(date=Cast(TruncDay('timestamp',tzinfo=tz),DateField()))\
-                .values_list('date')\
-                .annotate(interactions=Count('calcUID'))\
-                .values_list('date','interactions').order_by('-date')[:length]
-        if seriesType=='Email':
-            return WebCalculator.objects\
-                .filter(email__isnull=False).annotate(date=Cast(TruncDay('timestamp',tzinfo=tz),DateField()))\
-                .values_list('date')\
-                .annotate(interactions=Count('calcUID'))\
-                .values_list('date','interactions').order_by('-date')[:length]
-        if seriesType=='InteractionsByState':
-            return WebCalculator.objects.filter(postcode__startswith=search).annotate(date=Cast(TruncDay('timestamp',tzinfo=tz),DateField()))\
-                .values_list('date')\
-                .annotate(interactions=Count('calcUID'))\
-                .values_list('date','interactions').order_by('-date')[:length]
-        if seriesType=='InteractionsBySource' and search==True:
-            return WebCalculator.objects.filter(referrer__icontains='calculator').annotate(date=Cast(TruncDay('timestamp',tzinfo=tz),DateField()))\
-                .values_list('date')\
-                .annotate(interactions=Count('calcUID'))\
-                .values_list('date','interactions').order_by('-date')[:length]
+    def __timeSeriesQry(self, qs, length):
+        #utility function appended to base time series query
+        tz = get_current_timezone()
+        qryDate=datetime.today()-timedelta(days=length)
+
+        return qs.filter(timestamp__gte=qryDate).annotate(date=Cast(TruncDay('timestamp', tzinfo=tz), DateField())) \
+                   .values_list('date') \
+                   .annotate(interactions=Count('postcode',distinct=True)) \
+                   .values_list('date', 'interactions').order_by('-date')
+
+    def timeSeries(self, seriesType, length, search=None):
+        tz = get_current_timezone()
+
+        if seriesType == 'Interactions':
+            return self.__timeSeriesQry(WebCalculator.objects.all(),length)
+
+        if seriesType == 'Email':
+            return self.__timeSeriesQry(WebCalculator.objects.filter(email__isnull=False),length)
+
+        if seriesType == 'InteractionsByState':
+            return self.__timeSeriesQry(WebCalculator.objects.filter(postcode__startswith=search),length)
+
+        if seriesType == 'InteractionsBySource' and search == True:
+            return self.__timeSeriesQry(WebCalculator.objects.filter(referrer__icontains='calculator'), length)
+
         if seriesType == 'InteractionsBySource' and search == False:
-            return WebCalculator.objects.exclude(referrer__icontains='calculator').annotate(date=Cast(TruncDay('timestamp', tzinfo=tz), DateField())) \
-                       .values_list('date') \
-                       .annotate(interactions=Count('calcUID')) \
-                       .values_list('date', 'interactions').order_by('-date')[:length]
+            return self.__timeSeriesQry(WebCalculator.objects.exclude(referrer__icontains='calculator'), length)
+
         if seriesType == 'EmailBySource' and search == True:
-            return WebCalculator.objects.filter(referrer__icontains='calculator').filter(email__isnull=False).annotate(
-                date=Cast(TruncDay('timestamp', tzinfo=tz), DateField())) \
-                       .values_list('date') \
-                       .annotate(interactions=Count('calcUID')) \
-                       .values_list('date', 'interactions').order_by('-date')[:length]
+            return self.__timeSeriesQry(WebCalculator.objects.filter(referrer__icontains='calculator').filter(
+                email__isnull=False), length)
+
         if seriesType == 'EmailBySource' and search == False:
-            return WebCalculator.objects.filter(email__isnull=False).exclude(referrer__icontains='calculator').annotate(
-                date=Cast(TruncDay('timestamp', tzinfo=tz), DateField())) \
-                       .values_list('date') \
-                       .annotate(interactions=Count('calcUID')) \
-                       .values_list('date', 'interactions').order_by('-date')[:length]
+            return self.__timeSeriesQry(WebCalculator.objects.filter(email__isnull=False).exclude(
+                referrer__icontains='calculator'), length)
 
 
 class WebCalculator(models.Model):
@@ -82,11 +80,17 @@ class WebCalculator(models.Model):
     maxLoanAmount=models.IntegerField(blank=True, null=True)
     maxLVR=models.FloatField(blank=True, null=True)
     errorText=models.CharField(max_length=40,blank= True,null=True)
-    isRefi=models.BooleanField(default=False, blank=True, null=True)
-    isTopUp=models.BooleanField(default=False, blank=True, null=True)
-    isLive=models.BooleanField(default=False, blank=True, null=True)
-    isGive=models.BooleanField(default=False, blank=True, null=True)
-    isCare = models.BooleanField(default=False, blank=True, null=True)
+    isTopUp = models.BooleanField(blank=True, null=True)
+    isRefi = models.BooleanField(blank=True, null=True)
+    isLive = models.BooleanField(blank=True, null=True)
+    isGive = models.BooleanField(blank=True, null=True)
+    isCare = models.BooleanField(blank=True, null=True)
+    calcTopUp=models.IntegerField( blank=True, null=True)
+    calcRefi=models.IntegerField(blank=True, null=True)
+    calcLive=models.IntegerField( blank=True, null=True)
+    calcGive=models.IntegerField(blank=True, null=True)
+    calcCare = models.IntegerField( blank=True, null=True)
+    calcTotal=models.IntegerField(blank=True, null=True)
     email=models.EmailField(blank=True, null=True)
     referrer=models.URLField(blank=True,null=True)
     actioned=models.IntegerField(default=0,blank=True, null=True)
@@ -100,6 +104,10 @@ class WebCalculator(models.Model):
     def __str__(self):
         return smart_text(self.pk)
 
+
+
+
+# WebCalculator
 
 class WebContactManager(models.Manager):
     def queueCount(self):

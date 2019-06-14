@@ -2,7 +2,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 {% load humanize %}
-{% load case_tags %}
+{% load site_tags %}
 
 
 {% block jumbotron %}
@@ -53,33 +53,8 @@
 
             </div>
 
-
             <div class="col-lg-3 pt-4">
 
-                {% if obj.inName %}
-                    <div class="pb-3">
-                        <div class="jumbotron pt-3 pb-3">
-
-
-                            <div class="row justify-content-center">
-                                <div class="col-8 text-center">
-                                    {% if obj.inPic %}
-                                        <a href="{{ obj.inProfileUrl }}"> <img class="img-fluid rounded-circle"
-                                                                               src='{{ obj.inPic }}'>
-                                        </a>
-                                    {% endif %}
-                                </div>
-                                <div class="row justify-content-center">
-                                    <div class="col-10 text-center">
-                                        <a href="{{ obj.inProfileUrl }}"><p class="larger"><i class="fab fa-linkedin ">&nbsp;&nbsp;</i>{{ obj.inName }}
-                                        </p></a>
-                                        <p>{{ obj.inDescription }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
                 <div class="row">
                     <div class="col-8 pb-3">
                         <a href="{% url 'relationship:contactList' %}">
@@ -117,6 +92,31 @@
                     </div>
 
                 </div>
+
+                {% if obj.inName %}
+                    <div class="pb-3">
+                        <div class="jumbotron pt-3 pb-3">
+
+
+                            <div class="row justify-content-center">
+                                <div class="col-8 text-center">
+                                    {% if obj.inPic %}
+                                        <a href="{{ obj.inProfileUrl }}"> <img class="img-fluid rounded-circle"
+                                                                               src='{{ obj.inPic }}'>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                                <div class="row justify-content-center">
+                                    <div class="col-10 text-center">
+                                        <a href="{{ obj.inProfileUrl }}"><p class="larger"><i class="fab fa-linkedin ">&nbsp;&nbsp;</i>{{ obj.inName }}
+                                        </p></a>
+                                        <p>{{ obj.inDescription }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>

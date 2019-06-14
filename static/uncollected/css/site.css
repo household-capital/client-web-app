@@ -169,10 +169,27 @@ body {
 }
 
 
-
 body {
     height: 100%;
     width: 100%;
     position: absolute;
     overflow: auto;
+}
+
+.errorlist {
+    color: red;
+    list-style-type: none;
+    width: 100%;
+    padding: 0;
+    margin-left: 30px;
+    text-align: left;
+}
+
+.errorlist::before {
+    font-family: "Font Awesome 5 Pro";
+    font-weight: 900;
+    content: "\f06a ";
+    float: left;
+    margin-left: -25px;
+    color: red;
 }

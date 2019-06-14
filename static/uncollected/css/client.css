@@ -105,6 +105,16 @@ p.small {
     line-height: 120%;
 }
 
+.gold_underline{
+    border-bottom: 3px solid;
+    padding: 10px 0;
+    border-bottom-color: #ffb800
+}
+
+.hhcBlueFont{
+   color: rgb(81,132,161);
+}
+
 .HHCBlue{
     background-color: rgb(25,38,63);
     color: white
@@ -202,10 +212,19 @@ a.menu_title:active{
 }
 
 
-
 .sub-container{
     padding-left: 0px;
 }
+
+
+/* Image */
+
+.greyscale{
+    -webkit-filter: brightness(1) grayscale(1) opacity(1);
+    -moz-filter: brightness(1) grayscale(1) opacity(1);
+    filter: brightness(1) grayscale(1) opacity(1);
+}
+
 
 /* Forms */
 .form-control-hidden {
@@ -306,7 +325,9 @@ a.btn-hhcGold{
 }
 
 
-
+.cal_background_warm {
+    background-color: rgb(249, 248, 245);
+}
 
 
 /* Printing */
@@ -454,3 +475,5 @@ html, body {
         width: 8.33333333%
     }
 }
+
+

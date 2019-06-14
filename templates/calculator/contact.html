@@ -20,89 +20,145 @@
           integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.6.1/css/all.css"
           integrity="sha384-NJXGk7R+8gWGBdutmr+/d6XDokLwQhF1U3VA7FhvBDlOq7cNdI69z7NQdnXxcF7k" crossorigin="anonymous">
-    <link href="/static/css/calculator.css" rel="stylesheet">
+    <link href="/static/css/calculator.css?v1.0" rel="stylesheet">
     <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
     <script src="http//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
-    <title>Household Capital Contact Us</title>
+    <title>Household Capital Get in Touch</title>
 </head>
 
 
 <body>
 
+
 <div class="container justify-content-md-center">
-    <div class="row justify-content-md-center">
-        <div class="col-md-11">
-            <br><br>
-            <div class="container cal_background">
-                <div class="row">
 
-                    {% if submitted %}
-                        <div class="col-md-6 d-flex align-items-center ">
-                            <p class="alert alert-success">Thank you. We will respond to you shortly.</p>
-                        </div>
-
-                    {% else %}
-                        <div class="crispyform col-md-6">
-                            {% crispy form %}
-
-                            <div class="pl-3 pb-5">
-                                <button type="submit" value="Submit" form="clientForm"
-                                        class="btn btn-hhcGold">
-                                    &nbsp;&nbsp;&nbsp;&nbsp;Send Message&nbsp;&nbsp;&nbsp;&nbsp;
-                                </button>
-                            </div>
-
-                        </div>
-
-                    {% endif %}
-
-
-                    <div class="col-md-6 pt-3 d-flex align-items-center">
-                        <div>
-                            <div class="row justify-content-center">
-                                <div class="col-md-12 pl-4 pb-2 text-center">
-                                    <p class="larger"></p>
-                                    <br>
-                                    <p class="larger">Household Capital Pty Ltd</p>
-                                    <p>PO Box 4232</p>
-                                    <p>Fitzroy South</p>
-                                    <p>Victoria 3065</p>
-                                </div>
-
-                                <div class="pt-4">
-                                    <button class="btn btn-hhcGold"><i class="fas fa-phone"></i>&nbsp;&nbsp;1 300 622
-                                        100
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="row pt-5 pb-5">
-                                <div class="col-md-12 d-flex justify-content-center">
-                                    <table border="0" cellspacing="0" cellpadding="0">
-                                        <tr>
-
-                                            <td><a href="https://www.facebook.com/householdcapital" target="_blank">
-                                                <i class="fab hhcLightBlue fa-facebook-f fa-2x "></i></a></td>
-                                            <td class="pr-5"></td>
-                                            <td><a href="https://twitter.com/HouseholdCapit1" target="_blank">
-                                                <i class="fab hhcLightBlue fa-twitter fa-2x"></i>
-                                            </a></td>
-                                            <td class="pr-5"></td>
-                                            <td><a href="https://www.linkedin.com/company/household-capital/about/"
-                                                   target="_blank"><i class="fab hhcLightBlue fa-linkedin-in fa-2x"></i></a>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <div class="row justify-content-md-center pt-4">
+        <div class="col-md-6">
+            <div class="row justify-content-center">
+                <div class="gold_underline">
+                    <p class="secondary_title text-center ">Get in touch</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<div class="container cal_background">
+    <div class="row ">
+        <div class="col-12 text-center">
+
+            <br><br>
+            <div class="cal_background_warm">
+                <br><br>
+                <div class="container">
+
+                    {% if submitted %}
+                        <div class="row">
+                            <div class="col-md-6 d-flex align-items-center ">
+                                <p class="alert alert-success">Thank you. We will respond to you shortly.</p>
+                            </div>
+                        </div>
+
+                    {% else %}
+                        <div class="row justify-content-center">
+                            <div class="col-md-3">
+
+                                <p class="text-left secondary_title">Ask a question</p>
+                            </div>
+
+                            <div class="crispyform col-md-8">
+
+                                {% crispy form %}
+                            </div>
+                        </div>
+                        <div class="row justify-content-center">
+                            <div class="col-md-6"></div>
+
+                            <div class="text-center col-md-5 pb-5">
+                                <button type="submit" value="Submit" form="clientForm"
+                                        class="btn btn-hhcGold">
+                                    &nbsp;&nbsp;&nbsp;Send Message&nbsp;&nbsp;&nbsp;
+                                </button>
+                            </div>
+                        </div>
+
+
+
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="cal_background_white">
+                <br><br>
+                <div class="container">
+
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+
+                            <p class="secondary_title text-left ">Call us</p>
+                            <p class="text-left">Monday - Friday, 9:00am - 5:00pm AEST</p>
+                        </div>
+
+                        <div class="col-md-5">
+                            <div class="pt-4">
+                                    <button class="btn btn-hhcGold"><i class="fas fa-phone"></i>&nbsp;&nbsp;1 300 622
+                                        100
+                                    </button>
+                                </div>
+                            <div class="pt-4">
+                                    <a href="https://calendly.com/household-capital/15-minute-discovery-call" target="_blank" ><button class="btn btn-hhcGold">&nbsp;Book a phone call&nbsp;
+                                    </button></a>
+                                </div>
+                              <br><br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        <div class="cal_background_warm">
+                <br><br>
+                <div class="container">
+
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+
+                            <p class="secondary_title text-left ">Stay in touch</p>
+                            <br>
+                        </div>
+
+                        <div class="col-md-5">
+                            <table align="center" border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+
+                            <td><a href="https://www.facebook.com/householdcapital"
+                                   target="_blank">
+                                <i class="fab hhcLightBlue fa-facebook-f fa-2x "></i></a></td>
+                            <td class="pr-5"></td>
+                            <td><a href="https://twitter.com/HouseholdCapit1" target="_blank">
+                                <i class="fab hhcLightBlue fa-twitter fa-2x"></i>
+                            </a></td>
+                            <td class="pr-5"></td>
+                            <td>
+                                <a href="https://www.linkedin.com/company/household-capital/about/"
+                                   target="_blank"><i
+                                        class="fab hhcLightBlue fa-linkedin-in fa-2x"></i></a>
+                            </td>
+                        </tr>
+                    </table>
+                            <br><br>
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 <script>

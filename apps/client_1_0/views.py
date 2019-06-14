@@ -55,42 +55,6 @@ class SessionRequiredMixin(object):
 
 # UTILITIES
 
-class ResultsHelper():
-    # Used to render Loan Projection results for the GUI and Summary Document
-
-    def createResultsList(self, projFigures, keyName, **kwargs):
-        # Builds a results list to pass to the template
-        # Optionally calculates scaling for images
-
-        scaleList = []
-
-        figuresList = [int(projFigures[i][keyName]) for i in [0, 5, 10, 15]]
-
-        if 'imageSize' in kwargs:
-            if kwargs['imageMethod'] == 'exp':
-                # Use a log scaling method for images (arbitrary)
-                maxValueLog = self.logOrZero(max(figuresList)) ** 3
-                if maxValueLog == 0:
-                    maxValueLog = 1
-                scaleList = [int(self.logOrZero(figuresList[i]) ** 3 / maxValueLog * kwargs['imageSize']) for i
-                             in range(4)]
-            elif kwargs['imageMethod'] == 'lin':
-                maxValueLog = max(figuresList)
-                scaleList = [int(figuresList[i] / maxValueLog * kwargs['imageSize']) for i in range(4)]
-
-        return figuresList + scaleList
-
-    def logOrZero(self, val):
-        if val <= 0:
-            return 0
-        return log(val)
-
-    def createImageList(self, projFigures, keyName, imageURL):
-        figuresList = [int(round(projFigures[i][keyName] / 10, 0)) for i in [0, 5, 10, 15]]
-        imageList = [imageURL.replace('{0}', str(figuresList[i])) for i in range(4)]
-
-        return imageList
-
 class ContextHelper():
     # Most of the views require the same validation and context information
 
@@ -381,11 +345,12 @@ class TopUp1(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, TemplateVie
             context['post_id'] = kwargs.get("post_id")
 
             #Loan Projections
-            loanProj = LoanProjection(context)
+            loanProj = LoanProjection()
+            result=loanProj.create(context)
 
-            projectionAge=loanProj.getProjectionAge()
-            currentIncomeProj = loanProj.getInitialIncome()
-            boostedIncomeProj = loanProj.getMaxEnhancedIncome()
+            projectionAge=loanProj.getProjectionAge()['data']
+            currentIncomeProj = loanProj.getInitialIncome()['data']
+            boostedIncomeProj = loanProj.getMaxEnhancedIncome()['data']
             context['currentIncomeProj']=int(currentIncomeProj)
             context['boostedIncomeProj']=int(boostedIncomeProj)
             context['projectionAge']=projectionAge
@@ -407,11 +372,12 @@ class TopUp2(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, FormView):
         context['nextIsButton']=True
 
         # Loan Projections
-        loanProj = LoanProjection(self.extra_context)
+        loanProj = LoanProjection()
+        result=loanProj.create(self.extra_context)
 
-        sliderData = loanProj.getEnhancedIncomeArray()
-        currentIncomeProj = loanProj.getInitialIncome()
-        boostedIncomeProj = loanProj.getMaxEnhancedIncome()
+        sliderData = loanProj.getEnhancedIncomeArray()['data']
+        currentIncomeProj = loanProj.getInitialIncome()['data']
+        boostedIncomeProj = loanProj.getMaxEnhancedIncome()['data']
 
         context['currentIncomeProj'] = int(currentIncomeProj)
         context['boostedIncomeProj'] = int(boostedIncomeProj)
@@ -642,7 +608,7 @@ class Results2(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, UpdateVie
         self.initFormData[fieldName]=initial
 
 
-class Results3(ResultsHelper, LoginRequiredMixin, SessionRequiredMixin,ContextHelper, TemplateView):
+class Results3(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, TemplateView):
     template_name = "client_1_0/interface/results3.html"
 
     def get_context_data(self, **kwargs):
@@ -658,8 +624,11 @@ class Results3(ResultsHelper, LoginRequiredMixin, SessionRequiredMixin,ContextHe
 
 
         # Loan Projections
-        loanProj = LoanProjection(context)
-        projectionFigures=loanProj.getProjections()
+        loanProj = LoanProjection()
+        result= loanProj.create(context)
+        if result['status']=="Error":
+            write_applog("ERROR", 'client_1_0', 'Results3', result['responseText'])
+        result = loanProj.calcProjections()
 
         #Build results dictionaries
 
@@ -668,28 +637,26 @@ class Results3(ResultsHelper, LoginRequiredMixin, SessionRequiredMixin,ContextHe
             context['topUpProjections']=False
         else:
             context['topUpProjections'] = True
-            context['resultsCumulative'] = self.createResultsList(projectionFigures,'CumulativeSuperIncome', imageSize=100,
-                                                                  imageMethod='exp')
-            context['resultsTotalIncome'] = self.createResultsList(projectionFigures,'TotalIncome', imageSize=150, imageMethod='lin')
-            context['resultsSuperBalance'] = self.createResultsList(projectionFigures,'BOPBalance', imageSize=100, imageMethod='exp')
-            context['resultsIncomeImages'] = self.createImageList(projectionFigures,'PensionIncomePC',
-                                                                  settings.STATIC_URL + 'img/icons/income_{0}_icon.png')
+            context['resultsCumulative'] = loanProj.getResultsList('CumulativeSuperIncome', imageSize=100, imageMethod='exp')['data']
+            context['resultsTotalIncome'] = loanProj.getResultsList('TotalIncome', imageSize=150, imageMethod='lin')['data']
+            context['resultsSuperBalance'] = loanProj.getResultsList('BOPBalance', imageSize=100, imageMethod='exp')['data']
+            context['resultsIncomeImages'] = loanProj.getImageList('PensionIncomePC',settings.STATIC_URL + 'img/icons/income_{0}_icon.png')['data']
 
-        context['resultsAge']=self.createResultsList(projectionFigures,'BOPAge')
-        context['resultsHomeEquity'] = self.createResultsList(projectionFigures,'BOPHomeEquity')
-        context['resultsHomeEquityPC'] = self.createResultsList(projectionFigures,'BOPHomeEquityPC')
-        context['resultsHomeImages'] = self.createImageList(projectionFigures,'BOPHomeEquityPC',
-                                                              settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')
-        context['resultsHouseValue'] = self.createResultsList(projectionFigures,'BOPHouseValue', imageSize=100, imageMethod='lin')
+
+        context['resultsAge']=loanProj.getResultsList('BOPAge')['data']
+        context['resultsHomeEquity'] = loanProj.getResultsList('BOPHomeEquity')['data']
+        context['resultsHomeEquityPC'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
+        context['resultsHomeImages'] = loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
+        context['resultsHouseValue'] = loanProj.getResultsList('BOPHouseValue', imageSize=100, imageMethod='lin')['data']
 
         context['totalInterestRate']=context['interestRate']+context['lendingMargin']
 
-        context['resultsNegAge']=loanProj.getNegativeEquityAge()
+        context['resultsNegAge']=loanProj.getNegativeEquityAge()['data']
 
         return context
 
 
-class Results4(ResultsHelper, LoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateView):
+class Results4(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateView):
     template_name = "client_1_0/interface/results4.html"
 
     def get_context_data(self, **kwargs):
@@ -705,19 +672,19 @@ class Results4(ResultsHelper, LoginRequiredMixin, SessionRequiredMixin, ContextH
 
 # Final Views
 
-class FinalView(ResultsHelper, LoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateView):
+class FinalView(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateView):
     template_name = "client_1_0/interface/final.html"
 
     def get_context_data(self, **kwargs):
 
-        context = super(ResultsHelper, self).get_context_data(**kwargs)
+        context = super(FinalView, self).get_context_data(**kwargs)
 
         context['pdfURL'] = self.request.build_absolute_uri(reverse('client:finalPdf'))
 
         return context
 
 
-class FinalErrorView(ResultsHelper, LoginRequiredMixin, ContextHelper, TemplateView):
+class FinalErrorView(LoginRequiredMixin, ContextHelper, TemplateView):
     template_name = "client_1_0/interface/final_error.html"
 
 
@@ -763,7 +730,7 @@ class FinalPDFView(LoginRequiredMixin, SessionRequiredMixin, View):
 
 # REPORT VIEWS
 
-class PdfLoanSummary(ResultsHelper, TemplateView):
+class PdfLoanSummary(TemplateView):
     #This page is not designed to be viewed - it is to be called by the pdf generator
     #It requires a UID to be passed to it
 
@@ -799,8 +766,11 @@ class PdfLoanSummary(ResultsHelper, TemplateView):
             context['loanTypesEnum'] = loanTypesEnum
 
             # Loan Projections
-            loanProj = LoanProjection(context)
-            projectionFigures=loanProj.getProjections()
+            loanProj = LoanProjection()
+            result = loanProj.create(context)
+            if result['status'] == "Error":
+                write_applog("ERROR", 'client_1_0', 'PdfLoanSummary', result['responseText'])
+            result = loanProj.calcProjections()
 
             # Build results dictionaries, using helper functions
             # Build results dictionaries
@@ -810,65 +780,71 @@ class PdfLoanSummary(ResultsHelper, TemplateView):
                 context['topUpProjections'] = False
             else:
                 context['topUpProjections'] = True
-                context['resultsCumulative'] = self.createResultsList(projectionFigures, 'CumulativeSuperIncome',
+                context['resultsCumulative'] = loanProj.getResultsList('CumulativeSuperIncome',
                                                                       imageSize=100,
-                                                                      imageMethod='exp')
-                context['resultsTotalIncome'] = self.createResultsList(projectionFigures, 'TotalIncome', imageSize=150,
-                                                                       imageMethod='lin')
-                context['resultsSuperBalance'] = self.createResultsList(projectionFigures, 'BOPBalance', imageSize=100,
-                                                                        imageMethod='exp')
-                context['resultsIncomeImages'] = self.createImageList(projectionFigures, 'PensionIncomePC',
-                                                                      settings.STATIC_URL + 'img/icons/income_{0}_icon.png')
+                                                                      imageMethod='exp')['data']
+                context['resultsTotalIncome'] = loanProj.getResultsList( 'TotalIncome', imageSize=150,
+                                                                       imageMethod='lin')['data']
+                context['resultsSuperBalance'] = loanProj.getResultsList( 'BOPBalance', imageSize=100,
+                                                                        imageMethod='exp')['data']
+                context['resultsIncomeImages'] = loanProj.getImageList( 'PensionIncomePC',
+                                                                      settings.STATIC_URL + 'img/icons/income_{0}_icon.png')['data']
 
-            context['resultsAge'] = self.createResultsList(projectionFigures, 'BOPAge')
-            context['resultsHomeEquity'] = self.createResultsList(projectionFigures, 'BOPHomeEquity')
-            context['resultsHomeEquityPC'] = self.createResultsList(projectionFigures, 'BOPHomeEquityPC')
-            context['resultsHomeImages'] = self.createImageList(projectionFigures, 'BOPHomeEquityPC',
-                                                                settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')
-            context['resultsHouseValue'] = self.createResultsList(projectionFigures, 'BOPHouseValue', imageSize=100,
-                                                                  imageMethod='lin')
+            context['resultsAge'] = loanProj.getResultsList( 'BOPAge')['data']
+            context['resultsHomeEquity'] = loanProj.getResultsList( 'BOPHomeEquity')['data']
+            context['resultsHomeEquityPC'] = loanProj.getResultsList( 'BOPHomeEquityPC')['data']
+            context['resultsHomeImages'] = loanProj.getImageList( 'BOPHomeEquityPC',
+                                                                settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
+            context['resultsHouseValue'] = loanProj.getResultsList( 'BOPHouseValue', imageSize=100,
+                                                                  imageMethod='lin')['data']
 
             context['totalInterestRate'] = context['interestRate'] + context['lendingMargin']
 
             context['comparisonRate']=context['totalInterestRate']+context['comparisonRateIncrement']
-            context['resultsNegAge'] = loanProj.getNegativeEquityAge()
+            context['resultsNegAge'] = loanProj.getNegativeEquityAge()['data']
 
 
             #Stress Results
-            projectionSmallHpi = loanProj.getProjections(hpiStressLevel=APP_SETTINGS['hpiLowStressLevel'])
-            projectionNoHpi = loanProj.getProjections(hpiStressLevel=APP_SETTINGS['hpiHighStressLevel'])
-            projectionRateUp = loanProj.getProjections(intRateStress=APP_SETTINGS['intRateStress'])
-
-            context['hpi1']=APP_SETTINGS['hpiLowStressLevel']
-            context['intRate1']=context['totalInterestRate']
-
-            context['hpi2']=APP_SETTINGS['hpiHighStressLevel']
-            context['intRate2']=context['totalInterestRate']
-
-            context['hpi3']=context['housePriceInflation']
-            context['intRate3']=context['totalInterestRate']+APP_SETTINGS['intRateStress']
 
             # Stress-1
-            context['resultsHomeEquity1'] = self.createResultsList(projectionSmallHpi,'BOPHomeEquity')
-            context['resultsHomeEquityPC1'] = self.createResultsList(projectionSmallHpi,'BOPHomeEquityPC')
-            context['resultsHomeImages1'] = self.createImageList(projectionSmallHpi,'BOPHomeEquityPC',
-                                                                  settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')
-            context['resultsHouseValue1'] = self.createResultsList(projectionSmallHpi,'BOPHouseValue', imageSize=100, imageMethod='lin')
+            context['hpi1'] = APP_SETTINGS['hpiLowStressLevel']
+            context['intRate1'] = context['totalInterestRate']
+
+            result = loanProj.calcProjections(hpiStressLevel=APP_SETTINGS['hpiLowStressLevel'])
+
+            context['resultsHomeEquity1'] = loanProj.getResultsList('BOPHomeEquity')['data']
+            context['resultsHomeEquityPC1'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
+            context['resultsHomeImages1'] = loanProj.getImageList('BOPHomeEquityPC',
+                                                                  settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
+            context['resultsHouseValue1'] = loanProj.getResultsList('BOPHouseValue', imageSize=100, imageMethod='lin')['data']
 
             # Stress-2
-            context['resultsHomeEquity2'] = self.createResultsList(projectionNoHpi,'BOPHomeEquity')
-            context['resultsHomeEquityPC2'] = self.createResultsList(projectionNoHpi,'BOPHomeEquityPC')
-            context['resultsHomeImages2'] = self.createImageList(projectionNoHpi,'BOPHomeEquityPC',
-                                                                  settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')
-            context['resultsHouseValue2'] = self.createResultsList(projectionNoHpi,'BOPHouseValue', imageSize=100, imageMethod='lin')
+
+            context['hpi2'] = APP_SETTINGS['hpiHighStressLevel']
+            context['intRate2'] = context['totalInterestRate']
+
+            result = loanProj.calcProjections(hpiStressLevel=APP_SETTINGS['hpiHighStressLevel'])
+
+            context['resultsHomeEquity2'] = loanProj.getResultsList('BOPHomeEquity')['data']
+            context['resultsHomeEquityPC2'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
+            context['resultsHomeImages2'] = loanProj.getImageList('BOPHomeEquityPC',
+                                                                  settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
+            context['resultsHouseValue2'] = loanProj.getResultsList('BOPHouseValue', imageSize=100, imageMethod='lin')['data']
 
             # Stress-3
-            context['resultsHomeEquity3'] = self.createResultsList(projectionRateUp, 'BOPHomeEquity')
-            context['resultsHomeEquityPC3'] = self.createResultsList(projectionRateUp, 'BOPHomeEquityPC')
-            context['resultsHomeImages3'] = self.createImageList(projectionRateUp, 'BOPHomeEquityPC',
-                                                                  settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')
-            context['resultsHouseValue3'] = self.createResultsList(projectionRateUp, 'BOPHouseValue', imageSize=100,
-                                                                    imageMethod='lin')
+
+            context['hpi3'] = context['housePriceInflation']
+            context['intRate3'] = context['totalInterestRate'] + APP_SETTINGS['intRateStress']
+
+
+            result = loanProj.calcProjections(hpiStressLevel=APP_SETTINGS['intRateStress'])
+
+            context['resultsHomeEquity3'] = loanProj.getResultsList( 'BOPHomeEquity')['data']
+            context['resultsHomeEquityPC3'] = loanProj.getResultsList( 'BOPHomeEquityPC')['data']
+            context['resultsHomeImages3'] = loanProj.getImageList( 'BOPHomeEquityPC',
+                                                                  settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
+            context['resultsHouseValue3'] = loanProj.getResultsList( 'BOPHouseValue', imageSize=100,
+                                                                    imageMethod='lin')['data']
 
             # use object to retrieve image
             queryset = Case.objects.queryset_byUID(caseUID)
@@ -926,6 +902,8 @@ class PdfPrivacy(TemplateView):
             context.update(clientDict)
             context.update(loanDict)
             context['caseUID'] = caseUID
+            context['loanTypesEnum'] = loanTypesEnum
+
 
         return context
 
@@ -949,6 +927,8 @@ class PdfElectronic(TemplateView):
             context.update(clientDict)
             context.update(loanDict)
             context['caseUID'] = caseUID
+            context['loanTypesEnum'] = loanTypesEnum
+
 
         return context
 

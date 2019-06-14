@@ -32,6 +32,7 @@ class FundDetail(models.Model):
 
 
 class CaseManager(models.Manager):
+
     #Custom model manager to return related querysets (using UID)
     def queryset_byUID(self,uidString):
        if self.model.__name__=='Case':
@@ -44,6 +45,7 @@ class CaseManager(models.Manager):
     def dictionary_byUID(self,uidString):
         return self.queryset_byUID(uidString).values()[0]
 
+    # Custom data queries
     def openCases(self):
         closedTypes = [caseTypesEnum.CLOSED.value, caseTypesEnum.APPROVED.value]
         return Case.objects.exclude(caseType__in=closedTypes)

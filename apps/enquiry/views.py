@@ -74,12 +74,11 @@ class EnquiryListView(LoginRequiredMixin, ListView):
                 Q(phoneNumber__icontains=search) |
                 Q(postcode__icontains=search) |
                 Q(enquiryNotes__icontains=search)
-
-            )
+            ).exclude(actioned=-1)
 
         # ...and for open my items
         if self.request.GET.get('myEnquiries') == "True":
-            queryset = super(EnquiryListView, self).get_queryset().filter(user=self.request.user)
+            queryset = super(EnquiryListView, self).get_queryset().filter(user=self.request.user).exclude(actioned=-1)
 
         queryset = queryset.order_by('-updated')
 
@@ -177,7 +176,7 @@ class SendEnquirySummary(LoginRequiredMixin, UpdateView):
     context_object_name = 'object_list'
     model = WebCalculator
     template_name = 'enquiry/email/email_cover_enquiry.html'
-    template_name_alt = 'enquiry/email_cover_enquiry_calendar.html'
+    template_name_alt = 'enquiry/email/email_cover_enquiry_calendar.html'
 
     def get(self, request, *args, **kwargs):
         enqUID = str(kwargs['uid'])
@@ -195,7 +194,9 @@ class SendEnquirySummary(LoginRequiredMixin, UpdateView):
         created, text = pdf.createPdfFromUrl(sourceUrl, 'CalculatorSummary.pdf', targetFileName)
 
         if not created:
-            messages.error(self.request, "Email could not be sent")
+            messages.error(self.request, "PDF not created - email could not be sent")
+            write_applog("ERROR", 'SendEnquirySummary', 'get',
+                         "PDF not created: " + str(enq_obj.enqUID))
             return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
 
         try:
@@ -207,7 +208,7 @@ class SendEnquirySummary(LoginRequiredMixin, UpdateView):
 
         except:
             write_applog("ERROR", 'SendEnquirySummary', 'get',
-                         "Failed to save Enquiry Summary  in Database: " + str(enq_obj.enqUID))
+                         "Failed to save PDF in Database: " + str(enq_obj.enqUID))
 
         email_context = {}
         email_context['user'] = request.user
@@ -224,15 +225,15 @@ class SendEnquirySummary(LoginRequiredMixin, UpdateView):
         if request.user.username in ['Moutzikis']:
             sent = pdf.emailPdf(self.template_name_alt, email_context, subject, from_email, to, bcc, text_content,
                                 attachFilename)
-
         else:
             sent = pdf.emailPdf(self.template_name, email_context, subject, from_email, to, bcc, text_content,
                                 attachFilename)
-
         if sent:
             messages.success(self.request, "Client has been emailed")
         else:
             messages.error(self.request, "Could not send email")
+            write_applog("ERROR", 'SendEnquirySummary', 'get',
+                         "Could not send email" + str(enq_obj.enqUID))
 
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
 
@@ -327,7 +328,8 @@ class EnquiryMarkFollowUp(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         obj = form.save()
         obj.followUp = timezone.now()
-        obj.save(update_fields=['followUp'])
+        obj.status=1
+        obj.save(update_fields=['followUp','status'])
 
         messages.success(self.request, "Enquiry marked as followed-up")
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryList'))

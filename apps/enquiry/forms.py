@@ -7,7 +7,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, Div, HTML
 
 # Local Application Imports
-
+from apps.lib.site_Enums import loanTypesEnum
 from .models import Enquiry
 
 
@@ -56,6 +56,16 @@ class EnquiryForm(forms.ModelForm):
             css_class="row ")
     )
 
+    def clean(self):
+        if self.cleaned_data['loanType']==loanTypesEnum.SINGLE_BORROWER.value and self.cleaned_data['age_2']:
+            raise ValidationError("Please check - is this a single or Joint Loan? ")
+
+        if self.cleaned_data['loanType']==loanTypesEnum.JOINT_BORROWER.value and not self.cleaned_data['age_2']:
+            raise ValidationError("Please add second borrower age ")
+
+        return self.cleaned_data
+
+
 
 class ReferrerForm(forms.ModelForm):
     class Meta:
@@ -95,6 +105,15 @@ class ReferrerForm(forms.ModelForm):
                 css_class='col-lg-6'),
             css_class="row ")
     )
+
+    def clean(self):
+        if self.cleaned_data['loanType']==loanTypesEnum.SINGLE_BORROWER.value and self.cleaned_data['age_2']:
+            raise ValidationError("Please check - is this a single or Joint Loan? ")
+
+        if self.cleaned_data['loanType']==loanTypesEnum.JOINT_BORROWER.value and not self.cleaned_data['age_2']:
+            raise ValidationError("Please add second borrower age ")
+
+        return self.cleaned_data
 
 
 class EnquiryFollowupForm(forms.ModelForm):

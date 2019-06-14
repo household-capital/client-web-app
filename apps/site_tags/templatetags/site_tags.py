@@ -55,6 +55,12 @@ def firstName(str):
     else:
         return str
 
+def getDictItem(dictionary, key):
+    if dictionary:
+        if key in dictionary:
+            return dictionary[key]
+    return ""
+
 
 # REGISTRATION
 register = template.Library()
@@ -67,3 +73,4 @@ register.filter('shortUID', shortUID)
 register.filter('filename', filename)
 register.filter('upto', upto)
 register.filter('firstName', firstName)
+register.filter('getDictItem', getDictItem)

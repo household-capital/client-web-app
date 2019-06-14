@@ -86,6 +86,5 @@ class pdfGenerator():
                 "Failed to email Summary Report:" + self.pdfID)
             return False
 
-
     def getContent(self):
         return self.pdfContents

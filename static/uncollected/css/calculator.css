@@ -1,21 +1,50 @@
+/* Containers */
+
+.cal_container {
+    max-width: 970px
+}
+
+.cal_container-sm {
+    max-width: 485px
+}
+
+.cal_container-md {
+    max-width: 725px
+}
+
+/* Backgrounds */
+.cal_background {
+    /*background-color: rgb(249,248,245);*/
+    background-color: white;
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+
+}
+
+.cal_background_warm {
+    background-color: rgb(249, 248, 245);
+}
+
 
 /* Fonts */
 @font-face {
-  font-family: 'MaisonNeue';
-  src: url('../fonts/MaisonNeue-Book.otf')  format("truetype"),
-       local('MaisonNeue');
+    font-family: 'MaisonNeue';
+    src: url('../fonts/MaisonNeue-Book.otf') format("truetype"),
+    local('MaisonNeue');
 }
 
 @font-face {
-  font-family: 'MercuryDisplay';
-  src: url('../fonts/MercuryDisplay-Semibold.otf')  format("truetype"),
-       local('MercuryDisplay');
+    font-family: 'MercuryDisplay';
+    src: url('../fonts/MercuryDisplay-Semibold.otf') format("truetype"),
+    local('MercuryDisplay');
 }
 
-a,p, a:link, a:visited {
-	font-family: MaisonNeue;
+
+a, p, a:link, a:visited {
+    font-family: MaisonNeue;
     padding: 0;
-    margin-bottom:5px;
+    margin-bottom: 5px;
     line-height: normal;
     color: black;
 }
@@ -24,20 +53,20 @@ p.small {
     font-family: MaisonNeue;
     line-height: 150%;
     font-size: 90%;
-        margin-bottom:0;
+    margin-bottom: 0;
 }
 
 .x-small {
     font-family: MaisonNeue;
     line-height: 120%;
     font-size: 75%;
-        margin-bottom:0;
+    margin-bottom: 0;
 }
 
 .larger {
     font-family: MaisonNeue;
     font-size: larger;
-        margin-bottom:0;
+    margin-bottom: 0;
 }
 
 .x-large {
@@ -51,8 +80,8 @@ p.small {
 }
 
 /* Buttons */
-.btn-hhcBlue{
-    background-color: rgb(25,38,63);
+.btn-hhcBlue {
+    background-color: rgb(25, 38, 63);
     color: white;
     font-family: MaisonNeue;
     font-weight: normal;
@@ -60,101 +89,347 @@ p.small {
     border-radius: 35px;
 }
 
-.btn-hhcGold{
-    background-color: rgb(253,182,0);
+.btn-hhcGold {
+    background-color: rgb(253, 182, 0);
     border-radius: 35px;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: normal;
     font-family: MaisonNeue;
     color: black !important;
 }
 
-.cal_background{
-    /*background-color: rgb(249,248,245);*/
-    background-color: #f9f9f9
+
+/* Sliders */
+
+#topUpSlider .ui-slider-handle,
+#refiSlider .ui-slider-handle,
+#giveSlider .ui-slider-handle,
+#liveSlider .ui-slider-handle,
+#careSlider .ui-slider-handle
+{
+    height: 25px;
+    width: 30px;
 }
 
-.fab.hhcLightBlue{
-    color: rgb(81,132,161);
+
+
+/* Other Elements */
+
+.ticket_background_white {
+    background-color: white;
+    max-width: 100%;
+    border-radius: 10px;
+
+}
+
+.errorlist {
+    color: red;
+    list-style-type: none;
+    width: 100%;
+    padding: 0;
+    margin-left: 30px;
+    text-align: left;
+}
+
+.errorlist::before {
+    font-family: "Font Awesome 5 Pro";
+    font-weight: 900;
+    content: "\f06a ";
+    float: left;
+    margin-left: -25px;
+    color: red;
+}
+
+
+.fab.hhcLightBlue {
+    color: rgb(81, 132, 161);
 }
 
 .crispyform .alert {
-  padding: 0.25rem 0.25rem;
-  margin-top: 2rem;
+    padding: 0.25rem 0.25rem;
+    margin-top: 2rem;
+}
+
+/* Icons */
+.Couple {
+    background-image: url(/static/img/icons/couple_icon.png);
+}
+
+.Single {
+    background-image: url(/static/img/icons/single_icon.png);
+}
+
+.House {
+    background-image: url(/static/img/icons/house_icon.png);
+}
+
+.Apartment {
+    background-image: url(/static/img/icons/apartment_icon.png);
+}
+
+
+.Give {
+    background-image: url(/static/img/icons/give_icon.png);
+}
+
+.Live {
+    background-image: url(/static/img/icons/live_icon.png);
+}
+
+.TopUp {
+    background-image: url(/static/img/icons/topup_icon.png);
+}
+
+.Care {
+    background-image: url(/static/img/icons/care_icon.png);
+}
+
+.Refi {
+    background-image: url(/static/img/icons/refi_icon.png);
+}
+
+
+/* Checkbox Selector */
+
+.dot {
+    color: rgb(253, 182, 0);
+}
+
+.check-hide input {
+    margin: 0;
+    padding: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    opacity: 0;
+}
+
+.check-hide input:checked ~ .check-label,
+.check-hide input:checked ~ .check-dot {
+    -webkit-filter: none;
+    -moz-filter: none;
+    filter: none;
+}
+
+.check-label,
+.check-dot {
+    -webkit-transition: all 100ms ease-in;
+    -moz-transition: all 100ms ease-in;
+    transition: all 100ms ease-in;
+    -webkit-filter: brightness(1) grayscale(1) opacity(1);
+    -moz-filter: brightness(1) grayscale(1) opacity(1);
+    filter: brightness(1) grayscale(1) opacity(1);
+}
+
+.check-image {
+    cursor: pointer;
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: inline-block;
+    width: 10vw;
+    height: 10vw;
+    max-width: 90px;
+    max-height: 90px;
+}
+
+.check-image-old {
+    cursor: pointer;
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: inline-block;
+    width: 50px;
+    height: 50px;
 }
 
 /* Radio Button Selector */
-.radio-hide input{
-    margin:0;padding:0;
-    -webkit-appearance:none;
-       -moz-appearance:none;
-            appearance:none;
+.radio-hide input {
+    margin: 0;
+    padding: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    opacity: 0;
 }
-.Couple{background-image:url(/static/img/icons/couple_icon.png);}
-.Single{background-image:url(/static/img/icons/single_icon.png);}
-.House{background-image:url(/static/img/icons/house_icon.png);}
-.Apartment{background-image:url(/static/img/icons/apartment_icon.png);}
 
-.radio-hide input:active +.radio-label{opacity: .9;}
-.radio-hide input:checked +.radio-label{
+.radio-hide input:checked ~ .radio-label {
     -webkit-filter: none;
-       -moz-filter: none;
-            filter: none;
+    -moz-filter: none;
+    filter: none;
 }
-.radio-label{
-    cursor:pointer;
-    background-size:contain;
-    background-repeat:no-repeat;
-    display:inline-block;
-    width:55px;height:50px;
+
+.radio-label {
+    cursor: pointer;
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: inline-block;
+    width: 90px;
+    height: 90px;
     -webkit-transition: all 100ms ease-in;
-       -moz-transition: all 100ms ease-in;
-            transition: all 100ms ease-in;
-    -webkit-filter: brightness(1.8) grayscale(1) opacity(.7);
-       -moz-filter: brightness(1.8) grayscale(1) opacity(.7);
-            filter: brightness(1.8) grayscale(1) opacity(.7);
-}
-.radio-label:hover{
-    -webkit-filter: brightness(1.2) grayscale(.5) opacity(.9);
-       -moz-filter: brightness(1.2) grayscale(.5) opacity(.9);
-            filter: brightness(1.2) grayscale(.5) opacity(.9);
+    -moz-transition: all 100ms ease-in;
+    transition: all 100ms ease-in;
+    -webkit-filter: brightness(1) grayscale(1) opacity(1);
+    -moz-filter: brightness(1) grayscale(1) opacity(1);
+    filter: brightness(1) grayscale(1) opacity(1);
 }
 
-/* Checkbox Selector */
-.check-hide input{
-    margin:0;padding:0;
-    -webkit-appearance:none;
-       -moz-appearance:none;
-            appearance:none;
-}
-.Give{background-image:url(/static/img/icons/give_icon.png);}
-.Live{background-image:url(/static/img/icons/live_icon.png);}
-.TopUp{background-image:url(/static/img/icons/topup_icon.png);}
-.Care{background-image:url(/static/img/icons/care_icon.png);}
-.Refi{background-image:url(/static/img/icons/refi_icon.png);}
 
 
-.check-hide input:active +.check-label{opacity: .9;}
-.check-hide input:checked +.check-label{
-    -webkit-filter: none;
-       -moz-filter: none;
-            filter: none;
+.gold_underline{
+    border-bottom: 3px solid;
+    padding: 10px 0;
+    border-bottom-color: #ffb800
 }
-.check-label{
-    cursor:pointer;
-    background-size:contain;
-    background-repeat:no-repeat;
-    display:inline-block;
-    width:50px;height:50px;
-    -webkit-transition: all 100ms ease-in;
-       -moz-transition: all 100ms ease-in;
-            transition: all 100ms ease-in;
-    -webkit-filter: brightness(1.2) grayscale(1) opacity(1);
-       -moz-filter: brightness(1.2) grayscale(1) opacity(1);
-            filter: brightness(1.2) grayscale(1) opacity(1);
+
+.secondary_title {
+    font-family: MercuryDisplay;
+    font-size: 30px;
 }
-.check-label:hover{
-    -webkit-filter: brightness(1.2) grayscale(.5) opacity(.9);
-       -moz-filter: brightness(1.2) grayscale(.5) opacity(.9);
-            filter: brightness(1.2) grayscale(.5) opacity(.9);
+
+
+
+/* TEMPORARY */
+
+
+
+.logo-box {
+    padding: 24px 0
 }
+
+.logo-box img {
+    width: 100%;
+    height: auto
+}
+
+.menu-box ul li a {
+    color: #0c1b3a;
+    font-size: 16px;
+    padding: 10px 0;
+    display: block;
+    border-bottom: #fff 3px solid;
+    transition: all .3s ease-in;
+    -webkit-transition: all .3s ease-in;
+    -moz-transition: all .3s ease-in;
+    -ms-transition: all .3s ease-in;
+    -o-transition: all .3s ease-in
+}
+
+.menu-box ul li:hover a {
+    color: #ffb800
+}
+
+.menu-box ul li {
+    display: inline-block;
+    padding: 20px 7px
+}
+
+.menu-box ul {
+    padding: 0;
+    margin: 0;
+    text-align: right
+}
+
+.menu-box ul .current-menu-item a {
+    border-bottom-color: #ffb800
+}
+
+.menu-box ul li:last-child a {
+    background-color: #ffb800;
+    padding: 7px 30px 7px;
+    border-radius: 100px
+}
+
+.menu-box ul li:last-child a:hover {
+    background-color: #182540;
+    color: #fff
+}
+
+.header-1300-number {
+    display: none
+}
+
+
+/* Centered text */
+.calc_hero_container{
+  position:relative;
+}
+
+.calc_hero_text{
+
+  position: absolute;
+  text-align: center;
+  left: 0;
+  right: 0;
+  top: 35%;
+  letter-spacing: 3px;
+    font-size: 1.25vw;
+}
+
+.calc_hero_text p{
+    color: white;
+}
+
+.header_text{
+    font-family: MercuryDisplay;
+     font-size: 3.5vw;
+}
+
+footer {
+    background: rgb(25,38,63);;
+    padding: 20px 0 0;
+    color: white;
+    font-size: 12px
+}
+
+footer ul {
+    padding: 0;
+    margin: 0
+}
+
+footer ul li {
+    display: inline-block;
+    padding: 0
+}
+
+footer a {
+    color: white
+}
+
+footer ul li a:hover {
+    color:white
+}
+
+.footer-social ul li {
+    padding: 10px 16px;
+    color:white
+}
+.footer-social ul li a {
+    color:white;
+    font-size: 32px
+}
+
+.footer-social .fa {
+    font-size: 32px;
+    color:white;
+}
+
+.footer-disclaimer {
+    padding: 12px 0 0;
+    text-align: center
+}
+
+.menu-footer-menu-container {
+    text-align: center
+}
+
+.menu-footer-menu-container ul {
+    width: 100%
+}
+
+.menu-footer-menu-container li {
+    padding: 10px 0 10px 15px
+}
+
+.menu-footer-menu-container a {
+    color: white
+}
+

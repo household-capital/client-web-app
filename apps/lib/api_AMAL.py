@@ -86,7 +86,7 @@ class apiAMAL():
         else:
             write_applog("INFO", 'apiAMAL', 'checkLixiFile', 'LIXI validation passed')
 
-        return status
+        return {'status':"Ok"}
 
     def sendDocuments(self, objFileIo, filename, identifier):
 

@@ -78,7 +78,7 @@
     <div class="row justify-content-md-center">
         <div class="col-md-11">
             <br><br>
-            <div class="container cal_background">
+            <div class="container cal_background_warm">
                 <div class="row">
                     <div class="col-md-12">
                         <form id="clientForm" method="post">
@@ -101,7 +101,7 @@
                                     <div class="radio-hide">
                                         <p>Relationship Status:</p>
                                         <div class="row pt-1 pb-2">
-                                            {% for choice in form.loanType.field.choices %}
+                                            {% for choice in form.loanType.field.choices reversed %}
                                                 <div class="col-md-4 d-flex align-items-center">
                                                     <input {% if choice.0|intval == form.loanType.value|intval %}checked="checked" {% endif %}
                                                            id=loanType_{{ choice.1 }} type="radio"

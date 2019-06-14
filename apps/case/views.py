@@ -25,6 +25,7 @@ from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.api_Mappify import apiMappify
 from apps.lib.api_AMAL import apiAMAL
 from apps.lib.site_Logging import write_applog
+from apps.lib.lixi.lixi_CloudBridge import CloudBridge
 from apps.enquiry.models import Enquiry
 from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, SolicitorForm, ValuerForm
 from .models import Case, LossData, Loan, FundedData
@@ -45,8 +46,8 @@ class SFHelper():
 
         # get related LoanID from Opportunity
         resultsTable = sfAPI.execSOQLQuery('LoanRef', oppID)
-        loanID = resultsTable.iloc[0]["Name"]
-        if oppID == None:
+        loanID = resultsTable.iloc[0]["Loan_Number__c"]
+        if loanID == None:
             return (False, "Loan")
 
         # save OpportunityID and LoanID
@@ -173,7 +174,6 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
 
         return context
 
-
     def form_valid(self, form):
 
         # Get pre-save object and check whether we can change
@@ -182,7 +182,8 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
             messages.info(self.request, "Note: your changes won't be updated in Salesforce")
 
         # Don't allow to manually change to Application
-        if form.cleaned_data['caseType'] == caseTypesEnum.APPLICATION.value and pre_obj.caseType == caseTypesEnum.OPPORTUNITY.value:
+        if form.cleaned_data[
+            'caseType'] == caseTypesEnum.APPLICATION.value and pre_obj.caseType == caseTypesEnum.OPPORTUNITY.value:
             messages.error(self.request, "Please update to Meeting Held first")
             return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'pk': self.kwargs.get('pk')}))
 
@@ -351,7 +352,7 @@ class CaseEmailEligibility(LoginRequiredMixin, TemplateView):
         obj = queryset.get()
 
         clientDict = queryset.values()[0]
-        loanObj = LoanValidator( clientDict)
+        loanObj = LoanValidator(clientDict)
         email_context['enquiry'] = loanObj.validateLoan()
         email_context['obj'] = obj
 
@@ -421,24 +422,24 @@ class CaseSalesforce(LoginRequiredMixin, FormView):
         caseUID = str(self.kwargs['uid'])
         caseObj = Case.objects.queryset_byUID(caseUID).get()
 
-        mappify=apiMappify()
-        result=mappify.setAddress({"streetAddress":caseObj.street,"suburb":caseObj.suburb,
-                            "postcode":caseObj.postcode,"state":caseObj.enumStateType()})
+        mappify = apiMappify()
+        result = mappify.setAddress({"streetAddress": caseObj.street, "suburb": caseObj.suburb,
+                                     "postcode": caseObj.postcode, "state": caseObj.enumStateType()})
 
-        if result['status']!='Ok':
+        if result['status'] != 'Ok':
             messages.error(self.request, 'Missing address fields - please add before sending to Salesforce')
         else:
-            result=mappify.checkPostalAddress()
+            result = mappify.checkPostalAddress()
 
-            if result['status']=='Error':
+            if result['status'] == 'Error':
                 messages.error(self.request, "No Address Match - please check before sending to Salesforce")
 
             if "Low Confidence" in result['responseText']:
-                messages.error(self.request, "Address Match - Low Confidence - please check before sending to Salesforce")
+                messages.error(self.request,
+                               "Address Match - Low Confidence - please check before sending to Salesforce")
                 messages.error(self.request, "Closest Match - " + result['result']['streetAddress'])
 
         return super(CaseSalesforce, self).get(request, *args, **kwargs)
-
 
     def get_context_data(self, **kwargs):
         context = super(CaseSalesforce, self).get_context_data(**kwargs)
@@ -464,7 +465,7 @@ class CaseSalesforce(LoginRequiredMixin, FormView):
                              }
 
             salesforceState = {'NSW': 'New South Wales', 'ACT': 'Australian Capital Territory', 'VIC': 'Victoria',
-                               'NT': 'Northern Territory', 'WA':'Western Australia',
+                               'NT': 'Northern Territory', 'WA': 'Western Australia',
                                'QLD': 'Queensland', 'SA': 'South Australia', "TAS": "Tasmania"}
             leadDict = {}
 
@@ -597,7 +598,6 @@ class CaseSolicitorView(LoginRequiredMixin, SFHelper, UpdateView):
             html = get_template(email_template)
             html_content = html.render(email_context)
 
-
             subject, from_email, to, bcc = subject_title + str(caseObj.sfLoanID), caseObj.user.email, \
                                            [caseObj.user.email, 'lendingservices@householdcapital.com',
                                             'RL-HHC-Instructions@dentons.com',
@@ -639,8 +639,8 @@ class CaseValuerView(LoginRequiredMixin, SFHelper, UpdateView):
         caseObj = Case.objects.queryset_byUID(caseUID).get()
 
         if not caseObj.titleDocument:
-            messages.error(self.request, "Important! Please add title (from Dentons email) to app before instructing Valuer")
-
+            messages.error(self.request,
+                           "Important! Please add title (from Dentons email) to app before instructing Valuer")
 
         if not caseObj.sfLeadID:
             messages.error(self.request, "No Salesforce lead associated with this case")
@@ -841,7 +841,6 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
                         loanDict["app_renovateAmount"] = loanDict["Purp" + str(purpose + 1) + ".Amount__c"]
                         loanDict["app_renovateDescription"] = loanDict["Purp" + str(purpose + 1) + ".Description__c"]
 
-
             # enrich using app data
             appLoanDict = Loan.objects.dictionary_byUID(str(self.kwargs['uid']))
             appCaseObj = Case.objects.queryset_byUID(str(self.kwargs['uid'])).get()
@@ -854,7 +853,7 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
             loanDict['app_SuperAmount'] = appCaseObj.superAmount
             loanDict['app_MaxLoanAmount'] = round(appLoanDict['maxLVR'] * appCaseObj.valuation / 100, 0)
 
-            loanDict['app_annualPensionIncome']=int(appCaseObj.pensionAmount)*26
+            loanDict['app_annualPensionIncome'] = int(appCaseObj.pensionAmount) * 26
 
             # write to csv file and save
             targetFile = settings.MEDIA_ROOT + "/customerReports/data-" + str(caseObj.caseUID)[-12:] + ".csv"
@@ -880,26 +879,109 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
             return HttpResponseRedirect(reverse_lazy('case:caseData', kwargs={'uid': str(caseObj.caseUID)}))
 
 
+class CloudbridgeView(LoginRequiredMixin, TemplateView):
+    template_name = 'case/caseCloudbridge.html'
+
+    def get(self, request, *args, **kwargs):
+
+        return super(CloudbridgeView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(CloudbridgeView, self).get_context_data(**kwargs)
+        context['title'] = "LIXI Submission"
+
+        caseUID = str(self.kwargs['uid'])
+        caseObj = Case.objects.queryset_byUID(caseUID).get()
+
+        if not caseObj.sfOpportunityID:
+            messages.error(self.request, "There is no Salesforce Opportunity ID for this Case")
+            return context
+
+        logStr=""
+        if self.request.GET.get('action') == 'generate':
+            CB = CloudBridge(caseObj.sfOpportunityID, False, True, False)
+            result = CB.openAPIs()
+
+            logStr = result['responseText']
+            if result['status'] == "Error":
+                messages.error(self.request, logStr)
+                return context
+
+            result = CB.extractAndSend()
+            if result['status'] != "Ok":
+                messages.error(self.request, 'Creation Error')
+                context['log'] = result['log']
+                return context
+
+            messages.success(self.request, "Successfully generated and validated")
+
+            if result['warningLog']:
+                messages.warning(self.request, "Post submission errors - " + result['warningLog'])
+
+        if self.request.GET.get('action') == 'development':
+            CB = CloudBridge(caseObj.sfOpportunityID, True, True, False)
+            result = CB.openAPIs()
+
+            logStr = result['responseText']
+            if result['status'] == "Error":
+                messages.error(self.request, logStr)
+                return context
+
+            result = CB.extractAndSend()
+            if result['status'] != "Ok":
+                messages.error(self.request, 'Could not send file to Development - refer log')
+                context['log'] = result['log']
+                return context
+
+            messages.success(self.request, "Successfully sent to AMAL Development")
+
+            if result['warningLog']:
+                messages.warning(self.request, "Post submission errors - " + result['warningLog'])
+
+
+        if self.request.GET.get('action') == 'production':
+            CB = CloudBridge(caseObj.sfOpportunityID, True, True, True)
+            result = CB.openAPIs()
+
+            logStr = result['responseText']
+            if result['status'] == "Error":
+                messages.error(self.request, logStr)
+                return context
+
+            result = CB.extractAndSend()
+            if result['status'] != "Ok":
+                messages.error(self.request, 'Could not send file to Production - refer log')
+                context['log'] = result['log']
+                return context
+
+            messages.success(self.request, "Successfully sent to AMAL Production")
+
+            if result['warningLog']:
+                messages.warning(self.request, "Post submission errors - " + result['warningLog'])
+
+        return context
+
+
 class FundedDataView(LoginRequiredMixin, View):
 
-    def get(self,request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
 
         amalAPI = apiAMAL()
-        response=amalAPI.openAPI(True)
+        response = amalAPI.openAPI(True)
 
-        if response['status']!="Ok":
+        if response['status'] != "Ok":
             messages.error(self.request, response['responseText'])
             return HttpResponseRedirect(reverse_lazy('case:caseList'))
 
         qs = FundedData.objects.all()
         for loan in qs:
-            response=amalAPI.getFundedData(loan.ARN)
+            response = amalAPI.getFundedData(loan.ARN)
 
-            if response['status']!="Ok":
+            if response['status'] != "Ok":
                 messages.error(self.request, response['responseText'])
                 return HttpResponseRedirect(reverse_lazy('case:caseList'))
             else:
-                loan.totalValuation=response['data']['totalValuation']
+                loan.totalValuation = response['data']['totalValuation']
                 loan.advanced = response['data']['advanced']
                 loan.principal = response['data']['principal']
                 loan.save()

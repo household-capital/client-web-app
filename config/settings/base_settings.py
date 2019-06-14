@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'apps.case',
     'apps.calculator',
     'apps.enquiry',
-    'apps.relationship'
+    'apps.relationship',
+    'apps.site_tags'
 ]
 
 MIDDLEWARE = [

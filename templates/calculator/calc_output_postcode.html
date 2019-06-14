@@ -1,0 +1,94 @@
+{% extends 'calculator/calc_base.html' %}
+
+{% load static %}
+{% load humanize %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load calc_extras %}
+
+{% block calculator %}
+
+    <div class="container cal_background">
+        <div class="row pt-5">
+            <div class="col-12 text-center">
+                <form id="clientForm" method="post">
+                    {% csrf_token %}
+
+                    <!-- Transfer -->
+                    <div class="cal_background_white">
+
+                        <div class="container cal_container-md pt-5 pb-5">
+
+                            <div class="row justify-content-center">
+                                <div class="col-12">
+                                    <p class="x-large"><b>We don't operate in your postcode</b></p>
+                                    <p>I am sorry <b>{{ obj.postcode|intStr }}</b> is not currently a postcode that we
+                                        lend
+                                        in </p>
+                                    <br>
+                                    <p>We periodically update our eligible postcodes <br>Please contact us and we may be
+                                        able to undertake a review </p>
+                                    <br>
+                                </div>
+                            </div>
+
+
+                            <div class="row justify-content-center pb-3">
+                                <div class="col-8">
+                                    <input type="text" name="name" placeholder="Enter your name"
+                                           class="textinput textInput form-control" id="id_name"
+                                           {% if form.name.value != None %}value="{{ form.name.value }}"{% endif %}>
+                                </div>
+                            </div>
+
+
+                            <div class="row justify-content-center pb-3">
+                                <div class="col-8">
+
+                                    <input type="email" name="email" required
+                                           placeholder="Enter your email"
+                                           maxlength="70" class="textinput textInput form-control"
+                                           id="id_email"
+                                           {% if form.email.value != None %}value="{{ form.email.value }}"{% endif %}>
+                                </div>
+                            </div>
+
+
+                            <div class="row justify-content-center">
+
+                                <div class="col-md-4">
+                                    <br>
+                                    <button type="submit" value="Submit" form="clientForm"
+                                            class="btn btn-lg btn-hhcGold">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Send&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    </button>
+                                    <br> <br>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block javascript %}
+
+    {% if redirect %}
+        <script>
+            $(document).ready(function () {
+                parent.location = '{{ redirectURL }}';
+            });
+        </script>
+    {% endif %}
+
+{% endblock %}
+
+
+

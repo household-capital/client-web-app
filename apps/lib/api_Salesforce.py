@@ -1,6 +1,7 @@
 #Python Imports
 import logging
 import os
+import io
 
 #Application Imports
 from apps.lib.site_Logging import write_applog
@@ -14,21 +15,21 @@ class apiSalesforce():
     qryDefinitions = {'OpportunityRef':
                           "Select ConvertedOpportunityId from Lead where Id=\'{0}\'",
                       'LoanRef':
-                          "Select Name from Loan__c where Opportunity__c=\'{0}\'",
+                          "Select Loan_Number__c from Opportunity where Id=\'{0}\'",
                       'Opportunities':
                           "Select Id,Name,StageName,CloseDate from Opportunity where RecordType.Name=\'Household\' and StageName=\'Loan Approved\' and isDeleted=False",
                       'Opportunity':
                           "Select Id,Name,StageName,CloseDate, OwnerId, Establishment_Fee_Percent__c from Opportunity where Id=\'{0}\'",
                       'Properties':
-                          "Select Id, Name, Street_Address__c,Suburb_City__c,State__c,Postcode__c,Country__c, Property_Type__c, Last_Valuation_Date__c, Home_Value_FullVal__c, Home_Value_AVM__c, Valuer__c, Insurer__c, Policy_Number__c, Minimum_Insurance_Value__c  from Properties__c where Opportunity__c=\'{0}\' and isDeleted=False",
+                          "Select Id, Name, Street_Address__c,Suburb_City__c,State__c,Postcode__c,Country__c, Last_Valuation_Date__c, Home_Value_FullVal__c, Valuer__c, Valuer_Name__c, Insurer__c, Policy_Number__c, Minimum_Insurance_Value__c, Insurance_Expiry_Date__c  from Properties__c where Opportunity__c=\'{0}\' and isDeleted=False",
                       'Loan':
-                          "Select Id,Name, Loan_Type__c, Interest_Type__c, NCCP__c,Application_Amount__c, Establishment_Fee__c, Interest_Rate__c, Settlement_Date__c, Protected_Equity_Percent__c, Distribution_Partner_Contact__c FROM Loan__c where Opportunity__c=\'{0}\' and isDeleted=False",
+                          "Select Loan_Number__c,Name, Loan_Type__c, Interest_Type__c,Establishment_Fee__c, Interest_Rate__c, Settlement_Date__c, Protected_Equity_Percent__c, Distribution_Partner_Contact__c, Total_Household_Loan_Amount__c from Opportunity where Id=\'{0}\' and isDeleted=False",
                       'Purposes':
                           "Select Name, Category__c, Description__c, Intention__c, Amount__c from Purpose__c where Opportunity__c=\'{0}\' and isDeleted=False",
                       'Purpose':
                           "Select Name, Category__c, Description__c, Intention__c, Amount__c from Purpose__c where Name=\'{0}\' and isDeleted=False",
-                      'LoanRoles':
-                          "Select Customer_Contact__c, Role__c from Loan_Contact_Role__c where Loan__c=\'{0}\' and isDeleted=False",
+                      'OppRoles':
+                          "Select OpportunityId, ContactId, Role from OpportunityContactRole where OpportunityId=\'{0}\' and isDeleted=False",
                       'Contacts':
                           "Select Id,FirstName, LastName, Phone,MobilePhone, Email, Birthdate__c, Age__c, Gender__c, Permanent_Resident__c, Salutation, Marital_Status__c, Country_of_Citizenship__c from Contact where Id=\'{0}\' and isDeleted=False",
                       'Documents':
@@ -65,13 +66,13 @@ class apiSalesforce():
                                      domain="test")
 
             write_applog("INFO", 'apiSalesforce', 'openAPI', "Salesforce API Opened")
-            return True
+            return {'status':"Ok"}
 
         except Exception as e:
             errorStr = 'API Error: Code: {c}, Message, {m}'.format(c=type(e).__name__, m=str(e))
             write_applog("ERROR", 'apiSalesforce', 'openAPI', errorStr)
 
-            return False
+            return {'status':"Error", 'responseText':errorStr}
 
     def qryToDict(self,qryName,qryParameter,prefix,targetDict):
 
@@ -150,22 +151,91 @@ class apiSalesforce():
             self.qryToDict('Purpose', row['Name'], "Purp" + str(index+1), loanDict)
 
         #Nested loop - multiple borrowers
-        results = self.execSOQLQuery('LoanRoles', loanDict['Loan.Id'])
+
+        results = self.execSOQLQuery('OppRoles', OpportunityID)
 
         borrowerCount=0
         poaCount=0
         for  index, row in results.iterrows():
-            if "Borrower" in row['Role__c']:
+            if "Borrower" in row['Role']:
                 borrowerCount+=1
-                loanDict["Brwr" + str(borrowerCount)+".Role"]=row['Role__c']
-                self.qryToDict('Contacts', row['Customer_Contact__c'], "Brwr" + str(borrowerCount), loanDict)
-            if "Attorney" in row['Role__c']:
+                loanDict["Brwr" + str(borrowerCount)+".Role"]=row['Role']
+                self.qryToDict('Contacts', row['ContactId'], "Brwr" + str(borrowerCount), loanDict)
+            if "Attorney" in row['Role']:
                 poaCount +=1
-                loanDict["POA" + str(poaCount) + ".Role"] = row['Role__c']
-                self.qryToDict('Contacts', row['Customer_Contact__c'], "POA" + str(poaCount), loanDict)
+                loanDict["POA" + str(poaCount) + ".Role"] = row['Role']
+                self.qryToDict('Contacts', row['ContactId'], "POA" + str(poaCount), loanDict)
 
         loanDict['Brwr.Number'] = borrowerCount
         loanDict['POA.Number'] = poaCount
 
+        #Work around - SF DB changes
+        loanDict['Loan.Application_Amount__c']=loanDict["Loan.Total_Household_Loan_Amount__c"]
+
         return loanDict
 
+
+    def getApprovedLoans(self):
+        #returns a list of Approved Loans
+        appLoans=self.execSOQLQuery('Opportunities',None)
+        return appLoans
+
+    def getDocumentList(self,OpportunityID):
+        # returns a list of documents that have been loaded against an OpportunityID
+        appLoans = self.execSOQLQuery('Documents', OpportunityID)
+        return appLoans
+
+    def getDocumentFileStream(self, documentID):
+        # Multi-call approach as SF has restrictions on calling the link table
+
+        contentID=self.__getContentDocumentID(documentID)
+
+        fileUrl=self.__getFileUrl(contentID)
+
+        # Work-around as simple_salesforce Restful call attempts to JSON decode response
+        # This approach uses simple_salesforce utilities to make a direct call and return response
+
+        baseUrl = self.sf.base_url
+        fullUrl=baseUrl + fileUrl[-54:]
+        response = self.sf._call_salesforce(method="GET", url=fullUrl)
+        inMemoryFile = io.BytesIO(response.content)
+
+        return inMemoryFile
+
+    def updateLoanID(self, loanId, AMAL_loanId):
+
+        if len(loanId)<5 or len(AMAL_loanId)<5:
+            raise Exception
+        else:
+            self.sf.Loan__c.update(loanId,{"Loan_ID__c": AMAL_loanId})
+
+    def setResultsPrefix(self, prefix):
+        self.resultsPrefix=prefix
+
+    def createResultsTask(self,opportunityID,success,log):
+
+        if success:
+            status='Completed'
+            subject= self.resultsPrefix+' Success'
+        else:
+            status='Open'
+            subject = self.resultsPrefix+ ' * Failure *'
+
+        payload={'WhatId':opportunityID,
+                 'Subject':subject,
+                 'Status':status,
+                 'OwnerId':'0052P000000JbVjQAK',
+                 'Description':log}
+        result=self.sf.Task.create(payload)
+        return result
+
+
+    def __getContentDocumentID(self,LinkID):
+        #returns link ID to Content Version table
+        docLink=self.execSOQLQuery('DocumentLink', LinkID)
+        return str(docLink.iloc[0]["ContentDocumentId"])
+
+    def __getFileUrl(self,ContentDocumentID):
+        #returns URL
+        Url=self.execSOQLQuery('ContentVersion', ContentDocumentID)
+        return str(Url.iloc[0]["VersionData"])

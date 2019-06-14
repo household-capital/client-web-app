@@ -2,7 +2,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 {% load humanize %}
-{% load case_tags %}
+{% load site_tags %}
 
 
 {% block jumbotron %}
@@ -150,7 +150,7 @@
                             <td class="d-none d-sm-table-cell" data-toggle="tooltip" data-placement="top" title="Auto Val">
                                 {% if obj.valuationDocument %}<i class="far fa-file-image"></i>{% endif %}</td>
                             <td class="d-none d-sm-table-cell" data-toggle="tooltip" data-placement="top" title="Meeting Held">
-                                {% if obj.summaryDocument %}<i class="fas fa-users fa-fw"></i>{% endif %}</td>
+                                {% if obj.meetingDate %}<i class="fas fa-users fa-fw"></i>{% endif %}</td>
                             <td class="d-none d-sm-table-cell" data-toggle="tooltip" data-placement="top" title="Post Meeting Documents">
                                 {% if obj.responsibleDocument %}<i class="far fa-file-archive fa-fw"></i>{% endif %}
                             </td>

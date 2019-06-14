@@ -2,7 +2,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 {% load humanize %}
-{% load case_tags %}
+{% load site_tags %}
 
 
 {% block jumbotron %}
@@ -109,7 +109,9 @@
                         </th>
                         <th scope="col"><a>Org Name</a></th>
                         <th scope="col" class="d-none d-sm-table-cell"><a>Org Type</a></th>
+                        <th scope="col" class="d-none d-sm-table-cell"><a>Classification</th>
                         <th scope="col" class="d-none d-sm-table-cell"><a>Last Updated</a></th>
+                        <th scope="col" class="d-none d-sm-table-cell"><a>Owners</a></th>
 
                     </tr>
                     </thead>
@@ -122,9 +124,12 @@
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.surname }}</a></td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.org }}</a></td>
                             <td class="d-none d-sm-table-cell"><a href="{{ obj.get_absolute_url }}">{{ obj.org.orgType }}</a></td>
+                            <td class="d-none d-sm-table-cell"><a href="{{ obj.get_absolute_url }}">{{ obj.enumClassification }}</a></td>
                             <td class="d-none d-sm-table-cell"><a href="{{ obj.get_absolute_url }}">{{ obj.updated|timesince|upto }} ago</a></td>
-                            <td class="d-none d-sm-table-cell"><a href="{{ obj.get_absolute_url }}">{% if obj.inProfileUrl %}
-                                <i class="fab fa-linkedin-in"></i>{% endif %}</a></td>
+                            <td class="d-none d-sm-table-cell"><a href="{{ obj.get_absolute_url }}">
+
+                                {% for owner in obj.ownerList %}<span class="badge btn-info align-text-top">{{ owner }}</span>&nbsp;{% endfor %}
+                                {% if obj.inProfileUrl %}<i class="fab fa-linkedin-in"></i>{% endif %}</a></td>
 
                         </tr>
                     {% endfor %}

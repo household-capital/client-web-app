@@ -21,6 +21,7 @@ urlpatterns = [
     path('caseValuer/<uuid:uid>', views.CaseValuerView.as_view(), name='caseValuer'),
     path('caseOwn/<uuid:uid>',views.CaseOwnView.as_view(),name='caseOwn'),
     path('caseData/<uuid:uid>',views.CaseDataExtract.as_view(),name='caseData'),
+    path('cloudBridge/<uuid:uid>', views.CloudbridgeView.as_view(), name='cloudBridge'),
 
     path('fundedData',views.FundedDataView.as_view())
 ]

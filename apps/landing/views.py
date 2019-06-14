@@ -3,7 +3,7 @@ import json
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.db.models.functions import TruncDate,TruncDay, TruncMonth, Cast
+from django.db.models.functions import TruncDate, TruncDay, TruncMonth, Cast
 from django.db.models.fields import DateField
 from django.db.models import Sum, F, Func
 from django.db.models import Count
@@ -17,7 +17,7 @@ from apps.calculator.models import WebCalculator, WebContact
 from apps.case.models import Case, FundedData
 
 from apps.enquiry.models import Enquiry
-from apps.lib.site_Enums import caseTypesEnum, directTypesEnum
+from apps.lib.site_Enums import caseTypesEnum, directTypesEnum, channelTypesEnum
 
 
 # Create your views here.
@@ -122,39 +122,82 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             solicitorInstruction__exact="").count()
         context['approvals'] = qsCases.filter(caseType=caseTypesEnum.APPROVED.value).count()
 
-
-        #Funded Data
+        # Funded Data
         qsFunded = FundedData.objects.all()
-        context['portfolioBalance']=int(qsFunded.aggregate(Sum('principal'))['principal__sum'])
+        context['portfolioBalance'] = int(qsFunded.aggregate(Sum('principal'))['principal__sum'])
         context['portfolioFunded'] = int(qsFunded.aggregate(Sum('advanced'))['advanced__sum'])
 
-        if context['portfolioBalance']>0:
-            hashSum = qsFunded.annotate(lvr=Sum(F('principal')/F('totalValuation')*F('principal'))).aggregate(Sum('lvr'))['lvr__sum']
-            context['portfolioLvr']=int(hashSum/context['portfolioBalance']*100)
+        if context['portfolioBalance'] > 0:
+            hashSum = \
+            qsFunded.annotate(lvr=Sum(F('principal') / F('totalValuation') * F('principal'))).aggregate(Sum('lvr'))[
+                'lvr__sum']
+            context['portfolioLvr'] = int(hashSum / context['portfolioBalance'] * 100)
 
-        context['portfolioLoans']=qsFunded.filter(principal__gt=0).count()
+        context['portfolioLoans'] = qsFunded.filter(principal__gt=0).count()
 
         self.request.session['webCalcQueue'] = WebCalculator.objects.queueCount()
         self.request.session['webContQueue'] = WebContact.objects.queueCount()
         self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
 
-        #Lead Generation
+        # Lead Generation
         qsEnqs = Enquiry.objects.all()
-        tz=get_current_timezone()
+        tz = get_current_timezone()
 
-        test=qsEnqs.annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
-                   .values_list('date') \
-                   .annotate(leads=Count('enqUID')) \
-                   .values('referrer','date', 'leads').order_by('date')
+        dataQs = qsEnqs.exclude(referrer=directTypesEnum.REFERRAL.value) \
+            .annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
+            .values_list('date') \
+            .annotate(leads=Count('enqUID')) \
+            .values('referrer', 'date', 'leads').order_by('date')
 
-        tableData={}
-        for item in test:
+        tableData = {}
+        for item in dataQs:
             if item['date'].strftime('%b-%y') not in tableData:
-                tableData[item['date'].strftime('%b-%y')]={item['referrer']:item['leads']}
+                tableData[item['date'].strftime('%b-%y')] = {item['referrer']: item['leads']}
             else:
-                tableData[item['date'].strftime('%b-%y')][item['referrer']]=item['leads']
+                tableData[item['date'].strftime('%b-%y')][item['referrer']] = item['leads']
 
-        print(tableData)
+        context['directData'] = tableData
+        context['directTypesEnum'] = directTypesEnum
+
+        qsCases = Case.objects.all()
+        dataQs = qsCases.exclude(salesChannel=channelTypesEnum.DIRECT_ACQUISITION.value) \
+            .annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
+            .values_list('date') \
+            .annotate(cases=Count('caseUID')) \
+            .values('salesChannel', 'date', 'cases').order_by('date')
+
+        tableData = {}
+        for item in dataQs:
+            if item['date'].strftime('%b-%y') not in tableData:
+                tableData[item['date'].strftime('%b-%y')] = {item['salesChannel']: item['cases']}
+            else:
+                tableData[item['date'].strftime('%b-%y')][item['salesChannel']] = item['cases']
+
+        dateQs = qsCases.annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
+            .values_list('date') \
+            .annotate(leads=Count('caseUID')) \
+            .values('date').order_by('date')
+
+        dateRange = [item['date'].strftime('%b-%y') for item in dateQs]
+
+        context['dateRange'] = dateRange
+        context['referralData'] = tableData
+        context['channelTypesEnum'] = channelTypesEnum
+
+        tableData = {}
+        for column in dateRange:
+            total = 0
+            if column in context['directData']:
+                enq = context['directData'][column]
+                for item, value in enq.items():
+                    total += value
+            if column in context['referralData']:
+                case = context['referralData'][column]
+                for item, value in case.items():
+                    total += value
+            tableData[column] = total
+
+        context['totalData'] = tableData
 
         return context
 
@@ -172,66 +215,88 @@ class DashboardCalcView(LoginRequiredMixin, TemplateView):
 
         # Time Series Data
 
-        context['dataNSW']= json.dumps(list(WebCalculator.objects.timeSeries('InteractionsByState', 90,2)), default=self.dateParse)
-        context['dataVic'] = json.dumps(list(WebCalculator.objects.timeSeries('InteractionsByState', 90, 3)),default=self.dateParse)
-        context['dataQld']= json.dumps(list(WebCalculator.objects.timeSeries('InteractionsByState', 90,4)), default=self.dateParse)
-        context['dataSA']= json.dumps(list(WebCalculator.objects.timeSeries('InteractionsByState', 90,5)), default=self.dateParse)
-        context['dataWA']= json.dumps(list(WebCalculator.objects.timeSeries('InteractionsByState', 90,6)), default=self.dateParse)
-        context['dataTas']= json.dumps(list(WebCalculator.objects.timeSeries('InteractionsByState', 90,7)), default=self.dateParse)
+        context['dataNSW'] = json.dumps(list(WebCalculator.objects.timeSeries('InteractionsByState', 90, 2)),
+                                        default=self.dateParse)
+        context['dataVic'] = json.dumps(list(WebCalculator.objects.timeSeries('InteractionsByState', 90, 3)),
+                                        default=self.dateParse)
+        context['dataQld'] = json.dumps(list(WebCalculator.objects.timeSeries('InteractionsByState', 90, 4)),
+                                        default=self.dateParse)
+        context['dataSA'] = json.dumps(list(WebCalculator.objects.timeSeries('InteractionsByState', 90, 5)),
+                                       default=self.dateParse)
+        context['dataWA'] = json.dumps(list(WebCalculator.objects.timeSeries('InteractionsByState', 90, 6)),
+                                       default=self.dateParse)
+        context['dataTas'] = json.dumps(list(WebCalculator.objects.timeSeries('InteractionsByState', 90, 7)),
+                                        default=self.dateParse)
 
-        context['dataSEO']= json.dumps(list(WebCalculator.objects.timeSeries('InteractionsBySource', 90,True)), default=self.dateParse)
-        context['dataSEM']= json.dumps(list(WebCalculator.objects.timeSeries('InteractionsBySource', 90,False)), default=self.dateParse)
+        context['dataSEO'] = json.dumps(list(WebCalculator.objects.timeSeries('InteractionsBySource', 90, True)),
+                                        default=self.dateParse)
+        context['dataSEM'] = json.dumps(list(WebCalculator.objects.timeSeries('InteractionsBySource', 90, False)),
+                                        default=self.dateParse)
 
-        context['dataEmailSEO']= json.dumps(list(WebCalculator.objects.timeSeries('EmailBySource', 90,True)), default=self.dateParse)
-        context['dataEmailSEM']= json.dumps(list(WebCalculator.objects.timeSeries('EmailBySource', 90, False)), default=self.dateParse)
+        context['dataEmailSEO'] = json.dumps(list(WebCalculator.objects.timeSeries('EmailBySource', 90, True)),
+                                             default=self.dateParse)
+        context['dataEmailSEM'] = json.dumps(list(WebCalculator.objects.timeSeries('EmailBySource', 90, False)),
+                                             default=self.dateParse)
 
         # Calculator Summary Data
         qs = WebCalculator.objects.all()
-        context['interactions'] = qs.filter().count()
-        context['valid_cases'] = qs.filter(status=True).count()
+
+        context['interactions'] = self.__deDupe(qs.filter())
+        context['valid_cases'] = self.__deDupe(qs.filter(status=True))
         context['provided_email'] = qs.filter(email__isnull=False).count()
 
-        context['invalid_cases'] = qs.filter(status=False).count()
-        context['postcode'] = qs.filter(errorText__icontains='Postcode').count()
-        context['youngest_borrower'] = qs.filter(errorText__icontains='must be 60').count()
-        context['youngest_joint'] = qs.filter(errorText__icontains='must be 65').count()
-        context['minimum_loan'] = qs.filter(errorText__icontains='size').count()
+        context['invalid_cases'] = self.__deDupe(qs.filter(status=False))
+        context['postcode'] = self.__deDupe(qs.filter(errorText__icontains='Postcode'))
+        context['youngest_borrower'] = self.__deDupe(qs.filter(errorText__icontains='must be 60'))
+        context['youngest_joint'] = self.__deDupe(qs.filter(errorText__icontains='must be 65'))
+        context['minimum_loan'] = self.__deDupe(qs.filter(errorText__icontains='size'))
 
-        context['website'] = qs.filter(referrer__icontains='calculator').count()
-        context['superannuation'] = qs.filter(referrer__icontains='superannuation').count()
-        context['reverse_mortgage'] = qs.filter(referrer__icontains='reverse').count()
-        context['equity_release'] = qs.filter(referrer__icontains='equity').count()
-        context['retirement_planning'] = qs.filter(referrer__icontains='planning').count()
-        context['centrelink'] = qs.filter(referrer__icontains='centrelink').count()
-        context['refinance']= qs.filter(referrer__icontains='refinance').count()
+        context['website'] = self.__deDupe(qs.filter(referrer__icontains='calculator'))
+        context['superannuation'] = self.__deDupe(qs.filter(referrer__icontains='superannuation'))
+        context['reverse_mortgage'] = self.__deDupe(qs.filter(referrer__icontains='reverse'))
+        context['equity_release'] = self.__deDupe(qs.filter(referrer__icontains='equity'))
+        context['retirement_planning'] = self.__deDupe(qs.filter(referrer__icontains='planning'))
+        context['centrelink'] = self.__deDupe(qs.filter(referrer__icontains='centrelink'))
+        context['refinance'] = self.__deDupe(qs.filter(referrer__icontains='refinance'))
 
-        context['topUp'] = qs.filter(isTopUp=True).count()
-        context['refi'] = qs.filter(isRefi=True).count()
-        context['live'] = qs.filter(isLive=True).count()
-        context['give'] = qs.filter(isGive=True).count()
-        context['care'] = qs.filter(isCare=True).count()
+        context['topUp'] = self.__deDupe(qs.filter(isTopUp=True))
+        context['refi'] = self.__deDupe(qs.filter(isRefi=True))
+        context['live'] = self.__deDupe(qs.filter(isLive=True))
+        context['give'] = self.__deDupe(qs.filter(isGive=True))
+        context['care'] = self.__deDupe(qs.filter(isCare=True))
 
-        context['NSW'] = qs.filter(postcode__startswith='2').count()
-        context['VIC'] = qs.filter(postcode__startswith='3').count()
-        context['QLD'] = qs.filter(postcode__startswith='4').count()
-        context['SA'] = qs.filter(postcode__startswith='5').count()
-        context['WA'] = qs.filter(postcode__startswith='6').count()
-        context['TAS'] = qs.filter(postcode__startswith='7').count()
+        context['NSW'] = self.__deDupe(qs.filter(postcode__startswith='2'))
+        context['VIC'] = self.__deDupe(qs.filter(postcode__startswith='3'))
+        context['QLD'] = self.__deDupe(qs.filter(postcode__startswith='4'))
+        context['SA'] = self.__deDupe(qs.filter(postcode__startswith='5'))
+        context['WA'] = self.__deDupe(qs.filter(postcode__startswith='6'))
+        context['TAS'] = self.__deDupe(qs.filter(postcode__startswith='7'))
 
-        context['website_email'] = qs.filter(referrer__icontains='calculator', email__isnull=False).count()
-        context['superannuation_email'] = qs.filter(referrer__icontains='superannuation',email__isnull=False).count()
-        context['reverse_mortgage_email'] = qs.filter(referrer__icontains='reverse',email__isnull=False).count()
-        context['equity_release_email'] = qs.filter(referrer__icontains='equity',email__isnull=False).count()
-        context['retirement_planning_email'] = qs.filter(referrer__icontains='planning',email__isnull=False).count()
-        context['centrelink_email'] = qs.filter(referrer__icontains='centrelink',email__isnull=False).count()
-        context['refinance_email'] = qs.filter(referrer__icontains='refinance', email__isnull=False).count()
+        context['website_email'] = self.__deDupe(qs.filter(referrer__icontains='calculator', email__isnull=False))
+        context['superannuation_email'] = self.__deDupe(
+            qs.filter(referrer__icontains='superannuation', email__isnull=False))
+        context['reverse_mortgage_email'] = self.__deDupe(qs.filter(referrer__icontains='reverse', email__isnull=False))
+        context['equity_release_email'] = self.__deDupe(qs.filter(referrer__icontains='equity', email__isnull=False))
+        context['retirement_planning_email'] = self.__deDupe(
+            qs.filter(referrer__icontains='planning', email__isnull=False))
+        context['centrelink_email'] = self.__deDupe(qs.filter(referrer__icontains='centrelink', email__isnull=False))
+        context['refinance_email'] = self.__deDupe(qs.filter(referrer__icontains='refinance', email__isnull=False))
 
-        context['NSW_email'] = qs.filter(postcode__startswith='2',email__isnull=False).count()
-        context['VIC_email'] = qs.filter(postcode__startswith='3',email__isnull=False).count()
-        context['QLD_email'] = qs.filter(postcode__startswith='4',email__isnull=False).count()
-        context['SA_email'] = qs.filter(postcode__startswith='5',email__isnull=False).count()
-        context['WA_email'] = qs.filter(postcode__startswith='6',email__isnull=False).count()
-        context['TAS_email'] = qs.filter(postcode__startswith='7',email__isnull=False).count()
-
+        context['NSW_email'] = self.__deDupe(qs.filter(postcode__startswith='2', email__isnull=False))
+        context['VIC_email'] = self.__deDupe(qs.filter(postcode__startswith='3', email__isnull=False))
+        context['QLD_email'] = self.__deDupe(qs.filter(postcode__startswith='4', email__isnull=False))
+        context['SA_email'] = self.__deDupe(qs.filter(postcode__startswith='5', email__isnull=False))
+        context['WA_email'] = self.__deDupe(qs.filter(postcode__startswith='6', email__isnull=False))
+        context['TAS_email'] = self.__deDupe(qs.filter(postcode__startswith='7', email__isnull=False))
 
         return context
+
+    def __deDupe(self, qs):
+        tz = get_current_timezone()
+        result=qs.annotate(date=Cast(TruncDay('timestamp', tzinfo=tz), DateField())).values_list('date') \
+            .annotate(interactions=Count('postcode', distinct=True)) \
+            .values_list('date', 'interactions').aggregate(Sum('interactions'))['interactions__sum']
+        if result:
+            return result
+        else:
+            return 0

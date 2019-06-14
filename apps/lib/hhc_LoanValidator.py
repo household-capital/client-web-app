@@ -35,7 +35,7 @@ class LoanValidator():
             self.initDict.update(loanDict)
 
         for item in self.minimumDataList:
-            if not self.valueExists(item, self.initDict):
+            if not self.__valueExists(item, self.initDict):
                 self.initStatus = False
 
         # Initialisation of Instance Variables
@@ -48,7 +48,7 @@ class LoanValidator():
 
             if self.initDict['loanType'] == loanTypesEnum.JOINT_BORROWER.value:
                 self.isCouple = True
-                if self.valueExists('age_2', self.initDict):
+                if self.__valueExists('age_2', self.initDict):
                     self.clientAge = min(self.initDict['age_1'], self.initDict['age_2'])
                 else:
                     self.initStatus = False
@@ -58,7 +58,7 @@ class LoanValidator():
 
         # Set optional items = 0
         for item in self.loanDataList:
-            if not self.valueExists(item, self.initDict):
+            if not self.__valueExists(item, self.initDict):
                 self.initDict[item] = 0
 
         # Limits
@@ -72,6 +72,7 @@ class LoanValidator():
         # Checks basic borrower and loan restrictions providing a status and dictionary of restrictions
 
         status = {}
+        restrictions = {}
         status['status'] = "Ok"
 
         # Check object instantiated properly
@@ -85,7 +86,10 @@ class LoanValidator():
         pcodeDict = dict(reader)
 
         if str(self.initDict['postcode']) in pcodeDict:
-            pass
+            if pcodeDict[str(self.initDict['postcode'])]=="Refer":
+                restrictions['postcode']="Refer"
+            else:
+                restrictions['postcode']=None
         else:
             status['status'] = "Error"
             status['details'] = 'Invalid Postcode'
@@ -102,7 +106,7 @@ class LoanValidator():
             return status
 
         # Perform LVR calculations (for loan size validation)
-        self.calcLVR()
+        self.__calcLVR()
 
         # Check Min Loan Size
         if self.maxLvr / 100 * self.initDict['valuation'] < LOAN_LIMITS['minLoanSize']:
@@ -118,8 +122,6 @@ class LoanValidator():
             return status
 
         # Restrictions
-        restrictions = {}
-
         restrictions['maxLoan'] = int(self.loanLimit)
         restrictions['maxFee'] = int(
             restrictions['maxLoan'] * LOAN_LIMITS['establishmentFee'] / (1 + LOAN_LIMITS['establishmentFee']))
@@ -150,7 +152,7 @@ class LoanValidator():
             status['status'] = "Error"
             return status
 
-        self.calcLVR()
+        self.__calcLVR()
 
         maxEstablishmentFee = self.loanLimit * (
                 LOAN_LIMITS['establishmentFee'] / (1 + LOAN_LIMITS['establishmentFee']))
@@ -176,22 +178,22 @@ class LoanValidator():
 
         # Validate against limits and add to output dictionary
         status['errors'] = False
-        self.chkStatusItem(status, 'availableStatus', availableAmount, int(0), "LT")
-        self.chkStatusItem(status, 'minloanAmountStatus', int(round(totalLoanAmount, 0)), LOAN_LIMITS['minLoanSize'],
+        self.__chkStatusItem(status, 'availableStatus', availableAmount, int(0), "LT")
+        self.__chkStatusItem(status, 'minloanAmountStatus', int(round(totalLoanAmount, 0)), LOAN_LIMITS['minLoanSize'],
                            "LT")
-        self.chkStatusItem(status, 'maxloanAmountStatus', int(round(totalLoanAmount, 0)), self.loanLimit, "GTE")
-        self.chkStatusItem(status, 'topUpStatus', self.initDict['topUpAmount'], LOAN_LIMITS['maxTopUp'], "GTE")
-        self.chkStatusItem(status, 'refinanceStatus', self.initDict['refinanceAmount'], self.refinanceLimit, "GTE")
-        self.chkStatusItem(status, 'giveStatus', self.initDict['giveAmount'], self.giveLimit, "GTE")
-        self.chkStatusItem(status, 'renovateStatus', self.initDict['renovateAmount'], LOAN_LIMITS['maxReno'], "GTE")
-        self.chkStatusItem(status, 'travelStatus', self.initDict['travelAmount'], self.travelLimit, "GTE")
-        self.chkStatusItem(status, 'careStatus', self.initDict['careAmount'], LOAN_LIMITS['maxCare'], "GTE")
+        self.__chkStatusItem(status, 'maxloanAmountStatus', int(round(totalLoanAmount, 0)), self.loanLimit, "GTE")
+        self.__chkStatusItem(status, 'topUpStatus', self.initDict['topUpAmount'], LOAN_LIMITS['maxTopUp'], "GTE")
+        self.__chkStatusItem(status, 'refinanceStatus', self.initDict['refinanceAmount'], self.refinanceLimit, "GTE")
+        self.__chkStatusItem(status, 'giveStatus', self.initDict['giveAmount'], self.giveLimit, "GTE")
+        self.__chkStatusItem(status, 'renovateStatus', self.initDict['renovateAmount'], LOAN_LIMITS['maxReno'], "GTE")
+        self.__chkStatusItem(status, 'travelStatus', self.initDict['travelAmount'], self.travelLimit, "GTE")
+        self.__chkStatusItem(status, 'careStatus', self.initDict['careAmount'], LOAN_LIMITS['maxCare'], "GTE")
 
         status['status'] = "Ok"
 
         return status
 
-    def chkStatusItem(self, status, label, amount, limit, condition):
+    def __chkStatusItem(self, status, label, amount, limit, condition):
         # Utility function to check conditions and create response
         if condition == "LT":
             if amount < limit:
@@ -208,7 +210,7 @@ class LoanValidator():
 
         status[label] = itemStatus
 
-    def calcLVR(self):
+    def __calcLVR(self):
         # Primary LVR calculator
 
         # Calculate LVR
@@ -235,7 +237,7 @@ class LoanValidator():
         self.giveLimit = min(int(lvr * self.initDict['valuation'] * LOAN_LIMITS['maxGive']), self.loanLimit)
         self.travelLimit = min(int(lvr * self.initDict['valuation'] * LOAN_LIMITS['maxTravel']), self.loanLimit)
 
-    def valueExists(self, item, sourceDict):
+    def __valueExists(self, item, sourceDict):
         if item in sourceDict:
             if sourceDict[item] == None:
                 return False

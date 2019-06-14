@@ -2,7 +2,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 {% load humanize %}
-{% load case_tags %}
+{% load site_tags %}
 
 
 {% block jumbotron %}
@@ -185,24 +185,117 @@
         </div>
     </div>
 
-    <br>
-    <div class="row justify-content-center">
-        <div class="col-lg-4">
-            <div class="row">
-            </div>
-        </div>
-
-        <div class="col-lg-1">
-        </div>
-
-        <div class="col-lg-4">
-            <div class="row">
-            </div>
-        </div>
-    </div>
-    </div>
-
     <br><br>
+    <div class="row justify-content-center">
+
+        <div class="col-lg-5">
+
+            <div class="pb-3"><b>Monthly Lead Generation</b></div>
+
+            <table class="table table-hover table-sm text-right">
+                <thead class="jumbotron">
+                <tr>
+                    <th scope="col" ></th>
+                    <th scope="col" ></th>
+                    {% for month in dateRange %}
+                    <th scope="col" >{{month}}</th>
+                    {% endfor %}
+
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr>
+                 <td class="text-left"><b>Direct</b></td>
+                </tr>
+
+                 <tr>
+                     <td></td>
+                     <td>Calculator</td>
+                     {% for month in dateRange %}
+                    <td>{{directData|getDictItem:month|getDictItem:directTypesEnum.WEB_CALCULATOR.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                 <tr>
+                     <td></td>
+                     <td>Web Enquiry</td>
+                     {% for month in dateRange %}
+                    <td>{{directData|getDictItem:month|getDictItem:directTypesEnum.WEB_ENQUIRY.value }}</td>
+                    {% endfor %}
+                </tr>
+
+
+                 <tr>
+                     <td></td>
+                     <td>Phone</td>
+                     {% for month in dateRange %}
+                    <td>{{directData|getDictItem:month|getDictItem:directTypesEnum.PHONE.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                 <tr>
+                     <td></td>
+                     <td>Email</td>
+                     {% for month in dateRange %}
+                    <td>{{directData|getDictItem:month|getDictItem:directTypesEnum.EMAIL.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                 <tr>
+                     <td></td>
+                     <td>Other</td>
+                     {% for month in dateRange %}
+                    <td>{{directData|getDictItem:month|getDictItem:directTypesEnum.OTHER.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                <tr>
+                 <td class="text-left"><b>Referral</b></td>
+                    <td></td>
+                    {% for month in dateRange %}<td></td>{% endfor %}
+
+                </tr>
+
+                 <tr>
+                     <td></td>
+                     <td>IFA</td>
+                     {% for month in dateRange %}
+                    <td>{{referralData|getDictItem:month|getDictItem:channelTypesEnum.IND_FINANCIAL_ADVISERS.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                <tr>
+                     <td></td>
+                     <td>Brokers</td>
+                    {% for month in dateRange %}
+                    <td>{{referralData|getDictItem:month|getDictItem:channelTypesEnum.BROKERS.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                 <tr>
+                     <td></td>
+                     <td>Aged Care</td>
+                     {% for month in dateRange %}
+                    <td>{{referralData|getDictItem:month|getDictItem:channelTypesEnum.AGED_CARE_ADVISERS.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                 <tr class="jumbotron">
+                     <td class="text-left"><b>Total</b></td>
+                     <td></td>
+                     {% for month in dateRange %}
+                    <td>{{totalData|getDictItem:month}}</td>
+                    {% endfor %}
+                </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <br><br><br>
 
 
 {% endblock %}
@@ -278,7 +371,7 @@
                         display: true,
                         ticks: {
                             beginAtZero: true,
-                            max: 100
+                            max: 70
                         }
                     }]
                 },

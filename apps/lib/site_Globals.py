@@ -21,7 +21,7 @@ LOAN_LIMITS={'minSingleAge' : 60,
 ECONOMIC={'inflationRate' :float(2.50),
           'investmentRate' : float(6.00),
           'housePriceInflation' : float(3.00),
-          'interestRate' :float(1.50),
+          'interestRate' :float(1.25),
           'lendingMargin':float(4.40),
           'comparisonRateIncrement':float(0.06),
           'projectionAge' : 90
@@ -33,5 +33,8 @@ APP_SETTINGS={'incomeIntervals' : 500,
               'hpiHighStressLevel':0,
               'hpiLowStressLevel':1.5,
 }
+
+
+
 
 

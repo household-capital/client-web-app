@@ -30,6 +30,7 @@ pip install django-filter
 pip install psycopg2-binary
 pip install beautifulsoup4
 pip install html5lib
+pip install lxml
 
 # Install PostgreSql and create database
 brew install postgresql

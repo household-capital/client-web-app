@@ -19,10 +19,10 @@ class ContactDetailsForm(forms.ModelForm):
         model = Contact
         fields = ['firstName', 'surname', 'org', 'role', 'email',
                   'phone', 'location', 'classification', 'equityInterest', 'debtInterest', 'equityStatus',
-                  'notes', 'relationshipNotes', 'inProfileUrl']
+                  'notes', 'relationshipNotes', 'relationshipOwners', 'inProfileUrl']
         widgets = {
             'notes': forms.Textarea(attrs={'rows': 8, 'cols': 100}),
-            'relationshipNotes': forms.Textarea(attrs={'rows': 8, 'cols': 100}),
+            'relationshipNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
         }
 
     # Form Layout
@@ -37,6 +37,7 @@ class ContactDetailsForm(forms.ModelForm):
             Div(HTML("<i class='fas fa-edit'></i>&nbsp;&nbsp;<small>Contact Notes</small>"),
                 Field('notes', placeholder='Contact Notes'), css_class="col-lg-6"),
             Div(HTML("<i class='far fa-edit'></i>&nbsp;&nbsp;<small>Relationship Notes</small>"),
+                Field('relationshipOwners', placeholder='Owner(s) - Initials'),
                 Field('relationshipNotes', placeholder='Relationship Notes'), css_class="col-lg-6"),
 
             css_class="row "),
@@ -64,7 +65,7 @@ class ContactDetailsForm(forms.ModelForm):
                         Div(HTML("&nbsp;&nbsp;Equity"), css_class='checkbox-inline'),
                         css_class='row justify-content-left pt-2'),
                     HTML("<i class='fas fa-user-clock'></i>&nbsp;&nbsp;<small>Equity Status</small>"),
-                    Div(Field('equityStatus', placeholder='equityStatus'),css_class="pt-2")),
+                    Div(Field('equityStatus', placeholder='equityStatus'), css_class="pt-2")),
                 Div(
                     Div(Submit('submit', 'Update ', css_class='btn btn-outline-secondary'))),
                 css_class="col-lg-6")
@@ -81,6 +82,7 @@ class ContactDetailsForm(forms.ModelForm):
             return self.cleaned_data['classification']
         else:
             raise ValidationError("Please add a classification")
+
 
 class OrganisationDetailsForm(forms.ModelForm):
     class Meta:

@@ -2,7 +2,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 {% load humanize %}
-{% load case_tags %}
+{% load site_tags %}
 
 
 {% block jumbotron %}
@@ -49,6 +49,14 @@
 {% block content %}
 
     <div class="container">
+
+    <div class="row justify-content-left pt-3">
+            <div class="col-6">
+                {% for key, value in form.errors.items %}{% if key == '__all__' %}{{ value }}
+                {% endif %}{% endfor %}
+            </div>
+        </div>
+
         <div class="row pt-4">
             <div class="col-lg-8 text-left">
 

@@ -14,6 +14,7 @@ from apps.lib.site_Enums import dwellingTypesEnum, loanTypesEnum, directTypesEnu
 
 
 class EnquiryManager(models.Manager):
+
     #Custom model manager to return related queryset and dictionary (using UID)
     def queryset_byUID(self,uidString):
         searchWeb = Enquiry.objects.get(enqUID=uuid.UUID(uidString)).pk
@@ -22,6 +23,7 @@ class EnquiryManager(models.Manager):
     def dictionary_byUID(self,uidString):
         return self.queryset_byUID(uidString).values()[0]
 
+    # Custom data queries
     def queueCount(self):
         return Enquiry.objects.filter(user__isnull=True,actioned=0).count()
 
@@ -72,6 +74,12 @@ class Enquiry(models.Model):
     isLive=models.BooleanField(default=False, blank=True, null=True)
     isGive=models.BooleanField(default=False, blank=True, null=True)
     isCare = models.BooleanField(default=False, blank=True, null=True)
+    calcTopUp=models.IntegerField( blank=True, null=True)
+    calcRefi=models.IntegerField(blank=True, null=True)
+    calcLive=models.IntegerField( blank=True, null=True)
+    calcGive=models.IntegerField(blank=True, null=True)
+    calcCare = models.IntegerField( blank=True, null=True)
+    calcTotal=models.IntegerField(blank=True, null=True)
     email=models.EmailField(blank=True, null=True)
     referrer=models.IntegerField(blank=False,null=False,choices=referrerTypes)
     referrerID=models.CharField(max_length=200,blank= True,null=True)

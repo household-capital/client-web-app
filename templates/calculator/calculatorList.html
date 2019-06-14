@@ -2,7 +2,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 {% load humanize %}
-{% load case_tags %}
+{% load site_tags %}
 
 
 {% block jumbotron %}
@@ -78,6 +78,10 @@
                                 <a href="{% url 'calculator:calcSendDetails' uid=obj.calcUID %}">
                                     <button class="btn btn-success" data-toggle="tooltip" data-placement="top"
                                             title="Assign enquiry to you"><i class="far fa-envelope"></i></button>
+                                </a>
+                                 <a href="{% url 'calculator:calcSendSummary' uid=obj.calcUID %}">
+                                    <button class="btn btn-info" data-toggle="tooltip" data-placement="top"
+                                            title="Assign enquiry to you"><i class="far fa-star"></i></button>
                                 </a>
                                 <a href="{% url 'calculator:calcSpam' uid=obj.calcUID %}">
                                     <button class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"

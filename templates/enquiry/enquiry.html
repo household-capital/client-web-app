@@ -2,7 +2,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 {% load humanize %}
-{% load case_tags %}
+{% load site_tags %}
 
 
 {% block jumbotron %}
@@ -46,8 +46,17 @@
 {% block content %}
 
     <div class="container">
+
+        <div class="row justify-content-left pt-3">
+            <div class="col-6">
+                {% for key, value in form.errors.items %}{% if key == '__all__' %}{{ value }}
+                {% endif %}{% endfor %}
+            </div>
+        </div>
+
         <div class="row pt-4">
             <div class="col-lg-8 text-left">
+
 
                 {% crispy form %}
 
@@ -127,6 +136,11 @@
                             <br>
                             <p><i class="far fa-check-circle fa-lg btn-outline-success"></i>&nbsp;Eligible Opportunity
                             </p>
+                            {% if status.restrictions.postcode %}
+                                <br>
+                                <p><i class="fas fa-tractor fa-lg btn-outline-warning"></i>&nbsp;Refer Postcode
+                                </p>
+                            {% endif %}
                             <br>
                             <p class="larger">Max LVR is: {{ status.restrictions.maxLVR|intcomma }}%</p>
                             <br>
@@ -296,8 +310,8 @@
     <script>
         $(document).ready(function () {
             $("form").one('click focus change', function (e) {
-                 $('#submit-id-submit').addClass('btn-warning').removeClass('btn-outline-secondary');
-                 $('#btnEnquiryActions').attr('disabled',true)
+                $('#submit-id-submit').addClass('btn-warning').removeClass('btn-outline-secondary');
+                $('#btnEnquiryActions').attr('disabled', true)
 
             })
         })

@@ -1,84 +1,130 @@
 # Python Imports
+import json
 
-#Django Imports
+# Django Imports
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.files import File
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.utils.decorators import method_decorator
 from django.utils import timezone
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import UpdateView, CreateView,ListView, TemplateView, View
+from django.views.generic import UpdateView, CreateView, ListView, TemplateView, View
 from django.urls import reverse_lazy
 
+# Third-party Imports
 
-#Third-party Imports
-
-#Local Application Imports
+# Local Application Imports
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.site_Enums import caseTypesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum
 from apps.lib.site_Utilities import pdfGenerator
 from apps.lib.site_Logging import write_applog
+from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
+from apps.lib.hhc_LoanValidator import LoanValidator
+from apps.lib.hhc_LoanProjection import LoanProjection
 from apps.enquiry.models import Enquiry
 
 from .models import WebCalculator, WebContact
-from .forms import WebInputForm, WebOutputForm, WebContactForm, WebContactDetail
+from .forms import CalcInputForm, CalcOutputForm, WebContactForm, WebContactDetail
+from .forms import WebInputForm, WebOutputForm  # remove
 
 
-# VIEWS
+# NEW VIEWS
+
+campaignURLs = ['https://householdcapital.com.au/equity-mortgage-release/',
+                'https://householdcapital.com.au/centrelink-pension-information/',
+                'https://householdcapital.com.au/aged-care-financing/',
+                'https://householdcapital.com.au/reverse-mortgages/',
+                'https://householdcapital.com.au/superannuation-and-retirement/',
+                'https://householdcapital.com.au/retirement-planning/',
+                'https://householdcapital.com.au/refinance-existing-mortgage/']
+
+
 @method_decorator(csrf_exempt, name='dispatch')
-class InputView(CreateView):
-
-    template_name ='calculator/input.html'
-    model=WebCalculator
-    form_class = WebInputForm
-
-    @xframe_options_exempt
-    def get(self,request,*args,**kwargs):
-        clientId=str(request.GET.get('clientId'))
-
-
-        return super(InputView,self).get(self,request,*args,**kwargs)
+class WebContactView(CreateView):
+    template_name = 'calculator/contact.html'
+    model = WebContact
+    form_class = WebContactForm
 
     @xframe_options_exempt
-    def post(self,request,*args,**kwargs):
-            return super(InputView, self).post(self,request,*args,**kwargs)
+    def get(self, request, *args, **kwargs):
+        return super(WebContactView, self).get(self, request, *args, **kwargs)
+
+    @xframe_options_exempt
+    def post(self, request, *args, **kwargs):
+        return super(WebContactView, self).post(self, request, *args, **kwargs)
+
+    def form_valid(self, form):
+        clientDict = form.cleaned_data
+        obj = form.save(commit=True)
+
+        context = {}
+        context['submitted'] = True
+
+        return self.render_to_response(context)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class CalcStartView(CreateView):
+    template_name = 'calculator/calc_input.html'
+    model = WebCalculator
+    form_class = CalcInputForm
+
+    @xframe_options_exempt
+    def get(self, request, *args, **kwargs):
+        clientId = str(request.GET.get('clientId'))
+
+        return super(CalcStartView, self).get(self, request, *args, **kwargs)
+
+    @xframe_options_exempt
+    def post(self, request, *args, **kwargs):
+        return super(CalcStartView, self).post(self, request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context= super(InputView, self).get_context_data(**kwargs)
-        context['loanTypesEnum']=loanTypesEnum
+        context = super(CalcStartView, self).get_context_data(**kwargs)
+        context['loanTypesEnum'] = loanTypesEnum
         context['dwellingTypesEnum'] = dwellingTypesEnum
 
         return context
 
     def get_object(self, queryset=None):
-        uid=self.kwargs['uid']
+        uid = self.kwargs['uid']
         queryset = WebCalculator.objects.queryset_byUID(str(uid))
-        obj= queryset.get()
+        obj = queryset.get()
         return obj
 
     def form_invalid(self, form):
+        data = self.get_context_data(form=form)
 
-        messages.error(self.request, "Input error - please check input fields")
-        print(form.errors)
-        return super(InputView,self).form_invalid(form)
-
+        return self.render_to_response(data)
 
     def form_valid(self, form):
-        clientDict=form.cleaned_data
+        clientDict = form.cleaned_data
         obj = form.save(commit=False)
 
         loanObj = LoanValidator(clientDict)
         chkOpp = loanObj.validateLoan()
 
-        obj.valuation=int(form.cleaned_data['valuation'])
+        obj.valuation = int(form.cleaned_data['valuation'])
+        clientId = str(self.request.GET.get('gclid'))
+        gclid = ""
+        if clientId != "None":
+            gclid = "?gclid=" + clientId
 
         if chkOpp['status'] == "Error":
-            obj.status=0
-            obj.errorText=chkOpp['details']
+            obj.status = 0
+            obj.errorText = chkOpp['details']
             obj.save()
+
+            if 'Postcode' in chkOpp['details']:
+                return HttpResponseRedirect(reverse_lazy('calculator:calcOutputPostcode',
+                                                         kwargs={'uid': str(obj.calcUID)}) + gclid)
+
+            if 'Youngest' in chkOpp['details']:
+                return HttpResponseRedirect(reverse_lazy('calculator:calcOutputAge',
+                                                         kwargs={'uid': str(obj.calcUID)}) + gclid)
 
             messages.error(self.request, self.clientText(chkOpp['details']))
 
@@ -86,64 +132,78 @@ class InputView(CreateView):
 
         else:
             obj.status = 1
-            obj.maxLoanAmount=chkOpp['restrictions']['maxLoan']
+            obj.maxLoanAmount = chkOpp['restrictions']['maxLoan']
             obj.maxLVR = chkOpp['restrictions']['maxLVR']
             obj.save()
 
-            clientId=str(self.request.GET.get('clientId'))
-
-            success = reverse_lazy('calculator:calcOutput', kwargs={'uid': str(obj.calcUID)})+"?clientId="+clientId
+            success = reverse_lazy('calculator:calcResults',
+                                   kwargs={'uid': str(obj.calcUID)}) + gclid
             return HttpResponseRedirect(success)
 
     def clientText(self, inputString):
 
-        responseText={
+        responseText = {
             'Invalid Postcode': 'Unfortunately, we do not operate in this postcode',
-            'Youngest borrower must be 60' : 'This product is designed for borrowers older than 60',
-            'Youngest joint borrower must be 65' : 'For couples, the youngest borrower must be at least 65',
-            'Minimum Loan Size cannot be met' : 'Unfortunately, our minimum loan size would not be met',
-            }
+            'Youngest borrower must be 60': 'This product is designed for borrowers older than 60',
+            'Youngest joint borrower must be 65': 'For couples, the youngest borrower must be at least 65',
+            'Minimum Loan Size cannot be met': 'Unfortunately, our minimum loan size would not be met',
+        }
 
         if inputString in responseText:
             return responseText[inputString]
         else:
             return "Calculation cannot be performed at this time."
 
+
 @method_decorator(csrf_exempt, name='dispatch')
-class OutputView(UpdateView):
-    template_name = 'calculator/output.html'
-    model=WebCalculator
-    caseUID=""
-    form_class = WebOutputForm
+class CalcResultsView(UpdateView):
+    template_name = 'calculator/calc_output.html'
+    model = WebCalculator
+    caseUID = ""
+    form_class = CalcOutputForm
 
     @xframe_options_exempt
     def get(self, request, **kwargs):
         if 'uid' in kwargs:
-            self.caseUID=str(kwargs['uid'])
-            return super(OutputView,self).get(self, request, **kwargs)
+            self.caseUID = str(kwargs['uid'])
+            return super(CalcResultsView, self).get(self, request, **kwargs)
         else:
             return HttpResponseRedirect(reverse_lazy("calculator:input"))
 
     @xframe_options_exempt
-    def post(self,request, **kwargs):
+    def post(self, request, **kwargs):
         if 'uid' in kwargs:
-            self.caseUID=str(kwargs['uid'])
-        return super(OutputView, self).post(self, request, **kwargs)
+            self.caseUID = str(kwargs['uid'])
+        return super(CalcResultsView, self).post(self, request, **kwargs)
 
     def get_object(self, queryset=None):
         queryset = WebCalculator.objects.queryset_byUID(self.caseUID)
-        obj= queryset.get()
+        obj = queryset.get()
         return obj
 
     def get_context_data(self, **kwargs):
-        context=super(OutputView,self).get_context_data(**kwargs)
+        context = super(CalcResultsView, self).get_context_data(**kwargs)
 
-        obj=self.get_object()
+        obj = self.get_object()
+        clientDict = obj.__dict__
+        loanObj = LoanValidator(clientDict)
+        chkOpp = loanObj.validateLoan()
 
-        context["obj"]=obj
-        if obj.maxLVR <18:
-            img='transfer_15.png'
-        elif obj.maxLVR <22:
+        context['topUpData'], context['topUpPoints'] = self.calcSliderList(
+            min(chkOpp['restrictions']['maxTopUp'], chkOpp['restrictions']['maxLoan']))
+        context['refiData'], context['refiPoints'] = self.calcSliderList(
+            min(chkOpp['restrictions']['maxRefi'], chkOpp['restrictions']['maxLoan']))
+        context['liveData'], context['livePoints'] = self.calcSliderList(
+            min(chkOpp['restrictions']['maxReno'], chkOpp['restrictions']['maxLoan']))
+        context['giveData'], context['givePoints'] = self.calcSliderList(
+            min(chkOpp['restrictions']['maxGive'], chkOpp['restrictions']['maxLoan']))
+        context['careData'], context['carePoints'] = self.calcSliderList(
+            min(chkOpp['restrictions']['maxCare'], chkOpp['restrictions']['maxLoan']))
+
+        context["obj"] = obj
+        if obj.maxLVR < 18:
+            img = 'transfer_15.png'
+        elif obj.maxLVR < 22:
             img = 'transfer_20.png'
         elif obj.maxLVR < 27:
             img = 'transfer_25.png'
@@ -151,76 +211,292 @@ class OutputView(UpdateView):
             img = 'transfer_30.png'
         else:
             img = 'transfer_35.png'
-        context["transfer_img"]=img
-
-        if obj.referrer:
-            if 'https://householdcapital.com.au/refinance-existing-mortgage' in obj.referrer:
-                context['isRefi']=True
-            if 'https://householdcapital.com.au/aged-care-financing/' in obj.referrer:
-                context['isCare'] = True
-            if 'https://householdcapital.com.au/superannuation-and-retirement/'  in obj.referrer:
-                context['isTopUp']=True
+        context["transfer_img"] = img
 
         return context
 
+    def calcSliderList(self, maxAmount):
+        sliderList = []
+        noPoints = int(maxAmount / 1000)
+
+        for item in range(noPoints + 1):
+            if item == noPoints:
+                intervalAmount = "${:,}".format(maxAmount)
+            else:
+                intervalAmount = "${:,}".format(item * 1000)
+
+            sliderList.append({'item': item, 'value': intervalAmount})
+        return json.dumps(sliderList), noPoints
+
     def form_valid(self, form):
         obj = form.save(commit=True)
-        obj.save(update_fields=['email', 'isRefi','isTopUp', 'isLive', 'isGive','isCare'])
-        context=self.get_context_data(form=form)
-        context['success']=True
 
-        obj=self.get_object()
+        clientId = str(self.request.GET.get('gclid'))
+        gclid = ""
+        if clientId != "None":
+            gclid = "?gclid=" + clientId
 
-        campaignURLs=['https://householdcapital.com.au/equity-mortgage-release/',
-                      'https://householdcapital.com.au/centrelink-pension-information/',
-                      'https://householdcapital.com.au/aged-care-financing/',
-                      'https://householdcapital.com.au/reverse-mortgages/',
-                      'https://householdcapital.com.au/superannuation-and-retirement/',
-                      'https://householdcapital.com.au/retirement-planning/',
-                      'https://householdcapital.com.au/refinance-existing-mortgage/']
+        context = self.get_context_data(form=form)
+        context['success'] = True
 
-        context['redirect'] = False
+        obj = self.get_object()
+
+        context['redirect'] = True
 
         if obj.referrer:
             for url in campaignURLs:
                 if url in obj.referrer:
-                    context['redirect'] = True
-                    context['redirectURL'] = obj.referrer.replace(url, url[:-1] + "-thank-you")
-
-        if context['redirect'] == False:
-            messages.success(self.request, "Thank you - we will email you shortly")
+                    context['redirectURL'] = obj.referrer.replace(url, url[:-1] + "-thank-you") + gclid
+        else:
+            context['redirectURL'] = "https://householdcapital.com.au/" + gclid
 
         return self.render_to_response(context)
-
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class ContactView(CreateView):
-
-    template_name ='calculator/contact.html'
-    model=WebContact
-    form_class = WebContactForm
-
-    @xframe_options_exempt
-    def get(self,request,*args,**kwargs):
-        return super(ContactView,self).get(self,request,*args,**kwargs)
+class CalcOutputPostcode(UpdateView):
+    template_name = 'calculator/calc_output_postcode.html'
+    model = WebCalculator
+    caseUID = ""
+    form_class = CalcOutputForm
 
     @xframe_options_exempt
-    def post(self,request,*args,**kwargs):
-            return super(ContactView, self).post(self,request,*args,**kwargs)
+    def get(self, request, **kwargs):
+        if 'uid' in kwargs:
+            self.caseUID = str(kwargs['uid'])
+            return super(CalcOutputPostcode, self).get(self, request, **kwargs)
+        else:
+            return HttpResponseRedirect(reverse_lazy("calculator:input"))
 
+    @xframe_options_exempt
+    def post(self, request, **kwargs):
+        if 'uid' in kwargs:
+            self.caseUID = str(kwargs['uid'])
+        return super(CalcOutputPostcode, self).post(self, request, **kwargs)
+
+    def get_object(self, queryset=None):
+        queryset = WebCalculator.objects.queryset_byUID(self.caseUID)
+        obj = queryset.get()
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(CalcOutputPostcode, self).get_context_data(**kwargs)
+
+        obj = self.get_object()
+        context['obj'] = obj
+        return context
 
     def form_valid(self, form):
-        clientDict=form.cleaned_data
         obj = form.save(commit=True)
+        obj.save(update_fields=['email', 'name'])
+        context = self.get_context_data(form=form)
+        context['success'] = True
 
-        context={}
-        context['submitted']=True
+        clientId = str(self.request.GET.get('gclid'))
+        gclid = ""
+        if clientId != "None":
+            gclid = "?gclid=" + clientId
+
+        obj = self.get_object()
+
+        context['redirect'] = True
+
+        if obj.referrer:
+            for url in campaignURLs:
+                if url in obj.referrer:
+                    context['redirectURL'] = obj.referrer.replace(url, url[:-1] + "-thank-you" + gclid)
+        else:
+            context['redirectURL'] = "https://householdcapital.com.au/" + gclid
 
         return self.render_to_response(context)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
+class CalcOutputAge(UpdateView):
+    template_name = 'calculator/calc_output_age.html'
+    model = WebCalculator
+    caseUID = ""
+    form_class = CalcOutputForm
 
+    @xframe_options_exempt
+    def get(self, request, **kwargs):
+        if 'uid' in kwargs:
+            self.caseUID = str(kwargs['uid'])
+            return super(CalcOutputAge, self).get(self, request, **kwargs)
+        else:
+            return HttpResponseRedirect(reverse_lazy("calculator:input"))
+
+    @xframe_options_exempt
+    def post(self, request, **kwargs):
+        if 'uid' in kwargs:
+            self.caseUID = str(kwargs['uid'])
+        return super(CalcOutputAge, self).post(self, request, **kwargs)
+
+    def get_object(self, queryset=None):
+        queryset = WebCalculator.objects.queryset_byUID(self.caseUID)
+        obj = queryset.get()
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(CalcOutputAge, self).get_context_data(**kwargs)
+        # Override the loan object with mimimum age 60/65 couple
+
+        obj = self.get_object()
+        clientDict = obj.__dict__
+        clientDict["age_1"] = 60
+        if clientDict["age_2"]:
+            context["isCouple"] = True
+            context["minCoupleAge"] = LOAN_LIMITS['minCoupleAge']
+            clientDict["age_2"] = LOAN_LIMITS['minCoupleAge']
+            if clientDict["age_1"] < LOAN_LIMITS['minCoupleAge']:
+                clientDict["age_1"] = LOAN_LIMITS['minCoupleAge']
+
+        loanObj = LoanValidator(clientDict)
+        chkOpp = loanObj.validateLoan()
+
+        if chkOpp['status'] == "Error":
+            # Even with correct age - loan may still be invalid
+            context["isError"] = True
+            context["errorText"] = self.clientText(chkOpp['details'])
+            return context
+
+        context['maxLoanAmount'] = chkOpp['restrictions']['maxLoan']
+        maxLVR = chkOpp['restrictions']['maxLVR']
+        context['valuation'] = obj.valuation
+
+        if maxLVR < 18:
+            img = 'transfer_15.png'
+        elif maxLVR < 22:
+            img = 'transfer_20.png'
+        elif maxLVR < 27:
+            img = 'transfer_25.png'
+        elif maxLVR < 32:
+            img = 'transfer_30.png'
+        else:
+            img = 'transfer_35.png'
+        context["transfer_img"] = img
+
+        return context
+
+    def clientText(self, inputString):
+
+        responseText = {
+            'Invalid Postcode': 'Unfortunately, we do not operate in this postcode',
+            'Youngest borrower must be 60': 'This product is designed for borrowers older than 60',
+            'Youngest joint borrower must be 65': 'For couples, the youngest borrower must be at least 65',
+            'Minimum Loan Size cannot be met': 'Unfortunately, our minimum loan size would not be met',
+        }
+
+        if inputString in responseText:
+            return responseText[inputString]
+        else:
+            return "Calculation cannot be performed at this time."
+
+    def form_valid(self, form):
+        obj = form.save(commit=True)
+        context = self.get_context_data(form=form)
+        context['success'] = True
+
+        clientId = str(self.request.GET.get('gclid'))
+        gclid = ""
+        if clientId != "None":
+            gclid = "?gclid=" + clientId
+
+        obj = self.get_object()
+
+        context['redirect'] = True
+
+        if obj.referrer:
+            for url in campaignURLs:
+                if url in obj.referrer:
+                    context['redirectURL'] = obj.referrer.replace(url, url[:-1] + "-thank-you" + gclid)
+        else:
+            context['redirectURL'] = "https://householdcapital.com.au/" + gclid
+
+        return self.render_to_response(context)
+
+
+class CalcSummaryNewPdf(TemplateView):
+    # Produce Summary Report View (called by Api2Pdf)
+    template_name = 'calculator/document/calculator_new_summary.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CalcSummaryNewPdf, self).get_context_data(**kwargs)
+
+        enqUID = str(kwargs['uid'])
+
+        obj = Enquiry.objects.queryset_byUID(enqUID).get()
+
+        context["obj"] = obj
+        if obj.maxLVR < 18:
+            img = 'transfer_15.png'
+        elif obj.maxLVR < 22:
+            img = 'transfer_20.png'
+        elif obj.maxLVR < 27:
+            img = 'transfer_25.png'
+        elif obj.maxLVR < 32:
+            img = 'transfer_30.png'
+        else:
+            img = 'transfer_35.png'
+        context["transfer_img"] = img
+
+        context['caseTypesEnum'] = caseTypesEnum
+        context['loanTypesEnum'] = loanTypesEnum
+        context['dwellingTypesEnum'] = dwellingTypesEnum
+        context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+
+        totalLoanAmount = 0
+        if obj.calcTotal == None or obj.calcTotal == 0:
+            totalLoanAmount = obj.maxLoanAmount
+        else:
+            totalLoanAmount = min(obj.maxLoanAmount, obj.calcTotal)
+        context['totalLoanAmount'] = totalLoanAmount
+
+        context['totalInterestRate'] = ECONOMIC['interestRate'] + ECONOMIC['lendingMargin']
+        context['housePriceInflation'] = ECONOMIC['housePriceInflation']
+        context['comparisonRate'] = context['totalInterestRate'] + ECONOMIC['comparisonRateIncrement']
+
+        # Get Loan Projections
+        clientDict = Enquiry.objects.dictionary_byUID(enqUID)
+        clientDict.update(ECONOMIC)
+        clientDict['totalLoanAmount'] = totalLoanAmount
+        clientDict['maxNetLoanAmount'] = obj.maxLoanAmount
+        loanProj = LoanProjection()
+        result = loanProj.create(clientDict)
+        result = loanProj.calcProjections()
+
+        # Build results dictionaries
+
+        # Check for no top-up Amount
+
+        context['resultsAge'] = loanProj.getResultsList('BOPAge')['data']
+        context['resultsHomeEquity'] = loanProj.getResultsList('BOPHomeEquity')['data']
+        context['resultsHomeEquityPC'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
+        context['resultsHomeImages'] = \
+            loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
+        context['resultsHouseValue'] = loanProj.getResultsList('BOPHouseValue', imageSize=100, imageMethod='lin')[
+            'data']
+
+        return context
+
+
+class Test(View):
+
+    def get(self, request, *args, **kwargs):
+        sourcePath = 'https://householdcapital.app/calculator/calcSummaryNewPdf/'
+        targetPath = settings.MEDIA_ROOT + "/customerReports/"
+        clientUID = '25b0e3e4-d998-4796-b57e-1ea5e1c383b3'
+
+        pdf = pdfGenerator(str(clientUID))
+        pdf.createPdfFromUrl(sourcePath + str(clientUID), "",
+                             targetPath + "test" + str(clientUID)[-12:] + ".pdf")
+
+        response = HttpResponse(pdf.getContent(), content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="LoanSummary.pdf"'
+        return response
+
+
+# Calculator Queue
 
 class LoginRequiredMixin():
     # Ensures views will not render unless logged in, redirects to login page
@@ -237,7 +513,6 @@ class LoginRequiredMixin():
             return HttpResponseRedirect(reverse_lazy('landing:landing'))
 
 
-# Calculator Queue
 class CalcListView(LoginRequiredMixin, ListView):
     paginate_by = 6
     template_name = 'calculator/calculatorList.html'
@@ -254,7 +529,6 @@ class CalcListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(CalcListView, self).get_context_data(**kwargs)
         context['title'] = 'Web Calculator Queue'
-
 
         self.request.session['webCalcQueue'] = WebCalculator.objects.queueCount()
         self.request.session['webContQueue'] = WebContact.objects.queueCount()
@@ -277,13 +551,13 @@ class CalcMarkSpam(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy("calculator:calcList"))
 
 
-class CalcSendDetails(LoginRequiredMixin, UpdateView):
+class CalcSendSummary(LoginRequiredMixin, UpdateView):
     # This view does not render it creates and enquiry, sends an email, updates the calculator
     # and redirects to the Enquiry ListView
     context_object_name = 'object_list'
     model = WebCalculator
     template_name = 'calculator/email/email_cover_calculator.html'
-    template_name_alt='calculator/email/email_cover_calculator_calendar.html'
+    template_name_alt = 'calculator/email/email_cover_calculator_calendar.html'
 
     def get(self, request, *args, **kwargs):
         calcUID = str(kwargs['uid'])
@@ -295,13 +569,382 @@ class CalcSendDetails(LoginRequiredMixin, UpdateView):
         # Create enquiry using WebCalculator Data
         # Remove certain items from the dictionary
         referrer = calcDict['referrer']
-        calcDict.pop('calcUID')
-        calcDict.pop('actionedBy')
-        calcDict.pop('id')
-        calcDict.pop('referrer')
-        calcDict.pop('updated')
-        calcDict.pop('timestamp')
-        calcDict.pop('actioned')
+
+        popList = ['calcUID', 'actionedBy', 'id', 'referrer', 'updated', 'timestamp', 'actioned']
+        for item in popList:
+            calcDict.pop(item)
+
+        user = self.request.user
+
+        enq_obj = Enquiry.objects.create(user=user, referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer,
+                                         **calcDict)
+        enq_obj.save()
+
+        # PRODUCE PDF REPORT
+        sourceUrl = 'https://householdcapital.app/calculator/calcSummaryNewPdf/' + str(enq_obj.enqUID)
+        targetFileName = settings.MEDIA_ROOT + "/enquiryReports/Enquiry-" + str(enq_obj.enqUID)[
+                                                                            -12:] + ".pdf"
+
+        pdf = pdfGenerator(calcUID)
+        created, text = pdf.createPdfFromUrl(sourceUrl, 'CalculatorSummary.pdf', targetFileName)
+
+        if not created:
+            messages.error(self.request, "Enquiry created - but email not sent")
+
+            obj.actioned = 1  # Actioned=1, Spam=-1
+            obj.save(update_fields=['actioned'])
+
+            return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
+
+        try:
+            # SAVE TO DATABASE (Enquiry Model)
+            localfile = open(targetFileName, 'rb')
+
+            qsCase = Enquiry.objects.queryset_byUID(str(enq_obj.enqUID))
+            qsCase.update(summaryDocument=File(localfile), )
+
+            pdf_contents = localfile.read()
+        except:
+            write_applog("ERROR", 'CalcSendDetails', 'get',
+                         "Failed to save Calc Summary in Database: " + str(enq_obj.enqUID))
+
+        email_context = {}
+        email_context['user'] = request.user
+        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+        email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
+
+        subject, from_email, to, bcc = "Household Loan Enquiry", \
+                                       self.request.user.email, \
+                                       obj.email, \
+                                       self.request.user.email
+        text_content = "Text Message"
+        attachFilename = 'HHC-CalculatorSummary'
+
+        if request.user.username in ['Moutzikis']:
+            sent = pdf.emailPdf(self.template_name_alt, email_context, subject, from_email, to, bcc, text_content,
+                                attachFilename)
+        else:
+            sent = pdf.emailPdf(self.template_name, email_context, subject, from_email, to, bcc, text_content,
+                                attachFilename)
+
+        if sent:
+            messages.success(self.request, "Client has been emailed and enquiry created")
+        else:
+            messages.error(self.request, "Enquiry created - but email not sent")
+
+        obj.actioned = 1  # Actioned=1, Spam=-1
+        obj.save(update_fields=['actioned'])
+
+        return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
+
+
+# Contact Queue
+class ContactListView(LoginRequiredMixin, ListView):
+    paginate_by = 6
+    template_name = 'calculator/contactList.html'
+    context_object_name = 'object_list'
+    model = WebContact
+
+    def get_queryset(self, **kwargs):
+        queryset = super(ContactListView, self).get_queryset()
+
+        queryset = queryset.order_by('-timestamp')
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(ContactListView, self).get_context_data(**kwargs)
+        context['title'] = 'Web Contact Queue'
+
+        self.request.session['webCalcQueue'] = WebCalculator.objects.queueCount()
+        self.request.session['webContQueue'] = WebContact.objects.queueCount()
+        self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
+
+        return context
+
+
+# Contact Detail View
+class ContactDetailView(LoginRequiredMixin, UpdateView):
+    template_name = "calculator/contactDetail.html"
+    form_class = WebContactDetail
+    model = WebContact
+
+    def get_object(self, queryset=None):
+        if "uid" in self.kwargs:
+            queryset = WebContact.objects.queryset_byUID(str(self.kwargs['uid']))
+            obj = queryset.get()
+            return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(ContactDetailView, self).get_context_data(**kwargs)
+        context['title'] = 'Web Contact Detail'
+        context['obj'] = self.get_object()
+        return context
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+
+        obj.save()
+
+        messages.success(self.request, "Contact Updated")
+
+        return HttpResponseRedirect(reverse_lazy('calculator:contactDetail', kwargs={'uid': str(obj.contUID)}))
+
+
+class ContactActionView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        if "uid" in kwargs:
+            queryset = WebContact.objects.queryset_byUID(str(kwargs['uid']))
+            obj = queryset.get()
+            obj.actioned = 1
+            obj.actionedBy = request.user
+            obj.actionDate = timezone.now()
+            obj.save(update_fields=['actioned', 'actionedBy', 'actionDate'])
+            messages.success(self.request, "Contact marked as actioned")
+
+        return HttpResponseRedirect(reverse_lazy('calculator:contactList'))
+
+
+# Enquiry Delete View (Delete View)
+class ContactDeleteView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        if "uid" in kwargs:
+            WebContact.objects.filter(contUID=kwargs['uid']).delete()
+            messages.success(self.request, "Contact deleted")
+
+        return HttpResponseRedirect(reverse_lazy('calculator:contactList'))
+
+
+
+
+
+
+
+
+
+
+
+# OLD VIEWS - REMOVE
+@method_decorator(csrf_exempt, name='dispatch')
+class InputView(CreateView):
+    template_name = 'calculator/input.html'
+    model = WebCalculator
+    form_class = WebInputForm
+
+    @xframe_options_exempt
+    def get(self, request, *args, **kwargs):
+        clientId = str(request.GET.get('clientId'))
+
+        return super(InputView, self).get(self, request, *args, **kwargs)
+
+    @xframe_options_exempt
+    def post(self, request, *args, **kwargs):
+        return super(InputView, self).post(self, request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(InputView, self).get_context_data(**kwargs)
+        context['loanTypesEnum'] = loanTypesEnum
+        context['dwellingTypesEnum'] = dwellingTypesEnum
+
+        return context
+
+    def get_object(self, queryset=None):
+        uid = self.kwargs['uid']
+        queryset = WebCalculator.objects.queryset_byUID(str(uid))
+        obj = queryset.get()
+        return obj
+
+    def form_invalid(self, form):
+
+        messages.error(self.request, "Input error - please check input fields")
+        print(form.errors)
+        return super(InputView, self).form_invalid(form)
+
+    def form_valid(self, form):
+        clientDict = form.cleaned_data
+        obj = form.save(commit=False)
+
+        loanObj = LoanValidator(clientDict)
+        chkOpp = loanObj.validateLoan()
+
+        obj.valuation = int(form.cleaned_data['valuation'])
+
+        if chkOpp['status'] == "Error":
+            obj.status = 0
+            obj.errorText = chkOpp['details']
+            obj.save()
+
+            messages.error(self.request, self.clientText(chkOpp['details']))
+
+            return self.render_to_response(self.get_context_data(form=form))
+
+        else:
+            obj.status = 1
+            obj.maxLoanAmount = chkOpp['restrictions']['maxLoan']
+            obj.maxLVR = chkOpp['restrictions']['maxLVR']
+            obj.save()
+
+            clientId = str(self.request.GET.get('clientId'))
+
+            success = reverse_lazy('calculator:calcOutput',
+                                   kwargs={'uid': str(obj.calcUID)}) + "?clientId=" + clientId
+            return HttpResponseRedirect(success)
+
+    def clientText(self, inputString):
+
+        responseText = {
+            'Invalid Postcode': 'Unfortunately, we do not operate in this postcode',
+            'Youngest borrower must be 60': 'This product is designed for borrowers older than 60',
+            'Youngest joint borrower must be 65': 'For couples, the youngest borrower must be at least 65',
+            'Minimum Loan Size cannot be met': 'Unfortunately, our minimum loan size would not be met',
+        }
+
+        if inputString in responseText:
+            return responseText[inputString]
+        else:
+            return "Calculation cannot be performed at this time."
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+
+
+class OutputView(UpdateView):
+    template_name = 'calculator/output.html'
+    model = WebCalculator
+    caseUID = ""
+    form_class = WebOutputForm
+
+    @xframe_options_exempt
+    def get(self, request, **kwargs):
+        if 'uid' in kwargs:
+            self.caseUID = str(kwargs['uid'])
+            return super(OutputView, self).get(self, request, **kwargs)
+        else:
+            return HttpResponseRedirect(reverse_lazy("calculator:input"))
+
+    @xframe_options_exempt
+    def post(self, request, **kwargs):
+        if 'uid' in kwargs:
+            self.caseUID = str(kwargs['uid'])
+        return super(OutputView, self).post(self, request, **kwargs)
+
+    def get_object(self, queryset=None):
+        queryset = WebCalculator.objects.queryset_byUID(self.caseUID)
+        obj = queryset.get()
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(OutputView, self).get_context_data(**kwargs)
+
+        obj = self.get_object()
+
+        context["obj"] = obj
+        if obj.maxLVR < 18:
+            img = 'transfer_15.png'
+        elif obj.maxLVR < 22:
+            img = 'transfer_20.png'
+        elif obj.maxLVR < 27:
+            img = 'transfer_25.png'
+        elif obj.maxLVR < 32:
+            img = 'transfer_30.png'
+        else:
+            img = 'transfer_35.png'
+        context["transfer_img"] = img
+
+        if obj.referrer:
+            if 'https://householdcapital.com.au/refinance-existing-mortgage' in obj.referrer:
+                context['isRefi'] = True
+            if 'https://householdcapital.com.au/aged-care-financing/' in obj.referrer:
+                context['isCare'] = True
+            if 'https://householdcapital.com.au/superannuation-and-retirement/' in obj.referrer:
+                context['isTopUp'] = True
+
+        return context
+
+    def form_valid(self, form):
+        obj = form.save(commit=True)
+        obj.save(update_fields=['email', 'isRefi', 'isTopUp', 'isLive', 'isGive', 'isCare'])
+        context = self.get_context_data(form=form)
+        context['success'] = True
+
+        obj = self.get_object()
+
+        campaignURLs = ['https://householdcapital.com.au/equity-mortgage-release/',
+                        'https://householdcapital.com.au/centrelink-pension-information/',
+                        'https://householdcapital.com.au/aged-care-financing/',
+                        'https://householdcapital.com.au/reverse-mortgages/',
+                        'https://householdcapital.com.au/superannuation-and-retirement/',
+                        'https://householdcapital.com.au/retirement-planning/',
+                        'https://householdcapital.com.au/refinance-existing-mortgage/']
+
+        context['redirect'] = False
+
+        if obj.referrer:
+            for url in campaignURLs:
+                if url in obj.referrer:
+                    context['redirect'] = True
+                    context['redirectURL'] = obj.referrer.replace(url, url[:-1] + "-thank-you")
+
+        if context['redirect'] == False:
+            messages.success(self.request, "Thank you - we will email you shortly")
+
+        return self.render_to_response(context)
+
+class CalcSummaryPdfView(TemplateView):
+    # Produce Summary Report View (called by Api2Pdf)
+    template_name = 'calculator/document/calculator_summary.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CalcSummaryPdfView, self).get_context_data(**kwargs)
+
+        enqUID = str(kwargs['uid'])
+
+        obj = Enquiry.objects.dictionary_byUID(enqUID)
+
+        context["obj"] = obj
+        if obj["maxLVR"] < 18:
+            img = 'transfer_15.png'
+        elif obj["maxLVR"] < 22:
+            img = 'transfer_20.png'
+        elif obj["maxLVR"] < 27:
+            img = 'transfer_25.png'
+        elif obj["maxLVR"] < 32:
+            img = 'transfer_30.png'
+        else:
+            img = 'transfer_35.png'
+        context["transfer_img"] = img
+
+        context['caseTypesEnum'] = caseTypesEnum
+        context['loanTypesEnum'] = loanTypesEnum
+        context['dwellingTypesEnum'] = dwellingTypesEnum
+        context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+        return context
+
+class CalcSendDetails(LoginRequiredMixin, UpdateView):
+    # This view does not render it creates and enquiry, sends an email, updates the calculator
+    # and redirects to the Enquiry ListView
+    context_object_name = 'object_list'
+    model = WebCalculator
+    template_name = 'calculator/email/email_cover_calculator.html'
+    template_name_alt = 'calculator/email/email_cover_calculator_calendar.html'
+
+    def get(self, request, *args, **kwargs):
+        calcUID = str(kwargs['uid'])
+        queryset = WebCalculator.objects.queryset_byUID(str(calcUID))
+        obj = queryset.get()
+
+        calcDict = WebCalculator.objects.dictionary_byUID(str(calcUID))
+
+        # Create enquiry using WebCalculator Data
+        # Remove certain items from the dictionary
+        referrer = calcDict['referrer']
+
+        popList = ['calcUID', 'actionedBy', 'id', 'referrer', 'updated', 'timestamp', 'actioned']
+        for item in popList:
+            calcDict.pop(item)
+
         user = self.request.user
 
         enq_obj = Enquiry.objects.create(user=user, referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer,
@@ -353,7 +996,7 @@ class CalcSendDetails(LoginRequiredMixin, UpdateView):
                                 attachFilename)
         else:
             sent = pdf.emailPdf(self.template_name, email_context, subject, from_email, to, bcc, text_content,
-                            attachFilename)
+                                attachFilename)
 
         if sent:
             messages.success(self.request, "Client has been emailed and enquiry created")
@@ -364,111 +1007,3 @@ class CalcSendDetails(LoginRequiredMixin, UpdateView):
         obj.save(update_fields=['actioned'])
 
         return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
-
-
-class CalcSummaryPdfView(TemplateView):
-    # Produce Summary Report View (called by Api2Pdf)
-    template_name = 'calculator/document/calculator_summary.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(CalcSummaryPdfView, self).get_context_data(**kwargs)
-
-        enqUID = str(kwargs['uid'])
-
-        obj = Enquiry.objects.dictionary_byUID(enqUID)
-
-        context["obj"] = obj
-        if obj["maxLVR"] < 18:
-            img = 'transfer_15.png'
-        elif obj["maxLVR"] < 22:
-            img = 'transfer_20.png'
-        elif obj["maxLVR"] < 27:
-            img = 'transfer_25.png'
-        elif obj["maxLVR"] < 32:
-            img = 'transfer_30.png'
-        else:
-            img = 'transfer_35.png'
-        context["transfer_img"] = img
-
-        context['caseTypesEnum'] = caseTypesEnum
-        context['loanTypesEnum'] = loanTypesEnum
-        context['dwellingTypesEnum'] = dwellingTypesEnum
-        context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-        return context
-
-# Contact Queue
-class ContactListView(LoginRequiredMixin, ListView):
-    paginate_by = 6
-    template_name = 'calculator/contactList.html'
-    context_object_name = 'object_list'
-    model = WebContact
-
-    def get_queryset(self, **kwargs):
-        queryset = super(ContactListView, self).get_queryset()
-
-        queryset = queryset.order_by('-timestamp')
-
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super(ContactListView, self).get_context_data(**kwargs)
-        context['title'] = 'Web Contact Queue'
-
-        self.request.session['webCalcQueue'] = WebCalculator.objects.queueCount()
-        self.request.session['webContQueue'] = WebContact.objects.queueCount()
-        self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
-
-        return context
-
-# Contact Detail View
-class ContactDetailView(LoginRequiredMixin, UpdateView):
-    template_name = "calculator/contactDetail.html"
-    form_class = WebContactDetail
-    model = WebContact
-
-    def get_object(self, queryset=None):
-        if "uid" in self.kwargs:
-            queryset = WebContact.objects.queryset_byUID(str(self.kwargs['uid']))
-            obj = queryset.get()
-            return obj
-
-    def get_context_data(self, **kwargs):
-        context = super(ContactDetailView, self).get_context_data(**kwargs)
-        context['title'] = 'Web Contact Detail'
-        context['obj'] = self.get_object()
-        return context
-
-    def form_valid(self, form):
-
-        obj = form.save(commit=False)
-
-        obj.save()
-
-        messages.success(self.request, "Contact Updated")
-
-        return HttpResponseRedirect(reverse_lazy('calculator:contactDetail', kwargs={'uid': str(obj.contUID)}))
-
-
-class ContactActionView(LoginRequiredMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        if "uid" in kwargs:
-            queryset = WebContact.objects.queryset_byUID(str(kwargs['uid']))
-            obj = queryset.get()
-            obj.actioned=1
-            obj.actionedBy=request.user
-            obj.actionDate=timezone.now()
-            obj.save(update_fields=['actioned','actionedBy','actionDate'])
-            messages.success(self.request, "Contact marked as actioned")
-
-        return HttpResponseRedirect(reverse_lazy('calculator:contactList'))
-
-# Enquiry Delete View (Delete View)
-class ContactDeleteView(LoginRequiredMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        if "uid" in kwargs:
-            WebContact.objects.filter(contUID=kwargs['uid']).delete()
-            messages.success(self.request, "Contact deleted")
-
-        return HttpResponseRedirect(reverse_lazy('calculator:contactList'))
