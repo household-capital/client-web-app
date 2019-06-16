@@ -11,15 +11,19 @@
 <br>
 <p>Attached is a brief summary showing how a Household Transfer might be able to meet your objectives, based on the information that you provided via our calculator. </p>
 <br>
-<p>I would be happy to speak to you personally to discuss your individual circumstances. Please don't hesitate to contact me on {{ user.profile.mobile}} or {{user.email }}</p>
+<p>I would be happy to speak to you personally to discuss your individual circumstances.
+    {% if user.profile.calendlyUrl %}Please feel free to schedule an obligation-free, 15 minute 'discovery call' with me using this link: <br>{{ user.profile.calendlyUrl }}
+    {% else%}Please don't hesitate to contact me on {{ user.profile.mobile}} or {{user.email }}{% endif %}</p>
 <br>
 <p>Kind regards</p>
 <br>
 <p>{{ user.first_name }}</p>
+{% if user.profile.calendlyUrl %}
+    <p>{{ user.profile.mobile}}</p>
+    <p>{{ user.email }}</p>
+{% endif %}
 <br>
 <img src="{{ absolute_media_url }}{{ user.profile.picture }}" width="100px">
 
 
 {% endblock %}
-
-

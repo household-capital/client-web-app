@@ -159,7 +159,7 @@
 
             <div class="col-lg-12 text-center ">
                 <br>
-                <p class="x-large"><b>Your funding needs</b></p>
+                <p class="x-large"><b>Your retirement funding needs</b></p>
                 <p>You have indicated the following potential needs</p>
 
                 <br>
@@ -182,7 +182,7 @@
                     </div>
                     <div class="col-md-6">
                         <p class="pl-2 print-text"><b>Top Up</b></p>
-                        <p class="pl-2"> Increase your super, retirement income or contingency funds</p>
+                        <p class="pl-2"> Increase your super, investments or contingency funds</p>
                     </div>
                     <div class="col-md-2 text-right"><p class="larger">{% if obj.isTopUp %}$
                         {{ obj.calcTopUp }}{% endif %}</p></div>
@@ -196,7 +196,7 @@
 
                     <div class="col-md-6 text-left">
                         <p class="pl-2 print-text"><b>Refinance</b></p>
-                        <p class="pl-2">Refinance your existing mortgage (choose whether to make repayments)</p>
+                        <p class="pl-2">Refinance your existing mortgage (choose whether or not to make repayments)</p>
                     </div>
                     <div class="col-md-2 text-right"><p class="larger">{% if obj.isRefi %}$
                         {{ obj.calcRefi }}{% endif %}</p></div>
@@ -244,7 +244,7 @@
 
                 <div class="row align-items-center justify-content-center">
                     <div class="col-md-8 text-right">
-                        <p class="larger">Total Funding Needs</p>
+                        <p class="larger">Total retirement funding needs</p>
                     </div>
                     <div class="col-md-2 text-right">
                         <div>
@@ -267,7 +267,7 @@
 
 
                 <p class="small">*This calculation does not constitute an approval but provides an indication
-                    of the maximum possible loan. Household Loans are subject to loan approval criteria, which
+                    of the maximum possible loan. Household Transfers are subject to loan approval criteria, which
                     includes a home valuation. Lending limits may apply for specific purposes. Full terms and conditions
                     will be included in any loan
                     application</p>
@@ -339,7 +339,7 @@
     <div class="row justify-content-center">
         <div class="col-sm-8 text-center">
             <p>A Household Transfer is our approach to borrowing against home equity for responsible,
-                long-term, retirement funding. Our loan is structured as a reverse mortgage and therefore benefits from
+                long-term, retirement funding. Our loan is structured as a reverse mortgage and therefore you benefit from
                 strong legal protections
             </p>
             <br>
@@ -382,7 +382,7 @@
         </div>
         <div class="row justify-content-center">
             <div class="col-sm-8 text-center">
-                <p>As the interest on a Household Loan is added to the principal (the borrowed amount), the loan balance grows over time.
+                <p>As the interest on a Household Transfer is added to the principal (the borrowed amount), the loan balance grows over time.
                     However, the value of your home may also grow over time </p>
                 <br>
 
@@ -399,7 +399,7 @@
                 <br>
                 <p> The following is an illustration of how your home equity might change, over a fifteen year period,
                     based on
-                    a Household Loan of <b>${{ totalLoanAmount }}</b> and a current home value of
+                    a Household Transfer of <b>${{ totalLoanAmount }}</b> and a current home value of
                     <b>${{ obj.valuation }}</b> (see
                     assumptions below) **</p>
                 <br><br>
@@ -501,10 +501,10 @@
         <div class="row justify-content-center pt-4 ">
             <div class="col-lg-11 text-center">
 
-                <p class="small">* 1.50% establishment fee payable. Comparison rate is {{ comparisonRate }}%. This is based on a loan of $150,000 secured
+                <p class="small">* A 1.50% establishment fee is also payable. The Comparison Rate is {{ comparisonRate }}%. This is based on a loan of $150,000 secured
                     for a term of 25 years. Interest is calculated daily and
                     accrued monthly. Please note that the comparison rate only applies to the example given. Different
-                    loan amounts and terms will result in diferent comparison rates. ** This is an estimate, not a
+                    loan amounts and terms will result in diferent comparison rates. <br>** This is an estimate, not a
                     guarantee. You may end
                     up with more or less equity in your home. Assumptions: a lump sum
                     drawdown, no payment of interest, {{ housePriceInflation }}% pa house price inflation and
@@ -515,7 +515,7 @@
             </div>
         </div>
 
-        <div class=""></div> <!-- Document pages alignment -->
+        <div class="padding-7px"></div> <!-- Document pages alignment -->
 
         <div class="print-container">
             <div class="row HHCBlueBackground-Printed print-edge-row">

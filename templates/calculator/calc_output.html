@@ -11,9 +11,9 @@
     <div class="d-none d-sm-block calc_hero_container">
         <img src="{% static 'img/hhc/HC-CalcHero.png' %}" class="img-fluid" alt="Responsive image">
         <div class="calc_hero_text">
-            <p class="header_text">Your needs
+            <p class="header_text">You could access savings in your home</p>
             <p>
-            <p class="larger">What size transfer do you require?</p>
+            <p class="larger"></p>
         </div>
     </div>
 
@@ -28,6 +28,17 @@
                     <div class="cal_background_white">
 
                         <div class="container cal_container-md pt-5 pb-5">
+
+                            {% if redirect %}
+                                <div class="row justify-content-center">
+                                    <div class="col-12">
+                                        <p class="alert alert-success">{{ redirectMessage }}</p>
+                                        <br><br><br>
+                                    </div>
+
+                                </div>
+                            {% endif %}
+
 
                             <div class="row justify-content-center">
                                 <div class="col-12">
@@ -84,8 +95,11 @@
                         <div class="container cal_container-md pb-5 pt-5">
 
                             <p class="x-large"><b>Understanding your needs</b></p>
-                            <p>Please indicate your funding needs below</p>
-                            <p class="small">(Some purposes may have lower maximum amounts)</p>
+                            <p>Please estimate your retirement funding needs below</p>
+                            <p class="small">We may not be able to lend the maximum amount for some purposes</p>
+                            <p class="small">Use the sliders or input boxes to select an amount</p>
+
+
                             <br>
 
                             {% if obj.isTopUp %}
@@ -99,7 +113,7 @@
                                         <div class="pb-3">
                                             &nbsp;<div id="topUpSlider"></div>
                                         </div>
-                                        <p class="small">Increase retirement income or contingency funds</p>
+                                        <p class="small">Increase super, investments or contingency funds</p>
                                     </div>
 
 
@@ -204,20 +218,21 @@
 
                             <div class=" row justify-content-center pt-4">
                                 <div class="col-8 col-sm-9 text-right ">
-                                    <p class="larger pb-3">Your estimated funding needs are: </p>
+                                    <p class="larger pb-3">Your estimated retirement funding needs are: </p>
                                 </div>
+
                                 <div class="col-4 col-sm-3 text-left">
                                     <p class="larger"><label id="id_totalAmountLabel">$0</label></p>
                                     <input type='hidden' name="calcTotal" id="id_calcTotal" value=0>
                                 </div>
                             </div>
 
-                            <div class="row justify-content-center pt-4">
 
+                            <div class="row justify-content-center pt-4">
                                 <div class="col-12 text-center ">
                                     <label id="id_amountError" class="alert alert-warning "
                                            style="display:none">
-                                        Your funding needs exceed the maximum Household
+                                        Your retirement funding needs exceed the maximum Household
                                         Transfer </label>
                                 </div>
                             </div>
@@ -239,7 +254,11 @@
                             </div>
 
                             <div>
-                                <p>Within your summary we will illustrate how the value of your home and your home equity might change over time (using a loan amount
+                                <p>Your summary will provide key information on how a Household Transfer could be used to meet your retirement funding needs</p>
+
+                                <br>
+                                <p>We will also provide an illustration of how the value of your home and
+                                    the value of your home equity might change over time (based on a loan amount
                                     of <b><label id="id_transferAmount">${{ obj.maxLoanAmount }}</label></b>)</p><br>
 
                             </div>
@@ -285,10 +304,13 @@
                                     </button>
                                     <div class="pt-2">
                                         {% if form.errors %}
-                                            <p class="errorlist">Please check form errors above</p>{% endif %}
+                                            <p class="errorlist">Please check input errors above</p>{% endif %}
                                     </div>
+
                                     <br> <br>
+
                                 </div>
+
 
                             </div>
 
@@ -299,13 +321,12 @@
                                     <p class="small">*This calculation does not constitute an approval
                                         but provides an
                                         indicator
-                                        of the maximum possible loan. Household Loans are subject to
+                                        of the maximum possible loan. Household Transfers are subject to
                                         loan approval
                                         criteria,
                                         which
                                         includes a home valuation. Full terms and conditions will be
                                         included in any
-                                        loan
                                         application</p>
                                     <br>
 
@@ -357,7 +378,7 @@
             $("#topUpSlider").slider({
                 min: 0,
                 max: {{ topUpPoints }},
-                range:'min',
+                range: 'min',
                 slide: function (event, ui) {
                     $('#id_calcTopUp').val(topUpData[ui.value]['value']);
                     calcTotalAmount();
@@ -367,7 +388,7 @@
             $("#refiSlider").slider({
                 min: 0,
                 max: {{ refiPoints }},
-                range:'min',
+                range: 'min',
                 slide: function (event, ui) {
                     $('#id_calcRefi').val(refiData[ui.value]['value']);
                     calcTotalAmount()
@@ -377,7 +398,7 @@
             $("#liveSlider").slider({
                 min: 0,
                 max: {{ livePoints }},
-                range:'min',
+                range: 'min',
                 slide: function (event, ui) {
                     $('#id_calcLive').val(liveData[ui.value]['value']);
                     calcTotalAmount()
@@ -387,7 +408,7 @@
             $("#giveSlider").slider({
                 min: 0,
                 max: {{ givePoints }},
-                range:'min',
+                range: 'min',
                 slide: function (event, ui) {
                     $('#id_calcGive').val(giveData[ui.value]['value']);
                     calcTotalAmount()
@@ -397,7 +418,7 @@
             $("#careSlider").slider({
                 min: 0,
                 max: {{ carePoints }},
-                range:'min',
+                range: 'min',
                 slide: function (event, ui) {
                     $('#id_calcCare').val(careData[ui.value]['value']);
                     calcTotalAmount();

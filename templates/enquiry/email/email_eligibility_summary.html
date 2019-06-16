@@ -17,16 +17,16 @@ I understand that your client’s details are as follows:<br>
 - in the postcode {{ obj.postcode|intBlank }}<br>
 - with an estimated valuation of approximately ${{ obj.valuation|intcomma }}<br><br>
 
-Based on this high level information and subject to credit assessment, we may be able to provide a Household Loan with a loan-to-value ratio of up to <b>{{eligibility.restrictions.maxLVR}}%</b> or <b>${{eligibility.restrictions.maxLoan|intcomma}}</b>.<br><br>
+Based on this high level information and subject to credit assessment, we may be able to provide a Household Loan with a loan-to-value ratio of up to <b>{{eligibility.data.maxLVR}}%</b> or <b>${{eligibility.data.maxLoan|intcomma}}</b>.<br><br>
 
 
-As you know, Household has certain loan restrictions that are based on the intended purpose of the loan.  Potential restrictions may include the following:<br>
-{% if eligibility.restrictions.maxLoan > restrictions.maxCare %}- Maximum amount for Age Care: ${{ eligibility.restrictions.maxCare|intcomma }}<br>{% endif %}
-{% if eligibility.restrictions.maxLoan > restrictions.maxTopUp %}- Maximum amount for Super Top Up: ${{ eligibility.restrictions.maxTopUp|intcomma }}<br>{% endif %}
-{% if eligibility.restrictions.maxLoan > restrictions.maxReno %}- Maximum amount for Renovations: ${{ eligibility.restrictions.maxReno|intcomma }}<br>{% endif %}
-- Maximum amount for Refinance: ${{ eligibility.restrictions.maxRefi|intcomma }}<br>
-- Maximum amount for Accelerated Giving: ${{ eligibility.restrictions.maxGive|intcomma }}<br>
-- Maximum amount for Transport and Travel: ${{ eligibility.restrictions.maxTravel|intcomma }}<br><br>
+As you know, Household has certain loan data that are based on the intended purpose of the loan.  Potential data may include the following:<br>
+{% if eligibility.data.maxLoan > data.maxCare %}- Maximum amount for Age Care: ${{ eligibility.data.maxCare|intcomma }}<br>{% endif %}
+{% if eligibility.data.maxLoan > data.maxTopUp %}- Maximum amount for Super Top Up: ${{ eligibility.data.maxTopUp|intcomma }}<br>{% endif %}
+{% if eligibility.data.maxLoan > data.maxReno %}- Maximum amount for Renovations: ${{ eligibility.data.maxReno|intcomma }}<br>{% endif %}
+- Maximum amount for Refinance: ${{ eligibility.data.maxRefi|intcomma }}<br>
+- Maximum amount for Accelerated Giving: ${{ eligibility.data.maxGive|intcomma }}<br>
+- Maximum amount for Transport and Travel: ${{ eligibility.data.maxTravel|intcomma }}<br><br>
 
 We would be pleased to meet with you and your client to determine whether a Household Loan might be appropriate.  If you would like any further information, please don’t hesitate to contact me.<br><br>
 

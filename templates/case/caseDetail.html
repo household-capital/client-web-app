@@ -64,7 +64,7 @@
                             <br><br>
                         {% elif status.status == 'Error' %}
                             <i class="far fa-times-circle fa-lg btn-outline-danger">&nbsp;Ineligible
-                                - {{ status.details }}</i>
+                                - {{ status.responseText }}</i>
                             <br><br>
                         {% endif %}
                     {% endif %}
@@ -264,9 +264,9 @@
 
                                     <div class="jumbotron">
 
-                                    <p class="larger">Max LVR is: {{ status.restrictions.maxLVR|intcomma }}%</p>
+                                    <p class="larger">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
                                     <br>
-                                    {% if status.restrictions.postcode %}
+                                    {% if status.data.postcode != 'Valid' %}
 
                                         <p><i class="fas fa-tractor fa-lg btn-outline-warning"></i>&nbsp;Refer
                                             Postcode
@@ -274,28 +274,28 @@
                                     {% endif %}
                                     <p class="small"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
 
-                                    <p class="small">Max Loan is: ${{ status.restrictions.maxLoan|intcomma }} (incl
+                                    <p class="small">Max Loan is: ${{ status.data.maxLoan|intcomma }} (incl
                                         establishment fee)</p>
                                     <p class="small">
-                                        {% if status.restrictions.maxLoan > status.restrictions.maxTopUp %}
+                                        {% if status.data.maxLoan > status.data.maxTopUp %}
                                             Max for
-                                            Super Top Up is: ${{ status.restrictions.maxTopUp|intcomma }}
+                                            Super Top Up is: ${{ status.data.maxTopUp|intcomma }}
                                             </p>{% endif %}
                                     <p class="small">
-                                        {% if status.restrictions.maxLoan > status.restrictions.maxCare %}
+                                        {% if status.data.maxLoan > status.data.maxCare %}
                                             Max for
-                                            Age Care is: ${{ status.restrictions.maxCare|intcomma }}</p>{% endif %}
+                                            Age Care is: ${{ status.data.maxCare|intcomma }}</p>{% endif %}
                                     <p class="small">Max for Refinance is:
-                                        ${{ status.restrictions.maxRefi|intcomma }}</p>
+                                        ${{ status.data.maxRefi|intcomma }}</p>
                                     <p class="small">
-                                        {% if status.restrictions.maxLoan > status.restrictions.maxReno %}
+                                        {% if status.data.maxLoan > status.data.maxReno %}
                                             Max for
-                                            Renovations is: ${{ status.restrictions.maxReno|intcomma }}
+                                            Renovations is: ${{ status.data.maxReno|intcomma }}
                                             </p>{% endif %}
                                     <p class="small">Max for Giving is:
-                                        ${{ status.restrictions.maxGive|intcomma }}</p>
+                                        ${{ status.data.maxGive|intcomma }}</p>
                                     <p class="small">Max for Transport and Travel is:
-                                        ${{ status.restrictions.maxTravel|intcomma }}</p>
+                                        ${{ status.data.maxTravel|intcomma }}</p>
 
                                 </div>
                             </div>

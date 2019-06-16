@@ -31,7 +31,7 @@ urlpatterns = [
     path('output/<uuid:uid>/', views.OutputView.as_view(), name='calcOutput'),
     path('calcSummaryPdf/<uuid:uid>', views.CalcSummaryPdfView.as_view(), name='calcSummaryPdf'),
     path('calcSendDetail/<uuid:uid>', views.CalcSendDetails.as_view(), name='calcSendDetails'),
-    path('test', views.Test.as_view(), name='test'),
+    path('test/<uuid:uid>', views.Test.as_view(), name='test'),
 
 
 ]

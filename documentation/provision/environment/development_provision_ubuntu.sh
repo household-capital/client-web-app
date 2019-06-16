@@ -27,6 +27,7 @@ pip install pandas
 pip install simple-salesforce
 pip install pip-upgrader
 pip install djangorestframework
+pip install djangorestframework_simplejwt
 pip install markdown
 pip install django-filter
 pip install psycopg2-binary

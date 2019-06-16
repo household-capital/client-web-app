@@ -136,39 +136,39 @@
                             <br>
                             <p><i class="far fa-check-circle fa-lg btn-outline-success"></i>&nbsp;Eligible Opportunity
                             </p>
-                            {% if status.restrictions.postcode %}
+                            {% if status.data.postcode != 'Valid' %}
                                 <br>
                                 <p><i class="fas fa-tractor fa-lg btn-outline-warning"></i>&nbsp;Refer Postcode
                                 </p>
                             {% endif %}
+
+                            <p class="large pl-4">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
                             <br>
-                            <p class="larger">Max LVR is: {{ status.restrictions.maxLVR|intcomma }}%</p>
-                            <br>
-                            <p class="small"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
-                            <p class="small">Max Loan is: ${{ status.restrictions.maxLoan|intcomma }} (incl
+                            <p class="small"><i class="fas fa-search"></i>&nbsp;data </p>
+                            <p class="small">Max Loan is: ${{ status.data.maxLoan|intcomma }} (incl
                                 establishment
                                 fee)</p>
-                            <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxTopUp %}Max for
+                            <p class="small">{% if status.data.maxLoan > status.data.maxTopUp %}Max for
                                 Super
                                 Top Up
-                                is: ${{ status.restrictions.maxTopUp|intcomma }}</p>{% endif %}
-                            <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxCare %}Max for
+                                is: ${{ status.data.maxTopUp|intcomma }}</p>{% endif %}
+                            <p class="small">{% if status.data.maxLoan > status.data.maxCare %}Max for
                                 Age
                                 Care
                                 is:
-                                ${{ status.restrictions.maxCare|intcomma }}</p>{% endif %}
-                            <p class="small">Max for Refinance is: ${{ status.restrictions.maxRefi|intcomma }}</p>
-                            <p class="small">{% if status.restrictions.maxLoan > status.restrictions.maxReno %}Max for
+                                ${{ status.data.maxCare|intcomma }}</p>{% endif %}
+                            <p class="small">Max for Refinance is: ${{ status.data.maxRefi|intcomma }}</p>
+                            <p class="small">{% if status.data.maxLoan > status.data.maxReno %}Max for
                                 Renovations
-                                is: ${{ status.restrictions.maxReno|intcomma }}</p>{% endif %}
-                            <p class="small">Max for Giving is: ${{ status.restrictions.maxGive|intcomma }}</p>
+                                is: ${{ status.data.maxReno|intcomma }}</p>{% endif %}
+                            <p class="small">Max for Giving is: ${{ status.data.maxGive|intcomma }}</p>
                             <p class="small">Max for Transport and Travel is:
-                                ${{ status.restrictions.maxTravel|intcomma }}</p>
+                                ${{ status.data.maxTravel|intcomma }}</p>
 
                             <br>
                             {% if obj.summaryDocument %}
-                                <p><i class="far fa-file-pdf"></i>&nbsp;Document</p>
-                                <p><a href="/media/enquiryReports/{{ obj.summaryDocument.file|filename }}">Emailed
+                                <p class="small"><i class="far fa-file-pdf"></i>&nbsp;Documents</p>
+                                <p class="small"><a href="/media/enquiryReports/{{ obj.summaryDocument.file|filename }}">Emailed
                                     Document</a>
                                 </p>
                             {% endif %}
@@ -192,9 +192,9 @@
                     <div class="jumbotron">
 
                         <p class="small"><i class="far fa-paper-plane"></i>&nbsp;Contact</p>
-                        <p>Created:&nbsp;&nbsp;&nbsp;&nbsp; {{ obj.timestamp|date }}</p>
-                        <p>Updated: &nbsp;&nbsp;&nbsp;{{ obj.updated|date }}</p>
-                        <p>Follow Up:&nbsp;&nbsp;{{ obj.followUp|date }}</p>
+                        <p class="small">Created:&nbsp;&nbsp;&nbsp;&nbsp; {{ obj.timestamp|date }}</p>
+                        <p class="small">Updated: &nbsp;&nbsp;&nbsp;{{ obj.updated|date }}</p>
+                        <p class="small">Follow Up:&nbsp;&nbsp;{{ obj.followUp|date }}</p>
 
                     </div>
                 {% endif %}
@@ -214,7 +214,8 @@
                             </button>
                         </div>
                         <div class="modal-body">
-                            <p>You are about to send the client a summary document via email - are you sure ?</p>
+                            <p>You are about to send the client a summary document via email - are you sure ?</p><br>
+                             <p>Note: the new summary requires an estimated funding requirement to be saved</p>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

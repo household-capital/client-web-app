@@ -3,10 +3,11 @@ import os
 
 # Django Imports
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 
 # Third Party Imports
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView,RetrieveUpdateDestroyAPIView
-from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, DestroyModelMixin
+from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, DestroyModelMixin, RetrieveModelMixin
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication
@@ -18,8 +19,13 @@ from apps.enquiry.models import Enquiry
 
 
 # VIEWS
+#Single End Point
 
-class StatusAPIView(CreateModelMixin,ListAPIView):
+class StatusAPIView(CreateModelMixin,
+                    RetrieveModelMixin,
+                    UpdateModelMixin,
+                    DestroyModelMixin,
+                    ListAPIView):
     #List view with create
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [SessionAuthentication]
@@ -33,8 +39,36 @@ class StatusAPIView(CreateModelMixin,ListAPIView):
             qs = qs.filter(name__icontains=query)
         return qs
 
+    def get_object(self):
+        request=self.request
+        enqUID=request.GET.get('enqUID',None)
+        qs=self.queryset
+        obj=None
+        if enqUID:
+            obj = get_object_or_404(qs, enqUID=enqUID)
+            self.check_object_permissions(request,obj)
+        return obj
+
+    def get (self, request, *args, **kwargs):
+        enqUID=request.GET.get('enqUID',None)
+        if enqUID:
+            return self.retrieve(request, *args, **kwargs)
+        return super(StatusAPIView,self).get(request, *args, **kwargs )
+
     def post(self, request, *args, **kwargs):
         return self.create(request, *args,**kwargs)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args,**kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.update(request, *args,**kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 
 
 #class StatusAPIDetailView(DestroyModelMixin,UpdateModelMixin,RetrieveAPIView):

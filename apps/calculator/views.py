@@ -5,14 +5,17 @@ import json
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.mail import EmailMultiAlternatives
 from django.core.files import File
 from django.http import HttpResponseRedirect, HttpResponse
+from django.template.loader import get_template
 from django.utils.decorators import method_decorator
 from django.utils import timezone
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import UpdateView, CreateView, ListView, TemplateView, View
 from django.urls import reverse_lazy
+
 
 # Third-party Imports
 
@@ -115,25 +118,25 @@ class CalcStartView(CreateView):
 
         if chkOpp['status'] == "Error":
             obj.status = 0
-            obj.errorText = chkOpp['details']
+            obj.errorText = chkOpp['responseText']
             obj.save()
 
-            if 'Postcode' in chkOpp['details']:
+            if 'Postcode' in chkOpp['responseText']:
                 return HttpResponseRedirect(reverse_lazy('calculator:calcOutputPostcode',
                                                          kwargs={'uid': str(obj.calcUID)}) + gclid)
 
-            if 'Youngest' in chkOpp['details']:
+            if 'Youngest' in chkOpp['responseText']:
                 return HttpResponseRedirect(reverse_lazy('calculator:calcOutputAge',
                                                          kwargs={'uid': str(obj.calcUID)}) + gclid)
 
-            messages.error(self.request, self.clientText(chkOpp['details']))
+            messages.error(self.request, self.clientText(chkOpp['responseText']))
 
             return self.render_to_response(self.get_context_data(form=form))
 
         else:
             obj.status = 1
-            obj.maxLoanAmount = chkOpp['restrictions']['maxLoan']
-            obj.maxLVR = chkOpp['restrictions']['maxLVR']
+            obj.maxLoanAmount = chkOpp['data']['maxLoan']
+            obj.maxLVR = chkOpp['data']['maxLVR']
             obj.save()
 
             success = reverse_lazy('calculator:calcResults',
@@ -161,6 +164,7 @@ class CalcResultsView(UpdateView):
     model = WebCalculator
     caseUID = ""
     form_class = CalcOutputForm
+    email_template='calculator/email/email_calc_response.html'
 
     @xframe_options_exempt
     def get(self, request, **kwargs):
@@ -190,15 +194,15 @@ class CalcResultsView(UpdateView):
         chkOpp = loanObj.validateLoan()
 
         context['topUpData'], context['topUpPoints'] = self.calcSliderList(
-            min(chkOpp['restrictions']['maxTopUp'], chkOpp['restrictions']['maxLoan']))
+            min(chkOpp['data']['maxTopUp'], chkOpp['data']['maxLoan']))
         context['refiData'], context['refiPoints'] = self.calcSliderList(
-            min(chkOpp['restrictions']['maxRefi'], chkOpp['restrictions']['maxLoan']))
+            min(chkOpp['data']['maxRefi'], chkOpp['data']['maxLoan']))
         context['liveData'], context['livePoints'] = self.calcSliderList(
-            min(chkOpp['restrictions']['maxReno'], chkOpp['restrictions']['maxLoan']))
+            min(chkOpp['data']['maxReno'], chkOpp['data']['maxLoan']))
         context['giveData'], context['givePoints'] = self.calcSliderList(
-            min(chkOpp['restrictions']['maxGive'], chkOpp['restrictions']['maxLoan']))
+            min(chkOpp['data']['maxGive'], chkOpp['data']['maxLoan']))
         context['careData'], context['carePoints'] = self.calcSliderList(
-            min(chkOpp['restrictions']['maxCare'], chkOpp['restrictions']['maxLoan']))
+            min(chkOpp['data']['maxCare'], chkOpp['data']['maxLoan']))
 
         context["obj"] = obj
         if obj.maxLVR < 18:
@@ -237,18 +241,35 @@ class CalcResultsView(UpdateView):
             gclid = "?gclid=" + clientId
 
         context = self.get_context_data(form=form)
-        context['success'] = True
-
         obj = self.get_object()
 
+        #Send email on success
+        email_context = {}
+        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+        email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
+        subject, from_email, to = "Household Capital: Calculator Enquiry", "info@householdcapital.com", obj.email
+        text_content = "Calculator Enquiry Received"
+
+        try:
+            html = get_template(self.email_template)
+            html_content = html.render(email_context)
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+        except:
+            pass
+
+        #Redirect on success
         context['redirect'] = True
+
+        context['redirectURL'] = "https://householdcapital.com.au/" + gclid
+        context['redirectMessage'] = "Thank you - we'll be back to you shortly"
 
         if obj.referrer:
             for url in campaignURLs:
                 if url in obj.referrer:
                     context['redirectURL'] = obj.referrer.replace(url, url[:-1] + "-thank-you") + gclid
-        else:
-            context['redirectURL'] = "https://householdcapital.com.au/" + gclid
+                    context['redirectMessage'] = ""
 
         return self.render_to_response(context)
 
@@ -357,11 +378,11 @@ class CalcOutputAge(UpdateView):
         if chkOpp['status'] == "Error":
             # Even with correct age - loan may still be invalid
             context["isError"] = True
-            context["errorText"] = self.clientText(chkOpp['details'])
+            context["errorText"] = self.clientText(chkOpp['responseText'])
             return context
 
-        context['maxLoanAmount'] = chkOpp['restrictions']['maxLoan']
-        maxLVR = chkOpp['restrictions']['maxLVR']
+        context['maxLoanAmount'] = chkOpp['data']['maxLoan']
+        maxLVR = chkOpp['data']['maxLVR']
         context['valuation'] = obj.valuation
 
         if maxLVR < 18:
@@ -483,13 +504,15 @@ class CalcSummaryNewPdf(TemplateView):
 class Test(View):
 
     def get(self, request, *args, **kwargs):
+        enqUID = str(kwargs['uid'])
+
         sourcePath = 'https://householdcapital.app/calculator/calcSummaryNewPdf/'
         targetPath = settings.MEDIA_ROOT + "/customerReports/"
-        clientUID = '25b0e3e4-d998-4796-b57e-1ea5e1c383b3'
 
-        pdf = pdfGenerator(str(clientUID))
-        pdf.createPdfFromUrl(sourcePath + str(clientUID), "",
-                             targetPath + "test" + str(clientUID)[-12:] + ".pdf")
+
+        pdf = pdfGenerator(enqUID)
+        pdf.createPdfFromUrl(sourcePath + enqUID, "",
+                             targetPath + "test" + enqUID[-12:] + ".pdf")
 
         response = HttpResponse(pdf.getContent(), content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="LoanSummary.pdf"'
@@ -557,7 +580,6 @@ class CalcSendSummary(LoginRequiredMixin, UpdateView):
     context_object_name = 'object_list'
     model = WebCalculator
     template_name = 'calculator/email/email_cover_calculator.html'
-    template_name_alt = 'calculator/email/email_cover_calculator_calendar.html'
 
     def get(self, request, *args, **kwargs):
         calcUID = str(kwargs['uid'])
@@ -613,18 +635,14 @@ class CalcSendSummary(LoginRequiredMixin, UpdateView):
         email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
         email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
 
-        subject, from_email, to, bcc = "Household Loan Enquiry", \
+        subject, from_email, to, bcc = "Household Capital: Personal Summary", \
                                        self.request.user.email, \
                                        obj.email, \
                                        self.request.user.email
         text_content = "Text Message"
         attachFilename = 'HHC-CalculatorSummary'
 
-        if request.user.username in ['Moutzikis']:
-            sent = pdf.emailPdf(self.template_name_alt, email_context, subject, from_email, to, bcc, text_content,
-                                attachFilename)
-        else:
-            sent = pdf.emailPdf(self.template_name, email_context, subject, from_email, to, bcc, text_content,
+        sent = pdf.emailPdf(self.template_name, email_context, subject, from_email, to, bcc, text_content,
                                 attachFilename)
 
         if sent:
@@ -773,17 +791,17 @@ class InputView(CreateView):
 
         if chkOpp['status'] == "Error":
             obj.status = 0
-            obj.errorText = chkOpp['details']
+            obj.errorText = chkOpp['responseText']
             obj.save()
 
-            messages.error(self.request, self.clientText(chkOpp['details']))
+            messages.error(self.request, self.clientText(chkOpp['responseText']))
 
             return self.render_to_response(self.get_context_data(form=form))
 
         else:
             obj.status = 1
-            obj.maxLoanAmount = chkOpp['restrictions']['maxLoan']
-            obj.maxLVR = chkOpp['restrictions']['maxLVR']
+            obj.maxLoanAmount = chkOpp['data']['maxLoan']
+            obj.maxLVR = chkOpp['data']['maxLVR']
             obj.save()
 
             clientId = str(self.request.GET.get('clientId'))

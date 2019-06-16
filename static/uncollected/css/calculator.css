@@ -19,7 +19,6 @@
     max-width: 100%;
     padding-left: 0;
     padding-right: 0;
-
 }
 
 .cal_background_warm {
@@ -105,12 +104,10 @@ p.small {
 #refiSlider .ui-slider-handle,
 #giveSlider .ui-slider-handle,
 #liveSlider .ui-slider-handle,
-#careSlider .ui-slider-handle
-{
+#careSlider .ui-slider-handle {
     height: 25px;
     width: 30px;
 }
-
 
 
 /* Other Elements */
@@ -273,8 +270,7 @@ p.small {
 }
 
 
-
-.gold_underline{
+.gold_underline {
     border-bottom: 3px solid;
     padding: 10px 0;
     border-bottom-color: #ffb800
@@ -286,9 +282,7 @@ p.small {
 }
 
 
-
 /* TEMPORARY */
-
 
 
 .logo-box {
@@ -319,29 +313,60 @@ p.small {
 
 .menu-box ul li {
     display: inline-block;
-    padding: 20px 7px
+    padding: 16px 10px
 }
 
 .menu-box ul {
     padding: 0;
     margin: 0;
-    text-align: right
+    text-align: center;
 }
 
 .menu-box ul .current-menu-item a {
     border-bottom-color: #ffb800
 }
 
-.menu-box ul li:last-child a {
-    background-color: #ffb800;
-    padding: 7px 30px 7px;
-    border-radius: 100px
+
+.menu-box li.header-phone-number::before {
+    content: '';
+    position: absolute;
+    height: 32px;
+    border: 1px solid #DCE1E9;
+    transform: translateY(-50%);
+    top: 38px;
+    left: -18px;
+    display: none;
 }
 
-.menu-box ul li:last-child a:hover {
-    background-color: #182540;
-    color: #fff
+@media (min-width: 1200px) {
+    .menu-box li.header-phone-number::before {
+        display: block;
+    }
+
+    .menu-box li.header-phone-number {
+        position: relative;
+        margin-left: 32px;
+    }
+    .menu-box ul li:last-child a {
+        background-color: #ffb800;
+        padding: 7px 30px 7px;
+        border-radius: 100px;
+        line-height: 32px
+    }
+
+    .menu-box ul li:last-child a:hover {
+        background-color: #182540;
+        color: #fff
+    }
 }
+
+
+
+
+.menu-box li.header-phone-number > a {
+    color: #5184A1;
+}
+
 
 .header-1300-number {
     display: none
@@ -349,32 +374,33 @@ p.small {
 
 
 /* Centered text */
-.calc_hero_container{
-  position:relative;
+.calc_hero_container {
+    position: relative;
 }
 
-.calc_hero_text{
+.calc_hero_text {
 
-  position: absolute;
-  text-align: center;
-  left: 0;
-  right: 0;
-  top: 35%;
-  letter-spacing: 3px;
-    font-size: 1.25vw;
+    position: absolute;
+    text-align: center;
+    left: 0;
+    right: 0;
+    top: 35%;
+    letter-spacing: 1px;
+
+
 }
 
-.calc_hero_text p{
+.calc_hero_text p {
     color: white;
 }
 
-.header_text{
+.header_text {
     font-family: MercuryDisplay;
-     font-size: 3.5vw;
+    font-size: 36px;
 }
 
 footer {
-    background: rgb(25,38,63);;
+    background: rgb(25, 38, 63);;
     padding: 20px 0 0;
     color: white;
     font-size: 12px
@@ -395,21 +421,30 @@ footer a {
 }
 
 footer ul li a:hover {
-    color:white
+    color: white
+}
+
+.footer-social ul {
+    text-align:center;
 }
 
 .footer-social ul li {
     padding: 10px 16px;
-    color:white
+    color: white;
 }
+
 .footer-social ul li a {
-    color:white;
+    color: white;
     font-size: 32px
 }
 
 .footer-social .fa {
     font-size: 32px;
-    color:white;
+    color: white;
+}
+
+.footer-address {
+    text-align:center;
 }
 
 .footer-disclaimer {
@@ -432,4 +467,5 @@ footer ul li a:hover {
 .menu-footer-menu-container a {
     color: white
 }
+
 

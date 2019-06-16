@@ -106,17 +106,17 @@ class ContextHelper():
 
         #update loan
         loanQS = Loan.objects.queryset_byUID(self.request.session['caseUID'])
-        loanQS.update(maxLVR=loanStatus['maxLVR'],
-                      totalLoanAmount=loanStatus['totalLoanAmount'],
-                      establishmentFee=loanStatus['establishmentFee'],
-                      actualLVR=loanStatus['actualLVR'])
+        loanQS.update(maxLVR=loanStatus['data']['maxLVR'],
+                      totalLoanAmount=loanStatus['data']['totalLoanAmount'],
+                      establishmentFee=loanStatus['data']['establishmentFee'],
+                      actualLVR=loanStatus['data']['actualLVR'])
 
         #create context
         context = {}
         context.update(clientDict)
         context.update(loanDict)
         context.update(modelDict)
-        context.update(loanStatus)
+        context.update(loanStatus['data'])
 
         context['caseTypesEnum']=caseTypesEnum
         context['clientSexEnum'] = clientSexEnum
@@ -258,7 +258,7 @@ class SetClientView(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, Upd
             return super(SetClientView, self).form_valid(form)
         else:
             # if error, renders the same page again with error message
-            messages.error(self.request, chkResponse['details'])
+            messages.error(self.request, chkResponse['responseText'])
             context = self.get_context_data(form=form)
             return self.render_to_response(context)
 
@@ -804,7 +804,7 @@ class PdfLoanSummary(ResultsHelper, TemplateView):
             context.update(clientDict)
             context.update(loanDict)
             context.update(modelDict)
-            context.update(loanStatus)
+            context.update(loanStatus['data'])
             context['caseTypesEnum'] = caseTypesEnum
             context['clientSexEnum'] = clientSexEnum
             context['clientTypesEnum'] = clientTypesEnum

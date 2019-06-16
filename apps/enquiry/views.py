@@ -1,7 +1,6 @@
 # Python Imports
 import os
 
-
 # Django Imports
 from django.conf import settings
 from django.contrib import messages
@@ -13,16 +12,18 @@ from django.db.models import Q
 from django.template.loader import get_template
 from django.utils import timezone
 from django.urls import reverse_lazy
-from django.views.generic import UpdateView, ListView, TemplateView, View
+from django.views.generic import CreateView, UpdateView, ListView, TemplateView, View
 
 # Local Application Imports
 from apps.calculator.models import WebCalculator, WebContact
 from apps.case.models import Case
 from apps.lib.hhc_LoanValidator import LoanValidator
+from apps.lib.hhc_LoanProjection import LoanProjection
 from apps.lib.site_Enums import caseTypesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum
+from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Utilities import pdfGenerator
 from apps.lib.site_Logging import write_applog
-from .forms import EnquiryForm, ReferrerForm, EnquiryFollowupForm
+from .forms import EnquiryForm, EnquiryDetailForm, ReferrerForm, EnquiryFollowupForm
 from .models import Enquiry
 
 
@@ -105,40 +106,29 @@ class EnquiryListView(LoginRequiredMixin, ListView):
         return context
 
 
-# Enquiry Detail View
-class EnquiryView(LoginRequiredMixin, UpdateView):
+# Enquiry Create View
+class EnquiryCreateView(LoginRequiredMixin, CreateView):
     template_name = "enquiry/enquiry.html"
     form_class = EnquiryForm
     model = Enquiry
 
     def get_object(self, queryset=None):
-        if "uid" in self.kwargs:
-            enqUID = str(self.kwargs['uid'])
-            queryset = Enquiry.objects.queryset_byUID(str(enqUID))
-            obj = queryset.get()
-            return obj
+        enqUID = str(self.kwargs['uid'])
+        queryset = Enquiry.objects.queryset_byUID(str(enqUID))
+        obj = queryset.get()
+        return obj
 
     def get_context_data(self, **kwargs):
-        context = super(EnquiryView, self).get_context_data(**kwargs)
-        context['title'] = 'Enquiry'
+        context = super(EnquiryCreateView, self).get_context_data(**kwargs)
+        context['title'] = 'New Enquiry'
 
-        if "uid" in self.kwargs:
-            clientDict = Enquiry.objects.dictionary_byUID(str(self.kwargs['uid']))
-            loanObj = LoanValidator(clientDict)
-            chkOpp = loanObj.validateLoan()
-            context['status'] = chkOpp
-            queryset = Enquiry.objects.queryset_byUID(str(self.kwargs['uid']))
-            obj = queryset.get()
-            context['obj'] = obj
-            context['isUpdate'] = True
         return context
 
     def form_valid(self, form):
-
         clientDict = form.cleaned_data
         obj = form.save(commit=False)
 
-        loanObj = LoanValidator( clientDict)
+        loanObj = LoanValidator(clientDict)
         chkOpp = loanObj.validateLoan()
 
         if obj.user == None and self.request.user.profile.isCreditRep == True:
@@ -146,12 +136,79 @@ class EnquiryView(LoginRequiredMixin, UpdateView):
 
         if chkOpp['status'] == "Error":
             obj.status = 0
-            obj.errorText = chkOpp['details']
+            obj.errorText = chkOpp['responseText']
             obj.save()
         else:
             obj.status = 1
-            obj.maxLoanAmount = chkOpp['restrictions']['maxLoan']
-            obj.maxLVR = chkOpp['restrictions']['maxLVR']
+            obj.maxLoanAmount = chkOpp['data']['maxLoan']
+            obj.maxLVR = chkOpp['data']['maxLVR']
+            obj.save()
+
+        messages.success(self.request, "Enquiry Saved")
+
+        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': str(obj.enqUID)}))
+
+
+
+# Enquiry Detail View
+class EnquiryUpdateView(LoginRequiredMixin, UpdateView):
+    template_name = "enquiry/enquiry.html"
+    form_class = EnquiryDetailForm
+    model = Enquiry
+
+    def get_object(self, queryset=None):
+        enqUID = str(self.kwargs['uid'])
+        queryset = Enquiry.objects.queryset_byUID(str(enqUID))
+        obj = queryset.get()
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(EnquiryUpdateView, self).get_context_data(**kwargs)
+        context['title'] = 'Enquiry'
+
+        clientDict = Enquiry.objects.dictionary_byUID(str(self.kwargs['uid']))
+        loanObj = LoanValidator(clientDict)
+        chkOpp = loanObj.validateLoan()
+        context['status'] = chkOpp
+        queryset = Enquiry.objects.queryset_byUID(str(self.kwargs['uid']))
+        obj = queryset.get()
+        context['obj'] = obj
+        context['isUpdate'] = True
+
+        print(chkOpp)
+
+        return context
+
+
+    def form_valid(self, form):
+        clientDict = form.cleaned_data
+        obj = form.save(commit=False)
+
+        loanObj = LoanValidator(clientDict)
+        chkOpp = loanObj.validateLoan()
+
+        calcTotal=0
+        purposeList=['calcTopUp','calcRefi','calcLive','calcGive','calcCare']
+
+        for purpose in purposeList:
+            if form.cleaned_data[purpose]:
+                setattr(obj, purpose, form.cleaned_data[purpose])
+                setattr(obj, purpose.replace('calc','is'),True)
+                calcTotal+=int(form.cleaned_data[purpose])
+
+        obj.calcTotal=calcTotal
+
+        if obj.user == None and self.request.user.profile.isCreditRep == True:
+            obj.user = self.request.user
+
+        if chkOpp['status'] == "Error":
+            obj.status = 0
+            obj.errorText = chkOpp['responseText']
+            obj.save()
+        else:
+            obj.status = 1
+            obj.maxLoanAmount = chkOpp['data']['maxLoan']
+            obj.maxLVR = chkOpp['data']['maxLVR']
             obj.save()
 
         messages.success(self.request, "Enquiry Saved")
@@ -176,12 +233,15 @@ class SendEnquirySummary(LoginRequiredMixin, UpdateView):
     context_object_name = 'object_list'
     model = WebCalculator
     template_name = 'enquiry/email/email_cover_enquiry.html'
-    template_name_alt = 'enquiry/email/email_cover_enquiry_calendar.html'
 
     def get(self, request, *args, **kwargs):
         enqUID = str(kwargs['uid'])
         queryset = Enquiry.objects.queryset_byUID(enqUID)
         enq_obj = queryset.get()
+
+        if self.nullOrZero(enq_obj.calcTotal):
+            messages.error(self.request, "No funding requirements - cannot send summary")
+            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
 
         enqDict = Enquiry.objects.dictionary_byUID(enqUID)
 
@@ -222,11 +282,7 @@ class SendEnquirySummary(LoginRequiredMixin, UpdateView):
         text_content = "Text Message"
         attachFilename = 'HHC-Summary'
 
-        if request.user.username in ['Moutzikis']:
-            sent = pdf.emailPdf(self.template_name_alt, email_context, subject, from_email, to, bcc, text_content,
-                                attachFilename)
-        else:
-            sent = pdf.emailPdf(self.template_name, email_context, subject, from_email, to, bcc, text_content,
+        sent = pdf.emailPdf(self.template_name, email_context, subject, from_email, to, bcc, text_content,
                                 attachFilename)
         if sent:
             messages.success(self.request, "Client has been emailed")
@@ -237,26 +293,31 @@ class SendEnquirySummary(LoginRequiredMixin, UpdateView):
 
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
 
+    def nullOrZero(self, arg):
+        if arg:
+            if arg!=0:
+                return False
+        return True
 
 class EnqSummaryPdfView(TemplateView):
     # Produce Summary Report View (called by Api2Pdf)
-    template_name = 'enquiry/document/enquiry_summary.html'
+    template_name = 'calculator/document/calculator_new_summary.html'
 
     def get_context_data(self, **kwargs):
         context = super(EnqSummaryPdfView, self).get_context_data(**kwargs)
 
         enqUID = str(kwargs['uid'])
 
-        obj = Enquiry.objects.dictionary_byUID(enqUID)
+        obj = Enquiry.objects.queryset_byUID(enqUID).get()
 
         context["obj"] = obj
-        if obj["maxLVR"] < 18:
+        if obj.maxLVR < 18:
             img = 'transfer_15.png'
-        elif obj["maxLVR"] < 22:
+        elif obj.maxLVR < 22:
             img = 'transfer_20.png'
-        elif obj["maxLVR"] < 27:
+        elif obj.maxLVR < 27:
             img = 'transfer_25.png'
-        elif obj["maxLVR"] < 32:
+        elif obj.maxLVR < 32:
             img = 'transfer_30.png'
         else:
             img = 'transfer_35.png'
@@ -266,6 +327,39 @@ class EnqSummaryPdfView(TemplateView):
         context['loanTypesEnum'] = loanTypesEnum
         context['dwellingTypesEnum'] = dwellingTypesEnum
         context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+
+        totalLoanAmount = 0
+        if obj.calcTotal == None or obj.calcTotal == 0:
+            totalLoanAmount = obj.maxLoanAmount
+        else:
+            totalLoanAmount = min(obj.maxLoanAmount, obj.calcTotal)
+        context['totalLoanAmount'] = totalLoanAmount
+
+        context['totalInterestRate'] = ECONOMIC['interestRate'] + ECONOMIC['lendingMargin']
+        context['housePriceInflation'] = ECONOMIC['housePriceInflation']
+        context['comparisonRate'] = context['totalInterestRate'] + ECONOMIC['comparisonRateIncrement']
+
+        # Get Loan Projections
+        clientDict = Enquiry.objects.dictionary_byUID(enqUID)
+        clientDict.update(ECONOMIC)
+        clientDict['totalLoanAmount'] = totalLoanAmount
+        clientDict['maxNetLoanAmount'] = obj.maxLoanAmount
+        loanProj = LoanProjection()
+        result = loanProj.create(clientDict)
+        result = loanProj.calcProjections()
+
+        # Build results dictionaries
+
+        # Check for no top-up Amount
+
+        context['resultsAge'] = loanProj.getResultsList('BOPAge')['data']
+        context['resultsHomeEquity'] = loanProj.getResultsList('BOPHomeEquity')['data']
+        context['resultsHomeEquityPC'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
+        context['resultsHomeImages'] = \
+            loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
+        context['resultsHouseValue'] = loanProj.getResultsList('BOPHouseValue', imageSize=100, imageMethod='lin')[
+            'data']
+
         return context
 
 
@@ -281,7 +375,7 @@ class EnquiryEmailEligibility(LoginRequiredMixin, TemplateView):
         obj = queryset.get()
 
         clientDict = queryset.values()[0]
-        loanObj = LoanValidator( clientDict)
+        loanObj = LoanValidator(clientDict)
         email_context['eligibility'] = loanObj.validateLoan()
         email_context['obj'] = obj
 
@@ -328,8 +422,8 @@ class EnquiryMarkFollowUp(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         obj = form.save()
         obj.followUp = timezone.now()
-        obj.status=1
-        obj.save(update_fields=['followUp','status'])
+        obj.status = 1
+        obj.save(update_fields=['followUp', 'status'])
 
         messages.success(self.request, "Enquiry marked as followed-up")
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryList'))
@@ -506,12 +600,12 @@ class ReferrerView(ReferrerRequiredMixin, UpdateView):
 
         if chkOpp['status'] == "Error":
             obj.status = 0
-            obj.errorText = chkOpp['details']
+            obj.errorText = chkOpp['responseText']
             obj.save()
         else:
             obj.status = 1
-            obj.maxLoanAmount = chkOpp['restrictions']['maxLoan']
-            obj.maxLVR = chkOpp['restrictions']['maxLVR']
+            obj.maxLoanAmount = chkOpp['data']['maxLoan']
+            obj.maxLVR = chkOpp['data']['maxLVR']
             obj.save()
 
         messages.success(self.request, "Referral Captured or Updated")
@@ -556,5 +650,3 @@ class ReferralEmail(LoginRequiredMixin, TemplateView):
                          "Failed to email introduction:" + enqID)
             messages.error(self.request, "Introduction could not be emailed")
             return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
-
-

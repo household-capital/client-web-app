@@ -23,6 +23,15 @@ a,p, a:link, a:visited {
     color: black;
 }
 
+.form-label {
+    font-size: small;
+    color:grey;
+}
+
+.form-header {
+    font-size:normal;
+    padding-bottom: 5px;
+}
 
 .col {
 	padding-left: 1pt;
@@ -131,7 +140,7 @@ body {
 
 .hero::after {
   content: "";
-  background-image: url("/static/img/hhc/HC-Hero.2.jpg");
+  background-image: url("/static/img/hhc/HC-Hero.6.jpg");
   opacity: 0.3;
   top: 0;
   left: 0;
