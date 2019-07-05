@@ -21,9 +21,9 @@ class apiSalesforce():
                       'Opportunity':
                           "Select Id,Name,StageName,CloseDate, OwnerId, Establishment_Fee_Percent__c from Opportunity where Id=\'{0}\'",
                       'Properties':
-                          "Select Id, Name, Street_Address__c,Suburb_City__c,State__c,Postcode__c,Country__c, Last_Valuation_Date__c, Home_Value_FullVal__c, Valuer__c, Valuer_Name__c, Insurer__c, Policy_Number__c, Minimum_Insurance_Value__c, Insurance_Expiry_Date__c  from Properties__c where Opportunity__c=\'{0}\' and isDeleted=False",
+                          "Select Id, Name, Street_Address__c,Suburb_City__c,State__c,Postcode__c,Country__c, Property_Type__c, Last_Valuation_Date__c, Home_Value_AVM__c, Home_Value_FullVal__c, Valuer__c, Valuer_Name__c, Insurer__c, Policy_Number__c, Minimum_Insurance_Value__c, Insurance_Expiry_Date__c  from Properties__c where Opportunity__c=\'{0}\' and isDeleted=False",
                       'Loan':
-                          "Select Loan_Number__c,Name, Loan_Type__c, Interest_Type__c,Establishment_Fee__c, Interest_Rate__c, Settlement_Date__c, Protected_Equity_Percent__c, Distribution_Partner_Contact__c, Total_Household_Loan_Amount__c from Opportunity where Id=\'{0}\' and isDeleted=False",
+                          "Select Loan_Number__c,Name, Loan_Type__c, Interest_Type__c,Establishment_Fee__c, Interest_Rate__c, Loan_Settlement_Date__c, Protected_Equity_Percent__c, Distribution_Partner_Contact__c, Total_Household_Loan_Amount__c from Opportunity where Id=\'{0}\' and isDeleted=False",
                       'Purposes':
                           "Select Name, Category__c, Description__c, Intention__c, Amount__c from Purpose__c where Opportunity__c=\'{0}\' and isDeleted=False",
                       'Purpose':
@@ -51,7 +51,7 @@ class apiSalesforce():
         if production == True:
             ENV_STR = '_PROD'
         else:
-            ENV_STR = '_DEV'
+            ENV_STR = '_UAT'
 
         try:
             # Open API connection to SF and retrive session token (handled by simple-salesforce)
@@ -60,10 +60,19 @@ class apiSalesforce():
                                      password=os.getenv("SALESFORCE_PASSWORD" + ENV_STR),
                                      security_token=os.getenv("SALESFORCE_TOKEN" + ENV_STR))
             else:
+
+                print(os.getenv("SALESFORCE_USERNAME" + ENV_STR))
+                print(os.getenv("SALESFORCE_PASSWORD" + ENV_STR))
+                print(os.getenv("SALESFORCE_TOKEN" + ENV_STR))
+
                 self.sf = Salesforce(username=os.getenv("SALESFORCE_USERNAME" + ENV_STR),
                                      password=os.getenv("SALESFORCE_PASSWORD" + ENV_STR),
                                      security_token=os.getenv("SALESFORCE_TOKEN" + ENV_STR),
                                      domain="test")
+
+
+
+
 
             write_applog("INFO", 'apiSalesforce', 'openAPI', "Salesforce API Opened")
             return {'status':"Ok"}
@@ -74,13 +83,16 @@ class apiSalesforce():
 
             return {'status':"Error", 'responseText':errorStr}
 
-    def qryToDict(self,qryName,qryParameter,prefix,targetDict):
+    def qryToDict(self,qryName,qryParameter,prefix):
 
+        responseDict={}
         #Utility function to build output dictionary from query results
         results = self.execSOQLQuery(qryName, qryParameter) # Get dataframe with qry results
-        for i, row in results.iterrows(): #Iterate over table using inbuilt generators
-            for j, column in row.iteritems():
-                targetDict[prefix + "." + j] = column #Store results in dictionary with prefix added to field name
+        if results['rows']!=0:
+            for i, row in results['data'].iterrows(): #Iterate over table using inbuilt generators
+                for j, column in row.iteritems():
+                    responseDict[prefix + "." + j] = column #Store results in dictionary with prefix added to field name
+        return {'status':'Ok','data':responseDict}
 
 
     def execSOQLQuery(self,qryName,qryVariable=None):
@@ -98,7 +110,7 @@ class apiSalesforce():
         except Exception as e:
             errorStr = 'Query Error: Code: {c}, Message, {m}'.format(c=type(e).__name__, m=str(e))
             write_applog("ERROR", 'apiSalesforce', 'execSOQLQuery', errorStr)
-            return
+            return {'status':'Error', 'responseText':errorStr}
 
         isDone=qryResult['done']
         resultsTable=DataFrame(qryResult['records']) #Import results into a pandas DataFrame for easier manipulation
@@ -113,42 +125,42 @@ class apiSalesforce():
             #qryResults are returned will full type attributes, drop these for easier manipulation
             resultsTable=resultsTable.drop('attributes',axis=1)
 
-        return resultsTable
+        return {'status':'Ok', 'data':resultsTable, 'rows':len(resultsTable.index)}
 
 
     def createLead(self,leadDict):
 
         try:
             result=self.sf.Lead.create(leadDict)
-            return dict(result)
+            return {'status':'Ok','data':result}
 
         except SalesforceMalformedRequest as err:
-            responseDict=err.content[0]
-            responseDict['success']=False
-            return responseDict
+            return {'status':'Error', 'responseText':err.content[0]}
         except:
-            return {'success':False,'message':'Unknown' }
+            return {'status':'Error','responseText':'Unknown' }
 
     def getLoanExtract(self,OpportunityID):
 
         #returns full extract dictionary for specific opportunityID
         logging.info("         Making multiple SOQL calls to produce dictionary")
         loanDict={}
-        self.qryToDict('Opportunity', OpportunityID, 'Opp', loanDict)
-        self.qryToDict('Properties', OpportunityID, 'Prop', loanDict)
-        self.qryToDict('Loan', OpportunityID, 'Loan', loanDict)
 
-        self.qryToDict('User',loanDict['Opp.OwnerId'],'User',loanDict)
+        loanDict.update(self.qryToDict('Opportunity', OpportunityID, 'Opp')['data'])
+        loanDict.update(self.qryToDict('Properties', OpportunityID, 'Prop')['data'])
+        loanDict.update(self.qryToDict('Loan', OpportunityID, 'Loan')['data'])
 
-        if loanDict['Loan.Distribution_Partner_Contact__c']!=None:
-            self.qryToDict('DistContact', loanDict['Loan.Distribution_Partner_Contact__c'], 'Dist', loanDict)
-            self.qryToDict('DistCompany', loanDict['Dist.AccountId'], 'Dist', loanDict)
+        loanDict.update(self.qryToDict('User',loanDict['Opp.OwnerId'],'User')['data'])
+
+        if 'Loan.Distribution_Partner_Contact__c' in loanDict:
+            if loanDict['Loan.Distribution_Partner_Contact__c']!=None:
+                loanDict.update(self.qryToDict('DistContact', loanDict['Loan.Distribution_Partner_Contact__c'], 'Dist')['data'])
+                loanDict.update(self.qryToDict('DistCompany', loanDict['Dist.AccountId'], 'Dist')['data'])
 
         # Nested loop - multiple purposes
         results = self.execSOQLQuery('Purposes', OpportunityID)
-        loanDict['Purp.NoPurposes'] = len(results.index)
-        for  index, row in results.iterrows():
-            self.qryToDict('Purpose', row['Name'], "Purp" + str(index+1), loanDict)
+        loanDict['Purp.NoPurposes'] = results['rows']
+        for  index, row in results['data'].iterrows():
+            loanDict.update(self.qryToDict('Purpose', row['Name'], "Purp" + str(index+1) )['data'])
 
         #Nested loop - multiple borrowers
 
@@ -156,15 +168,15 @@ class apiSalesforce():
 
         borrowerCount=0
         poaCount=0
-        for  index, row in results.iterrows():
+        for  index, row in results['data'].iterrows():
             if "Borrower" in row['Role']:
                 borrowerCount+=1
                 loanDict["Brwr" + str(borrowerCount)+".Role"]=row['Role']
-                self.qryToDict('Contacts', row['ContactId'], "Brwr" + str(borrowerCount), loanDict)
+                loanDict.update(self.qryToDict('Contacts', row['ContactId'], "Brwr" + str(borrowerCount)) ['data'])
             if "Attorney" in row['Role']:
                 poaCount +=1
                 loanDict["POA" + str(poaCount) + ".Role"] = row['Role']
-                self.qryToDict('Contacts', row['ContactId'], "POA" + str(poaCount), loanDict)
+                loanDict.update(self.qryToDict('Contacts', row['ContactId'], "POA" + str(poaCount))['data'])
 
         loanDict['Brwr.Number'] = borrowerCount
         loanDict['POA.Number'] = poaCount
@@ -172,7 +184,7 @@ class apiSalesforce():
         #Work around - SF DB changes
         loanDict['Loan.Application_Amount__c']=loanDict["Loan.Total_Household_Loan_Amount__c"]
 
-        return loanDict
+        return {'status':"Ok", "data":loanDict}
 
 
     def getApprovedLoans(self):
@@ -190,6 +202,9 @@ class apiSalesforce():
 
         contentID=self.__getContentDocumentID(documentID)
 
+        if not contentID:
+            return {'status':'Error', 'responseText':"Couldn't find content ID"}
+
         fileUrl=self.__getFileUrl(contentID)
 
         # Work-around as simple_salesforce Restful call attempts to JSON decode response
@@ -198,44 +213,38 @@ class apiSalesforce():
         baseUrl = self.sf.base_url
         fullUrl=baseUrl + fileUrl[-54:]
         response = self.sf._call_salesforce(method="GET", url=fullUrl)
-        inMemoryFile = io.BytesIO(response.content)
 
-        return inMemoryFile
-
-    def updateLoanID(self, loanId, AMAL_loanId):
-
-        if len(loanId)<5 or len(AMAL_loanId)<5:
-            raise Exception
+        if response.status_code!=200:
+            return {'status': 'Error', 'responseText': "Invalid URL"}
         else:
-            self.sf.Loan__c.update(loanId,{"Loan_ID__c": AMAL_loanId})
+            return {'status': 'Ok', 'data': io.BytesIO(response.content)}
+
+
+    def updateLoanID(self, oppID, AMAL_loanId):
+
+        if len(oppID)<5 or len(AMAL_loanId)<5:
+            return {'status':'Error' , "responseText":"ID not valid"}
+        else:
+            self.sf.Opportunity.update(oppID,{"Loan_ID__c": AMAL_loanId})
+
+        return {'status':'Ok' }
 
     def setResultsPrefix(self, prefix):
         self.resultsPrefix=prefix
-
-    def createResultsTask(self,opportunityID,success,log):
-
-        if success:
-            status='Completed'
-            subject= self.resultsPrefix+' Success'
-        else:
-            status='Open'
-            subject = self.resultsPrefix+ ' * Failure *'
-
-        payload={'WhatId':opportunityID,
-                 'Subject':subject,
-                 'Status':status,
-                 'OwnerId':'0052P000000JbVjQAK',
-                 'Description':log}
-        result=self.sf.Task.create(payload)
-        return result
 
 
     def __getContentDocumentID(self,LinkID):
         #returns link ID to Content Version table
         docLink=self.execSOQLQuery('DocumentLink', LinkID)
-        return str(docLink.iloc[0]["ContentDocumentId"])
+        if docLink['rows']==0:
+            return None
+        else:
+            return str(docLink['data'].iloc[0]["ContentDocumentId"])
 
     def __getFileUrl(self,ContentDocumentID):
         #returns URL
         Url=self.execSOQLQuery('ContentVersion', ContentDocumentID)
-        return str(Url.iloc[0]["VersionData"])
+        if Url['rows']==0:
+            return None
+        else:
+            return str(Url['data'].iloc[0]["VersionData"])

@@ -97,6 +97,15 @@ p.small {
     color: black !important;
 }
 
+.btn-square-hhcLightBlue {
+    background-color: rgb(81,132,161);
+    font-size: 16px;
+    font-weight: normal;
+    font-family: MaisonNeue;
+    color: white !important;
+}
+
+
 
 /* Sliders */
 
@@ -104,13 +113,39 @@ p.small {
 #refiSlider .ui-slider-handle,
 #giveSlider .ui-slider-handle,
 #liveSlider .ui-slider-handle,
-#careSlider .ui-slider-handle {
+#careSlider .ui-slider-handle,
+#interestSlider .ui-slider-handle,
+#intPeriodSlider .ui-slider-handle{
     height: 25px;
     width: 30px;
 }
 
+#interestSlider .ui-widget-header,
+#intPeriodSlider .ui-widget-header {
+    background:rgb(81,132,161);
+}
+
+#interestSlider .ui-state-hover,
+#interestSlider .ui-state-focus,
+#intPeriodSlider .ui-state-hover,
+#intPeriodSlider .ui-state-focus{
+    border: 1px solid rgb(81,132,161);
+    background: #E7F0F0;
+}
+
+
 
 /* Other Elements */
+
+.content{
+        opacity: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 0;
+        width: 0;
+        z-index: -1;
+    }
 
 .ticket_background_white {
     background-color: white;
@@ -183,6 +218,15 @@ p.small {
 
 .Refi {
     background-image: url(/static/img/icons/refi_icon.png);
+}
+
+.Interest{
+    background-image: url(/static/img/icons/interest_icon.png);
+}
+
+.Period{
+    background-image: url(/static/img/icons/period_icon.png);
+
 }
 
 

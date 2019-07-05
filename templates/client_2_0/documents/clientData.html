@@ -1,0 +1,204 @@
+{% load static %}
+{% load humanize %}
+{% load site_tags %}
+
+<!doctype html>
+
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Other tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- CSS -->
+    {% include 'client_1_0/base/base_client.css.html' %}
+
+    <title>Household Client Summary</title>
+</head>
+
+<body>
+
+<div class="page">
+    <div class="print-container">
+
+        <div class="print-container">
+            <br><br><br><br>
+
+            <div class="badge-light"><h4>Client Data</h4>
+                <p>This document is a snapshot of all information fields captured through the client interface up to and
+                    including the client meeting.</p><br>
+                <br>
+
+            </div>
+            <br>
+            <div class="row">
+
+                <div class="col-lg-6">
+                    <div class="row">
+
+                        <div class="col-lg-4">
+                            <b>Client Details</b>
+                            <br>
+                            <p>CaseID</p>
+                            <p>CaseUID</p>
+                            <p>CaseType</p>
+                            <p>Owner</p>
+                            <p>Adviser</p>
+                            <p>LoanType</p>
+                            <br>
+                            <p>ClientType</p>
+                            <p>Surname</p>
+                            <p>Firstname</p>
+                            <p>Birthdate</p>
+                            <p>Age</p>
+                            <p>Sex</p>
+                            <br>
+                            {% if client.loanType == loanTypesEnum.JOINT_BORROWER.value %}
+                                <p>ClientType</p>
+                                <p>Surname</p>
+                                <p>Firstname</p>
+                                <p>Birthdate</p>
+                                <p>Age</p>
+                                <p>Sex</p>
+                                <br>
+                            {% endif %}
+                            <b>Property</b>
+                            <p>Address&nbsp;</p>
+                            <p>Postcode&nbsp;</p>
+                            <p>Dwelling type&nbsp;</p>
+                            <p>Valuation</p>
+                            <br>
+                            <b>Financial</b>
+                            <p>Mortgage&nbsp;</p>
+                            <p>Super/Investment&nbsp;</p>
+                            <p>Pension (p/f)&nbsp;</p>
+
+                        </div>
+
+                        <div class="col-lg-8">
+                            <p></p>
+                            <br>
+                            <p>{{ client.caseID }}&nbsp;</p>
+                            <p>{{ client.caseUID|shortUID }}&nbsp;</p>
+                            <p>{{ client.enumCaseType }}&nbsp;</p>
+                            <p>{{ client.user }}&nbsp;</p>
+                            <p>{{ client.adviser }}&nbsp;</p>
+                            <p>{{ client.enumLoanType }}&nbsp;</p>
+                            <br>
+                            <p>{{ client.enumClientType.0 }}&nbsp;</p>
+                            <p>{{ client.surname_1 }}&nbsp;</p>
+                            <p>{{ client.firstname_1 }}&nbsp;</p>
+                            <p>{{ client.birthdate_1 }}&nbsp;</p>
+                            <p>{{ client.age_1 }}&nbsp;</p>
+                            <p>{{ client.enumSex.0 }}&nbsp;&nbsp;</p>
+                            <br>
+                            {% if client.loanType == loanTypesEnum.JOINT_BORROWER.value %}
+                                <p>{{ client.enumClientType.1 }}&nbsp;</p>
+                                <p>{{ client.surname_2 }}&nbsp;</p>
+                                <p>{{ client.firstname_2 }}&nbsp;</p>
+                                <p>{{ client.birthdate_2 }}&nbsp;</p>
+                                <p>{{ client.age_2 }}&nbsp;</p>
+                                <p>{{ client.enumSex.1 }}&nbsp;</p>
+                                <br>
+                            {% endif %}
+                            <br>
+                            <p>{{ client.street }}&nbsp;</p>
+                            <p>{{ client.postcode|intBlank }}&nbsp;</p>
+                            <p>{{ client.enumDwellingType }}&nbsp;</p>
+                            <p>{{ client.valuation }}&nbsp;</p>
+                            <br>
+                            <br>
+                            <p>{{ client.mortgageDebt }}&nbsp;</p>
+                            <p>{{ client.superAmount }}&nbsp;</p>
+                            <p>{{ client.pensionAmount }}&nbsp;</p>
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-lg-6">
+                    <div class="row">
+
+                        <div class="col-lg-5">
+                            <b>Loan Details</b><br>
+                            <p>Protected Equity</p>
+                            <p>Maximum LVR </p>
+                            <p>Actual LVR </p>
+                            <p>Total Loan Amount</p>
+                            <p>Establishment Fee</p>
+                            <br>
+                            <p>Top Up amount</p>
+                            <p>Income Objective </p>
+                            <p>Top Up Income </p>
+                            <p>Pension Income </p>
+                            <br>
+                            <p>Refinance Amount </p>
+                            <p>Renovate Amount </p>
+                            <p>Description </p>
+                            <p>Travel Amount</p>
+                            <p>Description</p>
+                            <p>Give Amount</p>
+                            <p>Description</p>
+                            <p>Care Amount</p>
+                            <p>Description</p>
+                            <br>
+                            <b>Dates</b><br>
+                            <p>Create Date</p>
+                            <p>Meeting Date</p>
+
+                        </div>
+
+                        <div class="col-lg-7">
+                            <br>
+                            <p>{{ loan.protectedEquity }}%&nbsp;</p>
+                            <p>{{ loan.maxLVR }}%&nbsp;</p>
+                            <p>{{ loan.actualLVR }}%&nbsp;</p>
+                            <p>{{ loan.totalLoanAmount }}&nbsp;</p>
+                            <p>{{ loan.establishmentFee }}&nbsp;</p>
+                            <br>
+                            <p>{{ loan.topUpAmount }}&nbsp;</p>
+                            <p>{{ loan.incomeObjective }}&nbsp;</p>
+                            <p>{{ loan.topUpIncome }}&nbsp;</p>
+                            <p>{{ loan.annualPensionIncome }}&nbsp;</p>
+                            <br>
+                            <p>{{ loan.refinanceAmount|intBlank }}&nbsp;</p>
+                            <p>{{ loan.renovateAmount|intBlank }}&nbsp;</p>
+                            <p>{{ loan.renovateDescription|strBlank }}&nbsp;</p>
+                            <p>{{ loan.travelAmount|intBlank }}&nbsp;</p>
+                            <p>{{ loan.travelDescriptionstrBlank }}&nbsp;</p>
+                            <p>{{ loan.giveAmount|intBlank }}&nbsp;</p>
+                            <p>{{ loan.giveDescriptionstrBlank }}&nbsp;</p>
+                            <p>{{ loan.careAmount|intBlank }}&nbsp;</p>
+                            <p>{{ loan.careDescription|strBlank }}&nbsp;</p>
+
+                            <br>
+                            <br>
+                            <p>{{ client.timestamp|date }}</p>
+                            <p>{{ client.meetingDate|date }}</p>
+                        </div>
+
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <br>
+                    <b>Case Notes</b><br>
+                    {{ client.caseNotes }}
+                    <br><br><br>
+                    <p class="x-small">{{ client.caseUID|shortUID}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

@@ -9,7 +9,7 @@
 {% block calculator %}
 
     <div class="d-none d-sm-block calc_hero_container">
-        <img src="{% static 'img/hhc/HC-CalcHero.png' %}" class="img-fluid" alt="Responsive image">
+        <img src="{% static 'img/hhc/HC-CalcHero.png' %}" class="img-fluid w-100" alt="Responsive image">
         <div class="calc_hero_text">
             <p class="header_text">Our easy two-step calculator
             <p>
@@ -45,7 +45,8 @@
 
                             <div class="row justify-content-center pt-3">
 
-                                <div id='panelTopUp' class="col-md-2 text-center ticket_background_white ml-2 mr-2 mb-2">
+                                <div id='panelTopUp'
+                                     class="col-md-2 text-center ticket_background_white ml-2 mr-2 mb-2">
 
                                     <div class="check-hide">
                                         <input type="checkbox" name="isTopUp"
@@ -249,7 +250,7 @@
 
                             <div class="row justify-content-center">
                                 <div class="col-md-7 text-center">
-                                    <button type="submit" value="Submit" form="clientForm"
+                                    <button id="summary" type="submit" value="Submit" form="clientForm"
                                             class="btn btn-hhcGold btn-lg">
                                         &nbsp;&nbsp;See your Summary&nbsp;&nbsp;
                                     </button>
@@ -282,6 +283,7 @@
         </div>
     </div>
     <br><br>
+
 {% endblock %}
 
 {% block javascript %}
@@ -318,15 +320,44 @@
             }
         }
 
+        function gtag_report_conversion(gCode) {
+
+            gtag('event', 'conversion', {
+                'send_to': gCode
+            });
+            console.log(gCode)
+        }
+
         $(document).ready(function () {
+
+            //Google Analytics
+
+            gtag_report_conversion('AW-760723517/5wQECKKshaMBEL3w3uoC');
+
+            $('a#get-started').click(function () {
+                gtag_report_conversion('AW-760723517/_ni-CJa29aIBEL3w3uoC');
+            });
+
+            $('a#phone-number-header').click(function () {
+                gtag_report_conversion("AW-760723517/8MGICJjs-qIBEL3w3uoC'");
+            });
+
+            $('a#phone-number-footer').click(function () {
+                gtag_report_conversion( "AW-760723517/_u81CKyqhaMBEL3w3uoC");
+            });
+
+            $('#summary').click(function () {
+                gtag_report_conversion( "AW-760723517/rxaxCM-shaMBEL3w3uoC");
+            });
+
+
+            //Initialisation
 
             hideAge2($('#loanType_Single'));
 
             showAge2($('#loanType_Couple'));
 
-
             $('#id_name').focus();
-
 
             $('#loanType_Single').click(function () {
                 hideAge2($(this));

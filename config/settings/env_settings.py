@@ -16,7 +16,7 @@ def intNone(str):
     else:
         return int(str)
 
-ALLOWED_HOSTS = [os.getenv("ALLOWED_HOSTS_1"),os.getenv("ALLOWED_HOSTS_2"),os.getenv("ALLOWED_HOSTS_3")]
+ALLOWED_HOSTS = [os.getenv("ALLOWED_HOSTS_1"),os.getenv("ALLOWED_HOSTS_2"),os.getenv("ALLOWED_HOSTS_3"),os.getenv("ALLOWED_HOSTS_4")]
 
 SITE_URL = os.getenv("SITE_URL")
 

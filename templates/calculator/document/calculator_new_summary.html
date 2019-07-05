@@ -60,7 +60,7 @@
                     <div class="col-lg-12 ">
                         <br>
                         <div class="row justify-content-md-center">
-                            <div class="col-lg-2 text-center pr-2">
+                            <div class="col-lg-3 text-center pr-2">
                                 <p class="print-text">About you</p>
                             </div>
                             <div class="col-lg-3 text-center pr-2">
@@ -79,7 +79,7 @@
 
 
                 <div class="row justify-content-md-center">
-                    <div class="col-lg-2 text-center pt-3">
+                    <div class="col-lg-3 text-center pt-3">
                         {% if obj.loanType == loanTypesEnum.JOINT_BORROWER.value %}
                             <img src="{% static 'img/icons/couple_icon.png' %}" width="130px">
                         {% else %}
@@ -114,7 +114,7 @@
                 </div>
 
                 <div class="row justify-content-md-center">
-                    <div class="col-lg-2 text-center pr-2 pt-3">
+                    <div class="col-lg-3 text-center pr-2 pt-3">
                         {% if obj.loanType == loanTypesEnum.JOINT_BORROWER.value %}
                             <p class="print-text">Couple</p>
                             <p class="print-text">Ages: {{ obj.age_1 }},&nbsp;{{ obj.age_2 }}</p>
@@ -129,7 +129,6 @@
 
                             <p class="print-text">House</p>
                         {% else %}
-                            <br>
                             <p class="print-text">Apartment</p>
                         {% endif %}
                         <p class="print-text">Postcode: {{ obj.postcode|intBlank }}</p>
@@ -277,7 +276,7 @@
     </div>
 
 
-    <div class=""></div> <!-- Document pages alignment -->
+    <div class="padding-2px"></div> <!-- Document pages alignment -->
 
     <div class="print-container ">
         <div class="row HHCBlueBackground-Printed print-edge-row">
@@ -402,11 +401,13 @@
                     a Household Transfer of <b>${{ totalLoanAmount }}</b> and a current home value of
                     <b>${{ obj.valuation }}</b> (see
                     assumptions below) **</p>
-                <br><br>
+                {% if obj.payIntAmount > 0 %}<p>Includes monthly interest payments of <b>${{obj.payIntAmount|intcomma}}</b> for <b>{{ obj.payIntPeriod}}</b> years</p>
+                {% else %}<p>Assumes no payment of interest</p>{% endif %}
+                <br>
             </div>
         </div>
 
-        <div class="row justify-content-center">
+        <div class="row justify-content-center pt-2">
             <div class="col-sm-9 text-center">
 
                 <div class="row justify-content-center">
@@ -477,7 +478,7 @@
                 </div>
 
                 <div class="row justify-content-center align-items-end">
-                    <div class="col-lg-3 text-center">
+                    <div class="col-lg-6 text-center">
                         {% if obj.loanType == loanTypesEnum.JOINT_BORROWER.value %}
                             <p class="larger">Youngest borrower's age</p>
                         {% else %}
@@ -505,17 +506,14 @@
                     for a term of 25 years. Interest is calculated daily and
                     accrued monthly. Please note that the comparison rate only applies to the example given. Different
                     loan amounts and terms will result in diferent comparison rates. <br>** This is an estimate, not a
-                    guarantee. You may end
-                    up with more or less equity in your home. Assumptions: a lump sum
-                    drawdown, no payment of interest, {{ housePriceInflation }}% pa house price inflation and
-                    a {{ totalInterestRate }}% pa interest rate for the term of the loan. Establishment fee is not included in the illustration</p>
+                    guarantee. You may end up with more or less equity in your home. Assumptions: a lump sum
+                    drawdown, {{ housePriceInflation }}% pa house price inflation and a {{ totalInterestRate }}% pa interest rate for the term of the loan. Establishment fee is not included in the illustration.</p>
+
                 <br>
-
-
             </div>
         </div>
 
-        <div class="padding-7px"></div> <!-- Document pages alignment -->
+        <div class="padding-5px"></div> <!-- Document pages alignment -->
 
         <div class="print-container">
             <div class="row HHCBlueBackground-Printed print-edge-row">
@@ -528,7 +526,7 @@
                             <br>
                             <p class="small"><i class="far fa-envelope"></i>&nbsp;&nbsp;info@householdcapital.com</p>
                             <p class="small"><i class="fas fa-phone">&nbsp;&nbsp;</i>1 300 622 100</p>
-                            <p class="small"><i class="fas fa-desktop"></i>i&nbsp;&nbsp;www.householdcapital.com</p>
+                            <p class="small"><i class="fas fa-desktop"></i>&nbsp;&nbsp;www.householdcapital.com</p>
                                 <br><br>
 
                         </div>

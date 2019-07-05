@@ -20,6 +20,16 @@
 
                             <div class="container cal_container-md pb-5 pt-5">
 
+                                {% if redirectMessage %}
+                                    <div class="row justify-content-center">
+                                        <div class="col-12">
+                                            <p class="alert alert-success">{{ redirectMessage }}</p>
+                                            <br><br><br>
+                                        </div>
+
+                                    </div>
+                                {% endif %}
+
                                 <p class="x-large"><b>Age Restriction</b></p>
                                 {% if isCouple %}
                                     <p>Unfortunately, the youngest borrower must be aged {{ minCoupleAge }} to qualify
@@ -161,7 +171,7 @@
 
                                 <div class="col-md-4">
                                     <br>
-                                    <button type="submit" value="Submit" form="clientForm"
+                                    <button id="contact" type="submit" value="Submit" form="clientForm"
                                             class="btn btn-lg btn-hhcGold">
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Send&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                     </button>
@@ -199,13 +209,45 @@
 
 {% block javascript %}
 
-    {% if redirect %}
-        <script>
-            $(document).ready(function () {
-                parent.location = '{{ redirectURL }}';
+    <script>
+
+        //Google Analytics
+
+        $(document).ready(function () {
+
+            gtag_report_conversion('AW-760723517/18K9CLqshaMBEL3w3uoC');
+
+            $('a#get-started').click(function () {
+                gtag_report_conversion('AW-760723517/_ni-CJa29aIBEL3w3uoC');
             });
-        </script>
-    {% endif %}
+
+            $('a#phone-number-header').click(function () {
+                gtag_report_conversion( "AW-760723517/8MGICJjs-qIBEL3w3uoC'");
+            });
+
+            $('a#phone-number-footer').click(function () {
+                gtag_report_conversion( "AW-760723517/_u81CKyqhaMBEL3w3uoC");
+            });
+
+            $('#contact').click(function () {
+                gtag_report_conversion( "AW-760723517/T9V5CPb2-qIBEL3w3uoC");
+            });
+
+            {% if redirect %}
+                parent.location = '{{ redirectURL }}';
+            {% endif %}
+
+        });
+
+        function gtag_report_conversion(gCode) {
+
+            gtag('event', 'conversion', {
+                'send_to': gCode
+            });
+            console.log(gCode)
+        }
+    </script>
+
 
 {% endblock %}
 

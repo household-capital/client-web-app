@@ -18,7 +18,7 @@
 
 
 <body class="landing">
-{% include 'client_1_0/base/base_client.navbar.html' %}
+{% include 'client_2_0/base/base_client.navbar.html' %}
 
 <div class="container">
 
@@ -38,7 +38,7 @@
                 <button type="button" class="btn btn-hhcBlue" data-toggle="modal" data-target="#electronicConsent">Electronic Consent</button>
 
             {% elif post_id == 2 %}
-                <a href='{% url "client:introduction1" %}'><span class="btn btn-hhcBlue">&nbsp;&nbsp;&nbsp;Start Meeting&nbsp;&nbsp;&nbsp;</span></a>
+                <a href='{% url "client2:introduction1" %}'><span class="btn btn-hhcBlue">&nbsp;&nbsp;&nbsp;Start Meeting&nbsp;&nbsp;&nbsp;</span></a>
 
             {% else %}
                 <button type="button" class="btn btn-hhcBlue" data-toggle="modal" data-target="#privacyConsent">Privacy Consent</button>
@@ -67,7 +67,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
-          <a href='{% url "client:meetingStart" %}/1'><button type="button" class="btn btn-warning">Agree</button></a>
+          <a href='{% url "client2:meetingStart" %}/1'><button type="button" class="btn btn-warning">Agree</button></a>
       </div>
     </div>
   </div>
@@ -88,14 +88,14 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
-          <a href='{% url "client:meetingStart" %}/2'><button type="button" class="btn btn-warning">Agree</button></a>
+          <a href='{% url "client2:meetingStart" %}/2'><button type="button" class="btn btn-warning">Agree</button></a>
       </div>
     </div>
   </div>
 </div>
 
 
-{% include 'client_1_0/base/base_client.js.html' %}
+{% include 'client_2_0/base/base_client.js.html' %}
 </body>
 </html>
 

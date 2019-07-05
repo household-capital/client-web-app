@@ -80,6 +80,8 @@ class Enquiry(models.Model):
     calcGive=models.IntegerField(blank=True, null=True)
     calcCare = models.IntegerField( blank=True, null=True)
     calcTotal=models.IntegerField(blank=True, null=True)
+    payIntAmount=models.IntegerField(blank=True, null=True)
+    payIntPeriod = models.IntegerField(blank=True, null=True)
     email=models.EmailField(blank=True, null=True)
     referrer=models.IntegerField(blank=False,null=False,choices=referrerTypes)
     referrerID=models.CharField(max_length=200,blank= True,null=True)
@@ -93,6 +95,7 @@ class Enquiry(models.Model):
 
     phoneNumber=models.CharField(max_length=15,blank=True,null=True)
     enquiryNotes=models.TextField(null=True,blank=True)
+    sfLeadID = models.CharField(max_length=20, null=True, blank=True)
 
     objects = EnquiryManager()
 
@@ -100,10 +103,22 @@ class Enquiry(models.Model):
         return reverse_lazy("enquiry:enquiryDetail", kwargs={"uid":self.enqUID})
 
     def enumReferrerType(self):
+        if self.referrer:
             return dict(self.referrerTypes)[self.referrer]
 
+    def enumLoanType(self):
+        if self.loanType is not None:
+            return dict(self.loanTypes)[self.loanType]
+
     def referralCompany(self):
+        if self.referralUser:
             return self.referralUser.profile.referrer
+
+    def enumDwellingType(self):
+        if self.dwellingType is not None:
+            print(self.dwellingType)
+            print(dict(self.dwellingTypes)[self.dwellingType])
+            return dict(self.dwellingTypes)[self.dwellingType]
 
     def __str__(self):
         return smart_text(self.email)

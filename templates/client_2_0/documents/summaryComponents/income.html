@@ -1,0 +1,140 @@
+{% load static %}
+{% load humanize %}
+
+
+<div class="row">
+    <div class="col-sm-12">
+        <br><br>
+        <div class="secondary_title padding-10px">Your regular drawdown plan</div>
+
+        <p class="print-text">You have chosen a regular drawdown plan to supplement your income. </p>
+        <br>
+
+        <p class="print-text">Under the plan, you will drawdown your loan in {{ loanObj.enumDrawdownFrequency }}
+            instalements of ${{ topUpIncomeAmount }} over a period of {{ topUpPeriod }} years. {% if topUpBuffer %}Your
+                plan also includes $5,000 'Rainy Day' amount that can be drawn in addition to regular instalments to
+                cover unexpected expenses. </p>{% endif %}
+
+        <br>
+        <p class="print-text">Your annual income is projected as follows:</p>
+        <br>
+
+    </div>
+</div>
+
+<div class=" print-container">
+
+    <div class="row ">
+        <div class="col-lg-6 padding-10px tertiary_title">
+            <p>Annual income </p>
+        </div>
+    </div>
+
+    <div class="row padding-10px">
+        <div class="col-lg-4 ">
+            <p class="small"><i class="fas fa-square hhcTealShade"></i>&nbsp;Loan Drawdown&nbsp;&nbsp;&nbsp;&nbsp;
+                <i class="fas fa-square hhcLightBlue"></i>&nbsp;Age Pension </p>
+        </div>
+    </div>
+
+    <div class="row justify-content-md-center">
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="col-lg-2 text-center">
+                </div>
+
+                <div class="col-lg-2 text-center">
+                    <p class="">${{ resultsTotalIncome.0|intcomma }}</p>
+                </div>
+                <div class="col-lg-2 text-center">
+                    <p class="">${{ resultsTotalIncome.1|intcomma }}</p>
+                </div>
+                <div class="col-lg-2 text-center">
+                    <p class="">${{ resultsTotalIncome.2|intcomma }}</p>
+                </div>
+                <div class="col-lg-2 text-center">
+                    <p class="">${{ resultsTotalIncome.3|intcomma }}</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="row justify-content-md-center ">
+        <div class="col-lg-12">
+            <div class="row align-items-end">
+                <div class="col-lg-2 text-center">
+                </div>
+
+                <div class="col-lg-2 text-center">
+                    <div class="imgResults"><img src="{{ resultsIncomeImages.0 }}" width="120px"
+                                                 height="{{ resultsTotalIncome.4 }}px"></div>
+                </div>
+                <div class="col-lg-2 text-center">
+                    <div class="imgResults"><img src="{{ resultsIncomeImages.1 }}" width="120px"
+                                                 height="{{ resultsTotalIncome.5 }}px"></div>
+                </div>
+
+                <div class="col-lg-2 text-center ">
+                    <div class="imgResults"><img src="{{ resultsIncomeImages.2 }}" width="120px"
+                                                 height="{{ resultsTotalIncome.6 }}px"></div>
+                </div>
+                <div class="col-lg-2 text-center">
+                    <div class="imgResults"><img src="{{ resultsIncomeImages.3 }}" width="120px"
+                                                 height="{{ resultsTotalIncome.7 }}px"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-md-center align-items-end">
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="col-lg-2 text-center">
+                </div>
+                <div class="col-lg-2 text-center">
+                    <p class="larger">{{ resultsAge.0 }}</p>
+                </div>
+                <div class="col-lg-2 text-center">
+                    <p class="larger">{{ resultsAge.1 }}</p>
+                </div>
+                <div class="col-lg-2 text-center ">
+                    <p class="larger">{{ resultsAge.2 }}</p>
+                </div>
+                <div class="col-lg-2 text-center">
+                    <p class="larger">{{ resultsAge.3 }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-md-center align-items-end">
+        <div class="col-lg-12 text-center">
+            <div class="row">
+                <div class="col-lg-2 text-center">
+                </div>
+
+                <div class="col-lg-8 text-center">
+                    <p>{{ ageAxis }}</p>
+                    <br>
+                </div>
+            </div>
+        </div>
+        <br>
+        <p class="small">Note: We will review your regular payment plan on an annual basis to check whether it is still
+            suitable. We do not guarantee that you will be able to borrow planned amounts in future years.</p>
+        </p>
+    </div>
+
+    <div class="row ">
+
+        <div class="col-lg-12 "><br>
+            <p class="larger HHCLightBlue-Printed pb-3">Key assumptions</p>
+            <li class="print-text">Initial annual pension income of ${{ annualPensionIncome |intcomma }}</li>
+            <li class="print-text">Inflation rate (pension indexation) of {{ inflationRate }}% pa
+            <li class="print-text">A total of ${{ topUpDrawdownAmount|intcomma }} would be drawn over the plan period
+            </li>
+            <li class="print-text">The total amount assumes one $5,000 'Rainy Day' drawing</li>
+        </div>
+    </div>

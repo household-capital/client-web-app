@@ -124,7 +124,7 @@ class LoanValidator():
         # data
         data['maxLoan'] = int(self.loanLimit)
         data['maxFee'] = int(
-            data['maxLoan'] * LOAN_LIMITS['establishmentFee'] / (1 + LOAN_LIMITS['establishmentFee']))
+        data['maxLoan'] * LOAN_LIMITS['establishmentFee'] / (1 + LOAN_LIMITS['establishmentFee']))
         data['maxLVR'] = int(self.maxLvr)
         data['maxTopUp'] = LOAN_LIMITS['maxTopUp']
         data['maxCare'] = LOAN_LIMITS['maxCare']
@@ -159,7 +159,7 @@ class LoanValidator():
         maxEstablishmentFee = self.loanLimit * (
                 LOAN_LIMITS['establishmentFee'] / (1 + LOAN_LIMITS['establishmentFee']))
 
-        totalLoanAmount = (self.initDict['topUpAmount'] + self.initDict['refinanceAmount'] + self.initDict['giveAmount']
+        totalLoanAmount = (self.initDict['topUpAmount'] + self.initDict['topUpDrawdownAmount']+ self.initDict['refinanceAmount'] + self.initDict['giveAmount']
                            + self.initDict['renovateAmount'] + self.initDict['travelAmount'] + self.initDict[
                                'careAmount']) * (
                                   1 + LOAN_LIMITS['establishmentFee'])
@@ -172,11 +172,13 @@ class LoanValidator():
         # Store primary output
         data['maxLVR'] = round(self.maxLvr, 1)
         data['maxNetLoanAmount'] = int(round(self.loanLimit - maxEstablishmentFee, 0))
+        data['maxLoanAmount'] = int(round(self.loanLimit,0))
         data['availableAmount'] = int(round(availableAmount, 0))
         data['establishmentFee'] = int(round(
             totalLoanAmount / (1 + LOAN_LIMITS['establishmentFee']) * LOAN_LIMITS['establishmentFee'], 0))
         data['totalLoanAmount'] = int(round(totalLoanAmount, 0))
         data['actualLVR'] = round(totalLoanAmount / self.initDict['valuation'], 1) * 100
+        data['maxLVRPercentile']=int(self.__myround(self.maxLvr,5))
 
         # Validate against limits and add to output dictionary
         data['errors'] = False
@@ -185,6 +187,7 @@ class LoanValidator():
                            "LT")
         self.__chkStatusItem(data, 'maxloanAmountStatus', int(round(totalLoanAmount, 0)), self.loanLimit, "GTE")
         self.__chkStatusItem(data, 'topUpStatus', self.initDict['topUpAmount'], LOAN_LIMITS['maxTopUp'], "GTE")
+        self.__chkStatusItem(data, 'topUpDrawdownStatus', self.initDict['topUpDrawdownAmount'], LOAN_LIMITS['maxTopUp'], "GTE")
         self.__chkStatusItem(data, 'refinanceStatus', self.initDict['refinanceAmount'], self.refinanceLimit, "GTE")
         self.__chkStatusItem(data, 'giveStatus', self.initDict['giveAmount'], self.giveLimit, "GTE")
         self.__chkStatusItem(data, 'renovateStatus', self.initDict['renovateAmount'], LOAN_LIMITS['maxReno'], "GTE")
@@ -252,3 +255,6 @@ class LoanValidator():
                     return False
         else:
             return False
+
+    def __myround(self, val, base=5):
+        return base * round(val / base)

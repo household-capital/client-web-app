@@ -7,14 +7,15 @@ from . import views
 app_name = 'calculator'
 
 urlpatterns = [
+    path('', views.CalcStartView.as_view()),
     path('start', views.CalcStartView.as_view(), name='calcStart'),
     path('results/<uuid:uid>', views.CalcResultsView.as_view(), name='calcResults'),
+    path('results/calcOutputAge/<uuid:uid>', views.CalcOutputAge.as_view(), name='calcOutputAge'),
+    path('results/calcOutputPostcode/<uuid:uid>', views.CalcOutputPostcode.as_view(), name='calcOutputPostcode'),
 
     path('calcList', views.CalcListView.as_view(), name='calcList'),
     path('calcSpam/<uuid:uid>', views.CalcMarkSpam.as_view(), name='calcSpam'),
-    path('calcSendSummary/<uuid:uid>', views.CalcSendSummary.as_view(), name='calcSendSummary'),
-    path('calcOutputAge/<uuid:uid>', views.CalcOutputAge.as_view(), name='calcOutputAge'),
-    path('calcOutputPostcode/<uuid:uid>', views.CalcOutputPostcode.as_view(), name='calcOutputPostcode'),
+    path('calcCreateEnquiry/<uuid:uid>', views.CalcCreateEnquiry.as_view(), name='calcCreateEnquiry'),
     path('calcSummaryNewPdf/<uuid:uid>', views.CalcSummaryNewPdf.as_view(), name='calcSummaryNewPdf'),
 
     path('contact', views.WebContactView.as_view(), name='webContact'),
@@ -23,16 +24,7 @@ urlpatterns = [
     path('contactAction/<uuid:uid>', views.ContactActionView.as_view(), name='contactAction'),
     path('contactDelete/<uuid:uid>', views.ContactDeleteView.as_view(), name='contactDelete'),
 
-
-    #Old urls - decommission
-    path('', views.InputView.as_view(), name='calcInput'),
-    path('input', views.InputView.as_view(), name='calcInput'),
-    path('input/<uuid:uid>', views.InputView.as_view(), name='calcInputItem'),
-    path('output/<uuid:uid>/', views.OutputView.as_view(), name='calcOutput'),
-    path('calcSummaryPdf/<uuid:uid>', views.CalcSummaryPdfView.as_view(), name='calcSummaryPdf'),
-    path('calcSendDetail/<uuid:uid>', views.CalcSendDetails.as_view(), name='calcSendDetails'),
     path('test/<uuid:uid>', views.Test.as_view(), name='test'),
-
 
 ]
 

@@ -346,7 +346,7 @@ class TopUp1(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, TemplateVie
 
             #Loan Projections
             loanProj = LoanProjection()
-            result=loanProj.create(context)
+            result=loanProj.create(context,isVersion1=True,frequency=1)
 
             projectionAge=loanProj.getProjectionAge()['data']
             currentIncomeProj = loanProj.getInitialIncome()['data']
@@ -373,16 +373,16 @@ class TopUp2(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, FormView):
 
         # Loan Projections
         loanProj = LoanProjection()
-        result=loanProj.create(self.extra_context)
+        result=loanProj.create(self.extra_context,isVersion1=True,frequency=1)
 
-        sliderData = loanProj.getEnhancedIncomeArray()['data']
+        sliderData = loanProj.getEnhancedIncomeArray(incomeIntervals=500)['data']
         currentIncomeProj = loanProj.getInitialIncome()['data']
         boostedIncomeProj = loanProj.getMaxEnhancedIncome()['data']
 
         context['currentIncomeProj'] = int(currentIncomeProj)
         context['boostedIncomeProj'] = int(boostedIncomeProj)
         context['sliderData']=json.dumps(sliderData)
-        context['sliderPoints']=APP_SETTINGS['incomeIntervals']
+        context['sliderPoints']=500
         context['imgPath']=settings.STATIC_URL+'img/icons/equity_10_icon.png'
 
         return context
@@ -625,7 +625,7 @@ class Results3(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, TemplateV
 
         # Loan Projections
         loanProj = LoanProjection()
-        result= loanProj.create(context)
+        result= loanProj.create(context,isVersion1=True,frequency=1)
         if result['status']=="Error":
             write_applog("ERROR", 'client_1_0', 'Results3', result['responseText'])
         result = loanProj.calcProjections()
@@ -639,9 +639,8 @@ class Results3(LoginRequiredMixin, SessionRequiredMixin,ContextHelper, TemplateV
             context['topUpProjections'] = True
             context['resultsCumulative'] = loanProj.getResultsList('CumulativeSuperIncome', imageSize=100, imageMethod='exp')['data']
             context['resultsTotalIncome'] = loanProj.getResultsList('TotalIncome', imageSize=150, imageMethod='lin')['data']
-            context['resultsSuperBalance'] = loanProj.getResultsList('BOPBalance', imageSize=100, imageMethod='exp')['data']
+            context['resultsSuperBalance'] = loanProj.getResultsList('BOPSuperBalance', imageSize=100, imageMethod='exp')['data']
             context['resultsIncomeImages'] = loanProj.getImageList('PensionIncomePC',settings.STATIC_URL + 'img/icons/income_{0}_icon.png')['data']
-
 
         context['resultsAge']=loanProj.getResultsList('BOPAge')['data']
         context['resultsHomeEquity'] = loanProj.getResultsList('BOPHomeEquity')['data']
@@ -767,7 +766,7 @@ class PdfLoanSummary(TemplateView):
 
             # Loan Projections
             loanProj = LoanProjection()
-            result = loanProj.create(context)
+            result = loanProj.create(context,isVersion1=True, frequency=1)
             if result['status'] == "Error":
                 write_applog("ERROR", 'client_1_0', 'PdfLoanSummary', result['responseText'])
             result = loanProj.calcProjections()
@@ -785,7 +784,7 @@ class PdfLoanSummary(TemplateView):
                                                                       imageMethod='exp')['data']
                 context['resultsTotalIncome'] = loanProj.getResultsList( 'TotalIncome', imageSize=150,
                                                                        imageMethod='lin')['data']
-                context['resultsSuperBalance'] = loanProj.getResultsList( 'BOPBalance', imageSize=100,
+                context['resultsSuperBalance'] = loanProj.getResultsList( 'BOPSuperBalance', imageSize=100,
                                                                         imageMethod='exp')['data']
                 context['resultsIncomeImages'] = loanProj.getImageList( 'PensionIncomePC',
                                                                       settings.STATIC_URL + 'img/icons/income_{0}_icon.png')['data']
@@ -874,9 +873,11 @@ class PdfRespLending(TemplateView):
             clientDict = Case.objects.dictionary_byUID(caseUID)
             loanDict = Loan.objects.dictionary_byUID(caseUID)
 
+
             context.update(clientDict)
             context.update(loanDict)
             context['caseUID'] = caseUID
+            context['loanTypesEnum']=loanTypesEnum
 
         return context
 

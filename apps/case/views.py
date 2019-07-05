@@ -38,24 +38,28 @@ class SFHelper():
     def getSFids(self, sfAPI, caseObj):
         # Get SF information from generated leads
 
+        oppID=None
+        loanID=None
         # get related OpportunityID from Lead
         resultsTable = sfAPI.execSOQLQuery('OpportunityRef', caseObj.sfLeadID)
-        oppID = resultsTable.iloc[0]["ConvertedOpportunityId"]
+        if resultsTable['status']=="Ok":
+            oppID = resultsTable['data'].iloc[0]["ConvertedOpportunityId"]
         if oppID == None:
-            return (False, "Opportunity")
+            return False, "Opportunity"
 
         # get related LoanID from Opportunity
         resultsTable = sfAPI.execSOQLQuery('LoanRef', oppID)
-        loanID = resultsTable.iloc[0]["Loan_Number__c"]
+        if resultsTable['status'] == "Ok":
+            loanID = resultsTable['data'].iloc[0]["Loan_Number__c"]
         if loanID == None:
-            return (False, "Loan")
+            return False, "Loan"
 
         # save OpportunityID and LoanID
         caseObj.sfOpportunityID = oppID
         caseObj.sfLoanID = loanID
         caseObj.save(update_fields=['sfOpportunityID', 'sfLoanID'])
 
-        return (True, "Success")
+        return True, "Success"
 
 
 # //MIXINS
@@ -188,6 +192,10 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
             return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'pk': self.kwargs.get('pk')}))
 
         obj = form.save(commit=False)
+
+        #Prior Nullable field
+        if not obj.pensionAmount:
+            obj.pensionAmount=0
 
         # Update age if birthdate present and user
         if obj.birthdate_1 != None:
@@ -453,9 +461,9 @@ class CaseSalesforce(LoginRequiredMixin, FormView):
         caseObj = Case.objects.queryset_byUID(caseUID).get()
 
         sfAPI = apiSalesforce()
-        status = sfAPI.openAPI(True)
+        result = sfAPI.openAPI(True)
 
-        if status:
+        if result["status"]=="Ok":
 
             salesforceMap = {'LastName': 'surname_1', 'FirstName': 'firstname_1', 'Street': 'street',
                              'Postalcode': 'postcode', 'City': 'suburb',
@@ -482,20 +490,18 @@ class CaseSalesforce(LoginRequiredMixin, FormView):
                 leadDict['State'] = salesforceState[caseObj.enumStateType()]
 
             leadDict['Country'] = 'Australia'
-            if caseObj.superFund != None:
-                leadDict['Super_Fund__c'] = caseObj.superFund.fundName
-            leadDict['Interested__c'] = 'Yes'
-            leadDict['Type__c'] = 'Borrower'
+            leadDict['OwnerID'] = caseObj.user.profile.salesforceID
+
             result = sfAPI.createLead(leadDict)
 
-            if result['success']:
-                caseObj.sfLeadID = result['id']
+            if result['status']=='Ok':
+                caseObj.sfLeadID = result['data']['id']
                 caseObj.save(update_fields=['sfLeadID'])
 
                 messages.success(self.request, "Salesforce Lead Created!")
                 return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'pk': caseObj.pk}))
             else:
-                messages.error(self.request, "Lead not created: " + result['message'])
+                messages.error(self.request, "Lead not created: " + result['responseText'])
                 return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'pk': caseObj.pk}))
 
         else:
@@ -557,9 +563,9 @@ class CaseSolicitorView(LoginRequiredMixin, SFHelper, UpdateView):
         caseObj.save()
 
         sfAPI = apiSalesforce()
-        status = sfAPI.openAPI(True)
+        openResult = sfAPI.openAPI(True)
 
-        if status:
+        if openResult['status']=="Ok":
 
             result, message = self.getSFids(sfAPI, caseObj)
 
@@ -668,9 +674,9 @@ class CaseValuerView(LoginRequiredMixin, SFHelper, UpdateView):
         caseObj.save()
 
         sfAPI = apiSalesforce()
-        status = sfAPI.openAPI(True)
+        statusResult = sfAPI.openAPI(True)
 
-        if status:
+        if statusResult['status']=="Ok":
 
             result, message = self.getSFids(sfAPI, caseObj)
 
@@ -758,9 +764,9 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
     def form_valid(self, form):
         caseObj = Case.objects.filter(caseUID=self.kwargs['uid']).get()
         sfAPI = apiSalesforce()
-        status = sfAPI.openAPI(True)
+        statusResult = sfAPI.openAPI(True)
 
-        if status:
+        if statusResult['status'] == "Ok":
 
             result, message = self.getSFids(sfAPI, caseObj)
 
@@ -773,7 +779,7 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
                 return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'pk': caseObj.pk}))
 
             # generate dictionary from Salesforce
-            loanDict = sfAPI.getLoanExtract(caseObj.sfOpportunityID)
+            loanDict = sfAPI.getLoanExtract(caseObj.sfOpportunityID)['data']
 
             # enrich SOQL based dictionary
             # parse purposes from SF and enrich SOQL dictionary
@@ -914,6 +920,7 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
                 return context
 
             messages.success(self.request, "Successfully generated and validated")
+            context['log'] = result['log']
 
             if result['warningLog']:
                 messages.warning(self.request, "Post submission errors - " + result['warningLog'])
@@ -933,10 +940,12 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
                 context['log'] = result['log']
                 return context
 
+            context['log'] = result['log']
             messages.success(self.request, "Successfully sent to AMAL Development")
 
             if result['warningLog']:
                 messages.warning(self.request, "Post submission errors - " + result['warningLog'])
+                context['log'] += result['log']
 
 
         if self.request.GET.get('action') == 'production':
@@ -954,14 +963,18 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
                 context['log'] = result['log']
                 return context
 
+            context['log'] = result['log']
             messages.success(self.request, "Successfully sent to AMAL Production")
 
             if result['warningLog']:
                 messages.warning(self.request, "Post submission errors - " + result['warningLog'])
+                context['log'] += result['log']
 
         return context
 
 
+
+# Temporary Functionality
 class FundedDataView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):

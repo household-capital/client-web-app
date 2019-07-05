@@ -86,3 +86,8 @@ class stateTypesEnum(Enum):
     WA = 5
     TAS = 6
     NT = 7
+
+@accessInTemplate
+class incomeFrequencyEnum(Enum):
+    FORTNIGHTLY = 1
+    MONTHLY = 2

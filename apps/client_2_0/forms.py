@@ -7,13 +7,13 @@ from crispy_forms.bootstrap import (PrependedText, InlineRadios)
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, Div, Fieldset, Button, HTML
 
-#Local Application Imports
+# Local Application Imports
 from apps.case.models import Case, Loan, ModelSetting
+from apps.lib.site_Enums import incomeFrequencyEnum
 
 
 # FORMS
 class ClientDetailsForm(forms.ModelForm):
-
     valuation = forms.IntegerField(required=False, localize=True, widget=widgets.TextInput())
     mortgageDebt = forms.IntegerField(required=False, localize=True, widget=widgets.TextInput())
     superAmount = forms.IntegerField(required=False, localize=True, widget=widgets.TextInput())
@@ -26,7 +26,7 @@ class ClientDetailsForm(forms.ModelForm):
         fields = ['loanType',
                   'clientType1', 'surname_1', 'firstname_1', 'birthdate_1', 'age_1', 'sex_1',
                   'clientType2', 'surname_2', 'firstname_2', 'birthdate_2', 'age_2', 'sex_2',
-                  'street', 'postcode', 'valuation', 'dwellingType', 'mortgageDebt', 'superFund',
+                  'street', 'suburb', 'postcode', 'state', 'valuation', 'dwellingType', 'mortgageDebt', 'superFund',
                   'superAmount', 'pensionType', 'pensionAmount']
         widgets = {
             'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
@@ -41,55 +41,80 @@ class ClientDetailsForm(forms.ModelForm):
     helper.form_show_errors = True
     helper.layout = Layout(
         Div(
-            Div(Div(Submit('submit', 'Update Information', css_class='btn btn-warning'),
-                    HTML("<br>"),
-                    HTML("<br>"), css_class="col-lg-4")
-                , css_class="row"),
-
             Div(
-                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;<small>Loan Type</small>"),
-                    Field('loanType', placeholder='Loan Type'),
-                    HTML("<br>"),
-                    HTML("<i class='fas fa-user'></i>&nbsp;&nbsp;<small>Client Details</small>"),
-                    Field('birthdate_1', placeholder='Birthdate'),
-                    Field('age_1', placeholder='Age'),
-                    Field('surname_1', placeholder='Surname'),
-                    Field('firstname_1', placeholder='Firstname'),
-                    Field('sex_1', placeholder='Gender'),
-                    Field('clientType1', placeholder='Client Type'),
-                    HTML("<br>"),
-                    HTML("<i class='far fa-user'></i>&nbsp;&nbsp;<small>Client Details</small>"),
-                    Field('birthdate_2', placeholder='Birthdate'),
-                    Field('age_2', placeholder='Age'),
-                    Field('surname_2', placeholder='Surname'),
-                    Field('firstname_2', placeholder='Firstname'),
-                    Field('sex_2', placeholder='Gender'),
-                    Field('clientType2', placeholder='Client Type'),
-                    css_class="col-lg-4"),
-                Div(HTML("<i class='fas fa-home'></i>&nbsp;&nbsp;<small>Property</small>"),
-                    Field('postcode', placeholder='Postcode'),
-                    Field('dwellingType', placeholder='Dwelling Type'),
-                    Field('street', placeholder='Street Address'),
-                    Field('valuation', placeholder='Valuation'),
-                    Field('mortgageDebt', placeholder='Existing Mortgage'),
-                    css_class="col-lg-4"),
-                Div(HTML("<i class='fas fa-piggy-bank'></i>&nbsp;&nbsp;<small>Super/Investments</small>"),
-                    Field('superFund', placeholder='Super Fund'),
-                    Field('superAmount', placeholder='Super Amount'),
-                    HTML("<br>"),
-                    HTML("<i class='fas fa-hand-holding-usd'></i>&nbsp;&nbsp;<small>Pension</small>"),
-                    Field('pensionAmount', placeholder='Pension Amount (per fortnight)'),
-                    Field('pensionType', placeholder='Pension Type'),
-                    Div(
-                        Div(HTML("<i class='fas fa-users'></i>&nbsp;&nbsp;<small>Meeting</small>")),
-                        Div(Div(Field('resetConsents'), css_class="col-lg-1 pl-0"),
-                            Div(HTML("<p class='small'>Reset Data</p>"), css_class="col-lg-6 pt-1 pl-3"),
-                            css_class="row pl-0"),
-                        ),
-                    css_class="col-lg-4"),
 
-                css_class="row")
-        ))
+                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Borrower(s)"), css_class='form-header'),
+                Div(Div(HTML("Single or Joint Borrowers"), css_class='form-label'),
+                    Div(Field('loanType'))),
+                HTML("<i class='fas fa-user'></i>&nbsp;&nbsp;<small>Borrower 1</small>"),
+                Div(Div(HTML("Birthdate"), css_class='form-label'),
+                    Div(Field('birthdate_1'))),
+                Div(Div(HTML("Age"), css_class='form-label'),
+                    Div(Field('age_1'))),
+                Div(Div(HTML("Surname"), css_class='form-label'),
+                    Div(Field('surname_1'))),
+                Div(Div(HTML("Firstname"), css_class='form-label'),
+                    Div(Field('firstname_1'))),
+                Div(Div(HTML("Gender"), css_class='form-label'),
+                    Div(Field('sex_1'))),
+                Div(Div(HTML("Borrower Role"), css_class='form-label'),
+                    Div(Field('clientType1'))),
+                HTML("<i class='far fa-user'></i>&nbsp;&nbsp;<small>Borrower 2</small>"),
+                Div(Div(HTML("Birthdate"), css_class='form-label'),
+                    Div(Field('birthdate_2'))),
+                Div(Div(HTML("Age"), css_class='form-label'),
+                    Div(Field('age_2'))),
+                Div(Div(HTML("Surname"), css_class='form-label'),
+                    Div(Field('surname_2'))),
+                Div(Div(HTML("Firstname"), css_class='form-label'),
+                    Div(Field('firstname_2'))),
+                Div(Div(HTML("Gender"), css_class='form-label'),
+                    Div(Field('sex_2'))),
+                Div(Div(HTML("Borrower Role"), css_class='form-label'),
+                    Div(Field('clientType2'))),
+                css_class="col-lg-4"),
+
+            Div(Div(HTML("<i class='fas fa-home'></i>&nbsp;&nbsp;Property"), css_class='form-header'),
+                Div(Div(HTML("Postcode"), css_class='form-label'),
+                    Div(Field('postcode'))),
+                Div(Div(HTML("Dwelling Type"), css_class='form-label'),
+                    Div(Field('dwellingType'))),
+                Div(Div(HTML("Street Address"), css_class='form-label'),
+                    Div(Field('street'))),
+                Div(Div(HTML("Suburb"), css_class='form-label'),
+                    Div(Field('suburb'))),
+                Div(Div(HTML("State"), css_class='form-label'),
+                    Div(Field('state'))),
+                Div(Div(HTML("Valuation"), css_class='form-label'),
+                    Div(Field('valuation'))),
+                Div(Div(HTML("Mortgage Debt"), css_class='form-label'),
+                    Div(Field('mortgageDebt'))),
+                css_class="col-lg-4"),
+
+            Div(Div(HTML("<i class='fas fa-piggy-bank'></i>&nbsp;&nbsp;Super/Investments"), css_class='form-header'),
+                Div(Div(HTML("Super or Investment Fund"), css_class='form-label'),
+                    Div(Field('superFund'))),
+                Div(Div(HTML("Super Fund Assets"), css_class='form-label'),
+                    Div(Field('superAmount'))),
+
+                Div(Div(HTML("<i class='fas fa-hand-holding-usd'></i>&nbsp;&nbsp;Pension"), css_class='form-header'),
+                    Div(Div(HTML("Pension Amount"), css_class='form-label'),
+                        Div(Field('pensionAmount'))),
+                    Div(Div(HTML("Pension Status"), css_class='form-label'),
+                        Div(Field('pensionType')))),
+                Div(
+                    Div(HTML("<i class='fas fa-users'></i>&nbsp;&nbsp;<small>Meeting</small>")),
+                    Div(Div(Field('resetConsents'), css_class="col-lg-1 pl-0"),
+                        Div(HTML("<p class='small'>Reset Data</p>"), css_class="col-lg-6 pt-1 pl-3"),
+                        css_class="row pl-0")),
+                Div(Div(Submit('submit', 'Update Information', css_class='btn btn-warning'),
+                        HTML("<br>"),
+                        HTML("<br>"))),
+
+                css_class="col-lg-4"),
+
+            css_class="row")
+    )
 
     def clean(self):
         loanType = self.cleaned_data['loanType']
@@ -153,7 +178,6 @@ class SettingsForm(forms.ModelForm):
         ))
 
 
-
 class IntroChkBoxForm(forms.ModelForm):
     # Form Fields
     choiceRetireAtHome = forms.BooleanField(label="Retire at home", required=True)
@@ -178,7 +202,7 @@ class IntroChkBoxForm(forms.ModelForm):
                 Div(Field('choiceAvoidDownsizing'), css_class='checkbox-inline col-3'),
                 Div(Field('choiceAccessFunds', css_class='checkbox-inline col-6')),
                 css_class='row justify-content-center'),
-            style="background: #F9F8F5; padding: 5px;")
+        )
     )
 
 
@@ -206,7 +230,7 @@ class debtRepayForm(forms.ModelForm):
         model = Loan
         fields = ['refinanceAmount']
 
-    refinanceAmount = forms.IntegerField(required=True, localize=True, widget=widgets.TextInput())
+    refinanceAmount = forms.CharField(required=True, localize=True, widget=widgets.TextInput())
 
     # Form Layout
     helper = FormHelper()
@@ -217,7 +241,20 @@ class debtRepayForm(forms.ModelForm):
     helper.form_show_labels = False
     helper.form_show_errors = True
     helper.layout = Layout(
-        Div(PrependedText('refinanceAmount', '$')))
+        Div(
+            Div(Div(HTML("Refinance Amount"), css_class='form-label'),
+                Div(PrependedText('refinanceAmount', '$'))),
+            HTML("<br>"),
+            Submit('submit', 'Save', css_class='btn btn-warning'),
+        )
+    )
+
+    def clean_refinanceAmount(self):
+        amount = self.cleaned_data['refinanceAmount'].replace("$", "").replace(',', "")
+        try:
+            return int(amount)
+        except:
+            raise forms.ValidationError("Please enter a valid number")
 
 
 class giveAmountForm(forms.ModelForm):
@@ -226,10 +263,188 @@ class giveAmountForm(forms.ModelForm):
     # Form Fields
     class Meta:
         model = Loan
-        fields = ['giveAmount', 'giveDescription', 'protectedEquity']
+        fields = ['giveAmount', 'giveDescription']
 
-    giveAmount = forms.CharField(max_length=10, label='Give Amount', required=True)
-    giveDescription = forms.CharField(max_length=40, label='Description', required=False)
+    giveAmount = forms.CharField(required=True, localize=True, widget=widgets.TextInput())
+    giveDescription = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 1, 'cols': 60}))
+
+    # Form Layout
+    helper = FormHelper()
+    helper.form_id = 'clientForm'
+    helper.form_tag = False
+    helper.form_method = 'POST'
+    helper.form_class = 'form-horizontal'
+    helper.form_show_labels = False
+    helper.form_show_errors = True
+    helper.layout = Layout(
+        Div(
+            Div(Div(HTML("Amount"), css_class='form-label'),
+                Div(PrependedText('giveAmount', '$'), css_class="col-lg-4")),
+            Div(Div(HTML("Description"), css_class='form-label'),
+                Div(Field('giveDescription'), css_class="col-lg-6")),
+
+            Submit('submit', 'Save', css_class='btn btn-warning'),
+        )
+    )
+
+    def clean_giveAmount(self):
+        amount = self.cleaned_data['giveAmount'].replace("$", "").replace(',', "")
+        try:
+            return int(amount)
+        except:
+            raise forms.ValidationError("Please enter a valid number")
+
+
+class renovateAmountForm(forms.ModelForm):
+    # Form Fields
+    class Meta:
+        model = Loan
+        fields = ['renovateAmount', 'renovateDescription']
+
+    renovateAmount = forms.CharField(required=True, localize=True, label='Amount', widget=widgets.TextInput())
+    renovateDescription = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 1, 'cols': 60}))
+
+    # Form Layout
+    helper = FormHelper()
+    helper.form_id = 'clientForm'
+    helper.form_method = 'POST'
+    helper.form_class = 'form-horizontal'
+    helper.form_show_labels = False
+    helper.form_show_errors = True
+    helper.layout = Layout(
+        Div(
+            Div(Div(HTML("Amount"), css_class='form-label'),
+                Div(PrependedText('renovateAmount', '$'), css_class="col-lg-4")),
+            Div(Div(HTML("Description"), css_class='form-label'),
+                Div(Field('renovateDescription'), css_class="col-lg-6")),
+
+            Submit('submit', 'Save', css_class='btn btn-warning'),
+        )
+    )
+
+    def clean_renovateAmount(self):
+        amount = self.cleaned_data['renovateAmount'].replace("$", "").replace(',', "")
+        try:
+            return int(amount)
+        except:
+            raise forms.ValidationError("Please enter a valid number")
+
+
+class travelAmountForm(forms.ModelForm):
+    # Form Fields
+    class Meta:
+        model = Loan
+        fields = ['travelAmount', 'travelDescription']
+
+    travelAmount = forms.CharField(required=True, localize=True, label='Amount', widget=widgets.TextInput())
+    travelDescription = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 1, 'cols': 60}))
+
+    # Form Layout
+    helper = FormHelper()
+    helper.form_id = 'clientForm'
+    helper.form_method = 'POST'
+    helper.form_class = 'form-horizontal'
+    helper.form_show_labels = False
+    helper.form_show_errors = True
+    helper.layout = Layout(
+        Div(
+            Div(Div(HTML("Amount"), css_class='form-label'),
+                Div(PrependedText('travelAmount', '$'), css_class="col-lg-4")),
+            Div(Div(HTML("Description"), css_class='form-label'),
+                Div(Field('travelDescription'), css_class="col-lg-6")),
+
+            Submit('submit', 'Save', css_class='btn btn-warning'),
+        )
+    )
+
+    def clean_travelAmount(self):
+        amount = self.cleaned_data['travelAmount'].replace("$", "").replace(',', "")
+        try:
+            return int(amount)
+        except:
+            raise forms.ValidationError("Please enter a valid number")
+
+
+class careAmountForm(forms.ModelForm):
+    # Form Fields
+
+    class Meta:
+        model = Loan
+        fields = ['careAmount', 'careDescription']
+
+    careAmount = forms.CharField(required=True, localize=True, label='Amount', widget=widgets.TextInput())
+    careDescription = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 1, 'cols': 60}))
+
+    # Form Layout
+    helper = FormHelper()
+    helper.form_id = 'clientForm'
+    helper.form_method = 'POST'
+    helper.form_class = 'form-horizontal'
+    helper.form_show_labels = False
+    helper.form_show_errors = True
+    helper.layout = Layout(
+        Div(
+            Div(Div(HTML("Amount"), css_class='form-label'),
+                Div(PrependedText('careAmount', '$'), css_class="col-lg-4")),
+            Div(Div(HTML("Description"), css_class='form-label'),
+                Div(Field('careDescription'), css_class="col-lg-6")),
+
+            Submit('submit', 'Save', css_class='btn btn-warning'),
+
+        )
+    )
+
+    def clean_careAmount(self):
+        amount = self.cleaned_data['careAmount'].replace("$", "").replace(',', "")
+        try:
+            return int(amount)
+        except:
+            raise forms.ValidationError("Please enter a valid number")
+
+
+class interestPaymentForm(forms.ModelForm):
+    # Form Fields
+
+    class Meta:
+        model = Loan
+        fields = ['interestPayAmount', 'interestPayPeriod']
+
+    interestPayAmount = forms.CharField(required=True, localize=True, label='Amount', widget=widgets.TextInput())
+    interestPayPeriod = forms.CharField(required=True, localize=True, label='Amount', widget=widgets.TextInput())
+
+    # Form Layout
+    helper = FormHelper()
+    helper.form_id = 'clientForm'
+    helper.form_method = 'POST'
+    helper.form_class = 'form-horizontal'
+    helper.field_class = 'col-lg-12'
+    helper.form_show_labels = False
+    helper.form_show_errors = True
+    helper.layout = Layout(
+        Div(
+            Div(Div(HTML("Intended monthly payment?"), css_class='form-label'),
+                Div(PrependedText('interestPayAmount', '$'))),
+            Div(Div(HTML("For how long (years)?"), css_class='form-label'),
+                Div(Field('interestPayPeriod'))),
+
+            Submit('submit', 'Save', css_class='btn btn-warning'),
+
+        )
+    )
+
+    def clean_interestPayAmount(self):
+        amount = self.cleaned_data['interestPayAmount'].replace("$", "").replace(',', "")
+        try:
+            return int(amount)
+        except:
+            raise forms.ValidationError("Please enter a valid number")
+
+
+class protectedEquityForm(forms.ModelForm):
+    class Meta:
+        model = Loan
+        fields = ['protectedEquity']
+
     protectedEquity = forms.ChoiceField(
         choices=(
             (0, "0%"),
@@ -242,130 +457,129 @@ class giveAmountForm(forms.ModelForm):
         label=""
     )
 
-    # Form Layout
     helper = FormHelper()
-    helper.form_id = 'clientForm'
     helper.form_tag = False
+    helper.form_id = 'clientForm'
     helper.form_method = 'POST'
     helper.form_class = 'form-horizontal'
-    helper.label_class = 'col-lg-2'
-    helper.field_class = 'col-lg-4'
-    helper.form_show_labels = True
+    helper.field_class = 'col-lg-12'
+    helper.form_show_labels = False
     helper.form_show_errors = True
     helper.layout = Layout(
-        Div(
-            Div(PrependedText('giveAmount', '$')),
-            Div(Field('giveDescription'))
-        )
-    )
-
-    helper1 = FormHelper()
-    helper1.form_tag = False
-    helper1.form_id = 'clientForm'
-    helper1.form_method = 'POST'
-    helper1.form_class = 'form-horizontal'
-    helper1.field_class = 'col-lg-6'
-    helper1.form_show_labels = False
-    helper1.form_show_errors = True
-    helper1.layout = Layout(
         Div(
             Div(InlineRadios('protectedEquity'))
-        ))
+        ),
+        Submit('submit', 'Save', css_class='btn btn-warning'),
+    )
 
 
-class renovateAmountForm(forms.ModelForm):
-    # Form Fields
+class topUpLumpSumForm(forms.ModelForm):
     class Meta:
         model = Loan
-        fields = ['renovateAmount', 'renovateDescription']
-        labels = {
-            "renovateAmount": "Amount",
-            "renovateDescription": "Description"
-        }
+        fields = ['topUpAmount', 'topUpDescription']
 
-    renovateAmount = forms.IntegerField(required=True, localize=True, label='Amount', widget=widgets.TextInput())
+    # Form Fields
+    topUpAmount = forms.CharField(required=True, localize=True, widget=widgets.TextInput())
+    topUpDescription = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 1, 'cols': 60}))
 
     # Form Layout
     helper = FormHelper()
     helper.form_id = 'clientForm'
     helper.form_method = 'POST'
     helper.form_class = 'form-horizontal'
-    helper.label_class = 'col-lg-2'
-    helper.field_class = 'col-lg-4'
-    helper.form_show_labels = True
+    helper.form_show_labels = False
     helper.form_show_errors = True
     helper.layout = Layout(
         Div(
-            Div(PrependedText('renovateAmount', '$')),
-            Div(Field('renovateDescription'))
+            Div(Div(HTML("Amount"), css_class='form-label'),
+                Div(PrependedText('topUpAmount', '$'), css_class="col-lg-4")),
+            Div(Div(HTML("Planned use of top-up funds"), css_class='form-label'),
+                Div(Field('topUpDescription'), css_class="col-lg-8")),
+
+            Submit('submit', 'Save', css_class='btn btn-warning'),
         )
     )
 
-    #def clean(self):
-    #    if 'renovateAmount' in self.cleaned_data:
-    #        if self.cleaned_data['renovateAmount']>0:
-    #            if self.cleaned_data['renovateDescription']==None:
-    #                raise forms.ValidationError("Please enter a description")
+    def clean_topUpAmount(self):
+        amount = self.cleaned_data['topUpAmount'].replace("$", "").replace(',', "")
+        try:
+            return int(amount)
+        except:
+            raise forms.ValidationError("Please enter a valid number")
 
 
-
-class travelAmountForm(forms.ModelForm):
-    # Form Fields
+class topUpDrawdownForm(forms.ModelForm):
     class Meta:
         model = Loan
-        fields = ['travelAmount', 'travelDescription']
-        labels = {
-            "travelAmount": "Amount",
-            "travelDescription": "Description"
-        }
+        fields = ['topUpIncomeAmount', 'topUpFrequency', 'topUpPeriod','topUpBuffer']
 
-        travelAmount = forms.IntegerField(required=True, localize=True, label='Amount', widget=widgets.TextInput())
+    # Form Fields
+    topUpIncomeAmount = forms.CharField(required=True, localize=True, widget=widgets.TextInput())
+    topUpPeriod = forms.ChoiceField(
+        choices=(
+            (5, "5 Years"),
+            (7, "7 Years"),
+            (10, "10 Years"),
+        ),
+        widget=forms.RadioSelect,
+        label="")
+    topUpFrequency = forms.ChoiceField(
+        choices=(
+            (incomeFrequencyEnum.FORTNIGHTLY.value, "Fortnightly"),
+            (incomeFrequencyEnum.MONTHLY.value, "Monthly"),
+        ),
+        widget=forms.RadioSelect,
+        label="")
+
+    topUpBuffer = forms.ChoiceField(
+        choices=(
+            (1, "Yes"),
+            (0, "No"),
+        ),
+        widget=forms.RadioSelect,
+        label="")
 
     # Form Layout
     helper = FormHelper()
     helper.form_id = 'clientForm'
     helper.form_method = 'POST'
-    helper.form_class = 'form-horizontal'
-    helper.label_class = 'col-lg-2'
-    helper.field_class = 'col-lg-4'
-    helper.form_show_labels = True
+    helper.form_class = 'form-horizontal sub-container'
+    helper.field_class = 'col-lg-12'
+    helper.form_show_labels = False
     helper.form_show_errors = True
     helper.layout = Layout(
         Div(
-            Div(PrependedText('travelAmount', '$')),
-            Div(Field('travelDescription'))
-        )
+            Div(
+                Div(Div(HTML("Periodic Drawdown Amount"), css_class='form-label'),
+                    Div(PrependedText('topUpIncomeAmount', '$'))),
+
+                Div(Div(HTML("Drawdown Plan Period (years)*"), css_class='form-label'),
+                    Div(InlineRadios('topUpPeriod'))),
+
+                Div(Div(Submit('submit', 'Save', css_class='btn btn-warning'))),
+
+                css_class="col-lg-5"),
+
+            Div(
+                Div(Div(HTML("Drawdown Frequency"), css_class='form-label'),
+                    Div(InlineRadios('topUpFrequency'))),
+
+                Div(Div(HTML("'Rainy Day' buffer ($5,000)?"), css_class='form-label pt-2'),
+                    Div(InlineRadios('topUpBuffer'))),
+
+                css_class="col-lg-5"),
+
+
+
+        css_class='row')
     )
 
-
-class careAmountForm(forms.ModelForm):
-    # Form Fields
-
-    class Meta:
-        model = Loan
-        fields = ['careAmount', 'careDescription']
-        labels = {
-            "careAmount": "Amount",
-            "careDescription": "Description"
-        }
-
-    careAmount = forms.IntegerField(required=True, localize=True, label='Amount', widget=widgets.TextInput())
-
-    # Form Layout
-    helper = FormHelper()
-    helper.form_id = 'clientForm'
-    helper.form_method = 'POST'
-    helper.form_class = 'form-horizontal'
-    helper.label_class = 'col-lg-2'
-    helper.field_class = 'col-lg-4'
-    helper.form_show_labels = True
-    helper.form_show_errors = True
-    helper.layout = Layout(
-        Div(
-            Div(PrependedText('careAmount', '$')),
-            Div(Field('careDescription'))
-        )
-    )
+    def clean_topUpIncomeAmount(self):
+        amount = self.cleaned_data['topUpIncomeAmount'].replace("$", "").replace(',', "")
+        try:
+            return int(amount)
+        except:
+            raise forms.ValidationError("Please enter a valid number")
 
 
 class DetailedChkBoxForm(forms.ModelForm):
@@ -381,7 +595,7 @@ class DetailedChkBoxForm(forms.ModelForm):
 
     # Form Fields
     choiceTopUp = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(),
-                                    label='I would like to top-up my income/superannuation', required=True)
+                                    label='I would like to top-up my income or superannuation/investments', required=True)
 
     choiceRefinance = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(),
                                         label='I would like to refinance an existing mortgage', required=True)
@@ -396,17 +610,17 @@ class DetailedChkBoxForm(forms.ModelForm):
                                    label='I would like money for renovations, transport or travel', required=True)
 
     choiceCare = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(),
-                                   label='I would like money to fund current aged care requirements', required=True)
+                                   label='I would like money to fund health or care requirements', required=True)
 
     choiceFuture = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect,
-                                     label='I understand that I will need to consider future age care', required=True)
+                                     label='* I understand that I will need to consider future age care', required=True)
 
     choiceCenterlink = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect,
-                                         label='I understand that I will need to consider impacts on my Centrelink benefits',
+                                         label='* I understand that I will need to consider impacts on my Centrelink benefits',
                                          required=True)
 
     choiceVariable = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect,
-                                       label='I  understand that a Household Loan has a variable interest rate',
+                                       label='* I  understand that a Household Loan has a variable interest rate',
                                        required=True)
 
     # Form Layout

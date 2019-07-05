@@ -31,18 +31,21 @@ from apps.enquiry.models import Enquiry
 
 from .models import WebCalculator, WebContact
 from .forms import CalcInputForm, CalcOutputForm, WebContactForm, WebContactDetail
-from .forms import WebInputForm, WebOutputForm  # remove
+
 
 
 # NEW VIEWS
 
-campaignURLs = ['https://householdcapital.com.au/equity-mortgage-release/',
-                'https://householdcapital.com.au/centrelink-pension-information/',
-                'https://householdcapital.com.au/aged-care-financing/',
-                'https://householdcapital.com.au/reverse-mortgages/',
-                'https://householdcapital.com.au/superannuation-and-retirement/',
-                'https://householdcapital.com.au/retirement-planning/',
-                'https://householdcapital.com.au/refinance-existing-mortgage/']
+campaignURLs = ['/equity-mortgage-release/',
+                '/centrelink-pension-information/',
+                '/aged-care-financing/',
+                '/reverse-mortgages/',
+                '/superannuation-and-retirement/',
+                '/retirement-planning/',
+                '/refinance-existing-mortgage/',
+                ]
+
+campaignRedirectSuffix='-thank-you'
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -61,7 +64,8 @@ class WebContactView(CreateView):
 
     def form_valid(self, form):
         clientDict = form.cleaned_data
-        obj = form.save(commit=True)
+        if not clientDict['content']:
+            obj = form.save(commit=True)
 
         context = {}
         context['submitted'] = True
@@ -111,10 +115,10 @@ class CalcStartView(CreateView):
         chkOpp = loanObj.validateLoan()
 
         obj.valuation = int(form.cleaned_data['valuation'])
-        clientId = str(self.request.GET.get('gclid'))
-        gclid = ""
-        if clientId != "None":
-            gclid = "?gclid=" + clientId
+        clientId = str(self.request.GET.get('clientId',None))
+        clientStr = ""
+        if clientId != None and clientId !='None':
+            clientStr = "?clientId=" + clientId
 
         if chkOpp['status'] == "Error":
             obj.status = 0
@@ -123,11 +127,11 @@ class CalcStartView(CreateView):
 
             if 'Postcode' in chkOpp['responseText']:
                 return HttpResponseRedirect(reverse_lazy('calculator:calcOutputPostcode',
-                                                         kwargs={'uid': str(obj.calcUID)}) + gclid)
+                                                         kwargs={'uid': str(obj.calcUID)}) + clientStr)
 
             if 'Youngest' in chkOpp['responseText']:
                 return HttpResponseRedirect(reverse_lazy('calculator:calcOutputAge',
-                                                         kwargs={'uid': str(obj.calcUID)}) + gclid)
+                                                         kwargs={'uid': str(obj.calcUID)}) + clientStr)
 
             messages.error(self.request, self.clientText(chkOpp['responseText']))
 
@@ -140,7 +144,7 @@ class CalcStartView(CreateView):
             obj.save()
 
             success = reverse_lazy('calculator:calcResults',
-                                   kwargs={'uid': str(obj.calcUID)}) + gclid
+                                   kwargs={'uid': str(obj.calcUID)}) + clientStr
             return HttpResponseRedirect(success)
 
     def clientText(self, inputString):
@@ -193,16 +197,12 @@ class CalcResultsView(UpdateView):
         loanObj = LoanValidator(clientDict)
         chkOpp = loanObj.validateLoan()
 
-        context['topUpData'], context['topUpPoints'] = self.calcSliderList(
-            min(chkOpp['data']['maxTopUp'], chkOpp['data']['maxLoan']))
-        context['refiData'], context['refiPoints'] = self.calcSliderList(
-            min(chkOpp['data']['maxRefi'], chkOpp['data']['maxLoan']))
-        context['liveData'], context['livePoints'] = self.calcSliderList(
-            min(chkOpp['data']['maxReno'], chkOpp['data']['maxLoan']))
-        context['giveData'], context['givePoints'] = self.calcSliderList(
-            min(chkOpp['data']['maxGive'], chkOpp['data']['maxLoan']))
-        context['careData'], context['carePoints'] = self.calcSliderList(
-            min(chkOpp['data']['maxCare'], chkOpp['data']['maxLoan']))
+        context['topUpMax']= min(chkOpp['data']['maxTopUp'], chkOpp['data']['maxLoan'])
+        context['refiMax'] = min(chkOpp['data']['maxRefi'], chkOpp['data']['maxLoan'])
+        context['liveMax']= min(chkOpp['data']['maxReno'], chkOpp['data']['maxLoan'])
+        context['giveMax']= min(chkOpp['data']['maxGive'], chkOpp['data']['maxLoan'])
+        context['careMax']= min(chkOpp['data']['maxCare'], chkOpp['data']['maxLoan'])
+        context['loanRate']=ECONOMIC['interestRate']+ECONOMIC['lendingMargin']
 
         context["obj"] = obj
         if obj.maxLVR < 18:
@@ -219,26 +219,13 @@ class CalcResultsView(UpdateView):
 
         return context
 
-    def calcSliderList(self, maxAmount):
-        sliderList = []
-        noPoints = int(maxAmount / 1000)
-
-        for item in range(noPoints + 1):
-            if item == noPoints:
-                intervalAmount = "${:,}".format(maxAmount)
-            else:
-                intervalAmount = "${:,}".format(item * 1000)
-
-            sliderList.append({'item': item, 'value': intervalAmount})
-        return json.dumps(sliderList), noPoints
-
     def form_valid(self, form):
         obj = form.save(commit=True)
 
-        clientId = str(self.request.GET.get('gclid'))
-        gclid = ""
-        if clientId != "None":
-            gclid = "?gclid=" + clientId
+        clientId = str(self.request.GET.get('clientId', None))
+        clientStr = ""
+        if clientId != None and clientId != 'None':
+            clientStr = "?clientId=" + clientId
 
         context = self.get_context_data(form=form)
         obj = self.get_object()
@@ -262,14 +249,14 @@ class CalcResultsView(UpdateView):
         #Redirect on success
         context['redirect'] = True
 
-        context['redirectURL'] = "https://householdcapital.com.au/" + gclid
+        context['redirectURL'] = "https://householdcapital.com.au/" + clientStr
         context['redirectMessage'] = "Thank you - we'll be back to you shortly"
 
         if obj.referrer:
             for url in campaignURLs:
                 if url in obj.referrer:
-                    context['redirectURL'] = obj.referrer.replace(url, url[:-1] + "-thank-you") + gclid
-                    context['redirectMessage'] = ""
+                    context['redirectURL'] = obj.referrer.replace(url, url[:-1] + campaignRedirectSuffix) + clientStr
+                    context['redirectMessage'] = None
 
         return self.render_to_response(context)
 
@@ -280,6 +267,8 @@ class CalcOutputPostcode(UpdateView):
     model = WebCalculator
     caseUID = ""
     form_class = CalcOutputForm
+    email_template='calculator/email/email_calc_response_invalid.html'
+
 
     @xframe_options_exempt
     def get(self, request, **kwargs):
@@ -313,23 +302,41 @@ class CalcOutputPostcode(UpdateView):
         context = self.get_context_data(form=form)
         context['success'] = True
 
-        clientId = str(self.request.GET.get('gclid'))
-        gclid = ""
-        if clientId != "None":
-            gclid = "?gclid=" + clientId
+        clientId = str(self.request.GET.get('clientId', None))
+        clientStr = ""
+        if clientId != None:
+            clientStr = "?clientId=" + clientId
 
         obj = self.get_object()
 
+        #Send email on success
+        email_context = {}
+        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+        email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
+        subject, from_email, to = "Household Capital: Calculator Enquiry", "info@householdcapital.com", obj.email
+        text_content = "Calculator Enquiry Received"
+
+        try:
+            html = get_template(self.email_template)
+            html_content = html.render(email_context)
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+        except:
+            pass
+
         context['redirect'] = True
+        context['redirectMessage'] = "Thank you - we'll be back to you shortly"
 
         if obj.referrer:
             for url in campaignURLs:
                 if url in obj.referrer:
-                    context['redirectURL'] = obj.referrer.replace(url, url[:-1] + "-thank-you" + gclid)
+                    context['redirectURL'] = obj.referrer.replace(url, url[:-1] + campaignRedirectSuffix + clientStr)
         else:
-            context['redirectURL'] = "https://householdcapital.com.au/" + gclid
+            context['redirectURL'] = "https://householdcapital.com.au/" + clientStr
 
         return self.render_to_response(context)
+
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -338,6 +345,7 @@ class CalcOutputAge(UpdateView):
     model = WebCalculator
     caseUID = ""
     form_class = CalcOutputForm
+    email_template='calculator/email/email_calc_response_invalid.html'
 
     @xframe_options_exempt
     def get(self, request, **kwargs):
@@ -418,21 +426,38 @@ class CalcOutputAge(UpdateView):
         context = self.get_context_data(form=form)
         context['success'] = True
 
-        clientId = str(self.request.GET.get('gclid'))
-        gclid = ""
+        clientId = str(self.request.GET.get('clientId'))
+        clientId = ""
         if clientId != "None":
-            gclid = "?gclid=" + clientId
+            clientId = "?clientId=" + clientId
 
         obj = self.get_object()
 
         context['redirect'] = True
+        context['redirectMessage'] = "Thank you - we'll be back to you shortly"
+
+        # Send email on success
+        email_context = {}
+        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+        email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
+        subject, from_email, to = "Household Capital: Calculator Enquiry", "info@householdcapital.com", obj.email
+        text_content = "Calculator Enquiry Received"
+
+        try:
+            html = get_template(self.email_template)
+            html_content = html.render(email_context)
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+        except:
+            pass
 
         if obj.referrer:
             for url in campaignURLs:
                 if url in obj.referrer:
-                    context['redirectURL'] = obj.referrer.replace(url, url[:-1] + "-thank-you" + gclid)
+                    context['redirectURL'] = obj.referrer.replace(url, url[:-1] + "-thank-you" + clientId)
         else:
-            context['redirectURL'] = "https://householdcapital.com.au/" + gclid
+            context['redirectURL'] = "https://householdcapital.com.au/" + clientId
 
         return self.render_to_response(context)
 
@@ -483,8 +508,9 @@ class CalcSummaryNewPdf(TemplateView):
         clientDict['totalLoanAmount'] = totalLoanAmount
         clientDict['maxNetLoanAmount'] = obj.maxLoanAmount
         loanProj = LoanProjection()
-        result = loanProj.create(clientDict)
+        result = loanProj.create(clientDict,frequency=12)
         result = loanProj.calcProjections()
+
 
         # Build results dictionaries
 
@@ -574,7 +600,7 @@ class CalcMarkSpam(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy("calculator:calcList"))
 
 
-class CalcSendSummary(LoginRequiredMixin, UpdateView):
+class CalcCreateEnquiry(LoginRequiredMixin, UpdateView):
     # This view does not render it creates and enquiry, sends an email, updates the calculator
     # and redirects to the Enquiry ListView
     context_object_name = 'object_list'
@@ -582,6 +608,12 @@ class CalcSendSummary(LoginRequiredMixin, UpdateView):
     template_name = 'calculator/email/email_cover_calculator.html'
 
     def get(self, request, *args, **kwargs):
+
+        user = self.request.user
+        if not user.profile.isCreditRep:
+            messages.error(self.request, "You must be a Credit Representative to action this type of enquiry")
+            return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
+
         calcUID = str(kwargs['uid'])
         queryset = WebCalculator.objects.queryset_byUID(str(calcUID))
         obj = queryset.get()
@@ -596,59 +628,64 @@ class CalcSendSummary(LoginRequiredMixin, UpdateView):
         for item in popList:
             calcDict.pop(item)
 
-        user = self.request.user
+
 
         enq_obj = Enquiry.objects.create(user=user, referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer,
                                          **calcDict)
         enq_obj.save()
 
-        # PRODUCE PDF REPORT
-        sourceUrl = 'https://householdcapital.app/calculator/calcSummaryNewPdf/' + str(enq_obj.enqUID)
-        targetFileName = settings.MEDIA_ROOT + "/enquiryReports/Enquiry-" + str(enq_obj.enqUID)[
-                                                                            -12:] + ".pdf"
+        if enq_obj.status:
 
-        pdf = pdfGenerator(calcUID)
-        created, text = pdf.createPdfFromUrl(sourceUrl, 'CalculatorSummary.pdf', targetFileName)
+            # PRODUCE PDF REPORT
+            sourceUrl = 'https://householdcapital.app/calculator/calcSummaryNewPdf/' + str(enq_obj.enqUID)
+            targetFileName = settings.MEDIA_ROOT + "/enquiryReports/Enquiry-" + str(enq_obj.enqUID)[
+                                                                                -12:] + ".pdf"
 
-        if not created:
-            messages.error(self.request, "Enquiry created - but email not sent")
+            pdf = pdfGenerator(calcUID)
+            created, text = pdf.createPdfFromUrl(sourceUrl, 'CalculatorSummary.pdf', targetFileName)
 
-            obj.actioned = 1  # Actioned=1, Spam=-1
-            obj.save(update_fields=['actioned'])
+            if not created:
+                messages.error(self.request, "Enquiry created - but email not sent")
 
-            return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
+                obj.actioned = 1  # Actioned=1, Spam=-1
+                obj.save(update_fields=['actioned'])
 
-        try:
-            # SAVE TO DATABASE (Enquiry Model)
-            localfile = open(targetFileName, 'rb')
+                return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
 
-            qsCase = Enquiry.objects.queryset_byUID(str(enq_obj.enqUID))
-            qsCase.update(summaryDocument=File(localfile), )
+            try:
+                # SAVE TO DATABASE (Enquiry Model)
+                localfile = open(targetFileName, 'rb')
 
-            pdf_contents = localfile.read()
-        except:
-            write_applog("ERROR", 'CalcSendDetails', 'get',
-                         "Failed to save Calc Summary in Database: " + str(enq_obj.enqUID))
+                qsCase = Enquiry.objects.queryset_byUID(str(enq_obj.enqUID))
+                qsCase.update(summaryDocument=File(localfile), )
 
-        email_context = {}
-        email_context['user'] = request.user
-        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-        email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
+                pdf_contents = localfile.read()
+            except:
+                write_applog("ERROR", 'calcCreateEnquiry', 'get',
+                             "Failed to save Calc Summary in Database: " + str(enq_obj.enqUID))
 
-        subject, from_email, to, bcc = "Household Capital: Personal Summary", \
-                                       self.request.user.email, \
-                                       obj.email, \
-                                       self.request.user.email
-        text_content = "Text Message"
-        attachFilename = 'HHC-CalculatorSummary'
+            email_context = {}
+            email_context['user'] = request.user
+            email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+            email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
 
-        sent = pdf.emailPdf(self.template_name, email_context, subject, from_email, to, bcc, text_content,
-                                attachFilename)
+            subject, from_email, to, bcc = "Household Capital: Personal Summary", \
+                                           self.request.user.email, \
+                                           obj.email, \
+                                           self.request.user.email
+            text_content = "Text Message"
+            attachFilename = 'HHC-CalculatorSummary'
 
-        if sent:
-            messages.success(self.request, "Client has been emailed and enquiry created")
+            sent = pdf.emailPdf(self.template_name, email_context, subject, from_email, to, bcc, text_content,
+                                    attachFilename)
+
+            if sent:
+                messages.success(self.request, "Client has been emailed and enquiry created")
+            else:
+                messages.error(self.request, "Enquiry created - but email not sent")
+
         else:
-            messages.error(self.request, "Enquiry created - but email not sent")
+                messages.error(self.request, "Age or Postcode Restriction - please respond to customer")
 
         obj.actioned = 1  # Actioned=1, Spam=-1
         obj.save(update_fields=['actioned'])
@@ -658,7 +695,7 @@ class CalcSendSummary(LoginRequiredMixin, UpdateView):
 
 # Contact Queue
 class ContactListView(LoginRequiredMixin, ListView):
-    paginate_by = 6
+    paginate_by = 10
     template_name = 'calculator/contactList.html'
     context_object_name = 'object_list'
     model = WebContact
@@ -735,293 +772,3 @@ class ContactDeleteView(LoginRequiredMixin, View):
         return HttpResponseRedirect(reverse_lazy('calculator:contactList'))
 
 
-
-
-
-
-
-
-
-
-
-# OLD VIEWS - REMOVE
-@method_decorator(csrf_exempt, name='dispatch')
-class InputView(CreateView):
-    template_name = 'calculator/input.html'
-    model = WebCalculator
-    form_class = WebInputForm
-
-    @xframe_options_exempt
-    def get(self, request, *args, **kwargs):
-        clientId = str(request.GET.get('clientId'))
-
-        return super(InputView, self).get(self, request, *args, **kwargs)
-
-    @xframe_options_exempt
-    def post(self, request, *args, **kwargs):
-        return super(InputView, self).post(self, request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super(InputView, self).get_context_data(**kwargs)
-        context['loanTypesEnum'] = loanTypesEnum
-        context['dwellingTypesEnum'] = dwellingTypesEnum
-
-        return context
-
-    def get_object(self, queryset=None):
-        uid = self.kwargs['uid']
-        queryset = WebCalculator.objects.queryset_byUID(str(uid))
-        obj = queryset.get()
-        return obj
-
-    def form_invalid(self, form):
-
-        messages.error(self.request, "Input error - please check input fields")
-        print(form.errors)
-        return super(InputView, self).form_invalid(form)
-
-    def form_valid(self, form):
-        clientDict = form.cleaned_data
-        obj = form.save(commit=False)
-
-        loanObj = LoanValidator(clientDict)
-        chkOpp = loanObj.validateLoan()
-
-        obj.valuation = int(form.cleaned_data['valuation'])
-
-        if chkOpp['status'] == "Error":
-            obj.status = 0
-            obj.errorText = chkOpp['responseText']
-            obj.save()
-
-            messages.error(self.request, self.clientText(chkOpp['responseText']))
-
-            return self.render_to_response(self.get_context_data(form=form))
-
-        else:
-            obj.status = 1
-            obj.maxLoanAmount = chkOpp['data']['maxLoan']
-            obj.maxLVR = chkOpp['data']['maxLVR']
-            obj.save()
-
-            clientId = str(self.request.GET.get('clientId'))
-
-            success = reverse_lazy('calculator:calcOutput',
-                                   kwargs={'uid': str(obj.calcUID)}) + "?clientId=" + clientId
-            return HttpResponseRedirect(success)
-
-    def clientText(self, inputString):
-
-        responseText = {
-            'Invalid Postcode': 'Unfortunately, we do not operate in this postcode',
-            'Youngest borrower must be 60': 'This product is designed for borrowers older than 60',
-            'Youngest joint borrower must be 65': 'For couples, the youngest borrower must be at least 65',
-            'Minimum Loan Size cannot be met': 'Unfortunately, our minimum loan size would not be met',
-        }
-
-        if inputString in responseText:
-            return responseText[inputString]
-        else:
-            return "Calculation cannot be performed at this time."
-
-
-@method_decorator(csrf_exempt, name='dispatch')
-
-
-class OutputView(UpdateView):
-    template_name = 'calculator/output.html'
-    model = WebCalculator
-    caseUID = ""
-    form_class = WebOutputForm
-
-    @xframe_options_exempt
-    def get(self, request, **kwargs):
-        if 'uid' in kwargs:
-            self.caseUID = str(kwargs['uid'])
-            return super(OutputView, self).get(self, request, **kwargs)
-        else:
-            return HttpResponseRedirect(reverse_lazy("calculator:input"))
-
-    @xframe_options_exempt
-    def post(self, request, **kwargs):
-        if 'uid' in kwargs:
-            self.caseUID = str(kwargs['uid'])
-        return super(OutputView, self).post(self, request, **kwargs)
-
-    def get_object(self, queryset=None):
-        queryset = WebCalculator.objects.queryset_byUID(self.caseUID)
-        obj = queryset.get()
-        return obj
-
-    def get_context_data(self, **kwargs):
-        context = super(OutputView, self).get_context_data(**kwargs)
-
-        obj = self.get_object()
-
-        context["obj"] = obj
-        if obj.maxLVR < 18:
-            img = 'transfer_15.png'
-        elif obj.maxLVR < 22:
-            img = 'transfer_20.png'
-        elif obj.maxLVR < 27:
-            img = 'transfer_25.png'
-        elif obj.maxLVR < 32:
-            img = 'transfer_30.png'
-        else:
-            img = 'transfer_35.png'
-        context["transfer_img"] = img
-
-        if obj.referrer:
-            if 'https://householdcapital.com.au/refinance-existing-mortgage' in obj.referrer:
-                context['isRefi'] = True
-            if 'https://householdcapital.com.au/aged-care-financing/' in obj.referrer:
-                context['isCare'] = True
-            if 'https://householdcapital.com.au/superannuation-and-retirement/' in obj.referrer:
-                context['isTopUp'] = True
-
-        return context
-
-    def form_valid(self, form):
-        obj = form.save(commit=True)
-        obj.save(update_fields=['email', 'isRefi', 'isTopUp', 'isLive', 'isGive', 'isCare'])
-        context = self.get_context_data(form=form)
-        context['success'] = True
-
-        obj = self.get_object()
-
-        campaignURLs = ['https://householdcapital.com.au/equity-mortgage-release/',
-                        'https://householdcapital.com.au/centrelink-pension-information/',
-                        'https://householdcapital.com.au/aged-care-financing/',
-                        'https://householdcapital.com.au/reverse-mortgages/',
-                        'https://householdcapital.com.au/superannuation-and-retirement/',
-                        'https://householdcapital.com.au/retirement-planning/',
-                        'https://householdcapital.com.au/refinance-existing-mortgage/']
-
-        context['redirect'] = False
-
-        if obj.referrer:
-            for url in campaignURLs:
-                if url in obj.referrer:
-                    context['redirect'] = True
-                    context['redirectURL'] = obj.referrer.replace(url, url[:-1] + "-thank-you")
-
-        if context['redirect'] == False:
-            messages.success(self.request, "Thank you - we will email you shortly")
-
-        return self.render_to_response(context)
-
-class CalcSummaryPdfView(TemplateView):
-    # Produce Summary Report View (called by Api2Pdf)
-    template_name = 'calculator/document/calculator_summary.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(CalcSummaryPdfView, self).get_context_data(**kwargs)
-
-        enqUID = str(kwargs['uid'])
-
-        obj = Enquiry.objects.dictionary_byUID(enqUID)
-
-        context["obj"] = obj
-        if obj["maxLVR"] < 18:
-            img = 'transfer_15.png'
-        elif obj["maxLVR"] < 22:
-            img = 'transfer_20.png'
-        elif obj["maxLVR"] < 27:
-            img = 'transfer_25.png'
-        elif obj["maxLVR"] < 32:
-            img = 'transfer_30.png'
-        else:
-            img = 'transfer_35.png'
-        context["transfer_img"] = img
-
-        context['caseTypesEnum'] = caseTypesEnum
-        context['loanTypesEnum'] = loanTypesEnum
-        context['dwellingTypesEnum'] = dwellingTypesEnum
-        context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-        return context
-
-class CalcSendDetails(LoginRequiredMixin, UpdateView):
-    # This view does not render it creates and enquiry, sends an email, updates the calculator
-    # and redirects to the Enquiry ListView
-    context_object_name = 'object_list'
-    model = WebCalculator
-    template_name = 'calculator/email/email_cover_calculator.html'
-    template_name_alt = 'calculator/email/email_cover_calculator_calendar.html'
-
-    def get(self, request, *args, **kwargs):
-        calcUID = str(kwargs['uid'])
-        queryset = WebCalculator.objects.queryset_byUID(str(calcUID))
-        obj = queryset.get()
-
-        calcDict = WebCalculator.objects.dictionary_byUID(str(calcUID))
-
-        # Create enquiry using WebCalculator Data
-        # Remove certain items from the dictionary
-        referrer = calcDict['referrer']
-
-        popList = ['calcUID', 'actionedBy', 'id', 'referrer', 'updated', 'timestamp', 'actioned']
-        for item in popList:
-            calcDict.pop(item)
-
-        user = self.request.user
-
-        enq_obj = Enquiry.objects.create(user=user, referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer,
-                                         **calcDict)
-        enq_obj.save()
-
-        # PRODUCE PDF REPORT
-        sourceUrl = 'https://householdcapital.app/calculator/calcSummaryPdf/' + str(enq_obj.enqUID)
-        targetFileName = settings.MEDIA_ROOT + "/enquiryReports/Enquiry-" + str(enq_obj.enqUID)[
-                                                                            -12:] + ".pdf"
-
-        pdf = pdfGenerator(calcUID)
-        created, text = pdf.createPdfFromUrl(sourceUrl, 'CalculatorSummary.pdf', targetFileName)
-
-        if not created:
-            messages.error(self.request, "Enquiry created - but email not sent")
-
-            obj.actioned = 1  # Actioned=1, Spam=-1
-            obj.save(update_fields=['actioned'])
-
-            return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
-
-        try:
-            # SAVE TO DATABASE (Enquiry Model)
-            localfile = open(targetFileName, 'rb')
-
-            qsCase = Enquiry.objects.queryset_byUID(str(enq_obj.enqUID))
-            qsCase.update(summaryDocument=File(localfile), )
-
-            pdf_contents = localfile.read()
-        except:
-            write_applog("ERROR", 'CalcSendDetails', 'get',
-                         "Failed to save Calc Summary in Database: " + str(enq_obj.enqUID))
-
-        email_context = {}
-        email_context['user'] = request.user
-        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-        email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
-
-        subject, from_email, to, bcc = "Household Loan Enquiry", \
-                                       self.request.user.email, \
-                                       obj.email, \
-                                       self.request.user.email
-        text_content = "Text Message"
-        attachFilename = 'HHC-CalculatorSummary'
-
-        if request.user.username in ['Moutzikis']:
-            sent = pdf.emailPdf(self.template_name_alt, email_context, subject, from_email, to, bcc, text_content,
-                                attachFilename)
-        else:
-            sent = pdf.emailPdf(self.template_name, email_context, subject, from_email, to, bcc, text_content,
-                                attachFilename)
-
-        if sent:
-            messages.success(self.request, "Client has been emailed and enquiry created")
-        else:
-            messages.error(self.request, "Enquiry created - but email not sent")
-
-        obj.actioned = 1  # Actioned=1, Spam=-1
-        obj.save(update_fields=['actioned'])
-
-        return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))

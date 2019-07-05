@@ -28,7 +28,7 @@
         {% endif %}
 
 
-
+        <br>
         <p><b>Your Household Transfer</b></p>
 
         {% if topUpAmount != 0 %}
@@ -36,11 +36,25 @@
                 <div class="col-sm-6">
                     <p class="small"> + Top-up
                         {% if topUpStatus != 'Ok' %}
-                            <i class="fas fa-exclamation-circle"></i>
+                            <i class="fas fa-exclamation-circle hhcGoldFont"></i>
                         {% endif %}</p>
                 </div>
                 <div class="col-sm-6 text-right">
                     <p class="small">$ {{ topUpAmount|intcomma }}</p>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if topUpDrawdownAmount != 0 %}
+            <div class="row">
+                <div class="col-sm-6">
+                    <p class="small"> + Drawdown
+                        {% if topUpDrawdownStatus != 'Ok' %}
+                            <i class="fas fa-exclamation-circle hhcGoldFont"></i>
+                        {% endif %}</p>
+                </div>
+                <div class="col-sm-6 text-right">
+                    <p class="small">$ {{ topUpDrawdownAmount|intcomma }}</p>
                 </div>
             </div>
         {% endif %}
@@ -51,7 +65,7 @@
                     <p class="small"> + Refinance
 
                         {% if refinanceStatus != 'Ok' %}
-                            <i class="fas fa-exclamation-circle"></i>
+                            <i class="fas fa-exclamation-circle hhcGoldFont"></i>
                         {% endif %}</p>
                 </div>
                 <div class="col-sm-6 text-right">
@@ -60,26 +74,13 @@
             </div>
         {% endif %}
 
-        {% if giveAmount != 0 %}
-            <div class="row">
-                <div class="col-sm-6">
-                    <p class="small"> + Give
-                        {% if giveStatus != 'Ok' %}
-                            <i class="fas fa-exclamation-circle"></i>
-                        {% endif %}</p>
-                </div>
-                <div class="col-sm-6 text-right">
-                    <p class="small">$ {{ giveAmount|intcomma }}</p>
-                </div>
-            </div>
-        {% endif %}
 
         {% if renovateAmount != 0 %}
             <div class="row">
                 <div class="col-sm-6">
                     <p class="small"> + Renovate
                         {% if renovateStatus != 'Ok' %}
-                            <i class="fas fa-exclamation-circle"></i>
+                            <i class="fas fa-exclamation-circle hhcGoldFont"></i>
                         {% endif %}</p>
                 </div>
                 <div class="col-sm-6 text-right">
@@ -93,7 +94,7 @@
                 <div class="col-sm-6">
                     <p class="small"> + Transport
                         {% if travelStatus != 'Ok' %}
-                            <i class="fas fa-exclamation-circle"></i>
+                            <i class="fas fa-exclamation-circle hhcGoldFont"></i>
                         {% endif %}</p>
                 </div>
                 <div class="col-sm-6 text-right">
@@ -102,12 +103,26 @@
             </div>
         {% endif %}
 
+         {% if giveAmount != 0 %}
+            <div class="row">
+                <div class="col-sm-6">
+                    <p class="small"> + Give
+                        {% if giveStatus != 'Ok' %}
+                            <i class="fas fa-exclamation-circle hhcGoldFont"></i>
+                        {% endif %}</p>
+                </div>
+                <div class="col-sm-6 text-right">
+                    <p class="small">$ {{ giveAmount|intcomma }}</p>
+                </div>
+            </div>
+        {% endif %}
+
         {% if careAmount != 0 %}
             <div class="row">
                 <div class="col-sm-6">
-                    <p class="small"> + Aged Care
+                    <p class="small"> + Care
                         {% if careStatus != 'Ok' %}
-                            <i class="fas fa-exclamation-circle"></i>
+                            <i class="fas fa-exclamation-circle hhcGoldFont"></i>
                         {% endif %}</p>
                 </div>
                 <div class="col-sm-6 text-right">
@@ -122,7 +137,7 @@
             <div class="col-sm-6">
                 <p class="small">Available
                     {% if availableStatus != 'Ok' %}
-                        <i class="fas fa-exclamation-circle"></i>
+                        <i class="fas fa-exclamation-circle hhcGoldFont "></i>
                     {% endif %}</p>
             </div>
             <div class="col-sm-6 text-right">

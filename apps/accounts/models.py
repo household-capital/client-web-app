@@ -28,3 +28,5 @@ class Profile(models.Model):
     isCreditRep=models.BooleanField(null=True,blank=True,default=False)
     isCapital=models.BooleanField(null=True,blank=True,default=False)
     referrer=models.ForeignKey(Referer ,null=True, blank=True, on_delete=models.SET_NULL)
+    salesforceID=models.CharField(max_length=18, null=True, blank=True)
+

@@ -2,52 +2,128 @@
 
 <nav class="navbar fixed-bottom">
 
-            <div class="row justify-content-center d-flex align-items-center menubar">
-
-
+    <div class="row justify-content-center d-flex align-items-center menubar">
+        <div class="col-lg-10">
+            <div class="row justify-content-center">
                 {% if menuBarItems %}
                     {% for item in menuBarItems.data %}
-                        <div class="col-lg-2">
+                        <div class="col-2">
                         {% if item.button %}
-                            <div >
+                            <div>
                                 <a>
-                                    <button type="submit" value='Submit' form="clientForm" class="btn btn-hhcBlue">
+                                    <button type="submit" value='Submit' form="clientForm"
+                                            class="btn {% if item.btn_class %}{{ item.btn_class }}{% else %} btn-hhcBlue{% endif %}">
                                         &nbsp;&nbsp;{{ item.text }}&nbsp;&nbsp;
                                     </button>
                                 </a>
                             </div>
                         {% else %}
-                            <div >
-                                <a href="{{ item.href }}"><span class="btn btn-hhcBlue">&nbsp;&nbsp;{{ item.text }}&nbsp;&nbsp;</span></a><br>
+                            <div>
+                                <a href="{{ item.href }}"><div
+                                        class="btn {% if item.btn_class %}{{ item.btn_class }}{% else %}btn-hhcBlue{% endif %}">
+                                    &nbsp;&nbsp;{{ item.text }}&nbsp;&nbsp;</div></a><br>
                             </div>
                         {% endif %}
+                        </div>
 
                     {% endfor %}
                 {% endif %}
 
 
-                {% if showPurposes %}
-                    <div class="col text-center"><a href="{% url 'client:topUp1' %}" class="menu_title">
-                        <div><img src="{% static 'img/icons/topup_icon.png' %}" width="75px"></div>
-                        <span>Top-Up</span></a></div>
-                    <div class="col fixed-bottom_heading"><a href="{% url 'client:refi' %}" class="menu_title">
-                        <div><img src="{% static 'img/icons/refi_icon.png' %}" width="75px"></div>
-                        <span>Refinance</span></a></div>
-                    <div class="col fixed-bottom_heading"><a href="{% url 'client:live1' %}" class="menu_title">
-                        <div><img src="{% static 'img/icons/live_icon.png' %}" width="75px"></div>
-                        <span>Live</span></a></div>
-                    <div class="col fixed-bottom_heading"><a href="{% url 'client:give' %}" class="menu_title">
-                        <div><img src="{% static 'img/icons/give_icon.png' %}" width="75px"></div>
-                        <span>Give</span></a></div>
-                    <div class="col fixed-bottom_heading"><a href="{% url 'client:care' %}" class="menu_title">
-                        <div><img src="{% static 'img/icons/care_icon.png' %}" width="75px"></div>
-                        <span>Care</span></a></div>
+                {% if menuPurposes.display %}
+
+                    {% if menuPurposes.data.intro == True %}
+                        <div class="col text-center mt-auto">
+                            <a href="{% url 'client2:introduction1' %}" class="menu_title">Introduction</a>
+                        </div>
+                    {% else %}
+                        <div class="col text-center mt-auto">
+                                <a href="" class="menu_title">Introduction</a>
+                        </div>
+                    {% endif %}
+
+                    {% if menuPurposes.data.topUp == True %}
+                        <div class="col text-center">{% if menuPurposes.navigation %}<a href="{% url 'client2:navigation' %}" class="menu_title">
+                                {% else %}
+                                <a href="{% url 'client2:topUp1' %}" class="menu_title">{% endif %}
+                            <div><img src="{% static 'img/icons/topup_icon.png' %}" width="75px"></div>
+                            <span>Top-Up</span></a></div>
+                    {% else %}
+                        <div class="col text-center"><a href="" class="menu_title">
+                            <div><img class='greyscale' src="{% static 'img/icons/topup_icon.png' %}" width="75px">
+                            </div>
+                            <span>Top-Up</span></a></div>
+                    {% endif %}
+
+                    {% if menuPurposes.data.refi == True %}
+                        <div class="col fixed-bottom_heading">{% if menuPurposes.navigation %}<a href="{% url 'client2:navigation' %}" class="menu_title">
+                                {% else %}
+                                <a href="{% url 'client2:refi' %}" class="menu_title">{% endif %}
+                            <div><img src="{% static 'img/icons/refi_icon.png' %}" width="75px"></div>
+                            <span>Refinance</span></a></div>
+                    {% else %}
+                        <div class="col fixed-bottom_heading"><a href="" class="menu_title">
+                            <div><img class='greyscale' src="{% static 'img/icons/refi_icon.png' %}" width="75px"></div>
+                            <span>Refinance</span></a></div>
+                    {% endif %}
+
+                    {% if menuPurposes.data.live == True %}
+                        <div class="col fixed-bottom_heading">{% if menuPurposes.navigation %}
+                            <a href="{% url 'client2:navigation' %}" class="menu_title">
+                                {% else %}
+                                <a href="{% url 'client2:live1' %}" class="menu_title">{% endif %}
+                            <div><img src="{% static 'img/icons/live_icon.png' %}" width="75px"></div>
+                            <span>Live</span></a></div>
+                    {% else %}
+                        <div class="col fixed-bottom_heading"><a href="" class="menu_title">
+                            <div><img class='greyscale' src="{% static 'img/icons/live_icon.png' %}" width="75px"></div>
+                            <span>Live</span></a></div>
+                    {% endif %}
+
+                    {% if menuPurposes.data.give == True %}
+                        <div class="col fixed-bottom_heading">{% if menuPurposes.navigation %}<a href="{% url 'client2:navigation' %}" class="menu_title">
+                                {% else %}
+                                <a href="{% url 'client2:give' %}" class="menu_title">{% endif %}
+                            <div><img src="{% static 'img/icons/give_icon.png' %}" width="75px"></div>
+                            <span>Give</span></a></div>
+                    {% else %}
+                        <div class="col fixed-bottom_heading"><a href="" class="menu_title">
+                            <div><img class='greyscale' src="{% static 'img/icons/give_icon.png' %}" width="75px"></div>
+                            <span>Give</span></a></div>
+                    {% endif %}
+
+                    {% if menuPurposes.data.care == True %}
+                        <div class="col fixed-bottom_heading">
+                            {% if menuPurposes.navigation %}<a href="{% url 'client2:navigation' %}" class="menu_title">
+                                {% else %}
+                                <a href="{% url 'client2:care' %}" class="menu_title">{% endif %}
+                            <div><img src="{% static 'img/icons/care_icon.png' %}" width="75px"></div>
+                            <span>Care</span></a></div>
+                    {% else %}
+                        <div class="col fixed-bottom_heading"><a href="" class="menu_title">
+                            <div><img class='greyscale' src="{% static 'img/icons/care_icon.png' %}" width="75px"></div>
+                            <span>Care</span></a></div>
+                    {% endif %}
+
+                     {% if menuPurposes.data.options == True %}
+                        <div class="col text-center mt-auto">
+                            <a href="{% url 'client2:options1' %}" class="menu_title">Options</a>
+                        </div>
+                    {% else %}
+                        <div class="col mt-auto text-center">
+                                <a href="" class="menu_title">Options</a>
+                        </div>
+                    {% endif %}
+
+
+
                 {% endif %}
 
-
-
                 </div>
+            </div>
 
         </div>
+
+    </div>
 </nav>
 

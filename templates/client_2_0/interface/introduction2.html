@@ -35,66 +35,77 @@
                 <br>
             </div>
         </div>
-        <div class="row justify-content-md-center padding-15px">
-            <div class="col-lg-9 text-center">
-            {% crispy form %}
+        <div class="row justify-content-md-center pt-4 pb-4 ">
+            <div class="col-lg-9 text-center cal_background_warm">
+                <div class="pt-3">{% crispy form %}</div>
             </div>
         </div>
 
-          <div class="row pt-3">
-            <div class="col-lg-3 text-center">
+          <div class="row justify-content-center">
+            <div class="col-lg-10 text-center">
 
-                    {% if loanType == loanTypesEnum.SINGLE_BORROWER.value %}
-                        <div class="imgContainer"><img src="{% static 'img/icons/person_icon.png' %}" width="100px"></div>
-                        <p> {{ firstname_1 }}&nbsp;{{ surname_1 }}</p><br>
-                        <p>{{ age_1 }} years old</p>
-                    {% else %}
-                        <div class="imgContainer"><img src="{% static 'img/icons/couple_icon.png' %}" width="100px"></div>
-                         <p> {{ firstname_1 }}&nbsp;{{ surname_1 }}</p>
-                         <p> {{ firstname_2 }}&nbsp;{{ surname_2 }}</p><br>
-                         <p>{{ age_1 }} and {{ age_2 }} years old</p>
-                    {% endif %}
+                <div class="row pt-2">
+                    <div class="col-lg-3 text-center">
 
-            </div>
+                            {% if loanType == loanTypesEnum.SINGLE_BORROWER.value %}
+                                <div class="imgContainer"><img class="greyscale" src="{% static 'img/icons/person_icon.png' %}"
+                                                               width="100px"></div>
+                                <p> {{ firstname_1 }}&nbsp;{{ surname_1 }}</p><br>
+                                <p>{{ age_1 }} years old</p>
+                            {% else %}
+                                <div class="imgContainer"><img class="greyscale" src="{% static 'img/icons/couple_icon.png' %}"
+                                                               width="100px"></div>
+                                <p> {{ firstname_1 }}&nbsp;{{ surname_1 }}</p>
+                                <p> {{ firstname_2 }}&nbsp;{{ surname_2 }}</p><br>
+                                <p>{{ age_1 }} and {{ age_2 }} years old</p>
+                            {% endif %}
 
-            <div class="col-lg-3 text-center">
-
-
-                    <div class="imgContainer"><img src="{% if obj.superFund  %}{{ obj.superFund.fundImage.url }}{% else%}{% static 'img/icons/nestEgg_icon.png' %}{% endif %}"
-                                                   class="rounded-circle" alt="SuperFund" width="100px" height="100px">
                     </div>
 
-                    <p>{{ obj.superFund.fundName }}</p>
-                    <br><p>Balance</p>
-                    <p>${{ superAmount|intcomma }}</p>
+                    <div class="col-lg-3 text-center">
 
-            </div>
+                            <div class="imgContainer"><img src="
+                                    {% if obj.superFund %}{{ obj.superFund.fundImage.url }}{% else %}{% static 'img/icons/nestEgg_icon.png' %}{% endif %}"
+                                                           class="greyscale rounded-circle" alt="SuperFund" width="100px"
+                                                           height="100px">
+                            </div>
 
-            <div class="col-lg-3 text-center">
+                            <p >{{ obj.superFund.fundName }}</p>
+                            <br><p>Balance</p>
+                            <p class="pt-1">${{ superAmount|intcomma }}</p>
 
-
-
-                    <div class="imgContainer"><img src="{% if obj.propertyImage  %}{{ obj.propertyImage.url }}{% else%}{% static 'img/icons/home_icon.png' %}{% endif %}"
-                                                   class="rounded-circle" alt="SuperFund" width="100px" height="100px">
                     </div>
-                    <p> {{ street }}</p>
-                    <br><p>Estimated value</p>
-                    <p>${{ valuation|intcomma }}</p>
 
-            </div>
+                    <div class="col-lg-3 text-center">
 
-            <div class="col-lg-3 text-center">
 
-                    <div class="imgContainer"><img src="{% static 'img/logos/centrelink_logo.png' %}"
-                                                   class="rounded-circle" alt="SuperFund" width="100px" height="100px">
+                            <div class="imgContainer"><img src="
+                                    {% if obj.propertyImage %}{{ obj.propertyImage.url }}{% else %}{% static 'img/icons/home_icon.png' %}{% endif %}"
+                                                           class="greyscale rounded-circle" alt="SuperFund" width="100px"
+                                                           height="100px">
+                            </div>
+                            <p> {{ street }}</p>
+                            <p> {{ suburb }}</p>
+                            <p class="pt-2">Estimated value</p>
+                            <p>${{ valuation|intcomma }}</p>
+
                     </div>
-                    <p>Age Pension<p>
-                    <br><p>Annual Payment<p>
-                    <p>${{ annualPensionIncome|intcomma }}</p></div>
 
+                    <div class="col-lg-3 text-center">
 
+                            <div class="imgContainer"><img src="{% static 'img/logos/centrelink_logo.png' %}"
+                                                           class="greyscale rounded-circle" alt="SuperFund" width="100px"
+                                                           height="100px">
+                            </div>
+                            <p>Age Pension<p>
+                            <br><p class="pt-2">${{  pensionAmount|intcomma}} / fortnight <p>
+                            <p>(${{ annualPensionIncome|intcomma }} p.a.)</p></div>
+
+                </div>
+            </div>
         </div>
     </div>
+
 
 
 

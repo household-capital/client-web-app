@@ -56,7 +56,6 @@ class LixiXMLGenerator:
 
     def populateElements(self, srcDict):
 
-
         #Address
         self.__logging("Generating Address Element")
         try:
@@ -105,12 +104,13 @@ class LixiXMLGenerator:
         #Loan Details
         try:
             self.__logging("Generating Loan Elements")
-            self.loanDetail = ElementTree.SubElement(self.application, 'LoanDetails',dict(EstimatedSettlementDate=srcDict['Loan.Settlement_Date__c'],OriginatorReferenceID="HHC-"+srcDict['Loan.Loan_Number__c'],
+            self.loanDetail = ElementTree.SubElement(self.application, 'LoanDetails',dict(EstimatedSettlementDate=srcDict['Loan.Loan_Settlement_Date__c'],OriginatorReferenceID="HHC-"+srcDict['Loan.Loan_Number__c'],
                                                                                       ProductCode='21001259',ProductName='HHC\HHC - Household Capital Longevity Variable IO Loan', LoanType='Reverse Mortgage',
                                                                                       AmountRequested=str(int(round(srcDict['Loan.Total_Household_Loan_Amount__c'],0))),ProposedAnnualInterestRate=str(srcDict['Loan.Interest_Rate__c'])))
         except:
             self.__logging("# Loan Error" )
             return {'status':"Error",'responseText':self.outputLog}
+
 
         # - Commission
         try:
@@ -186,10 +186,12 @@ class LixiXMLGenerator:
                         AustralianDialingCode=str(srcDict["Brwr" + str(i + 1) + ".Phone"])[:2],
                         Number=str(srcDict["Brwr" + str(i + 1) + ".Phone"])[-8:]))
 
+
                 if srcDict["Brwr" + str(i + 1) + ".MobilePhone"] != None:
                     self.mobilephone = ElementTree.SubElement(self.Contact, "Mobile", dict(
                         AustralianDialingCode=str(srcDict["Brwr" + str(i + 1) + ".MobilePhone"])[:2],
                         Number=str(srcDict["Brwr" + str(i + 1) + ".MobilePhone"])[-8:]))
+
 
                 self.personname = ElementTree.SubElement(self.personapplicant, "PersonName",
                                                          dict(FirstName=srcDict["Brwr" + str(i + 1) + ".FirstName"],
@@ -269,9 +271,8 @@ class LixiXMLGenerator:
                                                               dict(FirstName=srcDict['POA'+str(i+1)+".FirstName"],Surname=srcDict['POA'+str(i+1)+".LastName"]))
 
             # Related Person (Valuer)
-            self.relatedPersonValuer = ElementTree.SubElement(self.application, 'RelatedPerson', dict(UniqueID="HHC-" + srcDict['Prop.Valuer_Name__c'].replace(" ","")))
-            firstname,surname=srcDict['Prop.Valuer_Name__c'].split(" ",1)
-            self.relatedNameValuer=ElementTree.SubElement(self.relatedPersonValuer, 'PersonName',dict(FirstName=firstname, Surname=surname))
+            self.relatedPersonValuer = ElementTree.SubElement(self.application, 'RelatedPerson', dict(UniqueID="HHC-" + srcDict['Prop.Valuer_Name__c']))
+            self.relatedNameValuer=ElementTree.SubElement(self.relatedPersonValuer, 'PersonName',dict(FirstName=srcDict['Prop.Valuer_Firstname'], Surname=srcDict['Prop.Valuer_Surname']))
 
         except:
             self.__logging("# Related Party Error")
@@ -287,6 +288,7 @@ class LixiXMLGenerator:
             self.salesChannel=ElementTree.SubElement(self.application,'SalesChannel')
 
             if srcDict['Loan.Distribution_Partner_Contact__c']!=None:
+
                 self.Referrer = ElementTree.SubElement(self.salesChannel, 'Company',
                                                          dict(CompanyName=srcDict['Dist.Name'],
                                                               UniqueID="HHC-"+srcDict['Dist.AccountId']))
@@ -303,6 +305,7 @@ class LixiXMLGenerator:
             self.__logging("# Sales Channel Error" )
             return {'status': "Error", 'responseText': self.outputLog}
 
+
         #Summary
         self.__logging("Generating Establishmemt Fee Elements")
         try:
@@ -315,6 +318,7 @@ class LixiXMLGenerator:
             return {'status': "Error", 'responseText': self.outputLog}
 
         self.__logging("Lixi Element Population Successful")
+
 
         return {'status':"Ok",'responseText': self.outputLog}
 
@@ -365,11 +369,13 @@ class LixiXMLGenerator:
         # check for file IO error
         except IOError:
             self.__logging("# XML Valiation I/O Error")
+            self.__logging(err)
             return {'status': "Error", 'responseText': self.outputLog}
 
         # check for XML syntax errors
         except ElementTree.XMLSyntaxError as err:
             self.__logging("# XML Syntax Error")
+            self.__logging(err)
             return {'status': "Error", 'responseText': self.outputLog}
 
         except:
@@ -386,6 +392,7 @@ class LixiXMLGenerator:
 
         except ElementTree.DocumentInvalid as err:
             self.__logging("# Schema Validation Error")
+            self.__logging(err)
             return {'status': "Error", 'responseText': self.outputLog}
 
         except:

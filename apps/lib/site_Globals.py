@@ -2,8 +2,8 @@
 # Application Globals
 
 LOAN_LIMITS={'minSingleAge' : 60,
-             'minCoupleAge' : 65,
-             'minLoanSize' : 50000,
+             'minCoupleAge' : 60,
+             'minLoanSize' : 35000,
              'maxLoanSize': 550000,
              'maxTopUp' : 500000,
              'maxCare' : 550000,
@@ -15,20 +15,20 @@ LOAN_LIMITS={'minSingleAge' : 60,
              'baseLvrAge' : 60,
              'baseLvrIncrement' : 0.01,
              'apartmentLvrAdj' : 0.05,
-             'establishmentFee':0.015
+             'establishmentFee':0.015,
+             'topUpBufferAmount':5000
 }
 
 ECONOMIC={'inflationRate' :float(2.50),
           'investmentRate' : float(6.00),
           'housePriceInflation' : float(3.00),
-          'interestRate' :float(1.25),
+          'interestRate' :float(1.00),
           'lendingMargin':float(4.40),
           'comparisonRateIncrement':float(0.06),
           'projectionAge' : 90
 }
 
-APP_SETTINGS={'incomeIntervals' : 500,
-              'minProjectionPeriods': 16,
+APP_SETTINGS={'minProjectionYears': 15,
               'intRateStress':2,
               'hpiHighStressLevel':0,
               'hpiLowStressLevel':1.5,

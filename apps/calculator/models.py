@@ -91,6 +91,8 @@ class WebCalculator(models.Model):
     calcGive=models.IntegerField(blank=True, null=True)
     calcCare = models.IntegerField( blank=True, null=True)
     calcTotal=models.IntegerField(blank=True, null=True)
+    payIntAmount=models.IntegerField(blank=True, null=True)
+    payIntPeriod = models.IntegerField(blank=True, null=True)
     email=models.EmailField(blank=True, null=True)
     referrer=models.URLField(blank=True,null=True)
     actioned=models.IntegerField(default=0,blank=True, null=True)

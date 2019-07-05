@@ -232,10 +232,10 @@ class ReferrerForm(forms.ModelForm):
                     Div(HTML("Single or Joint Home Owners"), css_class='form-label'),
                     Div(Field('loanType'))),
                 Div(
-                    Div(HTML("Age Borrower 1"), css_class='form-label'),
+                    Div(HTML("Age - Home Owner 1"), css_class='form-label'),
                     Div(Field('age_1'))),
                 Div(
-                    Div(HTML("Age Borrower 2"), css_class='form-label'),
+                    Div(HTML("Age - Home Owner 2"), css_class='form-label'),
                     Div(Field('age_2'))),
 
                 Div(HTML("<i class='fas fa-home'> </i>&nbsp;&nbsp;Home Details"), css_class='form-header'),

@@ -140,6 +140,14 @@ class EnrichEnum:
         try:
             self.__logging("Enumerating LIXI Property Type")
 
+            # remove spaces from Identifiers
+            self.loanDict['Prop.Policy_Number__c']=self.loanDict['Prop.Policy_Number__c'].replace(" ","")
+
+            firstname, surname = self.loanDict['Prop.Valuer_Name__c'].split(" ", 1)
+            self.loanDict['Prop.Valuer_Firstname']=firstname
+            self.loanDict['Prop.Valuer_Surname'] = surname
+            self.loanDict['Prop.Valuer_Name__c']=self.loanDict['Prop.Valuer_Name__c'].replace(" ", "")
+
             # propertyType
             if self.loanDict['Prop.flatNumber'] != "None":
                 self.loanDict['Prop.LixiPropertyType'] = 'Apartment Unit Flat'
@@ -199,6 +207,7 @@ class EnrichEnum:
     def ContactEnumeration(self, prefix):
         try:
             for i in range(int(self.loanDict[prefix + ".Number"])):
+
                 self.__logging("Contact Enumeration - " + prefix + ".Number." + str(i))
 
                 if self.loanDict[prefix + str(i + 1) + ".Phone"] != None:
@@ -219,7 +228,7 @@ class EnrichEnum:
                     else:
                         self.loanDict[prefix + str(i + 1) + ".PrimaryApplicant"] = "No"
 
-                    # NameTitle
+                # NameTitle
                 enumTitles = {"Mr.": "Mr", "Mrs.": "Mrs", "Ms.": "Ms", "Dr.": "Dr"}
                 if self.loanDict[prefix + str(i + 1) + ".Salutation"] in enumTitles:
                     self.loanDict[prefix + str(i + 1) + ".NameTitle"] = enumTitles[
@@ -232,7 +241,7 @@ class EnrichEnum:
                 else:
                     self.loanDict[prefix + str(i + 1) + ".MaritalStatus"] = "Unknown"
 
-                return {"status": "Ok"}
+            return {"status": "Ok"}
         except:
             return {'status': "Error"}
 

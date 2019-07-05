@@ -17,14 +17,13 @@ from .lixi_Generator import LixiXMLGenerator
 from apps.lib.site_Globals import ECONOMIC
 
 
-
 class CloudBridge():
 
     LIXI_SETTINGS = {'LIXI_VERSION': '2.6.17',
                      'SCHEMA_FILENAME': "/apps/lib/lixi/LixiSchema/LIXI-CAL-2.6.17".replace(".", "_") + '.xsd',
                      'ORIGINATOR_MARGIN': ECONOMIC['lendingMargin'],
                      'ns_map_':{"xsi": 'http://www/w3/org/2001/XMLSchema-instance'},
-                     'FILEPATH':(settings.MEDIA_ROOT+'/CustomerReports/'),
+                     'FILEPATH':(settings.MEDIA_ROOT+'/customerReports/'),
                      'AMAL_DOCUMENTS':["Application Form", "Loan Contract", "Valuation Report"]
                      }
 
@@ -99,21 +98,22 @@ class CloudBridge():
             identifier = result['data']['identifier']
             AMAL_LoanId = result['data']['loanID']
 
+        self.__logging("Application ID: "+identifier)
+        self.__logging("Loan ID: " + identifier)
+
         # Update Salesforce with LoanId
-        result = self.saveAMALLoanId(self.loanId, AMAL_LoanId, self.isProduction)
+        result = self.saveAMALLoanId(self.opportunityId, AMAL_LoanId, self.isProduction)
         if result['status'] != 'Ok':
             self.warningLog += 'ARN not saved in Salesforce' + "\r\n"
 
         # Send supporting Documents
-        try:
-            result=self.sendDocumentsToAMAL(identifier, self.isSendFiles)
-            if result['status'] != 'Ok':
-                self.warningLog += 'Suporting docs not sent to AMAL' + "\r\n"
+        #try:
+        result=self.sendDocumentsToAMAL(identifier, self.isSendFiles)
+        if result['status'] != 'Ok':
+            self.warningLog += 'Suporting docs not sent to AMAL' + "\r\n"
+        #except:
+        #    self.warningLog+='Suporting docs not sent to AMAL'
 
-        except:
-            self.warningLog+='Suporting docs not sent to AMAL'
-
-        print(self.outputLog)
         self.__logging("Cloud Bridge's work is done here")
         return {'status': "Ok", 'responseText': "Cloud Bridge's work is done here", 'log': self.outputLog,'warningLog':self.warningLog}
 
@@ -135,7 +135,7 @@ class CloudBridge():
         self.__logging("Generating Lixi File for "+str(self.opportunityId))
 
         self.__logging("Step 1 - Extracting Salesforce Data to Loan Dictionary")
-        loanDict = self.sfAPI.getLoanExtract(self.opportunityId)
+        loanDict = self.sfAPI.getLoanExtract(self.opportunityId)['data']
 
         self.loanId=loanDict['Loan.Loan_Number__c'] #Loan ID used later - hence instance variable
 
@@ -206,7 +206,7 @@ class CloudBridge():
             self.__logging('Step 6 - By-passed - not sent to AMAL')
             return {"status":"Ok"}
 
-    def saveAMALLoanId(self,loanId, AMAL_LoanId, isProduction):
+    def saveAMALLoanId(self,oppID, AMAL_LoanId, isProduction):
 
         if not isProduction:
             self.__logging('Step 7 - By-passed - AMAL ID not saved in SF')
@@ -215,10 +215,14 @@ class CloudBridge():
             self.__logging('Step 7 - Saving AMAL ID in SF Loan Record')
 
             try:
-                self.sfAPI.updateLoanID(loanId,AMAL_LoanId)
-                self.__logging(" -  Saved " + AMAL_LoanId + " to Loan " + loanId)
-                return {"status":"Ok"}
-
+                result=self.sfAPI.updateLoanID(oppID,AMAL_LoanId)
+                if result['status']=="Ok":
+                    self.__logging(" -  Saved " + AMAL_LoanId + " to Opportunity " + oppID)
+                    return {"status":"Ok"}
+                else:
+                    self.__logging(" -  Warning: LoanId not updated in Salesforce")
+                    self.__logging(result['responseText'])
+                    return {"status": "Error"}
             except:
                 self.__logging(" -  Warning: LoanId not updated in Salesforce")
                 return {"status": "Error"}
@@ -231,29 +235,39 @@ class CloudBridge():
         else:
             self.__logging('Step 8 - Retrieving documents from Salesforce - Not Sent to AMAL')
 
-        docList=self.sfAPI.getDocumentList(self.opportunityId)
+        docList=self.sfAPI.getDocumentList(self.opportunityId)['data']
+
+        print(docList)
 
         for index, row in docList.iterrows():
 
-            print(row["Name"])
             if row["Name"] in self.AMAL_Documents:
 
                 self.__logging('         Retrieving '+row["Name"])
                 srcfileIO=self.sfAPI.getDocumentFileStream(row["Id"])
 
+                if srcfileIO['status']!="Ok":
+                    self.__logging('         Did not retrieve '+row["Name"])
+                    return {'status': "Error"}
+
                 if sendFiles:
                     self.__logging('         Sending '+row["Name"])
-                    status=self.mlAPI.sendDocuments(srcfileIO, str(row["Name"])+".pdf", applicationID)
+                    status=self.mlAPI.sendDocuments(srcfileIO['data'], str(row["Name"])+".pdf", applicationID)
 
-                    if json.loads(status.text)['status']!='ok':
-                        self.__logging('         Error sending ' + row["Name"]+ "to AMAL")
-                        self.__logging(status.text)
-                        return {'status':"Error"}
+                    try:
+                        if json.loads(status.text)['status']!='ok':
+                            self.__logging('         Error sending ' + row["Name"]+ "to AMAL")
+                            self.__logging(status.text)
+                            return {'status':"Error"}
+                    except:
+                            self.__logging('         Error sending ' + row["Name"] + "to AMAL")
+                            return {'status': "Error"}
+
         return {'status': "Ok"}
 
-    def __nuke(self):
-        response=self.mlAPI.nuke()
-        print(response)
+    #def __nuke(self):
+    #    response=self.mlAPI.nuke()
+    #    print(response)
         
     def __logging(self,string):
         self.outputLog+=string+"\r\n"

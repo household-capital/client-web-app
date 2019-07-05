@@ -37,7 +37,10 @@ class apiAMAL():
                     'Password': os.getenv("AMAL_PASSWORD" + ENV_STR)}
         response = requests.post(self.api_path + self.api_url_session, headers=self.headers, json=jsondata)
 
-        status = json.loads(response.text)['status']
+        try:
+            status = json.loads(response.text)['status']
+        except:
+            return {"status": "Error", 'responseText': "API could not be opened"}
 
         if status != "ok":
             write_applog("ERROR", 'apiAMAL', 'openAPI', 'Could not open API'+ENV_STR)

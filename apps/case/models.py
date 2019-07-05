@@ -12,7 +12,7 @@ from django.urls import reverse_lazy
 
 #Local Application Imports
 from apps.lib.site_Enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,\
-    pensionTypesEnum, loanTypesEnum, ragTypesEnum, channelTypesEnum, stateTypesEnum
+    pensionTypesEnum, loanTypesEnum, ragTypesEnum, channelTypesEnum, stateTypesEnum, incomeFrequencyEnum
 
 
 class FundDetail(models.Model):
@@ -166,7 +166,7 @@ class Case(models.Model):
     superFund=models.ForeignKey(FundDetail,null=True, blank=True, on_delete=models.SET_NULL)
     superAmount=models.IntegerField(null=True, blank=True)
     pensionType=models.IntegerField(choices=pensionTypes,default=2)
-    pensionAmount=models.IntegerField(null=True, blank=True)
+    pensionAmount=models.IntegerField(default=0)
 
     meetingDate = models.DateTimeField(blank=True, null=True)
     summaryDocument = models.FileField(max_length=150,null=True, blank=True)
@@ -222,7 +222,7 @@ class Case(models.Model):
             return ""
 
     def enumDwellingType(self):
-            return dict(self.dwellingTypes)[self.dwellingType]
+        return dict(self.dwellingTypes)[self.dwellingType]
 
     def enumSex(self):
         if self.loanType==loanTypesEnum.SINGLE_BORROWER.value:
@@ -262,6 +262,10 @@ class Loan(models.Model):
         (15, "15%"),
         (20, "20%"))
 
+    drawdownFrequency=(
+        (incomeFrequencyEnum.FORTNIGHTLY.value, 'fortnightly'),
+        (incomeFrequencyEnum.MONTHLY.value, 'monthly'))
+
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
     localLoanID = models.AutoField(primary_key=True)
     maxLVR=models.FloatField(null=False, blank=False,default=0)
@@ -270,17 +274,23 @@ class Loan(models.Model):
     protectedEquity=models.IntegerField(default=0, choices=protectedChoices)
     totalLoanAmount=models.IntegerField(default=0)
     topUpAmount=models.IntegerField(default=0)
-    topUpIncome=models.IntegerField(default=0)
+    topUpDrawdownAmount=models.IntegerField(default=0)
     refinanceAmount=models.IntegerField(default=0)
     giveAmount=models.IntegerField(default=0)
     renovateAmount=models.IntegerField(default=0)
     travelAmount=models.IntegerField(default=0)
     careAmount=models.IntegerField(default=0)
-    giveDescription=models.CharField(max_length=30, null=True, blank=True)
-    renovateDescription=models.CharField(max_length=30, null=True, blank=True)
-    travelDescription=models.CharField(max_length=30, null=True, blank=True)
-    careDescription=models.CharField(max_length=30, null=True, blank=True)
-    incomeObjective=models.IntegerField(default=0)
+    topUpDescription=models.CharField(max_length=60, null=True, blank=True)
+    renovateDescription=models.CharField(max_length=60, null=True, blank=True)
+    travelDescription=models.CharField(max_length=60, null=True, blank=True)
+    careDescription=models.CharField(max_length=60, null=True, blank=True)
+    giveDescription = models.CharField(max_length=60, null=True, blank=True)
+    topUpIncomeAmount =models.IntegerField(default=0)
+    topUpFrequency =models.IntegerField(default=2, choices=drawdownFrequency)
+    topUpPeriod =models.IntegerField(default=5)
+    topUpBuffer=models.IntegerField(default=False)
+    interestPayAmount=models.IntegerField(default=0)
+    interestPayPeriod=models.IntegerField(default=0)
     annualPensionIncome=models.IntegerField(default=0)
     choiceRetireAtHome = models.BooleanField(default=False)
     choiceAvoidDownsizing = models.BooleanField(default=False)
@@ -297,6 +307,11 @@ class Loan(models.Model):
     consentPrivacy= models.BooleanField(default=False)
     consentElectronic = models.BooleanField(default=False)
 
+    #Version 1 Fields
+    topUpIncome=models.IntegerField(default=0)
+    incomeObjective=models.IntegerField(default=0)
+
+
     objects=CaseManager()
 
     def __str__(self):
@@ -304,6 +319,10 @@ class Loan(models.Model):
 
     def __unicode__(self):
         return smart_text(self.case.caseDescription)
+
+    def enumDrawdownFrequency(self):
+        return dict(self.drawdownFrequency)[self.topUpFrequency]
+
 
 
 class ModelSetting(models.Model):

@@ -64,14 +64,17 @@ p.small {
     padding-bottom: 10px;
 }
 
-.padding-5px{
-    padding-bottom: 5px;
-}
-
 .padding-7px{
     padding-bottom: 7px;
 }
 
+.padding-5px{
+    padding-bottom: 5px;
+}
+
+.padding-2px{
+    padding-bottom: 2px;
+}
 
 .x-large {
     font-family: MaisonNeue;
@@ -83,9 +86,11 @@ p.small {
     font-size: xx-large;
 }
 
-.title {
+.title, a.title{
     font-family: MercuryDisplay;
     font-size: 50px;
+    text-decoration: None;
+    color: black
 }
 
 .secondary_title {
@@ -97,6 +102,12 @@ p.small {
     font-family: MercuryDisplay;
     font-size: 18px;
 }
+
+.medium-title-inverse{
+    font-family: MercuryDisplay;
+    font-size: 50px;
+    text-decoration: None;
+    color: white}
 
 .title-inverse{
     font-family: MercuryDisplay;
@@ -115,9 +126,29 @@ p.small {
    color: rgb(81,132,161);
 }
 
+.hhcGoldFont{
+    color: rgb(253, 182, 0)
+}
+
+.fixed-bottom_heading{
+    color: rgb(253,182,0);
+}
+
+
+
 .HHCBlue{
     background-color: rgb(25,38,63);
     color: white
+}
+
+.HHCTeal{
+        background-color: rgba(134,179,181,0.5);
+        color: white;
+}
+
+.HHCLightBlue {
+    background-color: #5183A1;
+    color: white;
 }
 
 .fas.hhcLightBlue{
@@ -242,12 +273,26 @@ a.menu_title:active{
     transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out
 }
 
+.form-label {
+    font-size: small;
+    color:grey;
+}
+
 .input-group-text{
     background-color: rgb(249,248,245)
 }
 
-.incomeSlider{
+.equitySlider{
     margin-top: 7px ;
+}
+
+#equitySlider .ui-slider-handle{
+    height: 25px;
+    width: 30px;
+}
+
+#equitySlider ui-widget-header {
+    background:rgb(81,132,161);
 }
 
 .asteriskField {
@@ -285,6 +330,15 @@ input[type=number]::-webkit-outer-spin-button {
     border-radius: 35px;
 }
 
+.btn-outline-hhcBlue{
+    color: rgb(25,38,63);
+    font-family: MaisonNeue;
+    font-weight: normal;
+    font-size: 14px;
+    border-radius: 35px;
+    border-color: rgb(25,38,63);
+}
+
 a.btn-hhcGold{
     font-size: 20px;
     font-weight: normal;
@@ -292,9 +346,13 @@ a.btn-hhcGold{
     color: black !important;
 }
 
-.btn-hhcGold{
-    background-color: rgb(253,182,0);
+.btn-hhcGold {
+    background-color: rgb(253, 182, 0);
     border-radius: 35px;
+    font-size: 16px;
+    font-weight: normal;
+    font-family: MaisonNeue;
+    color: black !important;
 }
 
 /* Jumbotron */
@@ -364,7 +422,7 @@ html, body {
 .print-text {
     font-family: MaisonNeue;
     line-height: 130%;
-    font-size: larger;
+    font-size: 115%;
 }
 
 .print-text-larger {
@@ -375,14 +433,14 @@ html, body {
 
 .print-container {
     width: 100%;
-    padding-left: 50px;
+    padding-left: 55px;
     padding-right: 50px;
     margin-left: 0px;
     margin-right: 0px;
 }
 
 .print-edge-row {
-    margin-left: -50px;
+    margin-left: -55px;
     margin-right: -50px;
 }
 

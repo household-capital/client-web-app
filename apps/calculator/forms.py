@@ -84,7 +84,9 @@ class CalcInputForm(forms.ModelForm):
 class CalcOutputForm(forms.ModelForm):
     class Meta:
         model = WebCalculator
-        fields = ['calcTopUp', 'calcRefi', 'calcLive', 'calcGive', 'calcCare', 'calcTotal', 'email', 'name']
+        fields = ['calcTopUp', 'calcRefi', 'calcLive', 'calcGive', 'calcCare', 'calcTotal',
+                  'payIntAmount', 'payIntPeriod',
+                  'email', 'name']
 
     calcTopUp = forms.CharField(required=False, localize=True)
     calcRefi = forms.CharField(required=False, localize=True)
@@ -92,7 +94,9 @@ class CalcOutputForm(forms.ModelForm):
     calcGive = forms.CharField(required=False, localize=True)
     calcCare = forms.CharField(required=False, localize=True)
     calcTotal = forms.CharField(required=False, localize=True)
-    name = forms.CharField(max_length=30, required=False)
+    payIntAmount = forms.CharField(required=False, localize=True)
+
+    name = forms.CharField(max_length=30, required=True)
     email = forms.EmailField(required=True)
 
     def clean_calcTopUp(self):
@@ -112,6 +116,9 @@ class CalcOutputForm(forms.ModelForm):
 
     def clean_calcTotal(self):
         return self.__checkCurrencyField(self.cleaned_data['calcTotal'])
+
+    def clean_payIntAmount(self):
+        return self.__checkCurrencyField(self.cleaned_data['payIntAmount'])
 
     def __checkCurrencyField(self, fieldValue):
         if fieldValue:
@@ -133,6 +140,11 @@ class WebContactForm(forms.ModelForm):
 
         widgets = {'message': forms.Textarea(attrs={'rows': 6, 'cols': 50}), }
 
+    content= forms.CharField(max_length=30, required=False, widget=forms.TextInput(
+                                  attrs={'autocomplete':'off',}
+                                     )
+                              )
+
     helper = FormHelper()
     helper.form_id = 'clientForm'
     helper.form_method = 'POST'
@@ -149,6 +161,7 @@ class WebContactForm(forms.ModelForm):
                 Div(Field('phone', placeholder='Your phone number'), css_class=""),
                 css_class='col-lg-5'),
             Div(
+                Div(Field('content', placeholder='Message'), css_class="pb-1 content", css_id='content'),
                 Div(Field('message', placeholder='How can we assist you?'), css_class="form-group"),
                 css_class='col-lg-7'),
         css_class="row")
@@ -187,45 +200,5 @@ class WebContactDetail(forms.ModelForm):
                 Div(Submit('submit', 'Update', css_class='btn btn-outline-secondary')),
                 css_class='col-lg-6'),
         css_class="row"))
-
-
-# FORMS OLD
-class WebInputForm(forms.ModelForm):
-    # A model form with some overriding using form fields to enable choice field enumeration
-    # and to enable valuation to be initially validated as a text field
-
-    class Meta:
-        model = WebCalculator
-        fields = ['loanType', 'name', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode', 'referrer']
-
-    relationship = ((loanTypesEnum.JOINT_BORROWER.value, 'Couple'), (loanTypesEnum.SINGLE_BORROWER.value, 'Single'))
-    dwelling = ((dwellingTypesEnum.HOUSE.value, 'House'), (dwellingTypesEnum.APARTMENT.value, 'Apartment'))
-
-    dwellingType = forms.TypedChoiceField(choices=dwelling, coerce=int, initial=dwellingTypesEnum.HOUSE.value)
-    loanType = forms.TypedChoiceField(choices=relationship, coerce=int, initial=loanTypesEnum.SINGLE_BORROWER.value)
-    name = forms.CharField(max_length=30, required=False)
-    valuation = forms.CharField(required=True, localize=True, label='Estimated Value')
-
-    def clean_valuation(self):
-        try:
-            valuation = self.cleaned_data['valuation']
-            valuation = valuation.replace('$', "")
-            valuation = valuation.replace(',', "")
-            valuation = int(valuation)
-            return valuation
-        except:
-            raise ValidationError("Please enter home value estimate")
-
-
-class WebOutputForm(forms.ModelForm):
-    class Meta:
-        model = WebCalculator
-        fields = ['email', 'isRefi', 'isTopUp', 'isLive', 'isGive', 'isCare']
-
-    isRefi = forms.BooleanField(widget=forms.CheckboxInput(), required=False)
-    isTopUp = forms.BooleanField(widget=forms.CheckboxInput(), required=False)
-    isLive = forms.BooleanField(widget=forms.CheckboxInput(), required=False)
-    isGive = forms.BooleanField(widget=forms.CheckboxInput(), required=False)
-    isCare = forms.BooleanField(widget=forms.CheckboxInput(), required=False)
 
 

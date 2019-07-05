@@ -9,11 +9,11 @@
 {% block calculator %}
 
     <div class="d-none d-sm-block calc_hero_container">
-        <img src="{% static 'img/hhc/HC-CalcHero.png' %}" class="img-fluid" alt="Responsive image">
+        <img src="{% static 'img/hhc/HC-CalcHero.png' %}" class="img-fluid w-100" alt="Responsive image">
         <div class="calc_hero_text">
             <p class="header_text">You could access savings in your home</p>
             <p>
-            <p class="larger"></p>
+            <p class="larger">Create your personalised summary below</p>
         </div>
     </div>
 
@@ -29,7 +29,7 @@
 
                         <div class="container cal_container-md pt-5 pb-5">
 
-                            {% if redirect %}
+                            {% if redirectMessage %}
                                 <div class="row justify-content-center">
                                     <div class="col-12">
                                         <p class="alert alert-success">{{ redirectMessage }}</p>
@@ -240,100 +240,192 @@
                         </div>
                     </div>
 
-                    <!-- Details -->
-                    <div class="cal_background_white">
+                    <!-- Interest Payments -->
+                    {% if obj.isRefi %}
+                        <div class="cal_background_white">
 
-                        <div class="container cal_container-md pt-5 pb-5">
-
-                            <div class="row justify-content-center pb-3">
-                                <div class="col-12">
-                                    <p class="x-large"><b>Leave an email and we'll send you a
-                                        personalised summary</b></p>
-
-                                </div>
-                            </div>
-
-                            <div>
-                                <p>Your summary will provide key information on how a Household Transfer could be used to meet your retirement funding needs</p>
-
-                                <br>
-                                <p>We will also provide an illustration of how the value of your home and
-                                    the value of your home equity might change over time (based on a loan amount
-                                    of <b><label id="id_transferAmount">${{ obj.maxLoanAmount }}</label></b>)</p><br>
-
-                            </div>
-
-                            <div class="row justify-content-center pb-3">
-                                <div class="col-8">
-                                    <input type="text" name="name" required placeholder="Your name"
-                                           class="textinput textInput form-control" id="id_name"
-                                           {% if form.name.value != None %}value="{{ form.name.value }}"{% endif %}>
-                                </div>
-                            </div>
+                            <div class="container cal_container-md pt-5 pb-5">
+                                <p class="x-large"><b>Interest Payments</b></p>
+                                <p>There is no obligation to make interest payments</p>
+                                <p class="small">You can choose to make partial or full interest payments</p>
 
 
-                            <div class="row justify-content-center pb-3">
-                                <div class="col-8">
+                                <div class=" row justify-content-center pt-4">
+                                    <div class="col-8 col-sm-9 text-right ">
+                                        <p class="larger pt-1 pb-3">Would you like to make interest payments?</p>
+                                    </div>
+                                    <div class="col-4 col-sm-3 text-left">
 
-                                    <input type="email" name="email" required
-                                           placeholder="Your email"
-                                           maxlength="70" class="textinput textInput form-control"
-                                           id="id_email"
-                                           {% if form.email.value != None %}value="{{ form.email.value }}"{% endif %}
-                                           {% if form.errors %}autofocus{% endif %}>
+                                        <button class="btn btn-square-hhcLightBlue" type="button" id="id_interestNo">
+                                            &nbsp;No&nbsp;
+                                        </button>
+
+                                        <button class="btn btn-outline-secondary" type="button" id="id_interestYes">Yes
+                                        </button>
+
+
+                                    </div>
                                 </div>
 
-                            </div>
-                            {% if form.errors.email %}
-                                <div class="row justify-content-center pb-3">
-                                    <div class="col-8">
-                                        <div>
-                                            {{ form.errors.email }}
+                                <div id="id_interestInput" class="pt-3" style="display: none;">
+
+                                    <div class=" row justify-content-center">
+                                        <div class="col-3 col-sm-3 text-center">
+                                            <p>Interest</p>
+                                            <label class="check-image Interest"
+                                                   for=id_calcCare></label>
+                                        </div>
+                                        <div class="col-5 col-sm-6 d-flex flex-column align-self-center">
+                                            <div class="pb-3">
+                                                &nbsp;<div id="interestSlider"></div>
+                                            </div>
+                                            <p class="small">Intended monthly interest payment</p>
+                                        </div>
+                                        <div class="col-4 col-sm-3 d-flex flex-column align-self-center">
+                                            <input type="text" name="payIntAmount"
+                                                   class="textinput textInput form-control"
+                                                   id="id_payIntAmount">
+                                            {{ form.payIntAmount.errors }}
+
                                         </div>
                                     </div>
-                                </div>
-                            {% endif %}
 
-                            <div class="row justify-content-center">
+                                    <div class=" row justify-content-center">
+                                        <div class="col-3 col-sm-3 text-center">
+                                            <p>Period</p>
+                                            <label class="check-image Period"
+                                                   for=id_calcCare></label>
+                                        </div>
+                                        <div class="col-5 col-sm-6 d-flex flex-column align-self-center">
+                                            <div class="pb-3">
+                                                &nbsp;<div id="intPeriodSlider"></div>
+                                            </div>
+                                            <p class="small">How long do you intend to pay interest (years)?</p>
+                                        </div>
+                                        <div class="col-4 col-sm-3 d-flex flex-column align-self-center">
+                                            <input type="text" name="payIntPeriod"
+                                                   class="textinput textInput form-control"
+                                                   id="id_payIntPeriod">
+                                            {{ form.payIntPeriod.errors }}
 
-                                <div class="col-md-5">
-                                    <br>
-                                    <button type="submit" value="Submit" form="clientForm"
-                                            class="btn btn-lg btn-hhcGold">
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Send&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    </button>
-                                    <div class="pt-2">
-                                        {% if form.errors %}
-                                            <p class="errorlist">Please check input errors above</p>{% endif %}
+                                        </div>
                                     </div>
 
-                                    <br> <br>
 
                                 </div>
+                            </div>
+                        </div>
+                    {% endif %}
 
+
+
+                    <!-- Details -->
+
+                    {% if obj.isRefi %}
+                        <div class="cal_background_warm">
+                    {% else %}
+                        <div class="cal_background_white">
+                    {% endif %}
+
+                    <div class="container cal_container-md pt-5 pb-5">
+
+                        <div class="row justify-content-center pb-3">
+                            <div class="col-12">
+                                <p class="x-large"><b>Leave an email and we'll send you a
+                                    personalised summary</b></p>
 
                             </div>
+                        </div>
+
+                        <div>
+                            <p>Your summary will provide key information on how a Household Transfer could be
+                                used to meet your retirement funding needs</p>
+
+                            <br>
+                            <p>We will also provide an illustration of how the value of your home and
+                                the value of your home equity might change over time, based on a loan amount
+                                of <b><label id="id_loanLabel">${{ obj.maxLoanAmount }}</label></b>
+                            <p>
+
+                            <p id="interestText" style="display: none"> Also assuming that you make monthly interest
+                                payments of
+                                <b><label id="id_interestLabel"></label></b> per month for
+                                <b><label id="id_periodLabel"></label></b> years</p>
+                            <br>
+
+                        </div>
+
+                        <div class="row justify-content-center pb-3">
+                            <div class="col-8">
+                                <input type="text" name="name" required placeholder="Your name"
+                                       class="textinput textInput form-control" id="id_name"
+                                       {% if form.name.value != None %}value="{{ form.name.value }}"{% endif %}>
+                            </div>
+                        </div>
 
 
-                            <div class="row">
-                                <div class="col-md-12 text-center ">
-                                    <br>
-                                    <p class="small">*This calculation does not constitute an approval
-                                        but provides an
-                                        indicator
-                                        of the maximum possible loan. Household Transfers are subject to
-                                        loan approval
-                                        criteria,
-                                        which
-                                        includes a home valuation. Full terms and conditions will be
-                                        included in any
-                                        application</p>
-                                    <br>
+                        <div class="row justify-content-center pb-3">
+                            <div class="col-8">
 
-                                </div>
+                                <input type="email" name="email" required
+                                       placeholder="Your email"
+                                       maxlength="70" class="textinput textInput form-control"
+                                       id="id_email"
+                                       {% if form.email.value != None %}value="{{ form.email.value }}"{% endif %}
+                                       {% if form.errors %}autofocus{% endif %}>
                             </div>
 
                         </div>
+                        {% if form.errors.email %}
+                            <div class="row justify-content-center pb-3">
+                                <div class="col-8">
+                                    <div>
+                                        {{ form.errors.email }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <div class="row justify-content-center">
+
+                            <div class="col-md-5">
+                                <br>
+                                <button id="personal-summary" type="submit" value="Submit" form="clientForm"
+                                        class="btn btn-lg btn-hhcGold">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Send&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                </button>
+                                <div class="pt-2">
+                                    {% if form.errors %}
+                                        <p class="errorlist">Please check input errors above</p>{% endif %}
+                                </div>
+
+                                <br> <br>
+
+                            </div>
+
+
+                        </div>
+
+
+                        <div class="row">
+                            <div class="col-md-12 text-center ">
+                                <br>
+                                <p class="small">*This calculation does not constitute an approval
+                                    but provides an
+                                    indicator
+                                    of the maximum possible loan. Household Transfers are subject to
+                                    loan approval
+                                    criteria,
+                                    which
+                                    includes a home valuation. Full terms and conditions will be
+                                    included in any
+                                    application</p>
+                                <br>
+
+                            </div>
+                        </div>
+
+                    </div>
                     </div>
 
 
@@ -357,16 +449,33 @@
 
     <script>
 
-        var topUpData = {{ topUpData|safe }};
-        var refiData = {{ refiData|safe }};
-        var liveData = {{ liveData|safe }};
-        var giveData = {{ giveData|safe }};
-        var careData = {{ careData|safe }};
-
+        var loanRate = {{ loanRate }};
 
         $(document).ready(function () {
 
+            //Google Analytics
+
+            gtag_report_conversion('AW-760723517/J1q7CNishaMBEL3w3uoC');
+
+            $('a#get-started').click(function () {
+                gtag_report_conversion( 'AW-760723517/_ni-CJa29aIBEL3w3uoC');
+            });
+
+            $('a#phone-number-header').click(function () {
+                gtag_report_conversion( "AW-760723517/8MGICJjs-qIBEL3w3uoC'");
+            });
+
+            $('a#phone-number-footer').click(function () {
+                gtag_report_conversion( "AW-760723517/_u81CKyqhaMBEL3w3uoC");
+            });
+
+            $('#personal-summary').click(function () {
+                gtag_report_conversion("AW-760723517/F-VxCKq49aIBEL3w3uoC");
+            });
+
+
             //Initialisation
+
             calcTotalAmount();
             $("#id_calcTopUp").val(currency(0));
             $("#id_calcRefi").val(currency(0));
@@ -377,54 +486,58 @@
             //Set-up Sliders
             $("#topUpSlider").slider({
                 min: 0,
-                max: {{ topUpPoints }},
+                max: {{ topUpMax|safe }},
+                step: 1000,
                 range: 'min',
                 slide: function (event, ui) {
-                    $('#id_calcTopUp').val(topUpData[ui.value]['value']);
+                    $('#id_calcTopUp').val(currency(ui.value));
                     calcTotalAmount();
                 }
             });
 
             $("#refiSlider").slider({
                 min: 0,
-                max: {{ refiPoints }},
+                max: {{ refiMax|safe  }},
+                step: 1000,
                 range: 'min',
                 slide: function (event, ui) {
-                    $('#id_calcRefi').val(refiData[ui.value]['value']);
+                    $('#id_calcRefi').val(currency(ui.value));
                     calcTotalAmount()
                 }
             });
 
             $("#liveSlider").slider({
                 min: 0,
-                max: {{ livePoints }},
+                max: {{ liveMax|safe  }},
+                step: 1000,
                 range: 'min',
                 slide: function (event, ui) {
-                    $('#id_calcLive').val(liveData[ui.value]['value']);
+                    $('#id_calcLive').val(currency(ui.value));
                     calcTotalAmount()
                 }
             });
 
             $("#giveSlider").slider({
                 min: 0,
-                max: {{ givePoints }},
+                max: {{ giveMax|safe }},
+                step: 1000,
                 range: 'min',
                 slide: function (event, ui) {
-                    $('#id_calcGive').val(giveData[ui.value]['value']);
+                    $('#id_calcGive').val(currency(ui.value));
                     calcTotalAmount()
                 }
             });
 
             $("#careSlider").slider({
                 min: 0,
-                max: {{ carePoints }},
+                max: {{ careMax|safe  }},
+                step: 1000,
                 range: 'min',
                 slide: function (event, ui) {
-                    $('#id_calcCare').val(careData[ui.value]['value']);
+                    $('#id_calcCare').val(currency(ui.value));
                     calcTotalAmount();
                 }
             });
-
 
             //Set-up Manual Change Triggers
             $("#id_calcTopUp").change(function () {
@@ -448,56 +561,157 @@
                 calcTotalAmount()
             });
 
+            //Set-up Interest Button Triggers
+            $("#id_interestNo").click(function () {
+                interestNo()
+            });
 
-            function numberWithCommas(x) {
-                return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            $("#id_interestYes").click(function () {
+                interestYes()
+            });
+
+            //Pay Interest Text and Max Triggers
+            $('#id_payIntAmount').change(function () {
+                updateInterestText(getAmount($(this)));
+                checkMaxInterest($(this))
+            });
+
+            $('#id_payIntAmount').val(0);
+            $('#id_payIntPeriod').val(0);
+
+        });
+
+        function gtag_report_conversion(gCode) {
+
+            gtag('event', 'conversion', {
+                'send_to': gCode
+            });
+            console.log(gCode)
+        }
+
+        function interestNo() {
+            $("#id_interestNo").removeClass("btn-outline-secondary");
+            $("#id_interestNo").addClass("btn-square-hhcLightBlue");
+            $("#id_interestYes").removeClass("btn-square-hhcLightBlue");
+            $("#id_interestYes").addClass("btn-outline-secondary");
+            $("#id_interestInput").hide();
+            $('#id_payIntAmount').val(0);
+            $('#id_payIntPeriod').val(0);
+            $('#id_interestLabel').text(0);
+            $('#id_periodLabel').text(0);
+            $("#interestText").hide()
+        }
+
+        function interestYes() {
+            $("#id_interestYes").removeClass("btn-outline-secondary");
+            $("#id_interestYes").addClass("btn-square-hhcLightBlue");
+            $("#id_interestNo").removeClass("btn-square-hhcLightBlue");
+            $("#id_interestNo").addClass("btn-outline-secondary");
+            refreshInterestSliders();
+            $("#id_interestInput").show()
+        }
+
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        function calcTotalAmount() {
+            var totalAmount = 0;
+            var maxAmount = parseInt("{{ obj.maxLoanAmount }}".replace(/[$,]+/g, "")) || 0;
+
+            totalAmount += getAmount($("#id_calcTopUp"));
+            totalAmount += getAmount($("#id_calcRefi"));
+            totalAmount += getAmount($("#id_calcLive"));
+            totalAmount += getAmount($("#id_calcGive"));
+            totalAmount += getAmount($("#id_calcCare"));
+
+            $("#id_totalAmountLabel").text(currency(totalAmount));
+            $("#id_calcTotal").val(currency(totalAmount));
+
+            if (totalAmount == 0) {
+                $("#id_loanLabel").text(currency(maxAmount));
+            } else {
+                $("#id_loanLabel").text(currency(Math.min(totalAmount, maxAmount)));
             }
 
-            function calcTotalAmount() {
-                var totalAmount = 0;
-                var maxAmount = parseInt("{{ obj.maxLoanAmount }}".replace(/[$,]+/g, "")) || 0;
+            if (totalAmount > maxAmount) {
+                $("#id_amountError").show()
+            } else {
+                $("#id_amountError").hide()
+            }
 
-                totalAmount += getAmount($("#id_calcTopUp"));
-                totalAmount += getAmount($("#id_calcRefi"));
-                totalAmount += getAmount($("#id_calcLive"));
-                totalAmount += getAmount($("#id_calcGive"));
-                totalAmount += getAmount($("#id_calcCare"));
+            refreshInterestSliders()
+        }
 
-                $("#id_totalAmountLabel").text(currency(totalAmount));
-                $("#id_calcTotal").val(currency(totalAmount));
+        function getAmount(obj) {
+            if (obj.length) {
+                return parseInt(obj.prop("value").replace(/[$,]+/g, "")) || 0
+            } else {
+                return 0
+            }
+        }
 
-                if (totalAmount == 0) {
-                    $("#id_transferAmount").text(currency(maxAmount));
-                } else {
-                    $("#id_transferAmount").text(currency(Math.min(totalAmount, maxAmount)));
+        function currency(value) {
+            var output = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(value);
+            return output
+        }
+
+        function refreshInterestSliders() {
+
+            var loanAmount = getAmount($("#id_calcTotal"));
+
+            $("#interestSlider").slider({
+                min: 0,
+                max: loanAmount * loanRate / 1200,
+                step: 25,
+                range: 'min',
+                slide: function (event, ui) {
+                    $('#id_payIntAmount').val(currency(ui.value));
+                    $('#id_interestLabel').text(currency(ui.value));
+                    updateInterestText(ui.value)
+
                 }
+            });
 
-                if (totalAmount > maxAmount) {
-                    $("#id_amountError").show()
-                } else {
-                    $("#id_amountError").hide()
+            $("#interestSlider").slider("value", 0);
+            $('#id_payIntAmount').val(0);
+
+            $("#intPeriodSlider").slider({
+                min: 0,
+                max: 15,
+                step: 1,
+                range: 'min',
+                slide: function (event, ui) {
+                    $('#id_payIntPeriod').val(ui.value);
+                    $('#id_periodLabel').text(ui.value)
                 }
+            });
+
+            $("#intPeriodSlider").slider("value", 0);
+            $('#id_payIntPeriod').val(0);
+
+        }
+
+        function updateInterestText(value) {
+            if (value != 0) {
+                $("#interestText").show()
+            } else {
+                $("#interestText").hide()
+            }
+        }
+
+        function checkMaxInterest(obj) {
+            var maxAmount = getAmount($("#id_calcTotal")) * loanRate / 1200;
+            if (getAmount(obj) > maxAmount) {
+                obj.val(currency(maxAmount))
             }
 
-            function getAmount(obj) {
-                if (obj.length) {
-                    return parseInt(obj.prop("value").replace(/[$,]+/g, "")) || 0
-                } else {
-                    return 0
-                }
-            }
-
-            function currency(value) {
-                var output = new Intl.NumberFormat('en-US', {
-                    style: 'currency',
-                    currency: 'USD',
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0
-                }).format(value);
-                return output
-            }
-
-        })
+        }
 
     </script>
 

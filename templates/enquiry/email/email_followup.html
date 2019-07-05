@@ -9,7 +9,9 @@
 <br>
 <p>I am following-up on my earlier email in relation to how a Household Transfer might be able to help you meet your objectives.</p>
 <br>
-<p>I would be happy to discuss your specific circumstances with you. Please don't hesitate to contact me on {{ obj.user.profile.mobile}} or {{obj.user.email }}</p>
+<p>I would be happy to speak to you personally to discuss your individual circumstances.
+    {% if obj.user.profile.calendlyUrl %}Please feel free to schedule an obligation-free, 15 minute 'discovery call' with me using this link: <br>{{ obj.user.profile.calendlyUrl }}
+    {% else%}Please don't hesitate to contact me on {{ obj.user.profile.mobile}} or {{obj.user.email }}{% endif %}</p>
 <br>
 <p>Kind regards</p>
 <br>
