@@ -64,7 +64,7 @@
             <div class="col-lg-1"></div>
             <div class="col-lg-4 ">
                 <p class="small"><i class="fas fa-square hhcTealShade"></i>&nbsp;Loan Drawdown&nbsp;&nbsp;&nbsp;&nbsp;
-                        <i class="fas fa-square hhcLightBlue"></i>&nbsp;Age Pension </p>
+                    <i class="fas fa-square hhcLightBlue"></i>&nbsp;Age Pension </p>
             </div>
         </div>
 
@@ -252,6 +252,96 @@
 
     <br><br>
 
+    {% if interestPayAmount %}
+    <div class="row ">
+            <div class="col-lg-1"></div>
+            <div class="col-lg-6 padding-10px tertiary_title">
+                <p>Home equity - including interest payment </p>
+            </div>
+        </div>
+
+    <div class="row justify-content-md-center">
+        <div class="col-lg-2 text-right">
+            <p class="small">Home value:</p>
+            <p class="small">Loan balance:</p>
+            <p class="small">Home equity:</p>
+            <p class="small">Home equity %:</p>
+        </div>
+
+        <div class="col-lg-2 text-center">
+            <p class="small">${{ resultsHouseValue4.0|intcomma }}</p>
+            <p class="small">${{ resultsLoanBalance4.0|intcomma }}</p>
+            <p class=""><b>${{ resultsHomeEquity4.0|intcomma }}</b></p>
+            <p class="small">{{ resultsHomeEquityPC4.0|intcomma }}%</p>
+
+        </div>
+        <div class="col-lg-2 text-center">
+            <p class="small">${{ resultsHouseValue4.1|intcomma }}</p>
+            <p class="small">${{ resultsLoanBalance4.1|intcomma }}</p></p>
+            <p class=""><b>${{ resultsHomeEquity4.1|intcomma }}</b></p>
+            <p class="small">{{ resultsHomeEquityPC4.1|intcomma }}%</p>
+
+        </div>
+        <div class="col-lg-2 text-center">
+            <p class="small">${{ resultsHouseValue4.2|intcomma }}</p>
+            <p class="small">${{ resultsLoanBalance4.2|intcomma }}</p></p>
+            <p class=""><b>${{ resultsHomeEquity4.2|intcomma }}</b></p>
+            <p class="small">{{ resultsHomeEquityPC4.2|intcomma }}%</p>
+
+        </div>
+        <div class="col-lg-2 text-center">
+            <p class="small">${{ resultsHouseValue4.3|intcomma }}</p>
+            <p class="small">${{ resultsLoanBalance4.3|intcomma }}</p></p>
+            <p class=""><b>${{ resultsHomeEquity4.3|intcomma }}</b></p>
+            <p class="small">{{ resultsHomeEquityPC4.3|intcomma }}%</p>
+        </div>
+
+    </div>
+
+    <div class="row justify-content-md-center">
+        <div class="col-lg-2 text-right">
+        </div>
+        <div class="col-lg-2 text-center my-auto">
+            <div class="imgResults"><img src="{{ resultsHomeImages4.0 }}" width="{{ resultsHouseValue4.4 }}px"></div>
+        </div>
+        <div class="col-lg-2 text-center my-auto">
+            <div class="imgResults"><img src="{{ resultsHomeImages4.1 }}" width="{{ resultsHouseValue4.5 }}px"></div>
+        </div>
+
+        <div class="col-lg-2 text-center my-auto ">
+            <div class="imgResults"><img src="{{ resultsHomeImages4.2 }}" width="{{ resultsHouseValue4.6 }}px"></div>
+        </div>
+        <div class="col-lg-2 text-center my-auto">
+            <div class="imgResults"><img src="{{ resultsHomeImages4.3 }}" width="{{ resultsHouseValue4.7 }}px"></div>
+        </div>
+    </div>
+
+    <div class="row justify-content-md-center align-items-end">
+        <div class="col-lg-2 text-right">
+        </div>
+        <div class="col-lg-2 text-center">
+            <p class="larger">{{ resultsAge.0 }}</p>
+        </div>
+        <div class="col-lg-2 text-center">
+            <p class="larger">{{ resultsAge.1 }}</p>
+        </div>
+        <div class="col-lg-2 text-center ">
+            <p class="larger">{{ resultsAge.2 }}</p>
+        </div>
+        <div class="col-lg-2 text-center">
+            <p class="larger">{{ resultsAge.3 }}</p>
+        </div>
+    </div>
+    <div class="row justify-content-md-center align-items-end">
+        <div class="col-lg-2 text-right">
+        </div>
+        <div class="col-lg-6 text-center">
+            <p>{{ ageAxis }}</p>
+        </div>
+    </div>
+    {% endif %}
+    <br><br>
+
 
 
     <div class="row ">
@@ -266,7 +356,8 @@
         <div class="col-lg-6 padding-10px small">
             <p>The total Household Transfer (loan amount) is ${{ totalLoanAmount |intcomma }}</p>
             <p>This includes an establishment fee of ${{ establishmentFee |intcomma }}</p>
-            {% if topUpDrawdownAmount %}<p>Projections are based off the drawdown plan (which is subject to annual approval)</p>{% endif %}
+            {% if topUpDrawdownAmount %}
+                <p>Projections are based off the drawdown plan (which is subject to annual approval)</p>{% endif %}
             {% if topUpBuffer %}<p>One 'rainy day' drawdown included</p>{% endif %}
             <br>
             <p>The equity in your home might reach $0 when you are
@@ -289,6 +380,8 @@
 
         </div>
     </div>
+
+
 
     <div class="row">
         <div class="col-lg-12 text-center">

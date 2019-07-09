@@ -43,7 +43,12 @@ class apiSalesforce():
                       'DistCompany':
                           "Select Name from Account where Id=\'{0}\' and isDeleted=False",
                       'User':
-                          "Select Id, Username, Firstname, Lastname from User where Id=\'{0}\'"
+                          "Select Id, Username, Firstname, Lastname from User where Id=\'{0}\'",
+                      'LeadByEmail':
+                          "Select Id from Lead where Email=\'{0}\'",
+                      'LeadByPhone':
+                          "Select Id from Lead where Phone=\'{0}\' or MobilePhone=\'{0}\'"
+
                       }
 
     def openAPI(self,production):

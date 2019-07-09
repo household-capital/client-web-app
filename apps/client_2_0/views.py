@@ -24,7 +24,8 @@ from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.hhc_LoanProjection import LoanProjection
 from apps.lib.site_Logging import write_applog
 from .forms import ClientDetailsForm, SettingsForm, IntroChkBoxForm, topUpLumpSumForm, topUpDrawdownForm, debtRepayForm
-from .forms import giveAmountForm, renovateAmountForm, travelAmountForm, careAmountForm, DetailedChkBoxForm, protectedEquityForm, interestPaymentForm
+from .forms import giveAmountForm, renovateAmountForm, travelAmountForm, careAmountForm, DetailedChkBoxForm, \
+    protectedEquityForm, interestPaymentForm
 from apps.lib.site_Utilities import pdfGenerator
 
 
@@ -76,7 +77,6 @@ class ContextHelper():
                       establishmentFee=loanStatus['data']['establishmentFee'],
                       actualLVR=loanStatus['data']['actualLVR'])
 
-
         # create context
         context = {}
         context.update(clientDict)
@@ -91,7 +91,8 @@ class ContextHelper():
         context['pensionTypesEnum'] = pensionTypesEnum
         context['loanTypesEnum'] = loanTypesEnum
 
-        context["transfer_img"] = settings.STATIC_URL + "img/icons/transfer_"+str(context['maxLVRPercentile'])+"_icon.png"
+        context["transfer_img"] = settings.STATIC_URL + "img/icons/transfer_" + str(
+            context['maxLVRPercentile']) + "_icon.png"
 
         return context
 
@@ -263,7 +264,6 @@ class IntroductionView1(LoginRequiredMixin, SessionRequiredMixin, ContextHelper,
         context['title'] = 'Introduction'
         context['titleUrl'] = reverse_lazy('client2:navigation')
 
-
         # Page uses post_id (slug) to expose images using same view
         context['post_id'] = kwargs.get("post_id")
         context['imgPath'] = settings.STATIC_URL + 'img/'
@@ -326,10 +326,9 @@ class IntroductionView3(LoginRequiredMixin, SessionRequiredMixin, ContextHelper,
         context['title'] = 'Introduction'
         context['titleUrl'] = reverse_lazy('client2:navigation')
 
-
         context['post_id'] = kwargs.get("post_id")
         if not context['post_id']:
-            context['post_id']=1
+            context['post_id'] = 1
 
         if context['post_id'] == 5:
             context['menuBarItems'] = {"data": [
@@ -341,20 +340,18 @@ class IntroductionView3(LoginRequiredMixin, SessionRequiredMixin, ContextHelper,
             context['menuBarItems'] = {"data": [
                 {"button": False,
                  "text": "Next",
-                 "href": reverse_lazy('client2:introduction3')+"/"+str(context['post_id']+1)}]}
-
+                 "href": reverse_lazy('client2:introduction3') + "/" + str(context['post_id'] + 1)}]}
 
         if context['post_id'] == 4:
             # Loan Projections
             loanProj = LoanProjection()
             result = loanProj.create(self.extra_context, frequency=1)
-            proj_data=loanProj.getFutureEquityArray(intervals=50)['data']
+            proj_data = loanProj.getFutureEquityArray(intervals=50)['data']
             context['sliderData'] = json.dumps(proj_data['dataArray'])
-            context['futHomeValue']=proj_data['futHomeValue']
+            context['futHomeValue'] = proj_data['futHomeValue']
             context['sliderPoints'] = 50
             context['imgPath'] = settings.STATIC_URL + 'img/icons/block_equity_0_icon.png'
-            context['transferImagePath']= settings.STATIC_URL + 'img/icons/transfer_0_icon.png'
-
+            context['transferImagePath'] = settings.STATIC_URL + 'img/icons/transfer_0_icon.png'
 
         return context
 
@@ -389,7 +386,7 @@ class NavigationView(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, Te
 # Top Up Views
 class TopUp1(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
     template_name = "client_2_0/interface/topUp1.html"
-    model=Loan
+    model = Loan
     form_class = topUpLumpSumForm
     success_url = reverse_lazy('client2:navigation')
 
@@ -399,10 +396,10 @@ class TopUp1(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView
 
         context = super(TopUp1, self).get_context_data(**kwargs)
         context['title'] = 'Top Up'
-        context['titleUrl']=reverse_lazy('client2:navigation')
+        context['titleUrl'] = reverse_lazy('client2:navigation')
 
-        context['menuPurposes'] = {"display": True, "navigation": True,'data': {
-            "intro":False,
+        context['menuPurposes'] = {"display": True, "navigation": True, 'data': {
+            "intro": False,
             "topUp": True,
             'refi': False,
             'live': False,
@@ -419,10 +416,11 @@ class TopUp1(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView
         obj = queryset.get()
         return obj
 
+
 # Top Up Views
 class TopUp2(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
     template_name = "client_2_0/interface/topUp2.html"
-    model=Loan
+    model = Loan
     form_class = topUpDrawdownForm
     success_url = reverse_lazy('client2:navigation')
 
@@ -432,7 +430,7 @@ class TopUp2(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView
 
         context = super(TopUp2, self).get_context_data(**kwargs)
         context['title'] = 'Top Up'
-        context['titleUrl']=reverse_lazy('client2:navigation')
+        context['titleUrl'] = reverse_lazy('client2:navigation')
 
         context['menuPurposes'] = {"display": True, "navigation": True, 'data': {
             "topUp": True,
@@ -453,20 +451,21 @@ class TopUp2(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView
     def form_valid(self, form):
         obj = form.save(commit=False)
 
-        #Calculate Top-up Drawdown Amount
-        if obj.topUpFrequency==incomeFrequencyEnum.FORTNIGHTLY.value:
-            obj.topUpDrawdownAmount=obj.topUpIncomeAmount*obj.topUpPeriod * 26
+        # Calculate Top-up Drawdown Amount
+        if obj.topUpFrequency == incomeFrequencyEnum.FORTNIGHTLY.value:
+            obj.topUpDrawdownAmount = obj.topUpIncomeAmount * obj.topUpPeriod * 26
         else:
             obj.topUpDrawdownAmount = obj.topUpIncomeAmount * obj.topUpPeriod * 12
 
         if not obj.topUpDrawdownAmount:
-            obj.topUpBuffer=0
+            obj.topUpBuffer = 0
 
         if obj.topUpBuffer:
-            obj.topUpDrawdownAmount+=LOAN_LIMITS['topUpBufferAmount']
+            obj.topUpDrawdownAmount += LOAN_LIMITS['topUpBufferAmount']
 
         obj.save()
         return super(TopUp2, self).form_valid(form)
+
 
 # Refinance
 class Refi(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
@@ -508,10 +507,9 @@ class Refi(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
         queryset = Case.objects.queryset_byUID(self.request.session['caseUID'])
         obj = queryset.get()
 
-        if obj.mortgageDebt!=0:
-                initial["refinanceAmount"] = obj.mortgageDebt
+        if obj.mortgageDebt != 0:
+            initial["refinanceAmount"] = obj.mortgageDebt
         return initial
-
 
 
 # Live Views
@@ -529,7 +527,7 @@ class Live1(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView)
         context['title'] = 'Live'
         context['titleUrl'] = reverse_lazy('client2:navigation')
         context['menuPurposes'] = {"display": True, "navigation": True, 'data': {
-            "intro":False,
+            "intro": False,
             "topUp": False,
             'refi': False,
             'live': True,
@@ -594,7 +592,7 @@ class Give(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
         context['title'] = 'Give'
         context['titleUrl'] = reverse_lazy('client2:navigation')
         context['menuPurposes'] = {"display": True, "navigation": True, 'data': {
-            "intro":False,
+            "intro": False,
             "topUp": False,
             'refi': False,
             'live': False,
@@ -627,7 +625,7 @@ class Care(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
         context['title'] = 'Care'
         context['titleUrl'] = reverse_lazy('client2:navigation')
         context['menuPurposes'] = {"display": True, "navigation": True, 'data': {
-            "intro":False,
+            "intro": False,
             "topUp": False,
             'refi': False,
             'live': False,
@@ -664,7 +662,7 @@ class Options1(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateVi
             {"button": False,
              "text": "Back",
              "href": reverse_lazy('client2:navigation'),
-             "btn_class":'btn-outline-hhcBlue'},
+             "btn_class": 'btn-outline-hhcBlue'},
 
             {"button": False,
              "text": "Next",
@@ -677,7 +675,6 @@ class Options1(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateVi
         queryset = Loan.objects.queryset_byUID(self.request.session['caseUID'])
         obj = queryset.get()
         return obj
-
 
 
 class Options2(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
@@ -699,14 +696,15 @@ class Options2(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateVi
             {"button": False,
              "text": "Back",
              "href": reverse_lazy('client2:options1'),
-             "btn_class":'btn-outline-hhcBlue'},
+             "btn_class": 'btn-outline-hhcBlue'},
 
             {"button": False,
              "text": "Next",
              "href": reverse_lazy('client2:results1')}
         ]}
 
-        context['interestAmount']=int((context['interestRate']+context['lendingMargin']) * context['totalLoanAmount']/1200)
+        context['interestAmount'] = int(
+            (context['interestRate'] + context['lendingMargin']) * context['totalLoanAmount'] / 1200)
 
         return context
 
@@ -842,14 +840,14 @@ class Results3(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, Template
             context['resultsTotalIncome'] = loanProj.getResultsList('TotalIncome', imageSize=150, imageMethod='lin')[
                 'data']
             context['resultsIncomeImages'] = \
-            loanProj.getImageList('PensionIncomePC', settings.STATIC_URL + 'img/icons/income_{0}_icon.png')['data']
+                loanProj.getImageList('PensionIncomePC', settings.STATIC_URL + 'img/icons/income_{0}_icon.png')['data']
 
         context['resultsAge'] = loanProj.getResultsList('BOPAge')['data']
         context['resultsLoanBalance'] = loanProj.getResultsList('BOPLoanValue')['data']
         context['resultsHomeEquity'] = loanProj.getResultsList('BOPHomeEquity')['data']
         context['resultsHomeEquityPC'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
         context['resultsHomeImages'] = \
-        loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
+            loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
         context['resultsHouseValue'] = loanProj.getResultsList('BOPHouseValue', imageSize=110, imageMethod='lin')[
             'data']
 
@@ -857,14 +855,26 @@ class Results3(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, Template
 
         context['resultsNegAge'] = loanProj.getNegativeEquityAge()['data']
 
-        if context['loanType']==loanTypesEnum.JOINT_BORROWER.value:
+        if context['loanType'] == loanTypesEnum.JOINT_BORROWER.value:
             if context['age_1'] < context['age_2']:
-                context['ageAxis']=context['firstname_1']+"'s age"
+                context['ageAxis'] = context['firstname_1'] + "'s age"
             else:
                 context['ageAxis'] = context['firstname_2'] + "'s age"
         else:
-                context['ageAxis'] = "Your age"
+            context['ageAxis'] = "Your age"
 
+        if context['interestPayAmount']:
+            # Interest Payment Calc
+            result = loanProj.calcProjections(makeIntPayment=True)
+            context['resultsLoanBalance4'] = loanProj.getResultsList('BOPLoanValue')['data']
+            context['resultsHomeEquity4'] = loanProj.getResultsList('BOPHomeEquity')['data']
+            context['resultsHomeEquityPC4'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
+            context['resultsHomeImages4'] = \
+                loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')[
+                    'data']
+            context['resultsHouseValue4'] = \
+                loanProj.getResultsList('BOPHouseValue', imageSize=110, imageMethod='lin')[
+                    'data']
         return context
 
 
@@ -877,10 +887,10 @@ class Results4(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, Template
         context['title'] = 'Thank you'
         context['titleUrl'] = reverse_lazy('client2:navigation')
         context['menuBarItems'] = {"data": [
-                {"button": False,
-                 "text": "Finish",
-                 "btn_class": 'btn-hhcGold',
-                 "href": reverse_lazy('client2:final')} #, kwargs={'uid': self.request.session['caseUID']})}
+            {"button": False,
+             "text": "Finish",
+             "btn_class": 'btn-hhcGold',
+             "href": reverse_lazy('client2:final')}  # , kwargs={'uid': self.request.session['caseUID']})}
         ]}
 
         return context
@@ -945,7 +955,7 @@ class FinalPDFView(LoginRequiredMixin, SessionRequiredMixin, View):
 
 # REPORT VIEWS
 
-class PdfLoanSummary( TemplateView):
+class PdfLoanSummary(TemplateView):
     # This page is not designed to be viewed - it is to be called by the pdf generator
     # It requires a UID to be passed to it
 
@@ -978,16 +988,16 @@ class PdfLoanSummary( TemplateView):
 
             # Loan Projections
             loanProj = LoanProjection()
-            result=loanProj.create(context,frequency=12)
-            result=loanProj.calcProjections()
+            result = loanProj.create(context, frequency=12)
+            result = loanProj.calcProjections()
 
             if context["topUpDrawdownAmount"] == 0:
                 context['topUpProjections'] = False
             else:
                 context['topUpProjections'] = True
                 context['resultsTotalIncome'] = \
-                loanProj.getResultsList('TotalIncome', imageSize=150, imageMethod='lin')[
-                    'data']
+                    loanProj.getResultsList('TotalIncome', imageSize=150, imageMethod='lin')[
+                        'data']
                 context['resultsIncomeImages'] = \
                     loanProj.getImageList('PensionIncomePC', settings.STATIC_URL + 'img/icons/income_{0}_icon.png')[
                         'data']
@@ -1005,7 +1015,7 @@ class PdfLoanSummary( TemplateView):
 
             context['resultsNegAge'] = loanProj.getNegativeEquityAge()['data']
 
-            context['comparisonRate']=context['totalInterestRate']+context['comparisonRateIncrement']
+            context['comparisonRate'] = context['totalInterestRate'] + context['comparisonRateIncrement']
 
             context['loanTypesEnum'] = loanTypesEnum
             context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
@@ -1017,7 +1027,6 @@ class PdfLoanSummary( TemplateView):
                     context['ageAxis'] = context['firstname_2'] + "'s age"
             else:
                 context['ageAxis'] = "Your age"
-
 
             # Stress Results
 
@@ -1034,7 +1043,6 @@ class PdfLoanSummary( TemplateView):
             context['resultsHouseValue1'] = loanProj.getResultsList('BOPHouseValue', imageSize=110, imageMethod='lin')[
                 'data']
 
-
             # Stress-2
             result = loanProj.calcProjections(hpiStressLevel=APP_SETTINGS['hpiHighStressLevel'])
             context['hpi2'] = APP_SETTINGS['hpiHighStressLevel']
@@ -1047,7 +1055,6 @@ class PdfLoanSummary( TemplateView):
                 loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
             context['resultsHouseValue2'] = loanProj.getResultsList('BOPHouseValue', imageSize=110, imageMethod='lin')[
                 'data']
-
 
             # Stress-3
             result = loanProj.calcProjections(intRateStress=APP_SETTINGS['intRateStress'])
@@ -1071,8 +1078,6 @@ class PdfLoanSummary( TemplateView):
                 loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
             context['resultsHouseValue4'] = loanProj.getResultsList('BOPHouseValue', imageSize=110, imageMethod='lin')[
                 'data']
-
-        print(context)
         return context
 
 

@@ -16,13 +16,15 @@ urlpatterns = [
     path('enquiryConvert/<uuid:uid>', views.EnquiryConvert.as_view(), name='enqConvert'),
     path('enquiryOwn/<uuid:uid>', views.EnquiryOwnView.as_view(), name='enquiryOwn'),
     path('enquiryFollowUp/<uuid:uid>', views.FollowUpEmail.as_view(), name='enqFollowUp'),
-    path('enquiryMarkFollowUp/<uuid:uid>',views.EnquiryMarkFollowUp.as_view(),name='enqMarkFollowUp'),
+    path('enquiryCloseFollowUp/<uuid:uid>',views.EnquiryCloseFollowUp.as_view(),name='enqMarkFollowUp'),
     path('enquiryDelete/<uuid:uid>', views.EnquiryDeleteView.as_view(), name='enqDelete'),
 
     path('referrer', views.ReferrerView.as_view(), name='enqReferrerCreate'),
     path('referrer/<uuid:uid>', views.ReferrerView.as_view(), name='enqReferrerUpdate'),
     path('referrerEmail/<uuid:uid>', views.ReferralEmail.as_view(), name='enqReferrerEmail'),
 
-    path('dataLoad',views.DataLoad.as_view(),name='dataLoad')
+    path('dataLoad',views.DataLoad.as_view(),name='dataLoad'),
+    path('dataLoadCase',views.DataLoadCase.as_view(),name='dataLoadCase'),
+
 ]
 

@@ -60,8 +60,8 @@ class LoanProjection():
         self.isVersion1 = False
         self.initDict = {}
         self.FREQUENCY = 12  # 12 = Monthly modelling, 1 = Annual Modelling
-        self.periodIntPayment=0
-        self.intPayPeriods=0
+        self.payIntAmount = 0
+        self.payIntPeriod = 0
         self.periodDrawdown=0
         self.drawdownPeriods=0
         self.totalDrawdownAmount=0
@@ -98,8 +98,11 @@ class LoanProjection():
 
         # Interest Payment
         if self.initDict['interestPayAmount']!=0:
-            self.periodIntPayment=self.initDict['interestPayAmount']*12/self.FREQUENCY
-            self.intPayPeriods=self.initDict['interestPayPeriod']*self.FREQUENCY
+            self.payIntAmount=self.initDict['interestPayAmount']*12/self.FREQUENCY
+            self.payIntPeriod=self.initDict['interestPayPeriod']*self.FREQUENCY
+        else:
+            self.payIntAmount=0
+            self.payIntPeriod=0
 
         # Regular Drawdown
         if self.initDict['topUpIncomeAmount'] != 0:
@@ -180,9 +183,9 @@ class LoanProjection():
             hpi = self.__simpleCompounding(kwargs['hpiStressLevel'],self.FREQUENCY)
 
         if 'makeIntPayment' in kwargs:
-            InterestFlag = kwargs['makeIntPayment']
+            payInterestFlag = int(kwargs['makeIntPayment'])
         else:
-            InterestFlag = 0
+            payInterestFlag = 0
 
         # Define structure of the return array
         # - the dictionary elements are like columns; and
@@ -243,8 +246,8 @@ class LoanProjection():
         for period in range(1,(self.minProjectionYears+1) * self.FREQUENCY+1):
 
             # Loan Value
-            if period < self.intPayPeriods + 1:
-                self.calcArray[period]["InterestPayment"] = self.periodIntPayment * InterestFlag
+            if period < self.payIntPeriod + 1:
+                self.calcArray[period]["InterestPayment"] = self.payIntAmount * payInterestFlag
                 # Interest Flag removes interest payment via kwarg scenario
             else:
                 self.calcArray[period]["InterestPayment"] = 0
@@ -305,7 +308,6 @@ class LoanProjection():
             self.calcArray[period]['BOPHouseValue'] = self.calcArray[period-1]['BOPHouseValue']*(1 + hpi/(100* self.FREQUENCY))
             self.calcArray[period]['BOPHomeEquity']=self.calcArray[period]['BOPHouseValue']-self.calcArray[period]['BOPLoanValue']
             self.calcArray[period]['BOPHomeEquityPC'] = max(1 - self.calcArray[period]['BOPLoanValue'] / self.calcArray[period]['BOPHouseValue'], 0)*100
-
         return {'status': 'Ok'}
 
 

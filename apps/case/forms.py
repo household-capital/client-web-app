@@ -51,7 +51,7 @@ class CaseDetailsForm(forms.ModelForm):
             Div(
                 Div(
                     Div(HTML("Case Description"), css_class='form-label'),
-                    Div(Field('caseDescription')),css_class="col-lg-6"),
+                    Div(Field('caseDescription')), css_class="col-lg-6"),
                 Div(
                     Div(Submit('submit', 'Update Case ', css_class='btn btn-outline-secondary')),
                     css_class="col-lg-4 text-left"),
@@ -70,7 +70,8 @@ class CaseDetailsForm(forms.ModelForm):
                 Div(HTML("Case Notes"), css_class='form-label'),
                 Div(Field('caseNotes'))),
             Div(
-                Div(Div(HTML("<i class='far fa-address-card'></i>&nbsp;&nbsp;Contact Details"),css_class='form-header'),
+                Div(Div(HTML("<i class='far fa-address-card'></i>&nbsp;&nbsp;Contact Details"),
+                        css_class='form-header'),
                     Div(Div(HTML("Client Phone Number"), css_class='form-label'),
                         Div(Field('phoneNumber'))),
                     Div(Div(HTML("Client Email"), css_class='form-label'),
@@ -78,7 +79,7 @@ class CaseDetailsForm(forms.ModelForm):
                     Div(Div(HTML("Introducer or Advisor"), css_class='form-label'),
                         Div(Field('adviser'))),
                     HTML("<br>"),
-                    Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Borrower(s)"),css_class='form-header'),
+                    Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Borrower(s)"), css_class='form-header'),
                     Div(Div(HTML("Single or Joint Borrowers"), css_class='form-label'),
                         Div(Field('loanType'))),
                     HTML("<i class='fas fa-user'></i>&nbsp;&nbsp;<small>Borrower 1</small>"),
@@ -110,7 +111,7 @@ class CaseDetailsForm(forms.ModelForm):
                     css_class="col-lg-6"),
 
                 Div(
-                    Div(HTML("<i class='fas fa-home'></i>&nbsp;&nbsp;Property"),css_class='form-header'),
+                    Div(HTML("<i class='fas fa-home'></i>&nbsp;&nbsp;Property"), css_class='form-header'),
                     Div(Div(HTML("Postcode"), css_class='form-label'),
                         Div(Field('postcode'))),
                     Div(Div(HTML("Dwelling Type"), css_class='form-label'),
@@ -126,12 +127,13 @@ class CaseDetailsForm(forms.ModelForm):
                     Div(Div(HTML("Mortgage Debt"), css_class='form-label'),
                         Div(Field('mortgageDebt'))),
 
-                    Div(HTML("<i class='fas fa-piggy-bank'></i>&nbsp;&nbsp;Super/Investments"),css_class='form-header'),
+                    Div(HTML("<i class='fas fa-piggy-bank'></i>&nbsp;&nbsp;Super/Investments"),
+                        css_class='form-header'),
                     Div(Div(HTML("Super or Investment Fund"), css_class='form-label'),
                         Div(Field('superFund'))),
                     Div(Div(HTML("Super Fund Assets"), css_class='form-label'),
                         Div(Field('superAmount'))),
-                    Div(HTML("<i class='fas fa-hand-holding-usd'></i>&nbsp;&nbsp;Pension"),css_class='form-header'),
+                    Div(HTML("<i class='fas fa-hand-holding-usd'></i>&nbsp;&nbsp;Pension"), css_class='form-header'),
                     Div(Div(HTML("Pension Amount"), css_class='form-label'),
                         Div(Field('pensionAmount'))),
                     Div(Div(HTML("Pension Status"), css_class='form-label'),
@@ -175,23 +177,16 @@ class LossDetailsForm(forms.ModelForm):
 
     class Meta:
         model = LossData
-        fields = ['lossNotes', 'lossDate', 'ragStatus', 'purposeTopUp',
-                  'followUp','followUpDate','followUpNotes',
-                  'purposeRefi', 'purposeLive', 'purposeGive', 'purposeCare']
+        fields = ['lossNotes', 'lossDate',
+                  'followUpDate', 'followUpNotes',
+                  'doNotMarket'
+                  ]
 
         widgets = {
             'lossNotes': forms.Textarea(attrs={'rows': 5, 'cols': 100}),
             'followUpNotes': forms.Textarea(attrs={'rows': 5, 'cols': 100}),
 
         }
-
-    ragTypes = (
-        (ragTypesEnum.GREEN.value, 'GREEN'),
-        (ragTypesEnum.AMBER.value, 'AMBER'),
-        (ragTypesEnum.RED.value, 'RED'),
-    )
-
-    ragStatus = forms.TypedChoiceField(choices=ragTypes, coerce=int)
 
     # Form Layout
     helper = FormHelper()
@@ -205,51 +200,40 @@ class LossDetailsForm(forms.ModelForm):
             Div(
                 HTML("<i class='fas fa-user-times'></i>&nbsp;&nbsp;<small>Loss Notes</small>"),
                 Div(
-                    Div(Field('ragStatus', placeholder='RAG')),
-                    Div(Field('lossDate', placeholder='Loss Date')),
-                    Div(Field('lossNotes', placeholder='Loss Notes'))),
+                    Div(Div(HTML("Loss Date"), css_class='form-label'),
+                        Div(Field('lossDate'))),
+                    Div(Div(HTML("Loss Notes"), css_class='form-label'),
+                        Div(Field('lossNotes'))),
+                ),
                 css_class="col-lg-4"),
 
             Div(
                 HTML("<i class='fas fa-user-tag'></i>&nbsp;&nbsp;<small>Follow-up Required</small>"),
                 Div(
-                    Div(Field('followUp', placeholder='Follow Up?')),
-                    Div(Field('followUpDate', placeholder='Follow Up Date')),
-                    Div(Field('followUpNotes', placeholder='Follow Up Notes')),
+                    Div(Div(HTML("Follow-up Date"), css_class='form-label'),
+                        Div(Field('followUpDate'))),
+                    Div(Div(HTML("Follow-up Notes"), css_class='form-label'),
+                        Div(Field('followUpNotes'))),
                 ),
                 css_class="col-lg-4"),
-            Div(
-                HTML("<i class='fas fa-user-edit'></i>&nbsp;&nbsp;<small>Intended Purposes</small>"),
+
+            css_class='row'),
+        Div(
+            Div(HTML("<i class='far fa-envelope pb-2'></i></i>&nbsp;&nbsp;<small>Marketing</small>"),
                 Div(
-                    Div(Field('purposeTopUp'), css_class="col-lg-2"),
-                    Div(HTML("<p>Top-up</p>"), css_class="col-lg-4 pt-1 pl-0"),
-                    css_class='row'),
-                Div(
-                    Div(Field('purposeRefi'), css_class="col-lg-2"),
-                    Div(HTML("<p>Refinance</p>"), css_class="col-lg-4 pt-1 pl-0"),
-                    css_class='row'),
-                Div(
-                    Div(Field('purposeLive'), css_class="col-lg-2"),
-                    Div(HTML("<p>Live</p>"), css_class="col-lg-4 pt-1 pl-0 "),
-                    css_class='row'),
-                Div(
-                    Div(Field('purposeGive'), css_class="col-lg-2"),
-                    Div(HTML("<p>Give</p>"), css_class="col-lg-4 pt-1 pl-0"),
-                    css_class='row'),
-                Div(
-                    Div(Field('purposeCare'), css_class="col-lg-2"),
-                    Div(HTML("<p>Care</p>"), css_class="col-lg-4 pt-1 pl-0"),
-                    css_class='row'),
-                Div(
-                    Div(Submit('submit', 'Update ', css_class='btn btn-warning')),
-                    css_class="col-lg-4 text-left"),
-                css_class="col-lg-4"),
-            css_class='row')
-    )
+                    Div(Field('doNotMarket'), css_class="col-lg-2"),
+                    Div(HTML("<p>Do Not Market</p>"), css_class="col-lg-5 pt-1 pl-0 "),
+                    css_class="row "),
+                css_class='col-lg-4'),
+                css_class='row'),
+        Div((Div(Div(Submit('submit', 'Update', css_class='btn btn-warning')), css_class='text-right')
+
+        ))
+        )
+
 
 
 class SFPasswordForm(forms.Form):
-
     # Form Layout
     helper = FormHelper()
     helper.form_method = 'POST'
@@ -293,7 +277,7 @@ class SolicitorForm(forms.ModelForm):
 class ValuerForm(forms.ModelForm):
     class Meta:
         model = Case
-        fields =['valuerFirm', 'valuerEmail', 'valuerContact']
+        fields = ['valuerFirm', 'valuerEmail', 'valuerContact']
 
     # Form Data
     valuerContact = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 6, 'cols': 100}))
@@ -322,5 +306,3 @@ class ValuerForm(forms.ModelForm):
             return
         else:
             raise forms.ValidationError("Please choose a valuer and corresponding email")
-
-

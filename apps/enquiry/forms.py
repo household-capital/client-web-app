@@ -263,36 +263,61 @@ class ReferrerForm(forms.ModelForm):
         return self.cleaned_data
 
 
-class EnquiryFollowupForm(forms.ModelForm):
+class EnquiryCloseForm(forms.ModelForm):
+    # Form Data
+
     class Meta:
         model = Enquiry
-        fields = ['followUpDate', 'name',
-                  'referrer', 'email', 'phoneNumber', 'enquiryNotes', 'referrerID']
+        fields = ['lossNotes', 'lossDate',
+                  'followUpDate', 'followUpNotes',
+                  'doNotMarket'
+                  ]
 
         widgets = {
-            'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
+            'lossNotes': forms.Textarea(attrs={'rows': 5, 'cols': 100}),
+            'followUpNotes': forms.Textarea(attrs={'rows': 5, 'cols': 100}),
+
         }
 
+    # Form Layout
     helper = FormHelper()
     helper.form_method = 'POST'
+    helper.form_class = 'form-horizontal col-lg-12'
     helper.field_class = 'col-lg-12'
-    helper.form_class = 'form-horizontal'
     helper.form_show_labels = False
+    helper.form_show_errors = True
     helper.layout = Layout(
         Div(
             Div(
-                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;<small>Client Details</small>")),
-                Div(Field('name', placeholder='Name'), css_class="form-group"),
-                Div(Field('phoneNumber', placeholder='Phone Number'), css_class="form-group"),
-                Div(Field('email', placeholder='Email'), css_class="form-group"),
-                Div(Field('enquiryNotes', placeholder='Enquiry Notes'), css_class="form-group"),
-                Div(Field('referrer', placeholder='Referrer'), css_class="form-group"),
-                Div(Field('referrerID', placeholder='Referrer'), css_class="form-group"),
-                css_class='col-lg-6'),
+                HTML("<i class='fas fa-user-times'></i>&nbsp;&nbsp;<small>Loss Notes</small>"),
+                Div(
+                    Div(Div(HTML("Loss Date"), css_class='form-label'),
+                        Div(Field('lossDate'))),
+                    Div(Div(HTML("Loss Notes"), css_class='form-label'),
+                        Div(Field('lossNotes'))),
+                ),
+                css_class="col-lg-6"),
+
             Div(
-                Div(HTML("<i class='far fa-calendar-check fa-fw'></i>&nbsp;&nbsp;<small>Future Follow-up</small>"),
-                    css_class="form-group"),
-                Div(Field('followUpDate', placeholder='Follow-up Date (if applicable)'), css_class="form-group"),
-                Div(Submit('submit', 'Mark Follow-up', css_class='btn btn-warning'), css_class="form-group"),
+                HTML("<i class='fas fa-user-tag'></i>&nbsp;&nbsp;<small>Follow-up Required</small>"),
+                Div(
+                    Div(Div(HTML("Follow-up Date"), css_class='form-label'),
+                        Div(Field('followUpDate'))),
+                    Div(Div(HTML("Follow-up Notes"), css_class='form-label'),
+                        Div(Field('followUpNotes'))),
+                ),
+                css_class="col-lg-6"),
+
+            css_class='row'),
+        Div(
+            Div(HTML("<i class='far fa-envelope pb-2'></i></i>&nbsp;&nbsp;<small>Marketing</small>"),
+                Div(
+                    Div(Field('doNotMarket'), css_class="col-lg-2"),
+                    Div(HTML("<p>Do Not Market</p>"), css_class="col-lg-5 pt-1 pl-0 "),
+                    css_class="row "),
                 css_class='col-lg-6'),
-            css_class="row "))
+                css_class='row'),
+        Div((Div(Div(Submit('submit', 'Update', css_class='btn btn-warning')), css_class='text-right')
+
+        ))
+        )

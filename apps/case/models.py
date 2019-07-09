@@ -347,28 +347,12 @@ class ModelSetting(models.Model):
 
 class LossData(models.Model):
 
-    ragTypes = (
-        (ragTypesEnum.RED.value, 'RED'),
-        (ragTypesEnum.AMBER.value, 'AMBER'),
-        (ragTypesEnum.GREEN.value, 'GREEN'),)
-
-    trueFalse = (
-        (False, 'No'),
-        (True,'Yes')
-    )
-
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
     lossNotes=models.TextField(blank=True, null=True)
     lossDate = models.DateField(blank=True, null=True)
-    ragStatus = models.IntegerField(blank=True, null=True, choices=ragTypes)
-    followUp=models.BooleanField(default=False, blank=True,null=True, choices=trueFalse)
     followUpDate=models.DateField(blank=True, null=True)
     followUpNotes = models.TextField(blank=True, null=True)
-    purposeTopUp = models.BooleanField(default=False)
-    purposeRefi=models.BooleanField(default=False)
-    purposeLive=models.BooleanField(default=False)
-    purposeGive=models.BooleanField(default=False)
-    purposeCare=models.BooleanField(default=False)
+    doNotMarket = models.BooleanField(default=False)
 
     objects = CaseManager()
 
@@ -377,9 +361,6 @@ class LossData(models.Model):
 
     def __unicode__(self):
         return smart_text(self.case.caseDescription)
-
-    def enumRagStatus(self):
-        return self.ragTypes[self.ragStatus][1]
 
 
 class FundedData(models.Model):

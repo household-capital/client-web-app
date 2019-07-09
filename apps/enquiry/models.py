@@ -89,10 +89,15 @@ class Enquiry(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
     followUp = models.DateTimeField(null=True, blank=True, auto_now_add=False, auto_now=False)
+
+    lossNotes=models.TextField(blank=True, null=True)
+    lossDate = models.DateField(blank=True, null=True)
     followUpDate=models.DateField(blank=True, null=True)
+    followUpNotes = models.TextField(blank=True, null=True)
+    doNotMarket = models.BooleanField(default=False)
+
     summaryDocument = models.FileField(null=True, blank=True)
     referralUser=models.ForeignKey(settings.AUTH_USER_MODEL, related_name='referralUser', null=True, blank=True, on_delete=models.SET_NULL)
-
     phoneNumber=models.CharField(max_length=15,blank=True,null=True)
     enquiryNotes=models.TextField(null=True,blank=True)
     sfLeadID = models.CharField(max_length=20, null=True, blank=True)

@@ -98,7 +98,7 @@
                     <div class="col-lg-3 text-center pt-1">
 
                         <img width="235px"
-                             src="{% static 'img/icons/' %}{{ transfer_img }}">
+                             src="{{ transfer_img }}">
                     </div>
 
 
@@ -402,7 +402,7 @@
                     <b>${{ obj.valuation }}</b> (see
                     assumptions below) **</p>
                 {% if obj.payIntAmount > 0 %}<p>Includes monthly interest payments of <b>${{obj.payIntAmount|intcomma}}</b> for <b>{{ obj.payIntPeriod}}</b> years</p>
-                {% else %}<p>Assumes no payment of interest</p>{% endif %}
+                {% else %}<p>Assumes no payment of regular interest</p>{% endif %}
                 <br>
             </div>
         </div>

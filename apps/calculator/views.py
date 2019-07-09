@@ -64,7 +64,15 @@ class WebContactView(CreateView):
 
     def form_valid(self, form):
         clientDict = form.cleaned_data
-        if not clientDict['content']:
+        sendFlag=True
+
+        if clientDict['content']:
+            sendFlag=False
+
+        if '<a href' in clientDict['message']:
+            sendFlag = False
+
+        if sendFlag==True:
             obj = form.save(commit=True)
 
         context = {}
@@ -196,6 +204,8 @@ class CalcResultsView(UpdateView):
         clientDict = obj.__dict__
         loanObj = LoanValidator(clientDict)
         chkOpp = loanObj.validateLoan()
+        loanStatus=loanObj.getStatus()['data']
+
 
         context['topUpMax']= min(chkOpp['data']['maxTopUp'], chkOpp['data']['maxLoan'])
         context['refiMax'] = min(chkOpp['data']['maxRefi'], chkOpp['data']['maxLoan'])
@@ -205,17 +215,10 @@ class CalcResultsView(UpdateView):
         context['loanRate']=ECONOMIC['interestRate']+ECONOMIC['lendingMargin']
 
         context["obj"] = obj
-        if obj.maxLVR < 18:
-            img = 'transfer_15.png'
-        elif obj.maxLVR < 22:
-            img = 'transfer_20.png'
-        elif obj.maxLVR < 27:
-            img = 'transfer_25.png'
-        elif obj.maxLVR < 32:
-            img = 'transfer_30.png'
-        else:
-            img = 'transfer_35.png'
-        context["transfer_img"] = img
+        context.update(loanStatus)
+
+        context["transfer_img"] = settings.STATIC_URL + "img/icons/transfer_" + str(
+            context['maxLVRPercentile']) + "_icon.png"
 
         return context
 
@@ -382,6 +385,7 @@ class CalcOutputAge(UpdateView):
 
         loanObj = LoanValidator(clientDict)
         chkOpp = loanObj.validateLoan()
+        loanStatus = loanObj.getStatus()['data']
 
         if chkOpp['status'] == "Error":
             # Even with correct age - loan may still be invalid
@@ -393,17 +397,9 @@ class CalcOutputAge(UpdateView):
         maxLVR = chkOpp['data']['maxLVR']
         context['valuation'] = obj.valuation
 
-        if maxLVR < 18:
-            img = 'transfer_15.png'
-        elif maxLVR < 22:
-            img = 'transfer_20.png'
-        elif maxLVR < 27:
-            img = 'transfer_25.png'
-        elif maxLVR < 32:
-            img = 'transfer_30.png'
-        else:
-            img = 'transfer_35.png'
-        context["transfer_img"] = img
+        context.update(loanStatus)
+
+        context["transfer_img"] = settings.STATIC_URL + "img/icons/transfer_"+str(context['maxLVRPercentile'])+"_icon.png"
 
         return context
 
@@ -474,17 +470,16 @@ class CalcSummaryNewPdf(TemplateView):
         obj = Enquiry.objects.queryset_byUID(enqUID).get()
 
         context["obj"] = obj
-        if obj.maxLVR < 18:
-            img = 'transfer_15.png'
-        elif obj.maxLVR < 22:
-            img = 'transfer_20.png'
-        elif obj.maxLVR < 27:
-            img = 'transfer_25.png'
-        elif obj.maxLVR < 32:
-            img = 'transfer_30.png'
-        else:
-            img = 'transfer_35.png'
-        context["transfer_img"] = img
+
+        clientDict = obj.__dict__
+        loanObj = LoanValidator(clientDict)
+        chkOpp = loanObj.validateLoan()
+        loanStatus = loanObj.getStatus()['data']
+
+        context.update(loanStatus)
+
+        context["transfer_img"] = settings.STATIC_URL + "img/icons/transfer_" + str(
+            context['maxLVRPercentile']) + "_icon.png"
 
         context['caseTypesEnum'] = caseTypesEnum
         context['loanTypesEnum'] = loanTypesEnum
@@ -509,8 +504,11 @@ class CalcSummaryNewPdf(TemplateView):
         clientDict['maxNetLoanAmount'] = obj.maxLoanAmount
         loanProj = LoanProjection()
         result = loanProj.create(clientDict,frequency=12)
-        result = loanProj.calcProjections()
 
+        if obj.payIntAmount:
+            result = loanProj.calcProjections(makeIntPayment=True)
+        else:
+            result = loanProj.calcProjections()
 
         # Build results dictionaries
 

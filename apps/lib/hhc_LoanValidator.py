@@ -20,8 +20,8 @@ class LoanValidator():
 
     minimumDataList = ['dwellingType', 'loanType', 'age_1', 'valuation', 'postcode']
 
-    loanDataList = ['topUpAmount', 'refinanceAmount', 'giveAmount', 'renovateAmount', 'travelAmount',
-                    'careAmount', 'protectedEquity', 'mortgageDebt']
+    loanDataList = ['topUpAmount', 'topUpDrawdownAmount', 'refinanceAmount', 'giveAmount', 'renovateAmount', 'travelAmount',
+                    'careAmount', 'protectedEquity', 'mortgageDebt' ]
 
     POSTCODE_FILE='/apps/lib/hhc_Postcodes.csv'
 
