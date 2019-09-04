@@ -16,6 +16,10 @@
 <p>Kind regards</p>
 <br>
 <p>{{ obj.user.first_name }}&nbsp;{{ obj.user.last_name }}</p>
+{% if user.profile.calendlyUrl %}
+    <p>{{ user.profile.mobile}}</p>
+    <p>{{ user.email }}</p>
+{% endif %}
 <br>
 <img src="{{ absolute_media_url }}{{ obj.user.profile.picture }}" width="100px">
 

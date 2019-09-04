@@ -6,6 +6,8 @@ import os
 
 #Django Imports
 from django.conf import settings
+from django.core.files.temp import NamedTemporaryFile
+from django.core import files
 
 #Third-party Imports
 
@@ -13,14 +15,16 @@ from django.conf import settings
 from apps.lib.api_AMAL import apiAMAL
 from apps.lib.api_Salesforce import apiSalesforce
 from .lixi_EnrichEnum import EnrichEnum
-from .lixi_Generator import LixiXMLGenerator
+from .lixi_Generator_CAL import LixiXMLGenerator
 from apps.lib.site_Globals import ECONOMIC
 
 
 class CloudBridge():
 
-    LIXI_SETTINGS = {'LIXI_VERSION': '2.6.17',
-                     'SCHEMA_FILENAME': "/apps/lib/lixi/LixiSchema/LIXI-CAL-2.6.17".replace(".", "_") + '.xsd',
+    LIXI_SETTINGS = {'LIXI_VERSION_CAL': '2.6.17',
+                     'LIXI_VERSION':'0.0.3',
+                     'SCHEMA_FILENAME_CAL': "/apps/lib/lixi/LixiSchema/LIXI-CAL-2.6.17".replace(".", "_") + '.xsd',
+                     'SCHEMA_FILENAME':"/apps/lib/lixi/LixiSchema/LIXI-ACC-0.0.3".replace(".", "_") + '.xsd',
                      'ORIGINATOR_MARGIN': ECONOMIC['lendingMargin'],
                      'ns_map_':{"xsi": 'http://www/w3/org/2001/XMLSchema-instance'},
                      'FILEPATH':(settings.MEDIA_ROOT+'/customerReports/'),
@@ -29,7 +33,7 @@ class CloudBridge():
 
     def __init__(self, opportunityId, isSendFiles, isProdSF, isProdAMAL):
 
-        self.schemaFilename=self.LIXI_SETTINGS['SCHEMA_FILENAME']
+        self.schemaFilename=self.LIXI_SETTINGS['SCHEMA_FILENAME_CAL']
         self.filePath=self.LIXI_SETTINGS['FILEPATH']
         self.AMAL_Documents=self.LIXI_SETTINGS['AMAL_DOCUMENTS']
 
@@ -46,6 +50,8 @@ class CloudBridge():
 
         self.outputLog = ""
         self.warningLog=""
+
+        self.outputFile=""
 
     def openAPIs(self):
 
@@ -64,14 +70,13 @@ class CloudBridge():
         self.mlAPI = apiAMAL()
         result=self.mlAPI.openAPI(self.isProdAMAL)
         if result['status'] != "Ok":
-            return {'status': "Error", 'responseText': "Could not connect to Salesforce"}
+            return {'status': "Error", 'responseText': "Could not connect to AMAL"}
 
         return {'status': "Ok", 'responseText': "Bridge Established"}
 
 
-    def extractAndSend(self):
+    def createLixi(self):
 
-        filename=""
         AMAL_LoanId=""
         identifier=""
 
@@ -83,9 +88,13 @@ class CloudBridge():
         except:
             return {'status': "Error", 'responseText': "Unhandled Error", 'log':self.outputLog}
 
-        filename=result['data']
+        self.outputFile=result['data']
 
-        # Submit Lixi File
+        return {'status':'Ok', "data":{'filename':self.outputFile}, 'log':self.outputLog}
+
+
+    def submitLixiFiles(self, filename):
+
         try:
             result = self.sendToAMAL(filename, self.isSendFiles)
         except:
@@ -98,8 +107,8 @@ class CloudBridge():
             identifier = result['data']['identifier']
             AMAL_LoanId = result['data']['loanID']
 
-        self.__logging("Application ID: "+identifier)
-        self.__logging("Loan ID: " + identifier)
+        self.__logging("Application ID: " + identifier)
+        self.__logging("Loan ID: " + AMAL_LoanId)
 
         # Update Salesforce with LoanId
         result = self.saveAMALLoanId(self.opportunityId, AMAL_LoanId, self.isProduction)
@@ -107,15 +116,16 @@ class CloudBridge():
             self.warningLog += 'ARN not saved in Salesforce' + "\r\n"
 
         # Send supporting Documents
-        #try:
-        result=self.sendDocumentsToAMAL(identifier, self.isSendFiles)
-        if result['status'] != 'Ok':
-            self.warningLog += 'Suporting docs not sent to AMAL' + "\r\n"
-        #except:
-        #    self.warningLog+='Suporting docs not sent to AMAL'
+        try:
+            result = self.sendDocumentsToAMAL(identifier, self.isSendFiles)
+            if result['status'] != 'Ok':
+                self.warningLog += 'Suporting docs not sent to AMAL' + "\r\n"
+        except:
+            self.warningLog += 'Suporting docs not sent to AMAL'
 
         self.__logging("Cloud Bridge's work is done here")
-        return {'status': "Ok", 'responseText': "Cloud Bridge's work is done here", 'log': self.outputLog,'warningLog':self.warningLog}
+        return {'status': "Ok", 'responseText': "Cloud Bridge's work is done here", 'log': self.outputLog,
+                'warningLog': self.warningLog, "data":{'identifier':identifier,'AMAL_LoanId':AMAL_LoanId}}
 
 
     def getSFLoanList(self):
@@ -130,7 +140,7 @@ class CloudBridge():
     def generateLixiFile(self):
 
         loanDict={}
-        filename=""
+        filename=filename = self.filePath + str(self.opportunityId) + ".xml"
 
         self.__logging("Generating Lixi File for "+str(self.opportunityId))
 
@@ -139,10 +149,8 @@ class CloudBridge():
 
         self.loanId=loanDict['Loan.Loan_Number__c'] #Loan ID used later - hence instance variable
 
-        filename = self.filePath+str(self.opportunityId)+".xml"
-
         self.__logging("Step 2 - Enriching and enumerating the Loan Dictionary")
-        objEnrich = EnrichEnum(loanDict,filename.replace("xml","txt"))
+        objEnrich = EnrichEnum(loanDict)
         result=objEnrich.enrich()
         if result['status']!="Ok":
             self.__logging(result['responseText'])
@@ -172,6 +180,7 @@ class CloudBridge():
             return {'status':'Error'}
 
         self.__logging(" -  Creating File")
+
         result=lixiFile.CreateFile()
         if result['status']=='Error':
             self.__logging(result['responseText'])
@@ -182,6 +191,8 @@ class CloudBridge():
         if isValid['status']=='Error':
             self.__logging(isValid['responseText'])
             return {'status':'Error'}
+
+        self.__logging("File Generated and Validated")
 
         return {'status':'Ok','data':filename}
 
@@ -237,8 +248,6 @@ class CloudBridge():
 
         docList=self.sfAPI.getDocumentList(self.opportunityId)['data']
 
-        print(docList)
-
         for index, row in docList.iterrows():
 
             if row["Name"] in self.AMAL_Documents:
@@ -252,9 +261,10 @@ class CloudBridge():
 
                 if sendFiles:
                     self.__logging('         Sending '+row["Name"])
-                    status=self.mlAPI.sendDocuments(srcfileIO['data'], str(row["Name"])+".pdf", applicationID)
 
                     try:
+                        status = self.mlAPI.sendDocuments(srcfileIO['data'], str(row["Name"]) + ".pdf", applicationID)
+
                         if json.loads(status.text)['status']!='ok':
                             self.__logging('         Error sending ' + row["Name"]+ "to AMAL")
                             self.__logging(status.text)

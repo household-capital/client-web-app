@@ -10,7 +10,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, Div, HTML
 
 # Local Application Imports
-from apps.lib.site_Enums import loanTypesEnum, ragTypesEnum
+from apps.lib.site_Enums import loanTypesEnum, caseTypesEnum
 from .models import Case, LossData
 
 
@@ -37,6 +37,17 @@ class CaseDetailsForm(forms.ModelForm):
         widgets = {
             'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
         }
+
+    caseTypes=(
+                  (caseTypesEnum.DISCOVERY.value,"Discovery"),
+                  (caseTypesEnum.MEETING_HELD.value, "Meeting Held"),
+                  (caseTypesEnum.APPLICATION.value, "Application"),
+                  (caseTypesEnum.APPROVED.value, "Approved"),
+                  (caseTypesEnum.CLOSED.value, "Closed"),
+    )
+
+    caseType = forms.TypedChoiceField(choices=caseTypes, coerce=int, initial=caseTypesEnum.DISCOVERY.value)
+
 
     # Form Layout
     helper = FormHelper()
@@ -177,7 +188,7 @@ class LossDetailsForm(forms.ModelForm):
 
     class Meta:
         model = LossData
-        fields = ['lossNotes', 'lossDate',
+        fields = ['closeReason',
                   'followUpDate', 'followUpNotes',
                   'doNotMarket'
                   ]
@@ -200,10 +211,14 @@ class LossDetailsForm(forms.ModelForm):
             Div(
                 HTML("<i class='fas fa-user-times'></i>&nbsp;&nbsp;<small>Loss Notes</small>"),
                 Div(
-                    Div(Div(HTML("Loss Date"), css_class='form-label'),
-                        Div(Field('lossDate'))),
-                    Div(Div(HTML("Loss Notes"), css_class='form-label'),
-                        Div(Field('lossNotes'))),
+                    Div(Div(HTML("Close Reason"), css_class='form-label'),
+                        Div(Field('closeReason'))),
+                    Div(Div(HTML("<br>"))),
+                    Div(HTML("<i class='far fa-envelope pb-2'></i></i>&nbsp;&nbsp;<small>Marketing</small>")),
+                    Div(
+                        Div(Field('doNotMarket'), css_class="col-lg-2"),
+                        Div(HTML("<p>Do Not Market</p>"), css_class="col-lg-5 pt-1 pl-0 "),
+                        css_class="row "),
                 ),
                 css_class="col-lg-4"),
 
@@ -219,18 +234,9 @@ class LossDetailsForm(forms.ModelForm):
 
             css_class='row'),
         Div(
-            Div(HTML("<i class='far fa-envelope pb-2'></i></i>&nbsp;&nbsp;<small>Marketing</small>"),
-                Div(
-                    Div(Field('doNotMarket'), css_class="col-lg-2"),
-                    Div(HTML("<p>Do Not Market</p>"), css_class="col-lg-5 pt-1 pl-0 "),
-                    css_class="row "),
-                css_class='col-lg-4'),
-                css_class='row'),
-        Div((Div(Div(Submit('submit', 'Update', css_class='btn btn-warning')), css_class='text-right')
 
+            Div(Div(Div(Submit('submit', 'Update', css_class='btn btn-warning')), css_class='col-lg-8 text-right'),css_class='row'),
         ))
-        )
-
 
 
 class SFPasswordForm(forms.Form):

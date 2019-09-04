@@ -18,6 +18,8 @@ from django.urls import reverse_lazy
 
 
 # Third-party Imports
+from config.celery import app
+
 
 # Local Application Imports
 from apps.lib.hhc_LoanValidator import LoanValidator
@@ -47,18 +49,14 @@ campaignURLs = ['/equity-mortgage-release/',
 
 campaignRedirectSuffix='-thank-you'
 
-
-@method_decorator(csrf_exempt, name='dispatch')
 class WebContactView(CreateView):
     template_name = 'calculator/contact.html'
     model = WebContact
     form_class = WebContactForm
 
-    @xframe_options_exempt
     def get(self, request, *args, **kwargs):
         return super(WebContactView, self).get(self, request, *args, **kwargs)
 
-    @xframe_options_exempt
     def post(self, request, *args, **kwargs):
         return super(WebContactView, self).post(self, request, *args, **kwargs)
 
@@ -72,6 +70,13 @@ class WebContactView(CreateView):
         if '<a href' in clientDict['message']:
             sendFlag = False
 
+        if 'http' in clientDict['message']:
+            sendFlag = False
+
+        if clientDict['phone']:
+            if len(clientDict['phone'])==11 and clientDict['phone'][:1]=='8':
+                    sendFlag=False
+
         if sendFlag==True:
             obj = form.save(commit=True)
 
@@ -81,19 +86,16 @@ class WebContactView(CreateView):
         return self.render_to_response(context)
 
 
-@method_decorator(csrf_exempt, name='dispatch')
 class CalcStartView(CreateView):
     template_name = 'calculator/calc_input.html'
     model = WebCalculator
     form_class = CalcInputForm
 
-    @xframe_options_exempt
     def get(self, request, *args, **kwargs):
         clientId = str(request.GET.get('clientId'))
 
         return super(CalcStartView, self).get(self, request, *args, **kwargs)
 
-    @xframe_options_exempt
     def post(self, request, *args, **kwargs):
         return super(CalcStartView, self).post(self, request, *args, **kwargs)
 
@@ -170,7 +172,6 @@ class CalcStartView(CreateView):
             return "Calculation cannot be performed at this time."
 
 
-@method_decorator(csrf_exempt, name='dispatch')
 class CalcResultsView(UpdateView):
     template_name = 'calculator/calc_output.html'
     model = WebCalculator
@@ -178,7 +179,6 @@ class CalcResultsView(UpdateView):
     form_class = CalcOutputForm
     email_template='calculator/email/email_calc_response.html'
 
-    @xframe_options_exempt
     def get(self, request, **kwargs):
         if 'uid' in kwargs:
             self.caseUID = str(kwargs['uid'])
@@ -186,7 +186,6 @@ class CalcResultsView(UpdateView):
         else:
             return HttpResponseRedirect(reverse_lazy("calculator:input"))
 
-    @xframe_options_exempt
     def post(self, request, **kwargs):
         if 'uid' in kwargs:
             self.caseUID = str(kwargs['uid'])
@@ -264,7 +263,6 @@ class CalcResultsView(UpdateView):
         return self.render_to_response(context)
 
 
-@method_decorator(csrf_exempt, name='dispatch')
 class CalcOutputPostcode(UpdateView):
     template_name = 'calculator/calc_output_postcode.html'
     model = WebCalculator
@@ -272,8 +270,6 @@ class CalcOutputPostcode(UpdateView):
     form_class = CalcOutputForm
     email_template='calculator/email/email_calc_response_invalid.html'
 
-
-    @xframe_options_exempt
     def get(self, request, **kwargs):
         if 'uid' in kwargs:
             self.caseUID = str(kwargs['uid'])
@@ -281,7 +277,6 @@ class CalcOutputPostcode(UpdateView):
         else:
             return HttpResponseRedirect(reverse_lazy("calculator:input"))
 
-    @xframe_options_exempt
     def post(self, request, **kwargs):
         if 'uid' in kwargs:
             self.caseUID = str(kwargs['uid'])
@@ -342,7 +337,7 @@ class CalcOutputPostcode(UpdateView):
 
 
 
-@method_decorator(csrf_exempt, name='dispatch')
+
 class CalcOutputAge(UpdateView):
     template_name = 'calculator/calc_output_age.html'
     model = WebCalculator
@@ -350,7 +345,6 @@ class CalcOutputAge(UpdateView):
     form_class = CalcOutputForm
     email_template='calculator/email/email_calc_response_invalid.html'
 
-    @xframe_options_exempt
     def get(self, request, **kwargs):
         if 'uid' in kwargs:
             self.caseUID = str(kwargs['uid'])
@@ -358,7 +352,6 @@ class CalcOutputAge(UpdateView):
         else:
             return HttpResponseRedirect(reverse_lazy("calculator:input"))
 
-    @xframe_options_exempt
     def post(self, request, **kwargs):
         if 'uid' in kwargs:
             self.caseUID = str(kwargs['uid'])
@@ -524,25 +517,6 @@ class CalcSummaryNewPdf(TemplateView):
 
         return context
 
-
-class Test(View):
-
-    def get(self, request, *args, **kwargs):
-        enqUID = str(kwargs['uid'])
-
-        sourcePath = 'https://householdcapital.app/calculator/calcSummaryNewPdf/'
-        targetPath = settings.MEDIA_ROOT + "/customerReports/"
-
-
-        pdf = pdfGenerator(enqUID)
-        pdf.createPdfFromUrl(sourcePath + enqUID, "",
-                             targetPath + "test" + enqUID[-12:] + ".pdf")
-
-        response = HttpResponse(pdf.getContent(), content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="LoanSummary.pdf"'
-        return response
-
-
 # Calculator Queue
 
 class LoginRequiredMixin():
@@ -626,8 +600,6 @@ class CalcCreateEnquiry(LoginRequiredMixin, UpdateView):
         for item in popList:
             calcDict.pop(item)
 
-
-
         enq_obj = Enquiry.objects.create(user=user, referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer,
                                          **calcDict)
         enq_obj.save()
@@ -687,6 +659,8 @@ class CalcCreateEnquiry(LoginRequiredMixin, UpdateView):
 
         obj.actioned = 1  # Actioned=1, Spam=-1
         obj.save(update_fields=['actioned'])
+
+        app.send_task('Create_SF_Lead', kwargs={'enqUID': str(enq_obj.enqUID)})
 
         return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
 

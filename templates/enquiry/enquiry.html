@@ -86,11 +86,20 @@
                             {% if status.status == 'Ok' %}
                                 <div class="dropdown-divider"></div>
 
-                                <a class="dropdown-item" data-toggle="modal" href="#clientModal">
+                                <a class="dropdown-item pb-3" data-toggle="modal" href="#clientModal">
                                     &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Client Summary&nbsp;&nbsp;
                                 </a>
 
-                                <div class="dropdown-divider"></div>
+
+
+
+                                <a class="dropdown-item pb-3"
+                                   href="{% url 'enquiry:enqCreateSummary' uid=obj.enqUID %}">
+                                    &nbsp;<i class="far fa-file-pdf fa-fw"></i>&nbsp;&nbsp;Create Client Summary
+                                    &nbsp;&nbsp;
+                                </a>
+
+
                                 <a class="dropdown-item" href="{% url 'enquiry:enqEligibility' uid=obj.enqUID %}">
                                     &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email yourself a Summary
                                     &nbsp;&nbsp;
@@ -105,12 +114,6 @@
                                         &nbsp;&nbsp;
                                     </a>
                                 {% endif %}
-
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" data-toggle="modal" href="#followupModal">
-                                    &nbsp;<i class="fas fa-reply-all"></i>&nbsp;&nbsp;Send Client Follow-up &nbsp;&nbsp;
-                                </a>
-
 
                             {% endif %}
 
@@ -168,8 +171,8 @@
                             <br>
                             {% if obj.summaryDocument %}
                                 <p class="small"><i class="far fa-file-pdf"></i>&nbsp;Documents</p>
-                                <p class="small"><a href="/media/enquiryReports/{{ obj.summaryDocument.file|filename }}">Emailed
-                                    Document</a>
+                                <p class="small"><a
+                                        href="/media/enquiryReports/{{ obj.summaryDocument.file|filename }}">Enquiry Document</a>
                                 </p>
                             {% endif %}
                         </div>
@@ -215,35 +218,12 @@
                         </div>
                         <div class="modal-body">
                             <p>You are about to send the client a summary document via email - are you sure ?</p><br>
-                             <p>Note: the new summary requires an estimated funding requirement to be saved</p>
+                            <p>Note: the new summary requires an estimated funding requirement to be saved</p>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                             <a href="{% url 'enquiry:enqSendDetails' uid=obj.enqUID %}">
                                 <div class=" btn btn-primary">Yes, send summary</div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal fade" id="followupModal" tabindex="-1" role="dialog" aria-labelledby="followupModalLabel"
-                 aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="followupModalLabel">Email client?</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <p>You are about to send the client a follow-up email - are you sure ?</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            <a href="{% url 'enquiry:enqFollowUp' uid=obj.enqUID %}">
-                                <div class=" btn btn-primary">Yes, send follow-up</div>
                             </a>
                         </div>
                     </div>

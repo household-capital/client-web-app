@@ -32,7 +32,7 @@
         <p><b>Your Household Transfer</b></p>
 
         {% if topUpAmount != 0 %}
-            <div class="row">
+            <div class="row no-gutters">
                 <div class="col-sm-6">
                     <p class="small"> + Top-up
                         {% if topUpStatus != 'Ok' %}
@@ -46,21 +46,35 @@
         {% endif %}
 
         {% if topUpDrawdownAmount != 0 %}
-            <div class="row">
+            <div class="row no-gutters">
                 <div class="col-sm-6">
-                    <p class="small"> + Drawdown
+                    <p class="small"> + Top-up D/D
                         {% if topUpDrawdownStatus != 'Ok' %}
                             <i class="fas fa-exclamation-circle hhcGoldFont"></i>
                         {% endif %}</p>
                 </div>
                 <div class="col-sm-6 text-right">
-                    <p class="small">$ {{ topUpDrawdownAmount|intcomma }}</p>
+                    <p class="small">$ {{ topUpPlanAmount|intcomma }}</p>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if topUpContingencyAmount != 0 %}
+            <div class="row no-gutters">
+                <div class="col-sm-6">
+                    <p class="small"> + Contingency
+                        {% if topUpContingencyStatus != 'Ok' %}
+                            <i class="fas fa-exclamation-circle hhcGoldFont"></i>
+                        {% endif %}</p>
+                </div>
+                <div class="col-sm-6 text-right">
+                    <p class="small">$ {{ topUpContingencyAmount|intcomma }}</p>
                 </div>
             </div>
         {% endif %}
 
         {% if refinanceAmount != 0 %}
-            <div class="row">
+            <div class="row no-gutters">
                 <div class="col-sm-6">
                     <p class="small"> + Refinance
 
@@ -76,7 +90,7 @@
 
 
         {% if renovateAmount != 0 %}
-            <div class="row">
+            <div class="row no-gutters">
                 <div class="col-sm-6">
                     <p class="small"> + Renovate
                         {% if renovateStatus != 'Ok' %}
@@ -90,7 +104,7 @@
         {% endif %}
 
         {% if travelAmount != 0 %}
-            <div class="row">
+            <div class="row no-gutters">
                 <div class="col-sm-6">
                     <p class="small"> + Transport
                         {% if travelStatus != 'Ok' %}
@@ -104,7 +118,7 @@
         {% endif %}
 
          {% if giveAmount != 0 %}
-            <div class="row">
+            <div class="row no-gutters">
                 <div class="col-sm-6">
                     <p class="small"> + Give
                         {% if giveStatus != 'Ok' %}
@@ -118,7 +132,7 @@
         {% endif %}
 
         {% if careAmount != 0 %}
-            <div class="row">
+            <div class="row no-gutters" >
                 <div class="col-sm-6">
                     <p class="small"> + Care
                         {% if careStatus != 'Ok' %}
@@ -131,9 +145,23 @@
             </div>
         {% endif %}
 
+        {% if careDrawdownAmount != 0 %}
+            <div class="row no-gutters">
+                <div class="col-sm-6">
+                    <p class="small"> + Care D/D
+                        {% if careDrawdownStatus != 'Ok' %}
+                            <i class="fas fa-exclamation-circle hhcGoldFont"></i>
+                        {% endif %}</p>
+                </div>
+                <div class="col-sm-6 text-right">
+                    <p class="small">$ {{ carePlanAmount|intcomma }}</p>
+                </div>
+            </div>
+        {% endif %}
+
         <br>
 
-        <div class="row">
+        <div class="row no-gutters">
             <div class="col-sm-6">
                 <p class="small">Available
                     {% if availableStatus != 'Ok' %}

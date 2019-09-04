@@ -10,7 +10,7 @@ from django.utils.encoding import smart_text
 from django.urls import reverse_lazy
 
 #Local Imports
-from apps.lib.site_Enums import dwellingTypesEnum, loanTypesEnum, directTypesEnum
+from apps.lib.site_Enums import dwellingTypesEnum, loanTypesEnum, directTypesEnum, closeReasonTypes
 
 
 class EnquiryManager(models.Manager):
@@ -56,6 +56,21 @@ class Enquiry(models.Model):
         (directTypesEnum.WEB_CALCULATOR.value, 'Calculator')
     )
 
+    closeReasons=(
+        (closeReasonTypes.AGE_RESTRICTION.value, 'Age Restriction'),
+        (closeReasonTypes.POSTCODE_RESTRICTION.value, 'Postcode Restriction'),
+        (closeReasonTypes.MINIMUM_LOAN_AMOUNT.value, 'Below minimum loan amount'),
+        (closeReasonTypes.CREDIT.value, 'Credit History'),
+        (closeReasonTypes.MORTGAGE.value, 'Mortgage too Large'),
+        (closeReasonTypes.SHORT_TERM.value, 'Short-term / Bridging Requirement'),
+        (closeReasonTypes.TENANTS.value, 'Tenants in common'),
+        (closeReasonTypes.UNSUITABLE_PROPERTY.value, 'Unsuitable Property'),
+        (closeReasonTypes.UNSUITABLE_PURPOSE.value, 'Unsuitable Purpose'),
+        (closeReasonTypes.ALTERNATIVE_SOLUTION.value, 'Client Pursuing Alternative'),
+        (closeReasonTypes.COMPETITOR.value, 'Client went to Competitor'),
+        (closeReasonTypes.OTHER.value , 'Other')
+    )
+
     enqUID = models.UUIDField(default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
     loanType = models.IntegerField(choices=loanTypes, null=True, blank=True, default=True)
@@ -90,8 +105,11 @@ class Enquiry(models.Model):
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
     followUp = models.DateTimeField(null=True, blank=True, auto_now_add=False, auto_now=False)
 
-    lossNotes=models.TextField(blank=True, null=True)
-    lossDate = models.DateField(blank=True, null=True)
+    lossNotes=models.TextField(blank=True, null=True) #remove this
+
+    closeDate = models.DateField(blank=True, null=True)
+    closeReason=models.IntegerField(blank=True, null=True, choices=closeReasons)
+
     followUpDate=models.DateField(blank=True, null=True)
     followUpNotes = models.TextField(blank=True, null=True)
     doNotMarket = models.BooleanField(default=False)
@@ -101,6 +119,7 @@ class Enquiry(models.Model):
     phoneNumber=models.CharField(max_length=15,blank=True,null=True)
     enquiryNotes=models.TextField(null=True,blank=True)
     sfLeadID = models.CharField(max_length=20, null=True, blank=True)
+    isCalendly=models.BooleanField(default=False, blank=True, null=True)
 
     objects = EnquiryManager()
 
@@ -121,9 +140,11 @@ class Enquiry(models.Model):
 
     def enumDwellingType(self):
         if self.dwellingType is not None:
-            print(self.dwellingType)
-            print(dict(self.dwellingTypes)[self.dwellingType])
             return dict(self.dwellingTypes)[self.dwellingType]
+
+    def enumCloseReason(self):
+        if self.closeReason is not None:
+            return dict(self.closeReasons)[self.closeReason]
 
     def __str__(self):
         return smart_text(self.email)

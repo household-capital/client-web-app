@@ -21,7 +21,8 @@ class LoanValidator():
     minimumDataList = ['dwellingType', 'loanType', 'age_1', 'valuation', 'postcode']
 
     loanDataList = ['topUpAmount', 'topUpDrawdownAmount', 'refinanceAmount', 'giveAmount', 'renovateAmount', 'travelAmount',
-                    'careAmount', 'protectedEquity', 'mortgageDebt' ]
+                    'careAmount', 'protectedEquity', 'mortgageDebt', 'careDrawdownAmount', 'topUpContingencyAmount',
+                    'topUpPlanAmount', 'carePlanAmount']
 
     POSTCODE_FILE='/apps/lib/hhc_Postcodes.csv'
 
@@ -159,15 +160,22 @@ class LoanValidator():
         maxEstablishmentFee = self.loanLimit * (
                 LOAN_LIMITS['establishmentFee'] / (1 + LOAN_LIMITS['establishmentFee']))
 
-        totalLoanAmount = (self.initDict['topUpAmount'] + self.initDict['topUpDrawdownAmount']+ self.initDict['refinanceAmount'] + self.initDict['giveAmount']
+
+        totalLoanAmount = (self.initDict['topUpAmount'] + self.initDict['topUpContingencyAmount']+ self.initDict['topUpDrawdownAmount']+ self.initDict['refinanceAmount'] + self.initDict['giveAmount']
                            + self.initDict['renovateAmount'] + self.initDict['travelAmount'] + self.initDict[
-                               'careAmount']) * (
+                               'careAmount'] + self.initDict['careDrawdownAmount']) * (
+                                  1 + LOAN_LIMITS['establishmentFee'])
+
+        # This is based on total 'plan' amounts
+        totalPlanAmount = (self.initDict['topUpAmount'] + self.initDict['topUpContingencyAmount']+ self.initDict['topUpPlanAmount']+ self.initDict['refinanceAmount'] + self.initDict['giveAmount']
+                           + self.initDict['renovateAmount'] + self.initDict['travelAmount'] + self.initDict[
+                               'careAmount'] + self.initDict['carePlanAmount']) * (
                                   1 + LOAN_LIMITS['establishmentFee'])
 
         # Available amount always deducts the maximum establishment fee, so need to add back the calculated
         # establishment fee from the total Loan Amount
         availableAmount = round(
-            self.loanLimit - totalLoanAmount / (1 + LOAN_LIMITS['establishmentFee']) - maxEstablishmentFee, 0)
+            self.loanLimit - totalPlanAmount / (1 + LOAN_LIMITS['establishmentFee']) - maxEstablishmentFee, 0)
 
         # Store primary output
         data['maxLVR'] = round(self.maxLvr, 1)
@@ -176,23 +184,27 @@ class LoanValidator():
         data['availableAmount'] = int(round(availableAmount, 0))
         data['establishmentFee'] = int(round(
             totalLoanAmount / (1 + LOAN_LIMITS['establishmentFee']) * LOAN_LIMITS['establishmentFee'], 0))
+        data['planEstablishmentFee'] = int(round(
+            totalPlanAmount / (1 + LOAN_LIMITS['establishmentFee']) * LOAN_LIMITS['establishmentFee'], 0))
         data['totalLoanAmount'] = int(round(totalLoanAmount, 0))
+        data['totalPlanAmount'] = int(round(totalPlanAmount, 0))
         data['actualLVR'] = round(totalLoanAmount / self.initDict['valuation'], 1) * 100
         data['maxLVRPercentile']=int(self.__myround(self.maxLvr,5))
 
         # Validate against limits and add to output dictionary
         data['errors'] = False
         self.__chkStatusItem(data, 'availableStatus', availableAmount, int(0), "LT")
-        self.__chkStatusItem(data, 'minloanAmountStatus', int(round(totalLoanAmount, 0)), LOAN_LIMITS['minLoanSize'],
-                           "LT")
-        self.__chkStatusItem(data, 'maxloanAmountStatus', int(round(totalLoanAmount, 0)), self.loanLimit, "GTE")
-        self.__chkStatusItem(data, 'topUpStatus', self.initDict['topUpAmount'], LOAN_LIMITS['maxTopUp'], "GTE")
-        self.__chkStatusItem(data, 'topUpDrawdownStatus', self.initDict['topUpDrawdownAmount'], LOAN_LIMITS['maxTopUp'], "GTE")
+        self.__chkStatusItem(data, 'minloanAmountStatus', int(round(totalPlanAmount, 0)), LOAN_LIMITS['minLoanSize'], "LT")
+        self.__chkStatusItem(data, 'maxloanAmountStatus', int(round(totalPlanAmount, 0)), self.loanLimit, "GTE")
+        self.__chkStatusItem(data, 'topUpStatus', self.initDict['topUpAmount']+ self.initDict['topUpContingencyAmount']+self.initDict['topUpDrawdownAmount'], LOAN_LIMITS['maxTopUp'], "GTE")
+        self.__chkStatusItem(data, 'topUpDrawdownStatus', self.initDict['topUpAmount']+ self.initDict['topUpContingencyAmount']+self.initDict['topUpDrawdownAmount'], LOAN_LIMITS['maxTopUp'], "GTE")
+        self.__chkStatusItem(data, 'topUpContingencyStatus',self.initDict['topUpAmount'] + self.initDict['topUpDrawdownAmount'] + self.initDict['topUpContingencyAmount'],LOAN_LIMITS['maxTopUp'], "GTE")
         self.__chkStatusItem(data, 'refinanceStatus', self.initDict['refinanceAmount'], self.refinanceLimit, "GTE")
         self.__chkStatusItem(data, 'giveStatus', self.initDict['giveAmount'], self.giveLimit, "GTE")
         self.__chkStatusItem(data, 'renovateStatus', self.initDict['renovateAmount'], LOAN_LIMITS['maxReno'], "GTE")
         self.__chkStatusItem(data, 'travelStatus', self.initDict['travelAmount'], self.travelLimit, "GTE")
-        self.__chkStatusItem(data, 'careStatus', self.initDict['careAmount'], LOAN_LIMITS['maxCare'], "GTE")
+        self.__chkStatusItem(data, 'careStatus', self.initDict['careAmount']+self.initDict['careDrawdownAmount'], LOAN_LIMITS['maxCare'], "GTE")
+        self.__chkStatusItem(data, 'careDrawdownStatus', self.initDict['careAmount']+self.initDict['careDrawdownAmount'], LOAN_LIMITS['maxCare'], "GTE")
 
         response['status'] = "Ok"
         response['data']=data

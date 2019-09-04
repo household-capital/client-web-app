@@ -24,8 +24,6 @@ urlpatterns = [
     path('contactAction/<uuid:uid>', views.ContactActionView.as_view(), name='contactAction'),
     path('contactDelete/<uuid:uid>', views.ContactDeleteView.as_view(), name='contactDelete'),
 
-    path('test/<uuid:uid>', views.Test.as_view(), name='test'),
-
 ]
 
 

@@ -149,7 +149,7 @@
                             <div class="row justify-content-center pb-3">
                                 <div class="col-8">
                                     <input type="text" name="name" placeholder="Enter your name"
-                                           class="textinput textInput form-control" id="id_name"
+                                           class="textinput textInput form-control fs-block" id="id_name"
                                            {% if form.name.value != None %}value="{{ form.name.value }}"{% endif %}>
                                 </div>
                             </div>
@@ -160,7 +160,7 @@
 
                                     <input type="email" name="email" required
                                            placeholder="Enter your email"
-                                           maxlength="70" class="textinput textInput form-control"
+                                           maxlength="70" class="textinput textInput form-control fs-block"
                                            id="id_email"
                                            {% if form.email.value != None %}value="{{ form.email.value }}"{% endif %}>
                                 </div>

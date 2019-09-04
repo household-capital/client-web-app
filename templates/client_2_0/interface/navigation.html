@@ -70,7 +70,7 @@
 
                             <div class="col-lg-2 text-left">
                                 <br><br>
-                                <p class="x-large">${{ totalLoanAmount|intcomma }}</p>
+                                <p class="x-large">${{ totalPlanAmount|intcomma }}</p>
                             </div>
 
                         </div>
@@ -84,7 +84,14 @@
                         <div class="row">
 
                             <div class="col-lg-2"></div>
-                            <div class="col-lg-6"><br><br><p class="pl-4 small">* includes Establishment Fee</p></div>
+
+                            <div class="col-lg-8"><br><br><p class="pl-4 small">
+                                {% if totalLoanAmount == totalPlanAmount %}
+                                * includes establishment fee
+                                {% else %}
+                                * includes plan amounts and establishment fee
+                                {% endif %}
+                            </p></div>
                         </div>
                     </div>
 

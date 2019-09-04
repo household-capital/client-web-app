@@ -1,5 +1,6 @@
 # Python Imports
 import os
+import json
 
 # Django Imports
 from django.conf import settings
@@ -7,18 +8,22 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMultiAlternatives
 from django.core.files import File
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.db.models import Q
 from django.template.loader import get_template
+from django.utils.decorators import method_decorator
 from django.utils import timezone
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, ListView, TemplateView, View
+from django.views.decorators.csrf import csrf_exempt
+
+# Third-party Imports
+from config.celery import app
+
 
 # Local Application Imports
 from apps.calculator.models import WebCalculator, WebContact
 from apps.case.models import Case
-from apps.lib.api_Salesforce import apiSalesforce
-
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.hhc_LoanProjection import LoanProjection
 from apps.lib.site_Enums import caseTypesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum
@@ -83,6 +88,9 @@ class EnquiryListView(LoginRequiredMixin, ListView):
         if self.request.GET.get('myEnquiries') == "True":
             queryset = super(EnquiryListView, self).get_queryset().filter(user=self.request.user).exclude(actioned=-1)
 
+        if self.request.GET.get('action')=="True":
+            queryset=super(EnquiryListView, self).get_queryset().filter(user__isnull=True)
+
         queryset = queryset.order_by('-updated')
 
         return queryset
@@ -100,6 +108,9 @@ class EnquiryListView(LoginRequiredMixin, ListView):
             context['myEnquiries'] = self.request.GET.get('myEnquiries')
         else:
             context['myEnquiries'] = False
+
+        if self.request.GET.get('action'):
+            context['action']=True
 
         self.request.session['webCalcQueue'] = WebCalculator.objects.queueCount()
         self.request.session['webContQueue'] = WebContact.objects.queueCount()
@@ -146,6 +157,9 @@ class EnquiryCreateView(LoginRequiredMixin, CreateView):
             obj.maxLVR = chkOpp['data']['maxLVR']
             obj.save()
 
+        #Background task to update SF
+        app.send_task('Create_SF_Lead', kwargs={'enqUID':str(obj.enqUID)})
+
         messages.success(self.request, "Enquiry Saved")
 
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': str(obj.enqUID)}))
@@ -175,8 +189,6 @@ class EnquiryUpdateView(LoginRequiredMixin, UpdateView):
         obj = queryset.get()
         context['obj'] = obj
         context['isUpdate'] = True
-
-        print(chkOpp)
 
         return context
 
@@ -210,6 +222,9 @@ class EnquiryUpdateView(LoginRequiredMixin, UpdateView):
             obj.maxLoanAmount = chkOpp['data']['maxLoan']
             obj.maxLVR = chkOpp['data']['maxLVR']
             obj.save()
+
+        #Background task to update SF
+        app.send_task('Update_SF_Lead', kwargs={'enqUID':str(obj.enqUID)})
 
         messages.success(self.request, "Enquiry Saved")
 
@@ -299,6 +314,56 @@ class SendEnquirySummary(LoginRequiredMixin, UpdateView):
                 return False
         return True
 
+class CreateEnquirySummary(LoginRequiredMixin, UpdateView):
+    # This view does not render it creates an enquiry
+
+    context_object_name = 'object_list'
+    model = WebCalculator
+    template_name = 'enquiry/email/email_cover_enquiry.html'
+
+    def get(self, request, *args, **kwargs):
+        enqUID = str(kwargs['uid'])
+        queryset = Enquiry.objects.queryset_byUID(enqUID)
+        enq_obj = queryset.get()
+
+        enqDict = Enquiry.objects.dictionary_byUID(enqUID)
+
+        # PRODUCE PDF REPORT
+        sourceUrl = 'https://householdcapital.app/enquiry/enquirySummaryPdf/' + enqUID
+        targetFileName = settings.MEDIA_ROOT + "/enquiryReports/Enquiry-" + enqUID[
+                                                                            -12:] + ".pdf"
+
+        pdf = pdfGenerator(enqUID)
+        created, text = pdf.createPdfFromUrl(sourceUrl, 'CalculatorSummary.pdf', targetFileName)
+
+        if not created:
+            messages.error(self.request, "PDF not created")
+            write_applog("ERROR", 'CreateEnquirySummary', 'get',
+                         "PDF not created: " + str(enq_obj.enqUID))
+            return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
+
+        try:
+            # SAVE TO DATABASE (Enquiry Model)
+            localfile = open(targetFileName, 'rb')
+
+            enq_obj.summaryDocument = File(localfile)
+            enq_obj.save(update_fields=['summaryDocument'])
+            messages.success(self.request, "Summary has been created")
+
+        except:
+            write_applog("ERROR", 'CreateEnquirySummary', 'get',
+                         "Failed to save PDF in Database: " + str(enq_obj.enqUID))
+
+            messages.error(self.request, "Could not create summary")
+
+        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
+
+    def nullOrZero(self, arg):
+        if arg:
+            if arg != 0:
+                return False
+        return True
+
 
 class EnqSummaryPdfView(TemplateView):
     # Produce Summary Report View (called by Api2Pdf)
@@ -344,8 +409,6 @@ class EnqSummaryPdfView(TemplateView):
 
         loanProj = LoanProjection()
         result = loanProj.create(clientDict, frequency=12)
-
-        print(obj.payIntAmount)
 
         if obj.payIntAmount:
             result = loanProj.calcProjections(makeIntPayment=True)
@@ -426,8 +489,11 @@ class EnquiryCloseFollowUp(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         obj = form.save()
         obj.followUp = timezone.now()
-        obj.status = 1
-        obj.save(update_fields=['followUp', 'status'])
+        if form.cleaned_data['closeReason']:
+            obj.closeDate=timezone.now()
+        obj.save(update_fields=['followUp','closeDate'])
+
+        app.send_task('Update_SF_Lead', kwargs={'enqUID':str(obj.enqUID)})
 
         messages.success(self.request, "Enquiry closed or marked as followed-up")
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryList'))
@@ -458,7 +524,7 @@ class EnquiryConvert(LoginRequiredMixin, View):
             surname = enqDict['name']
 
         caseDict = {}
-        caseDict['caseType'] = caseTypesEnum.LEAD.value
+        caseDict['caseType'] = caseTypesEnum.DISCOVERY.value
         caseDict['caseDescription'] = surname + " - " + str(enqDict['postcode'])
         caseDict['enquiryDocument'] = enqDict['summaryDocument']
         caseDict['caseNotes'] = enqDict['enquiryNotes']
@@ -511,49 +577,12 @@ class EnquiryOwnView(LoginRequiredMixin, View):
         else:
             messages.error(self.request, "You must be a Credit Representative to take ownership")
 
+        #Background task to update SF
+        app.send_task('Update_SF_Lead', kwargs={'enqUID':enqUID})
+
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
 
 
-# Follow Up Email
-class FollowUpEmail(LoginRequiredMixin, TemplateView):
-    template_name = 'enquiry/email/email_followup.html'
-    model = Enquiry
-
-    def get(self, request, *args, **kwargs):
-        email_context = {}
-        enqID = str(kwargs['uid'])
-
-        enqObj = Enquiry.objects.queryset_byUID(enqID).get()
-
-        email_context['obj'] = enqObj
-        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-        email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
-
-        if not enqObj.user:
-            messages.error(self.request, "This enquiry is not assigned to a user. Please take ownership")
-            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
-
-        bcc = enqObj.user.email
-        subject, from_email, to = "Household Capital: Follow-up", enqObj.user.email, enqObj.email
-        text_content = "Text Message"
-
-        enqObj.followUp = timezone.now()
-        enqObj.save(update_fields=['followUp'])
-        try:
-            html = get_template(self.template_name)
-            html_content = html.render(email_context)
-            msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [bcc])
-            msg.attach_alternative(html_content, "text/html")
-            msg.send()
-            messages.success(self.request, "Follow-up emailed to client")
-
-            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
-
-        except:
-            write_applog("ERROR", 'FollowUpEmail', 'get',
-                         "Failed to email follow-up:" + enqID)
-            messages.error(self.request, "Follow-up could not be emailed")
-            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
 
 
 # Referrer Views
@@ -613,6 +642,9 @@ class ReferrerView(ReferrerRequiredMixin, UpdateView):
             obj.maxLVR = chkOpp['data']['maxLVR']
             obj.save()
 
+        # Background task to update SF
+        app.send_task('Update_SF_Lead', kwargs={'enqUID': str(obj.enqUID)})
+
         messages.success(self.request, "Referral Captured or Updated")
 
         return HttpResponseRedirect(reverse_lazy('enquiry:enqReferrerUpdate', kwargs={'uid': str(obj.enqUID)}))
@@ -657,185 +689,47 @@ class ReferralEmail(LoginRequiredMixin, TemplateView):
             return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
 
 
-# Temporary Functionality
-class DataLoad(LoginRequiredMixin, View):
-    SF_LEAD_MAPPING = {'phoneNumber': 'Phone',
-                       'email': 'Email',
-                       'age_1': 'Age_of_1st_Applicant__c',
-                       'age_2': 'Age_of_2nd_Applicant__c',
-                       'dwellingType': 'Dwelling_Type__c',
-                       'valuation': 'Estimated_Home_Value__c',
-                       'postcode': 'PostalCode',
-                       'isTopUp': 'IsTopUp__c',
-                       'isRefi': 'IsRefi__c',
-                       'isLive': 'IsLive__c',
-                       'isGive': 'IsGive__c',
-                       'isCare': 'IsCare__c',
-                       'calcTopUp': 'CalcTopUp__c',
-                       'calcRefi': 'CalcRefi__c',
-                       'calcLive': 'CalcLive__c',
-                       'calcGive': 'CalcGive__c',
-                       'calcCare': 'CalcCare__c',
-                       'calcTotal': 'CalcTotal__c',
-                       'enquiryNotes': 'External_Notes__c',
-                       'payIntAmount': 'payIntAmount__c',
-                       'payIntPeriod': 'payIntPeriod__c',
-                       'status': 'HCC_Loan_Eligible__c',
-                       'maxLoanAmount': 'Maximum_Loan__c',
-                       'maxLVR': 'Maximum_LVR__c',
-                       'errorText': 'Ineligibility_Reason__c',
-                       'referrerID': 'Referrer_ID__c'
-                       }
+# CALENDLY WEBHOOK
 
-    BooleanList = ['isTopUp', 'isRefi', 'isLive', 'isGive', 'isCare']
+@method_decorator(csrf_exempt, name='dispatch')
+class CalendlyWebhook(View):
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
+        # Load the event data from JSON
 
-        sfAPI = apiSalesforce()
-        result = sfAPI.openAPI(True)
-        if result['status'] != "Ok":
-            return {'status': "Error", 'responseText': "Could not connect to Salesforce"}
+        data = json.loads(request.body)
+        #with open('data.json', 'w', encoding='utf-8') as f:
+        #    json.dump(data, f, ensure_ascii=False, indent=4)
 
-        qs = Enquiry.objects.filter(sfLeadID__isnull=True)
-        for enquiry in qs:
-            if (enquiry.email or enquiry.phoneNumber) and enquiry.user:
-                enquiryDict = enquiry.__dict__
+        client_email=data["payload"]["invitee"]["email"]
+        meeting_name=data["payload"]["event_type"]["name"]
+        write_applog("INFO", 'Calendly', 'post',
+                     "Client Email:" +client_email )
 
-                payload = {}
-                for app_field, sf_field in self.SF_LEAD_MAPPING.items():
-                    payload[sf_field] = enquiryDict[app_field]
-                    if app_field in self.BooleanList and not enquiryDict[app_field]:
-                        payload[sf_field] = False
+        #Get phone number if available
+        phoneNumber=None
+        try:
+            if 'phone number' in data['payload']['questions_and_answers'][0]['question']:
+                phoneNumber= data['payload']['questions_and_answers'][0]['answer']
+        except:
+            pass
 
-                if not enquiryDict['name']:
-                    payload['Lastname'] = 'Unknown'
-                elif " " in enquiryDict['name']:
-                    payload['Firstname'], payload['Lastname'] = enquiryDict['name'].split(" ", 1)
-                else:
-                    payload['Lastname'] = enquiryDict['name']
+        obj=Enquiry.objects.filter(email=client_email).order_by("-timestamp").first()
 
-                payload['External_ID__c'] = str(enquiryDict['enqUID'])
-                payload['OwnerID'] = enquiry.user.profile.salesforceID
-                payload['Loan_Type__c'] = enquiry.enumLoanType()
-                payload['Dwelling_Type__c'] = enquiry.enumDwellingType()
-                payload['LeadSource'] = enquiry.enumReferrerType()
+        if obj:
+            if obj.enquiryNotes:
+                obj.enquiryNotes+="\r\n"+"[# Calendly - "+meeting_name+" #]"
+            else:
+                obj.enquiryNotes = "[# Calendly - "+meeting_name+" #]"
+            obj.isCalendly=True
 
-                if enquiry.referralUser:
-                    payload['Referral_UserID__c'] = enquiry.referralUser.last_name
+            if phoneNumber and not obj.phoneNumber:
+                obj.phoneNumber=phoneNumber
 
-                payload['CreatedDate'] = enquiry.timestamp.strftime("%Y-%m-%d")
-
-                if enquiry.followUp:
-                    payload['Last_External_Followup_Date__c'] = enquiry.followUp.strftime("%Y-%m-%d")
-
-                if enquiry.followUpDate:
-                    payload['Scheduled_Followup_Date_External__c'] = enquiry.followUpDate.strftime("%Y-%m-%d")
-
-                if enquiry.name:
-                    write_applog("INFO", 'Enquiry', 'dataLoad', enquiry.name)
-                else:
-                    write_applog("INFO", 'Enquiry', 'dataLoad', 'unknown')
-
-                result = sfAPI.createLead(payload)
-
-                write_applog("INFO", 'Enquiry', 'dataLoad', result['status'])
-
-                if result['status'] == "Ok":
-                    enquiry.sfLeadID = result['data']['id']
-                    write_applog("INFO", 'Enquiry', 'dataLoad', enquiry.sfLeadID)
-                    enquiry.save(update_fields=['sfLeadID'])
-                else:
-                    if isinstance(result['responseText'], dict):
-                        write_applog("INFO", 'Enquiry', 'dataLoad', result['responseText']['message'])
-                        if 'existing' in result['responseText']['message']:
-                            if enquiry.email:
-                                write_applog("INFO", 'Enquiry', 'SF!', enquiry.email)
-                                result = sfAPI.qryToDict('LeadByEmail', enquiry.email, 'result')
-                                if len(result['data']) == 0:
-                                    write_applog("INFO", 'Enquiry', 'SF!', 'No id returned')
-                                else:
-                                    enquiry.sfLeadID = result['data']['result.Id']
-                                    enquiry.save(update_fields=['sfLeadID'])
-                            elif enquiry.phoneNumber:
-                                write_applog("INFO", 'Enquiry', 'SF!', enquiry.phoneNumber)
-                                result = sfAPI.qryToDict('LeadByPhone', enquiry.phoneNumber, 'result')
-                                if len(result['data']) == 0:
-                                    write_applog("INFO", 'Enquiry', 'SF!', 'No id returned')
-                                else:
-                                    enquiry.sfLeadID = result['data']['result.Id']
-                                    enquiry.save(update_fields=['sfLeadID'])
+            obj.save(update_fields=['enquiryNotes','isCalendly','phoneNumber'])
 
 
-class DataLoadCase(LoginRequiredMixin, View):
-    SF_LEAD_MAPPING = {'phoneNumber': 'Phone',
-                       'email': 'Email',
-                       'age_1': 'Age_of_1st_Applicant__c',
-                       'age_2': 'Age_of_2nd_Applicant__c',
-                       'dwellingType': 'Dwelling_Type__c',
-                       'valuation': 'Estimated_Home_Value__c',
-                       'postcode': 'PostalCode',
-                       'caseNotes': 'External_Notes__c',
-                       }
+        return HttpResponse(status=200)
 
-    def get(self, request, *args, **kwargs):
 
-        sfAPI = apiSalesforce()
-        result = sfAPI.openAPI(True)
-        if result['status'] != "Ok":
-            return {'status': "Error", 'responseText': "Could not connect to Salesforce"}
 
-        qs = Case.objects.filter(sfLeadID__isnull=True)
-        for case in qs:
-            if (case.email or case.phoneNumber) and case.user:
-                caseDict = case.__dict__
-
-                payload = {}
-                for app_field, sf_field in self.SF_LEAD_MAPPING.items():
-                    payload[sf_field] = caseDict[app_field]
-
-                if not caseDict['surname_1']:
-                    payload['Lastname'] = 'Unknown'
-                else:
-                    payload['Firstname'] = caseDict['firstname_1']
-                    payload['Lastname'] = caseDict['surname_1']
-
-                payload['External_ID__c'] = str(caseDict['caseUID'])
-                payload['OwnerID'] = case.user.profile.salesforceID
-                payload['Loan_Type__c'] = case.enumLoanType()
-                payload['Dwelling_Type__c'] = case.enumDwellingType()
-
-                payload['CreatedDate'] = case.timestamp.strftime("%Y-%m-%d")
-
-                if case.caseDescription:
-                    write_applog("INFO", 'case', 'dataLoad', case.caseDescription)
-                else:
-                    write_applog("INFO", 'case', 'dataLoad', 'unknown')
-
-                result = sfAPI.createLead(payload)
-
-                write_applog("INFO", 'case', 'dataLoad', result['status'])
-
-                if result['status'] == "Ok":
-                    case.sfLeadID = result['data']['id']
-                    write_applog("INFO", 'case', 'dataLoad', case.sfLeadID)
-                    case.save(update_fields=['sfLeadID'])
-                else:
-                    if isinstance(result['responseText'], dict):
-                        write_applog("INFO", 'case', 'dataLoad', result['responseText']['message'])
-                        if 'existing' in result['responseText']['message']:
-                            if case.email:
-                                write_applog("INFO", 'Enquiry', 'SF!', case.email)
-                                result = sfAPI.qryToDict('LeadByEmail', case.email, 'result')
-                                if len(result['data']) == 0:
-                                    write_applog("INFO", 'Enquiry', 'SF!', 'No id returned')
-                                else:
-                                    case.sfLeadID = result['data']['result.Id']
-                                    case.save(update_fields=['sfLeadID'])
-                            elif case.phoneNumber:
-                                write_applog("INFO", 'Enquiry', 'SF!', case.phoneNumber)
-                                result = sfAPI.qryToDict('LeadByPhone', case.phoneNumber, 'result')
-                                if len(result['data']) == 0:
-                                    write_applog("INFO", 'Enquiry', 'SF!', 'No id returned')
-                                else:
-                                    case.sfLeadID = result['data']['result.Id']
-                                    case.save(update_fields=['sfLeadID'])

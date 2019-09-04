@@ -18,11 +18,12 @@ class ContactDetailsForm(forms.ModelForm):
     class Meta:
         model = Contact
         fields = ['firstName', 'surname', 'org', 'role', 'email',
-                  'phone', 'location', 'classification', 'equityInterest', 'debtInterest', 'equityStatus',
-                  'notes', 'relationshipNotes', 'relationshipOwners', 'inProfileUrl']
+                  'phone', 'location', 'classification', 'equityStatus',
+                  'notes', 'relationshipNotes', 'relationshipOwners', 'inProfileUrl', 'requestNotes']
         widgets = {
             'notes': forms.Textarea(attrs={'rows': 8, 'cols': 100}),
             'relationshipNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
+            'requestNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100})
         }
 
     # Form Layout
@@ -57,19 +58,20 @@ class ContactDetailsForm(forms.ModelForm):
             Div(
                 Div(HTML("<i class='fas fa-home'></i>&nbsp;&nbsp;<small>Classification</small>"),
                     Field('classification', placeholder='classification'),
-                    HTML("<i class='fas fa-search-dollar''></i>&nbsp;&nbsp;<small>Financial Interest</small>"),
-                    Div(
-                        Div(Field('debtInterest'), css_class='checkbox-inline'),
-                        Div(HTML("&nbsp;&nbsp;Debt&nbsp;&nbsp;"), css_class='checkbox-inline'),
-                        Div(Field('equityInterest'), css_class='checkbox-inline'),
-                        Div(HTML("&nbsp;&nbsp;Equity"), css_class='checkbox-inline'),
-                        css_class='row justify-content-left pt-2'),
-                    HTML("<i class='fas fa-user-clock'></i>&nbsp;&nbsp;<small>Equity Status</small>"),
-                    Div(Field('equityStatus', placeholder='equityStatus'), css_class="pt-2")),
+                    HTML("<i class='fas fa-user-clock'></i>&nbsp;&nbsp;<small>Series B Status</small>"),
+                    css_class="pb-2"),
+
+                Div(
+                    Div(Field('equityStatus', placeholder='equityStatus'),
+                        Field('requestNotes', placeholder='Series B Requests'),
+                        css_class="pb-2")),
+
                 Div(
                     Div(Submit('submit', 'Update ', css_class='btn btn-outline-secondary'))),
                 css_class="col-lg-6")
-            , css_class="row"))
+
+            , css_class="row")
+    )
 
     def clean_org(self):
         if self.cleaned_data['org']:

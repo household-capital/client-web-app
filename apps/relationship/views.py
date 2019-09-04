@@ -63,6 +63,10 @@ class ContactListView(LoginRequiredMixin, ListView):
         if self.request.GET.get('filter')=='Recent':
             queryset=queryset.order_by('-updated')
 
+        if self.request.GET.get('filter') == 'SeriesB':
+
+            queryset = queryset.exclude(equityStatus=4).exclude(equityStatus__isnull=True).order_by("org__orgName")
+
 
         if self.request.GET.get('search'):
             search = self.request.GET.get('search')
@@ -201,8 +205,7 @@ class ExportCSV(LoginRequiredMixin,ListView):
         response['Content-Disposition'] = 'attachment; filename="RelationshipExtract.csv"'
 
         writer = csv.writer(response)
-        writer.writerow(['Firstname', 'Surname', 'OrgName', 'OrgType', 'Role', 'Location','Classification','Debt',
-                         'Equity','EquityStatus','Email','ContactNotes','RelationshipNotes'])
+        writer.writerow(['Firstname', 'Surname', 'Owner', 'OrgName', 'OrgType', 'Role', 'Location','Classification','Email','ContactNotes','RelationshipNotes','SeriesBStatus','SeriesBRequests'])
 
         qs=Contact.objects.all()
 
@@ -217,14 +220,43 @@ class ExportCSV(LoginRequiredMixin,ListView):
             row.append(contact.role)
             row.append(contact.enumLocation)
             row.append(contact.enumClassification)
-            row.append(contact.debtInterest)
-            row.append(contact.equityInterest)
-            row.append(contact.enumEquityStatus)
             row.append(contact.email)
             row.append(contact.notes)
             row.append(contact.relationshipNotes)
+            row.append(contact.enumEquityStatus)
+            row.append(contact.requestNotes)
             writer.writerow(row)
 
         return response
 
 
+class ExportStatusCSV(LoginRequiredMixin,ListView):
+
+    def get(self, request, *args, **kwargs):
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="RelationshipExtract.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['Firstname', 'Surname', 'Owner', 'OrgName', 'OrgType', 'Role', 'Location','Classification','Email','ContactNotes','RelationshipNotes','SeriesBStatus', 'SeriesBRequests'])
+
+        qs=Contact.objects.exclude(equityStatus=4).exclude(equityStatus__isnull=True).order_by("org__orgName")
+        for contact in qs:
+
+            row=[]
+            row.append(contact.firstName)
+            row.append(contact.surname)
+            row.append(contact.relationshipOwners)
+            row.append(contact.org.orgName)
+            row.append(contact.org.orgType.orgType)
+            row.append(contact.role)
+            row.append(contact.enumLocation)
+            row.append(contact.enumClassification)
+            row.append(contact.email)
+            row.append(contact.notes)
+            row.append(contact.relationshipNotes)
+            row.append(contact.enumEquityStatus)
+            row.append(contact.requestNotes)
+            writer.writerow(row)
+
+        return response

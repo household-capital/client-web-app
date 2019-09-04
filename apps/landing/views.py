@@ -100,8 +100,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         # Open Case
         qsOpenCases = Case.objects.openCases()
         context['openCases'] = qsOpenCases.count()
-        context['openLead'] = qsOpenCases.filter(caseType=caseTypesEnum.LEAD.value).count()
-        context['openOpportunity'] = qsOpenCases.filter(caseType=caseTypesEnum.OPPORTUNITY.value).count()
+        context['openDiscovery'] = qsOpenCases.filter(caseType=caseTypesEnum.DISCOVERY.value).count()
         context['openMeetingHeld'] = qsOpenCases.filter(caseType=caseTypesEnum.MEETING_HELD.value).count()
         context['openApplication'] = qsOpenCases.filter(caseType=caseTypesEnum.APPLICATION.value).count()
         context['openPreApproval'] = qsOpenCases.filter(caseType=caseTypesEnum.PRE_APPROVAL.value).count()
@@ -124,8 +123,12 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         # Funded Data
         qsFunded = FundedData.objects.all()
-        context['portfolioBalance'] = int(qsFunded.aggregate(Sum('principal'))['principal__sum'])
-        context['portfolioFunded'] = int(qsFunded.aggregate(Sum('advanced'))['advanced__sum'])
+        if qsFunded:
+            context['portfolioBalance'] = int(qsFunded.aggregate(Sum('principal'))['principal__sum'])
+            context['portfolioFunded'] = int(qsFunded.aggregate(Sum('advanced'))['advanced__sum'])
+        else:
+            context['portfolioBalance']=0
+            context['portfolioFunded']=0
 
         if context['portfolioBalance'] > 0:
             hashSum = \
@@ -143,6 +146,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         qsEnqs = Enquiry.objects.all()
         tz = get_current_timezone()
 
+        # - get enquiry data and build table
         dataQs = qsEnqs.exclude(referrer=directTypesEnum.REFERRAL.value) \
             .annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
             .values_list('date') \
@@ -159,6 +163,15 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context['directData'] = tableData
         context['directTypesEnum'] = directTypesEnum
 
+        #- get monthly date range
+        dateQs = qsEnqs.annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
+            .values_list('date') \
+            .annotate(leads=Count('enqUID')) \
+            .values('date').order_by('date')
+
+        dateRange = [item['date'].strftime('%b-%y') for item in dateQs]
+
+        # - get case data and build table
         qsCases = Case.objects.all()
         dataQs = qsCases.exclude(salesChannel=channelTypesEnum.DIRECT_ACQUISITION.value) \
             .annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
@@ -172,13 +185,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                 tableData[item['date'].strftime('%b-%y')] = {item['salesChannel']: item['cases']}
             else:
                 tableData[item['date'].strftime('%b-%y')][item['salesChannel']] = item['cases']
-
-        dateQs = qsCases.annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
-            .values_list('date') \
-            .annotate(leads=Count('caseUID')) \
-            .values('date').order_by('date')
-
-        dateRange = [item['date'].strftime('%b-%y') for item in dateQs]
 
         context['dateRange'] = dateRange
         context['referralData'] = tableData

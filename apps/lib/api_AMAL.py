@@ -33,7 +33,7 @@ class apiAMAL():
 
         self.api_path = os.getenv("AMAL_PATH" + ENV_STR)
 
-        jsondata = {'UserNumber': os.getenv("AMAL_USERNUMBER" + ENV_STR),
+        jsondata = {'UserNumber': os.getenv("AMAL_USERNUMBER" + ENV_STR+"_CAL"),
                     'Password': os.getenv("AMAL_PASSWORD" + ENV_STR)}
         response = requests.post(self.api_path + self.api_url_session, headers=self.headers, json=jsondata)
 

@@ -65,7 +65,24 @@
                                            value='{{ request.GET.search }}'/>
                                 </div>
 
-                                <div class="col-lg-4 text-center">
+
+
+                            <div class="col-lg-4 text-center">
+                                    {% if request.GET.showSF == "True" %}
+                                        <a href="?showSF=False&search={{ search }}&myCases={{ myCases }}&order={{ order }}">
+                                            <div class="btn btn-secondary" data-toggle="tooltip" data-placement="top"
+                                                 title="Managed in Salesforce"><i class="fas fa-fw fa-cloud"></i></div>
+                                        </a>
+                                    {% else %}
+                                        <a href="?showSF=True&showClosed=False&search={{ search }}&myCases={{ myCases }}&order={{ order }}">
+                                            <div class="btn btn-outline-secondary" data-toggle="tooltip"
+                                                 data-placement="top"
+                                                 title="Managed in Salesforce"><i style="color:deepskyblue" class="fas fa-fw fa-cloud"></i></div>
+                                        </a>
+
+                                    {% endif %}
+
+
                                     {% if request.GET.showClosed == "True" %}
                                         <a href="?showClosed=False&search={{ search }}&myCases={{ myCases }}&order={{ order }}">
                                             <div class="btn btn-secondary" data-toggle="tooltip" data-placement="top"
@@ -132,7 +149,6 @@
                         <th scope="col" class=" d-none d-sm-table-cell"></th>
                         <th scope="col" class=" d-none d-sm-table-cell"></th>
                         <th scope="col" class=" d-none d-sm-table-cell"></th>
-                        <th scope="col" class=" d-none d-sm-table-cell"></th>
 
                     </tr>
                     </thead>
@@ -154,9 +170,6 @@
                             <td class="d-none d-sm-table-cell" data-toggle="tooltip" data-placement="top" title="Post Meeting Documents">
                                 {% if obj.responsibleDocument %}<i class="far fa-file-archive fa-fw"></i>{% endif %}
                             </td>
-                            <td class="d-none d-sm-table-cell" data-toggle="tooltip" data-placement="top" title="Loaded to Salesforce">
-                                {% if obj.sfLeadID %}
-                                    <i style="color:deepskyblue" class="fas fa-cloud fa-fw"></i>{% endif %}</td>
                             <td class="d-none d-sm-table-cell" data-toggle="tooltip" data-placement="top" title="Solicitor Instruction">
                                 {% if obj.solicitorInstruction %}<i class="fas fa-gavel fa-fw"></i>{% endif %}</td>
                             <td class="d-none d-sm-table-cell" data-toggle="tooltip" data-placement="top" title="Title Search">
@@ -177,31 +190,31 @@
                             {% if page_obj.has_previous %}
                                 <li class="page-item">
                                     <a class="page-link"
-                                       href="?order={{ order }}&search={{ search }}&page={{ page_obj.previous_page_number }}&showClosed={{ showClosed }}&myCases={{ myCases }}"
+                                       href="?order={{ order }}&search={{ search }}&page={{ page_obj.previous_page_number }}&showSF={{ showSF }}&showClosed={{ showClosed }}&myCases={{ myCases }}"
                                        tabindex="-1">Previous</a>
                                 </li>
 
                             {% else %}
                                 <li class="page-item disabled">
                                     <a class="page-link"
-                                       href="#order={{ order }}&showClosed={{ showClosed }}&search={{ search }}&myCases={{ myCases }}"
+                                       href="#order={{ order }}&showClosed={{ showClosed }}&search={{ search }}&myCases={{ myCases }}&showSF={{ showSF }}"
                                        tabindex="-1">Previous</a>
                                 </li>
                             {% endif %}
                             {% for object in page_obj.paginator.page_range %}
                                 <li class="page-item"><a class="page-link"
-                                                         href="?page={{ forloop.counter }}&order={{ order }}&search={{ search }}&showClosed={{ showClosed }}&myCases={{ myCases }}">{{ forloop.counter }}</a>
+                                                         href="?page={{ forloop.counter }}&order={{ order }}&search={{ search }}&showSF={{ showSF }}&showClosed={{ showClosed }}&myCases={{ myCases }}">{{ forloop.counter }}</a>
                                 </li>
                             {% endfor %}
                             {% if page_obj.has_next %}
                                 <li class="page-item">
                                     <a class="page-link"
-                                       href="?search={{ search }}&order={{ order }}&page={{ page_obj.next_page_number }}&showClosed={{ showClosed }}&myCases={{ myCases }}">Next</a>
+                                       href="?search={{ search }}&order={{ order }}&page={{ page_obj.next_page_number }}&showSF={{ showSF }}&showClosed={{ showClosed }}&myCases={{ myCases }}">Next</a>
                                 </li>
                             {% else %}
                                 <li class="page-item disabled">
                                     <a class="page-link"
-                                       href="#&order={{ order }}&showClosed={{ showClosed }}&myCases={{ myCases }}">Next</a>
+                                       href="#&order={{ order }}&showClosed={{ showClosed }}&myCases={{ myCases }}&showSF={{ showSF }}">Next</a>
                                 </li>
                             {% endif %}
                         </ul>

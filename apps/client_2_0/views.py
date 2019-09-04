@@ -25,7 +25,7 @@ from apps.lib.hhc_LoanProjection import LoanProjection
 from apps.lib.site_Logging import write_applog
 from .forms import ClientDetailsForm, SettingsForm, IntroChkBoxForm, topUpLumpSumForm, topUpDrawdownForm, debtRepayForm
 from .forms import giveAmountForm, renovateAmountForm, travelAmountForm, careAmountForm, DetailedChkBoxForm, \
-    protectedEquityForm, interestPaymentForm
+    protectedEquityForm, interestPaymentForm, careDrawdownForm,topUpContingencyForm
 from apps.lib.site_Utilities import pdfGenerator
 
 
@@ -75,7 +75,9 @@ class ContextHelper():
         loanQS.update(maxLVR=loanStatus['data']['maxLVR'],
                       totalLoanAmount=loanStatus['data']['totalLoanAmount'],
                       establishmentFee=loanStatus['data']['establishmentFee'],
-                      actualLVR=loanStatus['data']['actualLVR'])
+                      actualLVR=loanStatus['data']['actualLVR'],
+                      totalPlanAmount=loanStatus['data']['totalPlanAmount'],
+                      planEstablishmentFee =loanStatus['data']['planEstablishmentFee'])
 
         # create context
         context = {}
@@ -346,10 +348,10 @@ class IntroductionView3(LoginRequiredMixin, SessionRequiredMixin, ContextHelper,
             # Loan Projections
             loanProj = LoanProjection()
             result = loanProj.create(self.extra_context, frequency=1)
-            proj_data = loanProj.getFutureEquityArray(intervals=50)['data']
+            proj_data = loanProj.getFutureEquityArray(increment=1000)['data']
             context['sliderData'] = json.dumps(proj_data['dataArray'])
             context['futHomeValue'] = proj_data['futHomeValue']
-            context['sliderPoints'] = 50
+            context['sliderPoints'] = proj_data['intervals']
             context['imgPath'] = settings.STATIC_URL + 'img/icons/block_equity_0_icon.png'
             context['transferImagePath'] = settings.STATIC_URL + 'img/icons/transfer_0_icon.png'
 
@@ -451,21 +453,60 @@ class TopUp2(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView
     def form_valid(self, form):
         obj = form.save(commit=False)
 
-        # Calculate Top-up Drawdown Amount
+        # Calculate Top-up Plan Amount
         if obj.topUpFrequency == incomeFrequencyEnum.FORTNIGHTLY.value:
-            obj.topUpDrawdownAmount = obj.topUpIncomeAmount * obj.topUpPeriod * 26
+            obj.topUpPlanAmount = obj.topUpIncomeAmount * obj.topUpPeriod * 26
         else:
-            obj.topUpDrawdownAmount = obj.topUpIncomeAmount * obj.topUpPeriod * 12
+            obj.topUpPlanAmount = obj.topUpIncomeAmount  * obj.topUpPeriod * 12
+
+        # Calculate Top-up Drawdown Amount - 12 months only
+        if obj.topUpFrequency == incomeFrequencyEnum.FORTNIGHTLY.value:
+            obj.topUpDrawdownAmount = obj.topUpIncomeAmount * 26
+        else:
+            obj.topUpDrawdownAmount = obj.topUpIncomeAmount * 12
 
         if not obj.topUpDrawdownAmount:
             obj.topUpBuffer = 0
 
         if obj.topUpBuffer:
             obj.topUpDrawdownAmount += LOAN_LIMITS['topUpBufferAmount']
+            obj.topUpPlanAmount += LOAN_LIMITS['topUpBufferAmount']
 
         obj.save()
         return super(TopUp2, self).form_valid(form)
 
+
+class TopUp3(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
+    template_name = "client_2_0/interface/topUp3.html"
+    model = Loan
+    form_class = topUpContingencyForm
+    success_url = reverse_lazy('client2:navigation')
+
+    def get_context_data(self, **kwargs):
+        # Update and add dictionaries to context
+        self.extra_context = self.validate_and_get_context()
+
+        context = super(TopUp3, self).get_context_data(**kwargs)
+        context['title'] = 'Top Up'
+        context['titleUrl'] = reverse_lazy('client2:navigation')
+
+        context['menuPurposes'] = {"display": True, "navigation": True, 'data': {
+            "intro": False,
+            "topUp": True,
+            'refi': False,
+            'live': False,
+            'give': False,
+            'care': False,
+            'options': False
+        }
+                                   }
+
+        return context
+
+    def get_object(self, queryset=None):
+        queryset = Loan.objects.queryset_byUID(self.request.session['caseUID'])
+        obj = queryset.get()
+        return obj
 
 # Refinance
 class Refi(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
@@ -611,8 +652,8 @@ class Give(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
 
 
 # Care Views
-class Care(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
-    template_name = "client_2_0/interface/care.html"
+class Care1(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
+    template_name = "client_2_0/interface/care1.html"
     form_class = careAmountForm
     model = Loan
     success_url = reverse_lazy('client2:navigation')
@@ -621,7 +662,7 @@ class Care(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
         # Update and add to context
         self.extra_context = self.validate_and_get_context()
 
-        context = super(Care, self).get_context_data(**kwargs)
+        context = super(Care1, self).get_context_data(**kwargs)
         context['title'] = 'Care'
         context['titleUrl'] = reverse_lazy('client2:navigation')
         context['menuPurposes'] = {"display": True, "navigation": True, 'data': {
@@ -640,6 +681,54 @@ class Care(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
         queryset = Loan.objects.queryset_byUID(self.request.session['caseUID'])
         obj = queryset.get()
         return obj
+
+class Care2(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
+        template_name = "client_2_0/interface/care2.html"
+        form_class = careDrawdownForm
+        model = Loan
+        success_url = reverse_lazy('client2:navigation')
+
+        def get_context_data(self, **kwargs):
+            # Update and add to context
+            self.extra_context = self.validate_and_get_context()
+
+            context = super(Care2, self).get_context_data(**kwargs)
+            context['title'] = 'Care'
+            context['titleUrl'] = reverse_lazy('client2:navigation')
+            context['menuPurposes'] = {"display": True, "navigation": True, 'data': {
+                "intro": False,
+                "topUp": False,
+                'refi': False,
+                'live': False,
+                'give': False,
+                'care': True,
+                'options': False
+            }
+                                       }
+            return context
+
+        def get_object(self, queryset=None):
+            queryset = Loan.objects.queryset_byUID(self.request.session['caseUID'])
+            obj = queryset.get()
+            return obj
+
+        def form_valid(self, form):
+            obj = form.save(commit=False)
+
+            # Calculate Top-up Plan Amount
+            if obj.careFrequency == incomeFrequencyEnum.FORTNIGHTLY.value:
+                obj.carePlanAmount = obj.careRegularAmount * obj.carePeriod * 26
+            else:
+                obj.carePlanAmount = obj.careRegularAmount * obj.carePeriod * 12
+
+            # Calculate Top-up Drawdown Amount - 12 months only
+            if obj.careFrequency == incomeFrequencyEnum.FORTNIGHTLY.value:
+                obj.careDrawdownAmount = obj.careRegularAmount * 26
+            else:
+                obj.careDrawdownAmount = obj.careRegularAmount * 12
+
+            obj.save()
+            return super(Care2, self).form_valid(form)
 
 
 # Options Views
@@ -833,7 +922,7 @@ class Results3(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, Template
         # Build results dictionaries
 
         # Check for no top-up Amount
-        if context["topUpDrawdownAmount"] == 0:
+        if context["topUpDrawdownAmount"] == 0 and context["careDrawdownAmount"] == 0:
             context['topUpProjections'] = False
         else:
             context['topUpProjections'] = True
@@ -1123,6 +1212,7 @@ class PdfPrivacy(TemplateView):
             context.update(clientDict)
             context.update(loanDict)
             context['caseUID'] = caseUID
+            context['loanTypesEnum'] = loanTypesEnum
 
         return context
 
@@ -1146,6 +1236,7 @@ class PdfElectronic(TemplateView):
             context.update(clientDict)
             context.update(loanDict)
             context['caseUID'] = caseUID
+            context['loanTypesEnum'] = loanTypesEnum
 
         return context
 

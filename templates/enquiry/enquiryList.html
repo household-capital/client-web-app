@@ -65,7 +65,25 @@
                                            value='{{ request.GET.search }}'/>
                                 </div>
 
+
+
                                 <div class="col-2 text-center">
+                                {% if request.GET.action == "True" %}
+                                        <a href="?action=False">
+                                        <div class="btn btn-warning" data-toggle="tooltip"
+                                             data-placement="top"
+                                             title="Action list">
+                                            <i class="fas fa-fw fa-running"></i></div>
+
+                                    {% else %}
+                                        <a href="?action=True">
+                                        <div class="btn btn-outline-secondary" data-toggle="tooltip"
+                                             data-placement="top"
+                                             title="Action list">
+                                            <i class="fas fa-fw fa-running"></i></div>
+
+                                    {% endif %}
+
                                     {% if request.GET.myEnquiries == "True" %}
                                         <a href="?myEnquiries=False&search={{ search }}">
                                             <div class="btn btn-warning" data-toggle="tooltip" data-placement="top"
@@ -81,10 +99,9 @@
 
                                         </a>
                                     {% endif %}
+
+
                                 </div>
-
-
-                            </div>
 
                         </form>
 
@@ -100,13 +117,12 @@
                         <th>Name</th>
                         <th class="d-none d-sm-table-cell">Age</th>
                         <th>Postcode</th>
-                        <th>Phone</th>
                         <th>Email</th>
                         <th class="d-none d-sm-table-cell">Last Updated</th>
                         <th class="d-none d-sm-table-cell">&nbsp;</th>
                         <th class="d-none d-sm-table-cell">&nbsp;</th>
                         <th class="d-none d-sm-table-cell">&nbsp;</th>
-
+                        <th class="d-none d-sm-table-cell">&nbsp;</th>
 
                     </tr>
                     </thead>
@@ -140,7 +156,6 @@
                                 &nbsp;{{ obj.age_2|intBlank }}</a>
                             </td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.postcode|intBlank }}</a></td>
-                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.phoneNumber }}</a></td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.email }}</a></td>
                             <td class="d-none d-sm-table-cell"><a
                                     href="{{ obj.get_absolute_url }}">{{ obj.updated|timesince|upto }} ago</a></td>
@@ -152,10 +167,14 @@
                                 <a href="{{ obj.get_absolute_url }}">{% if obj.summaryDocument %}
                                     <i class="far fa-file-pdf"></i></a>{% endif %}</td>
                             <td class="d-none d-sm-table-cell" data-toggle="tooltip" data-placement="top"
-                                title="Follow-up/Ineligible">
-                                {% if obj.followUp %} <i class="fas fa-reply-all"></i>{% endif %}
+                                title="Ineligible">
                                 {% if obj.status == False %}<i class="far fa-times-circle"></i>{% endif %}
                             </td>
+                            <td class="d-none d-sm-table-cell" data-toggle="tooltip" data-placement="top"
+                                title="Calendly">
+                                {% if obj.isCalendly %}<i style='color:darkgoldenrod' class="far fa-fw fa-calendar-check"></i>{% endif %}
+                            </td>
+
 
                         </tr>
                     {% endfor %}

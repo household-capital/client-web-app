@@ -3,6 +3,7 @@ import requests
 import os
 
 # Django Imports
+from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 
@@ -88,3 +89,14 @@ class pdfGenerator():
 
     def getContent(self):
         return self.pdfContents
+
+
+class taskError():
+
+    def raiseAdminError(self,title,body):
+        msg_title="[Django] ERROR (Celery Task): "+ title
+        from_email=settings.DEFAULT_FROM_EMAIL
+        to=settings.ADMINS[0][1]
+        msg = EmailMultiAlternatives(msg_title, body, from_email, [to])
+        msg.send()
+        return

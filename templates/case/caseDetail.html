@@ -48,10 +48,9 @@
 
                 <br>
 
-                {% if obj.sfLeadID %}
+                {% if obj.sfOpportunityID %}
                     <p class="larger" style="color:deepskyblue"><i class="fas fa-cloud fa-lg pb-4"></i>&nbsp;
-                        Salesforce
-                        {% if obj.sfLoanID %}{{ obj.sfLoanID }}{% else %}- Lead Only {% endif %}</p>
+                        Salesforce {{ obj.sfLoanID }}</p>
 
                 {% else %}
 
@@ -108,8 +107,8 @@
                                     </a>
 
 
-                                    <!-- LEAD -->
-                                    {% if obj.caseType == caseTypesEnum.LEAD.value %}
+                                    <!-- DISCOVERY -->
+                                    {% if obj.caseType == caseTypesEnum.DISCOVERY.value %}
 
                                         <div class="dropdown-divider"></div>
 
@@ -118,40 +117,8 @@
                                         </a>
                                         <div class="dropdown-divider"></div>
 
-                                        {% if status.status == 'Ok' %}
-                                            <a class="dropdown-item"
-                                               href="{% url 'case:caseEmailEligibility' uid=obj.caseUID %}">
-                                                &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email
-                                                Eligibility
-                                            </a>
-
-                                            <div class="dropdown-divider"></div>
-
-                                            <a class="dropdown-item" href="">
-                                                &nbsp;<i class="fas fa-chart-line fa-fw"></i>&nbsp;&nbsp;Loan
-                                                Analysis
-                                            </a>
-
-                                        {% endif %}
-
-                                    {% endif %}
-
-
-                                    <!-- OPPORTUNITY -->
-                                    {% if obj.caseType == caseTypesEnum.OPPORTUNITY.value %}
-
-                                        <div class="dropdown-divider"></div>
-
                                         <a class="dropdown-item" href="{% url 'client2:meeting' uid=obj.caseUID %}">
                                             &nbsp;<i class="fas fa-users fa-fw"></i>&nbsp;&nbsp;Meeting
-                                        </a>
-
-                                        <div class="dropdown-divider"></div>
-
-                                        <a class="dropdown-item" href="{% url 'case:caseSalesforce' uid=obj.caseUID %}">
-                                            &nbsp;<i class="far fa-cloud fa-fw"></i>&nbsp;&nbsp;Create
-                                            Salesforce
-                                            Lead&nbsp;&nbsp;
                                         </a>
 
                                         <div class="dropdown-divider"></div>
@@ -171,6 +138,7 @@
 
                                     {% endif %}
 
+
                                     <!-- MEETING HELD -->
                                     {% if obj.caseType == caseTypesEnum.MEETING_HELD.value %}
 
@@ -181,14 +149,6 @@
                                                 Summary&nbsp;&nbsp;
                                             </a>
                                         {% endif %}
-
-                                        <div class="dropdown-divider"></div>
-
-                                        <a class="dropdown-item" href="{% url 'case:caseSalesforce' uid=obj.caseUID %}">
-                                            &nbsp;<i class="far fa-cloud fa-fw"></i>&nbsp;&nbsp;Create
-                                            Salesforce
-                                            Lead&nbsp;&nbsp;
-                                        </a>
 
                                         <div class="dropdown-divider"></div>
 
@@ -217,6 +177,20 @@
 
                                     <!-- Application -->
                                     {% if obj.caseType == caseTypesEnum.APPLICATION.value %}
+                                        <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item" href="{% url 'case:caseSolicitor' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-gavel"></i>&nbsp;&nbsp;Create
+                                            Solicitor Instruction&nbsp;&nbsp;
+                                        </a>
+
+                                        <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item" href="{% url 'case:caseValuer' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-home"></i>&nbsp;&nbsp;Create
+                                            Valuer Instruction&nbsp;&nbsp;
+                                        </a>
+
 
                                         <div class="dropdown-divider"></div>
 
@@ -358,6 +332,9 @@
                                 {% if obj.valuerInstruction %}
                                     <p><a href="/media/customerReports/{{ obj.valuerInstruction.file|filename }}">Valuer
                                         Instruction </a></p>
+                                {% endif %}
+                                {% if obj.lixiFile %}
+                                    <p><a href="/media/customerReports/{{ obj.lixiFile.file|filename }}">Lixi File </a></p>
                                 {% endif %}
 
 

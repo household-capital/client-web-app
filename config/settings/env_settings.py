@@ -52,6 +52,8 @@ DATABASES = {
     }
 }
 
+CELERY_RESULT_BACKEND_DB = 'postgresql+psycopg2://'+os.getenv("DATABASE_USER")+":"+os.getenv("DATABASE_PASSWORD")+"@localhost/"+os.getenv("DATABASE_NAME")
+
 # SESSION EXPIRY TIME: in seconds
 SESSION_COOKIE_AGE = 172800
 

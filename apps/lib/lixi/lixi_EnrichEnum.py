@@ -82,9 +82,8 @@ class EnrichEnum:
 
     REMOTENESS_FILE = '/apps/lib/lixi/Remoteness/hhc_Remoteness.csv'
 
-    def __init__(self, srcDict, srcFilename):
+    def __init__(self, srcDict):
         self.loanDict = srcDict
-        self.filename = srcFilename
         self.outputLog = ""
 
     def enrich(self):
@@ -213,6 +212,7 @@ class EnrichEnum:
                 if self.loanDict[prefix + str(i + 1) + ".Phone"] != None:
                     self.loanDict[prefix + str(i + 1) + ".Phone"] = str(
                         self.loanDict[prefix + str(i + 1) + ".Phone"]).replace("+61", "0").replace(" ", "")
+
                 if self.loanDict[prefix + str(i + 1) + ".MobilePhone"] != None:
                     self.loanDict[prefix + str(i + 1) + ".MobilePhone"] = str(
                         self.loanDict[prefix + str(i + 1) + ".MobilePhone"]).replace("+61", "0").replace(" ", "")
@@ -233,6 +233,10 @@ class EnrichEnum:
                 if self.loanDict[prefix + str(i + 1) + ".Salutation"] in enumTitles:
                     self.loanDict[prefix + str(i + 1) + ".NameTitle"] = enumTitles[
                         self.loanDict[prefix + str(i + 1) + ".Salutation"]]
+
+                if " " in self.loanDict[prefix + str(i + 1) + ".FirstName"]:
+                    self.loanDict[prefix + str(i + 1) + ".FirstName"], middleName  =self.loanDict[prefix + str(i + 1) + ".FirstName"].split(" ",1)
+                    
 
                 enumMaritalStatus = {"Married": "Married", "Single.": "Single"}
                 if self.loanDict[prefix + str(i + 1) + ".Marital_Status__c"] in enumMaritalStatus:

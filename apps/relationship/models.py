@@ -79,10 +79,15 @@ class Contact(models.Model):
     )
 
     statusTypes = (
-        (2, 'Active'),
-        (4, 'Inactive'),
+        (1, 'Need Contact'),
+        (2, 'Email Sent'),
+        (3, 'Meeting Scheduled'),
+        (8, 'Meeting Held'),
+        (10,'Due Diligence'),
+        (12,'Confirmed'),
         (6, 'Declined'),
-    )
+        (4, 'Inactive')
+         )
 
     contId = models.AutoField(primary_key=True)
     firstName = models.CharField(max_length=40, blank=False, null=False)
@@ -97,6 +102,7 @@ class Contact(models.Model):
     debtInterest = models.BooleanField(default=False)
     equityStatus = models.IntegerField(choices=statusTypes, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
+    requestNotes = models.TextField(blank=True, null=True)
     relationshipNotes = models.TextField(blank=True, null=True)
     relationshipOwners = models.CharField(max_length=40, blank=True, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)

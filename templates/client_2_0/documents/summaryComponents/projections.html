@@ -19,8 +19,7 @@
             <br>
             <p class="print-text">This section helps you understand how much your loan will increase over time and what
                 this means for the equity in your home. In the next section we will show you how changes in interest
-                rates and house
-                prices could affect the equity in your home.</p>
+                rates and house prices could affect the equity in your home.</p>
         </div>
     </div>
 
@@ -150,12 +149,10 @@
         <div class="row">
             <div class="col-lg-11 text-left">
                 <p class="small">The equity in your home might reach $0 when you are {% if resultsNegAge > 100 %} over
-                    100
-                    years old {% else %}{{ resultsNegAge }} years old{% endif %}</p>
+                    100 years old {% else %}{{ resultsNegAge }} years old{% endif %}</p>
 
-
-                <p class="small">This is an estimate, not a guarantee. You may end up with more or less equity in your
-                    home </p>
+                <p class="small"><b>IMPORTANT: These are estimates only. Actual performance could be very different</b> </p>
+                <p class="small"><b>You may end up with more or less equity in your home </b></p>
 
             </div>
 
@@ -175,10 +172,13 @@
             <li class="print-text">Loan interest rate of {{ totalInterestRate }}% pa
             <li class="print-text">Annual increase in home value of {{ housePriceInflation }}% pa</li>
 
-            <li class="print-text">The total Household Transfer (loan amount) is ${{ totalLoanAmount |intcomma }}</li>
-            {% if topUpDrawdownAmount %}
-                <li class="print-text">Projections assume loan drawdowns in accordance with the drawdown plan
-                </li>{% endif %}
+
+            {% if topUpDrawdownAmount or  careDrawdownAmount %}
+                <li class="print-text">The total Loan Amount (drawn in the first 12 months) is ${{ totalLoanAmount |intcomma }}</li>
+                <li class="print-text">The total Plan Amount is ${{ totalPlanAmount |intcomma }}. Projections include drawdown plan amounts</li>
+            {% else %}
+                <li class="print-text">The total Loan Amount is ${{ totalLoanAmount |intcomma }}</li>
+            {% endif %}
         </div>
     </div>
     <div class="row ">

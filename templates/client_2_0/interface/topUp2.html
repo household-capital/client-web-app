@@ -44,7 +44,9 @@
                                     <button type="button" class="btn btn-sm btn-outline-secondary">Lump Sum</button>
                                  </a>
                                     <button type="button" class="btn btn-sm btn-secondary">Drawdown</button>
-
+                                <a href="{% url 'client2:topUp3' %}">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary">Contingency</button>
+                                </a>
 
                             </div>
 
@@ -70,7 +72,8 @@
                         {% crispy form %}
 
                         <br>
-                        <p class="small">* Drawdowns subject to annual approval</p>
+                        <p class="small">* Drawdowns not guaranteed beyond 12 months. Subject to annual approval process.
+</p>
 
                     </div>
 

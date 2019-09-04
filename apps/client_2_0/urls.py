@@ -24,6 +24,7 @@ urlpatterns = [
 
     path('topUp1', views.TopUp1.as_view(), name='topUp1'),
     path('topUp2', views.TopUp2.as_view(), name='topUp2'),
+    path('topUp3', views.TopUp3.as_view(), name='topUp3'),
 
     path('refi', views.Refi.as_view(), name='refi'),
 
@@ -32,7 +33,8 @@ urlpatterns = [
     path('live1', views.Live1.as_view(), name='live1'),
     path('live2', views.Live2.as_view(), name='live2'),
 
-    path('care', views.Care.as_view(), name='care'),
+    path('care1', views.Care1.as_view(), name='care1'),
+    path('care2', views.Care2.as_view(), name='care2'),
 
     path('options1', views.Options1.as_view(), name='options1'),
     path('options2', views.Options2.as_view(), name='options2'),

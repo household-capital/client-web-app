@@ -35,7 +35,7 @@ class EnquiryForm(forms.ModelForm):
                 Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Client Details"),css_class='form-header'),
                 Div(
                     Div(HTML("Client Name"), css_class='form-label'),
-                    Div(Field('name' ))),
+                    Div(Field('name'))),
                 Div(
                     Div(HTML("Client Phone Number"), css_class='form-label'),
                     Div(Field('phoneNumber'))),
@@ -268,7 +268,7 @@ class EnquiryCloseForm(forms.ModelForm):
 
     class Meta:
         model = Enquiry
-        fields = ['lossNotes', 'lossDate',
+        fields = ['closeReason', 'closeDate',
                   'followUpDate', 'followUpNotes',
                   'doNotMarket'
                   ]
@@ -289,13 +289,22 @@ class EnquiryCloseForm(forms.ModelForm):
     helper.layout = Layout(
         Div(
             Div(
-                HTML("<i class='fas fa-user-times'></i>&nbsp;&nbsp;<small>Loss Notes</small>"),
+                HTML("<i class='fas fa-user-times'></i>&nbsp;&nbsp;<small>Close Notes</small>"),
                 Div(
-                    Div(Div(HTML("Loss Date"), css_class='form-label'),
-                        Div(Field('lossDate'))),
-                    Div(Div(HTML("Loss Notes"), css_class='form-label'),
-                        Div(Field('lossNotes'))),
+                    Div(
+                        Div(Div(HTML("Close Reason"), css_class='form-label'),
+                            Div(Field('closeReason'))),
+                    )
+
                 ),
+                Div(Div(HTML("<br>"))),
+                Div(HTML("<i class='far fa-envelope pb-2'></i></i>&nbsp;&nbsp;<small>Marketing</small>"),
+                    Div(
+                        Div(Field('doNotMarket'), css_class="col-lg-2"),
+                        Div(HTML("<p>Do Not Market</p>"), css_class="col-lg-8 pt-1 pl-0 "),
+                        css_class="row "),
+                    css_class='col-lg-12'),
+
                 css_class="col-lg-6"),
 
             Div(
@@ -309,14 +318,7 @@ class EnquiryCloseForm(forms.ModelForm):
                 css_class="col-lg-6"),
 
             css_class='row'),
-        Div(
-            Div(HTML("<i class='far fa-envelope pb-2'></i></i>&nbsp;&nbsp;<small>Marketing</small>"),
-                Div(
-                    Div(Field('doNotMarket'), css_class="col-lg-2"),
-                    Div(HTML("<p>Do Not Market</p>"), css_class="col-lg-5 pt-1 pl-0 "),
-                    css_class="row "),
-                css_class='col-lg-6'),
-                css_class='row'),
+
         Div((Div(Div(Submit('submit', 'Update', css_class='btn btn-warning')), css_class='text-right')
 
         ))

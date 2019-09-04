@@ -11,11 +11,12 @@ urlpatterns = [
     path('<uuid:uid>', views.EnquiryUpdateView.as_view(), name='enquiryDetail'),
     path('enquiryList', views.EnquiryListView.as_view(), name='enquiryList'),
     path('enquirySummaryPdf/<uuid:uid>', views.EnqSummaryPdfView.as_view(), name='enqSummaryPdf'),
+    path('enquiryCreateSummary/<uuid:uid>',views.CreateEnquirySummary.as_view(),name='enqCreateSummary'),
     path('enquirySendDetail/<uuid:uid>', views.SendEnquirySummary.as_view(), name='enqSendDetails'),
     path('enquiryEligibility/<uuid:uid>',views.EnquiryEmailEligibility.as_view(), name='enqEligibility'),
     path('enquiryConvert/<uuid:uid>', views.EnquiryConvert.as_view(), name='enqConvert'),
     path('enquiryOwn/<uuid:uid>', views.EnquiryOwnView.as_view(), name='enquiryOwn'),
-    path('enquiryFollowUp/<uuid:uid>', views.FollowUpEmail.as_view(), name='enqFollowUp'),
+    #path('enquiryFollowUp/<uuid:uid>', views.FollowUpEmail.as_view(), name='enqFollowUp'),
     path('enquiryCloseFollowUp/<uuid:uid>',views.EnquiryCloseFollowUp.as_view(),name='enqMarkFollowUp'),
     path('enquiryDelete/<uuid:uid>', views.EnquiryDeleteView.as_view(), name='enqDelete'),
 
@@ -23,8 +24,6 @@ urlpatterns = [
     path('referrer/<uuid:uid>', views.ReferrerView.as_view(), name='enqReferrerUpdate'),
     path('referrerEmail/<uuid:uid>', views.ReferralEmail.as_view(), name='enqReferrerEmail'),
 
-    path('dataLoad',views.DataLoad.as_view(),name='dataLoad'),
-    path('dataLoadCase',views.DataLoadCase.as_view(),name='dataLoadCase'),
-
+    path('calendlyWebhook', views.CalendlyWebhook.as_view(), name='calendlyWebhook'),
 ]
 

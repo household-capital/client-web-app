@@ -14,6 +14,7 @@ urlpatterns = [
     path('contactDelete/<int:contId>', views.ContactDelete.as_view(), name='contactDelete'),
     path('organisationCreate', views.OrganisationCreateView.as_view(), name='organisationCreate'),
     path('exportCSV', views.ExportCSV.as_view(), name='exportCSV'),
+    path('exportStatusCSV', views.ExportStatusCSV.as_view(), name='exportStatusCSV'),
 
 ]
 

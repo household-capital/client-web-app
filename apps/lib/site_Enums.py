@@ -11,8 +11,8 @@ def accessInTemplate(cls):
 
 @accessInTemplate
 class caseTypesEnum(Enum):
-    LEAD=0
-    OPPORTUNITY= 1
+    DISCOVERY=0
+    PRE_MEETING= 1
     MEETING_HELD= 2
     CLOSED=3
     APPLICATION=4
@@ -91,3 +91,21 @@ class stateTypesEnum(Enum):
 class incomeFrequencyEnum(Enum):
     FORTNIGHTLY = 1
     MONTHLY = 2
+
+@accessInTemplate
+class closeReasonTypes(Enum):
+    AGE_RESTRICTION=1
+    POSTCODE_RESTRICTION = 2
+    MINIMUM_LOAN_AMOUNT=3
+    CREDIT = 4
+    MORTGAGE = 5
+    SHORT_TERM = 6
+    TENANTS = 7
+    UNSUITABLE_PROPERTY = 8
+    UNSUITABLE_PURPOSE = 9
+    ALTERNATIVE_SOLUTION=10
+    COMPETITOR=11
+    OTHER = 12
+
+
+

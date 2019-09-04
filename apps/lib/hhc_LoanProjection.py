@@ -43,7 +43,12 @@ class LoanProjection():
                         'topUpIncomeAmount':0,          # Regular loan drawdown
                         'topUpFrequency':0,
                         'topUpPeriod':0,                # Planned drawdown period (years)
-                        'topUpBuffer':0}
+                        'topUpBuffer':0,
+                        'careRegularAmount':0,
+                        'careFrequency':0,
+                        'carePeriod':0,
+                        'topUpContingencyAmount':0
+                        }
 
     incomeDefaultDict = {'inflationAdj':True,
                          'maxNetLoanAmount':0,       # Maximum loan (used for maximum income calcs)
@@ -60,11 +65,18 @@ class LoanProjection():
         self.isVersion1 = False
         self.initDict = {}
         self.FREQUENCY = 12  # 12 = Monthly modelling, 1 = Annual Modelling
+
         self.payIntAmount = 0
         self.payIntPeriod = 0
+
         self.periodDrawdown=0
         self.drawdownPeriods=0
         self.totalDrawdownAmount=0
+
+        self.carePeriodDrawdown=0
+        self.careDrawdownPeriods=0
+        self.careDrawdownAmount=0
+
         self.establishmentFee= LOAN_LIMITS['establishmentFee']
 
         #Income variables
@@ -113,8 +125,20 @@ class LoanProjection():
 
             self.periodDrawdown= self.initDict['topUpIncomeAmount'] *12 / self.FREQUENCY*freqAdj
             self.drawdownPeriods=self.initDict['topUpPeriod']*self.FREQUENCY
-            #calculated drawdown amount with establishment fee
-            self.totalDrawdownAmount = self.periodDrawdown * self.drawdownPeriods * (1 + self.establishmentFee)
+            #calculated drawdown amount with establishment fee - 12 months
+            self.totalDrawdownAmount = self.periodDrawdown  * self.FREQUENCY * (1 + self.establishmentFee)
+
+        # Regular Drawdown - Care
+        if self.initDict['careRegularAmount'] != 0:
+            if initDict['careFrequency'] == incomeFrequencyEnum.FORTNIGHTLY.value:
+                freqAdj = 2
+            else:
+                freqAdj = 1
+
+            self.carePeriodDrawdown = self.initDict['careRegularAmount'] * 12 / self.FREQUENCY * freqAdj
+            self.careDrawdownPeriods = self.initDict['carePeriod'] * self.FREQUENCY
+            # calculated drawdown amount with establishment fee - 12 months
+            self.careDrawdownAmount = self.carePeriodDrawdown * self.FREQUENCY * (1 + self.establishmentFee)
 
         # Initially Calculated Variables
         if self.initDict['loanType']==loanTypesEnum.SINGLE_BORROWER.value:
@@ -216,8 +240,8 @@ class LoanProjection():
         # Loan Value
         self.calcArray[0]["InterestPayment"] = 0
         self.calcArray[0]["LoanDrawdown"] = 0
-        self.calcArray[0]['BOPLoanValue'] = self.initDict['totalLoanAmount'] - self.totalDrawdownAmount
-        # Back out topup drawdown amounts (but leave the buffer amount)
+        self.calcArray[0]['BOPLoanValue'] = self.initDict['totalLoanAmount'] - self.totalDrawdownAmount - self.careDrawdownAmount
+        # Back out first year drawdown amounts (these are incorporated in future periods)
 
         if self.isVersion1:   # <-- VERSION 1 -->
             self.calcArray[0]["BOPSuperBalance"]=self.initDict['superAmount']+self.initDict['topUpAmount']
@@ -252,10 +276,15 @@ class LoanProjection():
             else:
                 self.calcArray[period]["InterestPayment"] = 0
 
+            # ~ Top-Up Drawdown
             if period < self.drawdownPeriods + 1:
-                self.calcArray[period]["LoanDrawdown"] = self.periodDrawdown  # No indexation, no establishment fee
+                self.calcArray[period]["LoanDrawdown"] = self.periodDrawdown  # No indexation, no establishment fee (below)
             else:
                 self.calcArray[period]["LoanDrawdown"] = 0
+
+            # ~ Care Drawdown
+            if period < self.careDrawdownPeriods + 1:
+                self.calcArray[period]["LoanDrawdown"] += self.carePeriodDrawdown  # No indexation, no establishment fee (below)
 
             self.calcArray[period]['BOPLoanValue'] = self.calcArray[period - 1]['BOPLoanValue'] * (1 + intRate / (100 * self.FREQUENCY)) \
                                                      - self.calcArray[period]["InterestPayment"] \
@@ -370,12 +399,14 @@ class LoanProjection():
         else:
             return {'status': 'Error', 'responseText': 'Object not instantiated'}
 
-    def getFutureEquityArray(self, projectionYears=15, intervals=100):
+    def getFutureEquityArray(self, projectionYears=15, increment=1000):
         # Returns loan / projected equity combinations (for slider)
+        if increment<100:
+            increment=100
 
         if self.isInit:
             dataArray = []
-
+            intervals=int(self.initDict['maxLoanAmount']/ increment)+1
 
             homeValue = (self.initDict['valuation'] * (1 + self.hpiRate / 100) ** projectionYears)
 
@@ -383,7 +414,7 @@ class LoanProjection():
                 if item == intervals:
                     loanAmount = self.initDict['maxLoanAmount']
                 else:
-                    loanAmount = round((item * self.initDict['maxLoanAmount']/ intervals) / 1000, 0) * 1000
+                    loanAmount = round((item * increment), 0)
 
 
                 loanBalance = loanAmount * (1 + self.totalInterestRate / 100) ** projectionYears
@@ -398,7 +429,7 @@ class LoanProjection():
                                    "percentile": int(self.__myround(projectedEquity/homeValue*100))
                                     })
 
-            return {'status': 'Ok', 'data': {"futHomeValue":int(homeValue),"dataArray":dataArray}}
+            return {'status': 'Ok', 'data': {"intervals":intervals, "futHomeValue":int(homeValue),"dataArray":dataArray}}
         else:
             return {'status': 'Error', 'responseText': 'Object not instantiated'}
 
@@ -439,10 +470,7 @@ class LoanProjection():
                     return False
         else:
             return False
-        
 
-
-        
         
 
     # Version 1 Related Methods

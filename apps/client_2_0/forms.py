@@ -206,23 +206,6 @@ class IntroChkBoxForm(forms.ModelForm):
     )
 
 
-class topUpForm(forms.Form):
-    # Form Fields
-    topUpAmount = forms.FloatField(widget=forms.HiddenInput(), initial=0)
-    topUpIncome = forms.FloatField(widget=forms.HiddenInput(), initial=0)
-
-    # Form Layout
-    helper = FormHelper()
-    helper.form_id = 'clientForm'
-    helper.form_method = 'POST'
-    helper.form_class = 'form-horizontal'
-    helper.field_class = 'col-lg-12'
-    helper.form_show_labels = False
-    helper.form_show_errors = True
-    helper.layout = Layout(
-        Div(Field('topUpAmount'),
-            Field('topUpIncome')))
-
 
 class debtRepayForm(forms.ModelForm):
     # Form Fields
@@ -507,6 +490,41 @@ class topUpLumpSumForm(forms.ModelForm):
         except:
             raise forms.ValidationError("Please enter a valid number")
 
+class topUpContingencyForm(forms.ModelForm):
+    class Meta:
+        model = Loan
+        fields = ['topUpContingencyAmount', 'topUpContingencyDescription']
+
+    # Form Fields
+    topUpContingencyAmount = forms.CharField(required=True, localize=True, widget=widgets.TextInput())
+    topUpContingencyDescription = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 1, 'cols': 60}))
+
+    # Form Layout
+    helper = FormHelper()
+    helper.form_id = 'clientForm'
+    helper.form_method = 'POST'
+    helper.form_class = 'form-horizontal'
+    helper.form_show_labels = False
+    helper.form_show_errors = True
+    helper.layout = Layout(
+        Div(
+            Div(Div(HTML("Amount"), css_class='form-label'),
+                Div(PrependedText('topUpContingencyAmount', '$'), css_class="col-lg-4")),
+            Div(Div(HTML("Your objective for contingency funding"), css_class='form-label'),
+                Div(Field('topUpContingencyDescription'), css_class="col-lg-8")),
+
+            Submit('submit', 'Save', css_class='btn btn-warning'),
+        )
+    )
+
+    def clean_topUpContingencyAmount(self):
+        amount = self.cleaned_data['topUpContingencyAmount'].replace("$", "").replace(',', "")
+        try:
+            return int(amount)
+        except:
+            raise forms.ValidationError("Please enter a valid number")
+
+
 
 class topUpDrawdownForm(forms.ModelForm):
     class Meta:
@@ -580,6 +598,84 @@ class topUpDrawdownForm(forms.ModelForm):
             return int(amount)
         except:
             raise forms.ValidationError("Please enter a valid number")
+
+
+class careDrawdownForm(forms.ModelForm):
+    class Meta:
+        model = Loan
+        fields = ['careRegularAmount', 'careFrequency', 'carePeriod', 'careDrawdownDescription']
+
+    # Form Fields
+    careRegularAmount = forms.CharField(required=True, localize=True, widget=widgets.TextInput())
+    carePeriod = forms.ChoiceField(
+        choices=(
+            (1, "1 Year"),
+            (3, "3 Years"),
+            (5, "5 Years"),
+        ),
+        widget=forms.RadioSelect,
+        label="")
+    careFrequency = forms.ChoiceField(
+        choices=(
+            (incomeFrequencyEnum.FORTNIGHTLY.value, "Fortnightly"),
+            (incomeFrequencyEnum.MONTHLY.value, "Monthly"),
+        ),
+        widget=forms.RadioSelect,
+        label="")
+
+
+    # Form Layout
+    helper = FormHelper()
+    helper.form_id = 'clientForm'
+    helper.form_method = 'POST'
+    helper.form_class = 'form-horizontal sub-container'
+    helper.field_class = 'col-lg-12'
+    helper.form_show_labels = False
+    helper.form_show_errors = True
+    helper.layout = Layout(
+        Div(
+            Div(
+                Div(Div(HTML("Periodic Drawdown Amount"), css_class='form-label'),
+                    Div(PrependedText('careRegularAmount', '$'))),
+
+                Div(Div(HTML("Description"), css_class='form-label'),
+                    Div(Field('careDrawdownDescription'))),
+
+                Div(Div(Submit('submit', 'Save', css_class='btn btn-warning'))),
+
+                css_class="col-lg-5"),
+
+            Div(
+                Div(Div(HTML("Drawdown Frequency"), css_class='form-label'),
+                    Div(InlineRadios('careFrequency'))),
+
+                Div(Div(HTML("Drawdown Plan Period (years)*"), css_class='form-label'),
+                    Div(InlineRadios('carePeriod'))),
+
+                css_class="col-lg-5"),
+
+
+
+        css_class='row')
+    )
+
+    def clean_careRegularAmount(self):
+        amount = self.cleaned_data['careRegularAmount'].replace("$", "").replace(',', "")
+        try:
+            return int(amount)
+        except:
+            raise forms.ValidationError("Please enter a valid number")
+
+
+
+
+
+
+
+
+
+
+
 
 
 class DetailedChkBoxForm(forms.ModelForm):

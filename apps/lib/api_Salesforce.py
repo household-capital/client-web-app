@@ -2,13 +2,16 @@
 import logging
 import os
 import io
+import json
+
+from collections import OrderedDict
 
 #Application Imports
 from apps.lib.site_Logging import write_applog
 
 #Third-party Imports
 from pandas import DataFrame
-from simple_salesforce import Salesforce, SalesforceMalformedRequest
+from simple_salesforce import Salesforce, SalesforceMalformedRequest, SalesforceGeneralError
 
 class apiSalesforce():
 
@@ -23,7 +26,7 @@ class apiSalesforce():
                       'Properties':
                           "Select Id, Name, Street_Address__c,Suburb_City__c,State__c,Postcode__c,Country__c, Property_Type__c, Last_Valuation_Date__c, Home_Value_AVM__c, Home_Value_FullVal__c, Valuer__c, Valuer_Name__c, Insurer__c, Policy_Number__c, Minimum_Insurance_Value__c, Insurance_Expiry_Date__c  from Properties__c where Opportunity__c=\'{0}\' and isDeleted=False",
                       'Loan':
-                          "Select Loan_Number__c,Name, Loan_Type__c, Interest_Type__c,Establishment_Fee__c, Interest_Rate__c, Loan_Settlement_Date__c, Protected_Equity_Percent__c, Distribution_Partner_Contact__c, Total_Household_Loan_Amount__c from Opportunity where Id=\'{0}\' and isDeleted=False",
+                          "Select Loan_Number__c,Name, Interest_Type__c,Establishment_Fee__c, Interest_Rate__c, Loan_Settlement_Date__c, Protected_Equity_Percent__c, Distribution_Partner_Contact__c, Total_Household_Loan_Amount__c from Opportunity where Id=\'{0}\' and isDeleted=False",
                       'Purposes':
                           "Select Name, Category__c, Description__c, Intention__c, Amount__c from Purpose__c where Opportunity__c=\'{0}\' and isDeleted=False",
                       'Purpose':
@@ -45,9 +48,9 @@ class apiSalesforce():
                       'User':
                           "Select Id, Username, Firstname, Lastname from User where Id=\'{0}\'",
                       'LeadByEmail':
-                          "Select Id from Lead where Email=\'{0}\'",
+                          "Select Id, PostalCode from Lead where Email=\'{0}\'",
                       'LeadByPhone':
-                          "Select Id from Lead where Phone=\'{0}\' or MobilePhone=\'{0}\'"
+                          "Select Id, PostalCode from Lead where Phone=\'{0}\'"
 
                       }
 
@@ -66,18 +69,10 @@ class apiSalesforce():
                                      security_token=os.getenv("SALESFORCE_TOKEN" + ENV_STR))
             else:
 
-                print(os.getenv("SALESFORCE_USERNAME" + ENV_STR))
-                print(os.getenv("SALESFORCE_PASSWORD" + ENV_STR))
-                print(os.getenv("SALESFORCE_TOKEN" + ENV_STR))
-
                 self.sf = Salesforce(username=os.getenv("SALESFORCE_USERNAME" + ENV_STR),
                                      password=os.getenv("SALESFORCE_PASSWORD" + ENV_STR),
                                      security_token=os.getenv("SALESFORCE_TOKEN" + ENV_STR),
                                      domain="test")
-
-
-
-
 
             write_applog("INFO", 'apiSalesforce', 'openAPI', "Salesforce API Opened")
             return {'status':"Ok"}
@@ -144,6 +139,17 @@ class apiSalesforce():
         except:
             return {'status':'Error','responseText':'Unknown' }
 
+    def updateLead(self,leadID,leadDict):
+        try:
+            result=self.sf.Lead.update(leadID,leadDict)
+            return {'status':'Ok','data':result}
+
+        except SalesforceMalformedRequest as err:
+            return {'status':'Error', 'responseText':err.content[0]}
+        except:
+            return {'status':'Error','responseText':'Unknown' }
+
+
     def getLoanExtract(self,OpportunityID):
 
         #returns full extract dictionary for specific opportunityID
@@ -174,6 +180,9 @@ class apiSalesforce():
         borrowerCount=0
         poaCount=0
         for  index, row in results['data'].iterrows():
+            if row['Role'] is None:
+                return {'status': "Error", 'responseText' : "No Role set" }
+
             if "Borrower" in row['Role']:
                 borrowerCount+=1
                 loanDict["Brwr" + str(borrowerCount)+".Role"]=row['Role']
@@ -237,6 +246,23 @@ class apiSalesforce():
     def setResultsPrefix(self, prefix):
         self.resultsPrefix=prefix
 
+
+    def apexCall(self, callUrl, method="GET", data=None):
+
+        apexUrl = self.sf.apex_url
+        fullUrl = apexUrl + callUrl
+        if data:
+            data = json.dumps(data)
+
+        try:
+            response = self.sf._call_salesforce(method=method, url=fullUrl, data=data )
+        except SalesforceGeneralError as err:
+            return {'status':'Error', 'responseText':err.content}
+
+        if response.status_code != 200:
+            return {'status': 'Error', "responseText": json.loads(response.content)}
+        else:
+            return {'status': 'Ok', "responseText": json.loads(response.content)}
 
     def __getContentDocumentID(self,LinkID):
         #returns link ID to Content Version table

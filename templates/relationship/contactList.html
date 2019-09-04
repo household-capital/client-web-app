@@ -62,6 +62,7 @@
                                     <select class="custom-select" id="inputGroupSelect01" name="filter" onchange='this.form.submit();'>
                                         <option {% if request.GET.filter == "" %}selected {% endif %}>Filter...</option>
                                         <option {% if request.GET.filter == "Recent" %}selected {% endif %}value="Recent">Recent</option>
+                                        <option {% if request.GET.filter == "SeriesB" %}selected {% endif %}value="SeriesB">SeriesB</option>
                                         <option {% if request.GET.filter == "2" %}selected {% endif %}value="2">Capital</option>
                                         <option {% if request.GET.filter == "6" %}selected {% endif %}value="6">Investor</option>
                                         <option {% if request.GET.filter == "4" %}selected {% endif %}value="4">Distribution</option>
@@ -94,6 +95,14 @@
                                             <i class="fas fa-file-excel fa-fw"></i>
                                         </div>
                                     </a>
+                                    <a href="{% url 'relationship:exportStatusCSV' %}">
+                                        <div class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
+                                             title="Download Status">
+                                            <i class="fas fa-thermometer-half fa-fw"></i>
+                                        </div>
+                                    </a>
+
+
 
                                 </div>
 
