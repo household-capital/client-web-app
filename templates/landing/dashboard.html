@@ -2,7 +2,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 {% load humanize %}
-{% load case_tags %}
+{% load site_tags %}
 
 
 {% block jumbotron %}
@@ -49,12 +49,12 @@
         <br>
 
         <div class="row justify-content-center">
-            <div class="col-lg-7 ">
+            <div class="col-lg-6">
 
                 <div class="row justify-content-center">
 
                     <div class="col-5 text-center">
-                        <b>Pipeline</b><br>
+                        <b>Current Pipeline</b><br>
 
                         <canvas id="enquiryHealthChart"></canvas>
                     </div>
@@ -64,7 +64,8 @@
 
                             <div class="col-12">
                                 <button type="button" class="btn btn-jumbotron">
-                                    Enquiries&nbsp;&nbsp;&nbsp; <span class="badge badge-success">{{ openEnquiries }}</span>
+                                    Enquiries&nbsp;&nbsp;&nbsp; <span
+                                        class="badge badge-hhcBlue">{{ openEnquiries }}</span>
                                 </button>
                             </div>
                         </div>
@@ -87,7 +88,8 @@
 
                             <div class="col-12 ">
                                 <button type="button" class="btn btn-jumbotron">
-                                    Cases&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="badge badge-success">{{ openCases }}</span>
+                                    Cases&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span
+                                        class="badge badge-hhcBlue">{{ openCases }}</span>
                                 </button>
 
                             </div>
@@ -96,19 +98,17 @@
 
                             <div class="col-7">
 
-                                <p>Lead</p>
-                                <p>Opportunity</p>
-                                <p>Meeting Held</p>
-                                <p>Application</p>
-                                <p>Pre-Approval</p>
+                                <p class="small">&nbsp;&nbsp;- Discovery</p>
+                                <p class="small">&nbsp;&nbsp;- Meeting Held</p>
+                                <p class="small">&nbsp;&nbsp;- Application</p>
+                                <p class="small">&nbsp;&nbsp;- Documentation</p>
                             </div>
-                            <div class="col-2">
+                            <div class="col-2 text-right">
 
-                                <p>{{ openLead }}</p>
-                                <p>{{ openOpportunity }}</p>
-                                <p>{{ openMeetingHeld }}</p>
-                                <p>{{ openApplication }}</p>
-                                <p>{{ openPreApproval }}</p>
+                                <p class="small">{{ openDiscovery }}</p>
+                                <p class="small">{{ openMeetingHeld }}</p>
+                                <p class="small">{{ openApplication }}</p>
+                                <p class="small">{{ openDocumentation }}</p>
                             </div>
 
 
@@ -121,145 +121,179 @@
 
             </div>
 
-        <div class="col-4 d-none d-sm-block">
+            <div class="col-sm-4">
 
-            <div class="row pt-1">
+                <div class="row pt-1">
 
-                <div class="col-8">
-                    <b>Conversion</b><br>
-                    <br>
-                    <p><b>Enquiries</b></p>
-                    <p>Calculator</p>
-                    <p>Email</p>
-                    <p>Phone</p>
-                    <p>Referral</p>
-                    <br>
-                    <p><b>Cases</b></p>
-                    <p>Meetings</p>
-                    <p>Applications</p>
-                    <p>Approvals</p>
+                    <div class="col-7">
+                        <b>Overall Conversion</b><br>
+                        <p>Enquiries</p>
+                        <p>Cases</p>
+                        <p>Meetings</p>
+                        <p>Applications</p>
+                        <p>Funded</p>
+                    </div>
+
+                    <div class="col-4 text-right pb-3">
+                        <b>&nbsp;</b><br>
+                        <p>{{ totalEnquiries }}</p>
+                        <p>{{ totalCases }}</p>
+                        <p>{{ meetings }}</p>
+                        <p>{{ applications }}</p>
+                        <p>{{ funded }}</p>
+                    </div>
+
                 </div>
 
-                <div class="col-2">
-                    <b>&nbsp;</b><br>
-                    <br>
-                    <p><b>{{ totalEnquiries }}</b></p>
-                    <p>{{ webEnquiries }}</p>
-                    <p>{{ emailEnquiries }}</p>
-                    <p>{{ phoneEnquiries }}</p>
-                    <p>{{ referralEnquiries }}</p>
-                    <br>
-                    <p><b>{{ totalCases }}</b></p>
-                    <p>{{ meetings }}</p>
-                    <p>{{ applications }}</p>
-                    <p>{{ approvals }}</p>
+                <div class="row pt-1">
+
+                    <div class="col-7">
+                        <b>Portfolio</b><br>
+                        <p>Current Balance</p>
+                        <p>Funded</p>
+                        <p>W.Ave LVR</p>
+                        <p>Number of Loans</p>
+                    </div>
+
+                    <div class="col-4 text-right">
+                        <b>&nbsp;</b><br>
+                        <p>${{ portfolioBalance|intcomma }}</p>
+                        <p>${{ portfolioFunded|intcomma }}</p>
+                        <p>{{ portfolioLvr }}%</p>
+                        <p>{{ portfolioLoans }}</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <br><br>
-
-    <div class="row justify-content-center">
-        <div class="col-lg-9 text-center">
-            <p><b>Daily Calculator Interactions/Enquiries</b></p>
-
-            <canvas id="interactionChart"></canvas>
-
-        </div>
-    </div>
-
     <br>
+
     <div class="row justify-content-center">
-        <div class="col-lg-4">
-            <div class="row">
-                <div class="col-10">
-                    <b>Calculator Interactions</b>
-                    <br>
-                    <p>Valid Cases</p>
-                    <p>Provided Email</p>
-                    <br>
-                    <b>Purposes</b>
-                    <p>Top-up</p>
-                    <p>Refinance</p>
-                    <p>Live</p>
-                    <p>Give</p>
-                    <p>Care</p>
-                    <br>
-                    <b>Ineligible</b>
-                    <p>Postcode</p>
-                    <p>Youngest Borrower</p>
-                    <p>Youngest Joint Borrower</p>
-                    <p>Minimum Loan Size</p>
-                    <br>
+        <div class="col-lg-9 text-left">
 
-                </div>
-                <div class="col-2">
-                    <b>{{ interactions }}&nbsp;</b>
-                    <p>{{ valid_cases }}&nbsp;</p>
-                    <p>{{ provided_email }}&nbsp;</p>
-                    <br>
-                    <b>&nbsp;</b>
-                    <p>{{ topUp }}&nbsp;</p>
-                    <p>{{ refi }}&nbsp;</p>
-                    <p>{{ live }}&nbsp;</p>
-                    <p>{{ give }}&nbsp;</p>
-                    <p>{{ care }}&nbsp;</p>
-                    <br>
-                    <b>{{ invalid_cases }}&nbsp;</b>
-                    <p>{{ postcode }}&nbsp;</p>
-                    <p>{{ youngest_borrower }}&nbsp;</p>
-                    <p>{{ youngest_joint }}&nbsp;</p>
-                    <p>{{ minimum_loan }}&nbsp;</p>
+            <b>Website Calculator Interactions and Enquiries</b>&nbsp;&nbsp;
+            <div class="chart-container pt-3" style="height:370px;">
 
-                </div>
+                <canvas id="interactionChart"></canvas>
             </div>
-        </div>
 
-        <div class="col-lg-1">
-        </div>
-        <div class="col-lg-4">
-            <div class="row">
-
-                <div class="col-10">
-                    <b>Referrers</b>
-                    <p>Website</p>
-                    <p>Reverse Mortgage</p>
-                    <p>Equity Release</p>
-                    <p>Retirement Planning</p>
-                    <p>Superannuation</p>
-                    <p>Centrelink Pension</p>
-                    <br>
-                    <b>By State</b>
-                    <p>NSW</p>
-                    <p>VIC</p>
-                    <p>QLD</p>
-                    <p>SA</p>
-                    <p>WA</p>
-                    <p>TAS</p>
-                </div>
-                <div class="col-2">
-                    <b>&nbsp;</b>
-                    <p>{{ website }}&nbsp;</p>
-                    <p>{{ superannuation }}&nbsp;</p>
-                    <p>{{ reverse_mortgage }}&nbsp;</p>
-                    <p>{{ equity_release }}&nbsp;</p>
-                    <p>{{ retirement_planning }}&nbsp;</p>
-                    <p>{{ centrelink }}&nbsp;</p>
-                    <br>
-                    <br>
-                    <p>{{ NSW }}&nbsp;</p>
-                    <p>{{ VIC }}&nbsp;</p>
-                    <p>{{ QLD }}&nbsp;</p>
-                    <p>{{ SA }}&nbsp;</p>
-                    <p>{{ WA }}&nbsp;</p>
-                    <p>{{ TAS }}&nbsp;</p>
-
-                </div>
-            </div>
         </div>
     </div>
-    </div>
+
     <br><br>
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="pb-3"><b>Monthly Lead Generation</b></div>
+
+            <table class="table table-hover table-sm text-right">
+                <thead class="jumbotron">
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                    {% for month in dateRange %}
+                        <th scope="col">{{ month }}</th>
+                    {% endfor %}
+
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr>
+                    <td class="text-left"><b>Direct</b></td>
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td>Calculator</td>
+                    {% for month in dateRange %}
+                        <td>{{ directData|getDictItem:month|getDictItem:directTypesEnum.WEB_CALCULATOR.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td>Web Enquiry</td>
+                    {% for month in dateRange %}
+                        <td>{{ directData|getDictItem:month|getDictItem:directTypesEnum.WEB_ENQUIRY.value }}</td>
+                    {% endfor %}
+                </tr>
+
+
+                <tr>
+                    <td></td>
+                    <td>Phone</td>
+                    {% for month in dateRange %}
+                        <td>{{ directData|getDictItem:month|getDictItem:directTypesEnum.PHONE.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td>Email</td>
+                    {% for month in dateRange %}
+                        <td>{{ directData|getDictItem:month|getDictItem:directTypesEnum.EMAIL.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td>Other</td>
+                    {% for month in dateRange %}
+                        <td>{{ directData|getDictItem:month|getDictItem:directTypesEnum.OTHER.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                <tr>
+                    <td class="text-left"><b>Referral</b></td>
+                    <td></td>
+                    {% for month in dateRange %}
+                        <td></td>{% endfor %}
+
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td>IFA</td>
+                    {% for month in dateRange %}
+                        <td>
+                            {{ referralData|getDictItem:month|getDictItem:channelTypesEnum.IND_FINANCIAL_ADVISERS.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td>Brokers</td>
+                    {% for month in dateRange %}
+                        <td>{{ referralData|getDictItem:month|getDictItem:channelTypesEnum.BROKERS.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td>Aged Care</td>
+                    {% for month in dateRange %}
+                        <td>
+                            {{ referralData|getDictItem:month|getDictItem:channelTypesEnum.AGED_CARE_ADVISERS.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                <tr class="jumbotron">
+                    <td class="text-left"><b>Total</b></td>
+                    <td></td>
+                    {% for month in dateRange %}
+                        <td>{{ totalData|getDictItem:month}}</td>
+                    {% endfor %}
+                </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <br><br><br>
 
 
 {% endblock %}
@@ -272,28 +306,33 @@
 
 
     <script>
-        var ctx_interaction = document.getElementById('interactionChart').getContext('2d');
-        var ctx_case = document.getElementById('caseHealthChart').getContext('2d');
-        var ctx_enquiry = document.getElementById('enquiryHealthChart').getContext('2d');
 
+        // Create timeseries using js dates
+        function createTimeSeries(sourceArray) {
+            var timeSeriesArray = [];
+            var arrayLength = sourceArray.length;
+            for (var i = 0; i < arrayLength; i++) {
+                timeSeriesArray.push({t: new Date(sourceArray[i][0]), y: sourceArray[i][1]});
+            }
+            return timeSeriesArray;
+        }
+
+        // Chart data
         var chartInteractionData = {{ chartInteractionData|safe}};
         var chartEmailData = {{ chartEmailData|safe}};
         var caseHealthData ={{ caseHealth }};
         var enquiryHealthData ={{ enquiryHealth }};
 
-        var interactionData = [];
-        var emailData = [];
+        // Timeseries data
+        var interactionData = createTimeSeries(chartInteractionData);
+        var emailData = createTimeSeries(chartEmailData);
 
-        var arrayLength = chartInteractionData.length;
-        for (var i = 0; i < arrayLength; i++) {
-            interactionData.push({t: new Date(chartInteractionData[i][0]), y: chartInteractionData[i][1]});
-        }
+        // Chart references
+        var ctx_interaction = document.getElementById('interactionChart').getContext('2d');
+        var ctx_case = document.getElementById('caseHealthChart').getContext('2d');
+        var ctx_enquiry = document.getElementById('enquiryHealthChart').getContext('2d');
 
-        arrayLength = chartEmailData.length;
-        for (i = 0; i < arrayLength; i++) {
-            emailData.push({t: new Date(chartEmailData[i][0]), y: chartEmailData[i][1]});
-        }
-
+        // Chart definitions
 
         var interactionChart = new Chart(ctx_interaction, {
             type: 'line',
@@ -312,8 +351,10 @@
                     }]
             },
             options: {
+                responsive: true,
+                maintainAspectRatio: false,
                 title: {
-                    display: false
+                    display: false,
                 },
                 scales: {
                     xAxes: [{
@@ -328,7 +369,7 @@
                         display: true,
                         ticks: {
                             beginAtZero: true,
-                            max: 100
+                            max: 200
                         }
                     }]
                 },

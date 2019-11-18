@@ -1,6 +1,6 @@
-#Python Imports
+# Python Imports
 import os
-import datetime
+import json
 
 # Django Imports
 from django.conf import settings
@@ -8,21 +8,29 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMultiAlternatives
 from django.core.files import File
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.db.models import Q
 from django.template.loader import get_template
+from django.utils.decorators import method_decorator
 from django.utils import timezone
 from django.urls import reverse_lazy
-from django.views.generic import UpdateView, ListView, TemplateView, View
+from django.views.generic import CreateView, UpdateView, ListView, TemplateView, View
+from django.views.decorators.csrf import csrf_exempt
+
+# Third-party Imports
+from config.celery import app
+
 
 # Local Application Imports
-from apps.calculator.models import WebCalculator
+from apps.calculator.models import WebCalculator, WebContact
 from apps.case.models import Case
-from apps.lib.loanValidator import LoanValidator
-from apps.lib.enums import caseTypesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum
-from apps.lib.utilities import pdfGenerator
-from apps.logging import write_applog
-from .forms import EnquiryForm, ReferrerForm, EnquiryFollowupForm
+from apps.lib.hhc_LoanValidator import LoanValidator
+from apps.lib.hhc_LoanProjection import LoanProjection
+from apps.lib.site_Enums import caseTypesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum
+from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
+from apps.lib.site_Logging import write_applog
+from apps.lib.api_Pdf import pdfGenerator
+from .forms import EnquiryForm, EnquiryDetailForm, ReferrerForm, EnquiryCloseForm, EnquiryAssignForm
 from .models import Enquiry
 
 
@@ -42,12 +50,14 @@ class LoginRequiredMixin():
         else:
             return HttpResponseRedirect(reverse_lazy('landing:landing'))
 
+
 class ReferrerRequiredMixin():
     # Ensures views will not render unless logged in, redirects to login page
     @classmethod
     def as_view(cls, **kwargs):
         view = super(ReferrerRequiredMixin, cls).as_view(**kwargs)
         return login_required(view)
+
 
 # ENQUIRY
 
@@ -61,23 +71,25 @@ class EnquiryListView(LoginRequiredMixin, ListView):
     def get_queryset(self, **kwargs):
         # overrides queryset to filter search paramater
         queryset = super(EnquiryListView, self).get_queryset()
-        queryset=queryset.filter(actioned=0, followUp__isnull=True).exclude(status=False,user__isnull=False)
+        queryset = queryset.filter(actioned=0, followUp__isnull=True, closeDate__isnull=True)
 
         if self.request.GET.get('search'):
             search = self.request.GET.get('search')
-            queryset = super(EnquiryListView, self).get_queryset().filter(actioned=0)
+            queryset = super(EnquiryListView, self).get_queryset()
             queryset = queryset.filter(
                 Q(name__icontains=search) |
                 Q(email__icontains=search) |
                 Q(phoneNumber__icontains=search) |
                 Q(postcode__icontains=search) |
                 Q(enquiryNotes__icontains=search)
-
-            )
+            ).exclude(actioned=-1)
 
         # ...and for open my items
         if self.request.GET.get('myEnquiries') == "True":
-            queryset = super(EnquiryListView, self).get_queryset().filter(user=self.request.user,actioned=0)
+            queryset = super(EnquiryListView, self).get_queryset().filter(user=self.request.user).exclude(actioned=-1).exclude(closeDate__isnull=False)
+
+        if self.request.GET.get('action')=="True":
+            queryset=super(EnquiryListView, self).get_queryset().filter(user__isnull=True)
 
         queryset = queryset.order_by('-updated')
 
@@ -97,64 +109,127 @@ class EnquiryListView(LoginRequiredMixin, ListView):
         else:
             context['myEnquiries'] = False
 
-        self.request.session['webQueue']=WebCalculator.objects.queueCount()
+        if self.request.GET.get('action'):
+            context['action']=True
+
+        self.request.session['webCalcQueue'] = WebCalculator.objects.queueCount()
+        self.request.session['webContQueue'] = WebContact.objects.queueCount()
         self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
 
         return context
 
 
-# Enquiry Detail View
-class EnquiryView(LoginRequiredMixin, UpdateView):
+# Enquiry Create View
+class EnquiryCreateView(LoginRequiredMixin, CreateView):
     template_name = "enquiry/enquiry.html"
     form_class = EnquiryForm
     model = Enquiry
 
     def get_object(self, queryset=None):
-        if "uid" in self.kwargs:
-            enqUID = str(self.kwargs['uid'])
-            queryset = Enquiry.objects.queryset_byUID(str(enqUID))
-            obj = queryset.get()
-            return obj
+        enqUID = str(self.kwargs['uid'])
+        queryset = Enquiry.objects.queryset_byUID(str(enqUID))
+        obj = queryset.get()
+        return obj
 
     def get_context_data(self, **kwargs):
-        context = super(EnquiryView, self).get_context_data(**kwargs)
-        context['title'] = 'Enquiry'
-
-        if "uid" in self.kwargs:
-            clientDict = Enquiry.objects.dictionary_byUID(str(self.kwargs['uid']))
-            loanObj = LoanValidator({}, clientDict)
-            chkOpp = loanObj.chkClientDetails()
-            context['status'] = chkOpp
-            queryset = Enquiry.objects.queryset_byUID(str(self.kwargs['uid']))
-            obj = queryset.get()
-            context['obj'] = obj
-            context['isUpdate']=True
+        context = super(EnquiryCreateView, self).get_context_data(**kwargs)
+        context['title'] = 'New Enquiry'
+        context['showPrivacy'] = True
         return context
 
     def form_valid(self, form):
-
         clientDict = form.cleaned_data
         obj = form.save(commit=False)
 
-        loanObj = LoanValidator({}, clientDict)
-        chkOpp = loanObj.chkClientDetails()
+        loanObj = LoanValidator(clientDict)
+        chkOpp = loanObj.validateLoan()
 
-        if obj.user==None and self.request.user.profile.isCreditRep == True:
+        if obj.user == None and self.request.user.profile.isCreditRep == True:
             obj.user = self.request.user
 
         if chkOpp['status'] == "Error":
             obj.status = 0
-            obj.errorText = chkOpp['details']
+            obj.errorText = chkOpp['responseText']
             obj.save()
         else:
             obj.status = 1
-            obj.maxLoanAmount = chkOpp['restrictions']['maxLoan']
-            obj.maxLVR = chkOpp['restrictions']['maxLVR']
+            obj.maxLoanAmount = chkOpp['data']['maxLoan']
+            obj.maxLVR = chkOpp['data']['maxLVR']
             obj.save()
+
+        #Background task to update SF
+        app.send_task('Create_SF_Lead', kwargs={'enqUID':str(obj.enqUID)})
 
         messages.success(self.request, "Enquiry Saved")
 
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': str(obj.enqUID)}))
+
+
+# Enquiry Detail View
+class EnquiryUpdateView(LoginRequiredMixin, UpdateView):
+    template_name = "enquiry/enquiry.html"
+    form_class = EnquiryDetailForm
+    model = Enquiry
+
+    def get_object(self, queryset=None):
+        enqUID = str(self.kwargs['uid'])
+        queryset = Enquiry.objects.queryset_byUID(str(enqUID))
+        obj = queryset.get()
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(EnquiryUpdateView, self).get_context_data(**kwargs)
+        context['title'] = 'Enquiry'
+
+        clientDict = Enquiry.objects.dictionary_byUID(str(self.kwargs['uid']))
+        loanObj = LoanValidator(clientDict)
+        chkOpp = loanObj.validateLoan()
+        context['status'] = chkOpp
+        queryset = Enquiry.objects.queryset_byUID(str(self.kwargs['uid']))
+        obj = queryset.get()
+        context['obj'] = obj
+        context['isUpdate'] = True
+
+        return context
+
+    def form_valid(self, form):
+        clientDict = form.cleaned_data
+        obj = form.save(commit=False)
+
+        loanObj = LoanValidator(clientDict)
+        chkOpp = loanObj.validateLoan()
+
+        calcTotal = 0
+        purposeList = ['calcTopUp', 'calcRefi', 'calcLive', 'calcGive', 'calcCare']
+
+        for purpose in purposeList:
+            if form.cleaned_data[purpose]:
+                setattr(obj, purpose, form.cleaned_data[purpose])
+                setattr(obj, purpose.replace('calc', 'is'), True)
+                calcTotal += int(form.cleaned_data[purpose])
+
+        obj.calcTotal = calcTotal
+
+        if obj.user == None and self.request.user.profile.isCreditRep == True:
+            obj.user = self.request.user
+
+        if chkOpp['status'] == "Error":
+            obj.status = 0
+            obj.errorText = chkOpp['responseText']
+            obj.save()
+        else:
+            obj.status = 1
+            obj.maxLoanAmount = chkOpp['data']['maxLoan']
+            obj.maxLVR = chkOpp['data']['maxLVR']
+            obj.save()
+
+        #Background task to update SF
+        app.send_task('Update_SF_Lead', kwargs={'enqUID':str(obj.enqUID)})
+
+        messages.success(self.request, "Enquiry Saved")
+
+        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': str(obj.enqUID)}))
+
 
 # Enquiry Delete View (Delete View)
 class EnquiryDeleteView(LoginRequiredMixin, View):
@@ -175,6 +250,89 @@ class SendEnquirySummary(LoginRequiredMixin, UpdateView):
     template_name = 'enquiry/email/email_cover_enquiry.html'
 
     def get(self, request, *args, **kwargs):
+
+        enqUID = str(kwargs['uid'])
+        queryset = Enquiry.objects.queryset_byUID(enqUID)
+        enq_obj = queryset.get()
+
+        if not enq_obj.user:
+            messages.error(self.request, "No Credit Representative assigned")
+            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
+
+        if not enq_obj.email:
+            messages.error(self.request, "No client email")
+            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
+
+        if self.nullOrZero(enq_obj.calcTotal):
+            messages.error(self.request, "No funding requirements - cannot send summary")
+            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
+
+        enqDict = Enquiry.objects.dictionary_byUID(enqUID)
+
+        # PRODUCE PDF REPORT
+        sourceUrl = 'https://householdcapital.app/enquiry/enquirySummaryPdf/' + enqUID
+        targetFileName = settings.MEDIA_ROOT + "/enquiryReports/Enquiry-" + enqUID[
+                                                                            -12:] + ".pdf"
+
+        pdf = pdfGenerator(enqUID)
+        created, text = pdf.createPdfFromUrl(sourceUrl, 'CalculatorSummary.pdf', targetFileName)
+
+        if not created:
+            messages.error(self.request, "PDF not created - email could not be sent")
+            write_applog("ERROR", 'SendEnquirySummary', 'get',
+                         "PDF not created: " + str(enq_obj.enqUID))
+            return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
+
+        try:
+            # SAVE TO DATABASE (Enquiry Model)
+            localfile = open(targetFileName, 'rb')
+
+            enq_obj.summaryDocument = File(localfile)
+            enq_obj.save(update_fields=['summaryDocument'])
+
+        except:
+            write_applog("ERROR", 'SendEnquirySummary', 'get',
+                         "Failed to save PDF in Database: " + str(enq_obj.enqUID))
+
+        email_context = {}
+        email_context['user'] = enq_obj.user
+        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+        email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
+
+        subject, from_email, to, bcc = "Household Loan Enquiry", \
+                                       enq_obj.user.email, \
+                                       enq_obj.email, \
+                                       enq_obj.user.email
+        print(subject, from_email, to, bcc)
+
+        text_content = "Text Message"
+        attachFilename = 'HHC-Summary'
+
+        sent = pdf.emailPdf(self.template_name, email_context, subject, from_email, to, bcc, text_content,
+                            attachFilename)
+        if sent:
+            messages.success(self.request, "Client has been emailed")
+        else:
+            messages.error(self.request, "Could not send email")
+            write_applog("ERROR", 'SendEnquirySummary', 'get',
+                         "Could not send email" + str(enq_obj.enqUID))
+
+        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
+
+    def nullOrZero(self, arg):
+        if arg:
+            if arg != 0:
+                return False
+        return True
+
+class CreateEnquirySummary(LoginRequiredMixin, UpdateView):
+    # This view does not render it creates an enquiry
+
+    context_object_name = 'object_list'
+    model = WebCalculator
+    template_name = 'enquiry/email/email_cover_enquiry.html'
+
+    def get(self, request, *args, **kwargs):
         enqUID = str(kwargs['uid'])
         queryset = Enquiry.objects.queryset_byUID(enqUID)
         enq_obj = queryset.get()
@@ -190,7 +348,9 @@ class SendEnquirySummary(LoginRequiredMixin, UpdateView):
         created, text = pdf.createPdfFromUrl(sourceUrl, 'CalculatorSummary.pdf', targetFileName)
 
         if not created:
-            messages.error(self.request, "Email could not be sent")
+            messages.error(self.request, "PDF not created")
+            write_applog("ERROR", 'CreateEnquirySummary', 'get',
+                         "PDF not created: " + str(enq_obj.enqUID))
             return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
 
         try:
@@ -199,62 +359,85 @@ class SendEnquirySummary(LoginRequiredMixin, UpdateView):
 
             enq_obj.summaryDocument = File(localfile)
             enq_obj.save(update_fields=['summaryDocument'])
+            messages.success(self.request, "Summary has been created")
 
         except:
-            write_applog("ERROR", 'SendEnquirySummary', 'get',
-                         "Failed to save Enquiry Summary  in Database: " + str(enq_obj.enqUID))
+            write_applog("ERROR", 'CreateEnquirySummary', 'get',
+                         "Failed to save PDF in Database: " + str(enq_obj.enqUID))
 
-        email_context = {}
-        email_context['user'] = request.user
-        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-        email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
-
-        subject, from_email, to, bcc = "Household Loan Enquiry", \
-                                       self.request.user.email, \
-                                       enq_obj.email, \
-                                       self.request.user.email
-        text_content = "Text Message"
-        attachFilename = 'HHC-Summary'
-
-        sent = pdf.emailPdf(self.template_name, email_context, subject, from_email, to, bcc, text_content,
-                            attachFilename)
-
-        if sent:
-            messages.success(self.request, "Client has been emailed")
-        else:
-            messages.error(self.request, "Could not send email")
+            messages.error(self.request, "Could not create summary")
 
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
+
+    def nullOrZero(self, arg):
+        if arg:
+            if arg != 0:
+                return False
+        return True
 
 
 class EnqSummaryPdfView(TemplateView):
     # Produce Summary Report View (called by Api2Pdf)
-    template_name = 'enquiry/document/enquiry_summary.html'
+    template_name = 'calculator/document/calculator_new_summary.html'
 
     def get_context_data(self, **kwargs):
         context = super(EnqSummaryPdfView, self).get_context_data(**kwargs)
 
         enqUID = str(kwargs['uid'])
 
-        obj = Enquiry.objects.dictionary_byUID(enqUID)
+        obj = Enquiry.objects.queryset_byUID(enqUID).get()
+
+        loanObj = LoanValidator(obj.__dict__)
+        loanStatus = loanObj.getStatus()['data']
 
         context["obj"] = obj
-        if obj["maxLVR"] < 18:
-            img = 'transfer_15.png'
-        elif obj["maxLVR"] < 22:
-            img = 'transfer_20.png'
-        elif obj["maxLVR"] < 27:
-            img = 'transfer_25.png'
-        elif obj["maxLVR"] < 32:
-            img = 'transfer_30.png'
-        else:
-            img = 'transfer_35.png'
-        context["transfer_img"] = img
+        context.update(loanStatus)
+
+        context["transfer_img"] = settings.STATIC_URL + "img/icons/transfer_" + str(
+            context['maxLVRPercentile']) + "_icon.png"
 
         context['caseTypesEnum'] = caseTypesEnum
         context['loanTypesEnum'] = loanTypesEnum
         context['dwellingTypesEnum'] = dwellingTypesEnum
         context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+
+        totalLoanAmount = 0
+        if obj.calcTotal == None or obj.calcTotal == 0:
+            totalLoanAmount = obj.maxLoanAmount
+        else:
+            totalLoanAmount = min(obj.maxLoanAmount, obj.calcTotal)
+        context['totalLoanAmount'] = totalLoanAmount
+
+        context['totalInterestRate'] = ECONOMIC['interestRate'] + ECONOMIC['lendingMargin']
+        context['housePriceInflation'] = ECONOMIC['housePriceInflation']
+        context['comparisonRate'] = context['totalInterestRate'] + ECONOMIC['comparisonRateIncrement']
+
+        # Get Loan Projections
+        clientDict = Enquiry.objects.dictionary_byUID(enqUID)
+        clientDict.update(ECONOMIC)
+        clientDict['totalLoanAmount'] = totalLoanAmount
+        clientDict['maxNetLoanAmount'] = obj.maxLoanAmount
+
+        loanProj = LoanProjection()
+        result = loanProj.create(clientDict, frequency=12)
+
+        if obj.payIntAmount:
+            result = loanProj.calcProjections(makeIntPayment=True)
+        else:
+            result = loanProj.calcProjections()
+
+        # Build results dictionaries
+
+        # Check for no top-up Amount
+
+        context['resultsAge'] = loanProj.getResultsList('BOPAge')['data']
+        context['resultsHomeEquity'] = loanProj.getResultsList('BOPHomeEquity')['data']
+        context['resultsHomeEquityPC'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
+        context['resultsHomeImages'] = \
+            loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
+        context['resultsHouseValue'] = loanProj.getResultsList('BOPHouseValue', imageSize=100, imageMethod='lin')[
+            'data']
+
         return context
 
 
@@ -263,6 +446,7 @@ class EnquiryEmailEligibility(LoginRequiredMixin, TemplateView):
     model = Enquiry
 
     def get(self, request, *args, **kwargs):
+
         email_context = {}
         enqUID = str(kwargs['uid'])
 
@@ -270,8 +454,8 @@ class EnquiryEmailEligibility(LoginRequiredMixin, TemplateView):
         obj = queryset.get()
 
         clientDict = queryset.values()[0]
-        loanObj = LoanValidator([], clientDict)
-        email_context['eligibility'] = loanObj.chkClientDetails()
+        loanObj = LoanValidator(clientDict)
+        email_context['eligibility'] = loanObj.validateLoan()
         email_context['obj'] = obj
 
         subject, from_email, to = "Eligibility Summary", settings.DEFAULT_FROM_EMAIL, self.request.user.email
@@ -288,9 +472,9 @@ class EnquiryEmailEligibility(LoginRequiredMixin, TemplateView):
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': obj.enqUID}))
 
 
-class EnquiryMarkFollowUp(LoginRequiredMixin, UpdateView):
+class EnquiryCloseFollowUp(LoginRequiredMixin, UpdateView):
     template_name = 'enquiry/enquiry.html'
-    form_class=EnquiryFollowupForm
+    form_class = EnquiryCloseForm
     model = Enquiry
 
     def get_object(self, queryset=None):
@@ -301,13 +485,13 @@ class EnquiryMarkFollowUp(LoginRequiredMixin, UpdateView):
             return obj
 
     def get_context_data(self, **kwargs):
-        context = super(EnquiryMarkFollowUp, self).get_context_data(**kwargs)
-        context['title'] = 'Enquiry Mark Follow-Up'
+        context = super(EnquiryCloseFollowUp, self).get_context_data(**kwargs)
+        context['title'] = 'Enquiry Close or Mark Follow-Up'
 
         if "uid" in self.kwargs:
             clientDict = Enquiry.objects.dictionary_byUID(str(self.kwargs['uid']))
-            loanObj = LoanValidator({}, clientDict)
-            chkOpp = loanObj.chkClientDetails()
+            loanObj = LoanValidator(clientDict)
+            chkOpp = loanObj.validateLoan()
             context['status'] = chkOpp
             obj = self.get_object()
             context['obj'] = obj
@@ -315,13 +499,16 @@ class EnquiryMarkFollowUp(LoginRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        obj=form.save()
+        obj = form.save()
         obj.followUp = timezone.now()
-        obj.save(update_fields=['followUp'])
+        if form.cleaned_data['closeReason']:
+            obj.closeDate=timezone.now()
+        obj.save(update_fields=['followUp','closeDate'])
 
-        messages.success(self.request, "Enquiry marked as followed-up")
+        app.send_task('Update_SF_Lead', kwargs={'enqUID':str(obj.enqUID)})
+
+        messages.success(self.request, "Enquiry closed or marked as followed-up")
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryList'))
-
 
 
 class EnquiryConvert(LoginRequiredMixin, View):
@@ -333,52 +520,55 @@ class EnquiryConvert(LoginRequiredMixin, View):
 
         enqUID = str(kwargs['uid'])
 
-        #get Enquiry object and dictionary
+        if self.request.user.profile.isCreditRep != True:
+            messages.error(self.request, "You must be a Credit Representative to convert an Enquiry")
+            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
+
+        # get Enquiry object and dictionary
         queryset = Enquiry.objects.queryset_byUID(enqUID)
         enq_obj = queryset.get()
         enqDict = Enquiry.objects.dictionary_byUID(enqUID)
 
         if enqDict['name'] == None:
-            enqDict['name']="Unknown"
+            enqDict['name'] = "Unknown"
 
-        #Create dictionary of Case fields from Enquiry fields
+        # Create dictionary of Case fields from Enquiry fields
         if ' ' in enqDict['name']:
-            firstname, surname = enqDict['name'].split(' ',1)
+            firstname, surname = enqDict['name'].split(' ', 1)
         else:
-            firstname=""
-            surname=enqDict['name']
+            firstname = ""
+            surname = enqDict['name']
 
-        caseDict={}
-        caseDict['caseType']=caseTypesEnum.LEAD.value
-        caseDict['caseDescription']=surname +" - "+ str(enqDict['postcode'])
-        caseDict['enquiryDocument']=enqDict['summaryDocument']
-        caseDict['caseNotes']=enqDict['enquiryNotes']
-        caseDict['firstname_1']=firstname
-        caseDict['surname_1']=surname
-        caseDict['adviser']=enq_obj.enumReferrerType()
-        user=self.request.user
+        caseDict = {}
+        caseDict['caseType'] = caseTypesEnum.DISCOVERY.value
+        caseDict['caseDescription'] = surname + " - " + str(enqDict['postcode'])
+        caseDict['enquiryDocument'] = enqDict['summaryDocument']
+        caseDict['caseNotes'] = enqDict['enquiryNotes']
+        caseDict['firstname_1'] = firstname
+        caseDict['surname_1'] = surname
+        caseDict['adviser'] = enq_obj.enumReferrerType()
+        user = self.request.user
 
-        copyFields=['loanType','age_1','age_2', 'dwellingType', 'valuation', 'postcode', 'email', 'phoneNumber']
+        copyFields = ['loanType', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode', 'email', 'phoneNumber',
+                      'sfLeadID']
         for field in copyFields:
-            caseDict[field]=enqDict[field]
+            caseDict[field] = enqDict[field]
 
-        #Create and save new Case
+        # Create and save new Case
         case_obj = Case.objects.create(user=user, **caseDict)
         case_obj.save()
 
-        #Set enquiry to actioned
-        enq_obj.actioned=1
+        # Set enquiry to actioned
+        enq_obj.actioned = -1
         enq_obj.save()
 
-        #Copy enquiryReport across to customerReport and add to the database
+        # Copy enquiryReport across to customerReport and add to the database
         try:
             if caseDict['enquiryDocument'] != None:
+                old_file = enqDict["summaryDocument"]
+                new_file = enqDict["summaryDocument"].replace('enquiryReports', 'customerReports')
 
-                old_file=enqDict["summaryDocument"]
-                new_file=enqDict["summaryDocument"].replace('enquiryReports', 'customerReports')
-
-                os.rename(old_file,new_file)
-                print(new_file)
+                os.rename(old_file, new_file)
                 case_obj.enquiryDocument.name = new_file
                 case_obj.save()
         except:
@@ -387,6 +577,7 @@ class EnquiryConvert(LoginRequiredMixin, View):
         messages.success(self.request, "Enquiry converted to a new Case")
 
         return HttpResponseRedirect(reverse_lazy("case:caseList"))
+
 
 class EnquiryOwnView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
@@ -402,49 +593,51 @@ class EnquiryOwnView(LoginRequiredMixin, View):
         else:
             messages.error(self.request, "You must be a Credit Representative to take ownership")
 
+        #Background task to update SF
+        app.send_task('Update_SF_Lead', kwargs={'enqUID':enqUID})
+
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
 
 
-# Follow Up Email
-class FollowUpEmail(LoginRequiredMixin, TemplateView):
-    template_name = 'enquiry/email/email_followup.html'
+class EnquiryAssignView(LoginRequiredMixin, UpdateView):
+    template_name = 'enquiry/enquiry.html'
+    email_template_name='enquiry/email/email_assign.html'
+    form_class = EnquiryAssignForm
     model = Enquiry
 
-    def get(self, request, *args, **kwargs):
-        email_context = {}
-        enqID = str(kwargs['uid'])
+    def get_object(self, queryset=None):
+        if "uid" in self.kwargs:
+            enqUID = str(self.kwargs['uid'])
+            queryset = Enquiry.objects.queryset_byUID(str(enqUID))
+            obj = queryset.get()
+            return obj
 
-        enqObj = Enquiry.objects.queryset_byUID(enqID).get()
+    def get_context_data(self, **kwargs):
+        context = super(EnquiryAssignView, self).get_context_data(**kwargs)
+        context['title'] = 'Assign Enquiry'
 
-        email_context['obj'] = enqObj
-        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-        email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
+        return context
 
-        if not enqObj.user:
-            messages.error(self.request, "This enquiry is not assigned to a user. Please take ownership")
-            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
+    def form_valid(self, form):
+        enq_obj = form.save()
 
-        bcc=enqObj.user.email
-        subject, from_email, to = "Household Capital: Follow-up", enqObj.user.email, enqObj.email
+        # Email recipient
+        subject, from_email, to = "Enquiry Assigned to You", "noreply@householdcapital.app", enq_obj.user.email
         text_content = "Text Message"
+        email_context={}
+        email_context['obj'] = enq_obj
 
-        enqObj.followUp = timezone.now()
-        enqObj.save(update_fields=['followUp'])
         try:
-            html = get_template(self.template_name)
+            html = get_template(self.email_template_name)
             html_content = html.render(email_context)
-            msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [bcc])
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
             msg.attach_alternative(html_content, "text/html")
             msg.send()
-            messages.success(self.request, "Follow-up emailed to client")
-
-            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
-
         except:
-            write_applog("ERROR", 'FollowUpEmail', 'get',
-                "Failed to email follow-up:" + enqID)
-            messages.error(self.request, "Follow-up could not be emailed")
-            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
+            pass
+
+        messages.success(self.request, "Enquiry assigned to " + enq_obj.user.username )
+        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
 
 
 # Referrer Views
@@ -465,200 +658,130 @@ class ReferrerView(ReferrerRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(ReferrerView, self).get_context_data(**kwargs)
         context['title'] = 'Referral'
+        context['hideNavbar'] = True
 
         if "uid" in self.kwargs:
             clientDict = Enquiry.objects.dictionary_byUID(str(self.kwargs['uid']))
-            loanObj = LoanValidator({}, clientDict)
-            chkOpp = loanObj.chkClientDetails()
+            loanObj = LoanValidator(clientDict)
+            chkOpp = loanObj.validateLoan()
             context['status'] = chkOpp
             queryset = Enquiry.objects.queryset_byUID(str(self.kwargs['uid']))
             obj = queryset.get()
             context['obj'] = obj
+            context['isUpdate'] = True
         return context
 
     def form_valid(self, form):
 
         clientDict = form.cleaned_data
         obj = form.save(commit=False)
+        obj.valuation = 1000000
+        clientDict['valuation'] = obj.valuation
 
-        loanObj = LoanValidator({}, clientDict)
-        chkOpp = loanObj.chkClientDetails()
+        loanObj = LoanValidator(clientDict)
+        chkOpp = loanObj.validateLoan()
 
-        obj.user = None
-        obj.referrer=directTypesEnum.REFERRAL.value
-        obj.referrerID=self.request.user.profile.referrer.companyName
+        obj.referralUser = self.request.user
+        obj.referrer = directTypesEnum.REFERRAL.value
+        obj.referrerID = self.request.user.profile.referrer.companyName + " - " + \
+                         self.request.user.first_name + \
+                         " " + self.request.user.last_name
 
         if chkOpp['status'] == "Error":
             obj.status = 0
-            obj.errorText = chkOpp['details']
+            obj.errorText = chkOpp['responseText']
             obj.save()
         else:
             obj.status = 1
-            obj.maxLoanAmount = chkOpp['restrictions']['maxLoan']
-            obj.maxLVR = chkOpp['restrictions']['maxLVR']
+            obj.maxLoanAmount = chkOpp['data']['maxLoan']
+            obj.maxLVR = chkOpp['data']['maxLVR']
             obj.save()
 
-        messages.success(self.request, "Enquiry Saved")
+        # Background task to update SF
+        app.send_task('Update_SF_Lead', kwargs={'enqUID': str(obj.enqUID)})
+
+        messages.success(self.request, "Referral Captured or Updated")
 
         return HttpResponseRedirect(reverse_lazy('enquiry:enqReferrerUpdate', kwargs={'uid': str(obj.enqUID)}))
 
 
-
-
-
-
-
-# CALCULATOR
-
-# Calculator Queue
-class CalcListView(LoginRequiredMixin, ListView):
-    paginate_by = 6
-    template_name = 'enquiry/calculator/calcList.html'
-    context_object_name = 'object_list'
-    model = WebCalculator
-
-    def get_queryset(self, **kwargs):
-        queryset = super(CalcListView, self).get_queryset()
-
-        queryset = queryset.filter(email__isnull=False, actioned=0).order_by('-timestamp')
-
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super(CalcListView, self).get_context_data(**kwargs)
-        context['title'] = 'Web Queue'
-
-        self.request.session['webQueue'] = WebCalculator.objects.queueCount()
-        self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
-
-        return context
-
-
-class CalcMarkSpam(LoginRequiredMixin, UpdateView):
-    # This view does not render it updates the calculator and redirects to the ListView
-    context_object_name = 'object_list'
-    model = WebCalculator
+class ReferralEmail(LoginRequiredMixin, TemplateView):
+    template_name = 'enquiry/email/email_referral.html'
+    model = Enquiry
 
     def get(self, request, *args, **kwargs):
-        calcUID = str(kwargs['uid'])
-        queryset = WebCalculator.objects.queryset_byUID(str(calcUID))
-        obj = queryset.get()
-        obj.actioned = -1
-        obj.save(update_fields=['actioned'])
-        return HttpResponseRedirect(reverse_lazy("enquiry:calcList"))
-
-
-class CalcSendDetails(LoginRequiredMixin, UpdateView):
-    # This view does not render it creates and enquiry, sends an email, updates the calculator
-    # and redirects to the Enquiry ListView
-    context_object_name = 'object_list'
-    model = WebCalculator
-    template_name = 'enquiry/email/email_cover_calculator.html'
-
-    def get(self, request, *args, **kwargs):
-        calcUID = str(kwargs['uid'])
-        queryset = WebCalculator.objects.queryset_byUID(str(calcUID))
-        obj = queryset.get()
-
-        calcDict = WebCalculator.objects.dictionary_byUID(str(calcUID))
-
-        # Create enquiry using WebCalculator Data
-        # Remove certain items from the dictionary
-        referrer = calcDict['referrer']
-        calcDict.pop('calcUID')
-        calcDict.pop('actionedBy')
-        calcDict.pop('id')
-        calcDict.pop('referrer')
-        calcDict.pop('updated')
-        calcDict.pop('timestamp')
-        calcDict.pop('actioned')
-        user = self.request.user
-
-        enq_obj = Enquiry.objects.create(user=user,referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer,
-                                         **calcDict)
-        enq_obj.save()
-
-        # PRODUCE PDF REPORT
-        sourceUrl = 'https://householdcapital.app/enquiry/calcSummaryPdf/' + str(enq_obj.enqUID)
-        targetFileName = settings.MEDIA_ROOT + "/enquiryReports/Enquiry-" + str(enq_obj.enqUID)[
-                                                                            -12:] + ".pdf"
-
-        pdf = pdfGenerator(calcUID)
-        created, text = pdf.createPdfFromUrl(sourceUrl, 'CalculatorSummary.pdf', targetFileName)
-
-        if not created:
-            messages.error(self.request, "Enquiry created - but email not sent")
-
-            obj.actioned = 1  # Actioned=1, Spam=-1
-            obj.save(update_fields=['actioned'])
-
-            return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
-
-        try:
-            # SAVE TO DATABASE (Enquiry Model)
-            localfile = open(targetFileName, 'rb')
-
-            qsCase = Enquiry.objects.queryset_byUID(str(enq_obj.enqUID))
-            qsCase.update(summaryDocument=File(localfile), )
-
-            pdf_contents = localfile.read()
-        except:
-            write_applog("ERROR", 'CalcSendDetails', 'get',
-                         "Failed to save Calc Summary in Database: " + str(enq_obj.enqUID))
-
         email_context = {}
-        email_context['user'] = request.user
+        enqID = str(kwargs['uid'])
+
+        enqObj = Enquiry.objects.queryset_byUID(enqID).get()
+
+        email_context['obj'] = enqObj
         email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
         email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
 
-        subject, from_email, to, bcc = "Household Loan Enquiry", \
-                                       self.request.user.email, \
-                                       obj.email, \
-                                       self.request.user.email
+        if not enqObj.user:
+            messages.error(self.request, "This enquiry is not assigned to a user. Please take ownership")
+            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
+
+        bcc = enqObj.user.email
+        subject, from_email, to = "Household Capital: Introduction", enqObj.user.email, enqObj.email
         text_content = "Text Message"
-        attachFilename = 'HHC-CalculatorSummary'
 
-        sent = pdf.emailPdf(self.template_name, email_context, subject, from_email, to, bcc, text_content,
-                            attachFilename)
+        try:
+            html = get_template(self.template_name)
+            html_content = html.render(email_context)
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [bcc])
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+            messages.success(self.request, "Introduction emailed to client")
 
-        if sent:
-            messages.success(self.request, "Client has been emailed and enquiry created")
-        else:
-            messages.error(self.request, "Enquiry created - but email not sent")
+            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
 
-        obj.actioned = 1  # Actioned=1, Spam=-1
-        obj.save(update_fields=['actioned'])
-
-        return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
+        except:
+            write_applog("ERROR", 'FollowUpEmail', 'get',
+                         "Failed to email introduction:" + enqID)
+            messages.error(self.request, "Introduction could not be emailed")
+            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
 
 
-class CalcSummaryPdfView(TemplateView):
-    # Produce Summary Report View (called by Api2Pdf)
-    template_name = 'enquiry/document/calculator_summary.html'
+# CALENDLY WEBHOOK
 
-    def get_context_data(self, **kwargs):
-        context = super(CalcSummaryPdfView, self).get_context_data(**kwargs)
+@method_decorator(csrf_exempt, name='dispatch')
+class CalendlyWebhook(View):
 
-        enqUID = str(kwargs['uid'])
+    def post(self, request, *args, **kwargs):
+        # Load the event data from JSON
 
-        obj = Enquiry.objects.dictionary_byUID(enqUID)
+        data = json.loads(request.body)
+        #with open('data.json', 'w', encoding='utf-8') as f:
+        #    json.dump(data, f, ensure_ascii=False, indent=4)
 
-        context["obj"] = obj
-        if obj["maxLVR"] < 18:
-            img = 'transfer_15.png'
-        elif obj["maxLVR"] < 22:
-            img = 'transfer_20.png'
-        elif obj["maxLVR"] < 27:
-            img = 'transfer_25.png'
-        elif obj["maxLVR"] < 32:
-            img = 'transfer_30.png'
-        else:
-            img = 'transfer_35.png'
-        context["transfer_img"] = img
+        client_email=data["payload"]["invitee"]["email"]
+        meeting_name=data["payload"]["event_type"]["name"]
+        write_applog("INFO", 'Calendly', 'post',
+                     "Client Email:" +client_email )
 
-        context['caseTypesEnum'] = caseTypesEnum
-        context['loanTypesEnum'] = loanTypesEnum
-        context['dwellingTypesEnum'] = dwellingTypesEnum
-        context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-        return context
+        #Get phone number if available
+        phoneNumber=None
+        try:
+            if 'phone number' in data['payload']['questions_and_answers'][0]['question']:
+                phoneNumber= data['payload']['questions_and_answers'][0]['answer']
+        except:
+            pass
+
+        obj=Enquiry.objects.filter(email=client_email).order_by("-timestamp").first()
+
+        if obj:
+            if obj.enquiryNotes:
+                obj.enquiryNotes+="\r\n"+"[# Calendly - "+meeting_name+" #]"
+            else:
+                obj.enquiryNotes = "[# Calendly - "+meeting_name+" #]"
+            obj.isCalendly=True
+
+            if phoneNumber and not obj.phoneNumber:
+                obj.phoneNumber=phoneNumber
+
+            obj.save(update_fields=['enquiryNotes','isCalendly','phoneNumber'])
+
+        return HttpResponse(status=200)
 

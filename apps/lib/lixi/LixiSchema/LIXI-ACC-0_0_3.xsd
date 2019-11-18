@@ -1,0 +1,2602 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:lx="lixi.org.au/schema/appinfo_elements" xmlns:li="lixi.org.au/schema/appinfo_instructions" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
+  <xs:annotation>
+    <xs:documentation>IMPORTANT: Copyright in this schema is owned by LIXI Limited and use of the schema is controlled by the LIXI End User Licence Agreement (EULA) which can be downloaded from http://www.lixi.org.au. The EULA does not permit you to extend the schema through the addition of new elements or attributes, or modify the content model or any data values in a manner that would be inconsistent with the Standard. However you are permitted to restrict the schema such that it specifies the structures for capturing only the information you wish to receive. This statement in no way limits or modifies the terms of the EULA, and you should ensure that you are familiar with your rights and obligations under the EULA before using the schema.</xs:documentation>
+    <xs:documentation>This schema (LIXI-ACC-0_0_3-draft-2019_07_31-06_00.xsd) is a sub-schema derived from the LIXI Master Schema (LIXI-Master-2_2_21-draft-2019_07_31-06_00.xsd) that has had annotations deleted.</xs:documentation>
+    <xs:appinfo>
+      <lx:schemadetail type="Transaction" version="0.0.3" annotation="Minimal" lifecyclestage="Development" timestamp="2019_07_31-06_00" transaction="ACC" masterschemasource="LIXI-Master-2_2_21-draft-2019_07_31-06_00.xsd"/>
+      </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="Package">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Content" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Application" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Address" type="addressType" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="BusinessChannel" minOccurs="0" maxOccurs="1">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="CreditAssessor" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="Contact" minOccurs="0" maxOccurs="1">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element name="EmailAddress" minOccurs="0" maxOccurs="unbounded">
+                                        <xs:complexType>
+                                          <xs:attribute name="Email" type="emailPattern" use="optional"/>
+                                        </xs:complexType>
+                                      </xs:element>
+                                      <xs:element name="Mobile" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                                      <xs:element name="OfficePhone" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                                    </xs:sequence>
+                                  </xs:complexType>
+                                </xs:element>
+                                <xs:element name="PersonName" type="personNameType" minOccurs="0" maxOccurs="1"/>
+                              </xs:sequence>
+                              <xs:attribute name="PositionTitle" type="stringType" use="optional"/>
+                              <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="CreditManager" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="Contact" minOccurs="0" maxOccurs="1">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element name="EmailAddress" minOccurs="0" maxOccurs="unbounded">
+                                        <xs:complexType>
+                                          <xs:attribute name="Email" type="emailPattern" use="optional"/>
+                                        </xs:complexType>
+                                      </xs:element>
+                                      <xs:element name="Mobile" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                                      <xs:element name="OfficePhone" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                                    </xs:sequence>
+                                  </xs:complexType>
+                                </xs:element>
+                                <xs:element name="PersonName" type="personNameType" minOccurs="0" maxOccurs="1"/>
+                              </xs:sequence>
+                              <xs:attribute name="PositionTitle" type="stringType" use="optional"/>
+                              <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="RelationshipManager" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="Contact" minOccurs="0" maxOccurs="1">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element name="EmailAddress" minOccurs="0" maxOccurs="unbounded">
+                                        <xs:complexType>
+                                          <xs:attribute name="Email" type="emailPattern" use="optional"/>
+                                        </xs:complexType>
+                                      </xs:element>
+                                      <xs:element name="Mobile" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                                      <xs:element name="OfficePhone" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                                    </xs:sequence>
+                                  </xs:complexType>
+                                </xs:element>
+                                <xs:element name="PersonName" type="personNameType" minOccurs="0" maxOccurs="1"/>
+                              </xs:sequence>
+                              <xs:attribute name="PositionTitle" type="stringType" use="optional"/>
+                              <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="SalesConsultant" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="Contact" minOccurs="0" maxOccurs="1">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element name="EmailAddress" minOccurs="0" maxOccurs="unbounded">
+                                        <xs:complexType>
+                                          <xs:attribute name="Email" type="emailPattern" use="optional"/>
+                                        </xs:complexType>
+                                      </xs:element>
+                                      <xs:element name="Mobile" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                                      <xs:element name="OfficePhone" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                                    </xs:sequence>
+                                  </xs:complexType>
+                                </xs:element>
+                                <xs:element name="PersonName" type="personNameType" minOccurs="0" maxOccurs="1"/>
+                              </xs:sequence>
+                              <xs:attribute name="PositionTitle" type="stringType" use="optional"/>
+                              <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="SettlementSupportManager" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="Contact" minOccurs="0" maxOccurs="1">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element name="EmailAddress" minOccurs="0" maxOccurs="unbounded">
+                                        <xs:complexType>
+                                          <xs:attribute name="Email" type="emailPattern" use="optional"/>
+                                        </xs:complexType>
+                                      </xs:element>
+                                      <xs:element name="Mobile" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                                      <xs:element name="OfficePhone" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                                    </xs:sequence>
+                                  </xs:complexType>
+                                </xs:element>
+                                <xs:element name="PersonName" type="personNameType" minOccurs="0" maxOccurs="1"/>
+                              </xs:sequence>
+                              <xs:attribute name="PositionTitle" type="stringType" use="optional"/>
+                              <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="SettlementSupportOfficer" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="Contact" minOccurs="0" maxOccurs="1">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element name="EmailAddress" minOccurs="0" maxOccurs="unbounded">
+                                        <xs:complexType>
+                                          <xs:attribute name="Email" type="emailPattern" use="optional"/>
+                                        </xs:complexType>
+                                      </xs:element>
+                                      <xs:element name="Mobile" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                                      <xs:element name="OfficePhone" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                                    </xs:sequence>
+                                  </xs:complexType>
+                                </xs:element>
+                                <xs:element name="PersonName" type="personNameType" minOccurs="0" maxOccurs="1"/>
+                              </xs:sequence>
+                              <xs:attribute name="PositionTitle" type="stringType" use="optional"/>
+                              <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="CompanyApplicant" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="AuthorisedSignatory" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:attribute name="PositionTitle" type="stringType" use="optional"/>
+                              <xs:attribute name="x_Signatory" type="referenceType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="Business" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="Industry" type="stringType" use="optional"/>
+                              </xs:complexType>
+                          </xs:element>
+                          <xs:element name="Contact" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="OfficePhone" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                                </xs:sequence>
+                              <xs:attribute name="Email" type="emailPattern" use="optional"/>
+                              <xs:attribute name="x_MailingAddress" type="referenceType" use="optional"/>
+                              </xs:complexType>
+                          </xs:element>
+                          <xs:element name="CreditHistory" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:attribute name="Details" type="stringType" use="optional"/>
+                              <xs:attribute name="EndDate" type="dateType" use="optional"/>
+                              <xs:attribute name="IsCurrent" type="yesNoList" use="optional"/>
+                              <xs:attribute name="Issue" type="creditHistoryIssueList" use="optional"/>
+                              <xs:attribute name="StartDate" type="dateType" use="optional"/>
+                              <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="Director" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:attribute name="x_Director" type="referenceType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          </xs:sequence>
+                        <xs:attribute name="ABN" type="abnPattern" use="optional"/>
+                        <xs:attribute name="ACN" type="acnPattern" use="optional"/>
+                        <xs:attribute name="ApplicantType" type="applicantTypeList" use="optional"/>
+                        <xs:attribute name="BusinessName" type="stringType" use="optional"/>
+                        <xs:attribute name="CompanyName" type="stringType" use="optional"/>
+                        <xs:attribute name="NumberOfCreditHistoryIssues" type="integerType" use="optional"/>
+                        <xs:attribute name="PrimaryApplicant" type="yesNoList" use="optional"/>
+                        <xs:attribute name="TypeOfIncorporation" type="typeOfIncorporationList" use="optional"/>
+                        <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                        <xs:attribute name="x_Solicitor" type="referenceType" use="optional"/>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="DetailedComment" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Comment" type="stringType" minOccurs="0" maxOccurs="1"/>
+                        </xs:sequence>
+                        <xs:attribute name="ContextDescription" type="stringType" use="optional"/>
+                        <xs:attribute name="CreatedDate" type="dateTimeType" use="optional"/>
+                        <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="Household" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:attribute name="NumberOfDependants" type="integerType" use="optional"/>
+                        <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="Insurance" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Premium" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="Amount" type="currencyType" use="optional"/>
+                              <xs:attribute name="Frequency" type="frequencyShortList" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          </xs:sequence>
+                        <xs:attribute name="EffectiveDate" type="dateType" use="optional"/>
+                        <xs:attribute name="ExpiryDate" type="dateType" use="optional"/>
+                        <xs:attribute name="InsuranceType" type="insuranceTypeList" use="optional"/>
+                        <xs:attribute name="InsuredAmount" type="currencyType" use="optional"/>
+                        <xs:attribute name="Insurer" type="insurerList" use="optional"/>
+                        <xs:attribute name="OtherInsurerName" type="stringType" use="optional"/>
+                        <xs:attribute name="PolicyNumber" type="stringType" use="optional"/>
+                        <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="LendingGuarantee" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Guarantor" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:attribute name="AccessType" type="guarantorAccessList" use="optional"/>
+                              <xs:attribute name="PreferredCorrespondence" type="preferredCorrespondenceList" use="optional"/>
+                              <xs:attribute name="x_Guarantor" type="referenceType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="LoanDetails" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Borrowers" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="Owner" minOccurs="0" maxOccurs="unbounded">
+                                  <xs:complexType>
+                                    <xs:attribute name="AccessType" type="accessTypeList" use="optional"/>
+                                    <xs:attribute name="Percent" type="percentType" use="optional"/>
+                                    <xs:attribute name="PreferredCorrespondence" type="preferredCorrespondenceList" use="optional"/>
+                                    <xs:attribute name="x_Party" type="referenceType" use="optional"/>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                              <xs:attribute name="Proportions" type="proportionsList" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="Commission" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="Trail" type="percentType" use="optional"/>
+                              </xs:complexType>
+                          </xs:element>
+                          <xs:element name="EquityRelease" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="ProtectedEquity" type="yesNoList" use="optional"/>
+                              <xs:attribute name="ProtectedEquityPercentage" type="percentType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="FeaturesSelected" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="Offset" type="yesNoList" use="optional"/>
+                              <xs:attribute name="OffsetPercentage" type="percentType" use="optional"/>
+                              </xs:complexType>
+                          </xs:element>
+                          <xs:element name="FundsDisbursement" type="fundsDisbursementType" minOccurs="0" maxOccurs="unbounded"/>
+                          <xs:element name="LendingPurpose" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:attribute name="ABSLendingPurpose" type="stringType" use="optional"/>
+                              <xs:attribute name="ABSLendingPurposeCode" type="absLendingPurposeCodeList" use="optional"/>
+                              <xs:attribute name="Description" type="stringType" use="optional"/>
+                              <xs:attribute name="LenderCode" type="stringType" use="optional"/>
+                              <xs:attribute name="PurposeAmount" type="currencyType" use="optional"/>
+                              </xs:complexType>
+                          </xs:element>
+                          <xs:element name="LoanPurpose" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="NCCPStatus" type="nccpStatusList" use="optional"/>
+                              <xs:attribute name="PrimaryPurpose" type="primaryPurposeLoanPurposeList" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="PortfolioFund" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="PortfolioFundID" type="stringType" use="optional"/>
+                              <xs:attribute name="PortfolioFundName" type="stringType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="PreferredCorrespondent" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:attribute name="AccessType" type="accessTypeList" use="optional"/>
+                              <xs:attribute name="PreferredCorrespondence" type="preferredCorrespondenceList" use="optional"/>
+                              <xs:attribute name="x_Correspondent" type="referenceType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="ProposedRepayment" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="FromAccount" type="financialAccountType" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="RegularRepayment" minOccurs="0" maxOccurs="unbounded">
+                                  <xs:complexType>
+                                    <xs:attribute name="Amount" type="currencyType" use="optional"/>
+                                    <xs:attribute name="Frequency" type="frequencyFullList" use="optional"/>
+                                    </xs:complexType>
+                                </xs:element>
+                                </xs:sequence>
+                              <xs:attribute name="Method" type="proposedRepaymentMethodList" use="optional"/>
+                              <xs:attribute name="Regular" type="yesNoList" use="optional"/>
+                              </xs:complexType>
+                          </xs:element>
+                          <xs:element name="RateComposition" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="BaseRate" minOccurs="0" maxOccurs="1">
+                                  <xs:complexType>
+                                    <xs:attribute name="Code" type="stringType" use="optional"/>
+                                    <xs:attribute name="Name" type="stringType" use="optional"/>
+                                    <xs:attribute name="Rate" type="percentType" use="optional"/>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                              <xs:attribute name="IntroductoryMargin" type="percentType" use="optional"/>
+                              <xs:attribute name="OriginatorMargin" type="percentType" use="optional"/>
+                              <xs:attribute name="PaymentTypeMargin" type="percentType" use="optional"/>
+                              <xs:attribute name="PricingConstruct" type="stringType" use="optional"/>
+                              <xs:attribute name="ProductMargin" type="percentType" use="optional"/>
+                              <xs:attribute name="TermPremium" type="percentType" use="optional"/>
+                              <xs:attribute name="TotalInterestRate" type="percentType" use="optional"/>
+                              <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="Term" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="DistinctLoanPeriod" minOccurs="0" maxOccurs="unbounded">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element name="Duration" type="durationType" minOccurs="0" maxOccurs="1"/>
+                                      </xs:sequence>
+                                    <xs:attribute name="PaymentType" type="paymentTypeList" use="optional"/>
+                                    <xs:attribute name="x_RateComposition" type="referenceType" use="optional"/>
+                                  </xs:complexType>
+                                </xs:element>
+                                </xs:sequence>
+                              <xs:attribute name="InterestType" type="interestTypeList" use="optional"/>
+                              <xs:attribute name="InterestTypeDuration" type="integerType" use="optional"/>
+                              <xs:attribute name="InterestTypeUnits" type="loanTermUnitsList" use="optional"/>
+                              <xs:attribute name="PaymentType" type="paymentTypeList" use="optional"/>
+                              <xs:attribute name="PaymentTypeDuration" type="integerType" use="optional"/>
+                              <xs:attribute name="PaymentTypeUnits" type="loanTermUnitsList" use="optional"/>
+                              <xs:attribute name="TotalTermDuration" type="integerType" use="optional"/>
+                              <xs:attribute name="TotalTermType" type="totalTermTypeList" use="optional"/>
+                              <xs:attribute name="TotalTermUnits" type="loanTermUnitsList" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          </xs:sequence>
+                        <xs:attribute name="AmountRequested" type="currencyType" use="optional"/>
+                        <xs:attribute name="EstimatedSettlementDate" type="dateType" use="optional"/>
+                        <xs:attribute name="LoanType" type="loanTypeList" use="optional"/>
+                        <xs:attribute name="OriginatorReferenceID" type="stringType" use="optional"/>
+                        <xs:attribute name="ProductCode" type="stringType" use="optional"/>
+                        <xs:attribute name="ProductName" type="stringType" use="optional"/>
+                        <xs:attribute name="ProposedAnnualInterestRate" type="percentType" use="optional"/>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="Overview" minOccurs="0" maxOccurs="1">
+                      <xs:complexType>
+                        <xs:attribute name="DocType" type="applicationDocTypeList" use="optional"/>
+                        <xs:attribute name="SMSFLoan" type="yesNoList" use="optional"/>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="PersonApplicant" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Contact" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="CurrentAddress" minOccurs="0" maxOccurs="1">
+                                  <xs:complexType>
+                                    <xs:attribute name="x_MailingAddress" type="referenceType" use="optional"/>
+                                    <xs:attribute name="x_ResidentialAddress" type="referenceType" use="optional"/>
+                                  </xs:complexType>
+                                </xs:element>
+                                <xs:element name="EmailAddress" minOccurs="0" maxOccurs="unbounded">
+                                  <xs:complexType>
+                                    <xs:attribute name="Email" type="emailPattern" use="optional"/>
+                                    <xs:attribute name="PrimaryEmail" type="yesNoList" use="optional"/>
+                                    </xs:complexType>
+                                </xs:element>
+                                <xs:element name="HomePhone" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Mobile" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="WorkPhone" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                              </xs:sequence>
+                              <xs:attribute name="PreferredContact" type="preferredContactPersonList" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="CreditHistory" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:attribute name="Details" type="stringType" use="optional"/>
+                              <xs:attribute name="EndDate" type="dateType" use="optional"/>
+                              <xs:attribute name="IsCurrent" type="yesNoList" use="optional"/>
+                              <xs:attribute name="Issue" type="creditHistoryIssueList" use="optional"/>
+                              <xs:attribute name="StartDate" type="dateType" use="optional"/>
+                              <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="Employment" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="NotEmployed" minOccurs="0" maxOccurs="1">
+                                  <xs:complexType>
+                                    </xs:complexType>
+                                </xs:element>
+                                <xs:element name="PAYG" minOccurs="0" maxOccurs="1">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element name="Income" minOccurs="0" maxOccurs="1">
+                                        <xs:complexType>
+                                          <xs:attribute name="GrossSalaryAmount" type="currencyType" use="optional"/>
+                                          <xs:attribute name="GrossSalaryFrequency" type="frequencyShortList" use="optional"/>
+                                          </xs:complexType>
+                                      </xs:element>
+                                    </xs:sequence>
+                                    <xs:attribute name="Basis" type="paygBasisList" use="optional"/>
+                                    <xs:attribute name="x_Employer" type="referenceType" use="optional"/>
+                                  </xs:complexType>
+                                </xs:element>
+                                <xs:element name="SelfEmployed" minOccurs="0" maxOccurs="1">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element name="Duration" type="durationType" minOccurs="0" maxOccurs="1"/>
+                                      </xs:sequence>
+                                    <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                                    </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="PersonName" type="personNameType" minOccurs="0" maxOccurs="1"/>
+                          <xs:element name="PowerOfAttorney" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="x_POAHolder" type="referenceType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="ProofOfIdentity" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="MedicareCard" minOccurs="0" maxOccurs="1">
+                                  <xs:complexType>
+                                    <xs:attribute name="IndividualReferenceNumber" type="integerType" use="optional"/>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                              <xs:attribute name="AustralianStateOfIssue" type="auStateList" use="optional"/>
+                              <xs:attribute name="CountryOfIssue" type="countryCodeList" use="optional"/>
+                              <xs:attribute name="DocumentNumber" type="stringType" use="optional"/>
+                              <xs:attribute name="DocumentType" type="documentTypeList" use="optional"/>
+                              </xs:complexType>
+                          </xs:element>
+                          </xs:sequence>
+                        <xs:attribute name="ApplicantType" type="applicantTypeList" use="optional"/>
+                        <xs:attribute name="Citizenship" type="countryCodeList" use="optional"/>
+                        <xs:attribute name="CreditStatus" type="creditStatusList" use="optional"/>
+                        <xs:attribute name="DateOfBirth" type="dateType" use="optional"/>
+                        <xs:attribute name="FirstHomeBuyer" type="yesNoList" use="optional"/>
+                        <xs:attribute name="Gender" type="genderList" use="optional"/>
+                        <xs:attribute name="MaritalStatus" type="maritalStatusList" use="optional"/>
+                        <xs:attribute name="NumberOfCreditHistoryIssues" type="integerType" use="optional"/>
+                        <xs:attribute name="PrimaryApplicant" type="yesNoList" use="optional"/>
+                        <xs:attribute name="PrincipalForeignResidence" type="countryCodeList" use="optional"/>
+                        <xs:attribute name="ResidencyStatus" type="residencyStatusList" use="optional"/>
+                        <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                        <xs:attribute name="x_Household" type="referenceType" use="optional"/>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="RealEstateAsset" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="EstimatedValue" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="Value" type="currencyType" use="optional"/>
+                              <xs:attribute name="ValuedDate" type="dateType" use="optional"/>
+                              <xs:attribute name="x_Valuer" type="referenceType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="Insurance" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:attribute name="x_Insurance" type="referenceType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="PropertyFeatures" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:attribute name="AllPropertyFeatures" type="stringType" use="optional"/>
+                              <xs:attribute name="FloorArea" type="decimalType" use="optional"/>
+                              <xs:attribute name="PropertyDescription" type="stringType" use="optional"/>
+                              </xs:complexType>
+                          </xs:element>
+                          <xs:element name="PropertyType" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="CategoryTypeName" type="stringType" use="optional"/>
+                              </xs:complexType>
+                          </xs:element>
+                          <xs:element name="Residential" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="Type" type="residentialTypeList" use="optional"/>
+                              </xs:complexType>
+                          </xs:element>
+                          <xs:element name="Title" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:attribute name="TitleSystem" type="titleSystemList" use="optional"/>
+                              </xs:complexType>
+                          </xs:element>
+                          </xs:sequence>
+                        <xs:attribute name="Occupancy" type="occupancyList" use="optional"/>
+                        <xs:attribute name="PopulationSize" type="integerType" use="optional"/>
+                        <xs:attribute name="PrimaryPurpose" type="primaryPurposeRealEstateAssetList" use="optional"/>
+                        <xs:attribute name="PrimaryUsage" type="primaryUsageList" use="optional"/>
+                        <xs:attribute name="PropertyID" type="stringType" use="optional"/>
+                        <xs:attribute name="Remoteness" type="remotenessList" use="optional"/>
+                        <xs:attribute name="Status" type="realEstateAssetStatusList" use="optional"/>
+                        <xs:attribute name="x_Address" type="referenceType" use="optional"/>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="RelatedCompany" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Contact" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="ContactPerson" minOccurs="0" maxOccurs="1">
+                                  <xs:complexType>
+                                    <xs:attribute name="Role" type="stringType" use="optional"/>
+                                    <xs:attribute name="x_ContactPerson" type="referenceType" use="optional"/>
+                                  </xs:complexType>
+                                </xs:element>
+                                <xs:element name="OfficeFax" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="OfficeMobile" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="OfficePhone" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                              </xs:sequence>
+                              <xs:attribute name="Email" type="emailPattern" use="optional"/>
+                              <xs:attribute name="WebAddress" type="urlPattern" use="optional"/>
+                              <xs:attribute name="x_Address" type="referenceType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          </xs:sequence>
+                        <xs:attribute name="CompanyName" type="stringType" use="optional"/>
+                        <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="RelatedPerson" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Contact" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="HomePhone" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="Mobile" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="WorkPhone" type="phoneType" minOccurs="0" maxOccurs="1"/>
+                              </xs:sequence>
+                              <xs:attribute name="Email" type="emailPattern" use="optional"/>
+                              <xs:attribute name="x_Address" type="referenceType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="PersonName" type="personNameType" minOccurs="0" maxOccurs="1"/>
+                          </xs:sequence>
+                        <xs:attribute name="DateOfBirth" type="dateType" use="optional"/>
+                        <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="SalesChannel" minOccurs="0" maxOccurs="1">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Aggregator" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="CompanyName" type="stringType" use="optional"/>
+                              <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="Company" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="CompanyName" type="stringType" use="optional"/>
+                              <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="Introducer" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="CompanyName" type="stringType" use="optional"/>
+                              <xs:attribute name="ContactName" type="stringType" use="optional"/>
+                              <xs:attribute name="IntroducerID" type="stringType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="LoanWriter" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="FirstName" type="stringType" use="optional"/>
+                              <xs:attribute name="Surname" type="stringType" use="optional"/>
+                              <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="Summary" minOccurs="0" maxOccurs="1">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Fee" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="Percentage" minOccurs="0" maxOccurs="1">
+                                  <xs:complexType>
+                                    <xs:attribute name="Rate" type="percentType" use="optional"/>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                              <xs:attribute name="Amount" type="currencyType" use="optional"/>
+                              <xs:attribute name="Description" type="stringType" use="optional"/>
+                              <xs:attribute name="GSTAmount" type="currencyType" use="optional"/>
+                              <xs:attribute name="Type" type="feeTypeList" use="optional"/>
+                              </xs:complexType>
+                          </xs:element>
+                          <xs:element name="ServiceabilityResults" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:attribute name="DSR" type="decimalType" use="optional"/>
+                              <xs:attribute name="DTI" type="decimalType" use="optional"/>
+                              <xs:attribute name="NSR" type="decimalType" use="optional"/>
+                              </xs:complexType>
+                          </xs:element>
+                          </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="TrustApplicant" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Trustee" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:attribute name="x_Trustee" type="referenceType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                        <xs:attribute name="TrustName" type="stringType" use="optional"/>
+                        <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                        </xs:complexType>
+                    </xs:element>
+                    </xs:sequence>
+                  <xs:attribute name="ProductionData" type="yesNoList" use="optional"/>
+                  <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                </xs:complexType>
+              </xs:element>
+              </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Instructions" minOccurs="1" maxOccurs="1">
+          <xs:complexType>
+            <xs:choice>
+              <xs:element name="AccountCreationInstructions" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Submit" minOccurs="1" maxOccurs="1">
+                      <xs:complexType>
+                        <xs:attribute name="IsAccountVariation" type="yesNoList" use="optional"/>
+                        <xs:attribute name="IsResubmission" type="yesNoList" use="optional"/>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="Update" minOccurs="0" maxOccurs="1">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="Event" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:attribute name="DateTime" type="dateTimeType" use="optional"/>
+                              <xs:attribute name="Details" type="stringType" use="optional"/>
+                              <xs:attribute name="Name" type="eventNameAccountCreationInstructionsList" use="required"/>
+                              <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="Status" minOccurs="0" maxOccurs="1">
+                            <xs:complexType>
+                              <xs:attribute name="DateTime" type="dateTimeType" use="optional"/>
+                              <xs:attribute name="Details" type="stringType" use="optional"/>
+                              <xs:attribute name="Name" type="statusNameAccountCreationInstructionsList" use="required"/>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="ErrorInstructions" minOccurs="1" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Annotation" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:attribute name="Details" type="stringType" use="optional"/>
+                        <xs:attribute name="Type" type="annotationTypeList" use="optional"/>
+                        <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute name="ErrorSource" type="errorSourceList" use="optional"/>
+                  <xs:attribute name="ErrorSourceVersion" type="stringType" use="optional"/>
+                  <xs:attribute name="Type" type="errorInstructionsTypeList" use="required"/>
+                  <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+                  <xs:attribute name="XPath" type="stringType" use="optional"/>
+                </xs:complexType>
+              </xs:element>
+              </xs:choice>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Publisher" minOccurs="1" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="PhoneNumber" type="phoneType" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="RelatedSoftware" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:attribute name="Description" type="stringType" use="optional"/>
+                  <xs:attribute name="Environment" type="stringType" use="optional"/>
+                  <xs:attribute name="LIXICode" type="stringType" use="optional"/>
+                  <xs:attribute name="Name" type="stringType" use="optional"/>
+                  <xs:attribute name="TechnicalEmail" type="emailPattern" use="optional"/>
+                  <xs:attribute name="Version" type="stringType" use="optional"/>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="Software" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                  <xs:attribute name="Description" type="stringType" use="optional"/>
+                  <xs:attribute name="Environment" type="stringType" use="optional"/>
+                  <xs:attribute name="LIXICode" type="stringType" use="required"/>
+                  <xs:attribute name="Name" type="stringType" use="optional"/>
+                  <xs:attribute name="TechnicalEmail" type="emailPattern" use="optional"/>
+                  <xs:attribute name="Version" type="stringType" use="optional"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="CompanyName" type="stringType" use="optional"/>
+            <xs:attribute name="ContactName" type="stringType" use="optional"/>
+            <xs:attribute name="Email" type="emailPattern" use="optional"/>
+            <xs:attribute name="LIXICode" type="stringType" use="required"/>
+            <xs:attribute name="PublishedDateTime" type="dateTimeType" use="optional"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Recipient" minOccurs="1" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Software" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                  <xs:attribute name="Environment" type="stringType" use="optional"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="Description" type="stringType" use="optional"/>
+            <xs:attribute name="LIXICode" type="stringType" use="required"/>
+            <xs:attribute name="RoutingCode" type="stringType" use="optional"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="SchemaVersion" minOccurs="1" maxOccurs="1">
+          <xs:complexType>
+            <xs:attribute name="LIXICustomVersion" type="stringType" use="optional"/>
+            <xs:attribute name="LIXITransactionType" type="stringType" use="required" fixed="ACC"/>
+            <xs:attribute name="LIXIVersion" type="stringType" use="required" fixed="0.0.3"/>
+          </xs:complexType>
+        </xs:element>
+        </xs:sequence>
+      <xs:attribute name="ProductionData" type="yesNoList" use="optional"/>
+      <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="addressType">
+    <xs:sequence>
+      <xs:element name="DeliveryPoint" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:attribute name="Identifier" type="stringType" use="optional"/>
+          <xs:attribute name="IdentifierBarcode" type="stringType" use="optional"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DXBox" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:attribute name="Exchange" type="stringType" use="optional"/>
+          <xs:attribute name="Number" type="stringType" use="optional"/>
+          <xs:attribute name="Provider" type="stringType" use="optional"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="NonStandard" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:attribute name="Line1" type="stringType" use="optional"/>
+          <xs:attribute name="Line2" type="stringType" use="optional"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="POBox" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:attribute name="Exchange" type="stringType" use="optional"/>
+          <xs:attribute name="Number" type="stringType" use="optional"/>
+          <xs:attribute name="Type" type="poBoxTypeList" use="optional"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Standard" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:attribute name="BuildingName" type="stringType" use="optional"/>
+          <xs:attribute name="Level" type="stringType" use="optional"/>
+          <xs:attribute name="LevelType" type="levelTypeList" use="optional"/>
+          <xs:attribute name="LotSection" type="stringType" use="optional"/>
+          <xs:attribute name="StreetName" type="stringType" use="optional"/>
+          <xs:attribute name="StreetNumber" type="stringType" use="optional"/>
+          <xs:attribute name="StreetSuffix" type="streetSuffixList" use="optional"/>
+          <xs:attribute name="StreetType" type="streetTypeList" use="optional"/>
+          <xs:attribute name="ToStreetNumber" type="stringType" use="optional"/>
+          <xs:attribute name="ToUnitNumber" type="stringType" use="optional"/>
+          <xs:attribute name="Unit" type="stringType" use="optional"/>
+          <xs:attribute name="UnitType" type="unitTypeList" use="optional"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="AustralianPostCode" type="auPostCodePattern" use="optional"/>
+    <xs:attribute name="AustralianState" type="auStateList" use="optional"/>
+    <xs:attribute name="City" type="stringType" use="optional"/>
+    <xs:attribute name="Country" type="countryCodeList" use="optional"/>
+    <xs:attribute name="DataSource" type="dataSourceList" use="optional"/>
+    <xs:attribute name="GNAF_ID" type="stringType" use="optional"/>
+    <xs:attribute name="Latitude" type="decimalType" use="optional"/>
+    <xs:attribute name="LGAName" type="stringType" use="optional"/>
+    <xs:attribute name="Longitude" type="decimalType" use="optional"/>
+    <xs:attribute name="OverseasPostCode" type="stringType" use="optional"/>
+    <xs:attribute name="OverseasState" type="stringType" use="optional"/>
+    <xs:attribute name="Suburb" type="stringType" use="optional"/>
+    <xs:attribute name="TBAAddress" type="yesNoList" use="optional"/>
+    <xs:attribute name="Type" type="addressTypeList" use="optional"/>
+    <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="durationType">
+    <xs:attribute name="Length" type="integerType" use="optional"/>
+    <xs:attribute name="Units" type="durationUnitsList" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="financialAccountType">
+    <xs:sequence>
+      <xs:element name="BranchDomicile" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:attribute name="InternalName" type="stringType" use="optional"/>
+          <xs:attribute name="InternalNumber" type="stringType" use="optional"/>
+        </xs:complexType>
+      </xs:element>
+      </xs:sequence>
+    <xs:attribute name="AccountName" type="stringType" use="optional"/>
+    <xs:attribute name="AccountNumber" type="stringType" use="optional"/>
+    <xs:attribute name="AccountTypeName" type="stringType" use="optional"/>
+    <xs:attribute name="BSB" type="bsbPattern" use="optional"/>
+    <xs:attribute name="FinancialInstitution" type="financialInstitutionList" use="optional"/>
+    <xs:attribute name="OtherFIName" type="stringType" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="fundsDisbursementType">
+    <xs:sequence>
+      <xs:element name="AccountNumber" type="financialAccountType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="BillerDetails" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:attribute name="BillerCode" type="stringType" use="optional"/>
+          <xs:attribute name="BillerName" type="stringType" use="optional"/>
+          <xs:attribute name="CRN" type="stringType" use="optional"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="PersonName" type="personNameType" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+    <xs:attribute name="Amount" type="currencyType" use="optional"/>
+    <xs:attribute name="CompanyName" type="stringType" use="optional"/>
+    <xs:attribute name="Method" type="surplusFundsDisbursementMethodList" use="optional"/>
+    <xs:attribute name="PurposeOfFunds" type="purposeOfFundsList" use="optional"/>
+    <xs:attribute name="PurposeOfFundsDescription" type="stringType" use="optional"/>
+    <xs:attribute name="UniqueID" type="uniqueIDType" use="optional"/>
+    <xs:attribute name="x_Account" type="referenceType" use="optional"/>
+    <xs:attribute name="x_Address" type="referenceType" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="personNameType">
+    <xs:attribute name="FirstName" type="stringType" use="optional"/>
+    <xs:attribute name="KnownAs" type="stringType" use="optional"/>
+    <xs:attribute name="MiddleNames" type="stringType" use="optional"/>
+    <xs:attribute name="NameTitle" type="nameTitleList" use="optional"/>
+    <xs:attribute name="OtherNameTitle" type="stringType" use="optional"/>
+    <xs:attribute name="Surname" type="stringType" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="phoneType">
+    <xs:attribute name="AustralianDialingCode" type="auDialingCodeList" use="optional"/>
+    <xs:attribute name="CountryCode" type="stringType" use="optional"/>
+    <xs:attribute name="Number" type="stringType" use="optional"/>
+    <xs:attribute name="OverseasDialingCode" type="stringType" use="optional"/>
+  </xs:complexType>
+  <xs:simpleType name="absLendingPurposeCodeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="ABS-121"/>
+      <xs:enumeration value="ABS-123"/>
+      <xs:enumeration value="ABS-125"/>
+      <xs:enumeration value="ABS-127"/>
+      <xs:enumeration value="ABS-129"/>
+      <xs:enumeration value="ABS-131"/>
+      <xs:enumeration value="ABS-133"/>
+      <xs:enumeration value="ABS-143"/>
+      <xs:enumeration value="ABS-221"/>
+      <xs:enumeration value="ABS-223"/>
+      <xs:enumeration value="ABS-225"/>
+      <xs:enumeration value="ABS-227"/>
+      <xs:enumeration value="ABS-229"/>
+      <xs:enumeration value="ABS-231"/>
+      <xs:enumeration value="ABS-233"/>
+      <xs:enumeration value="ABS-235"/>
+      <xs:enumeration value="ABS-237"/>
+      <xs:enumeration value="ABS-239"/>
+      <xs:enumeration value="ABS-241"/>
+      <xs:enumeration value="ABS-243"/>
+      <xs:enumeration value="ABS-245"/>
+      <xs:enumeration value="ABS-247"/>
+      <xs:enumeration value="ABS-248"/>
+      <xs:enumeration value="ABS-249"/>
+      <xs:enumeration value="ABS-320"/>
+      <xs:enumeration value="ABS-321"/>
+      <xs:enumeration value="ABS-322"/>
+      <xs:enumeration value="ABS-323"/>
+      <xs:enumeration value="ABS-324"/>
+      <xs:enumeration value="ABS-326"/>
+      <xs:enumeration value="ABS-327"/>
+      <xs:enumeration value="ABS-329"/>
+      <xs:enumeration value="ABS-330"/>
+      <xs:enumeration value="ABS-331"/>
+      <xs:enumeration value="ABS-332"/>
+      <xs:enumeration value="ABS-333"/>
+      <xs:enumeration value="ABS-335"/>
+      <xs:enumeration value="ABS-336"/>
+      <xs:enumeration value="ABS-337"/>
+      <xs:enumeration value="ABS-340"/>
+      <xs:enumeration value="ABS-341"/>
+      <xs:enumeration value="ABS-342"/>
+      <xs:enumeration value="ABS-343"/>
+      <xs:enumeration value="ABS-348"/>
+      <xs:enumeration value="ABS-349"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="accessTypeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Full Access"/>
+      <xs:enumeration value="Information Only Access"/>
+      <xs:enumeration value="No Access"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="addressTypeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="DX Box"/>
+      <xs:enumeration value="Non Standard"/>
+      <xs:enumeration value="PO Box or Bag"/>
+      <xs:enumeration value="Standard"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="annotationTypeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Code"/>
+      <xs:enumeration value="End User Message"/>
+      <xs:enumeration value="Message"/>
+      <xs:enumeration value="Technical"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="applicantTypeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Borrower"/>
+      <xs:enumeration value="Borrower and Guarantor"/>
+      <xs:enumeration value="Guarantor"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="applicationDocTypeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Full Doc"/>
+      <xs:enumeration value="Lo Doc"/>
+      <xs:enumeration value="No Doc"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="auDialingCodeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="02"/>
+      <xs:enumeration value="03"/>
+      <xs:enumeration value="04"/>
+      <xs:enumeration value="05"/>
+      <xs:enumeration value="07"/>
+      <xs:enumeration value="08"/>
+      <xs:enumeration value="13"/>
+      <xs:enumeration value="1300"/>
+      <xs:enumeration value="180"/>
+      <xs:enumeration value="1800"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="auStateList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="ACT"/>
+      <xs:enumeration value="NSW"/>
+      <xs:enumeration value="NT"/>
+      <xs:enumeration value="QLD"/>
+      <xs:enumeration value="SA"/>
+      <xs:enumeration value="TAS"/>
+      <xs:enumeration value="VIC"/>
+      <xs:enumeration value="WA"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="countryCodeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="AD"/>
+      <xs:enumeration value="AE"/>
+      <xs:enumeration value="AF"/>
+      <xs:enumeration value="AG"/>
+      <xs:enumeration value="AI"/>
+      <xs:enumeration value="AL"/>
+      <xs:enumeration value="AM"/>
+      <xs:enumeration value="AO"/>
+      <xs:enumeration value="AQ"/>
+      <xs:enumeration value="AR"/>
+      <xs:enumeration value="AS"/>
+      <xs:enumeration value="AT"/>
+      <xs:enumeration value="AU"/>
+      <xs:enumeration value="AW"/>
+      <xs:enumeration value="AX"/>
+      <xs:enumeration value="AZ"/>
+      <xs:enumeration value="BA"/>
+      <xs:enumeration value="BB"/>
+      <xs:enumeration value="BD"/>
+      <xs:enumeration value="BE"/>
+      <xs:enumeration value="BF"/>
+      <xs:enumeration value="BG"/>
+      <xs:enumeration value="BH"/>
+      <xs:enumeration value="BI"/>
+      <xs:enumeration value="BJ"/>
+      <xs:enumeration value="BL"/>
+      <xs:enumeration value="BM"/>
+      <xs:enumeration value="BN"/>
+      <xs:enumeration value="BO"/>
+      <xs:enumeration value="BQ"/>
+      <xs:enumeration value="BR"/>
+      <xs:enumeration value="BS"/>
+      <xs:enumeration value="BT"/>
+      <xs:enumeration value="BV"/>
+      <xs:enumeration value="BW"/>
+      <xs:enumeration value="BY"/>
+      <xs:enumeration value="BZ"/>
+      <xs:enumeration value="CA"/>
+      <xs:enumeration value="CC"/>
+      <xs:enumeration value="CD"/>
+      <xs:enumeration value="CF"/>
+      <xs:enumeration value="CG"/>
+      <xs:enumeration value="CH"/>
+      <xs:enumeration value="CI"/>
+      <xs:enumeration value="CK"/>
+      <xs:enumeration value="CL"/>
+      <xs:enumeration value="CM"/>
+      <xs:enumeration value="CN"/>
+      <xs:enumeration value="CO"/>
+      <xs:enumeration value="CR"/>
+      <xs:enumeration value="CU"/>
+      <xs:enumeration value="CV"/>
+      <xs:enumeration value="CW"/>
+      <xs:enumeration value="CX"/>
+      <xs:enumeration value="CY"/>
+      <xs:enumeration value="CZ"/>
+      <xs:enumeration value="DE"/>
+      <xs:enumeration value="DJ"/>
+      <xs:enumeration value="DK"/>
+      <xs:enumeration value="DM"/>
+      <xs:enumeration value="DO"/>
+      <xs:enumeration value="DZ"/>
+      <xs:enumeration value="EC"/>
+      <xs:enumeration value="EE"/>
+      <xs:enumeration value="EG"/>
+      <xs:enumeration value="EH"/>
+      <xs:enumeration value="ER"/>
+      <xs:enumeration value="ES"/>
+      <xs:enumeration value="ET"/>
+      <xs:enumeration value="FI"/>
+      <xs:enumeration value="FJ"/>
+      <xs:enumeration value="FK"/>
+      <xs:enumeration value="FM"/>
+      <xs:enumeration value="FO"/>
+      <xs:enumeration value="FR"/>
+      <xs:enumeration value="GA"/>
+      <xs:enumeration value="GB"/>
+      <xs:enumeration value="GD"/>
+      <xs:enumeration value="GE"/>
+      <xs:enumeration value="GF"/>
+      <xs:enumeration value="GG"/>
+      <xs:enumeration value="GH"/>
+      <xs:enumeration value="GI"/>
+      <xs:enumeration value="GL"/>
+      <xs:enumeration value="GM"/>
+      <xs:enumeration value="GN"/>
+      <xs:enumeration value="GP"/>
+      <xs:enumeration value="GQ"/>
+      <xs:enumeration value="GR"/>
+      <xs:enumeration value="GS"/>
+      <xs:enumeration value="GT"/>
+      <xs:enumeration value="GU"/>
+      <xs:enumeration value="GW"/>
+      <xs:enumeration value="GY"/>
+      <xs:enumeration value="HK"/>
+      <xs:enumeration value="HM"/>
+      <xs:enumeration value="HN"/>
+      <xs:enumeration value="HR"/>
+      <xs:enumeration value="HT"/>
+      <xs:enumeration value="HU"/>
+      <xs:enumeration value="ID"/>
+      <xs:enumeration value="IE"/>
+      <xs:enumeration value="IL"/>
+      <xs:enumeration value="IM"/>
+      <xs:enumeration value="IN"/>
+      <xs:enumeration value="IO"/>
+      <xs:enumeration value="IQ"/>
+      <xs:enumeration value="IR"/>
+      <xs:enumeration value="IS"/>
+      <xs:enumeration value="IT"/>
+      <xs:enumeration value="JE"/>
+      <xs:enumeration value="JM"/>
+      <xs:enumeration value="JO"/>
+      <xs:enumeration value="JP"/>
+      <xs:enumeration value="KE"/>
+      <xs:enumeration value="KG"/>
+      <xs:enumeration value="KH"/>
+      <xs:enumeration value="KI"/>
+      <xs:enumeration value="KM"/>
+      <xs:enumeration value="KN"/>
+      <xs:enumeration value="KP"/>
+      <xs:enumeration value="KR"/>
+      <xs:enumeration value="KW"/>
+      <xs:enumeration value="KY"/>
+      <xs:enumeration value="KZ"/>
+      <xs:enumeration value="LA"/>
+      <xs:enumeration value="LB"/>
+      <xs:enumeration value="LC"/>
+      <xs:enumeration value="LI"/>
+      <xs:enumeration value="LK"/>
+      <xs:enumeration value="LR"/>
+      <xs:enumeration value="LS"/>
+      <xs:enumeration value="LT"/>
+      <xs:enumeration value="LU"/>
+      <xs:enumeration value="LV"/>
+      <xs:enumeration value="LY"/>
+      <xs:enumeration value="MA"/>
+      <xs:enumeration value="MC"/>
+      <xs:enumeration value="MD"/>
+      <xs:enumeration value="ME"/>
+      <xs:enumeration value="MF"/>
+      <xs:enumeration value="MG"/>
+      <xs:enumeration value="MH"/>
+      <xs:enumeration value="MK"/>
+      <xs:enumeration value="ML"/>
+      <xs:enumeration value="MM"/>
+      <xs:enumeration value="MN"/>
+      <xs:enumeration value="MO"/>
+      <xs:enumeration value="MP"/>
+      <xs:enumeration value="MQ"/>
+      <xs:enumeration value="MR"/>
+      <xs:enumeration value="MS"/>
+      <xs:enumeration value="MT"/>
+      <xs:enumeration value="MU"/>
+      <xs:enumeration value="MV"/>
+      <xs:enumeration value="MW"/>
+      <xs:enumeration value="MX"/>
+      <xs:enumeration value="MY"/>
+      <xs:enumeration value="MZ"/>
+      <xs:enumeration value="NA"/>
+      <xs:enumeration value="NC"/>
+      <xs:enumeration value="NE"/>
+      <xs:enumeration value="NF"/>
+      <xs:enumeration value="NG"/>
+      <xs:enumeration value="NI"/>
+      <xs:enumeration value="NL"/>
+      <xs:enumeration value="NO"/>
+      <xs:enumeration value="NP"/>
+      <xs:enumeration value="NR"/>
+      <xs:enumeration value="NU"/>
+      <xs:enumeration value="NZ"/>
+      <xs:enumeration value="OM"/>
+      <xs:enumeration value="PA"/>
+      <xs:enumeration value="PE"/>
+      <xs:enumeration value="PF"/>
+      <xs:enumeration value="PG"/>
+      <xs:enumeration value="PH"/>
+      <xs:enumeration value="PK"/>
+      <xs:enumeration value="PL"/>
+      <xs:enumeration value="PM"/>
+      <xs:enumeration value="PN"/>
+      <xs:enumeration value="PR"/>
+      <xs:enumeration value="PS"/>
+      <xs:enumeration value="PT"/>
+      <xs:enumeration value="PW"/>
+      <xs:enumeration value="PY"/>
+      <xs:enumeration value="QA"/>
+      <xs:enumeration value="RE"/>
+      <xs:enumeration value="RO"/>
+      <xs:enumeration value="RS"/>
+      <xs:enumeration value="RU"/>
+      <xs:enumeration value="RW"/>
+      <xs:enumeration value="SA"/>
+      <xs:enumeration value="SB"/>
+      <xs:enumeration value="SC"/>
+      <xs:enumeration value="SD"/>
+      <xs:enumeration value="SE"/>
+      <xs:enumeration value="SG"/>
+      <xs:enumeration value="SH"/>
+      <xs:enumeration value="SI"/>
+      <xs:enumeration value="SJ"/>
+      <xs:enumeration value="SK"/>
+      <xs:enumeration value="SL"/>
+      <xs:enumeration value="SM"/>
+      <xs:enumeration value="SN"/>
+      <xs:enumeration value="SO"/>
+      <xs:enumeration value="SR"/>
+      <xs:enumeration value="SS"/>
+      <xs:enumeration value="ST"/>
+      <xs:enumeration value="SV"/>
+      <xs:enumeration value="SX"/>
+      <xs:enumeration value="SY"/>
+      <xs:enumeration value="SZ"/>
+      <xs:enumeration value="TC"/>
+      <xs:enumeration value="TD"/>
+      <xs:enumeration value="TF"/>
+      <xs:enumeration value="TG"/>
+      <xs:enumeration value="TH"/>
+      <xs:enumeration value="TJ"/>
+      <xs:enumeration value="TK"/>
+      <xs:enumeration value="TL"/>
+      <xs:enumeration value="TM"/>
+      <xs:enumeration value="TN"/>
+      <xs:enumeration value="TO"/>
+      <xs:enumeration value="TR"/>
+      <xs:enumeration value="TT"/>
+      <xs:enumeration value="TV"/>
+      <xs:enumeration value="TW"/>
+      <xs:enumeration value="TZ"/>
+      <xs:enumeration value="UA"/>
+      <xs:enumeration value="UG"/>
+      <xs:enumeration value="UM"/>
+      <xs:enumeration value="US"/>
+      <xs:enumeration value="UY"/>
+      <xs:enumeration value="UZ"/>
+      <xs:enumeration value="VA"/>
+      <xs:enumeration value="VC"/>
+      <xs:enumeration value="VE"/>
+      <xs:enumeration value="VG"/>
+      <xs:enumeration value="VI"/>
+      <xs:enumeration value="VN"/>
+      <xs:enumeration value="VU"/>
+      <xs:enumeration value="WF"/>
+      <xs:enumeration value="WS"/>
+      <xs:enumeration value="YE"/>
+      <xs:enumeration value="YT"/>
+      <xs:enumeration value="ZA"/>
+      <xs:enumeration value="ZM"/>
+      <xs:enumeration value="ZW"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="creditHistoryIssueList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Application for Hardship with Existing Lender"/>
+      <xs:enumeration value="Arrears"/>
+      <xs:enumeration value="Bankruptcy"/>
+      <xs:enumeration value="Default"/>
+      <xs:enumeration value="Financial Stress from Current Commitments"/>
+      <xs:enumeration value="Insolvency"/>
+      <xs:enumeration value="Judgement"/>
+      <xs:enumeration value="Legal Proceeding"/>
+      <xs:enumeration value="Other"/>
+      <xs:enumeration value="Scheme of Arrangement"/>
+      <xs:enumeration value="Writ"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="creditStatusList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Clean"/>
+      <xs:enumeration value="Unknown"/>
+      <xs:enumeration value="Warning"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="dataSourceList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="GNAF"/>
+      <xs:enumeration value="RP Data"/>
+      </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="documentTypeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Australian Birth Certificate"/>
+      <xs:enumeration value="Australian Citizenship Certificate"/>
+      <xs:enumeration value="Australian Drivers Licence"/>
+      <xs:enumeration value="Australian Passport"/>
+      <xs:enumeration value="Australian Photo Firearms Licence"/>
+      <xs:enumeration value="Australian Taxation Office Correspondence (with TFN)"/>
+      <xs:enumeration value="Bank Statement"/>
+      <xs:enumeration value="Centrelink or Social Security Card"/>
+      <xs:enumeration value="Credit Card"/>
+      <xs:enumeration value="Deed Poll"/>
+      <xs:enumeration value="Department of Veterans Affairs Card"/>
+      <xs:enumeration value="Electoral Roll Acknowledgement"/>
+      <xs:enumeration value="Electricity Bill"/>
+      <xs:enumeration value="Gas Bill"/>
+      <xs:enumeration value="Government Benefits Notice"/>
+      <xs:enumeration value="Health Care Card"/>
+      <xs:enumeration value="International Passport"/>
+      <xs:enumeration value="Internet Service Provider Bill"/>
+      <xs:enumeration value="Landline Phone Bill"/>
+      <xs:enumeration value="Marriage Certificate"/>
+      <xs:enumeration value="Medicare Card"/>
+      <xs:enumeration value="Motor Vehicle Registration or Insurance Papers"/>
+      <xs:enumeration value="National Identity Card"/>
+      <xs:enumeration value="Other"/>
+      <xs:enumeration value="Pension Card"/>
+      <xs:enumeration value="Professional or Trade Association Card"/>
+      <xs:enumeration value="Proof of Age Card"/>
+      <xs:enumeration value="Property Insurance Papers"/>
+      <xs:enumeration value="Property Lease or Rental Agreement"/>
+      <xs:enumeration value="Rates Notice"/>
+      <xs:enumeration value="State or Federal Government Employee Photo Identity Card"/>
+      <xs:enumeration value="Tax Assessment"/>
+      <xs:enumeration value="Tertiary Education Institution Photo Identity Card"/>
+      <xs:enumeration value="Verification of Identity Document"/>
+      <xs:enumeration value="Water Utility Bill"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="durationUnitsList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Months"/>
+      <xs:enumeration value="Years"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="errorInstructionsTypeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Data Error"/>
+      <xs:enumeration value="Information"/>
+      <xs:enumeration value="System Error"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="errorSourceList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="DTD"/>
+      <xs:enumeration value="Parser"/>
+      <xs:enumeration value="Proprietary"/>
+      <xs:enumeration value="Schematron"/>
+      <xs:enumeration value="XSD"/>
+      <xs:enumeration value="XSLT"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="eventNameAccountCreationInstructionsList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Cancelled"/>
+      <xs:enumeration value="Discharged"/>
+      <xs:enumeration value="Settled"/>
+      <xs:enumeration value="Withdrawn"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="feeTypeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Acceptance Fee"/>
+      <xs:enumeration value="Additional Security Fee"/>
+      <xs:enumeration value="Annual Fee"/>
+      <xs:enumeration value="Application Fee"/>
+      <xs:enumeration value="Brokerage Fee"/>
+      <xs:enumeration value="Cash Benefit Insurance"/>
+      <xs:enumeration value="Construction Progress Inspection Fee"/>
+      <xs:enumeration value="Consumer Credit Insurance"/>
+      <xs:enumeration value="Documentation Fee"/>
+      <xs:enumeration value="Early Repayment Admin Fee"/>
+      <xs:enumeration value="Establishment Fee"/>
+      <xs:enumeration value="Extended Warranty Insurance"/>
+      <xs:enumeration value="Guarantee Asset Protection Insurance"/>
+      <xs:enumeration value="Land Titles Office Final Search Fee"/>
+      <xs:enumeration value="Land Titles Office Search Fee"/>
+      <xs:enumeration value="Legal Fee"/>
+      <xs:enumeration value="LMI"/>
+      <xs:enumeration value="Loan Fee"/>
+      <xs:enumeration value="Mortgage Registration"/>
+      <xs:enumeration value="Motor Vehicle Insurance"/>
+      <xs:enumeration value="Other"/>
+      <xs:enumeration value="Package Fee"/>
+      <xs:enumeration value="Rate Lock Fee"/>
+      <xs:enumeration value="Re-documentation Fee"/>
+      <xs:enumeration value="Reduced Equity Fee"/>
+      <xs:enumeration value="Risk Fee"/>
+      <xs:enumeration value="Rollover Fee"/>
+      <xs:enumeration value="Security Guarantee Fee"/>
+      <xs:enumeration value="Security Release Fee"/>
+      <xs:enumeration value="Service Plan"/>
+      <xs:enumeration value="Settlement Fee"/>
+      <xs:enumeration value="Stamp Duty on Mortgage"/>
+      <xs:enumeration value="Stamp Duty on Transfer of Property"/>
+      <xs:enumeration value="Substitute Security Fee"/>
+      <xs:enumeration value="Switch Fee"/>
+      <xs:enumeration value="Third Party Document Production Fee"/>
+      <xs:enumeration value="Title Transfer Fee"/>
+      <xs:enumeration value="Tyre and Rim Insurance"/>
+      <xs:enumeration value="Unused Facility Fee"/>
+      <xs:enumeration value="Valuation Fee"/>
+      <xs:enumeration value="Withdrawal of Caveat Fee"/>
+      <xs:enumeration value="Withdrawal of Writ Fee"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="financialInstitutionList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="86 400"/>
+      <xs:enumeration value="AAMI"/>
+      <xs:enumeration value="AAPBS Settlements Services"/>
+      <xs:enumeration value="ABN AMRO"/>
+      <xs:enumeration value="Adelaide Bank"/>
+      <xs:enumeration value="Advantedge"/>
+      <xs:enumeration value="AFG Home Loans"/>
+      <xs:enumeration value="Afterpay"/>
+      <xs:enumeration value="AGC"/>
+      <xs:enumeration value="Allianz"/>
+      <xs:enumeration value="Allstate Home Loans"/>
+      <xs:enumeration value="American Express"/>
+      <xs:enumeration value="AMG"/>
+      <xs:enumeration value="AMIC"/>
+      <xs:enumeration value="AMIST"/>
+      <xs:enumeration value="AMP"/>
+      <xs:enumeration value="AMS"/>
+      <xs:enumeration value="ANZ Bank"/>
+      <xs:enumeration value="ANZ Wealth"/>
+      <xs:enumeration value="Aon Master Trust"/>
+      <xs:enumeration value="API"/>
+      <xs:enumeration value="Arab Bank of Australia"/>
+      <xs:enumeration value="Armidale Building Society"/>
+      <xs:enumeration value="Asahi Bank"/>
+      <xs:enumeration value="Athena Home Loans"/>
+      <xs:enumeration value="Aussie Home Loans"/>
+      <xs:enumeration value="Aussie Mastercard"/>
+      <xs:enumeration value="Aussie Mortgage Ltd"/>
+      <xs:enumeration value="Aust Alliance"/>
+      <xs:enumeration value="Australia Central Credit Union"/>
+      <xs:enumeration value="Australian Catholic"/>
+      <xs:enumeration value="Australian Defence Credit Union"/>
+      <xs:enumeration value="Australian Eagle"/>
+      <xs:enumeration value="Australian Ethical"/>
+      <xs:enumeration value="Australian First Mortgage"/>
+      <xs:enumeration value="Australian Pensioners Insurance"/>
+      <xs:enumeration value="Australian Unity Building Society"/>
+      <xs:enumeration value="AustralianSuper"/>
+      <xs:enumeration value="AustSafe"/>
+      <xs:enumeration value="Auswide Bank"/>
+      <xs:enumeration value="AV Super"/>
+      <xs:enumeration value="AVCO"/>
+      <xs:enumeration value="AXA"/>
+      <xs:enumeration value="Bank Australia"/>
+      <xs:enumeration value="Bank of America"/>
+      <xs:enumeration value="Bank of China"/>
+      <xs:enumeration value="Bank of Melbourne"/>
+      <xs:enumeration value="Bank of Queensland"/>
+      <xs:enumeration value="Bank of Tokyo-Mitsubishi"/>
+      <xs:enumeration value="Bank SA"/>
+      <xs:enumeration value="Bankers Trust Australia"/>
+      <xs:enumeration value="Bankwest"/>
+      <xs:enumeration value="Banque Nationale De Paris"/>
+      <xs:enumeration value="Barclays"/>
+      <xs:enumeration value="Barnes Home Loans"/>
+      <xs:enumeration value="Bass and Equitable Building Society"/>
+      <xs:enumeration value="Bendigo Bank"/>
+      <xs:enumeration value="Better Choice"/>
+      <xs:enumeration value="Better Mortgage Corporation"/>
+      <xs:enumeration value="Better Mortgage Mgmt"/>
+      <xs:enumeration value="Beyond Bank Australia"/>
+      <xs:enumeration value="Bluebay Home Loans"/>
+      <xs:enumeration value="Bluestone"/>
+      <xs:enumeration value="BMW Australia"/>
+      <xs:enumeration value="BOQ"/>
+      <xs:enumeration value="Brighten Home Loans"/>
+      <xs:enumeration value="Broken Hill Community Credit Union"/>
+      <xs:enumeration value="Building Society MP"/>
+      <xs:enumeration value="BUSSQ"/>
+      <xs:enumeration value="Buyers Edge"/>
+      <xs:enumeration value="Capital Finance"/>
+      <xs:enumeration value="Capricornia Credit Union"/>
+      <xs:enumeration value="CareSuper"/>
+      <xs:enumeration value="Cash Doctors"/>
+      <xs:enumeration value="Catholic Church"/>
+      <xs:enumeration value="Catholic Super"/>
+      <xs:enumeration value="CBA"/>
+      <xs:enumeration value="CBFC"/>
+      <xs:enumeration value="CBUS"/>
+      <xs:enumeration value="Certegy"/>
+      <xs:enumeration value="CGU"/>
+      <xs:enumeration value="Challenge Bank"/>
+      <xs:enumeration value="Chase Manhattan Bank"/>
+      <xs:enumeration value="Chequecash Pty Ltd"/>
+      <xs:enumeration value="ChoiceLend"/>
+      <xs:enumeration value="Christian Super"/>
+      <xs:enumeration value="CHU"/>
+      <xs:enumeration value="CIC"/>
+      <xs:enumeration value="CIL"/>
+      <xs:enumeration value="Circle Credit Union"/>
+      <xs:enumeration value="CIT Credit Pty"/>
+      <xs:enumeration value="Citibank"/>
+      <xs:enumeration value="City Coast Credit Union"/>
+      <xs:enumeration value="Citywide Home Loans"/>
+      <xs:enumeration value="Club Plus Super"/>
+      <xs:enumeration value="Co Operative Ins Co"/>
+      <xs:enumeration value="Coastline Credit Union"/>
+      <xs:enumeration value="Colonial"/>
+      <xs:enumeration value="Colonial First State"/>
+      <xs:enumeration value="Colonial Mutual"/>
+      <xs:enumeration value="CommBank Financial Planner"/>
+      <xs:enumeration value="Commercial Union"/>
+      <xs:enumeration value="CommInsure"/>
+      <xs:enumeration value="Commonwealth Bank"/>
+      <xs:enumeration value="Connective Home Loans"/>
+      <xs:enumeration value="CPS Credit Union"/>
+      <xs:enumeration value="Credit Corp"/>
+      <xs:enumeration value="Credit Union Australia"/>
+      <xs:enumeration value="Credit Union Financial Services"/>
+      <xs:enumeration value="Credit Union SA"/>
+      <xs:enumeration value="Credit Union Settlement Services"/>
+      <xs:enumeration value="CUA"/>
+      <xs:enumeration value="Cumis"/>
+      <xs:enumeration value="Cuscal"/>
+      <xs:enumeration value="Custom Credit"/>
+      <xs:enumeration value="Dai-Ichi Kango Bank"/>
+      <xs:enumeration value="Daimlerchrysler Finance"/>
+      <xs:enumeration value="Debt Purchase Australia"/>
+      <xs:enumeration value="Defence Bank"/>
+      <xs:enumeration value="Defence Credit"/>
+      <xs:enumeration value="Defence Force Credit Union Limited"/>
+      <xs:enumeration value="Defence Services Homes"/>
+      <xs:enumeration value="Deutsche Bank"/>
+      <xs:enumeration value="Diners Club"/>
+      <xs:enumeration value="Dnister Ukrainian Credit Co-operative"/>
+      <xs:enumeration value="EECU"/>
+      <xs:enumeration value="EISS"/>
+      <xs:enumeration value="ELCOM Credit Union"/>
+      <xs:enumeration value="Elders"/>
+      <xs:enumeration value="Energy Super"/>
+      <xs:enumeration value="Equity Super"/>
+      <xs:enumeration value="Esanda"/>
+      <xs:enumeration value="Essential Super"/>
+      <xs:enumeration value="Ezy Bank"/>
+      <xs:enumeration value="FAI"/>
+      <xs:enumeration value="FASTLend"/>
+      <xs:enumeration value="Federation"/>
+      <xs:enumeration value="FinancePath"/>
+      <xs:enumeration value="Fire Brigades Credit Union"/>
+      <xs:enumeration value="Fire Service Credit Union"/>
+      <xs:enumeration value="First Choice Credit Union"/>
+      <xs:enumeration value="First National Bank of Chicago"/>
+      <xs:enumeration value="First Permanent Home Loans"/>
+      <xs:enumeration value="First Provincial Building Society"/>
+      <xs:enumeration value="First State Super"/>
+      <xs:enumeration value="First Super"/>
+      <xs:enumeration value="Firstmac"/>
+      <xs:enumeration value="Flexirent"/>
+      <xs:enumeration value="Ford Credit"/>
+      <xs:enumeration value="Fortis"/>
+      <xs:enumeration value="Fundcorp"/>
+      <xs:enumeration value="Future Financial"/>
+      <xs:enumeration value="Gateway Credit Union"/>
+      <xs:enumeration value="GE Automotive"/>
+      <xs:enumeration value="GE Capital Finance"/>
+      <xs:enumeration value="GE Capital Finance (Go Mastercard)"/>
+      <xs:enumeration value="GE Credit Line"/>
+      <xs:enumeration value="Ge Finance"/>
+      <xs:enumeration value="GE Money Aust Pty Ltd"/>
+      <xs:enumeration value="GE Mortgages"/>
+      <xs:enumeration value="Genworth"/>
+      <xs:enumeration value="GIO"/>
+      <xs:enumeration value="GIO Building Society"/>
+      <xs:enumeration value="GMAC Finance"/>
+      <xs:enumeration value="Grace Bros"/>
+      <xs:enumeration value="GRE"/>
+      <xs:enumeration value="Great Pacific Financial"/>
+      <xs:enumeration value="Greater Building Society"/>
+      <xs:enumeration value="Guild"/>
+      <xs:enumeration value="Hanover Consumer Finance"/>
+      <xs:enumeration value="HBF"/>
+      <xs:enumeration value="Heritage"/>
+      <xs:enumeration value="HESTA"/>
+      <xs:enumeration value="Home Building Society"/>
+      <xs:enumeration value="Homeloans Ltd"/>
+      <xs:enumeration value="Homeside"/>
+      <xs:enumeration value="Homestart Finance"/>
+      <xs:enumeration value="Homeswest"/>
+      <xs:enumeration value="HSBC"/>
+      <xs:enumeration value="Hume Building Society"/>
+      <xs:enumeration value="IBJ Australia Bank"/>
+      <xs:enumeration value="Iden"/>
+      <xs:enumeration value="Ignite"/>
+      <xs:enumeration value="Illawarra Building Society"/>
+      <xs:enumeration value="IMB Ltd"/>
+      <xs:enumeration value="INC Invest"/>
+      <xs:enumeration value="ING"/>
+      <xs:enumeration value="ING Mercantile Mutual Bank"/>
+      <xs:enumeration value="Intech Credit Union"/>
+      <xs:enumeration value="International Acceptance"/>
+      <xs:enumeration value="International Commercial Bank of China"/>
+      <xs:enumeration value="InTrust"/>
+      <xs:enumeration value="Investec"/>
+      <xs:enumeration value="IOOF Building Society"/>
+      <xs:enumeration value="Keystart Home Loans"/>
+      <xs:enumeration value="Kinetic"/>
+      <xs:enumeration value="Kwik Kash International"/>
+      <xs:enumeration value="LaTrobe"/>
+      <xs:enumeration value="Legal Super"/>
+      <xs:enumeration value="Liberty"/>
+      <xs:enumeration value="Lion Finance"/>
+      <xs:enumeration value="Loanave"/>
+      <xs:enumeration value="Local Government"/>
+      <xs:enumeration value="Lombard Finance"/>
+      <xs:enumeration value="LUCRF"/>
+      <xs:enumeration value="M Capitol"/>
+      <xs:enumeration value="Macarthur Credit Union"/>
+      <xs:enumeration value="Mackay Permanent Building Society"/>
+      <xs:enumeration value="Macquarie"/>
+      <xs:enumeration value="Maitland Mutual Building Society"/>
+      <xs:enumeration value="Manufacture Mutual"/>
+      <xs:enumeration value="MAP"/>
+      <xs:enumeration value="ME Bank"/>
+      <xs:enumeration value="Media Super"/>
+      <xs:enumeration value="Mediplan Australia"/>
+      <xs:enumeration value="Members Equity Bank"/>
+      <xs:enumeration value="Mercantile Mutual"/>
+      <xs:enumeration value="Mercer Wealth"/>
+      <xs:enumeration value="Midland Bank PLC"/>
+      <xs:enumeration value="MIIP"/>
+      <xs:enumeration value="Mine Wealth and Wellbeing"/>
+      <xs:enumeration value="MIS"/>
+      <xs:enumeration value="Mitchell Building Society"/>
+      <xs:enumeration value="MKM Capital"/>
+      <xs:enumeration value="MLC"/>
+      <xs:enumeration value="MMI"/>
+      <xs:enumeration value="Morgan Guaranty Trust Bank of New York"/>
+      <xs:enumeration value="Mortgage Ezy"/>
+      <xs:enumeration value="Mortgage House"/>
+      <xs:enumeration value="Mortgage Mart"/>
+      <xs:enumeration value="MOVE Bank"/>
+      <xs:enumeration value="MTAA"/>
+      <xs:enumeration value="Mutual Community"/>
+      <xs:enumeration value="NAB"/>
+      <xs:enumeration value="National Mortgage Corporation"/>
+      <xs:enumeration value="Natwest Markets Australia"/>
+      <xs:enumeration value="NCUIS"/>
+      <xs:enumeration value="Newcastle Permanent Building Society"/>
+      <xs:enumeration value="NGS"/>
+      <xs:enumeration value="Northern Building Society"/>
+      <xs:enumeration value="NRMA"/>
+      <xs:enumeration value="NSF Super"/>
+      <xs:enumeration value="NSW Home Loans"/>
+      <xs:enumeration value="NSW Teachers Credit Union"/>
+      <xs:enumeration value="NZI"/>
+      <xs:enumeration value="OneAnswer"/>
+      <xs:enumeration value="ORIX"/>
+      <xs:enumeration value="Other"/>
+      <xs:enumeration value="Overseas-Chinese Banking Corporation"/>
+      <xs:enumeration value="Paramount"/>
+      <xs:enumeration value="Payday Central"/>
+      <xs:enumeration value="Pensioners Insurance"/>
+      <xs:enumeration value="People's Choice Credit Union"/>
+      <xs:enumeration value="Pepper"/>
+      <xs:enumeration value="Perpetual Limited"/>
+      <xs:enumeration value="Perpetual Trustee"/>
+      <xs:enumeration value="Pioneer Permanent Building Society"/>
+      <xs:enumeration value="PLANLend"/>
+      <xs:enumeration value="Plum"/>
+      <xs:enumeration value="Police and Nurses"/>
+      <xs:enumeration value="Police Credit Union"/>
+      <xs:enumeration value="Police Credit Union (NSW)"/>
+      <xs:enumeration value="Powerstate Credit Union"/>
+      <xs:enumeration value="Primary Industry Bank of Australia"/>
+      <xs:enumeration value="Prime"/>
+      <xs:enumeration value="Prospect Credit Union"/>
+      <xs:enumeration value="Public Trustee"/>
+      <xs:enumeration value="Pulse Credit Union"/>
+      <xs:enumeration value="QANTAS Credit Union"/>
+      <xs:enumeration value="QBE"/>
+      <xs:enumeration value="Qudos Bank"/>
+      <xs:enumeration value="Queensland Country Credit Union"/>
+      <xs:enumeration value="Queensland Credit Union"/>
+      <xs:enumeration value="Queensland Industry Development Corp"/>
+      <xs:enumeration value="Queensland Professional Credit Union"/>
+      <xs:enumeration value="Queensland Teachers Credit Union"/>
+      <xs:enumeration value="RAC"/>
+      <xs:enumeration value="RAC WA"/>
+      <xs:enumeration value="RACV"/>
+      <xs:enumeration value="Radio Rentals"/>
+      <xs:enumeration value="Railways Credit Union"/>
+      <xs:enumeration value="RAMS"/>
+      <xs:enumeration value="REA Home Loans"/>
+      <xs:enumeration value="Repcol"/>
+      <xs:enumeration value="Reserve Bank of Australia"/>
+      <xs:enumeration value="Resi"/>
+      <xs:enumeration value="RESI Mortgage Corporation"/>
+      <xs:enumeration value="RESIMAC"/>
+      <xs:enumeration value="Royal Life"/>
+      <xs:enumeration value="Russell Investments"/>
+      <xs:enumeration value="Safrock Finance"/>
+      <xs:enumeration value="Sanwa Australia Finance Limited"/>
+      <xs:enumeration value="Savings And Loans Credit Union"/>
+      <xs:enumeration value="SGIC"/>
+      <xs:enumeration value="SGIO"/>
+      <xs:enumeration value="Shannons"/>
+      <xs:enumeration value="SmartSave"/>
+      <xs:enumeration value="Southern Cross Credit Union"/>
+      <xs:enumeration value="Sovereign Credit"/>
+      <xs:enumeration value="St Andrew"/>
+      <xs:enumeration value="St George"/>
+      <xs:enumeration value="Standard Chartered Bank Aust"/>
+      <xs:enumeration value="State Street Bank And Trust Company"/>
+      <xs:enumeration value="Statewide"/>
+      <xs:enumeration value="Stronghold"/>
+      <xs:enumeration value="Summerland Credit Union"/>
+      <xs:enumeration value="Sun Alliance"/>
+      <xs:enumeration value="Suncorp"/>
+      <xs:enumeration value="Suncorp Metway"/>
+      <xs:enumeration value="Sunsuper"/>
+      <xs:enumeration value="Swann"/>
+      <xs:enumeration value="TasPlan"/>
+      <xs:enumeration value="Teachers Credit Union"/>
+      <xs:enumeration value="Teachers Mutual"/>
+      <xs:enumeration value="Territory Mutual Building Society"/>
+      <xs:enumeration value="The Rock"/>
+      <xs:enumeration value="Tictoc Online"/>
+      <xs:enumeration value="Tonto Home Loans"/>
+      <xs:enumeration value="Town And Country Bank"/>
+      <xs:enumeration value="Toyota Finance Australia"/>
+      <xs:enumeration value="Trust Bank of Tasmania"/>
+      <xs:enumeration value="TWUSUPER"/>
+      <xs:enumeration value="UBank"/>
+      <xs:enumeration value="United Credit Union"/>
+      <xs:enumeration value="United Overseas Bank"/>
+      <xs:enumeration value="University Credit Society"/>
+      <xs:enumeration value="VACC"/>
+      <xs:enumeration value="Vero"/>
+      <xs:enumeration value="VicSuper"/>
+      <xs:enumeration value="Victoria Teachers Credit Union Ltd"/>
+      <xs:enumeration value="Virgin Super"/>
+      <xs:enumeration value="Visions"/>
+      <xs:enumeration value="Western QBE"/>
+      <xs:enumeration value="Westfarmers"/>
+      <xs:enumeration value="Westpac Bank"/>
+      <xs:enumeration value="Westpack Insurance Services"/>
+      <xs:enumeration value="Wide Bay Capricorn Building Society"/>
+      <xs:enumeration value="Wizard"/>
+      <xs:enumeration value="World Marine and General"/>
+      <xs:enumeration value="Your Manager"/>
+      <xs:enumeration value="Zip Co"/>
+      <xs:enumeration value="Zurich"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="frequencyFullList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Daily"/>
+      <xs:enumeration value="Fortnightly"/>
+      <xs:enumeration value="Half Yearly"/>
+      <xs:enumeration value="Monthly"/>
+      <xs:enumeration value="Quarterly"/>
+      <xs:enumeration value="Seasonal"/>
+      <xs:enumeration value="Weekly"/>
+      <xs:enumeration value="Yearly"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="frequencyShortList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Fortnightly"/>
+      <xs:enumeration value="Monthly"/>
+      <xs:enumeration value="Weekly"/>
+      <xs:enumeration value="Yearly"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="genderList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Female"/>
+      <xs:enumeration value="Male"/>
+      <xs:enumeration value="Undisclosed"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="guarantorAccessList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Full Access"/>
+      <xs:enumeration value="Information Only Access"/>
+      <xs:enumeration value="No Access"/>
+      <xs:enumeration value="Transacting Access"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="insuranceTypeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Body Corporate"/>
+      <xs:enumeration value="Building Insurance"/>
+      <xs:enumeration value="Building Replacement"/>
+      <xs:enumeration value="Consumer Credit Insurance"/>
+      <xs:enumeration value="Disablement"/>
+      <xs:enumeration value="Fire"/>
+      <xs:enumeration value="Home Contents Insurance"/>
+      <xs:enumeration value="Income Protection"/>
+      <xs:enumeration value="Involuntary Unemployment"/>
+      <xs:enumeration value="Land Only"/>
+      <xs:enumeration value="Life Insurance"/>
+      <xs:enumeration value="LMI"/>
+      <xs:enumeration value="Other"/>
+      <xs:enumeration value="Professional Indemnity"/>
+      <xs:enumeration value="Public Liability"/>
+      <xs:enumeration value="Theft"/>
+      <xs:enumeration value="Title Insurance"/>
+      <xs:enumeration value="Trauma"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="insurerList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="AAMI"/>
+      <xs:enumeration value="AIA Australia"/>
+      <xs:enumeration value="Allianz Australia"/>
+      <xs:enumeration value="AMP Limited"/>
+      <xs:enumeration value="API"/>
+      <xs:enumeration value="APIA"/>
+      <xs:enumeration value="Asteron Life (Suncorp)"/>
+      <xs:enumeration value="Atradius"/>
+      <xs:enumeration value="Australian Pensioners Insurance"/>
+      <xs:enumeration value="Australian Unity"/>
+      <xs:enumeration value="Auto and General Insurance"/>
+      <xs:enumeration value="AXA Australia"/>
+      <xs:enumeration value="Bingle"/>
+      <xs:enumeration value="BUPA Australia"/>
+      <xs:enumeration value="Buzz"/>
+      <xs:enumeration value="Calliden Insurance"/>
+      <xs:enumeration value="CGU Insurance"/>
+      <xs:enumeration value="CHU"/>
+      <xs:enumeration value="Chubb"/>
+      <xs:enumeration value="CIC"/>
+      <xs:enumeration value="CIL"/>
+      <xs:enumeration value="Colonial"/>
+      <xs:enumeration value="CommInsure"/>
+      <xs:enumeration value="Commonwealth Bank"/>
+      <xs:enumeration value="Defence Services Homes"/>
+      <xs:enumeration value="Elders"/>
+      <xs:enumeration value="Esanda"/>
+      <xs:enumeration value="FAI"/>
+      <xs:enumeration value="Fortis"/>
+      <xs:enumeration value="Genworth Financial"/>
+      <xs:enumeration value="GIO"/>
+      <xs:enumeration value="Guardian Insurance"/>
+      <xs:enumeration value="Guild"/>
+      <xs:enumeration value="HBF"/>
+      <xs:enumeration value="ING"/>
+      <xs:enumeration value="Insurance Australia Group"/>
+      <xs:enumeration value="InsureMyRide"/>
+      <xs:enumeration value="Just Car"/>
+      <xs:enumeration value="LFI Group Pty Ltd"/>
+      <xs:enumeration value="Lifebroker"/>
+      <xs:enumeration value="Macquarie Life"/>
+      <xs:enumeration value="Manchester Unity Australia"/>
+      <xs:enumeration value="Medibank Private"/>
+      <xs:enumeration value="Mercantile Mutual"/>
+      <xs:enumeration value="MLC"/>
+      <xs:enumeration value="MMI"/>
+      <xs:enumeration value="Mutual Community"/>
+      <xs:enumeration value="NCUIS"/>
+      <xs:enumeration value="NIB Health Funds"/>
+      <xs:enumeration value="NRMA Insurance"/>
+      <xs:enumeration value="NZI"/>
+      <xs:enumeration value="OnePath (ANZ)"/>
+      <xs:enumeration value="Other"/>
+      <xs:enumeration value="Q Report Jewellery Insurance"/>
+      <xs:enumeration value="QBE"/>
+      <xs:enumeration value="QBE Insurance - MemberCare"/>
+      <xs:enumeration value="RAC"/>
+      <xs:enumeration value="RAC WA"/>
+      <xs:enumeration value="RACQ Insurance"/>
+      <xs:enumeration value="RACV"/>
+      <xs:enumeration value="Real Insurance"/>
+      <xs:enumeration value="Redwood Advisory"/>
+      <xs:enumeration value="SGIC"/>
+      <xs:enumeration value="SGIO"/>
+      <xs:enumeration value="Shannons"/>
+      <xs:enumeration value="Smart Business Insurance Pty Ltd."/>
+      <xs:enumeration value="Sun Alliance"/>
+      <xs:enumeration value="Suncorp"/>
+      <xs:enumeration value="Super Cheap Auto Group"/>
+      <xs:enumeration value="Superannuation Warehouse"/>
+      <xs:enumeration value="Swann"/>
+      <xs:enumeration value="TAL (Tower Australia)"/>
+      <xs:enumeration value="Terri Scheer"/>
+      <xs:enumeration value="TIO"/>
+      <xs:enumeration value="TradeCover"/>
+      <xs:enumeration value="VACC"/>
+      <xs:enumeration value="Vero"/>
+      <xs:enumeration value="Western QBE"/>
+      <xs:enumeration value="Westfarmers"/>
+      <xs:enumeration value="Westpac Insurance Services"/>
+      <xs:enumeration value="World Marine and General"/>
+      <xs:enumeration value="You.insured"/>
+      <xs:enumeration value="Zurich Australia"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="interestTypeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Fixed Rate"/>
+      <xs:enumeration value="Variable"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="levelTypeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Basement"/>
+      <xs:enumeration value="Floor"/>
+      <xs:enumeration value="Ground"/>
+      <xs:enumeration value="Level"/>
+      <xs:enumeration value="Lower Ground Floor"/>
+      <xs:enumeration value="Lower Level"/>
+      <xs:enumeration value="Mezzanine"/>
+      <xs:enumeration value="Observation Deck"/>
+      <xs:enumeration value="Parking"/>
+      <xs:enumeration value="Penthouse"/>
+      <xs:enumeration value="Platform"/>
+      <xs:enumeration value="Podium"/>
+      <xs:enumeration value="Rooftop"/>
+      <xs:enumeration value="Sub-basement"/>
+      <xs:enumeration value="Upper Ground Floor"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="loanTermUnitsList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Days"/>
+      <xs:enumeration value="Months"/>
+      <xs:enumeration value="Weeks"/>
+      <xs:enumeration value="Years"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="loanTypeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Bridging Finance"/>
+      <xs:enumeration value="Chattel Mortgage"/>
+      <xs:enumeration value="Commercial Bill"/>
+      <xs:enumeration value="Commercial Hire Purchase"/>
+      <xs:enumeration value="Credit Card"/>
+      <xs:enumeration value="Finance Lease"/>
+      <xs:enumeration value="Invoice Financing Loan"/>
+      <xs:enumeration value="Lease"/>
+      <xs:enumeration value="Line of Credit"/>
+      <xs:enumeration value="Margin Loan"/>
+      <xs:enumeration value="Mortgage Loan"/>
+      <xs:enumeration value="Operating Lease"/>
+      <xs:enumeration value="Other Loan"/>
+      <xs:enumeration value="Overdraft"/>
+      <xs:enumeration value="Personal Loan"/>
+      <xs:enumeration value="Reverse Mortgage"/>
+      <xs:enumeration value="Term Loan"/>
+      <xs:enumeration value="Trade Finance Loan"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="maritalStatusList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="De Facto"/>
+      <xs:enumeration value="Divorced"/>
+      <xs:enumeration value="Married"/>
+      <xs:enumeration value="Separated"/>
+      <xs:enumeration value="Single"/>
+      <xs:enumeration value="Unknown"/>
+      <xs:enumeration value="Widowed"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="nameTitleList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Dr"/>
+      <xs:enumeration value="Hon"/>
+      <xs:enumeration value="Lady"/>
+      <xs:enumeration value="Miss"/>
+      <xs:enumeration value="Mr"/>
+      <xs:enumeration value="Mrs"/>
+      <xs:enumeration value="Ms"/>
+      <xs:enumeration value="Other"/>
+      <xs:enumeration value="Prof"/>
+      <xs:enumeration value="R Hon"/>
+      <xs:enumeration value="Rev"/>
+      <xs:enumeration value="Sir"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="nccpStatusList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Regulated"/>
+      <xs:enumeration value="Unregulated"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="occupancyList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Non Owner"/>
+      <xs:enumeration value="Owner Primary"/>
+      <xs:enumeration value="Owner Secondary"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="paygBasisList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Casual"/>
+      <xs:enumeration value="Commission Only"/>
+      <xs:enumeration value="Contract"/>
+      <xs:enumeration value="Full Time"/>
+      <xs:enumeration value="Part Time"/>
+      <xs:enumeration value="Seasonal"/>
+      <xs:enumeration value="Temporary"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="paymentTypeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Interest Capitalised"/>
+      <xs:enumeration value="Interest Only"/>
+      <xs:enumeration value="Prepaid Interest"/>
+      <xs:enumeration value="Principal and Interest"/>
+      <xs:enumeration value="Principal Interest Fees"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="poBoxTypeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Care of Post Office"/>
+      <xs:enumeration value="Community Mail Agent"/>
+      <xs:enumeration value="Community Mail Bag"/>
+      <xs:enumeration value="Community Postal Agent"/>
+      <xs:enumeration value="Freepost"/>
+      <xs:enumeration value="GPO Box"/>
+      <xs:enumeration value="Locked Bag"/>
+      <xs:enumeration value="Mail Bag"/>
+      <xs:enumeration value="Mail Service"/>
+      <xs:enumeration value="PO Box"/>
+      <xs:enumeration value="Postal Mail Bag"/>
+      <xs:enumeration value="Poste Restante"/>
+      <xs:enumeration value="Private Bag"/>
+      <xs:enumeration value="Roadside Delivery"/>
+      <xs:enumeration value="Roadside Mail Bag"/>
+      <xs:enumeration value="Roadside Mail Box"/>
+      <xs:enumeration value="Roadside Mail Service"/>
+      <xs:enumeration value="Rural Mail Bag"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="preferredContactPersonList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Email"/>
+      <xs:enumeration value="Home Phone"/>
+      <xs:enumeration value="Mobile"/>
+      <xs:enumeration value="Work Phone"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="preferredCorrespondenceList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Email"/>
+      <xs:enumeration value="None"/>
+      <xs:enumeration value="Post"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="primaryPurposeLoanPurposeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Business"/>
+      <xs:enumeration value="Investment Non Residential"/>
+      <xs:enumeration value="Investment Residential"/>
+      <xs:enumeration value="Owner Occupied"/>
+      <xs:enumeration value="Personal"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="primaryPurposeRealEstateAssetList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Business"/>
+      <xs:enumeration value="Investment"/>
+      <xs:enumeration value="Owner Occupied"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="primaryUsageList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Commercial"/>
+      <xs:enumeration value="Industrial"/>
+      <xs:enumeration value="Residential"/>
+      <xs:enumeration value="Rural"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="proportionsList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Equal"/>
+      <xs:enumeration value="Not Specified"/>
+      <xs:enumeration value="Specified"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="proposedRepaymentMethodList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Australia Post"/>
+      <xs:enumeration value="Bpay"/>
+      <xs:enumeration value="Credit Card"/>
+      <xs:enumeration value="Direct Debit Existing Account"/>
+      <xs:enumeration value="Direct Debit New Account"/>
+      <xs:enumeration value="Direct Salary Credit"/>
+      <xs:enumeration value="Funds Transfer"/>
+      <xs:enumeration value="Lender Branch"/>
+      <xs:enumeration value="Other"/>
+      <xs:enumeration value="Staff Pay"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="purposeOfFundsList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Investment"/>
+      <xs:enumeration value="Purchase of Business or Shares"/>
+      <xs:enumeration value="Purchase of Equipment or Assets"/>
+      <xs:enumeration value="Purchase of Property"/>
+      <xs:enumeration value="Working Capital"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="realEstateAssetStatusList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Established"/>
+      <xs:enumeration value="New Building"/>
+      <xs:enumeration value="Off the Plan"/>
+      <xs:enumeration value="Vacant Land"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="remotenessList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Inner Regional"/>
+      <xs:enumeration value="Major Cities"/>
+      <xs:enumeration value="Outer Regional"/>
+      <xs:enumeration value="Remote"/>
+      <xs:enumeration value="Very Remote"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="residencyStatusList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Non Resident"/>
+      <xs:enumeration value="Permanently in Australia"/>
+      <xs:enumeration value="Temporarily in Australia"/>
+      </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="residentialTypeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Aged Care Unit"/>
+      <xs:enumeration value="Apartment Unit Flat"/>
+      <xs:enumeration value="Bedsitter Bachelor"/>
+      <xs:enumeration value="Company Title Unit"/>
+      <xs:enumeration value="Converted Commercial Property"/>
+      <xs:enumeration value="Converted Industrial Property"/>
+      <xs:enumeration value="Converted Motel Units"/>
+      <xs:enumeration value="Display House"/>
+      <xs:enumeration value="Duplex"/>
+      <xs:enumeration value="Fully Detached House"/>
+      <xs:enumeration value="High Density Apartment"/>
+      <xs:enumeration value="Holiday Home"/>
+      <xs:enumeration value="Holiday Rental"/>
+      <xs:enumeration value="Improved Land"/>
+      <xs:enumeration value="Kit Home"/>
+      <xs:enumeration value="Low Density Apartment"/>
+      <xs:enumeration value="Luxury House"/>
+      <xs:enumeration value="Luxury Other"/>
+      <xs:enumeration value="Medium Density Apartment"/>
+      <xs:enumeration value="Property Development"/>
+      <xs:enumeration value="Relocatable Home"/>
+      <xs:enumeration value="Resort Unit"/>
+      <xs:enumeration value="Semi Detached House"/>
+      <xs:enumeration value="Serviced Apartment"/>
+      <xs:enumeration value="Strata Hotel Unit"/>
+      <xs:enumeration value="Strata Title Unit"/>
+      <xs:enumeration value="Studio Warehouse Apartment"/>
+      <xs:enumeration value="Terrace"/>
+      <xs:enumeration value="Townhouse"/>
+      <xs:enumeration value="Unit Student Accommodation"/>
+      <xs:enumeration value="Vacant Land"/>
+      <xs:enumeration value="Villa"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="statusNameAccountCreationInstructionsList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Current"/>
+      <xs:enumeration value="Discharged"/>
+      <xs:enumeration value="Pending Settlement"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="streetSuffixList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Central"/>
+      <xs:enumeration value="Deviation"/>
+      <xs:enumeration value="East"/>
+      <xs:enumeration value="Extension"/>
+      <xs:enumeration value="Inner"/>
+      <xs:enumeration value="Lower"/>
+      <xs:enumeration value="Mall"/>
+      <xs:enumeration value="North"/>
+      <xs:enumeration value="North East"/>
+      <xs:enumeration value="North West"/>
+      <xs:enumeration value="Off"/>
+      <xs:enumeration value="On"/>
+      <xs:enumeration value="Outer"/>
+      <xs:enumeration value="Overpass"/>
+      <xs:enumeration value="South"/>
+      <xs:enumeration value="South East"/>
+      <xs:enumeration value="South West"/>
+      <xs:enumeration value="Upper"/>
+      <xs:enumeration value="West"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="streetTypeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Access"/>
+      <xs:enumeration value="Alley"/>
+      <xs:enumeration value="Alleyway"/>
+      <xs:enumeration value="Amble"/>
+      <xs:enumeration value="Anchorage"/>
+      <xs:enumeration value="Approach"/>
+      <xs:enumeration value="Arcade"/>
+      <xs:enumeration value="Arterial"/>
+      <xs:enumeration value="Artery"/>
+      <xs:enumeration value="Avenue"/>
+      <xs:enumeration value="Banan"/>
+      <xs:enumeration value="Bank"/>
+      <xs:enumeration value="Basin"/>
+      <xs:enumeration value="Bay"/>
+      <xs:enumeration value="Beach"/>
+      <xs:enumeration value="Bend"/>
+      <xs:enumeration value="Block"/>
+      <xs:enumeration value="Boardwalk"/>
+      <xs:enumeration value="Boulevard"/>
+      <xs:enumeration value="Boulevarde"/>
+      <xs:enumeration value="Bowl"/>
+      <xs:enumeration value="Brace"/>
+      <xs:enumeration value="Brae"/>
+      <xs:enumeration value="Break"/>
+      <xs:enumeration value="Bridge"/>
+      <xs:enumeration value="Broadway"/>
+      <xs:enumeration value="Brow"/>
+      <xs:enumeration value="Bypass"/>
+      <xs:enumeration value="Byway"/>
+      <xs:enumeration value="Canal"/>
+      <xs:enumeration value="Causeway"/>
+      <xs:enumeration value="Centre"/>
+      <xs:enumeration value="Centreway"/>
+      <xs:enumeration value="Chase"/>
+      <xs:enumeration value="Circle"/>
+      <xs:enumeration value="Circlet"/>
+      <xs:enumeration value="Circuit"/>
+      <xs:enumeration value="Circus"/>
+      <xs:enumeration value="Close"/>
+      <xs:enumeration value="Cluster"/>
+      <xs:enumeration value="Colonnade"/>
+      <xs:enumeration value="Common"/>
+      <xs:enumeration value="Concourse"/>
+      <xs:enumeration value="Connection"/>
+      <xs:enumeration value="Copse"/>
+      <xs:enumeration value="Corner"/>
+      <xs:enumeration value="Corso"/>
+      <xs:enumeration value="Course"/>
+      <xs:enumeration value="Court"/>
+      <xs:enumeration value="Courtyard"/>
+      <xs:enumeration value="Cove"/>
+      <xs:enumeration value="Crescent"/>
+      <xs:enumeration value="Crest"/>
+      <xs:enumeration value="Cross"/>
+      <xs:enumeration value="Crossing"/>
+      <xs:enumeration value="Crossroad"/>
+      <xs:enumeration value="Crossway"/>
+      <xs:enumeration value="Cruiseway"/>
+      <xs:enumeration value="Cul-De-Sac"/>
+      <xs:enumeration value="Cutting"/>
+      <xs:enumeration value="Dale"/>
+      <xs:enumeration value="Dell"/>
+      <xs:enumeration value="Dene"/>
+      <xs:enumeration value="Deviation"/>
+      <xs:enumeration value="Dip"/>
+      <xs:enumeration value="Distributor"/>
+      <xs:enumeration value="Divide"/>
+      <xs:enumeration value="Dock"/>
+      <xs:enumeration value="Domain"/>
+      <xs:enumeration value="Drive"/>
+      <xs:enumeration value="Driveway"/>
+      <xs:enumeration value="Edge"/>
+      <xs:enumeration value="Elbow"/>
+      <xs:enumeration value="End"/>
+      <xs:enumeration value="Entrance"/>
+      <xs:enumeration value="Esplanade"/>
+      <xs:enumeration value="Estate"/>
+      <xs:enumeration value="Estuary"/>
+      <xs:enumeration value="Expressway"/>
+      <xs:enumeration value="Extension"/>
+      <xs:enumeration value="Fairway"/>
+      <xs:enumeration value="Fire Track"/>
+      <xs:enumeration value="Firebreak"/>
+      <xs:enumeration value="Fireline"/>
+      <xs:enumeration value="Firetrack"/>
+      <xs:enumeration value="Firetrail"/>
+      <xs:enumeration value="Flat"/>
+      <xs:enumeration value="Follow"/>
+      <xs:enumeration value="Footway"/>
+      <xs:enumeration value="Ford"/>
+      <xs:enumeration value="Foreshore"/>
+      <xs:enumeration value="Formation"/>
+      <xs:enumeration value="Freeway"/>
+      <xs:enumeration value="Front"/>
+      <xs:enumeration value="Frontage"/>
+      <xs:enumeration value="Gap"/>
+      <xs:enumeration value="Garden"/>
+      <xs:enumeration value="Gardens"/>
+      <xs:enumeration value="Gate"/>
+      <xs:enumeration value="Gates"/>
+      <xs:enumeration value="Gateway"/>
+      <xs:enumeration value="Glade"/>
+      <xs:enumeration value="Glen"/>
+      <xs:enumeration value="Grange"/>
+      <xs:enumeration value="Green"/>
+      <xs:enumeration value="Ground"/>
+      <xs:enumeration value="Grove"/>
+      <xs:enumeration value="Gully"/>
+      <xs:enumeration value="Harbour"/>
+      <xs:enumeration value="Heath"/>
+      <xs:enumeration value="Heights"/>
+      <xs:enumeration value="Highroad"/>
+      <xs:enumeration value="Highway"/>
+      <xs:enumeration value="Hill"/>
+      <xs:enumeration value="Hollow"/>
+      <xs:enumeration value="Hub"/>
+      <xs:enumeration value="Interchange"/>
+      <xs:enumeration value="Intersection"/>
+      <xs:enumeration value="Junction"/>
+      <xs:enumeration value="Key"/>
+      <xs:enumeration value="Keys"/>
+      <xs:enumeration value="Landing"/>
+      <xs:enumeration value="Lane"/>
+      <xs:enumeration value="Laneway"/>
+      <xs:enumeration value="Lees"/>
+      <xs:enumeration value="Line"/>
+      <xs:enumeration value="Link"/>
+      <xs:enumeration value="Little"/>
+      <xs:enumeration value="Lookout"/>
+      <xs:enumeration value="Loop"/>
+      <xs:enumeration value="Lower"/>
+      <xs:enumeration value="Mall"/>
+      <xs:enumeration value="Manor"/>
+      <xs:enumeration value="Meander"/>
+      <xs:enumeration value="Mears"/>
+      <xs:enumeration value="Mew"/>
+      <xs:enumeration value="Mews"/>
+      <xs:enumeration value="Mile"/>
+      <xs:enumeration value="Motorway"/>
+      <xs:enumeration value="Mount"/>
+      <xs:enumeration value="Nook"/>
+      <xs:enumeration value="Outlet"/>
+      <xs:enumeration value="Outlook"/>
+      <xs:enumeration value="Parade"/>
+      <xs:enumeration value="Park"/>
+      <xs:enumeration value="Parklands"/>
+      <xs:enumeration value="Parkway"/>
+      <xs:enumeration value="Part"/>
+      <xs:enumeration value="Pass"/>
+      <xs:enumeration value="Path"/>
+      <xs:enumeration value="Pathway"/>
+      <xs:enumeration value="Piazza"/>
+      <xs:enumeration value="Pier"/>
+      <xs:enumeration value="Place"/>
+      <xs:enumeration value="Plateau"/>
+      <xs:enumeration value="Plaza"/>
+      <xs:enumeration value="Pocket"/>
+      <xs:enumeration value="Point"/>
+      <xs:enumeration value="Port"/>
+      <xs:enumeration value="Portal"/>
+      <xs:enumeration value="Promenade"/>
+      <xs:enumeration value="Pursuit"/>
+      <xs:enumeration value="Quad"/>
+      <xs:enumeration value="Quadrangle"/>
+      <xs:enumeration value="Quadrant"/>
+      <xs:enumeration value="Quay"/>
+      <xs:enumeration value="Quays"/>
+      <xs:enumeration value="Ramble"/>
+      <xs:enumeration value="Ramp"/>
+      <xs:enumeration value="Range"/>
+      <xs:enumeration value="Reach"/>
+      <xs:enumeration value="Reserve"/>
+      <xs:enumeration value="Rest"/>
+      <xs:enumeration value="Retreat"/>
+      <xs:enumeration value="Return"/>
+      <xs:enumeration value="Ride"/>
+      <xs:enumeration value="Ridge"/>
+      <xs:enumeration value="Ridgeway"/>
+      <xs:enumeration value="Right Of Way"/>
+      <xs:enumeration value="Ring"/>
+      <xs:enumeration value="Rise"/>
+      <xs:enumeration value="Rising"/>
+      <xs:enumeration value="River"/>
+      <xs:enumeration value="Riverway"/>
+      <xs:enumeration value="Riviera"/>
+      <xs:enumeration value="Road"/>
+      <xs:enumeration value="Roads"/>
+      <xs:enumeration value="Roadside"/>
+      <xs:enumeration value="Roadway"/>
+      <xs:enumeration value="Ronde"/>
+      <xs:enumeration value="Rosebowl"/>
+      <xs:enumeration value="Rotary"/>
+      <xs:enumeration value="Round"/>
+      <xs:enumeration value="Route"/>
+      <xs:enumeration value="Row"/>
+      <xs:enumeration value="Rue"/>
+      <xs:enumeration value="Run"/>
+      <xs:enumeration value="Service Way"/>
+      <xs:enumeration value="Shunt"/>
+      <xs:enumeration value="Siding"/>
+      <xs:enumeration value="Slope"/>
+      <xs:enumeration value="Sound"/>
+      <xs:enumeration value="Spur"/>
+      <xs:enumeration value="Square"/>
+      <xs:enumeration value="Stairs"/>
+      <xs:enumeration value="State Highway"/>
+      <xs:enumeration value="Steps"/>
+      <xs:enumeration value="Strand"/>
+      <xs:enumeration value="Street"/>
+      <xs:enumeration value="Streets"/>
+      <xs:enumeration value="Strip"/>
+      <xs:enumeration value="Subway"/>
+      <xs:enumeration value="Tarn"/>
+      <xs:enumeration value="Tarnice Way"/>
+      <xs:enumeration value="Terrace"/>
+      <xs:enumeration value="Thoroughfare"/>
+      <xs:enumeration value="Throughway"/>
+      <xs:enumeration value="Tollway"/>
+      <xs:enumeration value="Top"/>
+      <xs:enumeration value="Tor"/>
+      <xs:enumeration value="Towers"/>
+      <xs:enumeration value="Track"/>
+      <xs:enumeration value="Trail"/>
+      <xs:enumeration value="Trailer"/>
+      <xs:enumeration value="Triangle"/>
+      <xs:enumeration value="Trunkway"/>
+      <xs:enumeration value="Turn"/>
+      <xs:enumeration value="Twist"/>
+      <xs:enumeration value="Underpass"/>
+      <xs:enumeration value="Upper"/>
+      <xs:enumeration value="Vale"/>
+      <xs:enumeration value="Viaduct"/>
+      <xs:enumeration value="View"/>
+      <xs:enumeration value="Villas"/>
+      <xs:enumeration value="Vista"/>
+      <xs:enumeration value="Wade"/>
+      <xs:enumeration value="Walk"/>
+      <xs:enumeration value="Walkway"/>
+      <xs:enumeration value="Waterway"/>
+      <xs:enumeration value="Way"/>
+      <xs:enumeration value="Wharf"/>
+      <xs:enumeration value="Woods"/>
+      <xs:enumeration value="Wynd"/>
+      <xs:enumeration value="Yard"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="surplusFundsDisbursementMethodList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Bank Cheque"/>
+      <xs:enumeration value="Bpay"/>
+      <xs:enumeration value="Existing Direct Debit Account"/>
+      <xs:enumeration value="Existing Other Account"/>
+      <xs:enumeration value="New Account"/>
+      <xs:enumeration value="Redraw"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="titleSystemList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Company"/>
+      <xs:enumeration value="Old Law"/>
+      <xs:enumeration value="Qualified"/>
+      <xs:enumeration value="Torrens"/>
+      <xs:enumeration value="Unregistered"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="totalTermTypeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Amortisation Term"/>
+      <xs:enumeration value="Total Term"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="typeOfIncorporationList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Inc"/>
+      <xs:enumeration value="Ltd"/>
+      <xs:enumeration value="NL"/>
+      <xs:enumeration value="Pty Ltd"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="unitTypeList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="Antenna"/>
+      <xs:enumeration value="Apartment"/>
+      <xs:enumeration value="Automated Teller Machine"/>
+      <xs:enumeration value="Automatic Teller"/>
+      <xs:enumeration value="Barbecue"/>
+      <xs:enumeration value="Boatshed"/>
+      <xs:enumeration value="Building"/>
+      <xs:enumeration value="Bungalow"/>
+      <xs:enumeration value="Cage"/>
+      <xs:enumeration value="Carpark"/>
+      <xs:enumeration value="Carspace"/>
+      <xs:enumeration value="Club"/>
+      <xs:enumeration value="Condominium"/>
+      <xs:enumeration value="Coolroom"/>
+      <xs:enumeration value="Cottage"/>
+      <xs:enumeration value="Duplex"/>
+      <xs:enumeration value="Factory"/>
+      <xs:enumeration value="Flat"/>
+      <xs:enumeration value="Garage"/>
+      <xs:enumeration value="Hall"/>
+      <xs:enumeration value="House"/>
+      <xs:enumeration value="Kiosk"/>
+      <xs:enumeration value="Lease"/>
+      <xs:enumeration value="Lobby"/>
+      <xs:enumeration value="Loft"/>
+      <xs:enumeration value="Lot"/>
+      <xs:enumeration value="Maisonette"/>
+      <xs:enumeration value="Marine Berth"/>
+      <xs:enumeration value="Office"/>
+      <xs:enumeration value="Penthouse"/>
+      <xs:enumeration value="Reserve"/>
+      <xs:enumeration value="Room"/>
+      <xs:enumeration value="Shed"/>
+      <xs:enumeration value="Shop"/>
+      <xs:enumeration value="Showroom"/>
+      <xs:enumeration value="Sign"/>
+      <xs:enumeration value="Site"/>
+      <xs:enumeration value="Stall"/>
+      <xs:enumeration value="Store"/>
+      <xs:enumeration value="Strata Unit"/>
+      <xs:enumeration value="Studio / Studio Apartment"/>
+      <xs:enumeration value="Substation"/>
+      <xs:enumeration value="Suite"/>
+      <xs:enumeration value="Tenancy"/>
+      <xs:enumeration value="Tower"/>
+      <xs:enumeration value="Townhouse"/>
+      <xs:enumeration value="Unit"/>
+      <xs:enumeration value="Vault"/>
+      <xs:enumeration value="Villa"/>
+      <xs:enumeration value="Ward"/>
+      <xs:enumeration value="Warehouse"/>
+      <xs:enumeration value="Workshop"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="yesNoList">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="No"/>
+      <xs:enumeration value="Yes"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="abnPattern">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d{11}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="acnPattern">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d{9}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="auPostCodePattern">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d{4}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="bsbPattern">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d{6}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="emailPattern">
+    <xs:restriction base="xs:string">
+      <xs:pattern value=".+@.+\..+"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="urlPattern">
+    <xs:restriction base="xs:string">
+      <xs:pattern value=".+\..+"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="currencyType">
+    <xs:restriction base="xs:decimal"/>
+  </xs:simpleType>
+  <xs:simpleType name="dateTimeType">
+    <xs:restriction base="xs:dateTime"/>
+  </xs:simpleType>
+  <xs:simpleType name="dateType">
+    <xs:restriction base="xs:date"/>
+  </xs:simpleType>
+  <xs:simpleType name="decimalType">
+    <xs:restriction base="xs:decimal"/>
+  </xs:simpleType>
+  <xs:simpleType name="integerType">
+    <xs:restriction base="xs:integer"/>
+  </xs:simpleType>
+  <xs:simpleType name="percentType">
+    <xs:restriction base="xs:decimal"/>
+  </xs:simpleType>
+  <xs:simpleType name="referenceType">
+    <xs:restriction base="xs:IDREF"/>
+  </xs:simpleType>
+  <xs:simpleType name="stringType">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  <xs:simpleType name="uniqueIDType">
+    <xs:restriction base="xs:ID"/>
+  </xs:simpleType>
+</xs:schema>

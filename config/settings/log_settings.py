@@ -18,11 +18,6 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'filename': LOG_ROOT + '/app.log',
         },
-        'file-lib': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': LOG_ROOT + '/lib.log',
-        },
 
         'mail_admins': {
             'level': 'ERROR',
@@ -43,10 +38,6 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
-        'lib': {
-            'handlers': ['file-lib'],
-            'level': 'INFO',
-            'propagate': True,
-        }
+
     },
 }

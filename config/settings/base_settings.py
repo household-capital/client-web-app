@@ -38,13 +38,18 @@ INSTALLED_APPS = [
     # third-party apps
     'crispy_forms',
     'rest_framework',
+    'django_celery_beat',
+    'django_celery_results',
     # my apps
     'apps.accounts',
     'apps.landing',
-    'apps.client_1_0',
+    'apps.client_2_0',
+    'apps.fact_find',
     'apps.case',
     'apps.calculator',
-    'apps.enquiry'
+    'apps.enquiry',
+    'apps.relationship',
+    'apps.site_tags',
 ]
 
 MIDDLEWARE = [
@@ -137,6 +142,13 @@ SHORT_DATETIME_FORMAT = 'd M y, h:i A'   # 21 Mar 14, 5:59 PM
 
 # Third-party App Settings
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
+CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
 
 
 # Default URLS

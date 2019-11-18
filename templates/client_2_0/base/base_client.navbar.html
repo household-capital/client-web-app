@@ -1,0 +1,33 @@
+{% load static %}
+
+<nav class="navbar navbar-dark navbar-expand-lg navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar"
+                    aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+
+                <span class="sr-only">Toggle navigation</span>
+
+            </button>
+
+        </div>
+
+        <div class="collapse navbar-collapse" id="navbar">
+
+            <ul class="nav navbar-nav ml-auto">
+                {% if loanType == 0 %}
+                    <li><a href="{% url 'client2:setClient' %}"><i class="fas fa-user"></i>  {{ surname_1 }}&nbsp;&nbsp;&nbsp;</a></li>
+                {% else %}
+                    <li><a href="{% url 'client2:setClient' %}"><i class="fas fa-user-friends"></i>  {{ surname_1 }}&nbsp;&nbsp;&nbsp;</a></li>
+                {% endif %}
+                <li><a href="{% url 'client2:settings' %}"><i class="fas fa-cog"></i>&nbsp;Settings&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp</a></li>
+                <li><a href=""><i class="fas fa-user-circle"></i> &nbsp{{ request.user.username }}&nbsp&nbsp;&nbsp;</a></li>
+                <li><a href='{% url "accounts:logout" %}'><i class="fas fa-sign-out-alt"></i>  Exit </a></li>
+            </ul>
+
+        </div><!--/.navbar-collapse -->
+    </div>
+</nav>
+

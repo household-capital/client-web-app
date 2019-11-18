@@ -1,0 +1,117 @@
+{% load static %}
+{% load humanize %}
+
+
+<!-- Include -->
+<br>
+<div class="col-lg-12 "><br>
+    <p class="secondary_title">Your protections*</p>
+</div>
+<br>
+
+<div class="col-lg-12 ">
+
+    <p class="print-text">
+    <ul class="pl-4">
+        <li class="print-text">You own your own home and remain registered on the title.</li>
+        <br>
+        <li class="print-text">Your occupancy of your home is protected by Commonwealth legislation. You cannot be
+            forced to leave your home unless you are no longer able to live independently
+        </li>
+        <br>
+        <li class="print-text">You benefit from a statutory no Negative Equity Guarantee. You cannot owe more than the
+            value
+            of your home
+        </li>
+    </ul>
+
+</div>
+<br>
+
+<div class="col-lg-12 ">
+    <p class="secondary_title">How we get paid</p>
+</div>
+<br>
+
+
+<div class="col-lg-12 ">
+    <p class="print-text">Interest is charged on capital drawn from your home equity and paid when you repay your
+        loan. A 1.5% establishment fee is charged at the inception of the loan and covers valuation and
+        conveyancing costs. There are no on-going fees. There are no fees for repayment of the loan. </p>
+    <br>
+    <p class="print-text">Our current variable rate {{ totalInterestRate }}%</p>
+    <p class="print-text">Comparison rate {{ comparisonRate }}% **</p>
+
+
+</div>
+
+
+<div class="col-lg-12 "><br><br>
+    <p class="secondary_title">Next steps</p>
+
+    <br>
+    <p class="print-text">I would be happy to answer any further questions that you may have. The next step would be for
+        me to prepare an application package for you. </p>
+    <br>
+    <img src="{{ absolute_media_url }}{{ obj.user.profile.picture }}" height="100px">
+    <br><br>
+    <p class="print-text">{{ obj.user.first_name }} {{ obj.user.last_name }}</p>
+    <br>
+    <p class="print-text">{{ obj.user.profile.mobile }}</p>
+    <p class="print-text"> {{ obj.user.email }}</p>
+    <br>
+
+</div>
+
+
+<div>
+    <div class="print-container">
+        <div class="col-lg-12 ">
+
+
+            <div class="title padding-5px">
+                <br>
+            </div>
+
+            <p class="small">* Your protections are subject to the conditions specified in the terms of your loan contract.</p>
+
+            <p class="small">** The comparison rate is based on a loan of $150,000 secured for a term of 25 years.
+                Interest is calculated daily and accrued monthly. Please note that the comparison rate only applies to
+                the example given. Different loan amounts and terms will result in different comparison rates.</p>
+            <br>
+        </div>
+    </div>
+</div>
+
+<!-- Final Padding -->
+<div class="padding-10px">
+    <br>
+</div>
+
+<div class="row HHCBlueBackground-Printed print-edge-row">
+
+    <div class="print-container">
+
+        <div class="row">
+
+            <div class="col-lg-4 ">
+                <br>
+                <p><i class="far fa-envelope">&nbsp;&nbsp;info@householdcapital.com</i></p><br>
+                <p><i class="fas fa-phone">&nbsp;&nbsp;</i>1 300 622 100</p><br>
+                <p><i class="fas fa-desktop">&nbsp;&nbsp;www.householdcapital.com</i></p>
+                <br>
+                <br>
+
+            </div>
+            <div class="col-lg-5"></div>
+            <div class="col-lg-3 medium-title-inverse text-center">Live Well At Home
+                <br>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- End Include -->
+

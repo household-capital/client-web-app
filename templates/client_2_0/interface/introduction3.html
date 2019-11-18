@@ -1,0 +1,500 @@
+{% extends 'client_2_0/base/base_client.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div class="row justify-content-md-center">
+                <div class="col-6 text-center">
+                    <br>
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning"{% endif %}>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+    {% if post_id == 5 %}
+        <!-- PAGE 5 -->
+
+        <div class="row">
+            <div class="col-lg-12">
+                <br>
+                <div class="secondary_title">How can a Household Transfer be used?</div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-6">
+                <br><br>
+                <div class="row">
+
+                    <div class="col-lg-2"></div>
+                    <div class="col-lg-4">
+                        <p class="pl-2 text-center">Estimated value</p>
+                    </div>
+                    <div class="col-lg-1"></div>
+                    <div class="col-lg-4 text-right">
+                        <p>Maximum Amount</p>
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-lg-2"></div>
+
+                    <div class="col-lg-6 text-right">
+
+                        <a href=""><img
+                                src="{{ transfer_img }}" class="img-fluid pl-1"
+                                alt="Responsive image" width="280px"></a>
+                    </div>
+
+                    <div class="col-lg-2 text-left">
+                        <br><br>
+                        <p class="x-large">${{ maxLoanAmount|intcomma }}</p>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-lg-2"></div>
+                    <div class="col-lg-4">
+                        <p class="pl-3 text-center">${{ valuation }}</p>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="col-lg-6">
+                <div class="row align-items-center no-gutters justify-content-left">
+
+                    <div class="col-md-2 text-center pb-2 ">
+
+                        <img src="{% static 'img/icons/topup_icon.png' %}" width="60px">
+                    </div>
+                    <div class="col-md-10 text-left">
+                        <p class="print-text"><b>Top Up</b></p>
+                        <p class="small">Increase your super, investments or contingency funds</p>
+                    </div>
+                </div>
+
+                <div class="row align-items-center no-gutters justify-content-left">
+                    <div class="col-md-2 text-center pb-2">
+                        <img src="{% static 'img/icons/refi_icon.png' %}" width="60px">
+                    </div>
+
+                    <div class="col-md-10 text-left">
+                        <p class="print-text"><b>Refinance</b></p>
+                        <p class="small">Refinance your existing mortgage</p>
+                    </div>
+                </div>
+
+                <div class="row align-items-center no-gutters justify-content-left">
+                    <div class="col-md-2 text-center pb-2">
+                        <img src="{% static 'img/icons/live_icon.png' %}" width="60px">
+                    </div>
+                    <div class="col-md-10 text-left">
+                        <p class="print-text"><b>Live</b></p>
+                        <p class="small">Renovate your home or help fund your transport and travel</p>
+                    </div>
+
+                </div>
+
+                <div class="row align-items-center no-gutters justify-content-left">
+                    <div class="col-md-2 text-center pb-2">
+                        <img src="{% static 'img/icons/give_icon.png' %}" width="60px">
+                    </div>
+                    <div class="col-md-10 text-left">
+                        <p class="print-text"><b>Give</b></p>
+                        <p class="small">Help your family with funding a home deposit or education expenses</p>
+                    </div>
+
+                </div>
+
+                <div class="row align-items-center no-gutters justify-content-left">
+                    <div class="col-md-2 text-center pb-2">
+                        <img src="{% static 'img/icons/care_icon.png' %}" width="60px">
+                    </div>
+                    <div class="col-md-10 text-left">
+                        <p class="print-text"><b>Care</b></p>
+                        <p class="small">Fund your medical expenses, in-home care or aged care requirements</p>
+
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+
+    {% elif post_id == 4 %}
+
+        <!-- PAGE 4 -->
+
+        <div class="row">
+            <div class="col-lg-12">
+                <br>
+                <div class="secondary_title">How does a Household Transfer work?</div>
+            </div>
+        </div>
+
+        <div class="row">
+        <div class="col-6">
+            <br><br>
+            <div class="row">
+
+                <div class="col-lg-2"></div>
+                <div class="col-lg-4">
+                    <p class="pl-2 text-center">Estimated value</p>
+                </div>
+                <div class="col-lg-1"></div>
+                <div class="col-lg-4 text-right">
+                    <p>Transfer Amount</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-2"></div>
+                <div class="col-lg-6 text-right">
+
+                    <a href="{% url 'client2:introduction3' %}/5">
+                        <img id="transferImage" src="{% static '/img/icons/transfer_0_icon.png' %}" width="280px"
+                             class="img-fluid pl-1"></a>
+                </div>
+
+                <div class="col-lg-4 text-left">
+                    <br><br>
+                    <p class="x-large">$
+                        <loanAmount>0</loanAmount>
+                    </p>
+                    <br><br>
+
+                    <div id="equitySlider" class="equitySlider mr-5"></div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-lg-2"></div>
+                <div class="col-lg-4">
+                    <p class="pl-3 text-center">${{ valuation }}</p>
+                </div>
+            </div>
+            <br><br><br>
+            <div class="row">
+                <div class="col-lg-3"></div>
+
+                <div class="col-lg-5 alert alert-info text-center">
+                    <p class="larger">Today</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <br><br>
+            <div class="row">
+
+                <div class="col-lg-1"></div>
+                <div class="col-lg-5">
+                    <p class="pl-2 text-center">Estimated value</p>
+                </div>
+                <div class="col-lg-3 text-right">
+                    <p>Home Equity</p>
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-lg-1"></div>
+
+                <div class="col-lg-5 text-left">
+
+                    <img id="equityImage" src="{% static '/img/icons/block_equity_100_icon.png' %}" width="200px"
+                         class="img-fluid">
+                </div>
+                <div class="col-lg-4 text-center">
+                    <br><br><br>
+                    <p class="xx-large">
+                        <homeEquityPC>100</homeEquityPC>
+                        %
+                    </p>
+                    <p>$
+                        <homeEquity>{{ futHomeValue }}</homeEquity>
+                    </p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-1"></div>
+                <div class="col-lg-5">
+                    <p class=" text-center">${{ futHomeValue }}</p>
+                </div>
+            </div>
+
+            <br>
+            <div class="row">
+                <div class="col-lg-3"></div>
+
+                <div class="col-lg-5 alert alert-HHCBlue text-center">
+                    <p class="larger">15 years time</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE 3 -->
+    {% elif post_id == 3 %}
+
+        <div class="row">
+            <div class="col-lg-12">
+                <br>
+                <div class="secondary_title">How does a Household Transfer work?</div>
+            </div>
+        </div>
+
+        <br><br>
+
+        <div class="row">
+            <div class="col-6">
+                <div class="row">
+
+                    <div class="col-lg-2"></div>
+                    <div class="col-lg-4">
+                        <p class="pl-2 text-center">Estimated value</p>
+                    </div>
+                    <div class="col-lg-5 text-right">
+                        <p>Maximum Amount</p>
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-lg-2"></div>
+
+                    <div class="col-lg-6 text-right">
+
+                        <a href="{% url 'client2:introduction3' %}/4"><img
+                                src="{{ transfer_img }}" class="img-fluid pl-1"
+                                alt="Responsive image" width="280px"></a>
+                    </div>
+
+                    <div class="col-lg-2 text-left">
+                        <br><br>
+                        <p class="x-large">${{ maxLoanAmount|intcomma }}</p>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-lg-2"></div>
+                    <div class="col-lg-4">
+                        <p class="pl-3 text-center">${{ valuation }}</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-2"></div>
+                    <div class="col-lg-10">
+                        <br>
+                        <div class='alert alert-household'>
+                            <p>You could access up to <span class="larger">{{ maxLVR|intVal }}%</span> of your home
+                                savings
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="col-lg-1"></div>
+            <div class="col-lg-5">
+                {% if post_id == 3 %}
+                    <p class="larger pb-3"><b>Key features</b></p>
+                    <p><i class="far fa-check-circle pb-3  "></i>&nbsp;&nbsp;You remain the owner of your home</p>
+                    <p><i class="far fa-check-circle pb-3 "></i>&nbsp;&nbsp;You can remain in your home as long as
+                        you want to</p>
+                    <p><i class="far fa-check-circle pb-3 "></i>&nbsp;&nbsp;The loan is repayable when you leave or
+                        sell your home</p>
+                    <p><i class="far fa-check-circle pb-3 "></i>&nbsp;&nbsp;You cannot owe more than the house is
+                        worth</p>
+                    <p><i class="far fa-check-circle pb-3 "></i>&nbsp;&nbsp;No requirement to pay periodic interest (although
+                        you can)</p>
+                    <p><i class="far fa-check-circle pb-3 "></i>&nbsp;&nbsp;You can repay the loan without penalty
+                    </p>
+                {% endif %}
+
+            </div>
+        </div>
+
+        <!-- PAGE 2 -->
+    {% elif post_id == 2 %}
+
+        <div class="row">
+            <div class="col-lg-12">
+                <br>
+                <div class="secondary_title">How does a Household Transfer work?</div>
+            </div>
+        </div>
+
+        <br><br>
+
+        <div class="row">
+            <div class="col-6">
+                <div class="row">
+
+                    <div class="col-lg-2"></div>
+                    <div class="col-lg-4">
+                        <p class="pl-2 text-center">Estimated value</p>
+                    </div>
+                    <div class="col-lg-5 text-right">
+                        <p>Maximum Amount</p>
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-lg-2"></div>
+
+                    <div class="col-lg-6 text-right">
+
+                        <a href="{% url 'client2:introduction3' %}/3"><img
+                                src="{{ transfer_img }}" class="img-fluid pl-1"
+                                alt="Responsive image" width="280px"></a>
+                    </div>
+
+                    <div class="col-lg-2 text-left">
+                        <br><br>
+                        <p class="x-large">${{ maxLoanAmount|intcomma }}</p>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-lg-2"></div>
+                    <div class="col-lg-4">
+                        <p class="pl-3 text-center">${{ valuation }}</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-2"></div>
+                    <div class="col-lg-10">
+                        <br>
+                        <div class='alert alert-household'>
+                            <p>You could access up to <span class="larger">{{ maxLVR|intVal }}%</span> of your home
+                                savings
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+
+        <!-- PAGE 1 -->
+        <div class="row">
+            <div class="col-lg-12">
+                <br>
+                <div class="secondary_title">How does a Household Transfer work?</div>
+            </div>
+        </div>
+
+        <br><br>
+
+        <div class="row">
+            <div class="col-6">
+                <div class="row">
+                    <div class="col-lg-2"></div>
+                    <div class="col-lg-4">
+                        <p class="pl-2 text-center">Estimated value</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-2"></div>
+
+                    <div class="col-lg-6 text-right">
+                        <a href="{% url 'client2:introduction3' %}/2"><img
+                                src="{% static 'img/icons/transfer_base_icon.png' %}" class="img-fluid pl-1"
+                                alt="Responsive image" width="280"></a>
+                    </div>
+                    <div class="col-lg-4"></div>
+
+
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-2"></div>
+                    <div class="col-lg-4">
+                        <p class="pl-3 text-center">${{ valuation }}</p>
+                    </div>
+                </div>
+                <br>
+
+                <div class="row">
+                    <div class="col-lg-2"></div>
+                    <div class="col-lg-10">
+                        <div class='alert alert-household text-center'>
+
+                            <p>A loan to access the savings in your home (equity) </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    {% endif %}
+
+
+{% endblock %}
+
+
+{% block javascript %}
+    <script>
+        var sliderData = {{ sliderData|safe }};
+        var imagePath = '{{ imgPath }}';
+        var transferImagePath = '{{ transferImagePath }}';
+
+        $(document).ready(function () {
+
+            $("#equitySlider").slider({
+                min: 0,
+                max: {{ sliderPoints }},
+                range: 'min',
+                slide: function (event, ui) {
+                    $("loanAmount").html(numberWithCommas(sliderData[ui.value].loanAmount));
+                    $("loanBalance").html(numberWithCommas(sliderData[ui.value].futLoanBalance));
+                    $("homeEquity").html(numberWithCommas(sliderData[ui.value].futHomeEquity));
+                    $("homeEquityPC").html(sliderData[ui.value].futHomeEquityPC);
+                    $("#equityImage").attr("src", imagePath.replace('0', sliderData[ui.value].percentile));
+                    $("#transferImage").attr("src", transferImagePath.replace('0', sliderData[ui.value].loanPercentile));
+
+                }
+            });
+
+            function numberWithCommas(x) {
+                return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+        })
+
+
+    </script>
+{% endblock %}

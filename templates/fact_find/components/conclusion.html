@@ -1,0 +1,98 @@
+<div class="row align-items-center">
+    <div class="col-lg-12 ">
+
+
+        <div class="accordion" id="accordionConclusion">
+            <div class="card">
+                <div class="card-header" id="headingUnderstanding">
+                    <h2 class="mb-0">
+                        <button class="btn btn-light" type="button" data-toggle="collapse" data-target="#collapseUnderstanding"
+                                aria-expanded="true" aria-controls="collapseLoan">
+                            <p>
+                                <i class="fa fa-plus fa-xs"></i>&nbsp;&nbsp;Customer understanding and vulnerability </p>
+
+                        </button>
+                    </h2>
+                </div>
+
+                <!-- Client Understanding -->
+                <div id="collapseUnderstanding" class="collapse" aria-labelledby="headingUnderstanding"
+                     data-parent="#accordionConclusion">
+                    <div class="card-body">
+                        <div class="row ">
+                            <div class="col-lg-8 ">
+                                <textarea class="textarea form-control" rows="10" name="clientNotes" id="id_clientNotes">{% if form.clientNotes.value != None %}{{ form.clientNotes.value }}{% endif %}</textarea>
+
+                            </div>
+                            <div class="col-lg-4 notes">
+                                <ul>
+                                    <li>Customer understands key loan features including:
+                                        (a) loan repayment triggers;
+                                        (b) the variable interest rate;
+                                        (c) 12 month drawdown (future re-approval); and
+                                        (d) potential to impact Centrelink benefits</li>
+                                    <li>Did the customer understand the future equity projections?</li>
+                                    <li>Were there any indications (declared or suspected) of (a) cognitive decline, (b) age related disability or (c) mental or serious illness?</li>
+                                    <li>Were there any indications of duress including (a) elder abuse or (b) family/domestic violence?</li>
+                                    <li>Were additional steps required to ensure sufficient customer understanding, capacity or vulnerability?</li>
+
+                                </ul>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row ">
+                            <div class="col-lg-8 text-right">
+                                 <button id="background" type="submit" value="Submit" form="clientForm"
+                                            class="btn btn-warning"> Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Additional Questions -->
+            <div class="card pt-1">
+                <div class="card-header" id="headingAdditional">
+                    <h2 class="mb-0">
+                        <button class="btn btn-light collapsed" type="button" data-toggle="collapse"
+                                data-target="#collapseAdditional" aria-expanded="false" aria-controls="collapseAdditional">
+                            <p>
+                                <i class="fa fa-plus fa-xs"></i>&nbsp;&nbsp;Additional comments / inquiries</p>
+
+                        </button>
+                    </h2>
+                </div>
+                <div id="collapseAdditional" class="collapse" aria-labelledby="headingAdditional" data-parent="#accordionConclusion">
+                    <div class="card-body">
+                        <div class="row ">
+                            <div class="col-lg-8 ">
+                                <textarea class="textarea form-control" rows="10" name="additionalNotes" id="id_additionalNotes">{% if form.additionalNotes.value != None %}{{ form.additionalNotes.value }}{% endif %}</textarea>
+
+                            </div>
+                            <div class="col-lg-4 notes">
+                                <ul>
+
+                                    <li>Additional information, discrepanices, other comments</li>
+                                    <li>Notes to Credit, policy exceptions etc</li>
+                                    <li>Responses to scaled enquiries arising out of credit assessment</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row ">
+                            <div class="col-lg-8 text-right">
+                                 <button id="background" type="submit" value="Submit" form="clientForm"
+                                            class="btn btn-warning"> Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>

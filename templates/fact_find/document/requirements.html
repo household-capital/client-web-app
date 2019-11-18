@@ -1,0 +1,43 @@
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+
+<div>
+    <p class="pb-2"><b>Requirements and objectives</b></p>
+    <p> {{ factObj.requirementsNotes }} </p>
+
+    {% if topUpAmount != 0 or topUpContingencyAmount != 0 or topUpDrawdownAmount != 0 %}
+        <p class="small pt-4 pb-2"><b>Purpose: Top-up</b></p>
+        <p> {{ factObj.topUpNotes }} </p>
+    {% endif %}
+
+     {% if refinanceAmount != 0%}
+        <p class="small pt-4 pb-2"><b>Purpose: Refinance</b></p>
+        <p> {{ factObj.refiNotes }} </p>
+    {% endif %}
+
+     {% if renovateAmount != 0 or travelAmount != 0%}
+        <p class="small pt-4 pb-2"><b>Purpose: Live</b></p>
+        <p> {{ factObj.liveNotes }} </p>
+    {% endif %}
+
+    {% if giveAmount != 0%}
+        <p class="small pt-4 pb-2"><b>Purpose: Give</b></p>
+        <p> {{ factObj.giveNotes }} </p>
+    {% endif %}
+
+    {% if careAmount != 0 or careDrawdownAmount != 0%}
+        <p class="small pt-4 pb-2"><b>Purpose: Care</b></p>
+        <p> {{ factObj.careNotes }} </p>
+    {% endif %}
+
+    <p class="pt-5 pb-2"><b>Future Requirements</b></p>
+    <p> {{ factObj.futureNotes }} </p>
+
+    <p class="pt-5 pb-2"><b>Client understanding</b></p>
+    <p> {{ factObj.clientNotes }} </p>
+
+</div>
+

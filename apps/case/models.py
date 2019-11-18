@@ -11,8 +11,9 @@ from django.utils import timezone
 from django.urls import reverse_lazy
 
 #Local Application Imports
-from apps.lib.enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,\
-    pensionTypesEnum, loanTypesEnum, ragTypesEnum, channelTypesEnum, stateTypesEnum
+from apps.lib.site_Enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,\
+    pensionTypesEnum, loanTypesEnum, ragTypesEnum, channelTypesEnum, stateTypesEnum, incomeFrequencyEnum, \
+    closeReasonEnum, salutationEnum, maritalEnum
 
 
 class FundDetail(models.Model):
@@ -32,6 +33,7 @@ class FundDetail(models.Model):
 
 
 class CaseManager(models.Manager):
+
     #Custom model manager to return related querysets (using UID)
     def queryset_byUID(self,uidString):
        if self.model.__name__=='Case':
@@ -44,14 +46,16 @@ class CaseManager(models.Manager):
     def dictionary_byUID(self,uidString):
         return self.queryset_byUID(uidString).values()[0]
 
+    # Custom data queries
     def openCases(self):
-        closedTypes = [caseTypesEnum.CLOSED.value, caseTypesEnum.APPROVED.value]
+        closedTypes = [caseTypesEnum.CLOSED.value, caseTypesEnum.FUNDED.value]
         return Case.objects.exclude(caseType__in=closedTypes)
 
     def pipelineHealth(self):
+        closedTypes = [caseTypesEnum.CLOSED.value, caseTypesEnum.DOCUMENTATION.value, caseTypesEnum.APPLICATION.value]
         startdate = timezone.now() - timedelta(days=14)
-        openCases=self.openCases().count()
-        currentCases=self.openCases().filter(updated__gte=startdate).count()
+        openCases=self.openCases().exclude(caseType__in=closedTypes).count()
+        currentCases=self.openCases().filter(updated__gte=startdate).exclude(caseType__in=closedTypes).count()
         return [0] if openCases == 0 else [round(currentCases/openCases,2),round(1-currentCases/openCases,2)]
 
 
@@ -59,14 +63,12 @@ class Case(models.Model):
     # Main model - extended by Loan, ModelSettings and LossData
 
     caseTypes=(
-                  (caseTypesEnum.LEAD.value,"Lead"),
-                  (caseTypesEnum.OPPORTUNITY.value, "Opportunity"),
+                  (caseTypesEnum.DISCOVERY.value,"Discovery"),
                   (caseTypesEnum.MEETING_HELD.value, "Meeting Held"),
                   (caseTypesEnum.APPLICATION.value, "Application"),
-                  (caseTypesEnum.PRE_APPROVAL.value, "Pre-approval"),
-                  (caseTypesEnum.CLOSED.value, "Closed"),
-                  (caseTypesEnum.APPROVED.value,"Approved")
-    )
+                  (caseTypesEnum.DOCUMENTATION.value, "Documentation"),
+                  (caseTypesEnum.FUNDED.value, "Funded"),
+                  (caseTypesEnum.CLOSED.value, "Closed"),    )
 
     clientTypes=(
         (clientTypesEnum.BORROWER.value, 'Borrower'),
@@ -118,13 +120,38 @@ class Case(models.Model):
         (stateTypesEnum.NT.value, "NT"),
     )
 
+    valuers=(
+        ('WBP Group','WBP Group'),
+        ('Opteon Solutions','Opteon Solutions')
+    )
+
+    valuerEmails=(
+        ('valuations@wbpgroup.com.au','valuations@wbpgroup.com.au'),
+        ('instructions@opteonsolutions.com','instructions@opteonsolutions.com'),
+        ('quotes@opteonsolutions.com', 'quotes@opteonsolutions.com')
+    )
+
+    salutationTypes=(
+        (salutationEnum.MR.value,"Mr."),
+        (salutationEnum.MS.value, "Ms."),
+        (salutationEnum.MRS.value, "Mrs."),
+        (salutationEnum.DR.value, "Dr."),
+        (salutationEnum.PROF.value, "Prof."),
+    )
+
+    maritalTypes=(
+        (maritalEnum.SINGLE.value, "Single"),
+        (maritalEnum.MARRIED.value, "Married"),
+        (maritalEnum.DIVORCED.value, "Divorced"),
+        (maritalEnum.WIDOWED.value, "Widowed"),
+    )
 
     caseID = models.AutoField(primary_key=True)
     caseUID = models.UUIDField(default=uuid.uuid4, editable=False)
     caseType = models.IntegerField(choices=caseTypes)
     caseDescription = models.CharField(max_length=60, null=False, blank=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
-    adviser = models.CharField(max_length=60, null=False, blank=False)
+    adviser = models.CharField(max_length=60, null=True, blank=True)
     caseNotes = models.TextField(blank=True, null=True)
 
     phoneNumber=models.CharField(max_length=20, null=True, blank=True)
@@ -132,12 +159,18 @@ class Case(models.Model):
 
     loanType=models.IntegerField(choices=loanTypes,null=True, blank=True)
     clientType1=models.IntegerField(choices=clientTypes,null=True, blank=True)
+    salutation_1 = models.IntegerField(choices=salutationTypes,null=True, blank=True)
+    middlename_1 = models.CharField(max_length=30, null=True, blank=True)
+    maritalStatus_1 = models.IntegerField(choices=maritalTypes,null=True, blank=True)
     surname_1=models.CharField(max_length=30, null=True, blank=True)
     firstname_1=models.CharField(max_length=30, null=True, blank=True)
     birthdate_1=models.DateField(null=True, blank=True)
     age_1=models.IntegerField(null=True, blank=True)
     sex_1=models.IntegerField(choices=clientSex,null=True, blank=True)
     clientType2 = models.IntegerField(choices=clientTypes, null=True, blank=True)
+    salutation_2 = models.IntegerField(choices=salutationTypes,null=True, blank=True)
+    middlename_2 = models.CharField(max_length=30, null=True, blank=True)
+    maritalStatus_2 = models.IntegerField(choices=maritalTypes,null=True, blank=True)
     surname_2=models.CharField(max_length=30, null=True, blank=True)
     firstname_2=models.CharField(max_length=30, null=True, blank=True)
     birthdate_2=models.DateField(null=True, blank=True)
@@ -154,7 +187,7 @@ class Case(models.Model):
     superFund=models.ForeignKey(FundDetail,null=True, blank=True, on_delete=models.SET_NULL)
     superAmount=models.IntegerField(null=True, blank=True)
     pensionType=models.IntegerField(choices=pensionTypes,default=2)
-    pensionAmount=models.IntegerField(null=True, blank=True)
+    pensionAmount=models.IntegerField(default=0)
 
     meetingDate = models.DateTimeField(blank=True, null=True)
     summaryDocument = models.FileField(max_length=150,null=True, blank=True)
@@ -167,11 +200,13 @@ class Case(models.Model):
     solicitorInstruction = models.FileField(max_length=150,null=True, blank=True)
     valuerInstruction= models.FileField(max_length=150, null=True, blank=True)
     titleDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='customerDocuments')
+    titleRequest = models.BooleanField(null=True, blank=True)
     specialConditions=models.TextField(null=True, blank=True)
     dataCSV = models.FileField(max_length=150, null=True, blank=True, upload_to='customerDocuments')
+    lixiFile= models.FileField(max_length=150, null=True, blank=True)
 
-    valuerFirm=models.CharField(max_length=20, null=True, blank=True)
-    valuerEmail=models.EmailField(null=True, blank=True)
+    valuerFirm=models.CharField(max_length=20, null=True, blank=True, choices=valuers)
+    valuerEmail=models.EmailField(null=True, blank=True, choices=valuerEmails)
     valuerContact=models.TextField(null=True, blank=True)
 
     salesChannel = models.IntegerField(choices=channelTypes,null=True, blank=True)
@@ -179,6 +214,11 @@ class Case(models.Model):
     sfLeadID = models.CharField(max_length=20, null=True, blank=True)
     sfOpportunityID = models.CharField(max_length=20, null=True, blank=True)
     sfLoanID=models.CharField(max_length=20, null=True, blank=True)
+
+    amalIdentifier=models.CharField(max_length=40, null=True, blank=True)
+    amalLoanID=models.CharField(max_length=40, null=True, blank=True)
+
+    newProcess=models.BooleanField(default=False, null=True, blank=True)
 
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
@@ -198,19 +238,15 @@ class Case(models.Model):
         return dict(self.caseTypes)[self.caseType]
 
     def enumLoanType(self):
-        try:
+        if self.loanType is not None:
             return dict(self.loanTypes)[self.loanType]
-        except:
-            return ""
 
     def enumStateType(self):
-        try:
+        if self.state is not None:
             return dict(self.stateTypes)[self.state]
-        except:
-            return ""
 
     def enumDwellingType(self):
-            return dict(self.dwellingTypes)[self.dwellingType]
+        return dict(self.dwellingTypes)[self.dwellingType]
 
     def enumSex(self):
         if self.loanType==loanTypesEnum.SINGLE_BORROWER.value:
@@ -225,8 +261,15 @@ class Case(models.Model):
             return [dict(self.clientTypes)[self.clientType1],dict(self.clientTypes)[self.clientType2]]
 
     def get_absolute_url(self):
-        return reverse_lazy("case:caseDetail", kwargs={"pk":self.caseID})
+        return reverse_lazy("case:caseDetail", kwargs={"uid":self.caseUID})
 
+    def enumChannelType(self):
+        if self.salesChannel is not None:
+            return dict(self.channelTypes)[self.salesChannel]
+
+    def enumPensionType(self):
+        if self.pensionType is not None:
+            return dict(self.pensionTypes)[self.pensionType]
 
 
 
@@ -250,25 +293,46 @@ class Loan(models.Model):
         (15, "15%"),
         (20, "20%"))
 
+    drawdownFrequency=(
+        (incomeFrequencyEnum.FORTNIGHTLY.value, 'fortnightly'),
+        (incomeFrequencyEnum.MONTHLY.value, 'monthly'))
+
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
     localLoanID = models.AutoField(primary_key=True)
     maxLVR=models.FloatField(null=False, blank=False,default=0)
     actualLVR = models.FloatField(null=True, blank=True, default=0)
     establishmentFee=models.IntegerField(default=0)
+    planEstablishmentFee=models.IntegerField(default=0)
     protectedEquity=models.IntegerField(default=0, choices=protectedChoices)
     totalLoanAmount=models.IntegerField(default=0)
+    totalPlanAmount=models.IntegerField(default=0)
     topUpAmount=models.IntegerField(default=0)
-    topUpIncome=models.IntegerField(default=0)
+    topUpDrawdownAmount=models.IntegerField(default=0)
+    topUpPlanAmount=models.IntegerField(default=0)
+    topUpIncomeAmount = models.IntegerField(default=0)
+    topUpFrequency = models.IntegerField(default=2, choices=drawdownFrequency)
+    topUpPeriod = models.IntegerField(default=5)
+    topUpBuffer = models.IntegerField(default=0)
+    topUpContingencyAmount = models.IntegerField(default=0)
+    topUpDescription = models.CharField(max_length=60, null=True, blank=True)
+    topUpContingencyDescription = models.CharField(max_length=60, null=True, blank=True)
     refinanceAmount=models.IntegerField(default=0)
-    giveAmount=models.IntegerField(default=0)
     renovateAmount=models.IntegerField(default=0)
     travelAmount=models.IntegerField(default=0)
+    renovateDescription=models.CharField(max_length=60, null=True, blank=True)
+    travelDescription=models.CharField(max_length=60, null=True, blank=True)
+    giveAmount=models.IntegerField(default=0)
+    giveDescription = models.CharField(max_length=60, null=True, blank=True)
     careAmount=models.IntegerField(default=0)
-    giveDescription=models.CharField(max_length=30, null=True, blank=True)
-    renovateDescription=models.CharField(max_length=30, null=True, blank=True)
-    travelDescription=models.CharField(max_length=30, null=True, blank=True)
-    careDescription=models.CharField(max_length=30, null=True, blank=True)
-    incomeObjective=models.IntegerField(default=0)
+    careDrawdownAmount=models.IntegerField(default=0)
+    carePlanAmount=models.IntegerField(default=0)
+    careRegularAmount=models.IntegerField(default=0)
+    careFrequency=models.IntegerField(default=2, choices=drawdownFrequency)
+    carePeriod=models.IntegerField(default=3)
+    careDrawdownDescription = models.CharField(max_length=60, null=True, blank=True)
+    careDescription=models.CharField(max_length=60, null=True, blank=True)
+    interestPayAmount=models.IntegerField(default=0)
+    interestPayPeriod=models.IntegerField(default=0)
     annualPensionIncome=models.IntegerField(default=0)
     choiceRetireAtHome = models.BooleanField(default=False)
     choiceAvoidDownsizing = models.BooleanField(default=False)
@@ -285,6 +349,11 @@ class Loan(models.Model):
     consentPrivacy= models.BooleanField(default=False)
     consentElectronic = models.BooleanField(default=False)
 
+    #Version 1 Fields
+    topUpIncome=models.IntegerField(default=0)
+    incomeObjective=models.IntegerField(default=0)
+
+
     objects=CaseManager()
 
     def __str__(self):
@@ -293,6 +362,13 @@ class Loan(models.Model):
     def __unicode__(self):
         return smart_text(self.case.caseDescription)
 
+    def enumDrawdownFrequency(self):
+        if self.topUpFrequency:
+            return dict(self.drawdownFrequency)[self.topUpFrequency]
+
+    def enumCareFrequency(self):
+        if self.careFrequency:
+            return dict(self.drawdownFrequency)[self.careFrequency]
 
 class ModelSetting(models.Model):
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
@@ -316,28 +392,31 @@ class ModelSetting(models.Model):
 
 class LossData(models.Model):
 
-    ragTypes = (
-        (ragTypesEnum.RED.value, 'RED'),
-        (ragTypesEnum.AMBER.value, 'AMBER'),
-        (ragTypesEnum.GREEN.value, 'GREEN'),)
-
-    trueFalse = (
-        (False, 'No'),
-        (True,'Yes')
+    closeReasonTypes=(
+        (closeReasonEnum.AGE_RESTRICTION.value, 'Age Restriction'),
+        (closeReasonEnum.POSTCODE_RESTRICTION.value, 'Postcode Restriction'),
+        (closeReasonEnum.MINIMUM_LOAN_AMOUNT.value, 'Below minimum loan amount'),
+        (closeReasonEnum.CREDIT.value, 'Credit History'),
+        (closeReasonEnum.MORTGAGE.value, 'Mortgage too Large'),
+        (closeReasonEnum.SHORT_TERM.value, 'Short-term / Bridging Requirement'),
+        (closeReasonEnum.TENANTS.value, 'Tenants in common'),
+        (closeReasonEnum.UNSUITABLE_PROPERTY.value, 'Unsuitable Property'),
+        (closeReasonEnum.UNSUITABLE_PURPOSE.value, 'Unsuitable Purpose'),
+        (closeReasonEnum.ALTERNATIVE_SOLUTION.value, 'Client Pursuing Alternative'),
+        (closeReasonEnum.COMPETITOR.value, 'Client went to Competitor'),
+        (closeReasonEnum.OTHER.value , 'Other')
     )
 
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
-    lossNotes=models.TextField(blank=True, null=True)
-    lossDate = models.DateField(blank=True, null=True)
-    ragStatus = models.IntegerField(blank=True, null=True, choices=ragTypes)
-    followUp=models.BooleanField(default=False, blank=True,null=True, choices=trueFalse)
+
+    lossNotes=models.TextField(blank=True, null=True) # remove this
+
+    closeDate = models.DateField(blank=True, null=True)
+    closeReason = models.IntegerField(blank=True, null=True, choices=closeReasonTypes)
+
     followUpDate=models.DateField(blank=True, null=True)
     followUpNotes = models.TextField(blank=True, null=True)
-    purposeTopUp = models.BooleanField(default=False)
-    purposeRefi=models.BooleanField(default=False)
-    purposeLive=models.BooleanField(default=False)
-    purposeGive=models.BooleanField(default=False)
-    purposeCare=models.BooleanField(default=False)
+    doNotMarket = models.BooleanField(default=False)
 
     objects = CaseManager()
 
@@ -347,5 +426,49 @@ class LossData(models.Model):
     def __unicode__(self):
         return smart_text(self.case.caseDescription)
 
-    def enumRagStatus(self):
-        return self.ragTypes[self.ragStatus][1]
+    def enumCloseReason(self):
+        try:
+            return dict(self.closeReasonTypes)[self.closeReason]
+        except:
+            return None
+
+
+class FundedData(models.Model):
+    case = models.OneToOneField(Case, on_delete=models.CASCADE)
+    advanced=models.FloatField(default=0,blank=True, null=True)
+    principal=models.FloatField(default=0,blank=True, null=True)
+    totalValuation=models.FloatField(default=0,blank=True, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
+    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+    objects = CaseManager()
+
+    def __str__(self):
+        return smart_text(self.case.caseDescription)
+
+    def __unicode__(self):
+        return smart_text(self.case.caseDescription)
+
+
+class FactFind(models.Model):
+    case = models.OneToOneField(Case, on_delete=models.CASCADE)
+    backgroundNotes = models.TextField(blank=True, null=True)
+    requirementsNotes = models.TextField(blank=True, null=True)
+    topUpNotes = models.TextField(blank=True, null=True)
+    refiNotes = models.TextField(blank=True, null=True)
+    liveNotes = models.TextField(blank=True, null=True)
+    giveNotes = models.TextField(blank=True, null=True)
+    careNotes = models.TextField(blank=True, null=True)
+    futureNotes = models.TextField(blank=True, null=True)
+    clientNotes = models.TextField(blank=True, null=True)
+    additionalNotes = models.TextField(blank=True, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
+    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+    objects = CaseManager()
+
+    def __str__(self):
+        return smart_text(self.case.caseDescription)
+
+    def __unicode__(self):
+        return smart_text(self.case.caseDescription)

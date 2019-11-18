@@ -25,9 +25,11 @@ urlpatterns = [
     path('accounts/', include('apps.accounts.urls')),
     path('landing/', include('apps.landing.urls')),
     path('case/', include('apps.case.urls')),
-    path('client/', include('apps.client_1_0.urls')),
+    path('client2/', include('apps.client_2_0.urls')),
+    path('factfind/', include('apps.fact_find.urls')),
     path('calculator/', include('apps.calculator.urls')),
     path('enquiry/', include('apps.enquiry.urls')),
+    path('relationship/', include('apps.relationship.urls')),
     path('hhcadmin/', admin.site.urls)
 ]
 
