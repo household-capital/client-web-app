@@ -16,8 +16,8 @@ class caseTypesEnum(Enum):
     MEETING_HELD= 2
     CLOSED=3
     APPLICATION=4
-    PRE_APPROVAL=5
-    APPROVED = 6
+    DOCUMENTATION=5
+    FUNDED = 6
 
 @accessInTemplate
 class clientTypesEnum(Enum):
@@ -93,6 +93,39 @@ class incomeFrequencyEnum(Enum):
     MONTHLY = 2
 
 @accessInTemplate
+class closeReasonEnum(Enum):
+    AGE_RESTRICTION=1
+    POSTCODE_RESTRICTION = 2
+    MINIMUM_LOAN_AMOUNT=3
+    CREDIT = 4
+    MORTGAGE = 5
+    SHORT_TERM = 6
+    TENANTS = 7
+    UNSUITABLE_PROPERTY = 8
+    UNSUITABLE_PURPOSE = 9
+    ALTERNATIVE_SOLUTION=10
+    COMPETITOR=11
+    NO_CLIENT_ACTION=13
+    OTHER = 12
+
+@accessInTemplate
+class salutationEnum(Enum):
+    MR = 1
+    MS = 2
+    MRS = 3
+    DR = 4
+    PROF = 5
+
+@accessInTemplate
+class maritalEnum(Enum):
+    SINGLE = 1
+    MARRIED = 2
+    DIVORCED = 3
+    WIDOWED = 4
+
+
+
+#Squash migrations and delete
 class closeReasonTypes(Enum):
     AGE_RESTRICTION=1
     POSTCODE_RESTRICTION = 2
@@ -105,7 +138,5 @@ class closeReasonTypes(Enum):
     UNSUITABLE_PURPOSE = 9
     ALTERNATIVE_SOLUTION=10
     COMPETITOR=11
+    NO_CLIENT_ACTION=13
     OTHER = 12
-
-
-

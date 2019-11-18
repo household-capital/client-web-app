@@ -8,9 +8,8 @@ app_name = 'case'
 
 urlpatterns = [
     path('caseList' ,views.CaseListView.as_view() ,name='caseList'),
-    path('caseSummary', views.CaseSummaryView.as_view(), name='caseSummary'),
     path('caseCreate', views.CaseCreateView.as_view(),name='caseCreate'),
-    path('caseDetail/<int:pk>' ,views.CaseDetailView.as_view() ,name='caseDetail'),
+    path('caseDetail/<uuid:uid>' ,views.CaseDetailView.as_view() ,name='caseDetail'),
     path('caseDelete/<uuid:uid>', views.CaseDeleteView.as_view(), name='caseDelete'),
     path('caseClose/<uuid:uid>', views.CaseCloseView.as_view(), name='caseClose'),
     path('caseAnalysis/<int:pk>', views.CaseAnalysisView.as_view(), name='caseAnalysis'),
@@ -19,7 +18,7 @@ urlpatterns = [
     path('caseValuer/<uuid:uid>', views.CaseValuerView.as_view(), name='caseValuer'),
     path('caseOwn/<uuid:uid>',views.CaseOwnView.as_view(),name='caseOwn'),
     path('caseData/<uuid:uid>',views.CaseDataExtract.as_view(),name='caseData'),
-    path('cloudBridge/<uuid:uid>', views.CloudbridgeView.as_view(), name='cloudBridge'),
+    path('cloudBridge/<uuid:uid>', views.CloudbridgeView.as_view(), name='cloudBridge')
 
 ]
 

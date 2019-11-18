@@ -23,10 +23,10 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('', lambda r: HttpResponseRedirect('landing/')),
     path('accounts/', include('apps.accounts.urls')),
-    path('api/', include('apps.api.urls')),
     path('landing/', include('apps.landing.urls')),
     path('case/', include('apps.case.urls')),
     path('client2/', include('apps.client_2_0.urls')),
+    path('factfind/', include('apps.fact_find.urls')),
     path('calculator/', include('apps.calculator.urls')),
     path('enquiry/', include('apps.enquiry.urls')),
     path('relationship/', include('apps.relationship.urls')),

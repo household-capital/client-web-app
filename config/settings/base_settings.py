@@ -44,11 +44,12 @@ INSTALLED_APPS = [
     'apps.accounts',
     'apps.landing',
     'apps.client_2_0',
+    'apps.fact_find',
     'apps.case',
     'apps.calculator',
     'apps.enquiry',
     'apps.relationship',
-    'apps.site_tags'
+    'apps.site_tags',
 ]
 
 MIDDLEWARE = [

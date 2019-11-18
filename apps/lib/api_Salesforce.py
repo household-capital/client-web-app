@@ -156,11 +156,15 @@ class apiSalesforce():
         logging.info("         Making multiple SOQL calls to produce dictionary")
         loanDict={}
 
+
         loanDict.update(self.qryToDict('Opportunity', OpportunityID, 'Opp')['data'])
+
         loanDict.update(self.qryToDict('Properties', OpportunityID, 'Prop')['data'])
+
         loanDict.update(self.qryToDict('Loan', OpportunityID, 'Loan')['data'])
 
         loanDict.update(self.qryToDict('User',loanDict['Opp.OwnerId'],'User')['data'])
+
 
         if 'Loan.Distribution_Partner_Contact__c' in loanDict:
             if loanDict['Loan.Distribution_Partner_Contact__c']!=None:

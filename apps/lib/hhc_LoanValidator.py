@@ -64,6 +64,7 @@ class LoanValidator():
 
         # Limits
         self.maxLvr = 0
+        self.maxLoan = 0
         self.loanLimit = 0
         self.refinanceLimit = 0
         self.giveLimit = 0
@@ -84,16 +85,25 @@ class LoanValidator():
 
         # Check Valid Postcode
         reader = csv.reader(open(settings.BASE_DIR + self.POSTCODE_FILE, 'r'))
-        pcodeDict = dict(reader)
+        pcodeDict = {}
+    
+        for row in reader:
+            pcodeDict[row[0]]={"Acceptable":row[1],"MaxLoan":row[2]}
 
         if str(self.initDict['postcode']) in pcodeDict:
-            if pcodeDict[str(self.initDict['postcode'])]=="Refer":
+            if pcodeDict[str(self.initDict['postcode'])]['Acceptable']=="Refer":
                 data['postcode']="Refer"
             else:
                 data['postcode']="Valid"
         else:
             response['status'] = "Error"
             response['responseText'] = 'Invalid Postcode'
+
+        # Get maxLoan (from Postcode file)
+        if str(self.initDict['postcode']) in pcodeDict:
+            self.maxLoan = int(pcodeDict[str(self.initDict['postcode'])]['MaxLoan'])
+        else:
+            self.maxLoan = 0
 
         # Check Age
         if self.clientAge < LOAN_LIMITS['minSingleAge']:
@@ -147,6 +157,10 @@ class LoanValidator():
         # The totalLoanAmount is always correct based on % Establishment Fee
         # The available amount is an estimate based on the maximum $ establishment fee
         # (hence doesn't vary with the loan size or cause user confusion)
+
+        #Loan may not be validated
+        if self.maxLoan == 0:
+            result=self.validateLoan()
 
         response = {}
         data = {}
@@ -248,12 +262,13 @@ class LoanValidator():
         self.maxLvr = lvr * 100
 
         # Limits - based on maxLvr
-        self.loanLimit = min(int(round(lvr * self.initDict['valuation'], 0)), LOAN_LIMITS['maxLoanSize'])
+        self.loanLimit = min(int(round(lvr * self.initDict['valuation'], 0)), self.maxLoan)
 
         # Limits - based actual Lvr adjusted, capped at Loan Limit
         self.refinanceLimit = min(int(lvr * self.initDict['valuation'] * LOAN_LIMITS['maxRefi']), self.loanLimit)
         self.giveLimit = min(int(lvr * self.initDict['valuation'] * LOAN_LIMITS['maxGive']), self.loanLimit)
         self.travelLimit = min(int(lvr * self.initDict['valuation'] * LOAN_LIMITS['maxTravel']), self.loanLimit)
+
 
     def __valueExists(self, item, sourceDict):
         if item in sourceDict:

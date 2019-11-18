@@ -30,7 +30,9 @@ class CaseDetailsForm(forms.ModelForm):
         model = Case
         fields = ['caseDescription', 'adviser', 'caseNotes', 'loanType', 'caseType',
                   'clientType1', 'surname_1', 'firstname_1', 'birthdate_1', 'age_1', 'sex_1',
+                  'salutation_1','middlename_1','maritalStatus_1',
                   'clientType2', 'surname_2', 'firstname_2', 'birthdate_2', 'age_2', 'sex_2',
+                  'salutation_2', 'middlename_2', 'maritalStatus_2',
                   'street', 'suburb', 'postcode', 'valuation', 'dwellingType', 'propertyImage', 'mortgageDebt',
                   'superFund', 'valuationDocument', 'state', 'titleDocument',
                   'superAmount', 'pensionType', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email']
@@ -42,9 +44,12 @@ class CaseDetailsForm(forms.ModelForm):
                   (caseTypesEnum.DISCOVERY.value,"Discovery"),
                   (caseTypesEnum.MEETING_HELD.value, "Meeting Held"),
                   (caseTypesEnum.APPLICATION.value, "Application"),
-                  (caseTypesEnum.APPROVED.value, "Approved"),
+                  (caseTypesEnum.DOCUMENTATION.value, "Documentation"),
+                  (caseTypesEnum.FUNDED.value, "Funded"),
                   (caseTypesEnum.CLOSED.value, "Closed"),
+
     )
+
 
     caseType = forms.TypedChoiceField(choices=caseTypes, coerce=int, initial=caseTypesEnum.DISCOVERY.value)
 
@@ -102,10 +107,16 @@ class CaseDetailsForm(forms.ModelForm):
                         Div(Field('surname_1'))),
                     Div(Div(HTML("Firstname"), css_class='form-label'),
                         Div(Field('firstname_1'))),
+                    Div(Div(HTML("Middlename"), css_class='form-label'),
+                        Div(Field('middlename_1'))),
+                    Div(Div(HTML("Salutation"), css_class='form-label'),
+                        Div(Field('salutation_1'))),
                     Div(Div(HTML("Gender"), css_class='form-label'),
                         Div(Field('sex_1'))),
                     Div(Div(HTML("Borrower Role"), css_class='form-label'),
                         Div(Field('clientType1'))),
+                    Div(Div(HTML("Marital Status"), css_class='form-label'),
+                        Div(Field('maritalStatus_1'))),
                     HTML("<i class='far fa-user'></i>&nbsp;&nbsp;<small>Borrower 2</small>"),
                     Div(Div(HTML("Birthdate"), css_class='form-label'),
                         Div(Field('birthdate_2'))),
@@ -115,10 +126,16 @@ class CaseDetailsForm(forms.ModelForm):
                         Div(Field('surname_2'))),
                     Div(Div(HTML("Firstname"), css_class='form-label'),
                         Div(Field('firstname_2'))),
+                    Div(Div(HTML("Middlename"), css_class='form-label'),
+                        Div(Field('middlename_2'))),
+                    Div(Div(HTML("Salutation"), css_class='form-label'),
+                        Div(Field('salutation_2'))),
                     Div(Div(HTML("Gender"), css_class='form-label'),
                         Div(Field('sex_2'))),
                     Div(Div(HTML("Borrower Role"), css_class='form-label'),
                         Div(Field('clientType2'))),
+                    Div(Div(HTML("Marital Status"), css_class='form-label'),
+                        Div(Field('maritalStatus_2'))),
                     css_class="col-lg-6"),
 
                 Div(

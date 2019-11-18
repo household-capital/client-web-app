@@ -12,7 +12,8 @@ from django.urls import reverse_lazy
 
 #Local Application Imports
 from apps.lib.site_Enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,\
-    pensionTypesEnum, loanTypesEnum, ragTypesEnum, channelTypesEnum, stateTypesEnum, incomeFrequencyEnum, closeReasonTypes
+    pensionTypesEnum, loanTypesEnum, ragTypesEnum, channelTypesEnum, stateTypesEnum, incomeFrequencyEnum, \
+    closeReasonEnum, salutationEnum, maritalEnum
 
 
 class FundDetail(models.Model):
@@ -47,11 +48,11 @@ class CaseManager(models.Manager):
 
     # Custom data queries
     def openCases(self):
-        closedTypes = [caseTypesEnum.CLOSED.value, caseTypesEnum.APPROVED.value]
+        closedTypes = [caseTypesEnum.CLOSED.value, caseTypesEnum.FUNDED.value]
         return Case.objects.exclude(caseType__in=closedTypes)
 
     def pipelineHealth(self):
-        closedTypes = [caseTypesEnum.CLOSED.value, caseTypesEnum.APPROVED.value, caseTypesEnum.APPLICATION.value]
+        closedTypes = [caseTypesEnum.CLOSED.value, caseTypesEnum.DOCUMENTATION.value, caseTypesEnum.APPLICATION.value]
         startdate = timezone.now() - timedelta(days=14)
         openCases=self.openCases().exclude(caseType__in=closedTypes).count()
         currentCases=self.openCases().filter(updated__gte=startdate).exclude(caseType__in=closedTypes).count()
@@ -63,13 +64,11 @@ class Case(models.Model):
 
     caseTypes=(
                   (caseTypesEnum.DISCOVERY.value,"Discovery"),
-                  (caseTypesEnum.PRE_MEETING.value, "Pre-meeting"),
                   (caseTypesEnum.MEETING_HELD.value, "Meeting Held"),
                   (caseTypesEnum.APPLICATION.value, "Application"),
-                  (caseTypesEnum.PRE_APPROVAL.value, "Pre-approval"),
-                  (caseTypesEnum.CLOSED.value, "Closed"),
-                  (caseTypesEnum.APPROVED.value,"Approved")
-    )
+                  (caseTypesEnum.DOCUMENTATION.value, "Documentation"),
+                  (caseTypesEnum.FUNDED.value, "Funded"),
+                  (caseTypesEnum.CLOSED.value, "Closed"),    )
 
     clientTypes=(
         (clientTypesEnum.BORROWER.value, 'Borrower'),
@@ -132,6 +131,21 @@ class Case(models.Model):
         ('quotes@opteonsolutions.com', 'quotes@opteonsolutions.com')
     )
 
+    salutationTypes=(
+        (salutationEnum.MR.value,"Mr."),
+        (salutationEnum.MS.value, "Ms."),
+        (salutationEnum.MRS.value, "Mrs."),
+        (salutationEnum.DR.value, "Dr."),
+        (salutationEnum.PROF.value, "Prof."),
+    )
+
+    maritalTypes=(
+        (maritalEnum.SINGLE.value, "Single"),
+        (maritalEnum.MARRIED.value, "Married"),
+        (maritalEnum.DIVORCED.value, "Divorced"),
+        (maritalEnum.WIDOWED.value, "Widowed"),
+    )
+
     caseID = models.AutoField(primary_key=True)
     caseUID = models.UUIDField(default=uuid.uuid4, editable=False)
     caseType = models.IntegerField(choices=caseTypes)
@@ -145,12 +159,18 @@ class Case(models.Model):
 
     loanType=models.IntegerField(choices=loanTypes,null=True, blank=True)
     clientType1=models.IntegerField(choices=clientTypes,null=True, blank=True)
+    salutation_1 = models.IntegerField(choices=salutationTypes,null=True, blank=True)
+    middlename_1 = models.CharField(max_length=30, null=True, blank=True)
+    maritalStatus_1 = models.IntegerField(choices=maritalTypes,null=True, blank=True)
     surname_1=models.CharField(max_length=30, null=True, blank=True)
     firstname_1=models.CharField(max_length=30, null=True, blank=True)
     birthdate_1=models.DateField(null=True, blank=True)
     age_1=models.IntegerField(null=True, blank=True)
     sex_1=models.IntegerField(choices=clientSex,null=True, blank=True)
     clientType2 = models.IntegerField(choices=clientTypes, null=True, blank=True)
+    salutation_2 = models.IntegerField(choices=salutationTypes,null=True, blank=True)
+    middlename_2 = models.CharField(max_length=30, null=True, blank=True)
+    maritalStatus_2 = models.IntegerField(choices=maritalTypes,null=True, blank=True)
     surname_2=models.CharField(max_length=30, null=True, blank=True)
     firstname_2=models.CharField(max_length=30, null=True, blank=True)
     birthdate_2=models.DateField(null=True, blank=True)
@@ -180,6 +200,7 @@ class Case(models.Model):
     solicitorInstruction = models.FileField(max_length=150,null=True, blank=True)
     valuerInstruction= models.FileField(max_length=150, null=True, blank=True)
     titleDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='customerDocuments')
+    titleRequest = models.BooleanField(null=True, blank=True)
     specialConditions=models.TextField(null=True, blank=True)
     dataCSV = models.FileField(max_length=150, null=True, blank=True, upload_to='customerDocuments')
     lixiFile= models.FileField(max_length=150, null=True, blank=True)
@@ -196,6 +217,8 @@ class Case(models.Model):
 
     amalIdentifier=models.CharField(max_length=40, null=True, blank=True)
     amalLoanID=models.CharField(max_length=40, null=True, blank=True)
+
+    newProcess=models.BooleanField(default=False, null=True, blank=True)
 
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
@@ -238,7 +261,7 @@ class Case(models.Model):
             return [dict(self.clientTypes)[self.clientType1],dict(self.clientTypes)[self.clientType2]]
 
     def get_absolute_url(self):
-        return reverse_lazy("case:caseDetail", kwargs={"pk":self.caseID})
+        return reverse_lazy("case:caseDetail", kwargs={"uid":self.caseUID})
 
     def enumChannelType(self):
         if self.salesChannel is not None:
@@ -369,19 +392,19 @@ class ModelSetting(models.Model):
 
 class LossData(models.Model):
 
-    closeReasons=(
-        (closeReasonTypes.AGE_RESTRICTION.value, 'Age Restriction'),
-        (closeReasonTypes.POSTCODE_RESTRICTION.value, 'Postcode Restriction'),
-        (closeReasonTypes.MINIMUM_LOAN_AMOUNT.value, 'Below minimum loan amount'),
-        (closeReasonTypes.CREDIT.value, 'Credit History'),
-        (closeReasonTypes.MORTGAGE.value, 'Mortgage too Large'),
-        (closeReasonTypes.SHORT_TERM.value, 'Short-term / Bridging Requirement'),
-        (closeReasonTypes.TENANTS.value, 'Tenants in common'),
-        (closeReasonTypes.UNSUITABLE_PROPERTY.value, 'Unsuitable Property'),
-        (closeReasonTypes.UNSUITABLE_PURPOSE.value, 'Unsuitable Purpose'),
-        (closeReasonTypes.ALTERNATIVE_SOLUTION.value, 'Client Pursuing Alternative'),
-        (closeReasonTypes.COMPETITOR.value, 'Client went to Competitor'),
-        (closeReasonTypes.OTHER.value , 'Other')
+    closeReasonTypes=(
+        (closeReasonEnum.AGE_RESTRICTION.value, 'Age Restriction'),
+        (closeReasonEnum.POSTCODE_RESTRICTION.value, 'Postcode Restriction'),
+        (closeReasonEnum.MINIMUM_LOAN_AMOUNT.value, 'Below minimum loan amount'),
+        (closeReasonEnum.CREDIT.value, 'Credit History'),
+        (closeReasonEnum.MORTGAGE.value, 'Mortgage too Large'),
+        (closeReasonEnum.SHORT_TERM.value, 'Short-term / Bridging Requirement'),
+        (closeReasonEnum.TENANTS.value, 'Tenants in common'),
+        (closeReasonEnum.UNSUITABLE_PROPERTY.value, 'Unsuitable Property'),
+        (closeReasonEnum.UNSUITABLE_PURPOSE.value, 'Unsuitable Purpose'),
+        (closeReasonEnum.ALTERNATIVE_SOLUTION.value, 'Client Pursuing Alternative'),
+        (closeReasonEnum.COMPETITOR.value, 'Client went to Competitor'),
+        (closeReasonEnum.OTHER.value , 'Other')
     )
 
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
@@ -389,7 +412,7 @@ class LossData(models.Model):
     lossNotes=models.TextField(blank=True, null=True) # remove this
 
     closeDate = models.DateField(blank=True, null=True)
-    closeReason = models.IntegerField(blank=True, null=True, choices=closeReasons)
+    closeReason = models.IntegerField(blank=True, null=True, choices=closeReasonTypes)
 
     followUpDate=models.DateField(blank=True, null=True)
     followUpNotes = models.TextField(blank=True, null=True)
@@ -405,17 +428,40 @@ class LossData(models.Model):
 
     def enumCloseReason(self):
         try:
-            return dict(self.closeReasons)[self.closeReason]
+            return dict(self.closeReasonTypes)[self.closeReason]
         except:
             return None
 
 
 class FundedData(models.Model):
-    ARN=models.CharField(max_length=9,blank=True, null=True)
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
     advanced=models.FloatField(default=0,blank=True, null=True)
     principal=models.FloatField(default=0,blank=True, null=True)
     totalValuation=models.FloatField(default=0,blank=True, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
+    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+    objects = CaseManager()
+
+    def __str__(self):
+        return smart_text(self.case.caseDescription)
+
+    def __unicode__(self):
+        return smart_text(self.case.caseDescription)
+
+
+class FactFind(models.Model):
+    case = models.OneToOneField(Case, on_delete=models.CASCADE)
+    backgroundNotes = models.TextField(blank=True, null=True)
+    requirementsNotes = models.TextField(blank=True, null=True)
+    topUpNotes = models.TextField(blank=True, null=True)
+    refiNotes = models.TextField(blank=True, null=True)
+    liveNotes = models.TextField(blank=True, null=True)
+    giveNotes = models.TextField(blank=True, null=True)
+    careNotes = models.TextField(blank=True, null=True)
+    futureNotes = models.TextField(blank=True, null=True)
+    clientNotes = models.TextField(blank=True, null=True)
+    additionalNotes = models.TextField(blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
 

@@ -119,7 +119,7 @@ class LoanProjection():
         # Regular Drawdown
         if self.initDict['topUpIncomeAmount'] != 0:
             if initDict['topUpFrequency']==incomeFrequencyEnum.FORTNIGHTLY.value:
-                freqAdj=2
+                freqAdj = 13/6
             else:
                 freqAdj = 1
 
@@ -131,7 +131,7 @@ class LoanProjection():
         # Regular Drawdown - Care
         if self.initDict['careRegularAmount'] != 0:
             if initDict['careFrequency'] == incomeFrequencyEnum.FORTNIGHTLY.value:
-                freqAdj = 2
+                freqAdj = 13 /6
             else:
                 freqAdj = 1
 

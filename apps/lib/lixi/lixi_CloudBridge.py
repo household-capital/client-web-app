@@ -147,6 +147,7 @@ class CloudBridge():
         self.__logging("Step 1 - Extracting Salesforce Data to Loan Dictionary")
         loanDict = self.sfAPI.getLoanExtract(self.opportunityId)['data']
 
+
         self.loanId=loanDict['Loan.Loan_Number__c'] #Loan ID used later - hence instance variable
 
         self.__logging("Step 2 - Enriching and enumerating the Loan Dictionary")

@@ -92,8 +92,37 @@ def updateToday():
     return "Finished - Successfully"
 
 
-# UTILITIES
 
+@app.task(name="EnquirySecondFollowUp")
+def updateTodayContact():
+    write_applog("INFO", 'Enquiry', 'SecondFollowUpEmail', "Starting")
+
+    delta = timedelta(days=14)
+    windowDate = timezone.now() - delta
+
+    qs = Enquiry.objects.filter(secondfollowUp__isnull=True,
+                                email__isnull=False,
+                                enquiryNotes__isnull=True,
+                                referrer=directTypesEnum.WEB_CALCULATOR.value,
+                                timestamp__lte=windowDate,
+                                user__isnull=False,
+                                actioned=0,
+                                status=1,
+                                closeDate__isnull=True).exclude(isCalendly=True)
+
+    for enquiry in qs:
+        result = FollowUpSecondEmail(str(enquiry.enqUID))
+        if result['status'] == "Ok":
+            write_applog("INFO", 'Enquiry', 'SecondFollowUpEmail', "Sent -" + enquiry.name)
+            updateSFLead(str(enquiry.enqUID))
+        else:
+            write_applog("ERROR", 'Enquiry', 'SecondFollowUpEmail', "Failed -" + enquiry.name)
+
+    write_applog("INFO", 'Enquiry', 'SecondFollowUpEmail', "Finished")
+    return "Finished - Successfully"
+
+
+# UTILITIES
 
 # Follow Up Email
 def FollowUpEmail(enqUID):
@@ -101,7 +130,20 @@ def FollowUpEmail(enqUID):
 
     enqObj = Enquiry.objects.queryset_byUID(enqUID).get()
 
-    email_context={}
+    # Build context
+    email_context = {}
+
+    #  Strip name
+    if enqObj.name:
+        if " " in enqObj.name:
+            customerFirstName, surname = enqObj.name.split(" ", 1)
+        else:
+            customerFirstName = enqObj.name
+        if len(customerFirstName) < 2:
+            customerFirstName = None
+
+    email_context['customerFirstName'] = customerFirstName
+
     email_context['obj'] = enqObj
     email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
     email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
@@ -111,7 +153,7 @@ def FollowUpEmail(enqUID):
         return {"status": "Error", 'responseText': "No associated user"}
 
     bcc = enqObj.user.email
-    subject, from_email, to = "Household Capital: Follow-up", enqObj.user.email, enqObj.email
+    subject, from_email, to = "Household Capital: Get the Lowest Available Reverse Mortgage Interest Rate", enqObj.user.email, enqObj.email
     text_content = "Text Message"
 
     try:
@@ -130,6 +172,55 @@ def FollowUpEmail(enqUID):
         write_applog("ERROR", 'Enquiry', 'Tasks-FollowUpEmail',
                      "Failed to email follow-up:" + enqUID)
         return {"status": "ERROR", 'responseText': "Failed to email follow-up:" + enqUID}
+
+
+def FollowUpSecondEmail(enqUID):
+    template_name = 'enquiry/email/email_second_followup.html'
+
+    enqObj = Enquiry.objects.queryset_byUID(enqUID).get()
+
+    # Build context
+    email_context = {}
+
+    #  Strip name
+    if enqObj.name:
+        if " " in enqObj.name:
+            customerFirstName, surname = enqObj.name.split(" ", 1)
+        else:
+            customerFirstName = enqObj.name
+        if len(customerFirstName) < 2:
+            customerFirstName = None
+
+    email_context['customerFirstName'] = customerFirstName
+
+    email_context['obj'] = enqObj
+    email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+    email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
+
+    if not enqObj.user:
+        write_applog("Error", 'Enquiry', 'Tasks-FollowUpEmail', "No associated user")
+        return {"status": "Error", 'responseText': "No associated user"}
+
+    bcc = enqObj.user.email
+    subject, from_email, to = "Household Capital: How would an extra $300 or $400 a week make a difference to your retirement?", enqObj.user.email, enqObj.email
+    text_content = "Text Message"
+
+    try:
+        html = get_template(template_name)
+        html_content = html.render(email_context)
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [bcc])
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
+        enqObj.secondfollowUp = timezone.now()
+        enqObj.save(update_fields=['secondfollowUp'])
+
+        write_applog("Info", 'Enquiry', 'Tasks-SecondFollowUpEmail', "Second Follow-up Email Sent: " + enqObj.name)
+        return {"status": "Ok", 'responseText': "Second Follow-up Email Sent"}
+
+    except:
+        write_applog("ERROR", 'Enquiry', 'Tasks-SecondFollowUpEmail',
+                     "Failed to email second follow-up:" + enqUID)
+        return {"status": "ERROR", 'responseText': "Failed to email second follow-up:" + enqUID}
 
 
 SF_LEAD_MAPPING = {'phoneNumber': 'Phone',

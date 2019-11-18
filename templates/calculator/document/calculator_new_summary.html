@@ -15,7 +15,7 @@
     <meta name="author" content="">
 
     <!-- CSS -->
-    {% include 'client_1_0/base/base_client.css.html' %}
+    {% include 'client_2_0/base/base_client.css.html' %}
 
     <title>Household Summary</title>
 </head>
@@ -169,10 +169,10 @@
     <div class="print-container">
         <br>
 
-        <div class="row ">
+        <div class="row {% if not obj.calcTotal %}pl-5{% endif %} ">
             <div class="col-lg-11 ">
 
-                <div class="row align-items-center justify-content-center">
+                <div class="row align-items-center justify-content-center ">
 
                     <div class="col-md-2 text-center pb-2 ">
 
@@ -183,7 +183,7 @@
                         <p class="pl-2 print-text"><b>Top Up</b></p>
                         <p class="pl-2"> Increase your super, investments or contingency funds</p>
                     </div>
-                    <div class="col-md-2 text-right"><p class="larger">{% if obj.isTopUp %}$
+                    <div class="col-md-2 text-right"><p class="larger">{% if obj.calcTopUp %}$
                         {{ obj.calcTopUp }}{% endif %}</p></div>
                 </div>
 
@@ -197,7 +197,7 @@
                         <p class="pl-2 print-text"><b>Refinance</b></p>
                         <p class="pl-2">Refinance your existing mortgage (choose whether or not to make repayments)</p>
                     </div>
-                    <div class="col-md-2 text-right"><p class="larger">{% if obj.isRefi %}$
+                    <div class="col-md-2 text-right"><p class="larger">{% if obj.calcRefi %}$
                         {{ obj.calcRefi }}{% endif %}</p></div>
                 </div>
 
@@ -210,7 +210,7 @@
                         <p class="pl-2 print-text"><b>Live</b></p>
                         <p class="pl-2">Renovate your home or help fund your transport and travel</p>
                     </div>
-                    <div class="col-md-2 text-right"><p class="larger">{% if obj.isLive %}$
+                    <div class="col-md-2 text-right"><p class="larger">{% if obj.calcLive %}$
                         {{ obj.calcLive }}{% endif %}</p></div>
                 </div>
 
@@ -224,7 +224,7 @@
                         <p class="pl-2">Help your family with funding a home deposit or education expenses</p>
 
                     </div>
-                    <div class="col-md-2 text-right"><p class="larger">{% if obj.isGive %}$
+                    <div class="col-md-2 text-right"><p class="larger">{% if obj.calcGive %}$
                         {{ obj.calcGive }}{% endif %}</p></div>
                 </div>
 
@@ -237,20 +237,31 @@
                         <p class="pl-2 print-text"><b>Care</b></p>
                         <p class="pl-2">Fund your medical expenses, in-home care or aged care requirements</p>
                     </div>
-                    <div class="col-md-2 text-right"><p class="larger">{% if obj.isCare %}$
+                    <div class="col-md-2 text-right"><p class="larger">{% if obj.calcCare %}$
                         {{ obj.calcCare }}{% endif %}</p></div>
                 </div>
 
                 <div class="row align-items-center justify-content-center">
-                    <div class="col-md-8 text-right">
-                        <p class="larger">Total retirement funding needs</p>
-                    </div>
-                    <div class="col-md-2 text-right">
-                        <div>
-                            <p class="x-large">{% if obj.calcTotal %}${{ obj.calcTotal }}{% endif %}</p>
-
+                    {% if obj.calcTotal %}
+                        <div class="col-md-8 text-right">
+                            <p class="larger">Total retirement funding needs</p>
                         </div>
-                    </div>
+                        <div class="col-md-2 text-right">
+                            <div>
+                                <p class="x-large">${{ obj.calcTotal }}</p>
+
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="col-md-2 text-right">
+                            <div>
+                                <p class="x-large">&nbsp;</p>
+
+                            </div>
+                        </div>
+
+                    {% endif %}
+
                 </div>
                 <br>
 
@@ -290,7 +301,7 @@
                         <p class="small"><i class="far fa-envelope"></i>&nbsp;&nbsp;info@householdcapital.com</p>
                         <p class="small"><i class="fas fa-phone">&nbsp;&nbsp;</i>1 300 622 100</p>
                         <p class="small"><i class="fas fa-desktop"></i>&nbsp;&nbsp;www.householdcapital.com</p>
-                            <br><br>
+                        <br><br>
 
                     </div>
                     <div class="col-lg-7 text-center pl-5 pr-5">
@@ -338,7 +349,8 @@
     <div class="row justify-content-center">
         <div class="col-sm-8 text-center">
             <p>A Household Transfer is our approach to borrowing against home equity for responsible,
-                long-term, retirement funding. Our loan is structured as a reverse mortgage and therefore you benefit from
+                long-term, retirement funding. Our loan is structured as a reverse mortgage and therefore you benefit
+                from
                 strong legal protections
             </p>
             <br>
@@ -381,7 +393,8 @@
         </div>
         <div class="row justify-content-center">
             <div class="col-sm-8 text-center">
-                <p>As the interest on a Household Transfer is added to the principal (the borrowed amount), the loan balance grows over time.
+                <p>As the interest on a Household Transfer is added to the principal (the borrowed amount), the loan
+                    balance grows over time.
                     However, the value of your home may also grow over time </p>
                 <br>
 
@@ -401,7 +414,9 @@
                     a Household Transfer of <b>${{ totalLoanAmount }}</b> and a current home value of
                     <b>${{ obj.valuation }}</b> (see
                     assumptions below) **</p>
-                {% if obj.payIntAmount > 0 %}<p>Includes monthly interest payments of <b>${{obj.payIntAmount|intcomma}}</b> for <b>{{ obj.payIntPeriod}}</b> years</p>
+                {% if obj.payIntAmount > 0 %}
+                    <p>Includes monthly interest payments of <b>${{ obj.payIntAmount|intcomma }}</b> for
+                        <b>{{ obj.payIntPeriod }}</b> years</p>
                 {% else %}<p>Assumes no payment of regular interest</p>{% endif %}
                 <br>
             </div>
@@ -493,7 +508,8 @@
             <div class="text-center">
                 <br>
                 <p class="x-large"><b>Could a Household Transfer be right for you?</b></p><br>
-                <p>Contact {{ obj.user.first_name }} {{ obj.user.last_name }} ({{ obj.user.profile.mobile}} or {{obj.user.email }}) to discuss your circumstances in more detail</p>
+                <p>Contact {{ obj.user.first_name }} {{ obj.user.last_name }} ({{ obj.user.profile.mobile }}
+                    or {{ obj.user.email }}) to discuss your circumstances in more detail</p>
                 <br>
             </div>
 
@@ -502,12 +518,14 @@
         <div class="row justify-content-center pt-4 ">
             <div class="col-lg-11 text-center">
 
-                <p class="small">* A 1.50% establishment fee is also payable. The Comparison Rate is {{ comparisonRate }}%. This is based on a loan of $150,000 secured
+                <p class="small">* A 1.50% establishment fee is also payable. The Comparison Rate
+                    is {{ comparisonRate }}%. This is based on a loan of $150,000 secured
                     for a term of 25 years. Interest is calculated daily and
                     accrued monthly. Please note that the comparison rate only applies to the example given. Different
                     loan amounts and terms will result in diferent comparison rates. <br>** This is an estimate, not a
                     guarantee. You may end up with more or less equity in your home. Assumptions: a lump sum
-                    drawdown, {{ housePriceInflation }}% pa house price inflation and a {{ totalInterestRate }}% pa interest rate for the term of the loan. Establishment fee is not included in the illustration.</p>
+                    drawdown, {{ housePriceInflation }}% pa house price inflation and a {{ totalInterestRate }}% pa
+                    interest rate for the term of the loan. Establishment fee is not included in the illustration.</p>
 
                 <br>
             </div>
@@ -527,7 +545,7 @@
                             <p class="small"><i class="far fa-envelope"></i>&nbsp;&nbsp;info@householdcapital.com</p>
                             <p class="small"><i class="fas fa-phone">&nbsp;&nbsp;</i>1 300 622 100</p>
                             <p class="small"><i class="fas fa-desktop"></i>&nbsp;&nbsp;www.householdcapital.com</p>
-                                <br><br>
+                            <br><br>
 
                         </div>
                         <div class="col-lg-7 text-center pl-5 pr-5">

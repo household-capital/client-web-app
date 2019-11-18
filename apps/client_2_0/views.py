@@ -26,7 +26,8 @@ from apps.lib.site_Logging import write_applog
 from .forms import ClientDetailsForm, SettingsForm, IntroChkBoxForm, topUpLumpSumForm, topUpDrawdownForm, debtRepayForm
 from .forms import giveAmountForm, renovateAmountForm, travelAmountForm, careAmountForm, DetailedChkBoxForm, \
     protectedEquityForm, interestPaymentForm, careDrawdownForm,topUpContingencyForm
-from apps.lib.site_Utilities import pdfGenerator
+from apps.lib.api_Pdf import pdfGenerator
+from apps.lib.site_Utilities import firstNameSplit
 
 
 # // MIXINS
@@ -946,9 +947,9 @@ class Results3(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, Template
 
         if context['loanType'] == loanTypesEnum.JOINT_BORROWER.value:
             if context['age_1'] < context['age_2']:
-                context['ageAxis'] = context['firstname_1'] + "'s age"
+                context['ageAxis'] = firstNameSplit(context['firstname_1']) + "'s age"
             else:
-                context['ageAxis'] = context['firstname_2'] + "'s age"
+                context['ageAxis'] = firstNameSplit(context['firstname_2']) + "'s age"
         else:
             context['ageAxis'] = "Your age"
 
@@ -1009,11 +1010,24 @@ class FinalPDFView(LoginRequiredMixin, SessionRequiredMixin, View):
     def get(self, request):
 
         sourceUrl = 'https://householdcapital.app/client2/pdfLoanSummary/' + self.request.session['caseUID']
-        targetFileName = settings.MEDIA_ROOT + "/customerReports/Summary-" + self.request.session['caseUID'][
+        componentFileName = settings.MEDIA_ROOT + "/customerReports/Component-" + self.request.session['caseUID'][
                                                                              -12:] + ".pdf"
+        componentURL= 'https://householdcapital.app/media/' + "/customerReports/Component-" + self.request.session['caseUID'][
+                                                                             -12:] + ".pdf"
+        targetFileName = settings.MEDIA_ROOT + "/customerReports/Summary-" + self.request.session['caseUID'][
+                                                                                  -12:] + ".pdf"
 
         pdf = pdfGenerator(self.request.session['caseUID'])
-        created, text = pdf.createPdfFromUrl(sourceUrl, 'HouseholdSummary.pdf', targetFileName)
+        created, text = pdf.createPdfFromUrl(sourceUrl, 'HouseholdSummary.pdf', componentFileName)
+
+        if not created:
+            return HttpResponseRedirect(reverse_lazy('client2:finalError'))
+
+        #Merge Additional Components
+        urlList=[componentURL,
+                 'https://householdcapital.app/static/img/document/LoanSummaryAdditional.pdf']
+
+        created, text = pdf.mergePdfs(urlList=urlList, pdfDescription="HHC-LoanSummary.pdf", targetFileName=targetFileName)
 
         if not created:
             return HttpResponseRedirect(reverse_lazy('client2:finalError'))
@@ -1023,17 +1037,19 @@ class FinalPDFView(LoginRequiredMixin, SessionRequiredMixin, View):
             localfile = open(targetFileName, 'rb')
 
             qsCase = Case.objects.queryset_byUID(self.request.session['caseUID'])
-            qsCase.update(summaryDocument=File(localfile), )
+            qsCase.update(summaryDocument=File(localfile), newProcess = True )
 
             pdf_contents = localfile.read()
+
+            ## RENDER FILE TO HTTP RESPONSE
+            response = HttpResponse(pdf.getContent(), content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="HHC-LoanSummary.pdf"'
+            localfile.close()
+
         except:
             write_applog("ERROR", 'PdfProduction', 'get',
                          "Failed to save Summary Report in Database: " + self.request.session['caseUID'])
-
-        ## RENDER FILE TO HTTP RESPONSE
-        response = HttpResponse(pdf.getContent(), content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="HHC-LoanSummary.pdf"'
-        localfile.close()
+            return HttpResponseRedirect(reverse_lazy('client2:finalError'))
 
         # log user out
         write_applog("INFO", 'PdfProduction', 'get',
@@ -1111,9 +1127,9 @@ class PdfLoanSummary(TemplateView):
 
             if context['loanType'] == loanTypesEnum.JOINT_BORROWER.value:
                 if context['age_1'] < context['age_2']:
-                    context['ageAxis'] = context['firstname_1'] + "'s age"
+                    context['ageAxis'] = firstNameSplit(context['firstname_1']) + "'s age"
                 else:
-                    context['ageAxis'] = context['firstname_2'] + "'s age"
+                    context['ageAxis'] = firstNameSplit(context['firstname_2']) + "'s age"
             else:
                 context['ageAxis'] = "Your age"
 

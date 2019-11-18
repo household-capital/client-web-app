@@ -101,14 +101,14 @@
                                 <p class="small">&nbsp;&nbsp;- Discovery</p>
                                 <p class="small">&nbsp;&nbsp;- Meeting Held</p>
                                 <p class="small">&nbsp;&nbsp;- Application</p>
-                                <p class="small">&nbsp;&nbsp;- Pre-Approval</p>
+                                <p class="small">&nbsp;&nbsp;- Documentation</p>
                             </div>
                             <div class="col-2 text-right">
 
                                 <p class="small">{{ openDiscovery }}</p>
                                 <p class="small">{{ openMeetingHeld }}</p>
                                 <p class="small">{{ openApplication }}</p>
-                                <p class="small">{{ openPreApproval }}</p>
+                                <p class="small">{{ openDocumentation }}</p>
                             </div>
 
 
@@ -131,7 +131,7 @@
                         <p>Cases</p>
                         <p>Meetings</p>
                         <p>Applications</p>
-                        <p>Approvals</p>
+                        <p>Funded</p>
                     </div>
 
                     <div class="col-4 text-right pb-3">
@@ -140,7 +140,7 @@
                         <p>{{ totalCases }}</p>
                         <p>{{ meetings }}</p>
                         <p>{{ applications }}</p>
-                        <p>{{ approvals }}</p>
+                        <p>{{ funded }}</p>
                     </div>
 
                 </div>
@@ -171,11 +171,8 @@
     <div class="row justify-content-center">
         <div class="col-lg-9 text-left">
 
-            <b>Website Calculator Interactions and Enquiries</b>&nbsp;&nbsp;<a role="button"
-                                                                               class="btn btn-outline-secondary text-secondary"
-                                                                               href="{% url 'landing:dashboardCalc' %}">&nbsp;<i
-                class="fas fa-search-plus">&nbsp;</i></a>
-            <div class="chart-container pt-3" style="height:250px;">
+            <b>Website Calculator Interactions and Enquiries</b>&nbsp;&nbsp;
+            <div class="chart-container pt-3" style="height:370px;">
 
                 <canvas id="interactionChart"></canvas>
             </div>
@@ -193,10 +190,10 @@
             <table class="table table-hover table-sm text-right">
                 <thead class="jumbotron">
                 <tr>
-                    <th scope="col" ></th>
-                    <th scope="col" ></th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
                     {% for month in dateRange %}
-                    <th scope="col" >{{month}}</th>
+                        <th scope="col">{{ month }}</th>
                     {% endfor %}
 
                 </tr>
@@ -204,86 +201,89 @@
 
                 <tbody>
                 <tr>
-                 <td class="text-left"><b>Direct</b></td>
-                </tr>
-
-                 <tr>
-                     <td></td>
-                     <td>Calculator</td>
-                     {% for month in dateRange %}
-                    <td>{{directData|getDictItem:month|getDictItem:directTypesEnum.WEB_CALCULATOR.value }}</td>
-                    {% endfor %}
-                </tr>
-
-                 <tr>
-                     <td></td>
-                     <td>Web Enquiry</td>
-                     {% for month in dateRange %}
-                    <td>{{directData|getDictItem:month|getDictItem:directTypesEnum.WEB_ENQUIRY.value }}</td>
-                    {% endfor %}
-                </tr>
-
-
-                 <tr>
-                     <td></td>
-                     <td>Phone</td>
-                     {% for month in dateRange %}
-                    <td>{{directData|getDictItem:month|getDictItem:directTypesEnum.PHONE.value }}</td>
-                    {% endfor %}
-                </tr>
-
-                 <tr>
-                     <td></td>
-                     <td>Email</td>
-                     {% for month in dateRange %}
-                    <td>{{directData|getDictItem:month|getDictItem:directTypesEnum.EMAIL.value }}</td>
-                    {% endfor %}
-                </tr>
-
-                 <tr>
-                     <td></td>
-                     <td>Other</td>
-                     {% for month in dateRange %}
-                    <td>{{directData|getDictItem:month|getDictItem:directTypesEnum.OTHER.value }}</td>
-                    {% endfor %}
+                    <td class="text-left"><b>Direct</b></td>
                 </tr>
 
                 <tr>
-                 <td class="text-left"><b>Referral</b></td>
                     <td></td>
-                    {% for month in dateRange %}<td></td>{% endfor %}
-
-                </tr>
-
-                 <tr>
-                     <td></td>
-                     <td>IFA</td>
-                     {% for month in dateRange %}
-                    <td>{{referralData|getDictItem:month|getDictItem:channelTypesEnum.IND_FINANCIAL_ADVISERS.value }}</td>
+                    <td>Calculator</td>
+                    {% for month in dateRange %}
+                        <td>{{ directData|getDictItem:month|getDictItem:directTypesEnum.WEB_CALCULATOR.value }}</td>
                     {% endfor %}
                 </tr>
 
                 <tr>
-                     <td></td>
-                     <td>Brokers</td>
+                    <td></td>
+                    <td>Web Enquiry</td>
                     {% for month in dateRange %}
-                    <td>{{referralData|getDictItem:month|getDictItem:channelTypesEnum.BROKERS.value }}</td>
+                        <td>{{ directData|getDictItem:month|getDictItem:directTypesEnum.WEB_ENQUIRY.value }}</td>
                     {% endfor %}
                 </tr>
 
-                 <tr>
-                     <td></td>
-                     <td>Aged Care</td>
-                     {% for month in dateRange %}
-                    <td>{{referralData|getDictItem:month|getDictItem:channelTypesEnum.AGED_CARE_ADVISERS.value }}</td>
+
+                <tr>
+                    <td></td>
+                    <td>Phone</td>
+                    {% for month in dateRange %}
+                        <td>{{ directData|getDictItem:month|getDictItem:directTypesEnum.PHONE.value }}</td>
                     {% endfor %}
                 </tr>
 
-                 <tr class="jumbotron">
-                     <td class="text-left"><b>Total</b></td>
-                     <td></td>
-                     {% for month in dateRange %}
-                    <td>{{totalData|getDictItem:month}}</td>
+                <tr>
+                    <td></td>
+                    <td>Email</td>
+                    {% for month in dateRange %}
+                        <td>{{ directData|getDictItem:month|getDictItem:directTypesEnum.EMAIL.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td>Other</td>
+                    {% for month in dateRange %}
+                        <td>{{ directData|getDictItem:month|getDictItem:directTypesEnum.OTHER.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                <tr>
+                    <td class="text-left"><b>Referral</b></td>
+                    <td></td>
+                    {% for month in dateRange %}
+                        <td></td>{% endfor %}
+
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td>IFA</td>
+                    {% for month in dateRange %}
+                        <td>
+                            {{ referralData|getDictItem:month|getDictItem:channelTypesEnum.IND_FINANCIAL_ADVISERS.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td>Brokers</td>
+                    {% for month in dateRange %}
+                        <td>{{ referralData|getDictItem:month|getDictItem:channelTypesEnum.BROKERS.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td>Aged Care</td>
+                    {% for month in dateRange %}
+                        <td>
+                            {{ referralData|getDictItem:month|getDictItem:channelTypesEnum.AGED_CARE_ADVISERS.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                <tr class="jumbotron">
+                    <td class="text-left"><b>Total</b></td>
+                    <td></td>
+                    {% for month in dateRange %}
+                        <td>{{ totalData|getDictItem:month}}</td>
                     {% endfor %}
                 </tr>
 
@@ -369,7 +369,7 @@
                         display: true,
                         ticks: {
                             beginAtZero: true,
-                            max: 120
+                            max: 200
                         }
                     }]
                 },

@@ -31,26 +31,19 @@ def strBlank(arg):
 def shortUID(arg):
     return str(arg)[-12:]
 
-def bspkReferrer(arg):
-    refList=['superannuation-and-retirement','retirement-planning','reverse-mortgages','aged-care-financing',
-             'centrelink-pension-information','equity-mortgage-release','calculator']
-    if arg==None:
-        return ""
-
-    for term in refList:
-        if term in arg:
-            return term
-    return arg
-
 def filename(value):
     return os.path.basename(value.file.name)
 
 def upto(value, delimiter=','):
     return value.split(delimiter)[0]
 
+
 def firstName(str):
-    firstname, surname = str.split(" ",1)
-    if len(firstname)>0:
+    if " " not in str:
+        return str
+
+    firstname, surname = str.split(" ", 1)
+    if len(firstname) > 0:
         return firstname
     else:
         return str
@@ -68,7 +61,6 @@ register.filter('intVal', intVal)
 register.filter('intStr', intStr)
 register.filter('intBlank', intBlank)
 register.filter('strBlank', strBlank)
-register.filter('bspkReferrer', bspkReferrer)
 register.filter('shortUID', shortUID)
 register.filter('filename', filename)
 register.filter('upto', upto)

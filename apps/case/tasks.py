@@ -29,7 +29,7 @@ def fundedData():
 
     qs = FundedData.objects.all()
     for loan in qs:
-        response = amalAPI.getFundedData(loan.ARN)
+        response = amalAPI.getFundedData(loan.case.amalLoanID)
 
         if response['status'] != "Ok":
             write_applog("ERROR", 'Case', 'Tasks-fundedData', response['responseText'])
@@ -92,6 +92,11 @@ def catchallSFLeadTask():
 def sfLeadConvert(caseUID):
     '''Task wrapper to to create lead for all cases without sfLeadID '''
 
+    # Get object
+    qs = Case.objects.queryset_byUID(caseUID)
+    case = qs.get()
+    description=case.caseDescription
+
     taskErr=taskError()
     write_applog("INFO", 'Case', 'Tasks-SF_Lead_Convert', "Starting")
 
@@ -106,15 +111,23 @@ def sfLeadConvert(caseUID):
 
     if result['status'] != "Ok":
         write_applog("Error", 'Case', 'Tasks-SF_Lead_Convert', result['responseText'])
-        taskErr.raiseAdminError('Tasks-SF_Lead_Convert',"Error - could not convert lead :"+result['responseText'])
-        return "Error - "+result['responseText']
+        taskErr.raiseAdminError('Tasks-SF_Lead_Convert',"Error - could not convert lead :"+ description+"-"+result['responseText'])
+        return "Error - "+ description+"-"+result['responseText']
     else:
-        write_applog("INFO", 'Case', 'Tasks-SF_Lead_Convert', "Lead Converted")
+        write_applog("INFO", 'Case', 'Tasks-SF_Lead_Convert',  description+"-"+"Lead Converted")
+        return "Lead converted!"
+
 
 
 @app.task(name='SF_Opp_Synch')
 def sfOppSynch(caseUID):
     '''Task wrapper to to create lead for all cases without sfLeadID '''
+
+    # Get object
+    qs = Case.objects.queryset_byUID(caseUID)
+    case = qs.get()
+    description=case.caseDescription
+
     taskErr = taskError()
     write_applog("INFO", 'Case', 'Tasks-SF_Opp_Synch', "Starting")
 
@@ -128,11 +141,11 @@ def sfOppSynch(caseUID):
     result=updateSFOpp(caseUID, sfAPI)
 
     if result['status'] != "Ok":
-        write_applog("Error", 'Case', 'Tasks-SF_Opp_Synch', result['responseText'])
-        taskErr.raiseAdminError('Tasks-SF_Opp_Synch', "Error - could not synch Opp :" + result['responseText'])
+        write_applog("Error", 'Case', 'Tasks-SF_Opp_Synch', description+"-"+result['responseText'])
+        taskErr.raiseAdminError('Tasks-SF_Opp_Synch', "Error - could not synch Opp :" + description+"-"+ result['responseText'])
         return "Error - "+result['responseText']
     else:
-        write_applog("INFO", 'Case', 'Tasks-SF_Opp_Synch', "Opp Synched!")
+        write_applog("INFO", 'Case', 'Tasks-SF_Opp_Synch', description+"-"+"Opp Synched!")
         return "Success - Opp Synched!"
 
 # UTILITIES
@@ -400,14 +413,14 @@ def updateSFOpp(caseUID, sfAPI):
         'interestPayPeriod': caseObj.loan.interestPayPeriod,
         'clientType1': caseObj.enumClientType()[0],
         'surname_1': caseObj.surname_1,
-        'firstname_1': caseObj.firstname_1,
+        'firstname_1': joinNames(caseObj.firstname_1, caseObj.middlename_1),
         'age_1': caseObj.age_1,
         'sex_1': caseObj.enumSex()[0],
         'phoneNumber': caseObj.phoneNumber,
         'email': caseObj.email,
         'clientType2': caseObj.enumClientType()[1],
         'surname_2': caseObj.surname_2,
-        'firstname_2': caseObj.firstname_2,
+        'firstname_2': joinNames(caseObj.firstname_2, caseObj.middlename_2),
         'age_2': caseObj.age_2,
         'sex_2': caseObj.enumSex()[1],
         'street': caseObj.street,
@@ -459,7 +472,7 @@ def updateSFOpp(caseUID, sfAPI):
         'careAmount': caseObj.loan.careAmount,
         'careDrawdownAmount': caseObj.loan.careDrawdownAmount,
         'careRegularAmount': caseObj.loan.careRegularAmount,
-        'careFrequency': caseObj.loan.careFrequency,
+        'careFrequency': caseObj.loan.enumCareFrequency(),
         'carePeriod': caseObj.loan.carePeriod,
         'topUpDescription': caseObj.loan.topUpDescription,
         'topUpContingencyDescription': caseObj.loan.topUpContingencyDescription,
@@ -492,13 +505,11 @@ def updateSFOpp(caseUID, sfAPI):
     result = sfAPI.apexCall(end_point, end_point_method, data=payload)
     if result['status'] != 'Ok':
         write_applog("Error", 'Case', 'updateSFOpp', "Opportunity Synch -"+json.dumps(result['responseText']))
-        return {'status':'Error', 'responseText':json.dumps(result['responseText'])}
+        return {'status':'Error', 'responseText':caseObj.caseDescription + " - " + json.dumps(result['responseText'])}
 
     DOCUMENT_LIST = {"Automated Valuation": caseObj.valuationDocument,
                      "Title Search": caseObj.titleDocument,
-                     "Responsible Lending Checklist": caseObj.responsibleDocument,
-                     "E-Consent": caseObj.electronicDocument,
-                     "Privacy Consent": caseObj.privacyDocument,
+                     "Scaled Inquiries Matrix": caseObj.responsibleDocument,
                      "Enquiry Document": caseObj.enquiryDocument,
                      "Loan Summary": caseObj.summaryDocument,
                      "Solicitor Instruction": caseObj.solicitorInstruction,
@@ -517,8 +528,19 @@ def updateSFOpp(caseUID, sfAPI):
 
             result = sfAPI.apexCall(doc_end_point, doc_end_point_method, data=data)
             if result['status'] != 'Ok':
-                write_applog("Error", 'Case', 'updateSFOpp', "Document Synch - " +json.dumps(result['responseText']))
-                return {'status':'Error', "responseText":"Document Synch - " + result['responseText']}
+                write_applog("Error", 'Case', 'updateSFOpp', "Document Synch - " + docName + "-" + json.dumps(result['responseText']))
+                return {'status':'Error', "responseText":"Document Synch - " + docName + "-" + json.dumps(result['responseText'])}
 
     return {'status': 'Ok', "responseText": "Salesforce Synch!"}
 
+
+def joinNames(firstname, middlename):
+    if firstname:
+        if middlename:
+            return firstname + " " + middlename
+        else:
+            return firstname
+    elif middlename:
+        return middlename
+    else:
+        return None

@@ -5,24 +5,31 @@
 
 {% block email_content %}
 
-<p>Hello</p>
-<br>
-<p>I am following-up on my earlier email in relation to how a Household Transfer might be able to help you meet your objectives.</p>
-<br>
-<p>I would be happy to speak to you personally to discuss your individual circumstances.
-    {% if obj.user.profile.calendlyUrl %}Please feel free to schedule an obligation-free, 15 minute 'discovery call' with me using this link: <br>{{ obj.user.profile.calendlyUrl }}
-    {% else%}Please don't hesitate to contact me on {{ obj.user.profile.mobile}} or {{obj.user.email }}{% endif %}</p>
-<br>
-<p>Kind regards</p>
-<br>
-<p>{{ obj.user.first_name }}&nbsp;{{ obj.user.last_name }}</p>
-{% if user.profile.calendlyUrl %}
-    <p>{{ user.profile.mobile}}</p>
-    <p>{{ user.email }}</p>
-{% endif %}
-<br>
-<img src="{{ absolute_media_url }}{{ obj.user.profile.picture }}" width="100px">
-
+    <p>Hello {% if customerFirstName %}{{ customerFirstName }}{% endif %}</p>
+    <br>
+    <p>I am following-up on my earlier email in relation to how a Household Transfer might be able to help you meet your objectives.</p>
+    <br>
+    <p>Did you know that Household Capital currently offers the lowest available interest rate in the market? It’s even lower than the current governments pension loan scheme (PLS).</p>
+    <br>
+    <p><b>Have peace of mind, you’re protected</b></p>
+    <ul>
+        <li>You can stay in your home as long as you want to</li>
+        <li>You remain the 100% owner of your home and retain the title</li>
+        <li>You don’t have to make repayments until your home is sold </li>
+        <li>Reverse Mortgages are highly regulated and offer strong protections</li>
+        <li>To ensure you are making an informed decision, Household Capital requires you see a solicitor (and potentially a financial planner)</li>
+    </ul>
+    <p>We work with a range of financial advice specialists to provide retirees with the best of both worlds – to continue living in the family home, while drawing an income that enables them to Live Well At Home.</p>
+    <br>
+    <p>I would be happy to discuss your specific circumstances with you. Please don't hesitate to contact me on {{ obj.user.profile.mobile}} or you can schedule an obligation-free, 15 minute 'discovery call' at a time that best suits you using this link: {{obj.user.profile.calendlyUrl }}</p>
+    <br>
+    <p>Kind regards</p>
+    <br>
+    <p>{{ obj.user.first_name }}&nbsp;{{ obj.user.last_name }}</p>
+    <p>{{ obj.user.profile.mobile}}</p>
+    <p>{{ obj.user.email }}</p>
+    <br>
+    <img src="{{ absolute_media_url }}{{ obj.user.profile.picture }}" width="100px">
 
 {% endblock %}
 

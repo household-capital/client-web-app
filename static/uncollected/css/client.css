@@ -1,38 +1,37 @@
-
-
 /* Fonts */
 @font-face {
-  font-family: 'MaisonNeue';
-  src: url('../fonts/MaisonNeue-Book.otf')  format("truetype"),
-       local('MaisonNeue');
+    font-family: 'MaisonNeue';
+    src: url('../fonts/MaisonNeue-Book.otf') format("truetype"),
+    local('MaisonNeue');
 }
 
 @font-face {
-  font-family: 'MercuryDisplay';
-  src: url('../fonts/MercuryDisplay-Semibold.otf')  format("truetype"),
-       local('MercuryDisplay');
+    font-family: 'MercuryDisplay';
+    src: url('../fonts/MercuryDisplay-Semibold.otf') format("truetype"),
+    local('MercuryDisplay');
 }
 
 /* Text*/
 
 
 body {
-display: block;
-margin-top: 0px;
-margin-right: 0px;
-margin-bottom: 0px;
-margin-left: 0px;}
+    display: block;
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-bottom: 0px;
+    margin-left: 0px;
+}
 
-a,p, a:link, a:visited {
-	font-family: MaisonNeue;
+a, p, a:link, a:visited {
+    font-family: MaisonNeue;
     padding: 0;
-    margin:0;
+    margin: 0;
     line-height: normal;
 }
 
-td a, td a:link, td a:visited  {
-   display: block;
-	font-family: MaisonNeue;
+td a, td a:link, td a:visited {
+    display: block;
+    font-family: MaisonNeue;
     color: black;
 }
 
@@ -52,28 +51,35 @@ p.small {
     font-size: larger;
 }
 
-.padding-30px{
+.padding-30px {
     padding-bottom: 30px;
 }
 
-.padding-15px{
+.padding-15px {
     padding-bottom: 15px;
 }
 
-.padding-10px{
+.padding-10px {
     padding-bottom: 10px;
 }
 
-.padding-7px{
+.padding-7px {
     padding-bottom: 7px;
 }
 
-.padding-5px{
+.padding-5px {
     padding-bottom: 5px;
 }
 
-.padding-2px{
+.padding-2px {
     padding-bottom: 2px;
+}
+
+p.small-blue {
+    font-family: MaisonNeue;
+    line-height: 150%;
+    font-size: 90%;
+    color: rgb(81, 132, 161);
 }
 
 .x-large {
@@ -86,7 +92,7 @@ p.small {
     font-size: xx-large;
 }
 
-.title, a.title{
+.title, a.title {
     font-family: MercuryDisplay;
     font-size: 50px;
     text-decoration: None;
@@ -101,49 +107,52 @@ p.small {
 .tertiary_title {
     font-family: MercuryDisplay;
     font-size: 18px;
+    font-weight:bolder;
 }
 
-.medium-title-inverse{
+
+
+.medium-title-inverse {
     font-family: MercuryDisplay;
     font-size: 50px;
     text-decoration: None;
-    color: white}
+    color: white
+}
 
-.title-inverse{
+.title-inverse {
     font-family: MercuryDisplay;
     font-size: 96px;
     color: white;
     line-height: 120%;
 }
 
-.gold_underline{
+.gold_underline {
     border-bottom: 3px solid;
     padding: 10px 0;
     border-bottom-color: #ffb800
 }
 
-.hhcBlueFont{
-   color: rgb(81,132,161);
+.hhcBlueFont {
+    color: rgb(81, 132, 161);
 }
 
-.hhcGoldFont{
+.hhcGoldFont {
     color: rgb(253, 182, 0)
 }
 
-.fixed-bottom_heading{
-    color: rgb(253,182,0);
+.fixed-bottom_heading {
+    color: rgb(253, 182, 0);
 }
 
 
-
-.HHCBlue{
-    background-color: rgb(25,38,63);
+.HHCBlue {
+    background-color: rgb(25, 38, 63);
     color: white
 }
 
-.HHCTeal{
-        background-color: rgba(134,179,181,0.5);
-        color: white;
+.HHCTeal {
+    background-color: rgba(134, 179, 181, 0.5);
+    color: white;
 }
 
 .HHCLightBlue {
@@ -151,49 +160,78 @@ p.small {
     color: white;
 }
 
-.fas.hhcLightBlue{
-    color: rgb(81,132,161);
+.fas.hhcLightBlue {
+    color: rgb(81, 132, 161);
 }
 
-.fas.hhcTealShade{
-    color: rgba(134,179,181,0.5);
+.fas.hhcTealShade {
+    color: rgba(134, 179, 181, 0.5);
 }
 
 a.menu_title:link,
 a.menu_title:visited,
 a.menu_title:hover,
-a.menu_title:active{
+a.menu_title:active {
     font-family: MercuryDisplay;
     color: black;
     font-size: 18px;
     text-align: center;
-    text-decoration:none;
+    text-decoration: none;
 }
 
-.imgContainer{
+.imgContainer {
     padding-bottom: 5px;
 }
 
-.imgResults{
+.imgResults {
     padding-bottom: 10px;
     padding-top: 10px;
 }
 
-.message{
+.message {
     padding-top: 15px;
 }
 
-.alert-household{
-    background-color: rgb(249,248,245);
+.alert-household {
+    background-color: rgb(249, 248, 245);
 }
 
-.alert-HHCBlue{
-    background-color: rgb(25,38,63);
+.alert-HHCBlue {
+    background-color: rgb(25, 38, 63);
     color: white
 }
 
-.alert{
-    margin-bottom:0px;
+.alert {
+    margin-bottom: 0px;
+}
+
+/* Notes Text*/
+.notes ul {
+    padding-inline-start: 0px;
+}
+
+.notes > ul li {
+    color: grey;
+    display: inline-block;
+    list-style: none;
+    padding: 0;
+    position: relative;
+    font-size: small;
+}
+
+.notes > ul li::before {
+    color: grey;
+    content: "\2022";
+    display: inline-block;
+    font-size: 1em;
+    left: -1.0em;
+    position: absolute;
+    top: 0em;
+}
+
+.accordion div.card:only-child {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: calc(0.25rem - 1px);
 }
 
 /* NavBar*/
@@ -208,7 +246,7 @@ a.menu_title:active{
 
 /* Navbar Footer */
 .fixed-bottom {
-    background-color: rgb(249,248,245);
+    background-color: rgb(249, 248, 245);
     display: block;
     padding-bottom: 0px;
 }
@@ -238,19 +276,19 @@ a.menu_title:active{
 }
 
 /* Menubar Sidebar */
-.menubar{
+.menubar {
     min-height: 125px;
 }
 
 
-.sub-container{
+.sub-container {
     padding-left: 0px;
 }
 
 
 /* Image */
 
-.greyscale{
+.greyscale {
     -webkit-filter: brightness(1) grayscale(1) opacity(1);
     -moz-filter: brightness(1) grayscale(1) opacity(1);
     filter: brightness(1) grayscale(1) opacity(1);
@@ -275,39 +313,39 @@ a.menu_title:active{
 
 .form-label {
     font-size: small;
-    color:grey;
+    color: grey;
 }
 
-.input-group-text{
-    background-color: rgb(249,248,245)
+.input-group-text {
+    background-color: rgb(249, 248, 245)
 }
 
-.equitySlider{
-    margin-top: 7px ;
+.equitySlider {
+    margin-top: 7px;
 }
 
-#equitySlider .ui-slider-handle{
+#equitySlider .ui-slider-handle {
     height: 25px;
     width: 30px;
 }
 
 #equitySlider ui-widget-header {
-    background:rgb(81,132,161);
+    background: rgb(81, 132, 161);
 }
 
 .asteriskField {
     display: none !important;
 }
 
-.narrow-row .form-group{
+.narrow-row .form-group {
     margin-bottom: 0px !important;
 }
 
 
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 
@@ -316,13 +354,13 @@ input[type=number]::-webkit-outer-spin-button {
 
 /* Landing Page */
 
-.landing{
-    background-color: rgb(249,248,245);
+.landing {
+    background-color: rgb(249, 248, 245);
 }
 
 /* Buttons */
-.btn-hhcBlue{
-    background-color: rgb(25,38,63);
+.btn-hhcBlue {
+    background-color: rgb(25, 38, 63);
     color: white;
     font-family: MaisonNeue;
     font-weight: normal;
@@ -330,16 +368,16 @@ input[type=number]::-webkit-outer-spin-button {
     border-radius: 35px;
 }
 
-.btn-outline-hhcBlue{
-    color: rgb(25,38,63);
+.btn-outline-hhcBlue {
+    color: rgb(25, 38, 63);
     font-family: MaisonNeue;
     font-weight: normal;
     font-size: 14px;
     border-radius: 35px;
-    border-color: rgb(25,38,63);
+    border-color: rgb(25, 38, 63);
 }
 
-a.btn-hhcGold{
+a.btn-hhcGold {
     font-size: 20px;
     font-weight: normal;
     font-family: MaisonNeue;
@@ -357,18 +395,18 @@ a.btn-hhcGold{
 
 /* Jumbotron */
 .jumbotron {
-    background-color: rgb(249,248,245);
+    background-color: rgb(249, 248, 245);
     margin-bottom: 0px;
 }
 
-.jumbotron-HHCBlue{
-        background-color: rgb(25,38,63);
-        color: white;
+.jumbotron-HHCBlue {
+    background-color: rgb(25, 38, 63);
+    color: white;
 }
 
 .jumbotron small {
     font-size: 12px;
-    margin-left:10px;
+    margin-left: 10px;
 }
 
 .jumbotron {
@@ -376,7 +414,7 @@ a.btn-hhcGold{
 
 }
 
-@media (min-width:576px) {
+@media (min-width: 576px) {
     .jumbotron {
         padding: 0.5rem 0.5rem
     }
@@ -391,10 +429,11 @@ a.btn-hhcGold{
 /* Printing */
 
 @page {
-  size: A4;
-  margin: 0!important;
+    size: A4;
+    margin: 0 !important;
 
 }
+
 @media print {
     html, body {
         width: 210mm;
@@ -402,20 +441,21 @@ a.btn-hhcGold{
     }
 }
 
-.page {width: 100%;
+.page {
+    width: 100%;
 
-    top:0px;
-    bottom:0px;
+    top: 0px;
+    bottom: 0px;
     margin-top: 0px !important;
     margin-bottom: 0px !important;
     float: none;
 
-    }
+}
 
 
 html, body {
     height: 100%;
-    width:100%;
+    width: 100%;
 }
 
 
@@ -425,10 +465,17 @@ html, body {
     font-size: 115%;
 }
 
+
 .print-text-larger {
-    font-family: MaisonNeue;
+    font-family: MaisonNeue-;
     line-height: 150%;
     font-size: x-large;
+}
+
+.print_subtitle {
+    font-family: MercuryDisplay;
+    font-size: 22px;
+    font-weight:bolder;
 }
 
 .print-container {
@@ -444,29 +491,30 @@ html, body {
     margin-right: -50px;
 }
 
-.print-edge-col{
+.print-edge-col {
     padding-left: 0px;
     padding-right: 0px;
 }
 
 
-.borderless{
-    padding-left:0px;
+.borderless {
+    padding-left: 0px;
     padding-right: 0px;
     margin-left: 0px;
-    margin-right:0px;
+    margin-right: 0px;
 
 }
-.HHCBlueBackground-Printed{
+
+.HHCBlueBackground-Printed {
     background-color: #19263F;
     color: white
 }
 
-.HHCLightBlue-Printed{
+.HHCLightBlue-Printed {
     color: #5184A1 !important;
 }
 
-.border-spacing{
+.border-spacing {
     line-height: 250% !important;
 }
 
@@ -477,56 +525,67 @@ html, body {
     .col-lg-12 {
         width: 100%
     }
+
     .col-sm-11,
     .col-md-11,
     .col-lg-11 {
         width: 91.66666667%
     }
+
     .col-sm-10,
     .col-md-10,
     .col-lg-10 {
         width: 83.33333333%
     }
+
     .col-sm-9,
     .col-md-9,
     .col-lg-9 {
         width: 75%
     }
+
     .col-sm-8,
     .col-md-8,
     .col-lg-8 {
         width: 66.66666667%
     }
+
     .col-sm-7,
     .col-md-7,
     .col-lg-7 {
         width: 58.33333333%
     }
+
     .col-sm-6,
     .col-md-6,
     .col-lg-6 {
         width: 50%
     }
+
     .col-sm-5,
     .col-md-5,
     .col-lg-5 {
         width: 41.66666667%
     }
+
     .col-sm-4,
     .col-md-4,
     .col-lg-4 {
         width: 33.33333333%
     }
+
     .col-sm-3,
     .col-md-3,
     .col-lg-3 {
         width: 25%
     }
+
     .col-sm-2,
     .col-md-2,
     .col-lg-2 {
         width: 16.66666667%
     }
+
     .col-sm-1,
     .col-md-1,
     .col-lg-1 {

@@ -78,7 +78,7 @@
                                 <br>
                                 <br>
                                 <p>{{ client.surname_1 }}&nbsp;</p>
-                                <p>{{ client.firstname_1 }}&nbsp;</p>
+                                <p>{{ client.firstname_1 }}&nbsp;{{ client.middlename_1 }}&nbsp;</p>
                                 <p>{{ client.birthdate_1 }}&nbsp;</p>
                                 <p>{{ client.street }}&nbsp;</p>
                                 <p>{{ client.suburb }}&nbsp;</p>
@@ -126,7 +126,7 @@
                                 {% if client.loanType == loanTypesEnum.JOINT_BORROWER.value %}
                                     <br><br><br><br><br><br>
                                     <p>{{ client.surname_2 }}&nbsp;</p>
-                                    <p>{{ client.firstname_2 }}&nbsp;</p>
+                                    <p>{{ client.firstname_2 }}&nbsp;{{ client.middlename_2 }}&nbsp;</p>
                                     <p>{{ client.birthdate_2 }}&nbsp;</p>
                                     <p>{{ client.street }}&nbsp;</p>
                                     <p>{{ client.suburb }}&nbsp;</p>
@@ -185,7 +185,7 @@
 
                     <div class="col-lg-12">
                         <b>Additional Information</b>
-                        <p>Please note title search <b>NOT</b> required</p><br>
+                        <p>Please use attached title search if possible.</p><br>
 
                     </div>
                 </div>
@@ -194,10 +194,9 @@
 
                     <div class="col-lg-12">
                         <b>Attachments</b>
+                        <p>Title documents </p>
                         {% if client.valuationDocument %}
-                            <p>Auto valuation attached </p>
-                        {% else %}
-                            <p>None</p>
+                            <p>Auto valuation </p>
                         {% endif %}
 
                     </div>

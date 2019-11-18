@@ -121,20 +121,6 @@
                                             &nbsp;<i class="fas fa-users fa-fw"></i>&nbsp;&nbsp;Meeting
                                         </a>
 
-                                        <div class="dropdown-divider"></div>
-
-                                        <a class="dropdown-item" href="{% url 'case:caseSolicitor' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-gavel fa-fw"></i>&nbsp;&nbsp;Create
-                                            Solicitor Instruction&nbsp;&nbsp;
-                                        </a>
-
-                                        <div class="dropdown-divider"></div>
-
-                                        <a class="dropdown-item" href="{% url 'case:caseValuer' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-home fa-fw"></i>&nbsp;&nbsp;Create
-                                            Valuer Instruction&nbsp;&nbsp;
-                                        </a>
-
 
                                     {% endif %}
 
@@ -145,31 +131,13 @@
                                         {% if obj.summaryDocument and obj.email %}
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item" data-toggle="modal" href="#clientModal">
-                                                &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Client Loan
-                                                Summary&nbsp;&nbsp;
-                                            </a>
+                                                &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Client Summary&nbsp;</a>
                                         {% endif %}
 
                                         <div class="dropdown-divider"></div>
 
-                                        <a class="dropdown-item" href="{% url 'case:caseData' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-file-csv"></i>&nbsp;&nbsp;Create
-                                            Application
-                                            CSV&nbsp;&nbsp;
-                                        </a>
-
-                                        <div class="dropdown-divider"></div>
-
-                                        <a class="dropdown-item" href="{% url 'case:caseSolicitor' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-gavel"></i>&nbsp;&nbsp;Create
-                                            Solicitor Instruction&nbsp;&nbsp;
-                                        </a>
-
-                                        <div class="dropdown-divider"></div>
-
-                                        <a class="dropdown-item" href="{% url 'case:caseValuer' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-home"></i>&nbsp;&nbsp;Create
-                                            Valuer Instruction&nbsp;&nbsp;
+                                        <a class="dropdown-item" href="{% url 'fact_find:factfind' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-user-edit  fa-fw"></i>&nbsp;&nbsp;Case Summary&nbsp;&nbsp;
                                         </a>
 
 
@@ -179,30 +147,36 @@
                                     {% if obj.caseType == caseTypesEnum.APPLICATION.value %}
                                         <div class="dropdown-divider"></div>
 
-                                        <a class="dropdown-item" href="{% url 'case:caseSolicitor' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-gavel"></i>&nbsp;&nbsp;Create
-                                            Solicitor Instruction&nbsp;&nbsp;
+                                        <a class="dropdown-item" href="{% url 'fact_find:factfind' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-user-edit  fa-fw"></i>&nbsp;&nbsp;Case Summary&nbsp;&nbsp;
                                         </a>
 
                                         <div class="dropdown-divider"></div>
 
                                         <a class="dropdown-item" href="{% url 'case:caseValuer' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-home"></i>&nbsp;&nbsp;Create
-                                            Valuer Instruction&nbsp;&nbsp;
+                                            &nbsp;<i class="fas fa-home"></i>&nbsp;&nbsp;Valuer Instruction&nbsp;&nbsp;
                                         </a>
 
+                                        <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item" href="{% url 'case:caseSolicitor' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-gavel  fa-fw"></i>&nbsp;&nbsp;Create Solicitor Instruction&nbsp;&nbsp;
+                                        </a>
 
                                         <div class="dropdown-divider"></div>
 
                                         <a class="dropdown-item" href="{% url 'case:caseData' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-file-csv fa-fw"></i>&nbsp;&nbsp;Create
-                                            Application
-                                            CSV&nbsp;&nbsp;
-                                        </a>
+                                            &nbsp;<i class="fas fa-file-csv fa-fw"></i>&nbsp;&nbsp;Create Application CSV&nbsp;&nbsp;</a>
                                     {% endif %}
 
-                                 <!-- APPROVED -->
-                                    {% if obj.caseType == caseTypesEnum.APPROVED.value %}
+                                 <!-- DOCUMENTATION -->
+                                    {% if obj.caseType == caseTypesEnum.DOCUMENTATION.value %}
+                                        <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item" href="{% url 'case:caseSolicitor' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-gavel  fa-fw"></i>&nbsp;&nbsp;Solicitor Instruction&nbsp;&nbsp;
+                                        </a>
+
                                         <div class="dropdown-divider"></div>
 
                                         <a class="dropdown-item" href="{% url 'case:cloudBridge' uid=obj.caseUID %}">
@@ -210,8 +184,6 @@
                                         </a>
                                         {% endif %}
 
-
-                                <!--cloudBridge/<uuid:uid>' -->
 
                                     <!-- CLOSED -->
                                     {% if obj.caseType == caseTypesEnum.CLOSED.value %}
@@ -304,8 +276,7 @@
                                     <p><a href="/media/customerReports/{{ obj.electronicDocument.file|filename }}">Electronic
                                         Consent</a></p>{% endif %}
                                 {% if obj.responsibleDocument %}
-                                    <p><a href="/media/customerReports/{{ obj.responsibleDocument.file|filename }}">Responsible
-                                        Lending Checklist</a></p>{% endif %}
+                                    <p><a href="/media/customerReports/{{ obj.responsibleDocument.file|filename }}">Case Summary</a></p>{% endif %}
                                 {% if obj.dataDocument %}
                                     <p><a href="/media/customerReports/{{ obj.dataDocument.file|filename }}">Customer
                                         Data</a></p>{% endif %}
@@ -384,13 +355,13 @@
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="deleteModalLabel">Delete lead?</h5>
+                        <h5 class="modal-title" id="deleteModalLabel">Delete case?</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>Do you want to delete the lead (as opposed closing it)?</p>
+                        <p>Do you want to delete the case (as opposed closing it)?</p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

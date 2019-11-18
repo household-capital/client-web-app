@@ -1,0 +1,112 @@
+<div class="row align-items-center">
+    <div class="col-lg-12 ">
+
+        <p class="small-blue pb-2">Meeting notes</p>
+
+        <p class="small">Meeting: {{ clientObj.meetingDate }}</p>
+        <br>
+
+        <div class="accordion" id="accordionBackground">
+            <div class="card">
+                <div class="card-header" id="headingBackground">
+                    <h2 class="mb-0">
+                        <button class="btn btn-light" type="button" data-toggle="collapse"
+                                data-target="#collapseBackground"
+                                aria-expanded="true" aria-controls="collapseBackground">
+                            <p>
+                                <i class="fa fa-plus fa-xs"></i>&nbsp;&nbsp;Background and context</p>
+
+                        </button>
+                    </h2>
+                </div>
+
+                <!-- Background Questions -->
+                <div id="collapseBackground" class="collapse" aria-labelledby="headingBackground"
+                     data-parent="#accordionBackground">
+                    <div class="card-body">
+                        <div class="row ">
+                            <div class="col-lg-8 ">
+                                <textarea class="textarea form-control" rows="10" name="backgroundNotes" id="id_backgroundNotes">{% if form.backgroundNotes.value != None %}{{ form.backgroundNotes.value }}{% endif %}</textarea>
+                            </div>
+
+                            <div class="col-lg-4 notes">
+                                <ul>
+                                    <li>When, how did we meet with the client?</li>
+                                    <li>Situational context: health, family, home, part-time work</li>
+                                    <li>Anyone else living at the home during retirement?</li>
+                                    <li>Financial context: superannuation, investments, pension, living expenses,
+                                        existing debt
+                                    </li>
+                                    <li>Involvement of children in the discussion/decision</li>
+                                    <li>Capacity, POA or other considerations?</li>
+
+                                </ul>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row ">
+                            <div class="col-lg-8 text-right">
+                                <button id="background" type="submit" value="Submit" form="clientForm"
+                                        class="btn btn-warning"> Save
+                                </button>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="accordion" id="accordionRequirements">
+            <div class="card pt-1">
+                <div class="card-header" id="headingRequirements">
+                    <h2 class="mb-0">
+                        <button class="btn btn-light" type="button" data-toggle="collapse"
+                                data-target="#collapseRequirements"
+                                aria-expanded="true" aria-controls="collapseRequirements">
+                            <p>
+                                <i class="fa fa-plus fa-xs"></i>&nbsp;&nbsp;Requirements and objectives</p>
+
+                        </button>
+                    </h2>
+                </div>
+
+                <!-- Requirements Questions -->
+                <div id="collapseRequirements" class="collapse" aria-labelledby="headingRequirements"
+                     data-parent="#accordionRequirements">
+                    <div class="card-body">
+                        <div class="row ">
+                            <div class="col-lg-8">
+
+                                <textarea class="textarea form-control" rows="10" name="requirementsNotes"
+                                          id="id_requirementNotes">{% if form.requirementsNotes.value != None %}{{ form.requirementsNotes.value }}{% endif %}</textarea>
+                            </div>
+
+                            <div class="col-lg-4 notes">
+                                <ul>
+                                    <li>What are the customer's primary objective(s) (purposes below)</li>
+                                    <li>Retirement funding, avoid downsizing, interest payment</li>
+                                    <li>Have other alternative strategies been considered (e.g., downsizing)?</li>
+                    
+
+                                </ul>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row ">
+                            <div class="col-lg-8 text-right">
+                                <button id="requirement" type="submit" value="Submit" form="clientForm"
+                                        class="btn btn-warning"> Save
+                                </button>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

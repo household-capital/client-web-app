@@ -1,0 +1,76 @@
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+
+<div class="row">
+    <div class="col-lg-12 ">
+        <p class="small-blue pb-2">Client details</p>
+
+        <div class="row">
+
+            <div class="col-lg-3 text-left">
+
+                {% if loanType == loanTypesEnum.SINGLE_BORROWER.value %}
+                    <p class="small"><b>Borrower</b></p>
+                    <p> {{ firstname_1 }}&nbsp;{{ surname_1 }}</p>
+                {% else %}
+                    <p class="small"><b>Borrowers</b></p>
+                    <p> {{ firstname_1 }}&nbsp;{{ surname_1 }}</p>
+                    <p> {{ firstname_2 }}&nbsp;{{ surname_2 }}</p>
+                {% endif %}
+                {% if loanType == loanTypesEnum.SINGLE_BORROWER.value %}
+                    <p>{{ age_1 }} years old</p>
+                {% else %}
+                    <p>{{ age_1 }} and {{ age_2 }} years old</p>
+                {% endif %}
+
+            </div>
+
+
+            <div class="col-lg-3 text-left">
+                <p class="small"><b>Property</b></p>
+                <p> {{ street }}</p>
+                <p> {{ suburb }} {{ clientObj.enumStateType }} {{ clientObj.postcode|stringformat:"d" }} </p>
+
+                <p>${{ clientObj.valuation }} </p>
+
+            </div>
+
+            <div class="col-lg-3 text-left">
+                <p class="small"><b>Superannuation</b></p>
+                <p>Balance</p>
+                <p>${{ superAmount|intcomma }}</p>
+            </div>
+
+            <div class="col-lg-3 text-left">
+                <p class="small"><b>Age Pension</b></p>
+                <p>Annual Payment
+                <p>${{ annualPensionIncome|intcomma }}</p></div>
+
+        </div>
+        <br>
+
+        <div class="row">
+            <div class="col-lg-3 text-left">
+                <p class="small">ID: &nbsp; {{ clientObj.sfLoanID }}</p>
+                <p class="small">Credit Rep: &nbsp; {{ clientObj.user }}</p>
+                <p class="small">Channel: {{ clientObj.enumChannelType }}
+            </div>
+
+            <div class="col-lg-3 text-left">
+                <p class="small">Maximum LVR: &nbsp; {{ maxLVR }}%</p>
+                <p class="small">Maximum Loan: ${{ maxLoanAmount }}
+            </div>
+
+             <div class="col-lg-3 text-left">
+                <p class="small">Reserved Equity: &nbsp; {{ protectedEquity }}%</p>
+            </div>
+
+        </div>
+
+        <hr>
+    </div>
+
+</div>

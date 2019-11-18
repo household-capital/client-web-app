@@ -214,17 +214,6 @@
                                         </div>
                                     </div>
 
-
-                                    <div class="col-12">
-                                        <p class="small pb-1">Postcode</p>
-                                        <div id="div_id_name" class="form-group row ">
-                                            <input type="text" name="postcode" required
-                                                   class="textinput textInput form-control" id="id_postcode"
-                                                   {% if form.postcode.value != None %}value="{{ form.postcode.value }}"{% endif %}>
-                                            {{ form.postcode.errors }}
-                                        </div>
-                                    </div>
-
                                     <div class="col-12">
                                         <p class="small pb-1">Estimated value</p>
                                         <div id="div_id_valuation" class="form-group row ">
@@ -236,6 +225,17 @@
 
 
                                     </div>
+
+                                    <div class="col-12">
+                                        <p class="small pb-1">Postcode</p>
+                                        <div id="div_id_name" class="form-group row ">
+                                            <input type="text" name="postcode" required
+                                                   class="textinput textInput form-control" id="id_postcode"
+                                                   {% if form.postcode.value != None %}value="{{ form.postcode.value }}"{% endif %}>
+                                            {{ form.postcode.errors }}
+                                        </div>
+                                    </div>
+
 
                                 </div>
                             </div>
@@ -343,11 +343,11 @@
             });
 
             $('a#phone-number-footer').click(function () {
-                gtag_report_conversion( "AW-760723517/_u81CKyqhaMBEL3w3uoC");
+                gtag_report_conversion("AW-760723517/_u81CKyqhaMBEL3w3uoC");
             });
 
             $('#summary').click(function () {
-                gtag_report_conversion( "AW-760723517/rxaxCM-shaMBEL3w3uoC");
+                gtag_report_conversion("AW-760723517/rxaxCM-shaMBEL3w3uoC");
             });
 
 
