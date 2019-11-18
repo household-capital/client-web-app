@@ -214,7 +214,7 @@ class GeneratePdf(View):
         caseUID = str(kwargs['uid'])
 
         sourceUrl = 'https://householdcapital.app/factfind/pdfCaseSummary/' + self.request.session['caseUID']
-        targetFileName = settings.MEDIA_ROOT + "/customerReports/Test-" + self.request.session['caseUID'][
+        targetFileName = settings.MEDIA_ROOT + "/customerReports/CaseSummary-" + self.request.session['caseUID'][
                                                                              -12:] + ".pdf"
         pdf = pdfGenerator(caseUID)
         created, text = pdf.createPdfFromUrl(sourceUrl, 'CaseSummary.pdf', targetFileName)
