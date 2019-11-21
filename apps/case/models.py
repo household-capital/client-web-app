@@ -348,6 +348,7 @@ class Loan(models.Model):
     choiceVariable = models.BooleanField(default=False)
     consentPrivacy= models.BooleanField(default=False)
     consentElectronic = models.BooleanField(default=False)
+    detailedTitle = models.BooleanField(default=False)
 
     #Version 1 Fields
     topUpIncome=models.IntegerField(default=0)

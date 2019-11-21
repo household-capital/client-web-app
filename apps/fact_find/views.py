@@ -23,7 +23,6 @@ from apps.lib.site_Logging import write_applog
 
 
 
-
 # // MIXINS
 
 class LoginRequiredMixin():

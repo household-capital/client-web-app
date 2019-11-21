@@ -78,7 +78,9 @@ class ContextHelper():
                       establishmentFee=loanStatus['data']['establishmentFee'],
                       actualLVR=loanStatus['data']['actualLVR'],
                       totalPlanAmount=loanStatus['data']['totalPlanAmount'],
-                      planEstablishmentFee =loanStatus['data']['planEstablishmentFee'])
+                      planEstablishmentFee =loanStatus['data']['planEstablishmentFee'],
+                      detailedTitle = loanStatus['data']['detailedTitle']
+                    )
 
         # create context
         context = {}

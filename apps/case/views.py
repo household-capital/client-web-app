@@ -194,7 +194,6 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
 
         clientDict = {}
         clientDict = self.get_queryset().filter(caseID=self.object.caseID).values()[0]
-
         loanObj = LoanValidator(clientDict)
         context['status'] = loanObj.validateLoan()
 
@@ -205,6 +204,7 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
         # Get pre-save object and check whether we can change
         pre_obj = Case.objects.filter(caseUID=self.kwargs.get('uid')).get()
         initialCaseType = pre_obj.caseType
+        loan_obj = Loan.objects.queryset_byUID(str(self.kwargs['uid'])).get()
 
         # Don't allow to manually change to Application
         if form.cleaned_data['caseType'] == caseTypesEnum.APPLICATION.value and initialCaseType == caseTypesEnum.DISCOVERY.value:
@@ -248,6 +248,7 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
                 email_template = 'case/caseTitleEmail.html'
                 email_context = {}
                 email_context['caseObj'] = obj
+                email_context['detailedTitle'] = loan_obj.detailedTitle
                 html = get_template(email_template)
                 html_content = html.render(email_context)
 

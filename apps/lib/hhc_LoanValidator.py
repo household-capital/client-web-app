@@ -70,6 +70,9 @@ class LoanValidator():
         self.giveLimit = 0
         self.travelLimit = 0
 
+        # Refer Postcode
+        self.isRefer = False
+
     def validateLoan(self):
         # Checks basic borrower and loan restrictions providing a status and dictionary of data
 
@@ -93,6 +96,7 @@ class LoanValidator():
         if str(self.initDict['postcode']) in pcodeDict:
             if pcodeDict[str(self.initDict['postcode'])]['Acceptable']=="Refer":
                 data['postcode']="Refer"
+                self.isRefer = True
             else:
                 data['postcode']="Valid"
         else:
@@ -191,6 +195,9 @@ class LoanValidator():
         availableAmount = round(
             self.loanLimit - totalPlanAmount / (1 + LOAN_LIMITS['establishmentFee']) - maxEstablishmentFee, 0)
 
+        # Determine if detailed title search required
+        detailedTitle = self._chkDetailedTitle(totalPlanAmount)
+
         # Store primary output
         data['maxLVR'] = round(self.maxLvr, 1)
         data['maxNetLoanAmount'] = int(round(self.loanLimit - maxEstablishmentFee, 0))
@@ -203,7 +210,8 @@ class LoanValidator():
         data['totalLoanAmount'] = int(round(totalLoanAmount, 0))
         data['totalPlanAmount'] = int(round(totalPlanAmount, 0))
         data['actualLVR'] = round(totalLoanAmount / self.initDict['valuation'], 1) * 100
-        data['maxLVRPercentile']=int(self.__myround(self.maxLvr,5))
+        data['maxLVRPercentile'] = int(self.__myround(self.maxLvr,5))
+        data['detailedTitle'] = detailedTitle
 
         # Validate against limits and add to output dictionary
         data['errors'] = False
@@ -285,3 +293,16 @@ class LoanValidator():
 
     def __myround(self, val, base=5):
         return base * round(val / base)
+
+    def _chkDetailedTitle(self, totalPlanAmount):
+        '''Determines whether long-form title required using loan limits'''
+
+        isDetailedTitle = False
+        if self.isRefer:
+            isDetailedTitle = True
+        if totalPlanAmount > self.loanLimit * LOAN_LIMITS['titleUtilTrigger']:
+            isDetailedTitle = True
+        if totalPlanAmount > LOAN_LIMITS['titleAmountTrigger']:
+            isDetailedTitle = True
+
+        return isDetailedTitle
