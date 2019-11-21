@@ -67,7 +67,7 @@
 
 
 
-                                <div class="col-2 text-center">
+                                <div class="col-3 text-center">
                                 {% if request.GET.action == "True" %}
                                         <a href="?action=False">
                                         <div class="btn btn-warning" data-toggle="tooltip"
@@ -96,6 +96,22 @@
                                            title="Filter your enquiries">
                                             <div class="btn btn-outline-secondary"><i
                                                     class="fas fa-user-friends fa-fw"></i></div>
+
+                                        </a>
+                                    {% endif %}
+
+                                    {% if request.GET.recent == "True" %}
+                                        <a href="?recent=False">
+                                            <div class="btn btn-warning" data-toggle="tooltip" data-placement="top"
+                                                 title="Recently modified">
+                                                <i class="fas fa-watch fa-fw" style='color:white'></i></div>
+                                        </a>
+                                    {% else %}
+                                        <a href="?recent=True" data-toggle="tooltip"
+                                           data-placement="top"
+                                           title="Recently modified">
+                                            <div class="btn btn-outline-secondary"><i
+                                                    class="fas fa-watch fa-fw"></i></div>
 
                                         </a>
                                     {% endif %}
@@ -188,30 +204,30 @@
                             {% if page_obj.has_previous %}
                                 <li class="page-item">
                                     <a class="page-link"
-                                       href="?page={{ page_obj.previous_page_number }}&myEnquiries={{ myEnquiries }}&search={{ search }}"
+                                       href="?page={{ page_obj.previous_page_number }}&myEnquiries={{ myEnquiries }}&search={{ search }}&recent={{ recent }}"
                                        tabindex="-1">Previous</a>
                                 </li>
 
                             {% else %}
                                 <li class="page-item disabled">
-                                    <a class="page-link" href="#&myEnquiries={{ myEnquiries }}&search={{ search }}"
+                                    <a class="page-link" href="#&myEnquiries={{ myEnquiries }}&search={{ search }}&recent={{ recent }}"
                                        tabindex="-1">Previous</a>
                                 </li>
                             {% endif %}
                             {% for object in page_obj.paginator.page_range %}
                                 <li class="page-item"><a class="page-link"
-                                                         href="?page={{ forloop.counter }}&myEnquiries={{ myEnquiries }}&search={{ search }}">{{ forloop.counter }}</a>
+                                                         href="?page={{ forloop.counter }}&myEnquiries={{ myEnquiries }}&search={{ search }}&recent={{ recent }}">{{ forloop.counter }}</a>
                                 </li>
                             {% endfor %}
                             {% if page_obj.has_next %}
                                 <li class="page-item">
                                     <a class="page-link"
-                                       href="?page={{ page_obj.next_page_number }}&myEnquiries={{ myEnquiries }}&search={{ search }}">Next</a>
+                                       href="?page={{ page_obj.next_page_number }}&myEnquiries={{ myEnquiries }}&search={{ search }}&recent={{ recent }}">Next</a>
                                 </li>
                             {% else %}
                                 <li class="page-item disabled">
                                     <a class="page-link"
-                                       href="#&myEnquiries={{ myEnquiries }}&search={{ search }}">Next</a>
+                                       href="#&myEnquiries={{ myEnquiries }}&search={{ search }}&recent={{ recent }}">Next</a>
                                 </li>
                             {% endif %}
                         </ul>
@@ -221,7 +237,6 @@
             </div>
         </div>
     </div>
-
 
 {% endblock %}
 
