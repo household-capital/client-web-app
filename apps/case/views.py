@@ -281,6 +281,7 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
         if form.cleaned_data['caseType'] == caseTypesEnum.APPLICATION.value or form.cleaned_data['caseType'] == caseTypesEnum.MEETING_HELD.value:
             if obj.sfOpportunityID:
                 app.send_task('SF_Opp_Synch', kwargs={'caseUID': str(obj.caseUID)})
+                app.send_task('SF_Doc_Synch', kwargs={'caseUID': str(obj.caseUID)})
 
         messages.success(self.request, "Case has been updated")
 
