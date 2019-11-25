@@ -5,47 +5,32 @@
 
 {% block email_content %}
 
-    <p>Hello {% if customerFirstName %}{{ customerFirstName }}{% endif %}</p>
+    <p>{% if customerFirstName %}Dear {{ customerFirstName }} {% else %}Hello {% endif %}</p>
     <br>
-    <p>As promised, attached is a brief summary showing how a Household Transfer™ might be able to meet your objectives, based on the information that you provided via our calculator.</p>
+    <p>My name is {{ user.first_name }} {{ user.last_name }} and I’m a Retirement Specialist at
+        Household Capital. I’m pleased to provide your personalised summary following your
+        recent interaction with our online calculator. It shows how a Household Loan may be able
+        to help you meet your retirement objectives, based on the information you provided.</p>
     <br>
-    <p>Feel free to contact me directly on {{ user.profile.mobile}} or you can schedule an obligation-free, 15 minute 'discovery call' at a time that best suits you using this link: {{ user.profile.calendlyUrl }}</p>
+    <p>I’d be happy to discuss your individual circumstances and answer any questions you may have.
+        If you would find a discussion helpful, I’m available for an obligation-free, 15 minute 'discovery call'.
+        To schedule a time that suits you, please use this link: {{ user.profile.calendlyUrl }}</p>
     <br>
-    <b>How does a Household Transfer™ work?</b>
-    <br><br>
-    <p>A Household Transfer™ is our approach to accessing your home equity for responsible, long-term, retirement funding. A Household loan is a type of reverse mortgage, meaning you benefit from strong consumer legal protections.</p>
-    <br>
-    <b>Key benefits</b>
-    <ul>
-        <li>you remain the owner of your home</li>
-        <li>you can stay in your home as long as you want to</li>
-        <li>the loan is only repayable when you leave or sell your home</li>
-    </ul>
-
-    <b>Key features</b>
-    <ul>
-        <li>a low interest rate, currently {{ loanRate }}% (comparison rate {{ compRate }}%)*</li>
-        <li>no ongoing fees</li>
-        <li>no requirement to make regular repayments</li>
-        <li>you can repay the loan at any time, without penalty</li>
-    </ul>
-
-    <div style="background-color: rgb(249, 248, 245);">
-        <p><i>“We worry about running out of money in retirement. But I’ve always realised there is wealth in the home. We’ve always worked for the long-term. This is a long-term approach."</i><br><b>Sue & Peter, Sydney NSW</b></p>
-    </div>
-    <br>
-    <p>I look forward to seeing how Household Capital can help you live well at home as we did for Sue and Peter.</p>
+    <p>Alternatively, you can contact me directly on {{ user.profile.mobile}} at your convenience.</p>
     <br>
     <p>Kind regards</p>
     <br>
-    <p>{{ user.first_name }}</p>
+    <p>{{ user.first_name }} {{ user.last_name }}</p>
     <p>{{ user.profile.mobile}}</p>
     <p>{{ user.email }}</p>
     <br>
     <img src="{{ absolute_media_url }}{{ user.profile.picture }}" width="100px">
 
-    <br><br><br>
-    <p>* <small>This is based on a loan of $150,000 secured for a term of 25 years. Interest is calculated daily and accrued monthly. WARNING: the comparison rate only applies to the example given. Diferent loan amounts
-        and terms will result in diferent comparison rates.</small></p>
+    <br><br>
+    <small>Applications for credit are subject to eligibility and lending criteria.
+        Fees and charges are payable and terms and conditions apply (available on request).
+        Household Capital Pty Limited is a credit representative (512757) of Mortgage Direct Pty Limited
+        ACN 075 721 434, Australian Credit Licence 391876.</small>
+     <br><br>
 
 {% endblock %}
