@@ -509,7 +509,7 @@ def updateSFOpp(caseUID, sfAPI):
 
     DOCUMENT_LIST = {"Automated Valuation": caseObj.valuationDocument,
                      "Title Search": caseObj.titleDocument,
-                     "Scaled Inquiries Matrix": caseObj.responsibleDocument,
+                     "Responsible Lending Summary": caseObj.responsibleDocument,
                      "Enquiry Document": caseObj.enquiryDocument,
                      "Loan Summary": caseObj.summaryDocument,
                      "Solicitor Instruction": caseObj.solicitorInstruction,
