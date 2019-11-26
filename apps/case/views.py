@@ -831,7 +831,7 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
         if self.request.GET.get('action') == 'generate':
 
             #Generate and Save File Only
-            CB = CloudBridge(caseObj.sfOpportunityID, False, True, False)
+            CB = CloudBridge(caseObj.sfOpportunityID, False, True, True)
             result = CB.openAPIs()
 
             logStr = result['responseText']

@@ -78,7 +78,7 @@
                                 <br>
                                 <br>
                                 <p>{{ client.surname_1 }}&nbsp;</p>
-                                <p>{{ client.firstname_1 }}&nbsp;{{ client.middlename_1 }}&nbsp;</p>
+                                <p>{{ client.firstname_1 }}&nbsp;{% if client.middlename_1 %}{{ client.middlename_1 }}{% endif %}</p>
                                 <p>{{ client.birthdate_1 }}&nbsp;</p>
                                 <p>{{ client.street }}&nbsp;</p>
                                 <p>{{ client.suburb }}&nbsp;</p>
@@ -126,7 +126,7 @@
                                 {% if client.loanType == loanTypesEnum.JOINT_BORROWER.value %}
                                     <br><br><br><br><br><br>
                                     <p>{{ client.surname_2 }}&nbsp;</p>
-                                    <p>{{ client.firstname_2 }}&nbsp;{{ client.middlename_2 }}&nbsp;</p>
+                                    <p>{{ client.firstname_2 }}&nbsp;{% if client.middlename_2 %}{{ client.middlename_2 }}{% endif %}</p>
                                     <p>{{ client.birthdate_2 }}&nbsp;</p>
                                     <p>{{ client.street }}&nbsp;</p>
                                     <p>{{ client.suburb }}&nbsp;</p>
