@@ -827,6 +827,9 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
             messages.error(self.request, "There is no Salesforce Opportunity ID for this Case")
             return context
 
+        if caseObj.lixiFile:
+            context['isLixiFile']=True
+
         logStr=""
         if self.request.GET.get('action') == 'generate':
 
@@ -839,6 +842,12 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
                 messages.error(self.request, logStr)
                 return context
 
+            #Cursory data check
+            result= CB.checkSFData()
+            if result['status'] != "Ok":
+                messages.error(self.request, 'SF Data Error: ' + result['responseText'])
+                return context
+
             result = CB.createLixi()
             if result['status'] != "Ok":
                 messages.error(self.request, 'Creation Error')
@@ -847,6 +856,7 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
 
             caseObj.lixiFile=result['data']['filename']
             caseObj.save(update_fields=["lixiFile"])
+            context['isLixiFile'] = True
 
             messages.success(self.request, "Successfully generated and validated")
             context['log'] = result['log']
@@ -876,10 +886,6 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
 
             context['log'] = result['log']
             messages.success(self.request, "Successfully sent to AMAL Development")
-            print(result)
-
-            if result['warningLog']:
-                messages.warning(self.request, "Post submission errors - " + result['warningLog'])
 
 
         if self.request.GET.get('action') == 'production':
@@ -914,10 +920,9 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
             funded_obj, created = FundedData.objects.get_or_create(case=caseObj, totalValuation=1)
 
             context['log'] = result['log']
-            messages.success(self.request, "Successfully sent to AMAL Production")
+            messages.success(self.request, "Successfully sent to AMAL Production. Documents being sent in background")
 
-            if result['warningLog']:
-                messages.warning(self.request, "Post submission errors - " + result['warningLog'])
+            app.send_task('AMAL_Send_Docs', kwargs={'caseUID': str(caseObj.caseUID)})
 
         return context
 

@@ -8,8 +8,10 @@ from config.celery import app
 # Local Application Imports
 from apps.lib.api_AMAL import apiAMAL
 from apps.lib.api_Salesforce import apiSalesforce
+from apps.lib.lixi.lixi_CloudBridge import CloudBridge
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Utilities import taskError
+
 
 from .models import Case, LossData, FundedData
 
@@ -176,6 +178,31 @@ def sfDocSynch(caseUID):
     else:
         write_applog("INFO", 'Case', 'Tasks-SF_Doc_Synch', description+"-"+"Docs Synched!")
         return "Success - Docs Synched!"
+
+
+@app.task(name='AMAL_Send_Docs')
+def amalDocs(caseUID):
+
+    # Get object
+    qs = Case.objects.queryset_byUID(caseUID)
+    caseObj = qs.get()
+
+    CB = CloudBridge(caseObj.sfOpportunityID, False, True, True)
+
+    result = CB.openAPIs()
+    if result['status'] == "Error":
+        return "Error - " + caseObj.caseDescription+ "-" +result['responseText']
+
+    if not caseObj.amalIdentifier:
+        return "Error - " + caseObj.caseDescription+ "- no AMAL application ID"
+
+    result = CB.sendDocumentsToAMAL(caseObj.amalIdentifier)
+    if result['status'] == "Error":
+        return "Error - " + caseObj.caseDescription+ "- "+result['responseText']
+    else:
+        return "Success - Documents sent to AMAL"
+
+
 
 
 # UTILITIES

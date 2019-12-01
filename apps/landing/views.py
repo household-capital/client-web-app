@@ -19,7 +19,6 @@ from apps.case.models import Case, FundedData
 from apps.enquiry.models import Enquiry
 from apps.lib.site_Enums import caseTypesEnum, directTypesEnum, channelTypesEnum
 
-
 # Create your views here.
 
 class LoginOnlyRequiredMixin():
@@ -211,3 +210,4 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             return result
         else:
             return 0
+
