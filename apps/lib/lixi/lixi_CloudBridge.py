@@ -272,20 +272,35 @@ class CloudBridge():
 
             if row["Name"] in self.AMAL_Documents:
 
-                srcfileIO=self.sfAPI.getDocumentFileStream(row["Id"])
+                for attempt in range(2):
+                    #Try sending three times
+                   result = self.__sendDocument(row, applicationID)
+                   if result['status'] == "Ok":
+                       break
 
-                if srcfileIO['status']!="Ok":
-                    return {'status': "Error", 'responseText':'Did not retrieve '+row["Name"]}
-
-                try:
-                    status = self.mlAPI.sendDocuments(srcfileIO['data'], str(row["Name"]) + ".pdf", applicationID)
-                    if json.loads(status.text)['status']!='ok':
-                        return {'status':"Error", 'responseText':'Error sending ' + row["Name"]+ " to AMAL "+status.text}
-
-                except:
-                        return {'status': "Error", 'responseText':'Error sending ' + row["Name"]+ " to AMAL"}
+                if result['status'] != "Ok":
+                    return result
 
         return {'status': "Ok"}
+
+    
+    def __sendDocument(self, row, applicationID ):
+        srcfileIO = self.sfAPI.getDocumentFileStream(row["Id"])
+
+        if srcfileIO['status'] != "Ok":
+            return {'status': "Error", 'responseText': 'Did not retrieve ' + row["Name"]}
+
+        try:
+            status = self.mlAPI.sendDocuments(srcfileIO['data'], str(row["Name"]) + ".pdf", applicationID)
+            if json.loads(status.text)['status'] != 'ok':
+                return {'status': "Error", 'responseText': 'Error sending ' + row["Name"] + " to AMAL " + status.text}
+
+        except:
+
+            return {'status': "Error", 'responseText': 'Error sending ' + row["Name"] + " to AMAL"}
+
+        return {'status': "Ok"}
+
 
     def __chkExist(self, sourceDict, reqFieldList):
         exists = True
