@@ -24,6 +24,7 @@ class clientTypesEnum(Enum):
     BORROWER= 0
     NOMINATED_OCCUPANT= 1
     POWER_OF_ATTORNEY= 2
+    PERMITTED_COHABITANT = 3
 
 @accessInTemplate
 class clientSexEnum(Enum):

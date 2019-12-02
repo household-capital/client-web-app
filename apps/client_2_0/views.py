@@ -158,7 +158,9 @@ class LandingView(LoginRequiredMixin, ContextHelper, TemplateView):
             write_applog("INFO", 'LandingView', 'get', "Meeting commenced by " + str(request.user) + " for -" + caseUID)
 
             obj = ModelSetting.objects.queryset_byUID(caseUID)
-            obj.update(**ECONOMIC)
+            economicSettings = ECONOMIC
+            economicSettings.pop('defaultMargin')
+            obj.update(**economicSettings)
 
         if 'caseUID' not in request.session:
             return HttpResponseRedirect(reverse_lazy('case:caseList'))
@@ -1302,7 +1304,10 @@ class PdfInstruction(TemplateView):
             context['client'] = qsClient.get()
             context['loan'] = qsLoan.get()
             context['loanTypesEnum'] = loanTypesEnum
+            context['clientTypesEnum'] = clientTypesEnum
             context['caseUID'] = caseUID
+            context['loanRate'] = ECONOMIC['interestRate'] + ECONOMIC['lendingMargin']
+            context['defaultRate'] = context['loanRate'] + ECONOMIC['defaultMargin']
 
         return context
 

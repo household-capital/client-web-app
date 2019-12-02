@@ -26,7 +26,8 @@ ECONOMIC={'inflationRate' :float(2.50),
           'interestRate' :float(0.75),
           'lendingMargin':float(4.40),
           'comparisonRateIncrement':float(0.06),
-          'projectionAge' : 90
+          'projectionAge' : 90,
+          'defaultMargin': float(2.00)
 }
 
 APP_SETTINGS={'minProjectionYears': 15,

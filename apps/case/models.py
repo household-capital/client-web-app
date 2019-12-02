@@ -73,7 +73,9 @@ class Case(models.Model):
     clientTypes=(
         (clientTypesEnum.BORROWER.value, 'Borrower'),
         (clientTypesEnum.NOMINATED_OCCUPANT.value, 'Nominated Occupant'),
-        (clientTypesEnum.POWER_OF_ATTORNEY.value, 'Power of Attorney'),)
+        (clientTypesEnum.PERMITTED_COHABITANT.value, 'Permitted Cohabitant'),
+        (clientTypesEnum.POWER_OF_ATTORNEY.value, 'Power of Attorney'),
+    )
 
     clientSex=(
         (clientSexEnum.FEMALE.value, 'Female'),
@@ -255,7 +257,7 @@ class Case(models.Model):
             return [dict(self.clientSex)[self.sex_1],dict(self.clientSex)[self.sex_2]]
 
     def enumClientType(self):
-        if self.loanType==loanTypesEnum.SINGLE_BORROWER.value:
+        if not self.clientType2:
             return [dict(self.clientTypes)[self.clientType1],None]
         else:
             return [dict(self.clientTypes)[self.clientType1],dict(self.clientTypes)[self.clientType2]]

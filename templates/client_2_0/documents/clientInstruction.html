@@ -60,6 +60,15 @@
                                 <p>State</p>
                                 <p>Postcode&nbsp;</p>
                                 <br>
+                                <b>Mortgagor 1</b>
+                                <p>Surname</p>
+                                <p>Firstname(s)</p>
+                                <p>Birthdate</p>
+                                <p>Address&nbsp;</p>
+                                <p>Suburb&nbsp;</p>
+                                <p>State</p>
+                                <p>Postcode&nbsp;</p>
+                                <br>
 
                                 <b>Security</b>
                                 <p>Address&nbsp;</p>
@@ -78,7 +87,17 @@
                                 <br>
                                 <br>
                                 <p>{{ client.surname_1 }}&nbsp;</p>
-                                <p>{{ client.firstname_1 }}&nbsp;{% if client.middlename_1 %}{{ client.middlename_1 }}{% endif %}</p>
+                                <p>{{ client.firstname_1 }}&nbsp;{% if client.middlename_1 %}
+                                    {{ client.middlename_1 }}{% endif %}</p>
+                                <p>{{ client.birthdate_1 }}&nbsp;</p>
+                                <p>{{ client.street }}&nbsp;</p>
+                                <p>{{ client.suburb }}&nbsp;</p>
+                                <p>{{ client.enumStateType }}&nbsp;</p>
+                                <p>{{ client.postcode|intBlank }}&nbsp;</p>
+                                <br><br>
+                                <p>{{ client.surname_1 }}&nbsp;</p>
+                                <p>{{ client.firstname_1 }}&nbsp;{% if client.middlename_1 %}
+                                    {{ client.middlename_1 }}{% endif %}</p>
                                 <p>{{ client.birthdate_1 }}&nbsp;</p>
                                 <p>{{ client.street }}&nbsp;</p>
                                 <p>{{ client.suburb }}&nbsp;</p>
@@ -95,11 +114,13 @@
                         </div>
 
                     </div>
+
                     <div class="col-lg-6">
                         <div class="row pt-3">
 
                             <div class="col-lg-5">
-                                {% if client.loanType == loanTypesEnum.JOINT_BORROWER.value %}
+                                {% if client.clientType2 == clientTypesEnum.BORROWER.value %}
+
                                     <br><br><br><br><br>
                                     <b>Borrower 2</b>
                                     <p>Surname</p>
@@ -113,6 +134,20 @@
                                 {% else %}
                                     <br><br><br><br><br><br><br><br><br><br><br><br><br>
                                 {% endif %}
+                                {% if client.clientType2 == clientTypesEnum.BORROWER.value %}
+
+                                    <b>Mortgagor 2</b>
+                                    <p>Surname</p>
+                                    <p>Firstname(s)</p>
+                                    <p>Birthdate</p>
+                                    <p>Address&nbsp;</p>
+                                    <p>Suburb&nbsp;</p>
+                                    <p>State</p>
+                                    <p>Postcode&nbsp;</p>
+                                    <br>
+                                {% else %}
+                                    <br><br><br><br><br><br><br><br>
+                                {% endif %}
 
                                 <b>Valuation</b>
                                 <p>Home Value</p>
@@ -123,10 +158,11 @@
 
                             <div class="col-lg-7">
 
-                                {% if client.loanType == loanTypesEnum.JOINT_BORROWER.value %}
+                                {% if client.clientType2 == clientTypesEnum.BORROWER.value %}
                                     <br><br><br><br><br><br>
                                     <p>{{ client.surname_2 }}&nbsp;</p>
-                                    <p>{{ client.firstname_2 }}&nbsp;{% if client.middlename_2 %}{{ client.middlename_2 }}{% endif %}</p>
+                                    <p>{{ client.firstname_2 }}&nbsp;{% if client.middlename_2 %}
+                                        {{ client.middlename_2 }}{% endif %}</p>
                                     <p>{{ client.birthdate_2 }}&nbsp;</p>
                                     <p>{{ client.street }}&nbsp;</p>
                                     <p>{{ client.suburb }}&nbsp;</p>
@@ -135,6 +171,21 @@
                                     <br>
                                 {% else %}
                                     <br><br><br><br><br><br><br><br><br><br><br><br><br>
+                                {% endif %}
+
+                                {% if client.clientType2 == clientTypesEnum.BORROWER.value %}
+                                    <br>
+                                    <p>{{ client.surname_2 }}&nbsp;</p>
+                                    <p>{{ client.firstname_2 }}&nbsp;{% if client.middlename_2 %}
+                                        {{ client.middlename_2 }}{% endif %}</p>
+                                    <p>{{ client.birthdate_2 }}&nbsp;</p>
+                                    <p>{{ client.street }}&nbsp;</p>
+                                    <p>{{ client.suburb }}&nbsp;</p>
+                                    <p>{{ client.enumStateType }}&nbsp;</p>
+                                    <p>{{ client.postcode|intBlank }}&nbsp;</p>
+                                    <br>
+                                {% else %}
+                                    <br><br><br><br><br><br><br><br>
                                 {% endif %}
 
                                 <br>
@@ -152,31 +203,141 @@
                 </div>
                 <br>
                 <div class="row">
+                    <div class="col-lg-6">
+                        <div class="row">
 
-                    <div class="col-lg-2">
-                        <b>Loan</b>
-                        <p>Loan Type</p>
-                        <p>Loan Amount</p>
-                        <p>Upfront Fee</p>
+                            <div class="col-lg-4">
+                                <b>Loan</b>
+                                <p>Loan Type</p>
+                                <p>Loan Amount</p>
+                                <p>Disclosure</p>
+                                <p>Variable Rate</p>
+                                <p>Default Rate</p>
+
+                            </div>
+
+                            <div class="col-lg-8">
+                                <br>
+                                <p>Reverse Mortgage</p>
+                                <p>${{ loan.totalLoanAmount }}&nbsp;</p>
+                                <p>{% now "jS F Y" %}</p>
+                                <p>{{ loanRate }}%</p>
+                                <p>{{ defaultRate }}%</p>
+
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="col-lg-4">
-                        <br>
-                        <p>Reverse Mortgage</p>
-                        <p>${{ loan.totalLoanAmount }}&nbsp;</p>
-                        <p>${{ loan.establishmentFee }}&nbsp;</p>
+                    <div class="col-lg-6">
+                        <div class="row">
+
+                            <div class="col-lg-8">
+                                <b>Loan Purpose(s)</b>
+                                {% if loan.topUpAmount %}
+                                    <p>- Top-Up Super/Investments</p>
+                                {% endif %}
+                                {% if loan.topUpContingencyAmount %}
+                                    <p>- Top Up Contingency</p>
+                                {% endif %}
+                                {% if loan.topUpDrawdownAmount %}
+                                    <p>- Top Up Drawdown Plan</p>
+                                {% endif %}
+                                {% if loan.refinanceAmount %}
+                                    <p>- Refinance of existing mortgage</p>
+                                {% endif %}
+                                {% if loan.renovateAmount %}
+                                    <p>- Live - Renovations</p>
+                                {% endif %}
+                                {% if loan.transportAmount or loan.travelAmount %}
+                                    <p>- Live - Transport, Travel or other</p>
+                                {% endif %}
+                                {% if loan.giveAmount %}
+                                    <p>- Giving</p>
+                                {% endif %}
+                                {% if loan.careAmount %}
+                                    <p>- Care - Lump sum</p>
+                                {% endif %}
+                                {% if loan.careDrawdownAmount %}
+                                    <p>- Care - Drawdown Plan</p>
+                                {% endif %}
+
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <br>
 
                 <div class="row">
 
+                    <div class="col-lg-6">
+                        <b>Fees before settlement</b>
+                    </div>
+                    <div class="col-lg-6">
+                        <b>Fees throughout loan</b>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6">
+
+                        <div class="row">
+
+                            <div class="col-lg-4">
+
+                                <p>Establishment</p>
+                                <p>Upfront fee</p>
+                                <p>Valuation fee</p>
+                                <p>Documentation</p>
+                            </div>
+
+                            <div class="col-lg-8">
+
+                                <p>${{ loan.establishmentFee }}&nbsp;</p>
+                                <p>$0&nbsp;</p>
+                                <p>$0&nbsp;</p>
+                                <p>$0&nbsp;</p>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+
+                        <div class="row">
+
+                            <div class="col-lg-4">
+
+                                <p>Attendance</p>
+                                <p>Document</p>
+                                <p>Valuation fee</p>
+                                <p>Variation fee</p>
+                            </div>
+
+                            <div class="col-lg-8">
+
+                                <p>$250&nbsp;</p>
+                                <p>$25&nbsp;</p>
+                                <p>$0&nbsp;</p>
+                                <p>$0&nbsp;</p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <br>
+
+                <p style="page-break-before: always"></p>
+
+                <br><br><br><br>
+
+                <div class="row">
+
                     <div class="col-lg-12">
                         <b>Special Conditions</b>
+                        <p> Protected Equity: {{ loan.protectedEquity }}%</p>
                         {% if client.specialConditions %}
-                            <p>{{ client.specialConditions }}<br></p>
+                            <p>{{ client.specialConditions }}</p>
                         {% else %}
-                            <br>None<br>
+                            <p>No other special conditions<p>
                         {% endif %}
                     </div>
                 </div>
@@ -185,7 +346,7 @@
 
                     <div class="col-lg-12">
                         <b>Additional Information</b>
-                        <p>Please use attached title search if possible.</p><br>
+                        <p>Please use attached title search if possible.</p>
 
                     </div>
                 </div>
@@ -202,23 +363,70 @@
                     </div>
                 </div>
 
-            </div>
-            <br><br><br>
-            <div class="badge-light">
-                <div class="pl-3">
-                    <p><b>Lender</b>: Household Capital Services Pty Limited ACN 625 860 764</p>
-                    <p>Level 12, 1 Nicholson Street, Melbourne 3002</p><br>
-                    <p><b>Manager</b>: Household Capital Pty Limited, Level 12, 1 Nicholson Street, Melbourne 3002
-                    </p>
-                    <p>Authorised credit representative of Mortgage Direct Pty Limited ACN 075 721 434</p>
-                    <p>Australian Credit Licence 391876</p>
-                    <br>
-                </div>
-            </div>
+                <br>
+                {% if client.clientType2 %}
+                    {% if client.clientType2 != clientTypesEnum.BORROWER.value %}
+                        <div class="row">
 
+                            <div class="col-lg-6">
+                             <b>Other parties</b>
+
+                                <div class="row">
+
+                                    <div class="col-lg-4">
+
+                                        <p>Role</p>
+                                        <p>Surname</p>
+                                        <p>Firstname(s)</p>
+                                        <p>Birthdate</p>
+                                        <p>Address&nbsp;</p>
+                                        <p>Suburb&nbsp;</p>
+                                        <p>State</p>
+                                        <p>Postcode&nbsp;</p>
+                                        <br>
+
+
+                                    </div>
+
+                                    <div class="col-lg-8">
+
+
+                                        <p>{{ client.enumClientType.1 }}</p>
+                                        <p>{{ client.surname_2 }}&nbsp;</p>
+                                        <p>{{ client.firstname_2 }}&nbsp;{% if client.middlename_2 %}
+                                            {{ client.middlename_2 }}{% endif %}</p>
+                                        <p>{{ client.birthdate_2 }}&nbsp;</p>
+                                        <p>{{ client.street }}&nbsp;</p>
+                                        <p>{{ client.suburb }}&nbsp;</p>
+                                        <p>{{ client.enumStateType }}&nbsp;</p>
+                                        <p>{{ client.postcode|intBlank }}&nbsp;</p>
+                                        <br>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+
+                <br>
+                <div class="badge-light">
+                    <div class="pl-3">
+                        <p><b>Lender</b>: Household Capital Services Pty Limited ACN 625 860 764</p>
+                        <p>Level 12, 1 Nicholson Street, Melbourne 3002</p><br>
+                        <p><b>Manager</b>: Household Capital Pty Limited, Level 12, 1 Nicholson Street, Melbourne 3002
+                        </p>
+                        <p>Authorised credit representative of Mortgage Direct Pty Limited ACN 075 721 434</p>
+                        <p>Australian Credit Licence 391876</p>
+                        <br>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
-</div>
 </div>
 
 
