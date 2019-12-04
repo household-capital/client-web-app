@@ -346,6 +346,9 @@
 
                     <div class="col-lg-12">
                         <b>Additional Information</b>
+                          {% if loan.topUpAmount %}
+                                    <p>Financial advice certificate required.</p>
+                          {% endif %}
                         <p>Please use attached title search if possible.</p>
 
                     </div>

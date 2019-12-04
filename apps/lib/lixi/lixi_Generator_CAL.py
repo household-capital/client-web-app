@@ -4,6 +4,7 @@ from dateutil.parser import parse
 import logging
 from io import StringIO
 from xml.dom import minidom
+from random import randint
 
 # Django Imports
 from django.conf import settings
@@ -368,15 +369,15 @@ class LixiXMLGenerator:
             self.__logging("XML well formed, syntax ok.")
 
         # check for file IO error
-        except IOError:
+        except IOError as err:
             self.__logging("# XML Valiation I/O Error")
-            self.__logging(err)
+            self.__logging(str(err))
             return {'status': "Error", 'responseText': self.outputLog}
 
         # check for XML syntax errors
         except ElementTree.XMLSyntaxError as err:
             self.__logging("# XML Syntax Error")
-            self.__logging(err)
+            self.__logging(str(err))
             return {'status': "Error", 'responseText': self.outputLog}
 
         except:
@@ -393,7 +394,8 @@ class LixiXMLGenerator:
 
         except ElementTree.DocumentInvalid as err:
             self.__logging("# Schema Validation Error")
-            self.__logging(err)
+            self.__logging(str(err))
+
             return {'status': "Error", 'responseText': self.outputLog}
 
         except:

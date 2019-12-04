@@ -158,7 +158,7 @@ class LandingView(LoginRequiredMixin, ContextHelper, TemplateView):
             write_applog("INFO", 'LandingView', 'get', "Meeting commenced by " + str(request.user) + " for -" + caseUID)
 
             obj = ModelSetting.objects.queryset_byUID(caseUID)
-            economicSettings = ECONOMIC
+            economicSettings = ECONOMIC.copy()
             economicSettings.pop('defaultMargin')
             obj.update(**economicSettings)
 
