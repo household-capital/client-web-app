@@ -27,6 +27,7 @@ from apps.lib.site_Enums import caseTypesEnum
 from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.api_Mappify import apiMappify
+from apps.lib.site_Globals import LOAN_LIMITS
 from apps.lib.site_Logging import write_applog
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
 from apps.enquiry.models import Enquiry
@@ -702,16 +703,17 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
 
             # generate dictionary from Salesforce
             loanDict = sfAPI.getLoanExtract(caseObj.sfOpportunityID)['data']
+            print(loanDict)
 
             # enrich SOQL based dictionary
             # parse purposes from SF and enrich SOQL dictionary
 
-            appLoanList = ['totalLoanAmount', 'topUpAmount', 'refinanceAmount', 'giveAmount', 'renovateAmount',
+            appLoanList = ['topUpAmount', 'refinanceAmount', 'giveAmount', 'renovateAmount',
                            'travelAmount', 'careAmount', 'giveDescription', 'renovateDescription', 'travelDescription',
                            'careDescription', 'annualPensionIncome', 'topUpIncomeAmount', 'topUpFrequency', 'topUpPeriod',
                            'topUpBuffer','careRegularAmount','careFrequency','carePeriod','topUpContingencyAmount',
                            'topUpContingencyDescription','topUpDrawdownAmount','careDrawdownAmount','careDrawdownDescription',
-                           'futureEquityAmount','topUpPlanAmount','carePlanAmount','totalPlanAmount','planEstablishmentFee',
+                           'futureEquityAmount','topUpPlanAmount','carePlanAmount','planEstablishmentFee',
                            'establishmentFee']
 
             for fieldName in appLoanList:
@@ -729,7 +731,7 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
 
             validationFields = ['Prop.Street_Address__c', 'Prop.Suburb_City__c', 'Prop.State__c',
                                 'Prop.Postcode__c', 'Prop.Property_Type__c',
-                                'Prop.Home_Value_AVM__c', 'Loan.Application_Amount__c', 'Loan.Establishment_Fee__c',
+                                'Prop.Home_Value_AVM__c', 'Loan.Establishment_Fee__c',
                                 'Loan.Protected_Equity_Percent__c',
                                 'Brwr1.Role', 'Brwr1.FirstName', 'Brwr1.LastName', 'Brwr1.Birthdate__c',
                                 'Brwr1.Age__c',
@@ -763,7 +765,7 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
                         'topUpPeriod','topUpBuffer','careRegularAmount',
                         'carePeriod','topUpContingencyAmount','topUpContingencyDescription','topUpDrawdownAmount',
                         'careDrawdownAmount','careDrawdownDescription',
-                        'topUpPlanAmount','carePlanAmount','totalPlanAmount','planEstablishmentFee','totalLoanAmount', 'establishmentFee']
+                        'topUpPlanAmount','carePlanAmount']
 
             for purpose in purposeMap:
                 loanDict['app_'+purpose]=appLoanDict[purpose]
@@ -781,9 +783,17 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
 
             loanDict['app_annualPensionIncome'] = int(appCaseObj.pensionAmount) * 26
 
-            loanDict['app_futureEquityAmount']=max(int(loanDict['app_MaxLoanAmount'])-int(loanDict['app_totalPlanAmount']),0)
+            loanDict['app_futureEquityAmount']=max(int(loanDict['app_MaxLoanAmount'])-int(loanDict['Loan.Total_Plan_Amount__c']),0)
 
             loanDict['Loan.Default_Rate__c']=loanDict['Loan.Interest_Rate__c']+2
+
+
+            # synch check
+            if abs((appLoanDict['totalLoanAmount']-loanDict['Loan.Total_Household_Loan_Amount__c'])) > 1:
+                if loanDict['Opp.Establishment_Fee_Percent__c'] != str(LOAN_LIMITS['establishmentFee']*100):
+                    messages.warning(self.request, "Warning: Non standard establishment fee")
+                else:
+                    messages.warning(self.request, "Warning: ClientApp and SF have different data")
 
             # write to csv file and save
             targetFile = settings.MEDIA_ROOT + "/customerReports/data-" + str(caseObj.caseUID)[-12:] + ".csv"
