@@ -26,7 +26,7 @@ class apiSalesforce():
                       'Properties':
                           "Select Id, Name, Street_Address__c,Suburb_City__c,State__c,Postcode__c,Country__c, Property_Type__c, Last_Valuation_Date__c, Home_Value_AVM__c, Home_Value_FullVal__c, Valuer__c, Valuer_Name__c, Insurer__c, Policy_Number__c, Minimum_Insurance_Value__c, Insurance_Expiry_Date__c  from Properties__c where Opportunity__c=\'{0}\' and isDeleted=False",
                       'Loan':
-                          "Select Loan_Number__c,Name, Interest_Type__c,Establishment_Fee__c, Interest_Rate__c, Loan_Settlement_Date__c, Protected_Equity_Percent__c, Distribution_Partner_Contact__c, Total_Household_Loan_Amount__c from Opportunity where Id=\'{0}\' and isDeleted=False",
+                          "Select Loan_Number__c,Name, Interest_Type__c,Establishment_Fee__c, Planned_Establishment_Fee__c, Interest_Rate__c, Loan_Settlement_Date__c, Protected_Equity_Percent__c, Distribution_Partner_Contact__c, Total_Household_Loan_Amount__c, Total_Plan_Amount__c from Opportunity where Id=\'{0}\' and isDeleted=False",
                       'Purposes':
                           "Select Name, Category__c, Description__c, Intention__c, Amount__c from Purpose__c where Opportunity__c=\'{0}\' and isDeleted=False",
                       'Purpose':
@@ -198,9 +198,6 @@ class apiSalesforce():
 
         loanDict['Brwr.Number'] = borrowerCount
         loanDict['POA.Number'] = poaCount
-
-        #Work around - SF DB changes
-        loanDict['Loan.Application_Amount__c']=loanDict["Loan.Total_Household_Loan_Amount__c"]
 
         return {'status':"Ok", "data":loanDict}
 
