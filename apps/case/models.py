@@ -257,7 +257,7 @@ class Case(models.Model):
             return [dict(self.clientSex)[self.sex_1],dict(self.clientSex)[self.sex_2]]
 
     def enumClientType(self):
-        if not self.clientType2:
+        if self.clientType2 is None:
             return [dict(self.clientTypes)[self.clientType1],None]
         else:
             return [dict(self.clientTypes)[self.clientType1],dict(self.clientTypes)[self.clientType2]]
@@ -273,7 +273,17 @@ class Case(models.Model):
         if self.pensionType is not None:
             return dict(self.pensionTypes)[self.pensionType]
 
+    def enumMaritalStatus(self):
+        if self.clientType2 is None:
+            return [dict(self.maritalTypes)[self.maritalStatus_1],None]
+        else:
+            return [dict(self.maritalTypes)[self.maritalStatus_1],dict(self.maritalTypes)[self.maritalStatus_2]]
 
+    def enumSalutation(self):
+        if self.clientType2 is None:
+            return [dict(self.salutationTypes)[self.salutation_1],None]
+        else:
+            return [dict(self.salutationTypes)[self.salutation_1],dict(self.salutationTypes)[self.salutation_2]]
 
 # Pre-save function to extend Case
 def create_case_extensions(sender, instance, created, **kwargs):

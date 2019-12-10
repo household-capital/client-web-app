@@ -703,7 +703,6 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
 
             # generate dictionary from Salesforce
             loanDict = sfAPI.getLoanExtract(caseObj.sfOpportunityID)['data']
-            print(loanDict)
 
             # enrich SOQL based dictionary
             # parse purposes from SF and enrich SOQL dictionary
