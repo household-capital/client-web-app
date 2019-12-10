@@ -760,38 +760,45 @@ class ReferralEmail(LoginRequiredMixin, TemplateView):
 class CalendlyWebhook(View):
 
     def post(self, request, *args, **kwargs):
+
         # Load the event data from JSON
-
         data = json.loads(request.body)
-        #with open('data.json', 'w', encoding='utf-8') as f:
-        #    json.dump(data, f, ensure_ascii=False, indent=4)
 
-        client_email=data["payload"]["invitee"]["email"]
+        # Determine event type
         meeting_name=data["payload"]["event_type"]["name"]
-        write_applog("INFO", 'Calendly', 'post',
-                     "Client Email:" +client_email )
+        user_email = data['payload']["event"]["extended_assigned_to"][0]['email']
 
-        #Get phone number if available
-        phoneNumber=None
-        try:
-            if 'phone number' in data['payload']['questions_and_answers'][0]['question']:
-                phoneNumber= data['payload']['questions_and_answers'][0]['answer']
-        except:
-            pass
+        if user_email == 'paul.murray@householdcapital.com':
+            return HttpResponse(status=200)
 
-        obj=Enquiry.objects.filter(email=client_email).order_by("-timestamp").first()
+        if "Discovery Call" in meeting_name:
 
-        if obj:
-            if obj.enquiryNotes:
-                obj.enquiryNotes+="\r\n"+"[# Calendly - "+meeting_name+" #]"
-            else:
-                obj.enquiryNotes = "[# Calendly - "+meeting_name+" #]"
-            obj.isCalendly=True
+            client_email=data["payload"]["invitee"]["email"]
+            write_applog("INFO", 'Calendly', 'post',
+                         "Client Email:" +client_email )
 
-            if phoneNumber and not obj.phoneNumber:
-                obj.phoneNumber=phoneNumber
+            #Get phone number if available
+            phoneNumber=None
+            try:
+                if 'phone number' in data['payload']['questions_and_answers'][0]['question']:
+                    phoneNumber= data['payload']['questions_and_answers'][0]['answer']
+            except:
+                pass
 
-            obj.save(update_fields=['enquiryNotes','isCalendly','phoneNumber'])
+            # Find enquiry using email and add details to the enquiry
+            obj=Enquiry.objects.filter(email=client_email).order_by("-timestamp").first()
+
+            if obj:
+                if obj.enquiryNotes:
+                    obj.enquiryNotes+="\r\n"+"[# Calendly - "+meeting_name+" #]"
+                else:
+                    obj.enquiryNotes = "[# Calendly - "+meeting_name+" #]"
+                obj.isCalendly=True
+
+                if phoneNumber and not obj.phoneNumber:
+                    obj.phoneNumber=phoneNumber
+
+                obj.save(update_fields=['enquiryNotes','isCalendly','phoneNumber'])
 
         return HttpResponse(status=200)
 

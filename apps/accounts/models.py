@@ -29,4 +29,5 @@ class Profile(models.Model):
     isCapital=models.BooleanField(null=True,blank=True,default=False)
     referrer=models.ForeignKey(Referer ,null=True, blank=True, on_delete=models.SET_NULL)
     salesforceID=models.CharField(max_length=18, null=True, blank=True)
+    zoomID = models.CharField(max_length=30, null=True, blank=True)
 
