@@ -8,12 +8,20 @@
 
 <p>Hello Credit Team</p>
 
-<p>Please undertake a title search (and additional searches if appropriate) for the following:</p>
+<p>Please undertake a title search for the following:</p>
 
 <b>Case: {{ caseObj.caseDescription }}</b><br>
-<b>Client: {{ caseObj.firstname_1 }} {{ caseObj.surname_1 }} {% if caseObj.surname_2 %} and {{ caseObj.firstname_2 }} {{ caseObj.surname_2 }}{% endif %}</b><br>
+<b>Client: {{ caseObj.firstname_1 }} {{ caseObj.surname_1 }} {% if caseObj.surname_2 %} and {{ caseObj.firstname_2 }}
+    {{ caseObj.surname_2 }}{% endif %}</b><br>
 <b>Property: {{ caseObj.street }} {{ caseObj.postcode|stringformat:"d" }} {{ caseObj.enumStateType }}</b>
 <br>
+
+{% if detailedTitle %}
+    <p>Only a simple title search is required for this case</p>
+{% else %}
+    <p><b>A DETAILED title search is required for this case</b></p>
+{% endif %}
+
 
 <p>Please load the title document pdf to the client app. Let me know if you have any additional questions.</p>
 

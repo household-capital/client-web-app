@@ -55,14 +55,12 @@
                     <p>Please choose:</p>
                     <br>
                     <a href="?action=generate">
-                        <button type="button" class="btn btn-outline-secondary ">&nbsp;&nbsp;Lixi Generate Only&nbsp;&nbsp;
+                        <button type="button" class="btn btn-outline-secondary ">&nbsp;&nbsp;Generate LIXI file&nbsp;&nbsp;
                         </button>
                     </a>
-                    <a href="?action=development">
-                        <button type="button" class="btn btn-outline-secondary ">&nbsp;&nbsp;Send to Development&nbsp;&nbsp;</button>
-                    </a>
+
                      <a href="?action=production">
-                        <button type="button" class="btn btn-warning ">&nbsp;&nbsp;Send to Production&nbsp;&nbsp;</button>
+                        <button type="button" class="btn btn-warning " {% if not isLixiFile %}disabled{% endif %}>&nbsp;&nbsp;Send to AMAL&nbsp;&nbsp;</button>
                      </a>
                 </div>
             </div>

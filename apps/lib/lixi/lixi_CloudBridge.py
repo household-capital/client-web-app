@@ -115,14 +115,6 @@ class CloudBridge():
         if result['status'] != 'Ok':
             self.warningLog += 'ARN not saved in Salesforce' + "\r\n"
 
-        # Send supporting Documents
-        try:
-            result = self.sendDocumentsToAMAL(identifier, self.isSendFiles)
-            if result['status'] != 'Ok':
-                self.warningLog += 'Suporting docs not sent to AMAL' + "\r\n"
-        except:
-            self.warningLog += 'Suporting docs not sent to AMAL'
-
         self.__logging("Cloud Bridge's work is done here")
         return {'status': "Ok", 'responseText': "Cloud Bridge's work is done here", 'log': self.outputLog,
                 'warningLog': self.warningLog, "data":{'identifier':identifier,'AMAL_LoanId':AMAL_LoanId}}
@@ -136,6 +128,38 @@ class CloudBridge():
 
         self.__logging(str(len(loanList.index)) + " approved loans returned")
         return loanList
+
+
+    def checkSFData(self):
+
+        msgString=""
+        loanDict = self.sfAPI.getLoanExtract(self.opportunityId)['data']
+
+        # Check loan settlement date
+        reqs = ['Loan.Loan_Settlement_Date__c']
+        if not self.__chkExist(loanDict,reqs):
+            msgString += "Loan settlement date missing. "
+
+        # Check valuation data
+        reqs = ['Prop.Home_Value_FullVal__c','Prop.Valuer__c','Prop.Valuer_Name__c']
+        if not self.__chkExist(loanDict,reqs):
+            msgString += "Valuation data missing. "
+
+        # Check insurance data
+        reqs = ['Prop.Insurer__c','Prop.Policy_Number__c','Prop.Minimum_Insurance_Value__c','Prop.Insurance_Expiry_Date__c']
+        if not self.__chkExist(loanDict,reqs):
+            msgString += "Insurance data missing. "
+
+        # Check borrower roles
+        for brwr in range(int(loanDict['Brwr.Number'])):
+            if loanDict["Brwr"+str(brwr+1)+".Role"] == None:
+                msgString += "Borrower role missing. "
+
+        if msgString == "":
+            return {"status":"Ok"}
+        else:
+            return {"status": "Error", "responseText":msgString }
+
 
     def generateLixiFile(self):
 
@@ -240,12 +264,7 @@ class CloudBridge():
                 return {"status": "Error"}
 
 
-    def sendDocumentsToAMAL(self, applicationID,sendFiles):
-
-        if sendFiles:
-            self.__logging('Step 8 - Retrieving documents from Salesforce and Sending to AMAL')
-        else:
-            self.__logging('Step 8 - Retrieving documents from Salesforce - Not Sent to AMAL')
+    def sendDocumentsToAMAL(self, applicationID):
 
         docList=self.sfAPI.getDocumentList(self.opportunityId)['data']
 
@@ -253,32 +272,42 @@ class CloudBridge():
 
             if row["Name"] in self.AMAL_Documents:
 
-                self.__logging('         Retrieving '+row["Name"])
-                srcfileIO=self.sfAPI.getDocumentFileStream(row["Id"])
+                for attempt in range(2):
+                    #Try sending three times
+                   result = self.__sendDocument(row, applicationID)
+                   if result['status'] == "Ok":
+                       break
 
-                if srcfileIO['status']!="Ok":
-                    self.__logging('         Did not retrieve '+row["Name"])
-                    return {'status': "Error"}
-
-                if sendFiles:
-                    self.__logging('         Sending '+row["Name"])
-
-                    try:
-                        status = self.mlAPI.sendDocuments(srcfileIO['data'], str(row["Name"]) + ".pdf", applicationID)
-
-                        if json.loads(status.text)['status']!='ok':
-                            self.__logging('         Error sending ' + row["Name"]+ "to AMAL")
-                            self.__logging(status.text)
-                            return {'status':"Error"}
-                    except:
-                            self.__logging('         Error sending ' + row["Name"] + "to AMAL")
-                            return {'status': "Error"}
+                if result['status'] != "Ok":
+                    return result
 
         return {'status': "Ok"}
 
-    #def __nuke(self):
-    #    response=self.mlAPI.nuke()
-    #    print(response)
-        
+    
+    def __sendDocument(self, row, applicationID ):
+        srcfileIO = self.sfAPI.getDocumentFileStream(row["Id"])
+
+        if srcfileIO['status'] != "Ok":
+            return {'status': "Error", 'responseText': 'Did not retrieve ' + row["Name"]}
+
+        try:
+            status = self.mlAPI.sendDocuments(srcfileIO['data'], str(row["Name"]) + ".pdf", applicationID)
+            if json.loads(status.text)['status'] != 'ok':
+                return {'status': "Error", 'responseText': 'Error sending ' + row["Name"] + " to AMAL " + status.text}
+
+        except:
+
+            return {'status': "Error", 'responseText': 'Error sending ' + row["Name"] + " to AMAL"}
+
+        return {'status': "Ok"}
+
+
+    def __chkExist(self, sourceDict, reqFieldList):
+        exists = True
+        for item in reqFieldList:
+            if sourceDict[item] == None or sourceDict[item] == "":
+                exists = False
+        return exists
+
     def __logging(self,string):
         self.outputLog+=string+"\r\n"

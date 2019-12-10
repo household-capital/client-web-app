@@ -194,7 +194,6 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
 
         clientDict = {}
         clientDict = self.get_queryset().filter(caseID=self.object.caseID).values()[0]
-
         loanObj = LoanValidator(clientDict)
         context['status'] = loanObj.validateLoan()
 
@@ -205,6 +204,7 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
         # Get pre-save object and check whether we can change
         pre_obj = Case.objects.filter(caseUID=self.kwargs.get('uid')).get()
         initialCaseType = pre_obj.caseType
+        loan_obj = Loan.objects.queryset_byUID(str(self.kwargs['uid'])).get()
 
         # Don't allow to manually change to Application
         if form.cleaned_data['caseType'] == caseTypesEnum.APPLICATION.value and initialCaseType == caseTypesEnum.DISCOVERY.value:
@@ -248,6 +248,7 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
                 email_template = 'case/caseTitleEmail.html'
                 email_context = {}
                 email_context['caseObj'] = obj
+                email_context['detailedTitle'] = loan_obj.detailedTitle
                 html = get_template(email_template)
                 html_content = html.render(email_context)
 
@@ -280,6 +281,7 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
         if form.cleaned_data['caseType'] == caseTypesEnum.APPLICATION.value or form.cleaned_data['caseType'] == caseTypesEnum.MEETING_HELD.value:
             if obj.sfOpportunityID:
                 app.send_task('SF_Opp_Synch', kwargs={'caseUID': str(obj.caseUID)})
+                app.send_task('SF_Doc_Synch', kwargs={'caseUID': str(obj.caseUID)})
 
         messages.success(self.request, "Case has been updated")
 
@@ -825,16 +827,25 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
             messages.error(self.request, "There is no Salesforce Opportunity ID for this Case")
             return context
 
+        if caseObj.lixiFile:
+            context['isLixiFile']=True
+
         logStr=""
         if self.request.GET.get('action') == 'generate':
 
             #Generate and Save File Only
-            CB = CloudBridge(caseObj.sfOpportunityID, False, True, False)
+            CB = CloudBridge(caseObj.sfOpportunityID, False, True, True)
             result = CB.openAPIs()
 
             logStr = result['responseText']
             if result['status'] == "Error":
                 messages.error(self.request, logStr)
+                return context
+
+            #Cursory data check
+            result= CB.checkSFData()
+            if result['status'] != "Ok":
+                messages.error(self.request, 'SF Data Error: ' + result['responseText'])
                 return context
 
             result = CB.createLixi()
@@ -845,6 +856,7 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
 
             caseObj.lixiFile=result['data']['filename']
             caseObj.save(update_fields=["lixiFile"])
+            context['isLixiFile'] = True
 
             messages.success(self.request, "Successfully generated and validated")
             context['log'] = result['log']
@@ -874,10 +886,6 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
 
             context['log'] = result['log']
             messages.success(self.request, "Successfully sent to AMAL Development")
-            print(result)
-
-            if result['warningLog']:
-                messages.warning(self.request, "Post submission errors - " + result['warningLog'])
 
 
         if self.request.GET.get('action') == 'production':
@@ -912,10 +920,9 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
             funded_obj, created = FundedData.objects.get_or_create(case=caseObj, totalValuation=1)
 
             context['log'] = result['log']
-            messages.success(self.request, "Successfully sent to AMAL Production")
+            messages.success(self.request, "Successfully sent to AMAL Production. Documents being sent in background")
 
-            if result['warningLog']:
-                messages.warning(self.request, "Post submission errors - " + result['warningLog'])
+            app.send_task('AMAL_Send_Docs', kwargs={'caseUID': str(caseObj.caseUID)})
 
         return context
 

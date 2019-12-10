@@ -10,6 +10,9 @@ from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import FormView, TemplateView, View, UpdateView
 
+# Third-party Imports
+from config.celery import app
+
 # Local Application Imports
 from .forms import FactFindForm
 from apps.case.models import ModelSetting, Loan, Case, FactFind
@@ -20,7 +23,6 @@ from apps.lib.site_Globals import ECONOMIC, APP_SETTINGS, LOAN_LIMITS
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.hhc_LoanProjection import LoanProjection
 from apps.lib.site_Logging import write_applog
-
 
 
 
@@ -212,6 +214,7 @@ class GeneratePdf(View):
     def get(self,request, *args, **kwargs):
 
         caseUID = str(kwargs['uid'])
+        obj = Case.objects.filter(caseUID=self.kwargs.get('uid')).get()
 
         sourceUrl = 'https://householdcapital.app/factfind/pdfCaseSummary/' + self.request.session['caseUID']
         targetFileName = settings.MEDIA_ROOT + "/customerReports/CaseSummary-" + self.request.session['caseUID'][
@@ -239,5 +242,9 @@ class GeneratePdf(View):
             return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': self.request.session['caseUID']}))
 
         messages.success(self.request, "Meeting Summary generated")
+
+        #Call Synch document task
+        if obj.sfOpportunityID:
+            app.send_task('SF_Doc_Synch', kwargs={'caseUID': str(obj.caseUID)})
 
         return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': self.request.session['caseUID']}))

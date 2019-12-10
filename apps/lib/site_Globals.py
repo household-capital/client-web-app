@@ -15,7 +15,9 @@ LOAN_LIMITS={'minSingleAge' : 60,
              'baseLvrIncrement' : 0.01,
              'apartmentLvrAdj' : 0.05,
              'establishmentFee':0.015,
-             'topUpBufferAmount':5000
+             'topUpBufferAmount':5000,
+             'titleUtilTrigger': 0.60,
+             'titleAmountTrigger':400000,
 }
 
 ECONOMIC={'inflationRate' :float(2.50),
@@ -24,7 +26,8 @@ ECONOMIC={'inflationRate' :float(2.50),
           'interestRate' :float(0.75),
           'lendingMargin':float(4.40),
           'comparisonRateIncrement':float(0.06),
-          'projectionAge' : 90
+          'defaultMargin': float(2.00),
+          'projectionAge': 90,
 }
 
 APP_SETTINGS={'minProjectionYears': 15,

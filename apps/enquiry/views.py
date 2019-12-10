@@ -86,12 +86,16 @@ class EnquiryListView(LoginRequiredMixin, ListView):
 
         # ...and for open my items
         if self.request.GET.get('myEnquiries') == "True":
-            queryset = super(EnquiryListView, self).get_queryset().filter(user=self.request.user).exclude(actioned=-1).exclude(closeDate__isnull=False)
+            queryset = super(EnquiryListView, self).get_queryset().filter(user=self.request.user)\
+                .exclude(actioned=-1).exclude(closeDate__isnull=False).exclude(followUp__isnull=False)
 
         if self.request.GET.get('action')=="True":
             queryset=super(EnquiryListView, self).get_queryset().filter(user__isnull=True)
 
         queryset = queryset.order_by('-updated')
+
+        if self.request.GET.get('recent')=="True":
+            queryset=super(EnquiryListView, self).get_queryset().order_by('-updated')[:100]
 
         return queryset
 
@@ -104,19 +108,25 @@ class EnquiryListView(LoginRequiredMixin, ListView):
         else:
             context['search'] = ""
 
-        if self.request.GET.get('myEnquiries'):
+        if self.bool_convert(self.request.GET.get('myEnquiries')):
             context['myEnquiries'] = self.request.GET.get('myEnquiries')
         else:
             context['myEnquiries'] = False
 
-        if self.request.GET.get('action'):
+        if self.bool_convert(self.request.GET.get('action')):
             context['action']=True
+
+        if self.bool_convert(self.request.GET.get('recent')):
+            context['recent'] = True
 
         self.request.session['webCalcQueue'] = WebCalculator.objects.queueCount()
         self.request.session['webContQueue'] = WebContact.objects.queueCount()
         self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
 
         return context
+
+    def bool_convert(self, str):
+        return str == "True"
 
 
 # Enquiry Create View

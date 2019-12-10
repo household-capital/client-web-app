@@ -8,8 +8,10 @@ from config.celery import app
 # Local Application Imports
 from apps.lib.api_AMAL import apiAMAL
 from apps.lib.api_Salesforce import apiSalesforce
+from apps.lib.lixi.lixi_CloudBridge import CloudBridge
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Utilities import taskError
+
 
 from .models import Case, LossData, FundedData
 
@@ -147,6 +149,61 @@ def sfOppSynch(caseUID):
     else:
         write_applog("INFO", 'Case', 'Tasks-SF_Opp_Synch', description+"-"+"Opp Synched!")
         return "Success - Opp Synched!"
+
+@app.task(name='SF_Doc_Synch')
+def sfDocSynch(caseUID):
+    '''Task wrapper to synch case documents '''
+
+    # Get object
+    qs = Case.objects.queryset_byUID(caseUID)
+    case = qs.get()
+    description=case.caseDescription
+
+    taskErr = taskError()
+    write_applog("INFO", 'Case', 'Tasks-SF_Doc_Synch', "Starting")
+
+    sfAPI = apiSalesforce()
+    result = sfAPI.openAPI(True)
+    if result['status'] != "Ok":
+        write_applog("Error", 'Case', 'Tasks-SF_Doc_Synch', result['responseText'])
+        taskErr.raiseAdminError('Tasks-SF_Doc_Synch',"Error - could not open Salesforce :"+result['responseText'])
+        return "Error - could not open Salesforce"
+
+    result=updateSFDocs(caseUID, sfAPI)
+
+    if result['status'] != "Ok":
+        write_applog("Error", 'Case', 'Tasks-SF_Doc_Synch', description+"-"+result['responseText'])
+        taskErr.raiseAdminError('Tasks-SF_Doc_Synch', "Error - could not synch Opp :" + description+"-"+ result['responseText'])
+        return "Error - "+result['responseText']
+    else:
+        write_applog("INFO", 'Case', 'Tasks-SF_Doc_Synch', description+"-"+"Docs Synched!")
+        return "Success - Docs Synched!"
+
+
+@app.task(name='AMAL_Send_Docs')
+def amalDocs(caseUID):
+
+    # Get object
+    qs = Case.objects.queryset_byUID(caseUID)
+    caseObj = qs.get()
+
+    CB = CloudBridge(caseObj.sfOpportunityID, False, True, True)
+
+    result = CB.openAPIs()
+    if result['status'] == "Error":
+        return "Error - " + caseObj.caseDescription+ "-" +result['responseText']
+
+    if not caseObj.amalIdentifier:
+        return "Error - " + caseObj.caseDescription+ "- no AMAL application ID"
+
+    result = CB.sendDocumentsToAMAL(caseObj.amalIdentifier)
+    if result['status'] == "Error":
+        return "Error - " + caseObj.caseDescription+ "- "+result['responseText']
+    else:
+        return "Success - Documents sent to AMAL"
+
+
+
 
 # UTILITIES
 
@@ -354,7 +411,6 @@ def convertSFLead(caseUID, sfAPI):
 
     caseObj = Case.objects.queryset_byUID(caseUID).get()
 
-
     if not caseObj.sfLeadID:
         write_applog("Error", 'Case', 'convertSFLead', 'Case has no SF LeadID')
         return {'status': 'Error', 'responseText':'Case has no SF LeadID'}
@@ -507,9 +563,19 @@ def updateSFOpp(caseUID, sfAPI):
         write_applog("Error", 'Case', 'updateSFOpp', "Opportunity Synch -"+json.dumps(result['responseText']))
         return {'status':'Error', 'responseText':caseObj.caseDescription + " - " + json.dumps(result['responseText'])}
 
+    return {'status': 'Ok', "responseText": "Salesforce Synch!"}
+
+
+def updateSFDocs(caseUID, sfAPI):
+
+    doc_end_point='docuploader/v1/'
+    doc_end_point_method='POST'
+
+    caseObj = Case.objects.queryset_byUID(caseUID).get()
+
     DOCUMENT_LIST = {"Automated Valuation": caseObj.valuationDocument,
                      "Title Search": caseObj.titleDocument,
-                     "Scaled Inquiries Matrix": caseObj.responsibleDocument,
+                     "Responsible Lending Summary": caseObj.responsibleDocument,
                      "Enquiry Document": caseObj.enquiryDocument,
                      "Loan Summary": caseObj.summaryDocument,
                      "Solicitor Instruction": caseObj.solicitorInstruction,
@@ -528,10 +594,10 @@ def updateSFOpp(caseUID, sfAPI):
 
             result = sfAPI.apexCall(doc_end_point, doc_end_point_method, data=data)
             if result['status'] != 'Ok':
-                write_applog("Error", 'Case', 'updateSFOpp', "Document Synch - " + docName + "-" + json.dumps(result['responseText']))
+                write_applog("Error", 'Case', 'updateSFdocs', "Document Synch - " + docName + "-" + json.dumps(result['responseText']))
                 return {'status':'Error', "responseText":"Document Synch - " + docName + "-" + json.dumps(result['responseText'])}
 
-    return {'status': 'Ok', "responseText": "Salesforce Synch!"}
+    return {'status': 'Ok', "responseText": "Salesforce Doc Synch!"}
 
 
 def joinNames(firstname, middlename):
