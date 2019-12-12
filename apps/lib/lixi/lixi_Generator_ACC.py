@@ -134,7 +134,7 @@ class LixiXMLGenerator:
         try:
             self.__logging("Generating Purpose Elememts")
             self.lendingPurpose = ElementTree.SubElement(self.loanDetail,"LendingPurpose",dict(ABSLendingPurposeCode=srcDict["Purp" + str(1) + ".ABSCode"], LenderCode=srcDict["Purp" + str(1) + ".Category__c"],
-                                                                                               Description=srcDict["Purp" + str(1) + ".Intention__c"], PurposeAmount=str(int(round(srcDict['Loan.Application_Amount__c'],0)))))
+                                                                                               Description=srcDict["Purp" + str(1) + ".Intention__c"], PurposeAmount=str(int(round(srcDict['Loan.Total_Household_Loan_Amount__c'],0)))))
             # -Loan Purpose
             self.loanPurpose = ElementTree.SubElement(self.loanDetail, "LoanPurpose",
                                                       dict(NCCPStatus="Regulated",

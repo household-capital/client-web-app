@@ -279,11 +279,10 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
             # Background task to update Lead
             app.send_task('Update_SF_Case_Lead', kwargs={'caseUID': str(obj.caseUID)})
 
-        # If status updated to Application or Meeting Held - synch with Salesforce
-        if form.cleaned_data['caseType'] == caseTypesEnum.APPLICATION.value or form.cleaned_data['caseType'] == caseTypesEnum.MEETING_HELD.value:
-            if obj.sfOpportunityID:
-                app.send_task('SF_Opp_Synch', kwargs={'caseUID': str(obj.caseUID)})
-                app.send_task('SF_Doc_Synch', kwargs={'caseUID': str(obj.caseUID)})
+        else:
+            #Synch with Salesforce
+            app.send_task('SF_Opp_Synch', kwargs={'caseUID': str(obj.caseUID)})
+            app.send_task('SF_Doc_Synch', kwargs={'caseUID': str(obj.caseUID)})
 
         messages.success(self.request, "Case has been updated")
 
