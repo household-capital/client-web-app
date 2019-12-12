@@ -93,6 +93,7 @@ class CalendlyWebhook(View):
                 obj.customerName = customer_name
                 obj.customerEmail = customer_email
                 obj.customerPhone = customer_phone
+                obj.isZoomLive = True
 
                 caseObj = Case.objects.filter(email=customer_email).order_by("-timestamp").first()
 
@@ -100,7 +101,7 @@ class CalendlyWebhook(View):
                     obj.caseUID = caseObj.caseUID
 
                 obj.save(update_fields=['user', 'meetingName', 'startTime', 'timeZone','customerName','customerEmail',
-                                        'customerPhone','caseUID'])
+                                        'customerPhone','caseUID', 'isZoomLive'])
 
                 write_applog("INFO", 'Calendly', 'post', "Loan Interview Created:" + customer_email )
 
@@ -124,15 +125,18 @@ class CalendlyWebhook(View):
                     #Some update - cancel zoom first
                     response = zoomObj.delete_meeting(obj.zoomID)
 
-                # Crete Zoom
+                # Create Zoom
                 response = zoomObj.create_meeting(userZoomID, obj.meetingName,description, startDate,
                                                   timeZone, tracking_fields)
 
                 if response['status'] == "Ok":
                     response_dict = json.loads(response['responseText'])
                     obj.zoomID = response_dict['id']
-                    obj.isZoomLive = True
-                    obj.save(update_fields=['zoomID', 'isZoomLive'])
+                    obj.save(update_fields=['zoomID'])
+
+                    if caseObj:
+                        caseObj.isZoomMeeting = True
+                        caseObj.save(update_fields=['isZoomMeeting'])
 
                     write_applog("INFO", 'Calendly', 'post', "Loan Interview Zoom Created: " + customer_email)
 
@@ -155,6 +159,11 @@ class CalendlyWebhook(View):
                     if response['status'] == "Ok":
                         obj.isZoomLive = False
                         obj.save(update_fields=['isZoomLive'])
+
+                    caseObj = Case.objects.filter(email=customer_email).order_by("-timestamp").first()
+                    if caseObj:
+                        caseObj.isZoomMeeting = False
+                        caseObj.save(update_fields=['isZoomMeeting'])
 
                     write_applog("INFO", 'Calendly', 'post', "Loan Interview Zoom Cancelled:" + customer_email)
 
@@ -181,6 +190,7 @@ class CalendlyWebhook(View):
                 obj.phoneNumber = phoneNumber
 
             obj.save(update_fields=['enquiryNotes', 'isCalendly', 'phoneNumber'])
+
 
     def getPhoneNumber(self, data):
         phoneNumber = None

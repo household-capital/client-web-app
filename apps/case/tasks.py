@@ -440,9 +440,6 @@ def updateSFOpp(caseUID, sfAPI):
     end_point='caseopptysync/v1/'
     end_point_method='POST'
 
-    doc_end_point='docuploader/v1/'
-    doc_end_point_method='POST'
-
     caseObj = Case.objects.queryset_byUID(caseUID).get()
     lossObj = LossData.objects.queryset_byUID(caseUID).get()
 
@@ -562,7 +559,6 @@ def updateSFOpp(caseUID, sfAPI):
         sfOpprtunityFields['superFund'] = ""
 
     payload = sfOpprtunityFields
-
 
     #Call endpoint
     result = sfAPI.apexCall(end_point, end_point_method, data=payload)
