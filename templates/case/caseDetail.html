@@ -157,32 +157,10 @@
                                             &nbsp;<i class="fas fa-user-edit  fa-fw"></i>&nbsp;&nbsp;Case Summary&nbsp;&nbsp;
                                         </a>
 
-                                        <div class="dropdown-divider"></div>
-
-                                        <a class="dropdown-item" href="{% url 'case:caseValuer' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-home"></i>&nbsp;&nbsp;Valuer Instruction&nbsp;&nbsp;
-                                        </a>
-
-                                        <div class="dropdown-divider"></div>
-
-                                        <a class="dropdown-item" href="{% url 'case:caseSolicitor' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-gavel  fa-fw"></i>&nbsp;&nbsp;Create Solicitor Instruction&nbsp;&nbsp;
-                                        </a>
-
-                                        <div class="dropdown-divider"></div>
-
-                                        <a class="dropdown-item" href="{% url 'case:caseData' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-file-csv fa-fw"></i>&nbsp;&nbsp;Create Application CSV&nbsp;&nbsp;</a>
                                     {% endif %}
 
                                  <!-- DOCUMENTATION -->
                                     {% if obj.caseType == caseTypesEnum.DOCUMENTATION.value %}
-                                        <div class="dropdown-divider"></div>
-
-                                        <a class="dropdown-item" href="{% url 'case:caseSolicitor' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-gavel  fa-fw"></i>&nbsp;&nbsp;Solicitor Instruction&nbsp;&nbsp;
-                                        </a>
-
                                         <div class="dropdown-divider"></div>
 
                                         <a class="dropdown-item" href="{% url 'case:cloudBridge' uid=obj.caseUID %}">
