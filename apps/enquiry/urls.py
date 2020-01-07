@@ -24,7 +24,7 @@ urlpatterns = [
     path('referrer/<uuid:uid>', views.ReferrerView.as_view(), name='enqReferrerUpdate'),
     path('referrerEmail/<uuid:uid>', views.ReferralEmail.as_view(), name='enqReferrerEmail'),
 
-    path('calendlyWebhook', views.CalendlyWebhook.as_view(), name='calendlyWebhook'),
+    #path('calendlyWebhook', views.CalendlyWebhook.as_view(), name='calendlyWebhook'),
 
  ]
 

@@ -41,9 +41,6 @@ class CalendlyWebhook(View):
         customer_email = data["payload"]["invitee"]["email"]
         customer_phone = phoneNumber = self.getPhoneNumber(data)
 
-        if user_email != 'paul.murray@householdcapital.com':
-            return HttpResponse(status=200)
-
         if "Discovery Call" in meeting_name:
 
             if 'created' in hook_event:
