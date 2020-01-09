@@ -12,17 +12,20 @@
 
 <div class="row ">
     <div class="col-lg-12">
-        <p class="print-text">This section illustrates how your home equity might change under different scenarios of
-            for your house price and the interest rate.</p><br><br>
+        <p class="print-text">This section illustrates how your home equity might change under different scenarios for
+            house price growth and the loan interest rate.  We would be pleased to calculate alternative scenarios if you require.<br><br>
+            You can also explore further scenarios by using the reverse mortgage calculator at
+            <b>www.moneysmart.gov.au</b> </p><br><br>
     </div>
 </div>
 
 <div class="row ">
     <div class="col-lg-12">
 
-        <p class="larger HHCLightBlue-Printed pb-3"><b>What if the value of my home doesn't grow as much?</b></p>
+        <p class="larger HHCLightBlue-Printed pb-2"><b>What if the value of my home doesn't grow as much?</b></p>
+        <p>If the value of your home does not increase as much, your resulting home equity will be lower</p>
         <p> Assumed annual increase in home value: <b>{{ hpi1 }}</b>%</p>
-        <p> Interest Rate: {{ intRate1 }}%</p>
+        <p> Loan interest rate: {{ intRate1 }}%</p>
         <br>
     </div>
 </div>
@@ -105,36 +108,29 @@
     </div>
 
     <div class="row justify-content-md-center align-items-end">
-        <div class="col-lg-12">
-            <div class="row">
-                <div class="col-lg-2 text-right">
-                </div>
-                <div class="col-lg-2 text-center">
-                    <p class="larger">{{ resultsAge.0 }}</p>
-                </div>
-                <div class="col-lg-2 text-center">
-                    <p class="larger">{{ resultsAge.1 }}</p>
-                </div>
-                <div class="col-lg-2 text-center ">
-                    <p class="larger">{{ resultsAge.2 }}</p>
-                </div>
-                <div class="col-lg-2 text-center">
-                    <p class="larger">{{ resultsAge.3 }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row justify-content-md-center align-items-end">
-        <div class="col-lg-12">
-            <div class="row">
-                <div class="col-lg-2 text-right">
-                </div>
-                <div class="col-lg-8 text-center">
-                    <p>{{ ageAxis }}</p>
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-2 text-right">
+                    </div>
+                    <div class="col-lg-2 text-center">
+                        <p class="">Now</p>
+                        <p class="">Age {{ resultsAge.0 }}</p>
+                    </div>
+                    <div class="col-lg-2 text-center">
+                        <p class="">In 5 years</p>
+                        <p class="">Age {{ resultsAge.1 }}</p>
+                    </div>
+                    <div class="col-lg-2 text-center ">
+                        <p class="">In 10 years</p>
+                        <p class="">Age {{ resultsAge.2 }}</p>
+                    </div>
+                    <div class="col-lg-2 text-center">
+                        <p class="">In 15 years</p>
+                        <p class="">Age {{ resultsAge.3 }}</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
 </div>
 
@@ -142,9 +138,10 @@
 <br><br><br>
 <div class="row">
     <div class="col-lg-12">
-        <p class="print-text HHCLightBlue-Printed"><b>What if the value of my house doesn't grow at all?</b></p><br>
+        <p class="print-text HHCLightBlue-Printed pb-2"><b>What if the value of my home doesn't grow at all?</b></p>
+        <p>If the value of your home does not increase, your resulting home equity will be lower</p>
         <p> Assumed annual increase in home value: <b>{{ hpi2 }}</b>%</p>
-        <p> Interest Rate: {{ intRate2 }}%</p>
+        <p> Loan interest rate: {{ intRate2 }}%</p>
     </div>
 </div>
 <br>
@@ -227,37 +224,29 @@
     </div>
 
     <div class="row justify-content-md-center align-items-end">
-        <div class="col-lg-12">
-            <div class="row">
-                <div class="col-lg-2 text-right">
-                </div>
-                <div class="col-lg-2 text-center">
-                    <p class="larger">{{ resultsAge.0 }}</p>
-                </div>
-                <div class="col-lg-2 text-center">
-                    <p class="larger">{{ resultsAge.1 }}</p>
-                </div>
-                <div class="col-lg-2 text-center ">
-                    <p class="larger">{{ resultsAge.2 }}</p>
-                </div>
-                <div class="col-lg-2 text-center">
-                    <p class="larger">{{ resultsAge.3 }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row justify-content-md-center align-items-end">
-        <div class="col-lg-12">
-            <div class="row">
-                <div class="col-lg-2 text-right">
-                </div>
-                <div class="col-lg-8 text-center">
-                    <p>{{ ageAxis }}</p>
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-2 text-right">
+                    </div>
+                    <div class="col-lg-2 text-center">
+                        <p class="">Now</p>
+                        <p class="">Age {{ resultsAge.0 }}</p>
+                    </div>
+                    <div class="col-lg-2 text-center">
+                        <p class="">In 5 years</p>
+                        <p class="">Age {{ resultsAge.1 }}</p>
+                    </div>
+                    <div class="col-lg-2 text-center ">
+                        <p class="">In 10 years</p>
+                        <p class="">Age {{ resultsAge.2 }}</p>
+                    </div>
+                    <div class="col-lg-2 text-center">
+                        <p class="">In 15 years</p>
+                        <p class="">Age {{ resultsAge.3 }}</p>
+                    </div>
                 </div>
             </div>
         </div>
-
-    </div>
 
 </div>
 
@@ -280,9 +269,10 @@
 <div class="row">
     <div class="col-lg-12">
 
-        <p class="print-text HHCLightBlue-Printed"><b>What if the interest rate goes up?</b></p><br>
+        <p class="print-text HHCLightBlue-Printed pb-2"><b>What if the loan interest rate goes up?</b></p>
+        <p> If the loan interest rate goes up, your outstanding loan will increase faster and your resulting home equity will be lower</p>
         <p> Assumed annual increase in home value: {{ hpi3 }}%</p>
-        <p> Interest Rate: <b>{{ intRate3 }}%</b></p><br>
+        <p> Loan interest rate: <b>{{ intRate3 }}%</b> (i.e., 2% higher)</p><br>
     </div>
 </div>
 <div class="print-container">
@@ -364,37 +354,29 @@
     </div>
 
     <div class="row justify-content-md-center align-items-end">
-        <div class="col-lg-12">
-            <div class="row">
-                <div class="col-lg-2 text-right">
-                </div>
-                <div class="col-lg-2 text-center">
-                    <p class="larger">{{ resultsAge.0 }}</p>
-                </div>
-                <div class="col-lg-2 text-center">
-                    <p class="larger">{{ resultsAge.1 }}</p>
-                </div>
-                <div class="col-lg-2 text-center ">
-                    <p class="larger">{{ resultsAge.2 }}</p>
-                </div>
-                <div class="col-lg-2 text-center">
-                    <p class="larger">{{ resultsAge.3 }}</p>
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-2 text-right">
+                    </div>
+                    <div class="col-lg-2 text-center">
+                        <p class="">Now</p>
+                        <p class="">Age {{ resultsAge.0 }}</p>
+                    </div>
+                    <div class="col-lg-2 text-center">
+                        <p class="">In 5 years</p>
+                        <p class="">Age {{ resultsAge.1 }}</p>
+                    </div>
+                    <div class="col-lg-2 text-center ">
+                        <p class="">In 10 years</p>
+                        <p class="">Age {{ resultsAge.2 }}</p>
+                    </div>
+                    <div class="col-lg-2 text-center">
+                        <p class="">In 15 years</p>
+                        <p class="">Age {{ resultsAge.3 }}</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row justify-content-md-center align-items-end">
-        <div class="col-lg-12">
-            <div class="row">
-                <div class="col-lg-2 text-right">
-                </div>
-                <div class="col-lg-8 text-center">
-                    <p>{{ ageAxis }}</p>
-                </div>
-
-            </div>
-        </div>
-    </div>
 
 </div>
 
@@ -408,9 +390,11 @@
                     obligation</b> to pay make regular interest payments on your loan. However, doing so can have a
                 positive impact on your home equity over time.</p>
             <br>
-            <p class="print-text HHCLightBlue-Printed"><b>What if I make planned interest payments?</b></p><br>
+            <p class="print-text HHCLightBlue-Printed pb-2"><b>What if I make planned interest payments?</b></p>
+            <p> If you make interest payments, your outstanding loan will increase more slowly and your resulting home equity will
+                be higher</p>
             <p> Assumed annual increase in home value: {{ housePriceInflation }}%</p>
-            <p> Interest Rate: <b>{{ totalInterestRate }}%</b></p><br>
+            <p> Loan interest rate: <b>{{ totalInterestRate }}%</b></p><br>
 
         </div>
     </div>
@@ -503,29 +487,21 @@
                     <div class="col-lg-2 text-right">
                     </div>
                     <div class="col-lg-2 text-center">
-                        <p class="larger">{{ resultsAge.0 }}</p>
+                        <p class="">Now</p>
+                        <p class="">Age {{ resultsAge.0 }}</p>
                     </div>
                     <div class="col-lg-2 text-center">
-                        <p class="larger">{{ resultsAge.1 }}</p>
+                        <p class="">In 5 years</p>
+                        <p class="">Age {{ resultsAge.1 }}</p>
                     </div>
                     <div class="col-lg-2 text-center ">
-                        <p class="larger">{{ resultsAge.2 }}</p>
+                        <p class="">In 10 years</p>
+                        <p class="">Age {{ resultsAge.2 }}</p>
                     </div>
                     <div class="col-lg-2 text-center">
-                        <p class="larger">{{ resultsAge.3 }}</p>
+                        <p class="">In 15 years</p>
+                        <p class="">Age {{ resultsAge.3 }}</p>
                     </div>
-                </div>
-            </div>
-        </div>
-        <div class="row justify-content-md-center align-items-end">
-            <div class="col-lg-12">
-                <div class="row">
-                    <div class="col-lg-2 text-right">
-                    </div>
-                    <div class="col-lg-8 text-center">
-                        <p>{{ ageAxis }}</p>
-                    </div>
-
                 </div>
             </div>
         </div>

@@ -23,14 +23,14 @@
         </div>
     </div>
 
-    <div class="print-container">
-        <div class="row ">
-
-
-            <div class="col-lg-12 "><br>
-                <p class="larger HHCLightBlue-Printed pb-3">Home equity</p>
-            </div>
+    <div class="row ">
+        <div class="col-lg-12 "><br>
+            <p class="larger HHCLightBlue-Printed pb-3">Your baseline projection</p>
         </div>
+    </div>
+
+    <div class="print-container">
+
         <div class="row padding-10px">
             <div class="col-lg-12 ">
                 <p class="small"><i class="fas fa-square hhcGoldFont"></i>&nbsp;Loan balance&nbsp;&nbsp;&nbsp;&nbsp;
@@ -118,40 +118,31 @@
                     <div class="col-lg-2 text-right">
                     </div>
                     <div class="col-lg-2 text-center">
-                        <p class="larger">{{ resultsAge.0 }}</p>
+                        <p class="">Now</p>
+                        <p class="">Age {{ resultsAge.0 }}</p>
                     </div>
                     <div class="col-lg-2 text-center">
-                        <p class="larger">{{ resultsAge.1 }}</p>
+                        <p class="">In 5 years</p>
+                        <p class="">Age {{ resultsAge.1 }}</p>
                     </div>
                     <div class="col-lg-2 text-center ">
-                        <p class="larger">{{ resultsAge.2 }}</p>
+                        <p class="">In 10 years</p>
+                        <p class="">Age {{ resultsAge.2 }}</p>
                     </div>
                     <div class="col-lg-2 text-center">
-                        <p class="larger">{{ resultsAge.3 }}</p>
+                        <p class="">In 15 years</p>
+                        <p class="">Age {{ resultsAge.3 }}</p>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row justify-content-md-center align-items-end">
-            <div class="col-lg-12">
-                <div class="row">
 
-                    <div class="col-lg-2 text-right">
-                    </div>
-                    <div class="col-lg-8 text-center">
-                        <p>{{ ageAxis }}</p>
-                    </div>
-
-                </div>
-            </div>
-        </div>
         <br>
         <div class="row">
             <div class="col-lg-11 text-left">
-                <p class="small">The equity in your home might reach $0 when you are {% if resultsNegAge > 100 %} over
-                    100 years old {% else %}{{ resultsNegAge }} years old{% endif %}</p>
 
-                <p class="small"><b>IMPORTANT: These are estimates only. Actual performance could be very different</b> </p>
+                <p class="small"><b>IMPORTANT: These are estimates only. Actual performance could be very different</b>
+                </p>
                 <p class="small"><b>You may end up with more or less equity in your home </b></p>
 
             </div>
@@ -174,8 +165,11 @@
 
 
             {% if topUpDrawdownAmount or  careDrawdownAmount %}
-                <li class="print-text">The total Loan Amount (drawn in the first 12 months) is ${{ totalLoanAmount |intcomma }}</li>
-                <li class="print-text">The total Plan Amount is ${{ totalPlanAmount |intcomma }}. Projections include drawdown plan amounts</li>
+                <li class="print-text">The total Loan Amount (drawn in the first 12 months) is
+                    ${{ totalLoanAmount |intcomma }}</li>
+                <li class="print-text">The total Plan Amount is ${{ totalPlanAmount |intcomma }}. Projections include
+                    drawdown plan amounts
+                </li>
             {% else %}
                 <li class="print-text">The total Loan Amount is ${{ totalLoanAmount |intcomma }}</li>
             {% endif %}
@@ -187,16 +181,14 @@
             <p class="larger HHCLightBlue-Printed pb-3">Explanatory notes</p>
 
             <p class=" larger"><b>Home Value</b></p>
-            <p class="print-text pb-3">Your home value is updated each year using the specified increase/decrease rate.
-                The
-                calculations assume a constant rate of interest (although in reality this rate will rise and
+            <p class="print-text pb-3">Your home value is updated each year using the specified growth rate.
+                The calculations assume a constant growth rate (although in reality this rate will rise and
                 fall).</p>
 
 
             <p class="larger"><b>Interest Rate</b></p>
             <p class="print-text pb-3">Interest rates are assumed to remain constant over the life of the loan. This
-                loan
-                has a variable rate of interest and should be expected to fluctuate over time. Interest is
+                loan has a variable rate of interest and should be expected to fluctuate over time. Interest is
                 calculated daily and accrued monthly. </p>
 
 
