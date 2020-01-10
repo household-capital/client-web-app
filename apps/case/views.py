@@ -460,7 +460,7 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
 
     def get_context_data(self, **kwargs):
         context = super(CaseDataExtract, self).get_context_data(**kwargs)
-        context['title'] = "Create Application Data File"
+        context['title'] = "Create Document Data File"
         return context
 
     def form_valid(self, form):
@@ -589,7 +589,7 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
             caseObj.dataCSV = targetFile
             caseObj.save(update_fields=['dataCSV'])
 
-            messages.success(self.request, "Application Data File Created")
+            messages.success(self.request, "Document Data File Created")
             return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
         else:

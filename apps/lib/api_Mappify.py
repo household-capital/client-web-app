@@ -64,6 +64,9 @@ class apiMappify():
         if response['result']==None:
             return {'status': "Error", "responseText": 'No Address Match'}
 
+        if response['confidence'] < 0.35:
+            return {'status': "Error", "responseText": 'Poor Address Match - ' + response['result']['streetAddress']}
+
         self.location=response['result']['location']
 
 
