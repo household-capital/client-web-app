@@ -1,6 +1,7 @@
 # Python Imports
 import os
 import json
+from datetime import timedelta
 
 # Django Imports
 from django.conf import settings
@@ -70,8 +71,12 @@ class EnquiryListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self, **kwargs):
         # overrides queryset to filter search paramater
+
+        delta = timedelta(weeks=4)
+        windowDate = timezone.now() - delta
+
         queryset = super(EnquiryListView, self).get_queryset()
-        queryset = queryset.filter(actioned=0, followUp__isnull=True, closeDate__isnull=True)
+        queryset = queryset.filter(actioned=0, followUp__isnull=True, closeDate__isnull=True, updated__gte = windowDate)
 
         if self.request.GET.get('search'):
             search = self.request.GET.get('search')
@@ -313,7 +318,6 @@ class SendEnquirySummary(LoginRequiredMixin, UpdateView):
                                        enq_obj.user.email, \
                                        enq_obj.email, \
                                        enq_obj.user.email
-        print(subject, from_email, to, bcc)
 
         text_content = "Text Message"
         attachFilename = 'HHC-Summary'
@@ -752,53 +756,3 @@ class ReferralEmail(LoginRequiredMixin, TemplateView):
                          "Failed to email introduction:" + enqID)
             messages.error(self.request, "Introduction could not be emailed")
             return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
-
-
-# CALENDLY WEBHOOK
-
-@method_decorator(csrf_exempt, name='dispatch')
-class CalendlyWebhook(View):
-
-    def post(self, request, *args, **kwargs):
-
-        # Load the event data from JSON
-        data = json.loads(request.body)
-
-        # Determine event type
-        meeting_name=data["payload"]["event_type"]["name"]
-        user_email = data['payload']["event"]["extended_assigned_to"][0]['email']
-
-        if user_email == 'paul.murray@householdcapital.com':
-            return HttpResponse(status=200)
-
-        if "Discovery Call" in meeting_name:
-
-            client_email=data["payload"]["invitee"]["email"]
-            write_applog("INFO", 'Calendly', 'post',
-                         "Client Email:" +client_email )
-
-            #Get phone number if available
-            phoneNumber=None
-            try:
-                if 'phone number' in data['payload']['questions_and_answers'][0]['question']:
-                    phoneNumber= data['payload']['questions_and_answers'][0]['answer']
-            except:
-                pass
-
-            # Find enquiry using email and add details to the enquiry
-            obj=Enquiry.objects.filter(email=client_email).order_by("-timestamp").first()
-
-            if obj:
-                if obj.enquiryNotes:
-                    obj.enquiryNotes+="\r\n"+"[# Calendly - "+meeting_name+" #]"
-                else:
-                    obj.enquiryNotes = "[# Calendly - "+meeting_name+" #]"
-                obj.isCalendly=True
-
-                if phoneNumber and not obj.phoneNumber:
-                    obj.phoneNumber=phoneNumber
-
-                obj.save(update_fields=['enquiryNotes','isCalendly','phoneNumber'])
-
-        return HttpResponse(status=200)
-

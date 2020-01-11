@@ -51,14 +51,6 @@ class CaseManager(models.Manager):
         closedTypes = [caseTypesEnum.CLOSED.value, caseTypesEnum.FUNDED.value]
         return Case.objects.exclude(caseType__in=closedTypes)
 
-    def pipelineHealth(self):
-        closedTypes = [caseTypesEnum.CLOSED.value, caseTypesEnum.DOCUMENTATION.value, caseTypesEnum.APPLICATION.value]
-        startdate = timezone.now() - timedelta(days=14)
-        openCases=self.openCases().exclude(caseType__in=closedTypes).count()
-        currentCases=self.openCases().filter(updated__gte=startdate).exclude(caseType__in=closedTypes).count()
-        return [0] if openCases == 0 else [round(currentCases/openCases,2),round(1-currentCases/openCases,2)]
-
-
 class Case(models.Model):
     # Main model - extended by Loan, ModelSettings and LossData
 

@@ -72,21 +72,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         tsData = json.dumps(list(WebCalculator.objects.timeSeries('Email', 90)), default=self.dateParse)
         context['chartEmailData'] = tsData
 
-        # Pipeline Health
-        caseHealth = Case.objects.pipelineHealth()
-        enquiryHealth = Enquiry.objects.pipelineHealth()
-
-        context['caseHealth'] = caseHealth
-        if caseHealth[0] > .74:
-            context['caseColor'] = "#5184a1"
-        else:
-            context['caseColor'] = "#fdb600"
-
-        context['enquiryHealth'] = enquiryHealth
-        if enquiryHealth[0] > .74:
-            context['enquiryColor'] = "#5184a1"
-        else:
-            context['enquiryColor'] = "#fdb600"
 
         # Enquiry
         context['openEnquiries'] = Enquiry.objects.openEnquiries().count()
@@ -116,7 +101,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context['funded'] = qsCases.filter(caseType=caseTypesEnum.FUNDED.value).count()
 
         # Funded Data
-        qsFunded = FundedData.objects.all()
+        qsFunded = FundedData.objects.filter(principal__gt=0)
         if qsFunded:
             context['portfolioBalance'] = int(qsFunded.aggregate(Sum('principal'))['principal__sum'])
             context['portfolioFunded'] = int(qsFunded.aggregate(Sum('advanced'))['advanced__sum'])
@@ -184,6 +169,24 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context['referralData'] = tableData
         context['channelTypesEnum'] = channelTypesEnum
 
+        # - get interaction data and build table
+        qsInteractions = WebCalculator.objects.all()
+        dataQs = qsInteractions \
+            .annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
+            .values_list('date') \
+            .annotate(interactions=Count('calcUID')) \
+            .values('date', 'interactions').order_by('date')
+
+        tableData = {}
+        for item in dataQs:
+            if item['date'].strftime('%b-%y') not in tableData:
+                tableData[item['date'].strftime('%b-%y')] = {'Interactions': item['interactions']}
+            else:
+                tableData[item['date'].strftime('%b-%y')][item['Interactions']] = item['interactions']
+
+        context['interactionData'] = tableData
+
+        # - calc totals
         tableData = {}
         for column in dateRange:
             total = 0

@@ -192,12 +192,17 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
         context['title'] = 'Case Detail'
         context['isUpdate'] = True
         context['caseTypesEnum'] = caseTypesEnum
-        context['zoomURL'] = self.object.user.profile.calendlyInterviewUrl
 
         clientDict = {}
         clientDict = self.get_queryset().filter(caseID=self.object.caseID).values()[0]
         loanObj = LoanValidator(clientDict)
         context['status'] = loanObj.validateLoan()
+
+        paramStr = "?name="+(clientDict['firstname_1'] if clientDict['firstname_1'] else '') + " " +\
+                   (clientDict['surname_1'] if clientDict['surname_1'] else '') + "&email=" + \
+                   (clientDict['email'] if clientDict['email'] else '')
+
+        context['calendlyUrl'] = self.object.user.profile.calendlyInterviewUrl + paramStr
 
         return context
 

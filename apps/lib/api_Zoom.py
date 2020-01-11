@@ -81,7 +81,7 @@ class apiZoom():
             return {"status": "Error"}
 
 
-    def create_meeting(self, userID, meetingName, description, startTime, timeZone, trackingFields):
+    def create_meeting(self, userID, meetingName, description, startTime, timeZone, trackingFields, use_pmi=True):
 
         create_url = self.api_url_create.format(userID)
 
@@ -92,7 +92,7 @@ class apiZoom():
             "duration": 75,
             "timezone": timeZone,
             "settings": {
-                "use_pmi": True,
+                "use_pmi": use_pmi,
             },
             "tracking_fields": trackingFields
             ,
