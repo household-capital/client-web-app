@@ -49,24 +49,19 @@
         <br>
 
         <div class="row justify-content-center">
-            <div class="col-lg-6">
+            <div class="col-sm-5">
 
-                <div class="row justify-content-center">
-
-                    <div class="col-5 text-center">
-                        <b>Current Pipeline</b><br>
-
-                        <canvas id="enquiryHealthChart"></canvas>
-                    </div>
+                <div class="row justify-content-left pb-4">
 
                     <div class="col-6 my-auto">
+                        <b>Current Pipeline</b><br><br>
                         <div class="row">
 
                             <div class="col-12">
                                 <button type="button" class="btn btn-jumbotron">
-                                    Enquiries&nbsp;&nbsp;&nbsp; <span
-                                        class="badge badge-hhcBlue">{{ openEnquiries }}</span>
+                                    Enquiries&nbsp;&nbsp;&nbsp; <span class="badge badge-hhcBlue">{{ openEnquiries }}</span>
                                 </button>
+
                             </div>
                         </div>
                     </div>
@@ -74,16 +69,9 @@
                 </div>
 
 
-                <div class="row justify-content-center">
+                <div class="row justify-content-left">
 
-                    <div class="col-5 text-center">
-
-                        <canvas id="caseHealthChart"></canvas>
-                        <br>
-                        <p class="small"> % updated in <br>last 2 weeks</p>
-                    </div>
-
-                    <div class="col-6">
+                    <div class="col-12">
                         <div class="row">
 
                             <div class="col-12 ">
@@ -96,19 +84,19 @@
                         </div>
                         <div class="row">
 
-                            <div class="col-7">
+                            <div class="col-5">
 
-                                <p class="small">&nbsp;&nbsp;- Discovery</p>
-                                <p class="small">&nbsp;&nbsp;- Meeting Held</p>
-                                <p class="small">&nbsp;&nbsp;- Application</p>
-                                <p class="small">&nbsp;&nbsp;- Documentation</p>
+                                <p class="">&nbsp;&nbsp;- Discovery</p>
+                                <p class="">&nbsp;&nbsp;- Meeting Held</p>
+                                <p class="">&nbsp;&nbsp;- Application</p>
+                                <p class="">&nbsp;&nbsp;- Documentation</p>
                             </div>
                             <div class="col-2 text-right">
 
-                                <p class="small">{{ openDiscovery }}</p>
-                                <p class="small">{{ openMeetingHeld }}</p>
-                                <p class="small">{{ openApplication }}</p>
-                                <p class="small">{{ openDocumentation }}</p>
+                                <p class="">{{ openDiscovery }}</p>
+                                <p class="">{{ openMeetingHeld }}</p>
+                                <p class="">{{ openApplication }}</p>
+                                <p class="">{{ openDocumentation }}</p>
                             </div>
 
 
@@ -131,7 +119,7 @@
                         <p>Cases</p>
                         <p>Meetings</p>
                         <p>Applications</p>
-                        <p>Funded</p>
+                        <p>Settled</p>
                     </div>
 
                     <div class="col-4 text-right pb-3">
@@ -152,7 +140,7 @@
                         <p>Current Balance</p>
                         <p>Funded</p>
                         <p>W.Ave LVR</p>
-                        <p>Number of Loans</p>
+                        <p>Funded Loans</p>
                     </div>
 
                     <div class="col-4 text-right">
@@ -201,7 +189,26 @@
 
                 <tbody>
                 <tr>
+                    <td class="small text-left"><b>Interactions</b></td>
+                    <td></td>
+                     {% for month in dateRange %}
+                        <td class="small">{{ interactionData|getDictItem:month|getDictItem:'Interactions' }}</td>
+                    {% endfor %}
+                </tr>
+                    <td></td>
+                    <td></td>
+                     {% for month in dateRange %}
+                        <td>&nbsp;</td>
+                    {% endfor %}
+                <tr>
+
+                </tr>
+
+                <tr>
                     <td class="text-left"><b>Direct</b></td>
+                     <td></td>
+                    {% for month in dateRange %}
+                        <td></td>{% endfor %}
                 </tr>
 
                 <tr>
@@ -320,8 +327,6 @@
         // Chart data
         var chartInteractionData = {{ chartInteractionData|safe}};
         var chartEmailData = {{ chartEmailData|safe}};
-        var caseHealthData ={{ caseHealth }};
-        var enquiryHealthData ={{ enquiryHealth }};
 
         // Timeseries data
         var interactionData = createTimeSeries(chartInteractionData);
@@ -329,8 +334,6 @@
 
         // Chart references
         var ctx_interaction = document.getElementById('interactionChart').getContext('2d');
-        var ctx_case = document.getElementById('caseHealthChart').getContext('2d');
-        var ctx_enquiry = document.getElementById('enquiryHealthChart').getContext('2d');
 
         // Chart definitions
 
@@ -378,47 +381,8 @@
             }
         });
 
-        var enquiryHealthChart = new Chart(ctx_enquiry, {
-            type: 'doughnut',
-            data: {
-                labels: ["Current", "Non-Current"],
-                datasets:
-                    [
-                        {
-                            backgroundColor: ["{{ enquiryColor }}", "#f8f9fa"],
-                            data: enquiryHealthData
-                        }
-                    ]
-            },
-            options: {
-                responsive: true,
-                legend: {
-                    display: false
-                },
-                cutoutPercentage: 60,
-            }
-        });
 
-        var caseHealthChart = new Chart(ctx_case, {
-            type: 'doughnut',
-            data: {
-                labels: ["Current", "Non-Current"],
-                datasets:
-                    [
-                        {
-                            backgroundColor: ["{{ caseColor }}", "#f8f9fa"],
-                            data: caseHealthData
-                        }
-                    ]
-            },
-            options: {
-                responsive: true,
-                legend: {
-                    display: false
-                },
-                cutoutPercentage: 60,
-            }
-        });
+
 
 
     </script>

@@ -20,9 +20,7 @@
         <p class="print-text">Level 12</p>
         <p class="print-text">1 Nicholson Street</p>
         <p class="print-text">Melbourne VIC 3002</p>
-        <br>
         <p class="print-text">1300 622 100</p>
-
 
     </div>
 
@@ -42,7 +40,7 @@
         <br><br>
         <p class="print-text">{% now 'j F Y' %}</p>
 
-        <br><br><br>
+        <br><br>
         <p class="print-text">Dear {% if obj.loanType == loanTypesEnum.SINGLE_BORROWER.value %}
             {{ obj.firstname_1 | firstName}}
         {% else %}
@@ -66,15 +64,14 @@
             for a Household Loan:</p>
 
         <ul>
-            <li class="print-text pt-3">your Household Loan Summary - as discussed during our meeting, including
-                important loan
-                projections;
+            <li class="print-text pt-3">your Household Loan Summary - including important loan projections as well as a copy
+                of the consents provided during the meeting;
             </li>
 
             <li class="print-text pt-3">our Credit Guide - information about Household Capital; and</li>
 
 
-            <li class="print-text pt-3">a Reverse Mortgage Information Statement - general information to consider when deciding if a reverse mortgage is right for you.</li>
+            <li class="print-text pt-3">a Reverse Mortgage Information Statement - general information to consider when deciding whether a reverse mortgage is right for you.</li>
         </ul>
         <br>
 
@@ -84,7 +81,7 @@
         <br>
         <p class="print-text"> If you would like to proceed, please email me at {{ obj.user.email }} or call me
             on {{ obj.user.profile.mobile }} and I will provide you with an application form.</p><br>
-        <p class="print-text">Kind regards</p>
+        <p class="print-text">Yours sincerely</p>
         <br><br>
         <p class="print-text">{{ obj.user.first_name }} {{ obj.user.last_name }}</p>
         <br>
@@ -92,7 +89,7 @@
     </div>
 </div>
 
-<br>
+<br><br><br>
 <div class="row no-gutters">
     <div class="col-sm-6 text-left">
         <p class="small">Credit Provider: Household Capital Services Pty Limited <br>ACN 625 860 764 <br>Loan Manager: Household Capital Pty Limited ACN 618 068 214</p>

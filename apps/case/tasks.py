@@ -440,9 +440,6 @@ def updateSFOpp(caseUID, sfAPI):
     end_point='caseopptysync/v1/'
     end_point_method='POST'
 
-    doc_end_point='docuploader/v1/'
-    doc_end_point_method='POST'
-
     caseObj = Case.objects.queryset_byUID(caseUID).get()
     lossObj = LossData.objects.queryset_byUID(caseUID).get()
 
@@ -456,7 +453,6 @@ def updateSFOpp(caseUID, sfAPI):
         'caseNotes': caseObj.caseNotes,
         'loanType': caseObj.enumLoanType(),
         'salesChannel': caseObj.enumChannelType(),
-        'specialConditions': caseObj.specialConditions,
         'closeReason': caseObj.lossdata.enumCloseReason(),
         'followUpNotes': caseObj.lossdata.followUpNotes,
         'doNotMarket': caseObj.lossdata.doNotMarket,
@@ -468,26 +464,29 @@ def updateSFOpp(caseUID, sfAPI):
         'interestPayAmount': caseObj.loan.interestPayAmount,
         'interestPayPeriod': caseObj.loan.interestPayPeriod,
         'clientType1': caseObj.enumClientType()[0],
+        'salutation_1':caseObj.enumSalutation()[0] ,
         'surname_1': caseObj.surname_1,
-        'firstname_1': joinNames(caseObj.firstname_1, caseObj.middlename_1),
+        'firstname_1': caseObj.firstname_1,
+        'middlename_1':caseObj.middlename_1,
         'age_1': caseObj.age_1,
         'sex_1': caseObj.enumSex()[0],
+        'maritalStatus_1':caseObj.enumMaritalStatus()[0],
         'phoneNumber': caseObj.phoneNumber,
         'email': caseObj.email,
         'clientType2': caseObj.enumClientType()[1],
+        'salutation_2': caseObj.enumSalutation()[1],
         'surname_2': caseObj.surname_2,
-        'firstname_2': joinNames(caseObj.firstname_2, caseObj.middlename_2),
+        'firstname_2': caseObj.firstname_2,
+        'middlename_2': caseObj.middlename_2,
         'age_2': caseObj.age_2,
         'sex_2': caseObj.enumSex()[1],
+        'maritalStatus_2': caseObj.enumMaritalStatus()[1],
         'street': caseObj.street,
         'suburb': caseObj.suburb,
         'postcode': caseObj.postcode,
         'state': caseObj.enumStateType(),
         'valuation': caseObj.valuation,
         'dwellingType': caseObj.enumDwellingType(),
-        'valuerFirm': caseObj.valuerFirm,
-        'valuerEmail': caseObj.valuerEmail,
-        'valuerContact': caseObj.valuerContact,
         'maxLVR': caseObj.loan.maxLVR,
         'actualLVR': caseObj.loan.actualLVR,
         'establishmentFee': caseObj.loan.establishmentFee,
@@ -600,13 +599,3 @@ def updateSFDocs(caseUID, sfAPI):
     return {'status': 'Ok', "responseText": "Salesforce Doc Synch!"}
 
 
-def joinNames(firstname, middlename):
-    if firstname:
-        if middlename:
-            return firstname + " " + middlename
-        else:
-            return firstname
-    elif middlename:
-        return middlename
-    else:
-        return None

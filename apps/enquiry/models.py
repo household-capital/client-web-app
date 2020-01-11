@@ -30,11 +30,6 @@ class EnquiryManager(models.Manager):
     def openEnquiries(self):
         return Enquiry.objects.filter(actioned=0, followUp__isnull=True).exclude(status=False,user__isnull=False)
 
-    def pipelineHealth(self):
-        startdate = timezone.now() - timedelta(days=14)
-        openEnq=self.openEnquiries().count()
-        currentEnq=self.openEnquiries().filter(updated__gte=startdate).count()
-        return [0] if openEnq == 0 else [round(currentEnq/openEnq,2),round(1-currentEnq/openEnq,2)]
 
 class Enquiry(models.Model):
 

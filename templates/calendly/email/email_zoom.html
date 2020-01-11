@@ -1,0 +1,29 @@
+{% extends 'calendly/email/email_template.html' %}
+{% load humanize %}
+{% load static %}
+{% load site_tags %}
+
+
+{% block email_content %}
+
+<p>Hello {{ customer_name }} </p>
+<br>
+<p>Our meeting {{ start_time }} will be conducted on-line. You can join the meeting via your web browser on a computer or mobile device.</p>
+<br>
+<p>Please click or enter the following link into your browser (a few minutes prior to the specified time) and follow the prompts.</p>
+<br>
+<p><b>https://householdcapital.com.au/meeting/{{ meeting_id }}</b></p>
+<br>
+<p>The Meeting ID is: <b>{{ meeting_id }}</b></p>
+<br>
+<p>If you require assistance at anytime, please call me on {{ user_mobile }}.</p>
+<br>
+<p>I look forward to talking with you then.</p>
+<br>
+<p>Kind regards</p>
+<br>
+<p>{{ user_first_name }}</p>
+<br>
+
+{% endblock %}
+

@@ -255,7 +255,7 @@ class ContactListView(LoginRequiredMixin, ListView):
     def get_queryset(self, **kwargs):
         queryset = super(ContactListView, self).get_queryset()
 
-        queryset = queryset.order_by('-timestamp')
+        queryset = queryset.order_by('-timestamp')[:200]
 
         return queryset
 

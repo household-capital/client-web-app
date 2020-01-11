@@ -51,14 +51,6 @@ class CaseManager(models.Manager):
         closedTypes = [caseTypesEnum.CLOSED.value, caseTypesEnum.FUNDED.value]
         return Case.objects.exclude(caseType__in=closedTypes)
 
-    def pipelineHealth(self):
-        closedTypes = [caseTypesEnum.CLOSED.value, caseTypesEnum.DOCUMENTATION.value, caseTypesEnum.APPLICATION.value]
-        startdate = timezone.now() - timedelta(days=14)
-        openCases=self.openCases().exclude(caseType__in=closedTypes).count()
-        currentCases=self.openCases().filter(updated__gte=startdate).exclude(caseType__in=closedTypes).count()
-        return [0] if openCases == 0 else [round(currentCases/openCases,2),round(1-currentCases/openCases,2)]
-
-
 class Case(models.Model):
     # Main model - extended by Loan, ModelSettings and LossData
 
@@ -221,6 +213,7 @@ class Case(models.Model):
     amalLoanID=models.CharField(max_length=40, null=True, blank=True)
 
     newProcess=models.BooleanField(default=False, null=True, blank=True)
+    isZoomMeeting=models.BooleanField(default=False, null=True, blank=True)
 
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
@@ -257,7 +250,7 @@ class Case(models.Model):
             return [dict(self.clientSex)[self.sex_1],dict(self.clientSex)[self.sex_2]]
 
     def enumClientType(self):
-        if not self.clientType2:
+        if self.clientType2 is None:
             return [dict(self.clientTypes)[self.clientType1],None]
         else:
             return [dict(self.clientTypes)[self.clientType1],dict(self.clientTypes)[self.clientType2]]
@@ -273,7 +266,17 @@ class Case(models.Model):
         if self.pensionType is not None:
             return dict(self.pensionTypes)[self.pensionType]
 
+    def enumMaritalStatus(self):
+        if self.clientType2 is None:
+            return [dict(self.maritalTypes)[self.maritalStatus_1],None]
+        else:
+            return [dict(self.maritalTypes)[self.maritalStatus_1],dict(self.maritalTypes)[self.maritalStatus_2]]
 
+    def enumSalutation(self):
+        if self.clientType2 is None:
+            return [dict(self.salutationTypes)[self.salutation_1],None]
+        else:
+            return [dict(self.salutationTypes)[self.salutation_1],dict(self.salutationTypes)[self.salutation_2]]
 
 # Pre-save function to extend Case
 def create_case_extensions(sender, instance, created, **kwargs):
@@ -407,6 +410,7 @@ class LossData(models.Model):
         (closeReasonEnum.UNSUITABLE_PURPOSE.value, 'Unsuitable Purpose'),
         (closeReasonEnum.ALTERNATIVE_SOLUTION.value, 'Client Pursuing Alternative'),
         (closeReasonEnum.COMPETITOR.value, 'Client went to Competitor'),
+        (closeReasonEnum.NO_CLIENT_ACTION.value, 'No further action by client'),
         (closeReasonEnum.OTHER.value , 'Other')
     )
 
@@ -435,6 +439,9 @@ class LossData(models.Model):
         except:
             return None
 
+    class Meta:
+        verbose_name_plural = "Loss Data"
+
 
 class FundedData(models.Model):
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
@@ -451,6 +458,9 @@ class FundedData(models.Model):
 
     def __unicode__(self):
         return smart_text(self.case.caseDescription)
+
+    class Meta:
+        verbose_name_plural = "Funded Data"
 
 
 class FactFind(models.Model):
