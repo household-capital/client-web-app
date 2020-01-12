@@ -34,6 +34,18 @@ class CalendlyWebhook(View):
 
     def post(self, request, *args, **kwargs):
 
+        #Get webhook ID from environmental settings
+        calendly_webhook_id = os.getenv("CALENDLY_WEBHOOK_ID")
+
+        # Check the webhook ID header (security)
+        if 'HTTP_X_CALENDLY_HOOK_ID' not in request.META:
+            write_applog("ERROR", 'Calendly', 'post', "No X_CALENDLY_HOOK_ID in request header" )
+            return HttpResponse(status=403)
+
+        if request.META['HTTP_X_CALENDLY_HOOK_ID'] != calendly_webhook_id:
+            write_applog("ERROR", 'Calendly', 'post', "Unrecognised X_CALENDLY_HOOK_ID in header" )
+            return HttpResponse(status=401)
+
         # Load the event data from JSON
         data = json.loads(request.body)
 
