@@ -51,6 +51,7 @@ class CaseManager(models.Manager):
         closedTypes = [caseTypesEnum.CLOSED.value, caseTypesEnum.FUNDED.value]
         return Case.objects.exclude(caseType__in=closedTypes)
 
+
 class Case(models.Model):
     # Main model - extended by Loan, ModelSettings and LossData
 
