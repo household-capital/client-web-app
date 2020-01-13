@@ -180,9 +180,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         tableData = {}
         for item in dataQs:
             if item['date'].strftime('%b-%y') not in tableData:
-                tableData[item['date'].strftime('%b-%y')] = {'Interactions': item['interactions']}
+                tableData[item['date'].strftime('%b-%y')] = {'interactions': item['interactions']}
             else:
-                tableData[item['date'].strftime('%b-%y')][item['Interactions']] = item['interactions']
+                tableData[item['date'].strftime('%b-%y')][item['interactions']] = item['interactions']
 
         context['interactionData'] = tableData
 
