@@ -440,6 +440,9 @@ class LossData(models.Model):
         except:
             return None
 
+    class Meta:
+        verbose_name_plural = "Loss Data"
+
 
 class FundedData(models.Model):
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
@@ -456,6 +459,9 @@ class FundedData(models.Model):
 
     def __unicode__(self):
         return smart_text(self.case.caseDescription)
+
+    class Meta:
+        verbose_name_plural = "Funded Data"
 
 
 class FactFind(models.Model):
