@@ -190,7 +190,7 @@
                         <th scope="col" class=" d-none d-sm-table-cell"></th>
                         <th scope="col" class=" d-none d-sm-table-cell"></th>
                         <th scope="col" class=" d-none d-sm-table-cell"></th>
-
+                        <th scope="col" class=" d-none d-sm-table-cell"></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -204,6 +204,9 @@
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.adviser }}</a></td>
                             <td class="d-none d-sm-table-cell"><a
                                     href="{{ obj.get_absolute_url }}">{{ obj.updated|timesince|upto }} ago</a></td>
+                            <td class="d-none d-sm-table-cell" data-toggle="tooltip" data-placement="top" title="Zoom">
+                                {% if obj.isZoomMeeting %}<i class="fas fa-video" style="color:deepskyblue"></i>{% endif %}</td>
+
                             <td class="d-none d-sm-table-cell" data-toggle="tooltip" data-placement="top" title="Auto Val">
                                 {% if obj.valuationDocument %}<i class="far fa-file-image"></i>{% endif %}</td>
                             <td class="d-none d-sm-table-cell" data-toggle="tooltip" data-placement="top" title="Meeting Held">

@@ -221,6 +221,7 @@ class Case(models.Model):
     amalLoanID=models.CharField(max_length=40, null=True, blank=True)
 
     newProcess=models.BooleanField(default=False, null=True, blank=True)
+    isZoomMeeting=models.BooleanField(default=False, null=True, blank=True)
 
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
@@ -417,6 +418,7 @@ class LossData(models.Model):
         (closeReasonEnum.UNSUITABLE_PURPOSE.value, 'Unsuitable Purpose'),
         (closeReasonEnum.ALTERNATIVE_SOLUTION.value, 'Client Pursuing Alternative'),
         (closeReasonEnum.COMPETITOR.value, 'Client went to Competitor'),
+        (closeReasonEnum.NO_CLIENT_ACTION.value, 'No further action by client'),
         (closeReasonEnum.OTHER.value , 'Other')
     )
 

@@ -42,12 +42,13 @@ INSTALLED_APPS = [
     'django_celery_results',
     # my apps
     'apps.accounts',
-    'apps.landing',
-    'apps.client_2_0',
-    'apps.fact_find',
-    'apps.case',
     'apps.calculator',
+    'apps.calendly',
+    'apps.case',
+    'apps.client_2_0',
     'apps.enquiry',
+    'apps.fact_find',
+    'apps.landing',
     'apps.relationship',
     'apps.site_tags',
 ]
