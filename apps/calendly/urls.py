@@ -9,6 +9,7 @@ app_name = 'calendly'
 urlpatterns = [
 
     path('webhook', views.CalendlyWebhook.as_view(), name='webhook'),
+    path('meetings', views.MeetingList.as_view(), name='meetings'),
 
  ]
 

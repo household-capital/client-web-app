@@ -10,16 +10,17 @@ from apps.lib.site_Globals import LOAN_LIMITS
 
 class LoanProjection():
 
-    # -- VERSION 2.0 --
+    # -- VERSION 2.1 --
     # -- MONTHLY CALCULATIONS --
+    # -- ADDITIONAL DISCLOSURES --
 
-    # Utility class used to generate a table of loan projections - superannuation, income, home equity
+    # Utility class used to generate a table of loan projections - income, home equity
     # Primary method: getProjections
     # Additional methods return specific analytics
     # Object instantiated with dictionary
     # Consistent with ASIC projections
     # Stress projections can be generated through passing shocks via specified keyword arguments
-    # Approach based on array calculation (no analytical solutions) to enable maximum flexibility and repeatability
+    # Approach based on array calculation (no analytical solutions) to enable maximum flexibility and transparency
 
 
     # Class variables
@@ -62,7 +63,6 @@ class LoanProjection():
         #instance variables
 
         self.isInit = False
-        self.isVersion1 = False
         self.initDict = {}
         self.FREQUENCY = 12  # 12 = Monthly modelling, 1 = Annual Modelling
 
@@ -89,10 +89,9 @@ class LoanProjection():
         # Primary Results Array
         self.calcArray=[]
 
-    def create(self, initDict, isVersion1=False, frequency=12):
+    def create(self, initDict, frequency=12):
 
         self.isInit=True
-        self.isVersion1=isVersion1
         self.FREQUENCY=frequency
 
         # Check for minimum data
@@ -162,21 +161,6 @@ class LoanProjection():
             if not self.__valueExists(item, self.initDict):
                 self.initDict[item] = self.incomeDefaultDict[item]
 
-
-        # Version1 related items
-        if isVersion1:
-
-            #Set income projection period (minimum 5 years)
-            #Note this will be different than the required Loan/House projection period (15 years)
-            self.incomeProjYears = self.initDict['projectionAge'] - self.minAge
-            if self.incomeProjYears < 5:
-                self.incomeProjYears=5
-
-            # Calculate initial income amounts
-            self.currentSuperIncome = self.__calcDrawdown(self.initDict['superAmount'])
-            self.topUpIncome = self.__enhancedSuperIncome(self.initDict['topUpAmount'])
-
-
         return {'status':'Ok'}
 
 
@@ -219,124 +203,117 @@ class LoanProjection():
 
         self.calcArray = []
 
-        if self.isVersion1:   # <-- VERSION 1 -->
+        self.calcArray = [{'BOPAge': 0,
+                           'DDLumpSum':0, 'DDRegular':0, 'DDFee':0, 'DDTotal':0, 'DDIntPay':0,
+                           'BOPLoanValue':0,
+                           'BOPHouseValue':0, 'BOPHomeEquity':0, 'BOPHomeEquityPC':0,
+                           'TotalIncome':0, 'PensionIncome':0, 'PensionIncomePC':0,
+                           'CumLumpSum':0, 'CumRegular':0, 'CumFee':0, 'CumDrawn':0, 'CumInt':0}
+                          for periods in range(((self.minProjectionYears+1) * self.FREQUENCY) + 1)]
 
-            superIncome = self.topUpIncome
 
-            self.calcArray=[{"BOPAge":0,"BOPSuperBalance":0,"SuperDrawdown":0,"Return":0,"EOPSuperBalance":0,'PensionIncome':0,
-                        'TotalIncome':0,'PensionIncomePC':0,'CumulativeSuperIncome':0,'BOPHouseValue':0,
-                        'BOPLoanValue':0,'BOPHomeEquity':0,'BOPHomeEquityPC':0}
-                            for periods in range(((self.minProjectionYears+1) * self.FREQUENCY )+1)]
+        # Initial Period Calculations
 
-        else:
-            self.calcArray = [{"BOPAge": 0, 'BOPHouseValue': 0,
-                               'BOPLoanValue': 0, 'BOPHomeEquity': 0, 'BOPHomeEquityPC': 0,
-                               'TotalIncome':0,'PensionIncome':0, 'PensionIncomePC':0}
-                                    for periods in range(((self.minProjectionYears+1) * self.FREQUENCY) + 1)]
-
-        #Initial Period
         self.calcArray[0]["BOPAge"] = self.minAge
 
-        # Loan Value
-        self.calcArray[0]["InterestPayment"] = 0
-        self.calcArray[0]["LoanDrawdown"] = 0
-        self.calcArray[0]['BOPLoanValue'] = self.initDict['totalLoanAmount'] - self.totalDrawdownAmount - self.careDrawdownAmount
-        # Back out first year drawdown amounts (these are incorporated in future periods)
+        ## Loan Drawdown Amounts
+        self.calcArray[0]["DDLumpSum"] = (self.initDict['totalLoanAmount'] - self.totalDrawdownAmount
+                                          - self.careDrawdownAmount) / (1 + self.establishmentFee)
+            # Back out first year drawdown amounts (these are incorporated in future periods)
+            # Back out establishment fee
 
-        if self.isVersion1:   # <-- VERSION 1 -->
-            self.calcArray[0]["BOPSuperBalance"]=self.initDict['superAmount']+self.initDict['topUpAmount']
-            self.calcArray[0]["SuperDrawdown"]=superIncome/self.FREQUENCY
-            # Note: Return applied to average balance (assuming drawdown of income evenly over period)
-            self.calcArray[0]["Return"]= (self.calcArray[0]["BOPSuperBalance"]-self.calcArray[0]["SuperDrawdown"]/2) * self.investmentRate/(100* self.FREQUENCY)
-            self.calcArray[0]["EOPSuperBalance"]= self.calcArray[0]["BOPSuperBalance"] - self.calcArray[0]["SuperDrawdown"] + self.calcArray[0]["Return"]
+        self.calcArray[0]["DDRegular"] = 0
+        self.calcArray[0]["DDFee"] = self.calcArray[0]["DDLumpSum"] * self.establishmentFee
+        self.calcArray[0]["DDTotal"] = self.calcArray[0]["DDLumpSum"] + self.calcArray[0]["DDRegular"] \
+                                       + self.calcArray[0]["DDFee"]
+        self.calcArray[0]["DDIntPay"] = 0
 
-            self.calcArray[0]["PensionIncome"]=self.initDict['annualPensionIncome']/self.FREQUENCY
-            self.calcArray[0]["TotalIncome"]=self.calcArray[0]["SuperDrawdown"]+self.calcArray[0]["PensionIncome"]
-            self.calcArray[0]["PensionIncomePC"] = self.__chkDivZero(self.calcArray[0]["PensionIncome"],self.calcArray[0]["TotalIncome"])*100
-            self.calcArray[0]['CumulativeSuperIncome']=self.calcArray[0]["SuperDrawdown"]
-        else:
-            self.calcArray[0]["PensionIncome"]= 0
-            self.calcArray[0]["TotalIncome"] = 0
-            self.calcArray[0]["PensionIncomePC"] = 0
+        ## Loan Balance
 
+        self.calcArray[0]['BOPLoanValue'] = self.calcArray[0]["DDTotal"]
 
-        # Home Value
+        ## House Value
         self.calcArray[0]['BOPHouseValue']=self.initDict['valuation']
         self.calcArray[0]['BOPHomeEquity'] = self.calcArray[0]['BOPHouseValue'] - self.calcArray[0]['BOPLoanValue']
         self.calcArray[0]['BOPHomeEquityPC'] = max(1 - self.calcArray[0]['BOPLoanValue'] / self.calcArray[0]['BOPHouseValue'], 0) * 100
 
+        ## Income Totals
+        self.calcArray[0]["PensionIncome"] = 0
+        self.calcArray[0]["TotalIncome"] = 0
+        self.calcArray[0]["PensionIncomePC"] = 0
+
+        ## Cumulative Totals
+        self.calcArray[0]["CumLumpSum"] = self.calcArray[0]["DDLumpSum"]
+        self.calcArray[0]["CumRegular"] = self.calcArray[0]["DDRegular"]
+        self.calcArray[0]["CumFee"] = self.calcArray[0]["DDFee"]
+        self.calcArray[0]["CumDrawn"] = self.calcArray[0]["DDTotal"]
+        self.calcArray[0]["CumInt"] = self.calcArray[0]["DDIntPay"]
+
 
         # Loop through future periods
+
         for period in range(1,(self.minProjectionYears+1) * self.FREQUENCY+1):
-
-            # Loan Value
-            if period < self.payIntPeriod + 1:
-                self.calcArray[period]["InterestPayment"] = self.payIntAmount * payInterestFlag
-                # Interest Flag removes interest payment via kwarg scenario
-            else:
-                self.calcArray[period]["InterestPayment"] = 0
-
-            # ~ Top-Up Drawdown
-            if period < self.drawdownPeriods + 1:
-                self.calcArray[period]["LoanDrawdown"] = self.periodDrawdown  # No indexation, no establishment fee (below)
-            else:
-                self.calcArray[period]["LoanDrawdown"] = 0
-
-            # ~ Care Drawdown
-            if period < self.careDrawdownPeriods + 1:
-                self.calcArray[period]["LoanDrawdown"] += self.carePeriodDrawdown  # No indexation, no establishment fee (below)
-
-            self.calcArray[period]['BOPLoanValue'] = self.calcArray[period - 1]['BOPLoanValue'] * (1 + intRate / (100 * self.FREQUENCY)) \
-                                                     - self.calcArray[period]["InterestPayment"] \
-                                                     + (self.calcArray[period]["LoanDrawdown"] * (1 + self.establishmentFee))
-
-            if self.isVersion1:  # <-- VERSION 1 -->
-                # Income Calculations
-                self.calcArray[period]["BOPSuperBalance"] = self.calcArray[period-1]["EOPSuperBalance"]
-
-                # If starting balance == 0, no drawdown
-                if self.calcArray[period]["BOPSuperBalance"]>0:
-                    if self.initDict['inflationAdj']:
-                        self.calcArray[period]["SuperDrawdown"] = self.calcArray[period-1]["SuperDrawdown"] * (1 + self.inflationRate/(100* self.FREQUENCY))
-                    else:
-                        self.calcArray[period]["SuperDrawdown"] = self.calcArray[period - 1]["SuperDrawdown"]
-                else:
-                    self.calcArray[period]["SuperDrawdown"] = 0
-
-                self.calcArray[period]["Return"] = (self.calcArray[period]["BOPSuperBalance"] - self.calcArray[period]["SuperDrawdown"] / 2) * self.investmentRate/(100* self.FREQUENCY)
-                self.calcArray[period]["EOPSuperBalance"] = self.calcArray[period]["BOPSuperBalance"] - self.calcArray[period]["SuperDrawdown"] + self.calcArray[period]["Return"]
-
-                # Check for exhausted Super Balance in this period (ensure period and later periods forced to zero)
-                if self.calcArray[period]["EOPSuperBalance"]<0:
-                    self.calcArray[period]["Return"] = (self.calcArray[period]["BOPSuperBalance"] / 2) * self.investmentRate / (100* self.FREQUENCY)
-                    self.calcArray[period]["SuperDrawdown"] =self.calcArray[period]["Return"]+self.calcArray[period]["BOPSuperBalance"]
-                    self.calcArray[period]["EOPSuperBalance"] = self.calcArray[period]["BOPSuperBalance"] - self.calcArray[period]["SuperDrawdown"] + self.calcArray[period]["Return"]
-
-                self.calcArray[period]["PensionIncome"] = self.calcArray[period-1]["PensionIncome"]* (1 + self.inflationRate/(100* self.FREQUENCY))
-                self.calcArray[period]["TotalIncome"] = self.calcArray[period]["SuperDrawdown"] + self.calcArray[period]["PensionIncome"]
-                self.calcArray[period]["PensionIncomePC"] = self.__chkDivZero(self.calcArray[period]["PensionIncome"] , self.calcArray[period]["TotalIncome"]) * 100
-                self.calcArray[period]['CumulativeSuperIncome'] = self.calcArray[period]["SuperDrawdown"]+self.calcArray[period-1]['CumulativeSuperIncome']
-
-            else:
-                self.calcArray[period]["PensionIncome"] = self.initDict['annualPensionIncome']/self.FREQUENCY  \
-                                                          * (1 + annualInflationRate/100)**(int((period-1)/self.FREQUENCY))
-                                                          # calculate pension income indexation
-
-                self.calcArray[period]["TotalIncome"] = self.calcArray[period]["PensionIncome"] \
-                                                        + self.calcArray[period]["LoanDrawdown"]
-
-                self.calcArray[period]["PensionIncomePC"] = self.__chkDivZero(self.calcArray[period]["PensionIncome"],
-                                                                              self.calcArray[period]["TotalIncome"]) * 100 \
-                                                                            / self.FREQUENCY
-
 
             self.calcArray[period]["BOPAge"] = self.calcArray[period - 1]["BOPAge"] + 1 / self.FREQUENCY
 
+            ## Loan Drawdown Amounts
+
+            self.calcArray[period]["DDLumpSum"] = 0
+
+            # ~ Top-Up Drawdown
+            if period < self.drawdownPeriods + 1:
+                self.calcArray[period]["DDRegular"] = self.periodDrawdown
+            else:
+                self.calcArray[period]["DDRegular"] = 0
+
+            # ~ Care Drawdown
+            if period < self.careDrawdownPeriods + 1:
+                self.calcArray[period]["DDRegular"] += self.carePeriodDrawdown
+
+
+            self.calcArray[period]["DDFee"] = self.calcArray[period]["DDRegular"] * self.establishmentFee
+
+            self.calcArray[period]["DDTotal"] = self.calcArray[period]["DDLumpSum"] + self.calcArray[period]["DDRegular"] \
+                                           + self.calcArray[period]["DDFee"]
+
+            if period < self.payIntPeriod + 1:
+                self.calcArray[period]["DDIntPay"] = self.payIntAmount * payInterestFlag
+                # Interest Flag removes interest payment via kwarg scenario
+            else:
+                self.calcArray[period]["DDIntPay"] = 0
+
+            ## Loan Balance
+
+            self.calcArray[period]['BOPLoanValue'] = self.calcArray[period - 1]['BOPLoanValue'] * (1 + intRate / (100 * self.FREQUENCY)) \
+                                                     - self.calcArray[period]["DDIntPay"] \
+                                                     + self.calcArray[period]["DDTotal"]
 
             #Home Value
             self.calcArray[period]['BOPHouseValue'] = self.calcArray[period-1]['BOPHouseValue']*(1 + hpi/(100* self.FREQUENCY))
             self.calcArray[period]['BOPHomeEquity']=self.calcArray[period]['BOPHouseValue']-self.calcArray[period]['BOPLoanValue']
             self.calcArray[period]['BOPHomeEquityPC'] = max(1 - self.calcArray[period]['BOPLoanValue'] / self.calcArray[period]['BOPHouseValue'], 0)*100
+
+
+            ## Income Totals
+
+            self.calcArray[period]["PensionIncome"] = self.initDict['annualPensionIncome']/self.FREQUENCY  \
+                                                          * (1 + annualInflationRate/100)**(int((period-1)/self.FREQUENCY))
+                                                          # calculate pension income indexation
+
+            self.calcArray[period]["TotalIncome"] = self.calcArray[period]["PensionIncome"] \
+                                                        + self.calcArray[period]["DDRegular"]
+
+            self.calcArray[period]["PensionIncomePC"] = self.__chkDivZero(self.calcArray[period]["PensionIncome"],
+                                                                              self.calcArray[period]["TotalIncome"]) * 100 \
+                                                                            / self.FREQUENCY
+
+            ## Cumulative Totals
+            self.calcArray[period]["CumLumpSum"] = self.calcArray[period-1]["CumLumpSum"] + self.calcArray[period]["DDLumpSum"]
+            self.calcArray[period]["CumRegular"] = self.calcArray[period-1]["CumRegular"] + self.calcArray[period]["DDRegular"]
+            self.calcArray[period]["CumFee"] = self.calcArray[period-1]["CumFee"] + self.calcArray[period]["DDFee"]
+            self.calcArray[period]["CumDrawn"] = self.calcArray[period-1]["CumDrawn"] + self.calcArray[period]["DDTotal"]
+            self.calcArray[period]["CumInt"] = self.calcArray[period]["BOPLoanValue"] - self.calcArray[period]["CumDrawn"]
+
         return {'status': 'Ok'}
 
 
@@ -470,184 +447,3 @@ class LoanProjection():
                     return False
         else:
             return False
-
-        
-
-    # Version 1 Related Methods
-    def getInitialIncome(self):
-        # income - returns initial projected income (pension + super)
-        if self.isInit and self.isVersion1:
-            return {'status': 'Ok', 'data': self.currentSuperIncome + self.initDict['annualPensionIncome']}
-        else:
-            return {'status': 'Error', 'responseText': 'Object not instantiated'}
-
-    def getEnhancedIncome(self, superTopUp):
-        # income - returns the enhanced income from a given super topUp (existing super, topUp and pension income)
-        if self.isInit and self.isVersion1:
-            return {'status': 'Ok', 'data': self.__enhancedIncome(superTopUp)}
-        else:
-            return {'status': 'Error', 'responseText': 'Object not instantiated'}
-
-    def getEnhancedSuperIncome(self, superTopUp):
-        # income - returns the enhanced income from a given super topUp (existing super, topUp and pension income)
-        if self.isInit and self.isVersion1:
-            return {'status': 'Ok', 'data': self.__enhancedSuperIncome(superTopUp)}
-        else:
-            return {'status': 'Error', 'responseText': 'Object not instantiated'}
-
-    def getMaxEnhancedIncome(self):
-        # income - returns the enhanced income from a max super topUp (existing super, topUp and pension income)
-        if self.isInit and self.isVersion1:
-            income = self.__enhancedIncome(self.initDict['maxNetLoanAmount'])
-            return {'status': 'Ok', 'data': income}
-        else:
-            return {'status': 'Error', 'responseText': 'Object not instantiated'}
-
-    def getRequiredTopUp(self, totalIncome):
-        # income - returns the required topUp amount for a given target income
-        if self.isInit and self.isVersion1:
-            topUp = self.__calcBalance(totalIncome - self.currentSuperIncome - self.initDict['annualPensionIncome'])
-
-            return {'status': 'Ok', 'data': topUp}
-        else:
-            return {'status': 'Error', 'responseText': 'Object not instantiated'}
-
-    def getProjectionAge(self):
-        if self.isInit and self.isVersion1:
-            return {'status': 'Ok', 'data': self.minAge + self.incomeProjYears}
-        else:
-            return {'status': 'Error', 'responseText': 'Object not instantiated'}
-
-    def getEnhancedIncomeArray(self, incomeIntervals):
-        # Returns income / top-up combinations for a range of incomes between current and maximum income
-        # as well as projected home equity - used to produce Client 1.0 slider values
-
-        if self.isInit and self.isVersion1:
-            incomeArray = []
-            maxSuperTopUp = self.initDict['maxNetLoanAmount']
-
-            for item in range(incomeIntervals + 1):
-                if item == incomeIntervals:
-                    topUpAmount = maxSuperTopUp
-                else:
-                    topUpAmount = round((item * maxSuperTopUp / incomeIntervals) / 1000, 0) * 1000
-
-                superIncome = self.__calcDrawdown(self.initDict['superAmount'] + topUpAmount)
-                income = superIncome + self.initDict['annualPensionIncome']
-
-                projectedEquity = round((1 -
-                                         ((topUpAmount * (1 + self.totalInterestRate / 100) ** self.incomeProjYears) /
-                                          (self.initDict['valuation'] * (
-                                                      1 + self.hpiRate / 100) ** self.incomeProjYears))) * 100
-                                        , 0)
-
-                incomeArray.append({"item": item, "income": int(income), "topUp": int(topUpAmount),
-                                    "homeEquity": round(projectedEquity, 2),
-                                    "percentile": int(round(projectedEquity / 100, 1) * 10),
-                                    "newSuperBalance": int(topUpAmount + self.initDict['superAmount']),
-                                    "superIncome": int(superIncome)})
-
-            return {'status': 'Ok', 'data': incomeArray}
-        else:
-            return {'status': 'Error', 'responseText': 'Object not instantiated'}
-
-    def __calcTerminalBalance(self, superBalance, drawdown):
-        # Primary calculation method used to calculate terminal balance at projection age given
-        # a drawdown and superBalance
-
-        calcArray=[{"BOPBalance":0,"Drawdown":0,"Return":0,"EOPBalance":0} for periods in range(((self.incomeProjYears*self.FREQUENCY)+1))]
-
-        #Initial Period
-        calcArray[0]["BOPBalance"]=superBalance
-        calcArray[0]["Drawdown"]=drawdown/self.FREQUENCY
-
-        calcArray[0]["Return"]= (calcArray[0]["BOPBalance"]-calcArray[0]["Drawdown"]/2) * self.investmentRate/(100* self.FREQUENCY)
-                                #Return applied to average balance (assuming drawdown of income evenly over year)
-        calcArray[0]["EOPBalance"]= calcArray[0]["BOPBalance"] - calcArray[0]["Drawdown"] + calcArray[0]["Return"]
-
-        # Loop through future periods
-        for period in range(1,((self.incomeProjYears*self.FREQUENCY)+1)):
-            calcArray[period]["BOPBalance"] = calcArray[period-1]["EOPBalance"]
-
-            if self.initDict['inflationAdj']:
-                calcArray[period]["Drawdown"] = calcArray[period-1]["Drawdown"] * (1 + self.inflationRate/(100* self.FREQUENCY))
-            else:
-                calcArray[period]["Drawdown"] = calcArray[period - 1]["Drawdown"]
-
-            calcArray[period]["Return"] = (calcArray[period]["BOPBalance"] - calcArray[period]["Drawdown"] / 2) * self.investmentRate/(100* self.FREQUENCY)
-            calcArray[period]["EOPBalance"] = calcArray[period]["BOPBalance"] - calcArray[period]["Drawdown"] + calcArray[period]["Return"]
-
-
-        return calcArray[self.incomeProjYears*self.FREQUENCY]["EOPBalance"]
-
-
-    def __enhancedSuperIncome(self,superTopUp):
-        #returns the enhanced income from a given super topUp (existing super, topUp and pension income)
-        return self.__calcDrawdown(self.initDict['superAmount'] + superTopUp)
-
-    def __enhancedIncome(self, superTopUp):
-        # returns the enhanced income from a given super topUp (existing super, topUp and pension income)
-        return self.__calcDrawdown(self.initDict['superAmount'] + superTopUp) + self.initDict['annualPensionIncome']
-
-
-    def __calcBalance(self,superDrawdown):
-        # Half interval search for Balance that will enable given Drawdown at the projection age
-        highValue=superDrawdown/.01
-        lowValue=0
-        cntr=0
-
-        seed = (highValue + lowValue) / 2
-        currentValue = self.__calcTerminalBalance(seed,superDrawdown)
-
-        if currentValue<0:
-            lowValue=seed
-        else:
-            highValue=seed
-
-        while abs(currentValue)>1:
-
-            if currentValue < 0:
-                lowValue = seed
-            else:
-                highValue = seed
-
-            seed = (highValue + lowValue) / 2
-            currentValue =  self.__calcTerminalBalance(seed)
-
-            cntr+=1
-            if cntr > 100:
-                raise Exception("Calculation Error")
-
-        return seed
-
-    def __calcDrawdown(self, superBalance):
-        # Half interval search to calculate the drawdown that exhausts given balance at the projection age
-        if superBalance == 0 or superBalance == None:
-            return 0
-
-        highValue = superBalance
-        lowValue = 0
-        cntr = 0
-
-        seed = (highValue + lowValue) / 2
-        currentValue = self.__calcTerminalBalance(superBalance, seed)
-
-        if currentValue > 0:
-            lowValue = seed
-        else:
-            highValue = seed
-
-        while abs(currentValue) > 1:
-            if currentValue > 0:
-                lowValue = seed
-            else:
-                highValue = seed
-
-            seed = (highValue + lowValue) / 2
-            currentValue = self.__calcTerminalBalance(superBalance, seed)
-
-            cntr += 1
-            if cntr > 100:
-                raise Exception("Calculation Error")
-
-        return seed

@@ -192,12 +192,17 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
         context['title'] = 'Case Detail'
         context['isUpdate'] = True
         context['caseTypesEnum'] = caseTypesEnum
-        context['zoomURL'] = self.object.user.profile.calendlyInterviewUrl
 
         clientDict = {}
         clientDict = self.get_queryset().filter(caseID=self.object.caseID).values()[0]
         loanObj = LoanValidator(clientDict)
         context['status'] = loanObj.validateLoan()
+
+        paramStr = "?name="+(clientDict['firstname_1'] if clientDict['firstname_1'] else '') + " " +\
+                   (clientDict['surname_1'] if clientDict['surname_1'] else '') + "&email=" + \
+                   (clientDict['email'] if clientDict['email'] else '')
+
+        context['calendlyUrl'] = self.object.user.profile.calendlyInterviewUrl + paramStr
 
         return context
 
@@ -460,7 +465,7 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
 
     def get_context_data(self, **kwargs):
         context = super(CaseDataExtract, self).get_context_data(**kwargs)
-        context['title'] = "Create Application Data File"
+        context['title'] = "Create Document Data File"
         return context
 
     def form_valid(self, form):
@@ -589,7 +594,7 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
             caseObj.dataCSV = targetFile
             caseObj.save(update_fields=['dataCSV'])
 
-            messages.success(self.request, "Application Data File Created")
+            messages.success(self.request, "Document Data File Created")
             return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
         else:

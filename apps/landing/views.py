@@ -101,7 +101,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context['funded'] = qsCases.filter(caseType=caseTypesEnum.FUNDED.value).count()
 
         # Funded Data
-        qsFunded = FundedData.objects.all()
+        qsFunded = FundedData.objects.filter(principal__gt=0)
         if qsFunded:
             context['portfolioBalance'] = int(qsFunded.aggregate(Sum('principal'))['principal__sum'])
             context['portfolioFunded'] = int(qsFunded.aggregate(Sum('advanced'))['advanced__sum'])

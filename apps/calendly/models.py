@@ -27,8 +27,8 @@ class Calendly(models.Model):
     customerName = models.CharField(max_length=50, blank=True, null=True)
     customerEmail = models.EmailField(null=True, blank=True)
     customerPhone = models.CharField(max_length=16, blank=True, null=True)
-    enqUID = models.UUIDField(null = True, blank=False)
-    caseUID = models.UUIDField(null = True, blank=False)
+    enqUID = models.UUIDField(null = True, blank=True)
+    caseUID = models.UUIDField(null = True, blank=True)
     isCalendlyLive = models.BooleanField(default=True)
     isZoomLive = models.BooleanField(default=False)
 

@@ -1,15 +1,23 @@
 # Python Imports
 from datetime import datetime
+from datetime import timedelta
 import os
 import json
 
 # Django Imports
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import get_template
 from django.http import HttpResponse
+from django.http import HttpResponseRedirect
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils import dateparse
+from django.utils import timezone
 
-from django.views.generic import View
+from django.views.generic import View,  ListView
 from django.views.decorators.csrf import csrf_exempt
 
 
@@ -30,16 +38,18 @@ class CalendlyWebhook(View):
         data = json.loads(request.body)
 
         # Determine event type
+
         hook_event = data["event"]
         meeting_name = data["payload"]["event_type"]["name"]
         calendlyID = data['payload']["event"]["uuid"]
         user_email = data['payload']["event"]["extended_assigned_to"][0]['email']
         start_time = data['payload']["event"]["start_time"]
+        start_time_pretty = data['payload']["event"]["start_time_pretty"]
         time_zone = data['payload']["invitee"]["timezone"]
-        user = User.objects.filter(email=user_email).first()
         customer_name = data["payload"]["invitee"]["name"]
         customer_email = data["payload"]["invitee"]["email"]
         customer_phone = phoneNumber = self.getPhoneNumber(data)
+        user = User.objects.filter(email=user_email).first()
 
         if "Discovery Call" in meeting_name:
 
@@ -122,9 +132,8 @@ class CalendlyWebhook(View):
                     #Some update - cancel zoom first
                     response = zoomObj.delete_meeting(obj.zoomID)
 
-                # Create Zoom
                 response = zoomObj.create_meeting(userZoomID, obj.meetingName,description, startDate,
-                                                  timeZone, tracking_fields)
+                                                  timeZone, tracking_fields, False)
 
                 if response['status'] == "Ok":
                     response_dict = json.loads(response['responseText'])
@@ -136,6 +145,28 @@ class CalendlyWebhook(View):
                         caseObj.save(update_fields=['isZoomMeeting'])
 
                     write_applog("INFO", 'Calendly', 'post', "Loan Interview Zoom Created: " + customer_email)
+
+                    # Send Email Confirmation
+                    template_name = 'calendly/email/email_zoom.html'
+
+                    subject, from_email, to = "Household Capital - Meeting Details", user_email, customer_email
+                    text_content = "Text Message"
+
+                    email_context = {'user_mobile':user.profile.mobile,
+                                   'user_first_name':user.first_name,
+                                   'user_last_name': user.last_name,
+                                   'customer_name': customer_name,
+                                   'meeting_id': str(obj.zoomID),
+                                   'start_time':start_time_pretty}
+
+                    email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+
+                    html = get_template(template_name)
+                    html_content = html.render(email_context)
+
+                    msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [from_email])
+                    msg.attach_alternative(html_content, "text/html")
+                    msg.send()
 
                 else:
                     write_applog("ERROR", 'Calendly', 'post', "Loan Interview Zoom Not Created: " + customer_email
@@ -198,3 +229,54 @@ class CalendlyWebhook(View):
             pass
 
         return phoneNumber
+
+
+# //MIXINS
+
+class LoginRequiredMixin():
+    # Ensures views will not render unless logged in, redirects to login page
+    @classmethod
+    def as_view(cls, **kwargs):
+        view = super(LoginRequiredMixin, cls).as_view(**kwargs)
+        return login_required(view)
+
+    # Ensures views will not render unless Household employee, redirects to Landing
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.profile.isHousehold:
+            return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
+        else:
+            return HttpResponseRedirect(reverse_lazy('landing:landing'))
+
+
+# //CLASS BASED VIEWS
+
+# Case List View
+class MeetingList(LoginRequiredMixin, ListView):
+    paginate_by = 10
+    template_name = 'calendly/meetingList.html'
+    context_object_name = 'obj'
+    model = Calendly
+    zoomUrl= 'https://householdcapital.zoom.us/s/'
+    calendlyUrl = 'https://calendly.com/app/scheduled_events/user/me'
+    customerUrl = 'https://householdcapital.com.au/meeting/'
+
+    def get_queryset(self, **kwargs):
+        # overrides queryset to filter search parameter
+
+        delta = timedelta(days=1)
+        windowDate = timezone.now() - delta
+
+        queryset = super(MeetingList, self).get_queryset()
+
+        qs = queryset.filter(startTime__gte=windowDate, meetingName__icontains="Loan",
+                              isCalendlyLive=True, user=self.request.user).order_by('startTime')
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super(MeetingList, self).get_context_data(**kwargs)
+        context['title'] = 'Scheduled Meetings'
+        context['zoomUrl'] = self.zoomUrl
+        context['calendlyUrl'] =  self.calendlyUrl
+        context['customerUrl']  =  self.customerUrl
+
+        return context
