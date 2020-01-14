@@ -65,7 +65,7 @@ class CalendlyWebhook(View):
         #Look up user (from email)
         try:
             user = User.objects.get(email=user_email)
-        except:
+        except User.DoesNotExist:
             write_applog("ERROR", 'Calendly', 'post', "Not processed - unknown user: " + user_email)
             return HttpResponse(status=403)
 
