@@ -323,4 +323,38 @@ class ContactDeleteView(LoginRequiredMixin, View):
 
         return HttpResponseRedirect(reverse_lazy('calculator:contactList'))
 
+# Convert Contact
+class ContractConvertView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+
+        contObj = WebContact.objects.filter(contUID=kwargs['uid']).get()
+
+        #Check whether user can create enquiry
+        if request.user.profile.isCreditRep:
+            userRef = request.user
+        else:
+            userRef = None
+
+        enquiryNotes = ''.join(filter(None,[contObj.message, chr(13), contObj.actionNotes]))
+
+        #Create enquiry
+        enq_obj = Enquiry.objects.create(user=userRef,
+                                         referrer=directTypesEnum.WEB_ENQUIRY.value,
+                                         name = contObj.name,
+                                         email = contObj.email,
+                                         phoneNumber = contObj.phone,
+                                         enquiryNotes = enquiryNotes)
+        enq_obj.save()
+
+        # Mark contact as closed
+        contObj.actioned = True
+        contObj.actionedBy = request.user
+        contObj.actionDate = timezone.now()
+        contObj.actionNotes = ''.join(filter(None,[contObj.actionNotes, "** converted to enquiry"]))
+        contObj.save(update_fields=['actioned', 'actionedBy','actionDate', 'actionNotes'])
+
+        messages.success(self.request, "Contact converted")
+        return HttpResponseRedirect(reverse_lazy('calculator:contactList'))
+
 
