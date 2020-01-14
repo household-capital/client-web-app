@@ -2,6 +2,9 @@
 import json
 import base64
 
+# Django Imports
+from django.conf import settings
+
 # Third-party Imports
 from config.celery import app
 
@@ -10,8 +13,7 @@ from apps.lib.api_AMAL import apiAMAL
 from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Utilities import taskError
-
+from apps.lib.site_Utilities import taskError, sendTemplateEmail
 
 from .models import Case, LossData, FundedData
 
@@ -203,6 +205,24 @@ def amalDocs(caseUID):
         return "Success - Documents sent to AMAL"
 
 
+@app.task(name='PaymentReminders')
+def paymentReminder():
+    '''Simple email reminder using celery - temporary solution only'''
+    email_template='case/schedule/email_reminder.html'
+    email_context={}
+    email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+    subject, from_email, to, cc = "Periodic Payment Reminder - Payment Day Tomorrow", \
+                              'noreply@householdcapital.com', \
+                              ['david.cash@householdcapital.com', 'liam.murphy@householdcapital.com'], \
+                              'paul.murray@householdcapital.com'
+
+    emailSent = sendTemplateEmail(email_template,email_context, subject, from_email, to, cc  )
+    if emailSent:
+        write_applog("INFO", 'paymentReminder', 'task', "Reminder email sent")
+        return "Success - reminder email sent"
+    else:
+        write_applog("ERROR", 'paymentReminder', 'task', "Reminder email could not be sent")
+        return "Error - reminder email could not be sent"
 
 
 # UTILITIES

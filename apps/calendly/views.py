@@ -24,6 +24,7 @@ from django.views.decorators.csrf import csrf_exempt
 # Local Application Imports
 from apps.lib.site_Logging import write_applog
 from apps.lib.api_Zoom import apiZoom
+from apps.lib.site_Utilities import sendTemplateEmail
 from apps.case.models import Case
 from apps.enquiry.models import Enquiry
 from .models import Calendly
@@ -167,8 +168,7 @@ class CalendlyWebhook(View):
                     # Send Email Confirmation
                     template_name = 'calendly/email/email_zoom.html'
 
-                    subject, from_email, to = "Household Capital - Meeting Details", user_email, customer_email
-                    text_content = "Text Message"
+                    subject, from_email, to, cc = "Household Capital - Meeting Details", user_email, customer_email, user_email
 
                     email_context = {'user_mobile':user.profile.mobile,
                                    'user_first_name':user.first_name,
@@ -179,12 +179,10 @@ class CalendlyWebhook(View):
 
                     email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
 
-                    html = get_template(template_name)
-                    html_content = html.render(email_context)
+                    emailSent = sendTemplateEmail(template_name, email_context,subject, from_email, to, cc)
 
-                    msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [from_email])
-                    msg.attach_alternative(html_content, "text/html")
-                    msg.send()
+                    if not emailSent:
+                        write_applog("ERROR", 'Calendly', 'post', "Customer email could not be sent")
 
                 else:
                     write_applog("ERROR", 'Calendly', 'post', "Loan Interview Zoom Not Created: " + customer_email
