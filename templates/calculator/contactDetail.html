@@ -68,6 +68,12 @@
                                 &nbsp;<i class="fas fa-stamp"></i>&nbsp;&nbsp;Mark as Actioned&nbsp;&nbsp;
                             </a>
 
+                           <div class="dropdown-divider"></div>
+
+                            <a class="dropdown-item" href="{% url 'calculator:contactConvert' uid=obj.contUID %}">
+                                &nbsp;<i class="fas fa-magic fa-fw"></i>&nbsp;&nbsp;Convert to Enquiry&nbsp;&nbsp;
+                            </a>
+
                             <div class="dropdown-divider"></div>
 
                             <a class="dropdown-item" data-toggle="modal" href="#deleteModal">
