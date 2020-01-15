@@ -1205,10 +1205,10 @@ class PdfRespLending(TemplateView):
             # get dictionaries from model
             clientDict = Case.objects.dictionary_byUID(caseUID)
             loanDict = Loan.objects.dictionary_byUID(caseUID)
-
             context.update(clientDict)
             context.update(loanDict)
             context['caseUID'] = caseUID
+            context['loanTypesEnum'] = loanTypesEnum
 
         return context
 
@@ -1535,3 +1535,7 @@ class NewPdfLoanSummary(TemplateView):
             context['resultsHouseValue4'] = loanProj.getResultsList('BOPHouseValue', imageSize=110, imageMethod='lin')[
                 'data']
         return context
+
+
+
+
