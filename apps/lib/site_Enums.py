@@ -123,7 +123,7 @@ class maritalEnum(Enum):
     MARRIED = 2
     DIVORCED = 3
     WIDOWED = 4
-
+    DEFACTO = 5
 
 
 #Squash migrations and delete
