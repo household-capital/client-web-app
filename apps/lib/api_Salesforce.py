@@ -34,7 +34,7 @@ class apiSalesforce():
                       'OppRoles':
                           "Select OpportunityId, ContactId, Role from OpportunityContactRole where OpportunityId=\'{0}\' and isDeleted=False",
                       'Contacts':
-                          "Select Id,FirstName, LastName, Phone,MobilePhone, Email, Birthdate__c, Age__c, Gender__c, Permanent_Resident__c, Salutation, Marital_Status__c, Country_of_Citizenship__c from Contact where Id=\'{0}\' and isDeleted=False",
+                          "Select Id,FirstName, MiddleName, LastName, Phone,MobilePhone, Email, Birthdate__c, Age__c, Gender__c, Permanent_Resident__c, Salutation, Marital_Status__c, Country_of_Citizenship__c from Contact where Id=\'{0}\' and isDeleted=False",
                       'Documents':
                           "Select Id, Name, Status__c from Document__C where Opportunity__c=\'{0}\'",
                       'DocumentLink':
