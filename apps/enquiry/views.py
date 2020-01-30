@@ -515,9 +515,13 @@ class EnquiryCloseFollowUp(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         obj = form.save()
         obj.followUp = timezone.now()
+
+        if obj.user == None:
+            obj.user = self.request.user
+
         if form.cleaned_data['closeReason']:
             obj.closeDate=timezone.now()
-        obj.save(update_fields=['followUp','closeDate'])
+        obj.save(update_fields=['followUp','closeDate','user'])
 
         app.send_task('Update_SF_Lead', kwargs={'enqUID':str(obj.enqUID)})
 
