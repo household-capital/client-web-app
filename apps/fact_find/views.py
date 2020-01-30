@@ -138,6 +138,11 @@ class Main(LoginRequiredMixin, ContextHelper,  UpdateView):
     model = FactFind
 
     def get(self,request, *args, **kwargs):
+
+        if request.user.profile.isCreditRep != True and request.user.is_superuser != True:
+            messages.error(self.request, "Must be a Credit Rep to access summary")
+            return HttpResponseRedirect(reverse_lazy('case:caseDetail',kwargs={'uid': str(kwargs['uid'])}))
+
         # Main entry view - save the UID into a session variable
         # Use this to retrieve queryset for each page
         caseUID = str(kwargs['uid'])

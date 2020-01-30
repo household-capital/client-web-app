@@ -108,6 +108,29 @@ class ContextHelper():
 class LandingView(LoginRequiredMixin, ContextHelper, TemplateView):
     template_name = "client_2_0/interface/landing.html"
 
+    def get(self, request, *args, **kwargs):
+
+        if request.user.profile.isCreditRep != True and request.user.is_superuser != True:
+            messages.error(self.request, "Must be a Credit Rep to access meeting")
+            return HttpResponseRedirect(reverse_lazy('case:caseList'))
+
+        # Main entry view - save the UID into a session variable
+        # Use this to retrieve queryset for each page
+
+        caseUID = str(kwargs['uid'])
+        request.session['caseUID'] = caseUID
+        write_applog("INFO", 'LandingView', 'get', "Meeting commenced by " + str(request.user) + " for -" + caseUID)
+
+        obj = ModelSetting.objects.queryset_byUID(caseUID)
+        economicSettings = ECONOMIC.copy()
+        economicSettings.pop('defaultMargin')
+        obj.update(**economicSettings)
+
+        if 'caseUID' not in request.session:
+            return HttpResponseRedirect(reverse_lazy('case:caseList'))
+
+        return super(LandingView, self).get(self, request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
 
         self.extra_context = self.validate_and_get_context()
@@ -147,25 +170,7 @@ class LandingView(LoginRequiredMixin, ContextHelper, TemplateView):
 
         return context
 
-    def get(self, request, *args, **kwargs):
 
-        if 'uid' in kwargs:
-            # Main entry view - save the UID into a session variable
-            # Use this to retrieve queryset for each page
-
-            caseUID = str(kwargs['uid'])
-            request.session['caseUID'] = caseUID
-            write_applog("INFO", 'LandingView', 'get', "Meeting commenced by " + str(request.user) + " for -" + caseUID)
-
-            obj = ModelSetting.objects.queryset_byUID(caseUID)
-            economicSettings = ECONOMIC.copy()
-            economicSettings.pop('defaultMargin')
-            obj.update(**economicSettings)
-
-        if 'caseUID' not in request.session:
-            return HttpResponseRedirect(reverse_lazy('case:caseList'))
-
-        return super(LandingView, self).get(self, request, *args, **kwargs)
 
 
 # Settings Views

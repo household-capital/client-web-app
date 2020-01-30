@@ -194,15 +194,19 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
         context['caseTypesEnum'] = caseTypesEnum
 
         clientDict = {}
-        clientDict = self.get_queryset().filter(caseID=self.object.caseID).values()[0]
+        clientObj = self.object
+        clientDict = clientObj.__dict__
         loanObj = LoanValidator(clientDict)
         context['status'] = loanObj.validateLoan()
 
-        paramStr = "?name="+(clientDict['firstname_1'] if clientDict['firstname_1'] else '') + " " +\
-                   (clientDict['surname_1'] if clientDict['surname_1'] else '') + "&email=" + \
-                   (clientDict['email'] if clientDict['email'] else '')
+        paramStr = "?name="+(clientObj.firstname_1 if clientObj.firstname_1 else '') + " " +\
+                   (clientObj.surname_1 if clientObj.surname_1 else '') + "&email=" + \
+                   (clientObj.email if clientObj.email else '')
 
-        context['calendlyUrl'] = self.object.user.profile.calendlyInterviewUrl + paramStr
+        if self.object.user.profile.calendlyInterviewUrl:
+            context['calendlyUrl'] = self.object.user.profile.calendlyInterviewUrl + paramStr
+        else:
+            context['calendlyUrl']=""
 
         return context
 
