@@ -107,7 +107,7 @@ class CalendlyWebhook(View):
                 else:
                     write_applog("INFO", 'Calendly', 'post', "Discovery Call Cancelled (but not found):" + customer_email)
 
-        elif "Loan Interview" in meeting_name:
+        elif "HHC Loan Interview" in meeting_name:
 
             if 'created' in hook_event:
                 # Create db entry (or update if exists)
