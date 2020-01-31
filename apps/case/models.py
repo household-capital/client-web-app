@@ -139,6 +139,7 @@ class Case(models.Model):
         (maritalEnum.MARRIED.value, "Married"),
         (maritalEnum.DIVORCED.value, "Divorced"),
         (maritalEnum.WIDOWED.value, "Widowed"),
+        (maritalEnum.DEFACTO.value, "Defacto"),
     )
 
     caseID = models.AutoField(primary_key=True)
