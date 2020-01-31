@@ -68,7 +68,7 @@ class CalendlyWebhook(View):
             user = User.objects.get(email=user_email)
         except User.DoesNotExist:
             write_applog("ERROR", 'Calendly', 'post', "Not processed - unknown user: " + user_email)
-            return HttpResponse(status=403)
+            return HttpResponse(status=200)
 
         if "Discovery Call" in meeting_name:
 
