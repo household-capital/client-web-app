@@ -128,6 +128,8 @@
                                         </a>
 
 
+
+
                                     {% endif %}
 
 
@@ -137,15 +139,16 @@
                                         {% if obj.summaryDocument and obj.email %}
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item" data-toggle="modal" href="#clientModal">
-                                                &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Client Summary&nbsp;</a>
+                                                &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Client
+                                                Summary&nbsp;</a>
                                         {% endif %}
 
                                         <div class="dropdown-divider"></div>
 
-                                        <a class="dropdown-item" href="{% url 'fact_find:factfind' uid=obj.caseUID %}">
+                                        <a class="dropdown-item"
+                                           href="{% url 'fact_find:factfind' uid=obj.caseUID %}">
                                             &nbsp;<i class="fas fa-user-edit  fa-fw"></i>&nbsp;&nbsp;Case Summary&nbsp;&nbsp;
                                         </a>
-
 
                                     {% endif %}
 
@@ -153,15 +156,17 @@
                                     {% if obj.caseType == caseTypesEnum.APPLICATION.value %}
                                         <div class="dropdown-divider"></div>
 
-                                        <a class="dropdown-item" href="{% url 'fact_find:factfind' uid=obj.caseUID %}">
+                                         <a class="dropdown-item"
+                                           href="{% url 'fact_find:factfind' uid=obj.caseUID %}">
                                             &nbsp;<i class="fas fa-user-edit  fa-fw"></i>&nbsp;&nbsp;Case Summary&nbsp;&nbsp;
                                         </a>
 
+
                                     {% endif %}
 
-                                 <!-- DOCUMENTATION -->
+                                    <!-- DOCUMENTATION -->
                                     {% if obj.caseType == caseTypesEnum.DOCUMENTATION.value %}
-                                         <div class="dropdown-divider"></div>
+                                        <div class="dropdown-divider"></div>
 
                                         <a class="dropdown-item" href="{% url 'case:caseData' uid=obj.caseUID %}">
                                             &nbsp;<i class="fas fa-file-csv fa-fw"></i>&nbsp;&nbsp;Document CSV&nbsp;&nbsp;
@@ -173,7 +178,7 @@
                                         <a class="dropdown-item" href="{% url 'case:cloudBridge' uid=obj.caseUID %}">
                                             &nbsp;<i class="fas fa-code fa-fw"></i>&nbsp;&nbsp;Send to AMAL&nbsp;&nbsp;
                                         </a>
-                                        {% endif %}
+                                    {% endif %}
 
 
                                     <!-- CLOSED -->
@@ -201,41 +206,41 @@
 
                                     <div class="jumbotron">
 
-                                    <p class="larger">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
-                                    <br>
-                                    {% if status.data.postcode != 'Valid' %}
+                                        <p class="larger">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
+                                        <br>
+                                        {% if status.data.postcode != 'Valid' %}
 
-                                        <p><i class="fas fa-tractor fa-lg btn-outline-warning"></i>&nbsp;Refer
-                                            Postcode
-                                        </p> <br>
-                                    {% endif %}
-                                    <p class="small"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
+                                            <p><i class="fas fa-tractor fa-lg btn-outline-warning"></i>&nbsp;Refer
+                                                Postcode
+                                            </p> <br>
+                                        {% endif %}
+                                        <p class="small"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
 
-                                    <p class="small">Max Loan is: ${{ status.data.maxLoan|intcomma }} (incl
-                                        establishment fee)</p>
-                                    <p class="small">
-                                        {% if status.data.maxLoan > status.data.maxTopUp %}
-                                            Max for
-                                            Super Top Up is: ${{ status.data.maxTopUp|intcomma }}
-                                            </p>{% endif %}
-                                    <p class="small">
-                                        {% if status.data.maxLoan > status.data.maxCare %}
-                                            Max for
-                                            Age Care is: ${{ status.data.maxCare|intcomma }}</p>{% endif %}
-                                    <p class="small">Max for Refinance is:
-                                        ${{ status.data.maxRefi|intcomma }}</p>
-                                    <p class="small">
-                                        {% if status.data.maxLoan > status.data.maxReno %}
-                                            Max for
-                                            Renovations is: ${{ status.data.maxReno|intcomma }}
-                                            </p>{% endif %}
-                                    <p class="small">Max for Giving is:
-                                        ${{ status.data.maxGive|intcomma }}</p>
-                                    <p class="small">Max for Transport and Travel is:
-                                        ${{ status.data.maxTravel|intcomma }}</p>
+                                        <p class="small">Max Loan is: ${{ status.data.maxLoan|intcomma }} (incl
+                                            establishment fee)</p>
+                                        <p class="small">
+                                            {% if status.data.maxLoan > status.data.maxTopUp %}
+                                                Max for
+                                                Super Top Up is: ${{ status.data.maxTopUp|intcomma }}
+                                                </p>{% endif %}
+                                        <p class="small">
+                                            {% if status.data.maxLoan > status.data.maxCare %}
+                                                Max for
+                                                Age Care is: ${{ status.data.maxCare|intcomma }}</p>{% endif %}
+                                        <p class="small">Max for Refinance is:
+                                            ${{ status.data.maxRefi|intcomma }}</p>
+                                        <p class="small">
+                                            {% if status.data.maxLoan > status.data.maxReno %}
+                                                Max for
+                                                Renovations is: ${{ status.data.maxReno|intcomma }}
+                                                </p>{% endif %}
+                                        <p class="small">Max for Giving is:
+                                            ${{ status.data.maxGive|intcomma }}</p>
+                                        <p class="small">Max for Transport and Travel is:
+                                            ${{ status.data.maxTravel|intcomma }}</p>
 
+                                    </div>
                                 </div>
-                            </div>
                             </div>
                             <div class="jumbotron">
                                 <p class="small"><i class='fa fa-camera fa-fw'></i>&nbsp;&nbsp;Images</p>
@@ -267,7 +272,8 @@
                                     <p><a href="/media/customerReports/{{ obj.electronicDocument.file|filename }}">Electronic
                                         Consent</a></p>{% endif %}
                                 {% if obj.responsibleDocument %}
-                                    <p><a href="/media/customerReports/{{ obj.responsibleDocument.file|filename }}">Case Summary</a></p>{% endif %}
+                                    <p><a href="/media/customerReports/{{ obj.responsibleDocument.file|filename }}">Case
+                                        Summary</a></p>{% endif %}
                                 {% if obj.dataDocument %}
                                     <p><a href="/media/customerReports/{{ obj.dataDocument.file|filename }}">Customer
                                         Data</a></p>{% endif %}
@@ -296,7 +302,8 @@
                                         Instruction </a></p>
                                 {% endif %}
                                 {% if obj.lixiFile %}
-                                    <p><a href="/media/customerReports/{{ obj.lixiFile.file|filename }}">Lixi File </a></p>
+                                    <p><a href="/media/customerReports/{{ obj.lixiFile.file|filename }}">Lixi File </a>
+                                    </p>
                                 {% endif %}
 
 
@@ -304,14 +311,14 @@
 
 
                         {% endif %}
-                </div>
+                    </div>
 
+
+                </div>
 
             </div>
 
         </div>
-
-    </div>
     </div>
 
 
