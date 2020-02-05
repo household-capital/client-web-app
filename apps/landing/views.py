@@ -72,6 +72,8 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         tsData = json.dumps(list(WebCalculator.objects.timeSeries('Email', 90)), default=self.dateParse)
         context['chartEmailData'] = tsData
 
+        tsData = json.dumps(list(Enquiry.objects.timeSeries('Phone', 90)), default=self.dateParse)
+        context['chartPhoneData'] = tsData
 
         # Enquiry
         context['openEnquiries'] = Enquiry.objects.openEnquiries().count()

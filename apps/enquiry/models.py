@@ -5,7 +5,10 @@ from datetime import datetime, timedelta
 #Django Imports
 from django.conf import settings
 from django.db import models
-from django.utils import timezone
+from django.db.models.functions import TruncDate,TruncDay, Cast
+from django.db.models import Count
+from django.db.models.fields import DateField
+from django.utils.timezone import get_current_timezone
 from django.utils.encoding import smart_text
 from django.urls import reverse_lazy
 
@@ -29,6 +32,21 @@ class EnquiryManager(models.Manager):
 
     def openEnquiries(self):
         return Enquiry.objects.filter(actioned=0, followUp__isnull=True).exclude(status=False,user__isnull=False)
+
+    def __timeSeriesQry(self, qs, length):
+        #utility function appended to base time series query
+        tz = get_current_timezone()
+        qryDate=datetime.now(tz)-timedelta(days=length)
+
+        return qs.filter(timestamp__gte=qryDate).annotate(date=Cast(TruncDay('timestamp', tzinfo=tz), DateField())) \
+                   .values_list('date') \
+                   .annotate(interactions=Count('enqUID',distinct=True)) \
+                   .values_list('date', 'interactions').order_by('-date')
+
+    def timeSeries(self, seriesType, length, search=None):
+
+        if seriesType == 'Phone':
+            return self.__timeSeriesQry(Enquiry.objects.filter(referrer=directTypesEnum.PHONE.value),length)
 
 
 class Enquiry(models.Model):

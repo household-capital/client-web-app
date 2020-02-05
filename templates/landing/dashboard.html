@@ -157,7 +157,7 @@
     <br>
 
     <div class="row justify-content-center">
-        <div class="col-lg-9 text-left">
+        <div class="col-lg-10 text-left">
 
             <b>Website Calculator Interactions and Enquiries</b>&nbsp;&nbsp;
             <div class="chart-container pt-3" style="height:370px;">
@@ -171,7 +171,7 @@
     <br><br>
     <div class="row justify-content-center">
 
-        <div class="col-lg-8">
+        <div class="col-lg-10">
 
             <div class="pb-3"><b>Monthly Lead Generation</b></div>
 
@@ -327,10 +327,12 @@
         // Chart data
         var chartInteractionData = {{ chartInteractionData|safe}};
         var chartEmailData = {{ chartEmailData|safe}};
+        var chartPhoneData = {{ chartPhoneData|safe}};
 
         // Timeseries data
         var interactionData = createTimeSeries(chartInteractionData);
         var emailData = createTimeSeries(chartEmailData);
+        var phoneData = createTimeSeries(chartPhoneData);
 
         // Chart references
         var ctx_interaction = document.getElementById('interactionChart').getContext('2d');
@@ -340,17 +342,30 @@
         var interactionChart = new Chart(ctx_interaction, {
             type: 'line',
             data: {
-                datasets: [{
+                datasets: [
+                    {
                     label: "Interactions",
                     data: interactionData,
                     borderColor: "#5184a1",
+                    backgroundColor: "#5184a1",
                     fill: false
-                },
+                    },
+
                     {
-                        label: "Enquiries",
+                        label: "Calculator Enquiries",
                         data: emailData,
                         borderColor: "#fdb600",
+                        backgroundColor: "#fdb600",
                         fill: false
+                    },
+
+                   {
+                        label: "Phone Enquiries",
+                        data: phoneData,
+                        borderColor: "#86b3b5",
+                        backgroundColor: "#86b3b5",
+                        fill: false,
+                        borderWidth: 1,
                     }]
             },
             options: {
@@ -377,7 +392,7 @@
                     }]
                 },
 
-                legend: false
+
             }
         });
 
