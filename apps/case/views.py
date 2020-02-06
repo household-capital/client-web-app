@@ -31,7 +31,7 @@ from apps.lib.site_Globals import LOAN_LIMITS
 from apps.lib.site_Logging import write_applog
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
 from apps.enquiry.models import Enquiry
-from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, SolicitorForm, ValuerForm
+from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignForm
 from .models import Case, LossData, Loan, FundedData
 
 
@@ -392,7 +392,7 @@ class CaseAnalysisView(LoginRequiredMixin, TemplateView):
 
 # Loan Summary Email
 class CaseEmailLoanSummary(LoginRequiredMixin, TemplateView):
-    template_name = 'case/loanSummary/email.html'
+    template_name = 'case/email/loanSummary/email.html'
     model = Case
 
     def get(self, request, *args, **kwargs):
@@ -447,6 +447,48 @@ class CaseOwnView(LoginRequiredMixin, View):
             messages.error(self.request, "You must be a Credit Representative to take ownership")
 
         return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
+
+
+class CaseAssignView(LoginRequiredMixin, UpdateView):
+    template_name = 'case/caseDetail.html'
+    email_template_name='case/email/assignEmail.html'
+    form_class = CaseAssignForm
+    model = Enquiry
+
+    def get_object(self, queryset=None):
+        if "uid" in self.kwargs:
+            caseUID = str(self.kwargs['uid'])
+            queryset = Case.objects.queryset_byUID(str(caseUID))
+            obj = queryset.get()
+            return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(CaseAssignView, self).get_context_data(**kwargs)
+        context['title'] = 'Assign Case'
+
+        return context
+
+    def form_valid(self, form):
+        caseObj = form.save()
+
+        # Email recipient
+        subject, from_email, to = "Case Assigned to You", "noreply@householdcapital.app", caseObj.user.email
+        text_content = "Text Message"
+        email_context={}
+        email_context['obj'] = caseObj
+
+        try:
+            html = get_template(self.email_template_name)
+            html_content = html.render(email_context)
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+        except:
+            pass
+
+        messages.success(self.request, "Case assigned to " + caseObj.user.username )
+        return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
+
 
 
 class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):

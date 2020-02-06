@@ -538,10 +538,6 @@ class EnquiryConvert(LoginRequiredMixin, View):
 
         enqUID = str(kwargs['uid'])
 
-        if self.request.user.profile.isCreditRep != True:
-            messages.error(self.request, "You must be a Credit Representative to convert an Enquiry")
-            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
-
         # get Enquiry object and dictionary
         queryset = Enquiry.objects.queryset_byUID(enqUID)
         enq_obj = queryset.get()
