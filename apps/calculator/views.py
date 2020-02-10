@@ -145,8 +145,8 @@ class CalcCreateEnquiry(LoginRequiredMixin, UpdateView):
     def get(self, request, *args, **kwargs):
 
         user = self.request.user
-        if not user.profile.isCreditRep:
-            messages.error(self.request, "You must be a Credit Representative to action this type of enquiry")
+        if not user.profile.calendlyUrl:
+            messages.error(self.request, "You are not set-up to action this type of enquiry")
             return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
 
         calcUID = str(kwargs['uid'])
