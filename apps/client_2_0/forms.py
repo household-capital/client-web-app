@@ -140,7 +140,7 @@ class SettingsForm(forms.ModelForm):
     # Form Fields
     class Meta:
         model = ModelSetting
-        fields = ['housePriceInflation', 'interestRate', 'investmentRate', 'inflationRate', 'projectionAge']
+        fields = ['housePriceInflation', 'interestRate', 'inflationRate', 'establishmentFeeRate']
 
     # Form Layout
     helper = FormHelper()
@@ -157,15 +157,13 @@ class SettingsForm(forms.ModelForm):
                     Div(PrependedText('housePriceInflation', '%'), placeholder='House Price Inflation'),
                     Div(HTML("<i class='fas fa-chart-bar'></i>&nbsp;&nbsp;<small>Base (cash) Interest Rate </small>")),
                     Div(PrependedText('interestRate', '%'), placeholder='Interest Rate'),
-                    Div(HTML("<i class='fas fa-user'></i>&nbsp;&nbsp;<small>Income Projection Age</small>")),
-                    Div(Field('projectionAge', placeholder='Projection Age')),
+                    Div(HTML("<i class='fas fa-chart-line'></i>&nbsp;&nbsp;<small>Inflation</small>")),
+                    Div(PrependedText('inflationRate', '%'), placeholder='inflation'),
                     css_class="col-md-4"),
 
                 Div(
-                    Div(HTML("<i class='fas fa-piggy-bank'></i>&nbsp;&nbsp;<small>Investment Return)</small>")),
-                    Div(PrependedText('investmentRate', '%'), placeholder='Investment Return'),
-                    Div(HTML("<i class='fas fa-chart-line'></i>&nbsp;&nbsp;<small>Inflation</small>")),
-                    Div(PrependedText('inflationRate', '%'), placeholder='inflation'),
+                    Div(HTML("<i class='fas fa-search-dollar'></i>&nbsp;&nbsp;<small>Establishment Fee</small>")),
+                    Div(PrependedText('establishmentFeeRate', '%'), placeholder='establishmentFeeRate'),
                     css_class="col-md-4"),
                 css_class='row justify-content-md-center'),
             Div(

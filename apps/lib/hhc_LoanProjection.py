@@ -35,7 +35,6 @@ class LoanProjection():
                        'inflationRate',
                        'interestRate',              # Base interest rate
                        'lendingMargin',
-                       'investmentRate',
                        'maxLoanAmount']
 
 
@@ -48,7 +47,8 @@ class LoanProjection():
                         'careRegularAmount':0,
                         'careFrequency':0,
                         'carePeriod':0,
-                        'topUpContingencyAmount':0
+                        'topUpContingencyAmount':0,
+                        'establishmentFee': 0,
                         }
 
     incomeDefaultDict = {'inflationAdj':True,
@@ -77,8 +77,6 @@ class LoanProjection():
         self.careDrawdownPeriods=0
         self.careDrawdownAmount=0
 
-        self.establishmentFee= LOAN_LIMITS['establishmentFee']
-
         #Income variables
         self.minAge=0
         self.incomeProjYears=0
@@ -101,6 +99,11 @@ class LoanProjection():
             if not self.__valueExists(item, self.initDict):
                 self.isInit = False
                 return {'status': 'Error','responseText':'Missing Data - '+item}
+
+        #Check for establishment fee override
+        self.establishmentFee = LOAN_LIMITS['establishmentFee']
+        if self.__valueExists('establishmentFeeRate',self.optionalDataDict):
+            self.establishmentFee = self.optionalDataDict['establishmentFeeRate']
 
         # Set defaults for optional items
         for item in self.optionalDataDict:
@@ -153,7 +156,6 @@ class LoanProjection():
         # Convert rates to equivalent compounding basis
         self.totalInterestRate   = self.__effectiveAnnual(self.initDict['interestRate'] + self.initDict['lendingMargin'],12/self.FREQUENCY) # Simple monthly rate
         self.inflationRate       = self.__simpleCompounding(self.initDict['inflationRate'],self.FREQUENCY)
-        self.investmentRate      = self.__simpleCompounding(self.initDict['investmentRate'],self.FREQUENCY)
         self.hpiRate             = self.__simpleCompounding(self.initDict['housePriceInflation'],self.FREQUENCY)
 
 

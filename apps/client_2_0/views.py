@@ -68,7 +68,7 @@ class ContextHelper():
         modelDict = ModelSetting.objects.dictionary_byUID(self.request.session['caseUID'])
 
         # validate loan
-        loanObj = LoanValidator(clientDict, loanDict)
+        loanObj = LoanValidator(clientDict, loanDict, modelDict)
         loanStatus = loanObj.getStatus()
 
         # update loan
@@ -130,10 +130,14 @@ class LandingView(LoginRequiredMixin, ContextHelper, TemplateView):
 
         write_applog("INFO", 'LandingView', 'get', "Meeting commenced by " + str(request.user) + " for -" + caseUID)
 
-        obj = ModelSetting.objects.queryset_byUID(caseUID)
-        economicSettings = ECONOMIC.copy()
-        economicSettings.pop('defaultMargin')
-        obj.update(**economicSettings)
+        #Instantiate model settings if required
+        qs = ModelSetting.objects.queryset_byUID(caseUID)
+        obj=qs.get()
+        if not obj.housePriceInflation:
+            economicSettings = ECONOMIC.copy()
+            economicSettings.pop('defaultMargin')
+            economicSettings['establishmentFeeRate'] = LOAN_LIMITS['establishmentFee']
+            qs.update(**economicSettings)
 
         return super(LandingView, self).get(self, request, *args, **kwargs)
 
