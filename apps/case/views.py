@@ -256,7 +256,7 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
         isValid = self.checkFields(obj)
 
         if not isValid:
-            messages.error(self.request, "Saved - but missing required fields - case will not be synched")
+            messages.info(self.request, "Saved - but not synched. Case will be synched when all required fields are completed")
         else:
 
             # Salesforce Synch
