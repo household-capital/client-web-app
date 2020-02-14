@@ -1056,7 +1056,7 @@ class FinalPDFView(LoginRequiredMixin, SessionRequiredMixin, View):
             localfile = open(targetFileName, 'rb')
 
             qsCase = Case.objects.queryset_byUID(self.request.session['caseUID'])
-            qsCase.update(summaryDocument=File(localfile), newProcess = True )
+            qsCase.update(summaryDocument=File(localfile))
 
             pdf_contents = localfile.read()
 
@@ -1389,7 +1389,7 @@ class NewFinalPDFView(LoginRequiredMixin, SessionRequiredMixin, View):
             localfile = open(targetFileName, 'rb')
 
             qsCase = Case.objects.queryset_byUID(self.request.session['caseUID'])
-            qsCase.update(summaryDocument=File(localfile), newProcess = True )
+            qsCase.update(summaryDocument=File(localfile))
 
             pdf_contents = localfile.read()
 
