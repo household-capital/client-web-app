@@ -28,7 +28,9 @@
                     {% for message in messages %}
                         <p{% if message.tags == 'error' %}
                             class="alert alert-warning"{% endif %}
-                                {% if message.tags == 'success' %}
+                          {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+
+                          {% if message.tags == 'success' %}
                             class="alert alert-success"{% endif %}>
                             {{ message }}</p>
                     {% endfor %}

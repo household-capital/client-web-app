@@ -411,9 +411,9 @@ class CaseCloseView(LoginRequiredMixin, UpdateView):
         messages.success(self.request, "Case closed or marked as followed-up")
 
         try:
-            caseObj=Case.objects.filter(case=str(self.kwargs.get('uid')))
+            caseObj=Case.objects.filter(caseUID=str(self.kwargs.get('uid'))).get()
             if caseObj.sfOpportunityID:
-                messages.info(self.request, "Please close Opportunity in SF also")
+                messages.info(self.request, "Please close Opportunity in Salesforce also")
         except Case.DoesNotExist:
             pass
 
