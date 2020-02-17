@@ -235,7 +235,7 @@ class CalcCreateEnquiry(LoginRequiredMixin, UpdateView):
                 messages.error(self.request, "Enquiry created - but email not sent")
 
         else:
-                messages.error(self.request, "Age or Postcode Restriction - please respond to customer")
+            messages.error(self.request, "Age or Postcode Restriction - please respond to customer")
 
         obj.actioned = 1  # Actioned=1, Spam=-1
         obj.save(update_fields=['actioned'])

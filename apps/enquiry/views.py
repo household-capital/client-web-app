@@ -595,16 +595,17 @@ class EnquiryOwnView(LoginRequiredMixin, View):
         enqUID = str(kwargs['uid'])
         enqObj = Enquiry.objects.queryset_byUID(enqUID).get()
 
-        if self.request.user.profile.isCreditRep == True:
+        if not self.request.user.profile.calendlyUrl:
+
+            messages.error(self.request, "You are not set-up to action this type of enquiry")
+
+        else:
             enqObj.user = self.request.user
             enqObj.save(update_fields=['user'])
             messages.success(self.request, "Ownership Changed")
 
-        else:
-            messages.error(self.request, "You must be a Credit Representative to take ownership")
-
-        #Background task to update SF
-        app.send_task('Update_SF_Lead', kwargs={'enqUID':enqUID})
+            #Background task to update SF
+            app.send_task('Update_SF_Lead', kwargs={'enqUID':enqUID})
 
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
 
