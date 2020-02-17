@@ -281,9 +281,8 @@ class LoanValidator():
 
         # Limits - based actual Lvr adjusted, capped at Loan Limit
         self.refinanceLimit = min(int(lvr * self.initDict['valuation'] * LOAN_LIMITS['maxRefi']), self.loanLimit)
-        self.giveLimit = min(int(lvr * self.initDict['valuation'] * LOAN_LIMITS['maxGive']), self.loanLimit)
-        self.travelLimit = min(int(lvr * self.initDict['valuation'] * LOAN_LIMITS['maxTravel']), self.loanLimit)
-
+        self.giveLimit = self.loanLimit * LOAN_LIMITS['maxGive']
+        self.travelLimit = self.loanLimit * LOAN_LIMITS['maxTravel']
 
     def __valueExists(self, item, sourceDict):
         if item in sourceDict:
