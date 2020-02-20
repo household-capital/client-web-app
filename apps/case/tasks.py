@@ -267,7 +267,9 @@ def stageSynch():
                 if obj.caseType != caseTypesEnum.FUNDED.value and row['StageName'] in stageMapping:
                     obj.caseType = stageMapping[row['StageName']]
                     obj.save(update_fields=['caseType'])
-    return
+
+    write_applog("INFO", 'stageSynch', 'task', "SF Stages Synched")
+    return "Success - SF Stages Synched"
 
 
 # UTILITIES
@@ -510,12 +512,12 @@ def updateSFOpp(caseUID, sfAPI):
 
     # Update Opportunity [Application]
     sfOpprtunityFields = {
+        # Core case data
         'sfOpportunityId': caseObj.sfOpportunityID,
         'caseUID': str(caseObj.caseUID),
         'caseDescription': caseObj.caseDescription,
         'user': caseObj.user.profile.salesforceID,
         'adviser': caseObj.adviser,
-        'caseNotes': caseObj.caseNotes,
         'loanType': caseObj.enumLoanType(),
         'salesChannel': caseObj.enumChannelType(),
         'closeReason': caseObj.lossdata.enumCloseReason(),
@@ -525,9 +527,6 @@ def updateSFOpp(caseUID, sfAPI):
         'superAmount': caseObj.superAmount,
         'pensionType': caseObj.enumPensionType(),
         'pensionAmount': caseObj.pensionAmount,
-        'protectedEquity': caseObj.loan.protectedEquity,
-        'interestPayAmount': caseObj.loan.interestPayAmount,
-        'interestPayPeriod': caseObj.loan.interestPayPeriod,
         'clientType1': caseObj.enumClientType()[0],
         'salutation_1':caseObj.enumSalutation()[0] ,
         'surname_1': caseObj.surname_1,
@@ -552,6 +551,8 @@ def updateSFOpp(caseUID, sfAPI):
         'state': caseObj.enumStateType(),
         'valuation': caseObj.valuation,
         'dwellingType': caseObj.enumDwellingType(),
+
+        #Meeting Data
         'maxLVR': caseObj.loan.maxLVR,
         'actualLVR': caseObj.loan.actualLVR,
         'establishmentFee': caseObj.loan.establishmentFee,
@@ -571,11 +572,9 @@ def updateSFOpp(caseUID, sfAPI):
         'choiceVariable': caseObj.loan.choiceVariable,
         'consentPrivacy': caseObj.loan.consentPrivacy,
         'consentElectronic': caseObj.loan.consentElectronic,
-        'inflationRate': caseObj.modelsetting.inflationRate,
-        'housePriceInflation': caseObj.modelsetting.housePriceInflation,
-        'interestRate': caseObj.modelsetting.interestRate,
-        'lendingMargin': caseObj.modelsetting.lendingMargin,
-        'comparisonRateIncrement': caseObj.modelsetting.comparisonRateIncrement,
+        'protectedEquity': caseObj.loan.protectedEquity,
+        'interestPayAmount': caseObj.loan.interestPayAmount,
+        'interestPayPeriod': caseObj.loan.interestPayPeriod,
         'topUpAmount': caseObj.loan.topUpAmount,
         'topUpDrawdownAmount': caseObj.loan.topUpDrawdownAmount,
         'topUpIncomeAmount': caseObj.loan.topUpIncomeAmount,
@@ -599,7 +598,26 @@ def updateSFOpp(caseUID, sfAPI):
         'careDescription': caseObj.loan.careDescription,
         'careDrawdownDescription': caseObj.loan.careDrawdownDescription,
         'giveDescription': caseObj.loan.giveDescription,
-        'establishmentFeeRate': caseObj.modelsetting.establishmentFeeRate
+
+        # Model Setting Data
+        'inflationRate': caseObj.modelsetting.inflationRate,
+        'housePriceInflation': caseObj.modelsetting.housePriceInflation,
+        'interestRate': caseObj.modelsetting.interestRate,
+        'lendingMargin': caseObj.modelsetting.lendingMargin,
+        'comparisonRateIncrement': caseObj.modelsetting.comparisonRateIncrement,
+        'establishmentFeeRate': caseObj.modelsetting.establishmentFeeRate,
+
+        # Notes/ Fact Find Fields
+        'caseNotes': caseObj.caseNotes,
+        'backgroundNotes': caseObj.factfind.backgroundNotes,
+        'requirementsNotes': caseObj.factfind.requirementsNotes,
+        'topUpNotes': caseObj.factfind.topUpNotes,
+        'refiNotes': caseObj.factfind.refiNotes,
+        'liveNotes': caseObj.factfind.liveNotes,
+        'giveNotes': caseObj.factfind.giveNotes,
+        'careNotes': caseObj.factfind.careNotes,
+        'futureNotes': caseObj.factfind.futureNotes,
+        'clientNotes': caseObj.factfind.clientNotes,
     }
 
     SF_DATE_FIELDS = ['timestamp', 'updated', 'birthdate_1', 'birthdate_2', 'meetingDate', 'closeDate', 'followUpDate']
