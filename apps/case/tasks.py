@@ -12,8 +12,10 @@ from config.celery import app
 from apps.lib.api_AMAL import apiAMAL
 from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
+from apps.lib.site_Enums import caseTypesEnum
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Utilities import taskError, sendTemplateEmail
+
 
 from .models import Case, LossData, FundedData
 
@@ -92,6 +94,7 @@ def catchallSFLeadTask():
     write_applog("INFO", 'Case', 'Tasks-catchallSFLead', "Completed")
     return "Finished - Unsuccessfully"
 
+
 @app.task(name='SF_Lead_Convert')
 def sfLeadConvert(caseUID):
     '''Task wrapper to to create lead for all cases without sfLeadID '''
@@ -122,7 +125,6 @@ def sfLeadConvert(caseUID):
         return "Lead converted!"
 
 
-
 @app.task(name='SF_Opp_Synch')
 def sfOppSynch(caseUID):
     '''Task wrapper to to create lead for all cases without sfLeadID '''
@@ -151,6 +153,7 @@ def sfOppSynch(caseUID):
     else:
         write_applog("INFO", 'Case', 'Tasks-SF_Opp_Synch', description+"-"+"Opp Synched!")
         return "Success - Opp Synched!"
+
 
 @app.task(name='SF_Doc_Synch')
 def sfDocSynch(caseUID):
@@ -223,6 +226,48 @@ def paymentReminder():
     else:
         write_applog("ERROR", 'paymentReminder', 'task', "Reminder email could not be sent")
         return "Error - reminder email could not be sent"
+
+
+@app.task(name='SF_Stage_Synch')
+def stageSynch():
+    '''Reverse synch SF -> clientApp'''
+
+    stageMapping = {
+            "Meeting Held": caseTypesEnum.MEETING_HELD.value,
+            "Application Sent": caseTypesEnum.APPLICATION.value,
+            "Approval": caseTypesEnum.APPLICATION.value,
+            "Assess": caseTypesEnum.APPLICATION.value,
+            "Build Case": caseTypesEnum.APPLICATION.value,
+            "Certification": caseTypesEnum.DOCUMENTATION.value,
+            "Documentation": caseTypesEnum.DOCUMENTATION.value,
+            "Settlement": caseTypesEnum.DOCUMENTATION.value,
+            "Post-Settlement Review": caseTypesEnum.FUNDED.value,
+            "Loan Approved": caseTypesEnum.FUNDED.value,
+            "Parked": caseTypesEnum.CLOSED.value,
+            "Loan Application Withdrawn": caseTypesEnum.CLOSED.value,
+            "Loan Declined": caseTypesEnum.CLOSED.value,
+    }
+
+    #Get stage list from SF
+    sfAPI = apiSalesforce()
+    result = sfAPI.openAPI(True)
+    output= sfAPI.getStageList()
+
+    if output['status'] == "Ok":
+        dataFrame = output['data']
+
+        #Loop through SF list and update stage of CaseObjects
+        for index, row in dataFrame.iterrows():
+            try:
+                obj = Case.objects.filter(sfOpportunityID=row['Id']).get()
+            except Case.DoesNotExist:
+                obj = None
+
+            if obj:
+                if obj.caseType != caseTypesEnum.FUNDED.value and row['StageName'] in stageMapping:
+                    obj.caseType = stageMapping[row['StageName']]
+                    obj.save(update_fields=['caseType'])
+    return
 
 
 # UTILITIES

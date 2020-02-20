@@ -24,9 +24,7 @@ from config.celery import app
 from apps.calculator.models import WebCalculator, WebContact
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.site_Enums import caseTypesEnum, loanTypesEnum
-from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.api_Salesforce import apiSalesforce
-from apps.lib.api_Mappify import apiMappify
 from apps.lib.site_Globals import LOAN_LIMITS
 from apps.lib.site_Logging import write_applog
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
@@ -143,7 +141,7 @@ class CaseListView(LoginRequiredMixin, ListView):
         else:
             orderBy = [self.request.GET.get('order'), '-updated']
 
-        queryset = queryset.order_by(*orderBy)
+        queryset = queryset.order_by(*orderBy)[:160]
 
 
         return queryset
@@ -805,3 +803,43 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
         return context
 
 
+class TestView(View):
+
+    def get(self, request, *args, **kwargs):
+
+        stageMapping = {
+            "Application Sent": caseTypesEnum.APPLICATION.value,
+            "Approval": caseTypesEnum.APPLICATION.value,
+            "Assess": caseTypesEnum.APPLICATION.value,
+            "Build Case": caseTypesEnum.APPLICATION.value,
+            "Certification": caseTypesEnum.DOCUMENTATION.value,
+            "Documentation": caseTypesEnum.DOCUMENTATION.value,
+            "Loan Application Withdrawn": caseTypesEnum.CLOSED.value,
+            "Loan Declined": caseTypesEnum.CLOSED.value,
+            "Meeting Held": caseTypesEnum.MEETING_HELD.value,
+            "Parked": caseTypesEnum.CLOSED.value,
+            "Settlement": caseTypesEnum.DOCUMENTATION.value,
+            "Post-Settlement Review": caseTypesEnum.FUNDED.value,
+            "Loan Approved": caseTypesEnum.FUNDED.value,
+        }
+
+        #Get stage list from SF
+        sfAPI = apiSalesforce()
+        result = sfAPI.openAPI(True)
+        output= sfAPI.getStageList()
+
+        if output['status'] == "Ok":
+            dataFrame = output['data']
+
+            #Loop through SF list and update stage of CaseObjects
+            for index, row in dataFrame.iterrows():
+                try:
+                    obj = Case.objects.filter(sfOpportunityID=row['Id']).get()
+                except Case.DoesNotExist:
+                    obj = None
+
+                if obj:
+                    if row['StageName'] in stageMapping:
+                        obj.caseType = stageMapping[row['StageName']]
+                        obj.save(update_fields=['caseType'])
+        return

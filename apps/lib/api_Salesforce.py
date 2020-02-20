@@ -50,8 +50,9 @@ class apiSalesforce():
                       'LeadByEmail':
                           "Select Id, PostalCode from Lead where Email=\'{0}\'",
                       'LeadByPhone':
-                          "Select Id, PostalCode from Lead where Phone=\'{0}\'"
-
+                          "Select Id, PostalCode from Lead where Phone=\'{0}\'",
+                      'StageList':
+                          "Select Id, StageName from Opportunity where Lead_Record_Type__c = 'Household'"
                       }
 
     def openAPI(self,production):
@@ -211,6 +212,11 @@ class apiSalesforce():
         # returns a list of documents that have been loaded against an OpportunityID
         appLoans = self.execSOQLQuery('Documents', OpportunityID)
         return appLoans
+
+    def getStageList(self):
+        #returns a list of stages by sfLoanID
+        stageList = self.execSOQLQuery('StageList', None)
+        return stageList
 
     def getDocumentFileStream(self, documentID):
         # Multi-call approach as SF has restrictions on calling the link table
