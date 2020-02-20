@@ -33,7 +33,7 @@ class WebManager(models.Manager):
     def __timeSeriesQry(self, qs, length):
         #utility function appended to base time series query
         tz = get_current_timezone()
-        qryDate=datetime.today()-timedelta(days=length)
+        qryDate=datetime.now(tz)-timedelta(days=length)
 
         return qs.filter(timestamp__gte=qryDate).annotate(date=Cast(TruncDay('timestamp', tzinfo=tz), DateField())) \
                    .values_list('date') \
