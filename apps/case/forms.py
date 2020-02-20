@@ -273,65 +273,6 @@ class SFPasswordForm(forms.Form):
             ),
         ))
 
-
-class SolicitorForm(forms.ModelForm):
-    class Meta:
-        model = Case
-        fields = ['specialConditions']
-
-    # Form Data
-    specialConditions = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 6, 'cols': 100}))
-
-    # Form Layout
-    helper = FormHelper()
-    helper.form_method = 'POST'
-    helper.form_class = 'form-horizontal col-lg-12'
-    helper.field_class = 'col-lg-10'
-    helper.form_show_labels = False
-    helper.form_show_errors = True
-    helper.layout = Layout(
-        Div(
-            Div(
-                Field('specialConditions', placeholder='Enter any special conditions')),
-            Div(
-                Div(Submit('submit', 'Create ', css_class='btn btn-warning')),
-            ),
-        ))
-
-
-class ValuerForm(forms.ModelForm):
-    class Meta:
-        model = Case
-        fields = ['valuerFirm', 'valuerEmail', 'valuerContact']
-
-    # Form Data
-    valuerContact = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 6, 'cols': 100}))
-
-    # Form Layout
-    helper = FormHelper()
-    helper.form_method = 'POST'
-    helper.form_class = 'form-horizontal col-lg-12'
-    helper.field_class = 'col-lg-10'
-    helper.form_show_labels = False
-    helper.form_show_errors = True
-    helper.layout = Layout(
-        Div(
-            Div(
-                Field('valuerFirm', placeholder='Firm Name'),
-                Field('valuerEmail', placeholder='Valuer Email'),
-                Field('valuerContact', placeholder='Specific Client Contact Details')),
-
-            Div(
-                Div(Submit('submit', 'Create ', css_class='btn btn-warning')),
-            ),
-        ))
-
-    def clean(self):
-        if self.cleaned_data['valuerFirm'] and self.cleaned_data['valuerEmail']:
-            return
-        else:
-            raise forms.ValidationError("Please choose a valuer and corresponding email")
-
 class CaseAssignForm(forms.ModelForm):
     class Meta:
         model = Case

@@ -381,12 +381,11 @@ class Loan(models.Model):
 class ModelSetting(models.Model):
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
     inflationRate=models.FloatField(null=True, blank=True)
-    investmentRate=models.FloatField(null=True, blank=True)
     housePriceInflation=models.FloatField(null=True, blank=True)
     interestRate=models.FloatField(null=True, blank=True)
     lendingMargin=models.FloatField(null=True, blank=True)
     comparisonRateIncrement=models.FloatField(null=True, blank=True)
-    projectionAge=models.IntegerField(null=True, blank=True)
+    establishmentFeeRate=models.FloatField(null=True, blank=True)
 
     objects=CaseManager()
 

@@ -527,12 +527,10 @@ def updateSFOpp(caseUID, sfAPI):
         'consentPrivacy': caseObj.loan.consentPrivacy,
         'consentElectronic': caseObj.loan.consentElectronic,
         'inflationRate': caseObj.modelsetting.inflationRate,
-        'investmentRate': caseObj.modelsetting.investmentRate,
         'housePriceInflation': caseObj.modelsetting.housePriceInflation,
         'interestRate': caseObj.modelsetting.interestRate,
         'lendingMargin': caseObj.modelsetting.lendingMargin,
         'comparisonRateIncrement': caseObj.modelsetting.comparisonRateIncrement,
-        'projectionAge': caseObj.modelsetting.projectionAge,
         'topUpAmount': caseObj.loan.topUpAmount,
         'topUpDrawdownAmount': caseObj.loan.topUpDrawdownAmount,
         'topUpIncomeAmount': caseObj.loan.topUpIncomeAmount,
@@ -555,7 +553,8 @@ def updateSFOpp(caseUID, sfAPI):
         'travelDescription': caseObj.loan.travelDescription,
         'careDescription': caseObj.loan.careDescription,
         'careDrawdownDescription': caseObj.loan.careDrawdownDescription,
-        'giveDescription': caseObj.loan.giveDescription
+        'giveDescription': caseObj.loan.giveDescription,
+        'establishmentFeeRate': caseObj.modelsetting.establishmentFeeRate
     }
 
     SF_DATE_FIELDS = ['timestamp', 'updated', 'birthdate_1', 'birthdate_2', 'meetingDate', 'closeDate', 'followUpDate']
