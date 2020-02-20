@@ -241,6 +241,8 @@ def stageSynch():
             "Certification": caseTypesEnum.DOCUMENTATION.value,
             "Documentation": caseTypesEnum.DOCUMENTATION.value,
             "Settlement": caseTypesEnum.DOCUMENTATION.value,
+            "Settlement Booked": caseTypesEnum.DOCUMENTATION.value,
+            "Pre-Settlement": caseTypesEnum.DOCUMENTATION.value,
             "Post-Settlement Review": caseTypesEnum.FUNDED.value,
             "Loan Approved": caseTypesEnum.FUNDED.value,
             "Parked": caseTypesEnum.CLOSED.value,

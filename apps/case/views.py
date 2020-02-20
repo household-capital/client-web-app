@@ -410,6 +410,13 @@ class CaseCloseView(LoginRequiredMixin, UpdateView):
 
         messages.success(self.request, "Case closed or marked as followed-up")
 
+        try:
+            caseObj=Case.objects.filter(caseUID=str(self.kwargs.get('uid'))).get()
+            if caseObj.sfOpportunityID:
+                messages.info(self.request, "Please close Opportunity in Salesforce also")
+        except Case.DoesNotExist:
+            pass
+
         # Background task to update SF
         app.send_task('Update_SF_Case_Lead', kwargs={'caseUID': str(obj.case.caseUID)})
         return super(CaseCloseView, self).form_valid(form)

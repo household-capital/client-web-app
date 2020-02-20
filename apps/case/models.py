@@ -286,6 +286,7 @@ def create_case_extensions(sender, instance, created, **kwargs):
        loan, created = Loan.objects.get_or_create(case=instance)
        modelSettings, created = ModelSetting.objects.get_or_create(case=instance)
        lossData, created = LossData.objects.get_or_create(case=instance)
+       factFind, created = FactFind.objects.get_or_create(case=instance)
 
 post_save.connect(create_case_extensions, sender=Case)
 
