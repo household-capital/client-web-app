@@ -149,7 +149,7 @@ class EnquiryCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(EnquiryCreateView, self).get_context_data(**kwargs)
         context['title'] = 'New Enquiry'
-        context['showPrivacy'] = True
+        context['newEnquiry'] = True
         return context
 
     def form_valid(self, form):
@@ -159,7 +159,7 @@ class EnquiryCreateView(LoginRequiredMixin, CreateView):
         loanObj = LoanValidator(clientDict)
         chkOpp = loanObj.validateLoan()
 
-        if obj.user == None and self.request.user.profile.isCreditRep == True:
+        if obj.user == None and self.request.user.profile.calendlyUrl:
             obj.user = self.request.user
 
         if chkOpp['status'] == "Error":
@@ -225,7 +225,7 @@ class EnquiryUpdateView(LoginRequiredMixin, UpdateView):
 
         obj.calcTotal = calcTotal
 
-        if obj.user == None and self.request.user.profile.isCreditRep == True:
+        if obj.user == None and self.request.user.profile.calendlyUrl:
             obj.user = self.request.user
 
         if chkOpp['status'] == "Error":
@@ -277,10 +277,6 @@ class SendEnquirySummary(LoginRequiredMixin, UpdateView):
         if not enq_obj.email:
             messages.error(self.request, "No client email")
             return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
-
-        if self.nullOrZero(enq_obj.calcTotal):
-            messages.error(self.request, "No funding requirements - cannot send summary")
-            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
 
         enqDict = Enquiry.objects.dictionary_byUID(enqUID)
 
@@ -445,6 +441,7 @@ class EnqSummaryPdfView(TemplateView):
         # Check for no top-up Amount
 
         context['resultsAge'] = loanProj.getResultsList('BOPAge')['data']
+        context['resultsLoanBalance'] = loanProj.getResultsList('BOPLoanValue')['data']
         context['resultsHomeEquity'] = loanProj.getResultsList('BOPHomeEquity')['data']
         context['resultsHomeEquityPC'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
         context['resultsHomeImages'] = \
@@ -515,9 +512,13 @@ class EnquiryCloseFollowUp(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         obj = form.save()
         obj.followUp = timezone.now()
+
+        if obj.user == None:
+            obj.user = self.request.user
+
         if form.cleaned_data['closeReason']:
             obj.closeDate=timezone.now()
-        obj.save(update_fields=['followUp','closeDate'])
+        obj.save(update_fields=['followUp','closeDate','user'])
 
         app.send_task('Update_SF_Lead', kwargs={'enqUID':str(obj.enqUID)})
 
@@ -533,10 +534,6 @@ class EnquiryConvert(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
 
         enqUID = str(kwargs['uid'])
-
-        if self.request.user.profile.isCreditRep != True:
-            messages.error(self.request, "You must be a Credit Representative to convert an Enquiry")
-            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
 
         # get Enquiry object and dictionary
         queryset = Enquiry.objects.queryset_byUID(enqUID)
@@ -599,16 +596,17 @@ class EnquiryOwnView(LoginRequiredMixin, View):
         enqUID = str(kwargs['uid'])
         enqObj = Enquiry.objects.queryset_byUID(enqUID).get()
 
-        if self.request.user.profile.isCreditRep == True:
+        if not self.request.user.profile.calendlyUrl:
+
+            messages.error(self.request, "You are not set-up to action this type of enquiry")
+
+        else:
             enqObj.user = self.request.user
             enqObj.save(update_fields=['user'])
             messages.success(self.request, "Ownership Changed")
 
-        else:
-            messages.error(self.request, "You must be a Credit Representative to take ownership")
-
-        #Background task to update SF
-        app.send_task('Update_SF_Lead', kwargs={'enqUID':enqUID})
+            #Background task to update SF
+            app.send_task('Update_SF_Lead', kwargs={'enqUID':enqUID})
 
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
 

@@ -87,6 +87,7 @@ class CalcSummaryNewPdf(TemplateView):
 
         context['resultsAge'] = loanProj.getResultsList('BOPAge')['data']
         context['resultsHomeEquity'] = loanProj.getResultsList('BOPHomeEquity')['data']
+        context['resultsLoanBalance'] = loanProj.getResultsList('BOPLoanValue')['data']
         context['resultsHomeEquityPC'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
         context['resultsHomeImages'] = \
             loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
@@ -145,8 +146,8 @@ class CalcCreateEnquiry(LoginRequiredMixin, UpdateView):
     def get(self, request, *args, **kwargs):
 
         user = self.request.user
-        if not user.profile.isCreditRep:
-            messages.error(self.request, "You must be a Credit Representative to action this type of enquiry")
+        if not user.profile.calendlyUrl:
+            messages.error(self.request, "You are not set-up to action this type of enquiry")
             return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
 
         calcUID = str(kwargs['uid'])
@@ -235,7 +236,7 @@ class CalcCreateEnquiry(LoginRequiredMixin, UpdateView):
                 messages.error(self.request, "Enquiry created - but email not sent")
 
         else:
-                messages.error(self.request, "Age or Postcode Restriction - please respond to customer")
+            messages.error(self.request, "Age or Postcode Restriction - please respond to customer")
 
         obj.actioned = 1  # Actioned=1, Spam=-1
         obj.save(update_fields=['actioned'])

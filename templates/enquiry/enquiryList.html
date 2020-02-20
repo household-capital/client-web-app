@@ -161,6 +161,9 @@
                                         {% endif %}
                                     </a>
                                 {% else %}
+                                    {% if obj.sfLeadID is null %}
+                                            <i class="fal fa-question-circle"></i>
+                                    {% endif %}
                                     <a href="{{ obj.get_absolute_url }}">{{ obj.user }}</a></td>
                                 {% endif %}
                             <td class="d-none d-sm-table-cell">

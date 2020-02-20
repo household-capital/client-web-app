@@ -68,7 +68,7 @@ class ContextHelper():
         modelDict = ModelSetting.objects.dictionary_byUID(self.request.session['caseUID'])
 
         # validate loan
-        loanObj = LoanValidator(clientDict, loanDict)
+        loanObj = LoanValidator(clientDict, loanDict, modelDict)
         loanStatus = loanObj.getStatus()
 
         # update loan
@@ -117,17 +117,27 @@ class LandingView(LoginRequiredMixin, ContextHelper, TemplateView):
         # Main entry view - save the UID into a session variable
         # Use this to retrieve queryset for each page
 
-        caseUID = str(kwargs['uid'])
-        request.session['caseUID'] = caseUID
+        if 'uid' in kwargs:
+            caseUID = str(kwargs['uid'])
+            request.session['caseUID'] = caseUID
+
+        elif 'caseUID' not in request.session:
+            return HttpResponseRedirect(reverse_lazy('case:caseList'))
+
+        else:
+            caseUID = request.session['caseUID']
+
+
         write_applog("INFO", 'LandingView', 'get', "Meeting commenced by " + str(request.user) + " for -" + caseUID)
 
-        obj = ModelSetting.objects.queryset_byUID(caseUID)
-        economicSettings = ECONOMIC.copy()
-        economicSettings.pop('defaultMargin')
-        obj.update(**economicSettings)
-
-        if 'caseUID' not in request.session:
-            return HttpResponseRedirect(reverse_lazy('case:caseList'))
+        #Instantiate model settings if required
+        qs = ModelSetting.objects.queryset_byUID(caseUID)
+        obj=qs.get()
+        if not obj.housePriceInflation:
+            economicSettings = ECONOMIC.copy()
+            economicSettings.pop('defaultMargin')
+            economicSettings['establishmentFeeRate'] = LOAN_LIMITS['establishmentFee']
+            qs.update(**economicSettings)
 
         return super(LandingView, self).get(self, request, *args, **kwargs)
 
@@ -1046,7 +1056,7 @@ class FinalPDFView(LoginRequiredMixin, SessionRequiredMixin, View):
             localfile = open(targetFileName, 'rb')
 
             qsCase = Case.objects.queryset_byUID(self.request.session['caseUID'])
-            qsCase.update(summaryDocument=File(localfile), newProcess = True )
+            qsCase.update(summaryDocument=File(localfile))
 
             pdf_contents = localfile.read()
 
@@ -1379,7 +1389,7 @@ class NewFinalPDFView(LoginRequiredMixin, SessionRequiredMixin, View):
             localfile = open(targetFileName, 'rb')
 
             qsCase = Case.objects.queryset_byUID(self.request.session['caseUID'])
-            qsCase.update(summaryDocument=File(localfile), newProcess = True )
+            qsCase.update(summaryDocument=File(localfile))
 
             pdf_contents = localfile.read()
 

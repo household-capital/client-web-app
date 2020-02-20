@@ -214,7 +214,6 @@ class Case(models.Model):
     amalIdentifier=models.CharField(max_length=40, null=True, blank=True)
     amalLoanID=models.CharField(max_length=40, null=True, blank=True)
 
-    newProcess=models.BooleanField(default=False, null=True, blank=True)
     isZoomMeeting=models.BooleanField(default=False, null=True, blank=True)
 
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
@@ -286,6 +285,7 @@ def create_case_extensions(sender, instance, created, **kwargs):
        loan, created = Loan.objects.get_or_create(case=instance)
        modelSettings, created = ModelSetting.objects.get_or_create(case=instance)
        lossData, created = LossData.objects.get_or_create(case=instance)
+       factFind, created = FactFind.objects.get_or_create(case=instance)
 
 post_save.connect(create_case_extensions, sender=Case)
 
@@ -381,12 +381,11 @@ class Loan(models.Model):
 class ModelSetting(models.Model):
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
     inflationRate=models.FloatField(null=True, blank=True)
-    investmentRate=models.FloatField(null=True, blank=True)
     housePriceInflation=models.FloatField(null=True, blank=True)
     interestRate=models.FloatField(null=True, blank=True)
     lendingMargin=models.FloatField(null=True, blank=True)
     comparisonRateIncrement=models.FloatField(null=True, blank=True)
-    projectionAge=models.IntegerField(null=True, blank=True)
+    establishmentFeeRate=models.FloatField(null=True, blank=True)
 
     objects=CaseManager()
 

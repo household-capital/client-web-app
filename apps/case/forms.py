@@ -3,6 +3,8 @@ from datetime import datetime
 
 # Django Imports
 from django import forms
+from django.contrib.auth.models import User
+from django.forms import ValidationError
 from django.forms import widgets
 
 # Third-party Imports
@@ -99,58 +101,58 @@ class CaseDetailsForm(forms.ModelForm):
                     Div(Div(HTML("Single or Joint Borrowers"), css_class='form-label'),
                         Div(Field('loanType'))),
                     HTML("<i class='fas fa-user'></i>&nbsp;&nbsp;<small>Borrower 1</small>"),
-                    Div(Div(HTML("Birthdate"), css_class='form-label'),
+                    Div(Div(HTML("Birthdate*"), css_class='form-label'),
                         Div(Field('birthdate_1'))),
                     Div(Div(HTML("Age"), css_class='form-label'),
                         Div(Field('age_1'))),
-                    Div(Div(HTML("Surname"), css_class='form-label'),
+                    Div(Div(HTML("Surname*"), css_class='form-label'),
                         Div(Field('surname_1'))),
-                    Div(Div(HTML("Firstname"), css_class='form-label'),
+                    Div(Div(HTML("Firstname*"), css_class='form-label'),
                         Div(Field('firstname_1'))),
                     Div(Div(HTML("Middlename"), css_class='form-label'),
                         Div(Field('middlename_1'))),
-                    Div(Div(HTML("Salutation"), css_class='form-label'),
+                    Div(Div(HTML("Salutation*"), css_class='form-label'),
                         Div(Field('salutation_1'))),
-                    Div(Div(HTML("Gender"), css_class='form-label'),
+                    Div(Div(HTML("Gender*"), css_class='form-label'),
                         Div(Field('sex_1'))),
-                    Div(Div(HTML("Borrower Role"), css_class='form-label'),
+                    Div(Div(HTML("Borrower Role*"), css_class='form-label'),
                         Div(Field('clientType1'))),
-                    Div(Div(HTML("Marital Status"), css_class='form-label'),
+                    Div(Div(HTML("Marital Status*"), css_class='form-label'),
                         Div(Field('maritalStatus_1'))),
                     HTML("<i class='far fa-user'></i>&nbsp;&nbsp;<small>Borrower 2</small>"),
-                    Div(Div(HTML("Birthdate"), css_class='form-label'),
+                    Div(Div(HTML("Birthdate*"), css_class='form-label'),
                         Div(Field('birthdate_2'))),
                     Div(Div(HTML("Age"), css_class='form-label'),
                         Div(Field('age_2'))),
-                    Div(Div(HTML("Surname"), css_class='form-label'),
+                    Div(Div(HTML("Surname*"), css_class='form-label'),
                         Div(Field('surname_2'))),
-                    Div(Div(HTML("Firstname"), css_class='form-label'),
+                    Div(Div(HTML("Firstname*"), css_class='form-label'),
                         Div(Field('firstname_2'))),
                     Div(Div(HTML("Middlename"), css_class='form-label'),
                         Div(Field('middlename_2'))),
-                    Div(Div(HTML("Salutation"), css_class='form-label'),
+                    Div(Div(HTML("Salutation*"), css_class='form-label'),
                         Div(Field('salutation_2'))),
-                    Div(Div(HTML("Gender"), css_class='form-label'),
+                    Div(Div(HTML("Gender*"), css_class='form-label'),
                         Div(Field('sex_2'))),
-                    Div(Div(HTML("Borrower Role"), css_class='form-label'),
+                    Div(Div(HTML("Borrower Role*"), css_class='form-label'),
                         Div(Field('clientType2'))),
-                    Div(Div(HTML("Marital Status"), css_class='form-label'),
+                    Div(Div(HTML("Marital Status*"), css_class='form-label'),
                         Div(Field('maritalStatus_2'))),
                     css_class="col-lg-6"),
 
                 Div(
                     Div(HTML("<i class='fas fa-home'></i>&nbsp;&nbsp;Property"), css_class='form-header'),
-                    Div(Div(HTML("Postcode"), css_class='form-label'),
+                    Div(Div(HTML("Postcode*"), css_class='form-label'),
                         Div(Field('postcode'))),
-                    Div(Div(HTML("Dwelling Type"), css_class='form-label'),
+                    Div(Div(HTML("Dwelling Type*"), css_class='form-label'),
                         Div(Field('dwellingType'))),
-                    Div(Div(HTML("Street Address"), css_class='form-label'),
+                    Div(Div(HTML("Street Address*"), css_class='form-label'),
                         Div(Field('street'))),
-                    Div(Div(HTML("Suburb"), css_class='form-label'),
+                    Div(Div(HTML("Suburb*"), css_class='form-label'),
                         Div(Field('suburb'))),
-                    Div(Div(HTML("State"), css_class='form-label'),
+                    Div(Div(HTML("State*"), css_class='form-label'),
                         Div(Field('state'))),
-                    Div(Div(HTML("Valuation"), css_class='form-label'),
+                    Div(Div(HTML("Valuation*"), css_class='form-label'),
                         Div(Field('valuation'))),
                     Div(Div(HTML("Mortgage Debt"), css_class='form-label'),
                         Div(Field('mortgageDebt'))),
@@ -271,61 +273,35 @@ class SFPasswordForm(forms.Form):
             ),
         ))
 
-
-class SolicitorForm(forms.ModelForm):
+class CaseAssignForm(forms.ModelForm):
     class Meta:
         model = Case
-        fields = ['specialConditions']
+        fields = ['user']
 
-    # Form Data
-    specialConditions = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 6, 'cols': 100}))
+    def __init__(self, *args, **kwargs):
+        super(CaseAssignForm, self).__init__(*args, **kwargs)
+        self.fields['user'].queryset = User.objects.filter(profile__isCreditRep=True)
 
-    # Form Layout
     helper = FormHelper()
     helper.form_method = 'POST'
-    helper.form_class = 'form-horizontal col-lg-12'
-    helper.field_class = 'col-lg-10'
+    helper.field_class = 'col-lg-12'
+    helper.form_class = 'form-horizontal'
     helper.form_show_labels = False
-    helper.form_show_errors = True
+    helper.form_show_errors = False
     helper.layout = Layout(
         Div(
             Div(
-                Field('specialConditions', placeholder='Enter any special conditions')),
-            Div(
-                Div(Submit('submit', 'Create ', css_class='btn btn-warning')),
-            ),
-        ))
+                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Assign case"),css_class='form-header'),
+                Div(
+                    Div(HTML("Credit Representative"), css_class='form-label'),
+                    Div(Field('user' ))),
+                Div(Div(Submit('submit', 'Assign', css_class='btn btn-outline-secondary')), css_class='text-right'),
+                Div(HTML("<br>")),
 
-
-class ValuerForm(forms.ModelForm):
-    class Meta:
-        model = Case
-        fields = ['valuerFirm', 'valuerEmail', 'valuerContact']
-
-    # Form Data
-    valuerContact = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 6, 'cols': 100}))
-
-    # Form Layout
-    helper = FormHelper()
-    helper.form_method = 'POST'
-    helper.form_class = 'form-horizontal col-lg-12'
-    helper.field_class = 'col-lg-10'
-    helper.form_show_labels = False
-    helper.form_show_errors = True
-    helper.layout = Layout(
-        Div(
-            Div(
-                Field('valuerFirm', placeholder='Firm Name'),
-                Field('valuerEmail', placeholder='Valuer Email'),
-                Field('valuerContact', placeholder='Specific Client Contact Details')),
-
-            Div(
-                Div(Submit('submit', 'Create ', css_class='btn btn-warning')),
-            ),
-        ))
+                css_class='col-lg-6'),
+            css_class="row ")
+    )
 
     def clean(self):
-        if self.cleaned_data['valuerFirm'] and self.cleaned_data['valuerEmail']:
-            return
-        else:
-            raise forms.ValidationError("Please choose a valuer and corresponding email")
+        if not self.cleaned_data['user']:
+            raise ValidationError("Please select Credit Representative")

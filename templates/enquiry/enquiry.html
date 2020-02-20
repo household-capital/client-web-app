@@ -50,11 +50,16 @@
 
         <br>
 
-        <!-- Button trigger modal -->
-        {% if showPrivacy %}
-        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#privacyModal">
-            Privacy statement
-        </button>
+
+        {% if newEnquiry %}
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#privacyModal">
+                Privacy statement
+            </button>
+        {% else %}
+             {% if obj.sfLeadID is null %}
+                 <i class="fal fa-question-circle"></i> Warning no Salesforce Lead - potential duplicate?
+             {% endif %}
         {% endif %}
 
 
