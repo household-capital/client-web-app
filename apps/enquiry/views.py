@@ -149,7 +149,7 @@ class EnquiryCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(EnquiryCreateView, self).get_context_data(**kwargs)
         context['title'] = 'New Enquiry'
-        context['showPrivacy'] = True
+        context['newEnquiry'] = True
         return context
 
     def form_valid(self, form):
