@@ -159,7 +159,7 @@ class EnquiryCreateView(LoginRequiredMixin, CreateView):
         loanObj = LoanValidator(clientDict)
         chkOpp = loanObj.validateLoan()
 
-        if obj.user == None and self.request.user.profile.isCreditRep == True:
+        if obj.user == None and self.request.user.profile.calendlyUrl:
             obj.user = self.request.user
 
         if chkOpp['status'] == "Error":
@@ -225,7 +225,7 @@ class EnquiryUpdateView(LoginRequiredMixin, UpdateView):
 
         obj.calcTotal = calcTotal
 
-        if obj.user == None and self.request.user.profile.isCreditRep == True:
+        if obj.user == None and self.request.user.profile.calendlyUrl:
             obj.user = self.request.user
 
         if chkOpp['status'] == "Error":
@@ -441,6 +441,7 @@ class EnqSummaryPdfView(TemplateView):
         # Check for no top-up Amount
 
         context['resultsAge'] = loanProj.getResultsList('BOPAge')['data']
+        context['resultsLoanBalance'] = loanProj.getResultsList('BOPLoanValue')['data']
         context['resultsHomeEquity'] = loanProj.getResultsList('BOPHomeEquity')['data']
         context['resultsHomeEquityPC'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
         context['resultsHomeImages'] = \
