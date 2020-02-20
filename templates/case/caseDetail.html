@@ -106,6 +106,13 @@
                                         &nbsp;<i class="fas fa-crown"></i>&nbsp;&nbsp;Take Ownership
                                     </a>
 
+                                    <div class="dropdown-divider"></div>
+
+                                    <a class="dropdown-item"
+                                       href="{% url 'case:caseAssign' uid=obj.caseUID %}">
+                                        &nbsp;<i class="fas fa-fw fa-hand-point-right"></i>&nbsp;&nbsp;Assign Ownership&nbsp;&nbsp;
+                                    </a>
+
 
                                     <!-- DISCOVERY -->
                                     {% if obj.caseType == caseTypesEnum.DISCOVERY.value %}
@@ -156,7 +163,7 @@
                                     {% if obj.caseType == caseTypesEnum.APPLICATION.value %}
                                         <div class="dropdown-divider"></div>
 
-                                         <a class="dropdown-item"
+                                        <a class="dropdown-item"
                                            href="{% url 'fact_find:factfind' uid=obj.caseUID %}">
                                             &nbsp;<i class="fas fa-user-edit  fa-fw"></i>&nbsp;&nbsp;Case Summary&nbsp;&nbsp;
                                         </a>
