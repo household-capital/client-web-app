@@ -34,7 +34,7 @@ class apiSalesforce():
                       'OppRoles':
                           "Select OpportunityId, ContactId, Role from OpportunityContactRole where OpportunityId=\'{0}\' and isDeleted=False",
                       'Contacts':
-                          "Select Id,FirstName, MiddleName, LastName, Phone,MobilePhone, Email, Birthdate__c, Age__c, Gender__c, Permanent_Resident__c, Salutation, Marital_Status__c, Country_of_Citizenship__c from Contact where Id=\'{0}\' and isDeleted=False",
+                          "Select Id,FirstName, LastName, Phone,MobilePhone, Email, Birthdate__c, Age__c, Gender__c, Permanent_Resident__c, Salutation, Marital_Status__c, Country_of_Citizenship__c,MailingStreet,MailingCity,MailingState,MailingPostalCode,MailingCountry from Contact where Id=\'{0}\' and isDeleted=False",
                       'Documents':
                           "Select Id, Name, Status__c from Document__C where Opportunity__c=\'{0}\'",
                       'DocumentLink':
@@ -195,6 +195,11 @@ class apiSalesforce():
                 poaCount +=1
                 loanDict["POA" + str(poaCount) + ".Role"] = row['Role']
                 loanDict.update(self.qryToDict('Contacts', row['ContactId'], "POA" + str(poaCount))['data'])
+                
+             #there can be only one pricipal borower and hence no need of count variable
+             if "Principal Borrower" in row['Role']:
+                loanDict["Principalapp.Role"]=row['Role']
+                loanDict.update(self.qryToDict('Contacts', row['ContactId'], "Principalapp" ) ['data'])
 
         loanDict['Brwr.Number'] = borrowerCount
         loanDict['POA.Number'] = poaCount

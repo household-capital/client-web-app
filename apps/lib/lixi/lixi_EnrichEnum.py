@@ -105,10 +105,10 @@ class EnrichEnum:
 
         mappify = apiMappify()
 
-        result = mappify.setAddress({"streetAddress": self.loanDict['Prop.Street_Address__c'],
-                                     "suburb": self.loanDict['Prop.Suburb_City__c'],
-                                     "postcode": self.loanDict['Prop.Postcode__c'],
-                                     "state": self.__enumState(self.loanDict['Prop.State__c'])})
+        result = mappify.setAddress({"streetAddress": self.loanDict['Principalapp.MailingStreet'],
+                                     "suburb": self.loanDict['Principalapp.MailingCity'],
+                                     "postcode": self.loanDict['Principalapp.MailingPostalCode'],
+                                     "state": self.__enumState(self.loanDict['Principalapp.MailingState'])})
 
         if result['status'] != 'Ok':
             self.__logging(result['responseText'])
