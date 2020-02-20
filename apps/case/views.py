@@ -23,7 +23,7 @@ from config.celery import app
 # Local Application Imports
 from apps.calculator.models import WebCalculator, WebContact
 from apps.lib.hhc_LoanValidator import LoanValidator
-from apps.lib.site_Enums import caseTypesEnum
+from apps.lib.site_Enums import caseTypesEnum, loanTypesEnum
 from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.api_Mappify import apiMappify
@@ -251,51 +251,90 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
             return HttpResponseRedirect(reverse_lazy('case:caseClose', kwargs={'uid': str(obj.caseUID)}))
 
         if obj.caseType == caseTypesEnum.APPLICATION.value:
-
             # Order Title Documents
-            if not obj.titleDocument and not obj.titleRequest and obj.sfLeadID:
-                title_email = 'credit@householdcapital.com'
-                cc_email = 'lendingservices@householdcapital.com'
-                email_template = 'case/caseTitleEmail.html'
-                email_context = {}
-                email_context['caseObj'] = obj
-                email_context['detailedTitle'] = loan_obj.detailedTitle
-                html = get_template(email_template)
-                html_content = html.render(email_context)
+            self.orderTitleDocuments(obj, loan_obj)
 
-                subject, from_email, to, bcc = \
-                    "Title Request - " + str(obj.caseDescription), \
-                    obj.user.email, \
-                    [title_email, cc_email], \
-                    None
+        # Case Field Validation
+        isValid = self.checkFields(obj)
 
-                msg = EmailMultiAlternatives(subject, "Title Request", from_email, to, bcc)
-                msg.attach_alternative(html_content, "text/html")
-                msg.send()
-                messages.success(self.request, "Title documents requested")
-                obj.titleRequest=True
-                obj.save(update_fields=['titleRequest'])
+        if not isValid:
+            messages.info(self.request, "Saved - but not synched. Case will be synched when all required fields are completed")
+        else:
 
-        # Convert to Opportunity if Meeting Held
-        if form.cleaned_data['caseType'] == caseTypesEnum.MEETING_HELD.value and obj.sfOpportunityID is None:
+            # Salesforce Synch
+            self.salesforceSynch(obj)
+
+            messages.success(self.request, "Case has been updated")
+
+        return super(CaseDetailView, self).form_valid(form)
+
+    def salesforceSynch(self, caseObj):
+
+        if caseObj.caseType == caseTypesEnum.MEETING_HELD.value and caseObj.sfOpportunityID is None:
             # Background task to update SF
-            app.send_task('SF_Lead_Convert', kwargs={'caseUID': str(obj.caseUID)})
+            app.send_task('SF_Lead_Convert', kwargs={'caseUID': str(caseObj.caseUID)})
 
-        elif not obj.sfLeadID:
-            app.send_task('Create_SF_Case_Lead', kwargs={'caseUID': str(obj.caseUID)})
+        elif not caseObj.sfLeadID:
+            app.send_task('Create_SF_Case_Lead', kwargs={'caseUID': str(caseObj.caseUID)})
 
-        elif not obj.sfOpportunityID:
+        elif not caseObj.sfOpportunityID:
             # Background task to update Lead
-            app.send_task('Update_SF_Case_Lead', kwargs={'caseUID': str(obj.caseUID)})
+            app.send_task('Update_SF_Case_Lead', kwargs={'caseUID': str(caseObj.caseUID)})
 
         else:
             #Synch with Salesforce
-            app.send_task('SF_Opp_Synch', kwargs={'caseUID': str(obj.caseUID)})
-            app.send_task('SF_Doc_Synch', kwargs={'caseUID': str(obj.caseUID)})
+            app.send_task('SF_Opp_Synch', kwargs={'caseUID': str(caseObj.caseUID)})
+            app.send_task('SF_Doc_Synch', kwargs={'caseUID': str(caseObj.caseUID)})
 
-        messages.success(self.request, "Case has been updated")
+        return
 
-        return super(CaseDetailView, self).form_valid(form)
+    def orderTitleDocuments(self, caseObj, loanObj):
+        if not caseObj.titleDocument and not caseObj.titleRequest and caseObj.sfLeadID:
+            title_email = 'credit@householdcapital.com'
+            cc_email = 'lendingservices@householdcapital.com'
+            email_template = 'case/caseTitleEmail.html'
+            email_context = {}
+            email_context['caseObj'] = caseObj
+            email_context['detailedTitle'] = loanObj.detailedTitle
+            html = get_template(email_template)
+            html_content = html.render(email_context)
+
+            subject, from_email, to, bcc = \
+                "Title Request - " + str(caseObj.caseDescription), \
+                caseObj.user.email, \
+                [title_email, cc_email], \
+                None
+
+            msg = EmailMultiAlternatives(subject, "Title Request", from_email, to, bcc)
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+            messages.success(self.request, "Title documents requested")
+            caseObj.titleRequest = True
+            caseObj.save(update_fields=['titleRequest'])
+        return
+
+    def checkFields(self, caseObj):
+
+        requiredFields = ['loanType', 'clientType1','salutation_1','maritalStatus_1','surname_1',
+                          'firstname_1','birthdate_1','sex_1','street','suburb','state',
+                          'valuation','dwellingType']
+
+        additionalFields = ['clientType2','salutation_2','maritalStatus_2','surname_2',
+                          'firstname_2','birthdate_2','sex_2']
+
+        caseDict = caseObj.__dict__
+
+        if caseObj.loanType == None:
+            return False
+
+        if caseObj.loanType == loanTypesEnum.JOINT_BORROWER.value:
+            requiredFields += additionalFields
+
+        for field in requiredFields:
+            if caseDict[field] == None:
+                return False
+
+        return True
 
 
 # Case Create View (Create View)
