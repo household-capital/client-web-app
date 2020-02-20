@@ -278,10 +278,6 @@ class SendEnquirySummary(LoginRequiredMixin, UpdateView):
             messages.error(self.request, "No client email")
             return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
 
-        if self.nullOrZero(enq_obj.calcTotal):
-            messages.error(self.request, "No funding requirements - cannot send summary")
-            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
-
         enqDict = Enquiry.objects.dictionary_byUID(enqUID)
 
         # PRODUCE PDF REPORT
