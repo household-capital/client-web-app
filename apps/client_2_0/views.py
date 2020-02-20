@@ -117,17 +117,23 @@ class LandingView(LoginRequiredMixin, ContextHelper, TemplateView):
         # Main entry view - save the UID into a session variable
         # Use this to retrieve queryset for each page
 
-        caseUID = str(kwargs['uid'])
-        request.session['caseUID'] = caseUID
+        if 'uid' in kwargs:
+            caseUID = str(kwargs['uid'])
+            request.session['caseUID'] = caseUID
+
+        elif 'caseUID' not in request.session:
+            return HttpResponseRedirect(reverse_lazy('case:caseList'))
+
+        else:
+            caseUID = request.session['caseUID']
+
+
         write_applog("INFO", 'LandingView', 'get', "Meeting commenced by " + str(request.user) + " for -" + caseUID)
 
         obj = ModelSetting.objects.queryset_byUID(caseUID)
         economicSettings = ECONOMIC.copy()
         economicSettings.pop('defaultMargin')
         obj.update(**economicSettings)
-
-        if 'caseUID' not in request.session:
-            return HttpResponseRedirect(reverse_lazy('case:caseList'))
 
         return super(LandingView, self).get(self, request, *args, **kwargs)
 
