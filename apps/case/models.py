@@ -214,7 +214,6 @@ class Case(models.Model):
     amalIdentifier=models.CharField(max_length=40, null=True, blank=True)
     amalLoanID=models.CharField(max_length=40, null=True, blank=True)
 
-    newProcess=models.BooleanField(default=False, null=True, blank=True)
     isZoomMeeting=models.BooleanField(default=False, null=True, blank=True)
 
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
