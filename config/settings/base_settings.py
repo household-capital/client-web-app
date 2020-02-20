@@ -37,13 +37,20 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # third-party apps
     'crispy_forms',
+    'rest_framework',
+    'django_celery_beat',
+    'django_celery_results',
     # my apps
     'apps.accounts',
-    'apps.landing',
-    'apps.client_1_0',
-    'apps.case',
     'apps.calculator',
-    'apps.enquiry'
+    'apps.calendly',
+    'apps.case',
+    'apps.client_2_0',
+    'apps.enquiry',
+    'apps.fact_find',
+    'apps.landing',
+    'apps.relationship',
+    'apps.site_tags',
 ]
 
 MIDDLEWARE = [
@@ -80,6 +87,7 @@ MEDIA_URL = '/media/'
 STATIC_ROOT = BASE_DIR + '/static/collected'
 MEDIA_ROOT = BASE_DIR + '/static/media'
 STATICFILES_DIRS = (BASE_DIR + '/static/uncollected',)
+FILE_UPLOAD_PERMISSIONS = 0o644
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
@@ -136,7 +144,14 @@ SHORT_DATETIME_FORMAT = 'd M y, h:i A'   # 21 Mar 14, 5:59 PM
 
 # Third-party App Settings
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
-
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
+CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_ENABLE_UTC = False
 
 # Default URLS
 LOGIN_URL = LOGIN_URL = '/accounts/login/'

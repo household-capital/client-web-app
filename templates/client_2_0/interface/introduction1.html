@@ -1,0 +1,132 @@
+{% extends 'client_2_0/base/base_client.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div class="row justify-content-md-center">
+                <div class="col-6 text-center">
+                    <br>
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning"{% endif %}>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-9 pb-3">
+                <br>
+                <div class="secondary_title">Understanding you and your objectives</div>
+
+                <p>We understand the following</p>
+            </div>
+        </div>
+
+        <br>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10 text-center">
+
+                <div class="row">
+                    <div class="col-lg-3 text-center">
+
+                        {% if post_id >= 1 %}
+                            {% if loanType == loanTypesEnum.SINGLE_BORROWER.value %}
+                                <div class="imgContainer"><img src="{% static 'img/icons/person_icon.png' %}"
+                                                               width="100px"></div>
+                                <p> {{ firstname_1 }}&nbsp;{{ surname_1 }}</p><br>
+                                <p>{{ age_1 }} years old</p>
+                            {% else %}
+                                <div class="imgContainer"><img src="{% static 'img/icons/couple_icon.png' %}"
+                                                               width="100px"></div>
+                                <p> {{ firstname_1 }}&nbsp;{{ surname_1 }}</p>
+                                <p> {{ firstname_2 }}&nbsp;{{ surname_2 }}</p><br>
+                                <p>{{ age_1 }} and {{ age_2 }} years old</p>
+                            {% endif %}
+                        {% else %}
+                            <div class="imgContainer"><a href="{% url 'client2:introduction1' %}/1"><img
+                                    src="{% static 'img/icons/person_icon.png' %}" width="100px"></a></div>
+                            <p> You</p>&nbsp;
+                        {% endif %}
+                    </div>
+
+                    <div class="col-lg-3 text-center">
+
+                        {% if post_id >= 2 %}
+                            <div class="imgContainer"><img src="
+                                    {% if obj.superFund %}{{ obj.superFund.fundImage.url }}{% else %}{% static 'img/icons/nestEgg_icon.png' %}{% endif %}"
+                                                           class="rounded-circle" alt="SuperFund" width="100px"
+                                                           height="100px">
+                            </div>
+
+                            <p >{{ obj.superFund.fundName }}</p>
+                            <br><p>Balance</p>
+                            <p class="pt-1">${{ superAmount|intcomma }}</p>
+                        {% else %}
+                            <div class="imgContainer"><a href="{% url 'client2:introduction1' %}/2"><img id="imgSuper"
+                                                                                                         src="{% static 'img/icons/nestEgg_icon.png' %}"
+                                                                                                         width="100px"></a>
+                            </div>
+                            <p>Superannuation</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-lg-3 text-center">
+
+                        {% if post_id >= 3 %}
+
+                            <div class="imgContainer"><img src="
+                                    {% if obj.propertyImage %}{{ obj.propertyImage.url }}{% else %}{% static 'img/icons/home_icon.png' %}{% endif %}"
+                                                           class="rounded-circle" alt="SuperFund" width="100px"
+                                                           height="100px">
+                            </div>
+                            <p> {{ street }}</p>
+                            <p> {{ suburb }}</p>
+                            <p class="pt-2">Estimated value</p>
+                            <p>${{ valuation|intcomma }}</p>
+                        {% else %}
+                            <div class="imgContainer"><a href="{% url 'client2:introduction1' %}/3"><img
+                                    src="{% static 'img/icons/home_icon.png' %}" width="100px"></a></div>
+                            <p>Home</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-lg-3 text-center">
+                        {% if post_id >= 4 %}
+
+                            <div class="imgContainer"><img src="{% static 'img/logos/centrelink_logo.png' %}"
+                                                           class="rounded-circle" alt="SuperFund" width="100px"
+                                                           height="100px">
+                            </div>
+                            <p>Age Pension<p>
+                            <br><p class="pt-2">${{  pensionAmount|intcomma}} / fortnight <p>
+                            <p>(${{ annualPensionIncome|intcomma }} p.a.)</p></div>
+                        {% else %}
+                            <div class="imgContainer"><a href="{% url 'client2:introduction1' %}/4"><img
+                                    src="{% static 'img/icons/dollar_icon.png' %}" width="100px"></a></div>
+                            <p>Age Pension<p>
+                        {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

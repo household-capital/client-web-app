@@ -16,7 +16,6 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.http import HttpResponseRedirect
-from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -24,12 +23,15 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('', lambda r: HttpResponseRedirect('landing/')),
     path('accounts/', include('apps.accounts.urls')),
-    path('landing/', include('apps.landing.urls')),
-    path('case/', include('apps.case.urls')),
-    path('client/', include('apps.client_1_0.urls')),
     path('calculator/', include('apps.calculator.urls')),
+    path('calendly/', include('apps.calendly.urls')),
+    path('case/', include('apps.case.urls')),
+    path('client2/', include('apps.client_2_0.urls')),
     path('enquiry/', include('apps.enquiry.urls')),
-    path('hhcadmin/', admin.site.urls)
+    path('factfind/', include('apps.fact_find.urls')),
+    path('hhcadmin/', admin.site.urls),
+    path('landing/', include('apps.landing.urls')),
+    path('relationship/', include('apps.relationship.urls')),
 ]
 
 

@@ -1,0 +1,265 @@
+{% extends 'calculator/calc_base.html' %}
+
+{% load static %}
+{% load humanize %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load calc_extras %}
+
+{% block calculator %}
+
+    <div class="container cal_background">
+        <div class="row pt-5">
+            <div class="col-12 text-center">
+                <form id="clientForm" method="post">
+                    {% csrf_token %}
+
+                    {% if isError %}
+
+                        <div class="cal_background_white">
+
+                            <div class="container cal_container-md pb-5 pt-5">
+
+                                {% if redirectMessage %}
+                                    <div class="row justify-content-center">
+                                        <div class="col-12">
+                                            <p class="alert alert-success">{{ redirectMessage }}</p>
+                                            <br><br><br>
+                                        </div>
+
+                                    </div>
+                                {% endif %}
+
+                                <p class="x-large"><b>Age Restriction</b></p>
+                                {% if isCouple %}
+                                    <p>Unfortunately, the youngest borrower must be aged {{ minCoupleAge }} to qualify
+                                        for a
+                                        Household Transfer<p>
+                                    {% else %}
+                                    <p>Unfortunately, you must be aged 60 to qualify for a Household Transfer<p>
+                                {% endif %}
+
+                                <p>{{ errorText }}</p>
+
+                            </div>
+                        </div>
+
+                    {% else %}
+
+                        <div class="cal_background_white">
+
+                            <div class="container cal_container-md pb-5 pt-5">
+
+                                <p class="x-large"><b>Age Restriction</b></p>
+                                {% if isCouple %}
+                                    <p>Unfortunately, the youngest borrower must be aged {{ minCoupleAge }} to qualify
+                                        for a
+                                        Household Transfer
+                                    <p>
+                                        {% else %}
+                                    <p>Unfortunately, you must be aged 60 to qualify for a Household Transfer
+                                    <p>
+                                {% endif %}
+
+                                <br>
+
+
+                                <p>For your information, we have calculated the following estimate based on the minimum
+                                    age</p>
+
+                            </div>
+                        </div>
+
+                        <!-- Transfer -->
+                        <div class="cal_background_warm">
+
+                            <div class="container cal_container-md pt-5 pb-5">
+
+                                <div class="row justify-content-center">
+                                    <div class="col-12">
+                                        <p class="x-large"><b>A Household Transfer</b></p>
+                                        {% if isCouple %}
+                                            <p>(Based on a minimum age of {{ minCoupleAge }})</p>
+                                        {% else %}
+
+                                            <p>(Based on a minimum age of 60)</p>
+                                        {% endif %}
+                                        <br><br>
+                                    </div>
+                                </div>
+
+                                <div class="row justify-content-center">
+                                    <div class="col-4 pr-0 pb-1">
+                                        <p class="larger">Current home value</p>
+                                    </div>
+                                    <div class="col-2 pr-0 pb-1">
+
+                                    </div>
+                                    <div class="col-4 text-left">
+                                        <p class="larger">Maximum amount</p>
+                                    </div>
+
+                                </div>
+
+                                <div class="row justify-content-center">
+                                    <div class="col-6">
+                                        <img class="img-fluid"
+                                             src="{{ transfer_img }}">
+                                    </div>
+                                    <div class="col-4 pl-3 text-left">
+                                        <div>
+                                            <br><br>
+                                        </div>
+                                        <p class="x-large">${{ maxLoanAmount }}*</p>
+                                    </div>
+                                </div>
+
+                                <div class="row justify-content-center">
+                                    <div class="col-4 pr-0 pb-2">
+                                        <p class="larger">${{ valuation }}</p>
+                                    </div>
+                                    <div class="col-2 pr-0 pb-2">
+
+                                    </div>
+                                    <div class="col-4 text-left">
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    {% endif %}
+
+
+                    <div class="cal_background_white">
+
+                        <div class="container cal_container-md pt-5 pb-5">
+
+                            <div class="row justify-content-center pb-3">
+                                <div class="col-12">
+                                    <p class="x-large"><b>Contact us</b></p>
+                                    <p>Please contact us to discuss how a Household Transfer may be able to assist you
+                                        in
+                                        the future
+
+                                </div>
+                            </div>
+
+                            <div class="row justify-content-center pb-3">
+                                <div class="col-8">
+                                    <input type="text" name="name" placeholder="Enter your name"
+                                           class="textinput textInput form-control fs-block" id="id_name"
+                                           {% if form.name.value != None %}value="{{ form.name.value }}"{% endif %}>
+                                </div>
+                            </div>
+
+
+                            <div class="row justify-content-center pb-3">
+                                <div class="col-8">
+
+                                    <input type="email" name="email" required
+                                           placeholder="Enter your email"
+                                           maxlength="70" class="textinput textInput form-control fs-block"
+                                           id="id_email"
+                                           {% if form.email.value != None %}value="{{ form.email.value }}"{% endif %}>
+                                </div>
+                            </div>
+
+                            <div class="row justify-content-center pb-3">
+                                <div class="col-10">
+                                    <p class="small">By providing your email address, you consent to the collection,
+                                        use,
+                                        and disclosure of your personal information by Household Capital as set out in
+                                        our
+                                        <u><a href="https://householdcapital.com.au/privacy/" target="_blank">Privacy Policy</a></u></p>
+                                </div>
+                            </div>
+
+                            <div class="row justify-content-center">
+
+                                <div class="col-md-4">
+                                    <br>
+                                    <button id="contact" type="submit" value="Submit" form="clientForm"
+                                            class="btn btn-lg btn-hhcGold">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Send&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    </button>
+                                    <br> <br>
+                                </div>
+
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12 text-center ">
+                                    <br>
+                                    <p class="small">*This calculation does not constitute an approval but provides an
+                                        indicator
+                                        of the maximum possible loan. Household Loans are subject to loan approval
+                                        criteria,
+                                        which
+                                        includes a home valuation. Full terms and conditions will be included in any
+                                        loan
+                                        application</p>
+                                    <br>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block javascript %}
+
+    <script>
+
+        //Google Analytics
+
+        $(document).ready(function () {
+
+            gtag_report_conversion('AW-760723517/18K9CLqshaMBEL3w3uoC');
+
+            $('a#get-started').click(function () {
+                gtag_report_conversion('AW-760723517/_ni-CJa29aIBEL3w3uoC');
+            });
+
+            $('a#phone-number-header').click(function () {
+                gtag_report_conversion("AW-760723517/8MGICJjs-qIBEL3w3uoC'");
+            });
+
+            $('a#phone-number-footer').click(function () {
+                gtag_report_conversion("AW-760723517/_u81CKyqhaMBEL3w3uoC");
+            });
+
+            $('#contact').click(function () {
+                gtag_report_conversion("AW-760723517/T9V5CPb2-qIBEL3w3uoC");
+            });
+
+            {% if redirect %}
+                parent.location = '{{ redirectURL }}';
+            {% endif %}
+
+        });
+
+        function gtag_report_conversion(gCode) {
+
+            gtag('event', 'conversion', {
+                'send_to': gCode
+            });
+            console.log(gCode)
+        }
+    </script>
+
+
+{% endblock %}
+
+
+
+

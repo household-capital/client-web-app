@@ -1,0 +1,21 @@
+{% extends 'case/schedule/email_template.html' %}
+{% load humanize %}
+{% load static %}
+{% load site_tags %}
+
+
+{% block email_content %}
+
+<p>Hello Liam and David </p>
+<br>
+<p>Tomorrow is a periodic client payment day - either fortnightly (every second Thursday) or monthly (15th) or both.</p>
+<br>
+<p>This is a reminder to prepare payment advice for Perpetual and AMAL.</p>
+<br>
+<p>Kind regards</p>
+<br>
+<p>The clientApp</p>
+<br>
+
+{% endblock %}
+

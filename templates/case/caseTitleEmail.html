@@ -1,0 +1,35 @@
+{% load humanize %}
+{% load site_tags %}
+
+<!doctype html>
+<html lang="en">
+
+<body>
+
+<p>Hello Credit Team</p>
+
+<p>Please undertake a title search for the following:</p>
+
+<b>Case: {{ caseObj.caseDescription }}</b><br>
+<b>Client: {{ caseObj.firstname_1 }} {{ caseObj.surname_1 }} {% if caseObj.surname_2 %} and {{ caseObj.firstname_2 }}
+    {{ caseObj.surname_2 }}{% endif %}</b><br>
+<b>Property: {{ caseObj.street }} {{ caseObj.postcode|stringformat:"d" }} {{ caseObj.enumStateType }}</b>
+<br>
+
+{% if detailedTitle %}
+    <p><b>A DETAILED title search is required for this case</b></p>
+{% else %}
+    <p>Only a simple title search is required for this case</p>
+{% endif %}
+
+
+<p>Please load the title document pdf to the client app. Let me know if you have any additional questions.</p>
+
+<p>Kind regards</p>
+
+{{ caseObj.user.first_name }}
+<br>
+
+</body>
+</html>
+

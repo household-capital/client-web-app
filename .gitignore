@@ -1,11 +1,27 @@
+
+#Environment Files
 *env
 *env-dev
 *env-prod
-**migrations/
-**logs/
-**media/
-**/collected/
-*idea/
-*.log
+.vagrant
+/bin
+/include/python3.7m
+/lib/python3.7
+
+
+#IDE Files
 *__pycache__*
+*idea/
+.idea/
 *.DS_Store
+
+#Django Files
+*.log
+media/
+collected/
+customerImages/
+customerReports/
+fundImages/
+
+postgres/
+

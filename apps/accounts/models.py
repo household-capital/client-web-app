@@ -23,16 +23,12 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     mobile = models.CharField(max_length=30, null=True, blank=True)
     picture=models.ImageField(null=True, blank=True, upload_to='profileImages')
+    calendlyUrl=models.URLField(null=True,blank=True)
+    calendlyInterviewUrl=models.URLField(null=True,blank=True)
     isHousehold=models.BooleanField(null=True,blank=True,default=False)
     isCreditRep=models.BooleanField(null=True,blank=True,default=False)
+    isCapital=models.BooleanField(null=True,blank=True,default=False)
     referrer=models.ForeignKey(Referer ,null=True, blank=True, on_delete=models.SET_NULL)
-
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
+    salesforceID=models.CharField(max_length=18, null=True, blank=True)
+    zoomID = models.CharField(max_length=30, null=True, blank=True)
 

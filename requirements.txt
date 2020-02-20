@@ -1,5 +1,6 @@
 api2pdf==0.0.11
 asn1crypto==0.24.0
+beautifulsoup4==4.7.1
 cairocffi==1.0.2
 CairoSVG==2.3.0
 certifi==2019.3.9
@@ -12,11 +13,14 @@ cssselect2==0.2.1
 defusedxml==0.5.0
 Django==2.1.7
 django-crispy-forms==1.7.2
+django-filter==2.1.0
 django-registration==3.0
+djangorestframework==3.9.2
 docopt==0.6.2
 html5lib==1.0.1
 idna==2.8
 lxml==4.3.2
+Markdown==3.1
 numpy==1.16.2
 packaging==19.0
 pandas==0.24.2
@@ -36,6 +40,7 @@ reportlab==3.5.13
 requests==2.21.0
 simple-salesforce==0.74.2
 six==1.12.0
+soupsieve==1.9.1
 terminaltables==3.1.0
 tinycss2==1.0.1
 urllib3==1.24.1

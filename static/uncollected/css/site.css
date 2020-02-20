@@ -22,6 +22,17 @@ a,p, a:link, a:visited {
     line-height: normal;
     color: black;
 }
+
+.form-label {
+    font-size: small;
+    color:grey;
+}
+
+.form-header {
+    font-size: normal;
+    padding-bottom: 5px;
+}
+
 .col {
 	padding-left: 1pt;
 }
@@ -80,6 +91,14 @@ body {
     font-size: xx-large;
 }
 
+.btn-jumbotron{
+    background-color: rgb(249,248,245);
+}
+
+.badge-form-labelBlue{
+    background-color: rgb(81,132,161);
+    color: white
+}
 
 /* Theme */
 .jumbotron {
@@ -121,7 +140,7 @@ body {
 
 .hero::after {
   content: "";
-  background-image: url("/static/img/hhc/HC-Hero-FamilyOutside.jpg");
+  background-image: url("/static/img/hhc/HC-Hero.6.jpg");
   opacity: 0.3;
   top: 0;
   left: 0;
@@ -159,10 +178,27 @@ body {
 }
 
 
-
 body {
     height: 100%;
     width: 100%;
     position: absolute;
     overflow: auto;
+}
+
+.errorlist {
+    color: red;
+    list-style-type: none;
+    width: 100%;
+    padding: 0;
+    margin-left: 30px;
+    text-align: left;
+}
+
+.errorlist::before {
+    font-family: "Font Awesome 5 Pro";
+    font-weight: 900;
+    content: "\f06a ";
+    float: left;
+    margin-left: -25px;
+    color: red;
 }

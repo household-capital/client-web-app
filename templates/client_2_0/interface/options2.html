@@ -1,0 +1,79 @@
+{% extends 'client_2_0/base/base_client.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div class="row justify-content-md-center">
+                <div class="col-6 text-center">
+                    <br>
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning"{% endif %}>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+        <div class="wrapper">
+
+            <div class="container sub-container">
+                <div class="row">
+                    <div class="col-lg-10">
+                        <br>
+                        <div class="secondary_title"></div>
+                        <br>
+                        <p class="secondary_title">No requirement to make regular interest payments </p>
+                        <br>
+                        <p>However, you can do so if you wish. This could be an ad-hoc, partial or full interest payment. </p>
+                        <p>At the current interest rate, the monthly interest cost would be <b>$ {{ interestAmount }}</b></p>
+
+                    </div>
+                </div>
+
+                <div class="row">
+
+                        <div class="col-lg-5">
+                            <br>
+                            <p>Do you intend to pay periodic interest?*</p><br>
+                            <form id="clientForm" method="post">
+                            {% crispy form %}
+                             <br>
+
+                            </form>
+                        </div>
+                </div>
+                <p class="small">* This is just for information (so we can include in your projections)</p>
+
+            </div>
+
+            {% include 'client_2_0/base/base_client.sidebar.html' %}
+
+
+        </div>
+
+    </div>
+
+
+{% endblock %}
+
+
+{% block javascript %}
+
+{% endblock %}

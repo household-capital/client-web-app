@@ -5,18 +5,20 @@
 
 {% block email_content %}
 
-<p>Hello</p>
-<br>
-<p>I am following-up on my earlier email in relation to how a Household Transfer might be able to help you meet your objectives.</p>
-<br>
-<p>I would be happy to discuss your specific circumstances with you. Please don't hesitate to contact me on {{ obj.user.profile.mobile}} or {{obj.user.email }}</p>
-<br>
-<p>Kind regards</p>
-<br>
-<p>{{ obj.user.first_name }}&nbsp;{{ obj.user.last_name }}</p>
-<br>
-<img src="{{ absolute_media_url }}{{ obj.user.profile.picture }}" width="100px">
-
+    <p>Hello {% if customerFirstName %}{{ customerFirstName }}{% endif %}</p>
+    <br>
+    <p>I am following-up on my previous email in relation to how a Household Transfer might be able to help you meet your
+        objectives.</p>
+    <br>
+    <p>I would be happy to discuss your specific circumstances with you. Please don't hesitate to contact me
+        on {{ obj.user.profile.mobile }} or you can schedule an obligation-free, 15 minute 'discovery call' at a time
+        that best suits you using this link: {{ obj.user.profile.calendlyUrl }}</p>
+    <br>
+    <p>Kind regards</p>
+    <br>
+    <p>{{ obj.user.first_name }}&nbsp;{{ obj.user.last_name }}</p>
+    <br>
+    <img src="{{ absolute_media_url }}{{ obj.user.profile.picture }}" width="100px">
 
 {% endblock %}
 

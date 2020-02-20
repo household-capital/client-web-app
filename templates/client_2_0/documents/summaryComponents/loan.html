@@ -1,0 +1,160 @@
+{% load static %}
+{% load humanize %}
+
+
+<!-- Include -->
+
+<div class="print-container">
+
+    <div class="row ">
+        <div class="col-lg-12 ">
+
+            <div class="row align-items-center ">
+                <div class="col-md-2 text-center pt-2 pb-2 ">
+                    <img class="{% if not topUpAmount and not topUpDrawdownAmount and not topUpContingencyAmount%}greyscale{% endif %}"
+                         src="{% static 'img/icons/topup_icon.png' %}" width="80px">
+                    <p class="pl-2 pt-1 print-text"><b>Top Up</b></p>
+                </div>
+                <div class="col-md-8 text-left">
+                    {% if topUpAmount != 0 %}
+                        <p class="print-text pb-2">Investment: {{ topUpDescription }}
+                        </p>
+                    {% endif %}
+
+                    {% if topUpContingencyAmount != 0 %}
+                        <p class="print-text pb-2">Contingency: {{ topUpContingencyDescription }}
+                         </p>
+                    {% endif %}
+
+                    {% if topUpDrawdownAmount != 0 %}
+                        <p class="print-text pb-2">Draw-down plan:
+                            ${{ topUpIncomeAmount }} {{ loanObj.enumDrawdownFrequency }}
+                            for {{ topUpPeriod }} years [12 month amount]
+                            {% if topUpBuffer != 0 %}(with 'rainy day'){% endif %}
+                        </p>
+                    {% endif %}
+
+                </div>
+                <div class="col-md-2 text-right"><p class="larger">
+                    {% if topUpAmount != 0 %}
+                        <p class="print-text pb-2">$ {{ topUpAmount }}</p>{% endif %}
+                    {% if topUpContingencyAmount != 0 %}
+                        <p class="print-text pb-2">$ {{ topUpContingencyAmount }}</p>{% endif %}
+
+                    {% if topUpDrawdownAmount != 0 %}
+                        <p class="print-text pb-2">$ {{ topUpDrawdownAmount }} </p>{% endif %}
+
+                </div>
+            </div>
+
+            <div class="row align-items-center ">
+                <div class="col-md-2 text-center pt-2 pb-2 ">
+                    <img class="{% if not refinanceAmount %}greyscale{% endif %}"
+                         src="{% static 'img/icons/refi_icon.png' %}" width="80px">
+                    <p class="pl-2 pt-1 print-text"><b>Refinance</b></p>
+                </div>
+                <div class="col-md-8 text-left">
+                    {% if refinanceAmount %}
+                        <p class="print-text pb-2">Refinance of your existing mortgage</p>{% endif %}
+                        </div>
+                <div class="col-md-2 text-right"><p class="print-text">{% if refinanceAmount %}$
+                    {{ refinanceAmount }}{% endif %}</p></div>
+            </div>
+
+            <div class="row align-items-center ">
+                <div class="col-md-2 text-center pt-2 pb-2 ">
+                    <img class="{% if not renovateAmount and not travelAmount %}greyscale{% endif %}"
+                         src="{% static 'img/icons/live_icon.png' %}" width="80px">
+                    <p class="pl-2 pt-1 print-text"><b>Live</b></p>
+                </div>
+                <div class="col-md-8 text-left">
+                    {% if renovateAmount != 0 %}
+                        <p class="print-text pb-2">Renovate: {{ renovateDescription }}
+                        </p>{% endif %}
+                    {% if travelAmount != 0 %}
+                        <p class="print-text">Transport:
+                            {{ travelDescription }}
+                        </p>{% endif %}
+                </div>
+                <div class="col-md-2 text-right"><p class="larger">
+                    {% if renovateAmount != 0 %}
+                        <p class="print-text pb-2">$ {{ renovateAmount }}</p>{% endif %}
+                    {% if travelAmount != 0 %}
+                        <p class="print-text">$ {{ travelAmount }} </p>{% endif %}
+
+                </div>
+            </div>
+
+            <div class="row align-items-center ">
+                <div class="col-md-2 text-center pt-2 pb-2 ">
+                    <img class="{% if not giveAmount %}greyscale{% endif %}"
+                         src="{% static 'img/icons/give_icon.png' %}" width="80px">
+                    <p class="pl-2 pt-1 print-text"><b>Give</b></p>
+                </div>
+                <div class="col-md-8 text-left">
+                    {% if giveAmount %}
+                        <p class="print-text pb-2">{{ giveDescription }}</p>{% endif %}
+                        </div>
+                <div class="col-md-2 text-right"><p class="print-text">{% if giveAmount %}$
+                    {{ giveAmount }}{% endif %}</p></div>
+            </div>
+
+            <div class="row align-items-center ">
+                <div class="col-md-2 text-center pt-2 pb-2 ">
+                    <img class="{% if not careAmount and not careDrawdownAmount%}greyscale{% endif %}"
+                         src="{% static 'img/icons/care_icon.png' %}" width="80px">
+                    <p class="pl-2 pt-1 print-text"><b>Care</b></p>
+                </div>
+
+                <div class="col-md-8 text-left">
+                    {% if careAmount %}
+                        <p class="print-text pb-2">Lump-sum: {{ careDescription }}</p>
+                    {% endif %}
+
+                    {% if careDrawdownAmount %}
+                        <p class="print-text pb-2">Draw-down plan: ${{ careRegularAmount }} {{ loanObj.enumCareFrequency }}
+                            for {{ carePeriod }} years [12 month amount]
+                        {%if careDrawdownDescription%}: {{ careDrawdownDescription }}{% endif %}</p>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-2 text-right">
+                    <p class="print-text">
+                        {% if careAmount %}$
+                            {{ careAmount }}
+                        {% endif %}</p>
+                    <p class="print-text">
+                        {% if careDrawdownAmount %}$
+                            {{ careDrawdownAmount }}
+                        {% endif %}</p>
+
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-lg-10 border-top border-bottom border-dark">
+                    <p class="border-spacing print-text">Total Household Loan</p>
+                </div>
+                <div class="col-lg-2 border-top border-bottom border-dark text-right">
+                    <p class="border-spacing print-text">$<b>{{ totalLoanAmount|intcomma }}*</b></p>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p class="print-text">* Includes establishment fee of: ${{ establishmentFee|intcomma }}</p>
+                    {% if topUpDrawdownAmount or careDrawdownAmount %}
+                        <p class="print-text">&nbsp;&nbsp;The total Plan Amount is ${{ totalPlanAmount|intcomma }} (includes establishment fee of ${{ planEstablishmentFee|intcomma }})</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- End -->
+
+

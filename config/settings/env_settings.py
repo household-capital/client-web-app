@@ -16,7 +16,7 @@ def intNone(str):
     else:
         return int(str)
 
-ALLOWED_HOSTS = [os.getenv("ALLOWED_HOSTS_1"),os.getenv("ALLOWED_HOSTS_2"),os.getenv("ALLOWED_HOSTS_3")]
+ALLOWED_HOSTS = [os.getenv("ALLOWED_HOSTS_1"),os.getenv("ALLOWED_HOSTS_2"),os.getenv("ALLOWED_HOSTS_3"),os.getenv("ALLOWED_HOSTS_4")]
 
 SITE_URL = os.getenv("SITE_URL")
 
@@ -51,6 +51,18 @@ DATABASES = {
         'PORT': '',
     }
 }
+
+CELERY_RESULT_BACKEND_DB = ''.join(['postgresql+psycopg2://',
+                                   os.getenv("DATABASE_USER"),
+                                   ":",
+                                   os.getenv("DATABASE_PASSWORD"),
+                                   "@localhost/",
+                                   os.getenv("DATABASE_NAME")])
+
+# SESSION EXPIRY TIME: in seconds
+SESSION_COOKIE_AGE = 172800
+
+
 
 # HTTPS Browser Protection - only use if https access only
 SECURE_HSTS_SECONDS = intNone(os.getenv('INT_SECURE_HSTS_SECONDS'))

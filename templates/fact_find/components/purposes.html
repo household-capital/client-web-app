@@ -1,0 +1,242 @@
+<div class="row align-items-center">
+    <div class="col-lg-12 ">
+
+        <div class="accordion" id="accordionPurpose">
+
+            <!-- Top-Up Questions -->
+            {% if topUpAmount != 0 or topUpContingencyAmount != 0 or topUpDrawdownAmount != 0 %}
+            <div class="card">
+                <div class="card-header" id="headingTopUp">
+                    <h2 class="mb-0">
+                        <button class="btn btn-light" type="button" data-toggle="collapse" data-target="#collapseTopUp"
+                                aria-expanded="true" aria-controls="collapseTopUp">
+                            <p>
+                                <i class="fa fa-plus fa-xs"></i>&nbsp;&nbsp;Purpose - Top Up</p>
+
+                        </button>
+                    </h2>
+                </div>
+
+                <div id="collapseTopUp" class="collapse" aria-labelledby="headingTopUp"
+                     data-parent="#accordionPurpose">
+                    <div class="card-body">
+                        <div class="row ">
+                            <div class="col-lg-8 ">
+                                <textarea class="textarea form-control" rows="10" name="topUpNotes" id="id_topUpNotes">{% if form.topUpNotes.value != None %}{{ form.topUpNotes.value }}{% endif %}</textarea>
+
+                            </div>
+                            <div class="col-lg-4 notes">
+                                <ul>
+                                    <li>Top-up objective and nature of purpose</li>
+                                    <li>Impact of loan on retirement income</li>
+                                    <li>Specific destination for lump sum funds</li>
+                                    <li>Nature and rationale of any contingency component</li>
+                                    <li>Overall requirements and objectives</li>
+                                    <li>Potential impact on pension entitlements?</li>
+
+                                </ul>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row ">
+                            <div class="col-lg-8 text-right">
+                                <button id="background" type="submit" value="Submit" form="clientForm"
+                                            class="btn btn-warning"> Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Refi Questions -->
+            {% if refinanceAmount != 0%}
+            <div class="card">
+                <div class="card-header" id="headingRefi">
+                    <h2 class="mb-0">
+                        <button class="btn btn-light collapsed" type="button" data-toggle="collapse"
+                                data-target="#collapseRefi" aria-expanded="false" aria-controls="collapseRefi">
+                            <p>
+                                <i class="fa fa-plus fa-xs"></i>&nbsp;&nbsp;Purpose - Refi</p>
+
+
+                        </button>
+                    </h2>
+                </div>
+                <div id="collapseRefi" class="collapse" aria-labelledby="headingRefi" data-parent="#accordionPurpose">
+                    <div class="card-body">
+                        <div class="row ">
+                            <div class="col-lg-8 ">
+                                <textarea class="textarea form-control" rows="10" name="refiNotes" id="id_refiNotes">{% if form.refiNotes.value != None %}{{ form.refiNotes.value }}{% endif %}</textarea>
+
+                            </div>
+                            <div class="col-lg-4 notes">
+                                <ul>
+                                    <li>Refinance objective and nature of purpose</li>
+                                    <li>Current loan balance, term, rate, repayment type, forward or reverse mortgage?
+                                    </li>
+                                    <li>Is the borrower servicing the existing loan?</li>
+                                    <li>Impact on retirement income if regular repayments avoided</li>
+                                    <li>Client understands that the HHC maybe at a higher interest rate and total
+                                        interest payable may be greater than existing loan?
+                                    </li>
+                                    <li>Client understands that the term of the loan may be greater than the existing
+                                        loan?
+                                    </li>
+
+                                </ul>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row ">
+                            <div class="col-lg-8 text-right">
+                                <button id="background" type="submit" value="Submit" form="clientForm"
+                                            class="btn btn-warning"> Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Live Questions -->
+            {% if renovateAmount != 0 or travelAmount != 0%}
+            <div class="card">
+                <div class="card-header" id="headingLive">
+                    <h2 class="mb-0">
+                        <button class="btn btn-light collapsed" type="button" data-toggle="collapse"
+                                data-target="#collapseLive" aria-expanded="false" aria-controls="collapseLive">
+                            <p>
+                                <i class="fa fa-plus fa-xs"></i>&nbsp;&nbsp;Purpose - Live</p>
+
+
+                        </button>
+                    </h2>
+                </div>
+                <div id="collapseLive" class="collapse" aria-labelledby="headingLive" data-parent="#accordionPurpose">
+                    <div class="card-body">
+                        <div class="row ">
+                            <div class="col-lg-8 ">
+                                <textarea class="textarea form-control" rows="10" name="liveNotes" id="id_liveNotes">{% if form.liveNotes.value != None %}{{ form.liveNotes.value }}{% endif %}</textarea>
+                            </div>
+                            <div class="col-lg-4 notes">
+                                <ul>
+                                    <li>Live objective and nature of purpose</li>
+                                    <li>Are primary needs met?</li>
+                                    <li>Nature of any planned improvements - has the work commenced, who is
+                                        undertaking
+                                    </li>
+                                    <li>What will be the impact of planned improvements?</li>
+                                    <li>What is the nature of any transport and travel?</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row ">
+                            <div class="col-lg-8 text-right">
+                                <button id="background" type="submit" value="Submit" form="clientForm"
+                                            class="btn btn-warning"> Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Give Questions -->
+            {% if giveAmount != 0%}
+            <div class="card">
+                <div class="card-header" id="headingLive">
+                    <h2 class="mb-0">
+                        <button class="btn btn-light collapsed" type="button" data-toggle="collapse"
+                                data-target="#collapseGive" aria-expanded="false" aria-controls="collapseGive">
+                            <p>
+                                <i class="fa fa-plus fa-xs"></i>&nbsp;&nbsp;Purpose - Give</p>
+
+
+                        </button>
+                    </h2>
+                </div>
+                <div id="collapseGive" class="collapse" aria-labelledby="headingGive" data-parent="#accordionPurpose">
+                    <div class="card-body">
+                        <div class="row ">
+                            <div class="col-lg-8 ">
+                                <textarea class="textarea form-control" rows="10" name="giveNotes" id="id_giveNotes">{% if form.giveNotes.value != None %}{{ form.giveNotes.value }}{% endif %}</textarea>
+                             </div>
+                            <div class="col-lg-4 notes">
+                                <ul>
+                                    <li>Give objective and beneficiaries</li>
+                                    <li>Are primary needs met?</li>
+                                    <li>Do the borrowers current and future financial position support the capacity
+                                        for a gift of this size now?
+                                    </li>
+                                    <li>Are the beneficiaries involved in organising the loan?</li>
+                                    <li>Are other family members aware of the proposed gift?</li>
+                                    <li>Has the potential for elder abuse been considered?</li>
+
+                                </ul>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row ">
+                            <div class="col-lg-8 text-right">
+                                <button id="background" type="submit" value="Submit" form="clientForm"
+                                            class="btn btn-warning"> Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Care Questions -->
+            {% if careAmount != 0 or careDrawdownAmount != 0%}
+            <div class="card">
+                <div class="card-header" id="headingCare">
+                    <h2 class="mb-0">
+                        <button class="btn btn-light collapsed" type="button" data-toggle="collapse"
+                                data-target="#collapseCare" aria-expanded="false" aria-controls="collapseCare">
+                            <p>
+                                <i class="fa fa-plus fa-xs"></i>&nbsp;&nbsp;Purpose - Care</p>
+
+
+                        </button>
+                    </h2>
+                </div>
+                <div id="collapseCare" class="collapse" aria-labelledby="headingCare" data-parent="#accordionPurpose">
+                    <div class="card-body">
+                        <div class="row ">
+                            <div class="col-lg-8 ">
+                               <textarea class="textarea form-control" rows="10" name="careNotes" id="id_careNotes">{% if form.careNotes.value != None %}{{ form.careNotes.value }}{% endif %}</textarea>
+                             </div>
+                            <div class="col-lg-4 notes">
+                                <ul>
+                                    <li>Care objective </li>
+                                    <li>Nature and destination for loan proceeds</li>
+                                    <li>Does client understand care-related repayment terms</li>
+                                    <li>Executed under POA? Capacity concerns?</li>
+
+                                </ul>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row ">
+                            <div class="col-lg-8 text-right">
+                                <button id="background" type="submit" value="Submit" form="clientForm"
+                                            class="btn btn-warning"> Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        </div>
+
+
+    </div>
+</div>

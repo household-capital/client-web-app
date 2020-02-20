@@ -1,0 +1,405 @@
+{% extends 'site/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12 title">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div class="row justify-content-md-center">
+                <div class="col-6 text-center">
+                    <br>
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'success' %}
+                            class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <br>
+
+        <div class="row justify-content-center">
+            <div class="col-sm-5">
+
+                <div class="row justify-content-left pb-4">
+
+                    <div class="col-6 my-auto">
+                        <b>Current Pipeline</b><br><br>
+                        <div class="row">
+
+                            <div class="col-12">
+                                <button type="button" class="btn btn-jumbotron">
+                                    Enquiries&nbsp;&nbsp;&nbsp; <span class="badge badge-hhcBlue">{{ openEnquiries }}</span>
+                                </button>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="row justify-content-left">
+
+                    <div class="col-12">
+                        <div class="row">
+
+                            <div class="col-12 ">
+                                <button type="button" class="btn btn-jumbotron">
+                                    Cases&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span
+                                        class="badge badge-hhcBlue">{{ openCases }}</span>
+                                </button>
+
+                            </div>
+                        </div>
+                        <div class="row">
+
+                            <div class="col-5">
+
+                                <p class="">&nbsp;&nbsp;- Discovery</p>
+                                <p class="">&nbsp;&nbsp;- Meeting Held</p>
+                                <p class="">&nbsp;&nbsp;- Application</p>
+                                <p class="">&nbsp;&nbsp;- Documentation</p>
+                            </div>
+                            <div class="col-2 text-right">
+
+                                <p class="">{{ openDiscovery }}</p>
+                                <p class="">{{ openMeetingHeld }}</p>
+                                <p class="">{{ openApplication }}</p>
+                                <p class="">{{ openDocumentation }}</p>
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="col-sm-4">
+
+                <div class="row pt-1">
+
+                    <div class="col-7">
+                        <b>Overall Conversion</b><br>
+                        <p>Enquiries</p>
+                        <p>Cases</p>
+                        <p>Meetings</p>
+                        <p>Applications</p>
+                        <p>Settled</p>
+                    </div>
+
+                    <div class="col-4 text-right pb-3">
+                        <b>&nbsp;</b><br>
+                        <p>{{ totalEnquiries }}</p>
+                        <p>{{ totalCases }}</p>
+                        <p>{{ meetings }}</p>
+                        <p>{{ applications }}</p>
+                        <p>{{ funded }}</p>
+                    </div>
+
+                </div>
+
+                <div class="row pt-1">
+
+                    <div class="col-7">
+                        <b>Portfolio</b><br>
+                        <p>Current Balance</p>
+                        <p>Funded</p>
+                        <p>W.Ave LVR</p>
+                        <p>Funded Loans</p>
+                    </div>
+
+                    <div class="col-4 text-right">
+                        <b>&nbsp;</b><br>
+                        <p>${{ portfolioBalance|intcomma }}</p>
+                        <p>${{ portfolioFunded|intcomma }}</p>
+                        <p>{{ portfolioLvr }}%</p>
+                        <p>{{ portfolioLoans }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10 text-left">
+
+            <b>Website Calculator Interactions and Enquiries</b>&nbsp;&nbsp;
+            <div class="chart-container pt-3" style="height:370px;">
+
+                <canvas id="interactionChart"></canvas>
+            </div>
+
+        </div>
+    </div>
+
+    <br><br>
+    <div class="row justify-content-center">
+
+        <div class="col-lg-10">
+
+            <div class="pb-3"><b>Monthly Lead Generation</b></div>
+
+            <table class="table table-hover table-sm text-right">
+                <thead class="jumbotron">
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                    {% for month in dateRange %}
+                        <th scope="col">{{ month }}</th>
+                    {% endfor %}
+
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr>
+                    <td class="small text-left"><b>Interactions</b></td>
+                    <td></td>
+                     {% for month in dateRange %}
+                        <td class="small">{{ interactionData|getDictItem:month|getDictItem:'interactions' }}</td>
+                    {% endfor %}
+                </tr>
+                    <td></td>
+                    <td></td>
+                     {% for month in dateRange %}
+                        <td>&nbsp;</td>
+                    {% endfor %}
+                <tr>
+
+                </tr>
+
+                <tr>
+                    <td class="text-left"><b>Direct</b></td>
+                     <td></td>
+                    {% for month in dateRange %}
+                        <td></td>{% endfor %}
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td>Calculator</td>
+                    {% for month in dateRange %}
+                        <td>{{ directData|getDictItem:month|getDictItem:directTypesEnum.WEB_CALCULATOR.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td>Web Enquiry</td>
+                    {% for month in dateRange %}
+                        <td>{{ directData|getDictItem:month|getDictItem:directTypesEnum.WEB_ENQUIRY.value }}</td>
+                    {% endfor %}
+                </tr>
+
+
+                <tr>
+                    <td></td>
+                    <td>Phone</td>
+                    {% for month in dateRange %}
+                        <td>{{ directData|getDictItem:month|getDictItem:directTypesEnum.PHONE.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td>Email</td>
+                    {% for month in dateRange %}
+                        <td>{{ directData|getDictItem:month|getDictItem:directTypesEnum.EMAIL.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td>Other</td>
+                    {% for month in dateRange %}
+                        <td>{{ directData|getDictItem:month|getDictItem:directTypesEnum.OTHER.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                <tr>
+                    <td class="text-left"><b>Referral</b></td>
+                    <td></td>
+                    {% for month in dateRange %}
+                        <td></td>{% endfor %}
+
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td>IFA</td>
+                    {% for month in dateRange %}
+                        <td>
+                            {{ referralData|getDictItem:month|getDictItem:channelTypesEnum.IND_FINANCIAL_ADVISERS.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td>Brokers</td>
+                    {% for month in dateRange %}
+                        <td>{{ referralData|getDictItem:month|getDictItem:channelTypesEnum.BROKERS.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                <tr>
+                    <td></td>
+                    <td>Aged Care</td>
+                    {% for month in dateRange %}
+                        <td>
+                            {{ referralData|getDictItem:month|getDictItem:channelTypesEnum.AGED_CARE_ADVISERS.value }}</td>
+                    {% endfor %}
+                </tr>
+
+                <tr class="jumbotron">
+                    <td class="text-left"><b>Total</b></td>
+                    <td></td>
+                    {% for month in dateRange %}
+                        <td>{{ totalData|getDictItem:month}}</td>
+                    {% endfor %}
+                </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <br><br><br>
+
+
+{% endblock %}
+
+
+{% block javascript %}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+
+
+    <script>
+
+        // Create timeseries using js dates
+        function createTimeSeries(sourceArray) {
+            var timeSeriesArray = [];
+            var arrayLength = sourceArray.length;
+            for (var i = 0; i < arrayLength; i++) {
+                timeSeriesArray.push({t: new Date(sourceArray[i][0]), y: sourceArray[i][1]});
+            }
+            return timeSeriesArray;
+        }
+
+        // Chart data
+        var chartInteractionData = {{ chartInteractionData|safe}};
+        var chartEmailData = {{ chartEmailData|safe}};
+        var chartPhoneData = {{ chartPhoneData|safe}};
+
+        // Timeseries data
+        var interactionData = createTimeSeries(chartInteractionData);
+        var emailData = createTimeSeries(chartEmailData);
+        var phoneData = createTimeSeries(chartPhoneData);
+
+        // Chart references
+        var ctx_interaction = document.getElementById('interactionChart').getContext('2d');
+
+        // Chart definitions
+
+        var interactionChart = new Chart(ctx_interaction, {
+            type: 'line',
+            data: {
+                datasets: [
+                    {
+                    label: "Interactions",
+                    data: interactionData,
+                    borderColor: "#5184a1",
+                    backgroundColor: "#5184a1",
+                    fill: false
+                    },
+
+                    {
+                        label: "Calculator Enquiries",
+                        data: emailData,
+                        borderColor: "#fdb600",
+                        backgroundColor: "#fdb600",
+                        fill: false
+                    },
+
+                   {
+                        label: "Phone Enquiries",
+                        data: phoneData,
+                        borderColor: "#86b3b5",
+                        backgroundColor: "#86b3b5",
+                        fill: false,
+                        borderWidth: 1,
+                    }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                    display: false,
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'month',
+                            tooltipFormat: 'ddd DD-MMM-YYYY',
+                        }
+
+                    }],
+                    yAxes: [{
+                        display: true,
+                        ticks: {
+                            beginAtZero: true,
+                            max: 200
+                        }
+                    }]
+                },
+
+
+            }
+        });
+
+
+
+
+
+    </script>
+
+{% endblock %}

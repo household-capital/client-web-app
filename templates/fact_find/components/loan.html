@@ -1,0 +1,165 @@
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+<div class="row align-items-center">
+    <div class="col-lg-12 ">
+
+        <p class="small-blue pb-2">Purpose summary</p>
+
+        <!-- Top-Up -->
+        <div class="row  ">
+            {% if topUpAmount != 0 or topUpContingencyAmount != 0 or topUpDrawdownAmount != 0 %}
+            <div class="col-md-2 text-left pb-2">
+
+                <p class="pl-2 small "><b>Top Up</b></p>
+            </div>
+            <div class="col-md-7 text-left">
+                {% if topUpAmount != 0 %}
+                    <p class="small pb-2">Investment: {{ topUpDescription }}
+                    </p>
+                {% endif %}
+
+                {% if topUpContingencyAmount != 0 %}
+                    <p class="small pb-2">Contingency: {{ topUpContingencyDescription }}
+                    </p>
+                {% endif %}
+
+                {% if topUpDrawdownAmount != 0 %}
+                    <p class="small pb-2">Draw-down plan:
+                        ${{ topUpIncomeAmount }} {{ loanObj.enumDrawdownFrequency }}
+                        for {{ topUpPeriod }} years [12 month amount]
+                        {% if topUpBuffer != 0 %}(with 'rainy day'){% endif %}
+                    </p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <div class="col-md-2 text-right"><p class="larger">
+                {% if topUpAmount != 0 %}
+                    <p class="small pb-2">$ {{ topUpAmount }}</p>{% endif %}
+                {% if topUpContingencyAmount != 0 %}
+                    <p class="small pb-2">$ {{ topUpContingencyAmount }}</p>{% endif %}
+
+                {% if topUpDrawdownAmount != 0 %}
+                    <p class="small pb-2">$ {{ topUpDrawdownAmount }} </p>{% endif %}
+
+            </div>
+        </div>
+
+        <!-- Refinance -->
+        {% if refinanceAmount != 0 %}
+        <div class="row ">
+            <div class="col-md-2 text-left">
+                <p class="pl-2 small "><b>Refinance</b></p>
+            </div>
+            <div class="col-md-7 text-left">
+                {% if refinanceAmount %}
+                    <p class="small pb-2">Refinance of existing mortgage</p>{% endif %}
+            </div>
+            <div class="col-md-2 text-right"><p class="small">{% if refinanceAmount %}$
+                {{ refinanceAmount }}{% endif %}</p></div>
+        </div>
+        {% endif %}
+
+        <!-- Live -->
+        {% if renovateAmount != 0 or travelAmount != 0%}
+        <div class="row ">
+            <div class="col-md-2 text-left pb-2  ">
+
+                <p class="pl-2 pt-1 small"><b>Live</b></p>
+            </div>
+            <div class="col-md-7 text-left">
+                {% if renovateAmount != 0 %}
+                    <p class="small pb-2">Renovate: {{ renovateDescription }}
+                    </p>{% endif %}
+                {% if travelAmount != 0 %}
+                    <p class="">Transport:
+                        {{ travelDescription }}
+                    </p>{% endif %}
+            </div>
+            <div class="col-md-2 text-right"><p class="larger">
+                {% if renovateAmount != 0 %}
+                    <p class="small pb-2">$ {{ renovateAmount }}</p>{% endif %}
+                {% if travelAmount != 0 %}
+                    <p class="small">$ {{ travelAmount }} </p>{% endif %}
+
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Give -->
+        {% if giveAmount != 0 %}
+        <div class="row  ">
+            <div class="col-md-2 text-left pb-2 ">
+
+                <p class="pl-2 small"><b>Give</b></p>
+            </div>
+            <div class="col-md-7 text-left">
+                {% if giveAmount %}
+                    <p class="small pb-2">{{ giveDescription }}</p>{% endif %}
+            </div>
+            <div class="col-md-2 text-right"><p class="small">{% if giveAmount %}$
+                {{ giveAmount }}{% endif %}</p></div>
+        </div>
+        {% endif %}
+
+
+        <!-- Care -->
+        {% if careAmount != 0 or careDrawdownAmount != 0%}
+        <div class="row  ">
+            <div class="col-md-2 text-left pb-2 ">
+
+                <p class="pl-2 pt-1  small"><b>Care</b></p>
+            </div>
+
+            <div class="col-md-7 text-left">
+                {% if careAmount %}
+                    <p class="small pb-2">Lump-sum: {{ careDescription }}</p>
+                {% endif %}
+
+                {% if careDrawdownAmount %}
+                    <p class="small pb-2">Draw-down plan: ${{ careRegularAmount }} {{ loanObj.enumCareFrequency }}
+                        for {{ carePeriod }} years [12 month amount]
+                        {% if careDrawdownDescription %}: {{ careDrawdownDescription }}{% endif %}</p>
+                {% endif %}
+            </div>
+
+            <div class="col-md-2 text-right">
+                <p class="small">
+                    {% if careAmount %}$
+                        {{ careAmount }}
+                    {% endif %}</p>
+                <p class="">
+                    {% if careDrawdownAmount %}$
+                        {{ careDrawdownAmount }}
+                    {% endif %}</p>
+
+            </div>
+
+        </div>
+        {% endif %}
+
+
+        <div class="row">
+            <div class="col-lg-9 border-top border-bottom border-dark">
+                <p class="border-spacing ">Total Household Loan</p>
+            </div>
+            <div class="col-lg-2 border-top border-bottom border-dark text-right">
+                <p class="border-spacing ">$<b>{{ totalLoanAmount|intcomma }}*</b></p>
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <p class="small">* Includes establishment fee of: ${{ establishmentFee|intcomma }}</p>
+                {% if topUpDrawdownAmount or careDrawdownAmount %}
+                    <p class="small">&nbsp;&nbsp;The total Plan Amount is ${{ totalPlanAmount|intcomma }} (includes
+                        establishment fee of ${{ planEstablishmentFee|intcomma }})</p>
+                {% endif %}
+            </div>
+        </div>
+     <hr>
+    </div>
+</div>
