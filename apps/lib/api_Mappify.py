@@ -45,8 +45,15 @@ class apiMappify():
 
     def checkPostalAddress(self):
 
+        #Strip apartment if present
+        if "/" in self.fullStreetAddress:
+            addressList=self.fullStreetAddress.split("/",1)
+            stripAddress=addressList[1]
+        else:
+            stripAddress = self.fullStreetAddress
+
         #Use GeoCode to get location first
-        payload = {"streetAddress": self.fullStreetAddress,
+        payload = {"streetAddress": stripAddress,
                    "postcode": self.postcode,
                    "suburb": self.suburb,
                    "state": self.state,
