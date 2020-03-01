@@ -159,15 +159,19 @@ class Main(LoginRequiredMixin, ContextHelper,  UpdateView):
         return context
 
     def get_object(self, queryset=None):
+        case = Case.objects.queryset_byUID(self.request.session['caseUID']).get()
         queryset = FactFind.objects.queryset_byUID(self.request.session['caseUID'])
         if queryset.count() == 0:
             #Create object
-            case = Case.objects.queryset_byUID(self.request.session['caseUID']).get()
-            obj = FactFind(case = case)
-            obj.backgroundNotes = case.caseNotes
-            obj.save()
+            obj = FactFind(case=case)
         else:
             obj = queryset.get()
+
+        #Check if empty
+        if not obj.backgroundNotes:
+            obj.backgroundNotes = case.caseNotes
+        obj.save(update_fields=['backgroundNotes'])
+
         return obj
 
     def form_valid(self, form):
