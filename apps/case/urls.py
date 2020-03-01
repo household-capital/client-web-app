@@ -18,7 +18,9 @@ urlpatterns = [
     path('caseAssign/<uuid:uid>', views.CaseAssignView.as_view(), name='caseAssign'),
     path('caseData/<uuid:uid>',views.CaseDataExtract.as_view(),name='caseData'),
     path('cloudBridge/<uuid:uid>', views.CloudbridgeView.as_view(), name='cloudBridge'),
-    path('test', views.TestView.as_view(), name='test')
+    path('loanList', views.LoanListView.as_view() ,name='loanList'),
+    path('loanDetail/<uuid:uid>', views.LoanDetailView.as_view(), name='loanDetail'),
+
 ]
 
 

@@ -17,15 +17,15 @@ from apps.lib.site_Logging import write_applog
 from apps.lib.site_Utilities import taskError, sendTemplateEmail
 
 
-from .models import Case, LossData, FundedData
+from .models import Case, LossData, FundedData, FactFind, TransactionData
 
 # CASE TASKS
 
 @app.task(name="AMAL_Funded_Data")
 def fundedData():
-    ''' Task to updated funded information from AMALs XChaneg API'''
+    ''' Task to updated funded information from AMALs XChange API'''
 
-    write_applog("INFO", 'Case', 'Tasks-fundedData', 'Starting Funded Data')
+    write_applog("INFO", 'Case', 'Tasks-fundedData', 'Starting AMAL Data Extract')
 
     amalAPI = apiAMAL()
     response = amalAPI.openAPI(True)
@@ -35,18 +35,46 @@ def fundedData():
 
     qs = FundedData.objects.all()
     for loan in qs:
+
+        #Get Funded Data
         response = amalAPI.getFundedData(loan.case.amalLoanID)
 
         if response['status'] != "Ok":
             write_applog("ERROR", 'Case', 'Tasks-fundedData', response['responseText'])
-            return
         else:
-            loan.totalValuation = response['data']['totalValuation']
-            loan.advanced = response['data']['advanced']
-            loan.principal = response['data']['principal']
+            for (item, value) in response['data'].items():
+                setattr(loan, item, value)
             loan.save()
 
-    write_applog("INFO", 'Case', 'Tasks-fundedData', 'Finishing Funded Data')
+        #Get Transaction Data
+        response = amalAPI.getTransactionData(loan.case.amalLoanID)
+        if response['status'] != "Ok":
+            write_applog("ERROR", 'Case', 'Tasks-fundedData', 'Could not retrieve transactions - '+ str(loan.case.amalLoanID))
+        else:
+            write_applog("INFO", 'Case', 'Tasks-fundedData', 'Retrieving transactions - '+ str(loan.case.amalLoanID))
+
+            for transaction in response['data']:
+                if transaction['ghosted'] == False:
+
+                    transObj, created = TransactionData.objects.get_or_create (
+                        tranRef = transaction['tranRef'],
+                        case = loan.case
+                    )
+
+                    if created:
+                        transObj.case = loan.case
+                        transObj.description = transaction['description']
+                        transObj.type = transaction['type']
+                        transObj.transactionDate = transaction['transactionDate']
+                        transObj.effectiveDate = transaction['effectiveDate']
+                        transObj.tranRef = transaction['tranRef']
+                        transObj.debitAmount = transaction['debitAmount']
+                        transObj.creditAmount = transaction['creditAmount']
+                        transObj.balance = transaction['balance']
+
+                        transObj.save()
+
+    write_applog("INFO", 'Case', 'Tasks-fundedData', 'Finishing AMAL Data Extract')
     return 'Task completed successfully'
 
 
@@ -681,5 +709,3 @@ def updateSFDocs(caseUID, sfAPI):
                 return {'status':'Error', "responseText":"Document Synch - " + docName + "-" + json.dumps(result['responseText'])}
 
     return {'status': 'Ok', "responseText": "Salesforce Doc Synch!"}
-
-

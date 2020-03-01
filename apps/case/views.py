@@ -30,7 +30,7 @@ from apps.lib.site_Logging import write_applog
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
 from apps.enquiry.models import Enquiry
 from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignForm
-from .models import Case, LossData, Loan, FundedData
+from .models import Case, LossData, Loan, FundedData, TransactionData
 
 
 # // UTILITIES
@@ -809,44 +809,76 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
 
         return context
 
+## Loan Views (AMAL)
 
-class TestView(View):
+# Case List View
+class LoanListView(LoginRequiredMixin, ListView):
+    paginate_by = 8
+    template_name = 'case/loanList.html'
+    context_object_name = 'object_list'
+    model = FundedData
 
-    def get(self, request, *args, **kwargs):
+    def get_queryset(self, **kwargs):
+        # overrides queryset to filter search parameter
+        queryset = FundedData.objects.filter(settlementDate__isnull=False)
 
-        stageMapping = {
-            "Application Sent": caseTypesEnum.APPLICATION.value,
-            "Approval": caseTypesEnum.APPLICATION.value,
-            "Assess": caseTypesEnum.APPLICATION.value,
-            "Build Case": caseTypesEnum.APPLICATION.value,
-            "Certification": caseTypesEnum.DOCUMENTATION.value,
-            "Documentation": caseTypesEnum.DOCUMENTATION.value,
-            "Loan Application Withdrawn": caseTypesEnum.CLOSED.value,
-            "Loan Declined": caseTypesEnum.CLOSED.value,
-            "Meeting Held": caseTypesEnum.MEETING_HELD.value,
-            "Parked": caseTypesEnum.CLOSED.value,
-            "Settlement": caseTypesEnum.DOCUMENTATION.value,
-            "Post-Settlement Review": caseTypesEnum.FUNDED.value,
-            "Loan Approved": caseTypesEnum.FUNDED.value,
-        }
+        if self.request.GET.get('search'):
+            search = self.request.GET.get('search')
+            queryset = queryset.filter(
+                Q(case__caseDescription__icontains=search) |
+                Q(case__user__first_name__icontains=search) |
+                Q(case__user__last_name__icontains=search) |
+                Q(case__street__icontains=search) |
+                Q(case__suburb__icontains = search) |
+                Q(case__surname_1__icontains=search)
+            )
 
-        #Get stage list from SF
-        sfAPI = apiSalesforce()
-        result = sfAPI.openAPI(True)
-        output= sfAPI.getStageList()
+        orderBy = ['-settlementDate']
 
-        if output['status'] == "Ok":
-            dataFrame = output['data']
+        queryset = queryset.order_by(*orderBy)[:160]
 
-            #Loop through SF list and update stage of CaseObjects
-            for index, row in dataFrame.iterrows():
-                try:
-                    obj = Case.objects.filter(sfOpportunityID=row['Id']).get()
-                except Case.DoesNotExist:
-                    obj = None
 
-                if obj:
-                    if row['StageName'] in stageMapping:
-                        obj.caseType = stageMapping[row['StageName']]
-                        obj.save(update_fields=['caseType'])
-        return
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(LoanListView, self).get_context_data(**kwargs)
+        context['title'] = 'Loans'
+
+        if self.request.GET.get('search'):
+            context['search'] = self.request.GET.get('search')
+        else:
+            context['search'] = ""
+
+        self.request.session['webCalcQueue'] = WebCalculator.objects.queueCount()
+        self.request.session['webContQueue'] = WebContact.objects.queueCount()
+        self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
+
+        return context
+
+# Loan Detail View
+class LoanDetailView(LoginRequiredMixin, ListView):
+    template_name = 'case/loanDetail.html'
+    model = FundedData
+
+    def get_object(self, queryset=None):
+        caseUID = str(self.kwargs['uid'])
+        queryset = FundedData.objects.queryset_byUID(str(caseUID))
+        obj = queryset.get()
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(LoanDetailView, self).get_context_data(**kwargs)
+        context['title'] = 'Loan Details'
+
+        caseUID = str(self.kwargs['uid'])
+        caseObj = Case.objects.queryset_byUID(str(caseUID)).get()
+        context['caseObj'] = caseObj
+        context['fundedObj'] = self.get_object()
+        context['loanTypesEnum'] = loanTypesEnum
+
+        transQs = TransactionData.objects.filter(case=caseObj).order_by('-tranRef')
+        context['transList']=transQs
+
+        return context
+
+

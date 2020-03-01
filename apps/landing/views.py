@@ -1,12 +1,12 @@
-import datetime
 import json
+import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.db.models.functions import TruncDate, TruncDay, TruncMonth, Cast
 from django.db.models.fields import DateField
 from django.db.models import Sum, F, Func
-from django.db.models import Count
+from django.db.models import Count, When, Case as dbCase
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.utils.timezone import get_current_timezone
@@ -14,7 +14,7 @@ from django.utils.timezone import get_current_timezone
 from django.views.generic import TemplateView, View
 
 from apps.calculator.models import WebCalculator, WebContact
-from apps.case.models import Case, FundedData
+from apps.case.models import Case, FundedData, TransactionData
 
 from apps.enquiry.models import Enquiry
 from apps.lib.site_Enums import caseTypesEnum, directTypesEnum, channelTypesEnum
@@ -99,15 +99,17 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         qsCases = Case.objects.all()
         context['totalCases'] = qsCases.count()
         context['meetings'] = qsCases.filter(meetingDate__isnull=False).count()
-        context['applications'] = qsCases.filter(valuerInstruction__isnull=False).exclude(valuerInstruction="").count()
+        context['applications'] = qsCases.filter(titleDocument__isnull=False).exclude(titleDocument="").count()
         context['funded'] = qsCases.filter(caseType=caseTypesEnum.FUNDED.value).count()
 
         # Funded Data
-        qsFunded = FundedData.objects.filter(principal__gt=0)
+        qsFunded = FundedData.objects.filter(principal__gt=0, dischargeDate__isnull=True)
         if qsFunded:
+            context['portfolioLimit'] = int(qsFunded.aggregate(Sum('application'))['application__sum'])
             context['portfolioBalance'] = int(qsFunded.aggregate(Sum('principal'))['principal__sum'])
             context['portfolioFunded'] = int(qsFunded.aggregate(Sum('advanced'))['advanced__sum'])
         else:
+            context['portfolioLimit'] = 0
             context['portfolioBalance']=0
             context['portfolioFunded']=0
 
@@ -123,9 +125,20 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         self.request.session['webContQueue'] = WebContact.objects.queueCount()
         self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
 
-        # Lead Generation
+
+        # LEAD GENERATION TABLE
         qsEnqs = Enquiry.objects.all()
         tz = get_current_timezone()
+
+        #- get monthly date range
+        dateQs = qsEnqs.annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
+            .values_list('date') \
+            .annotate(leads=Count('enqUID')) \
+            .values('date').order_by('date')
+
+        dateRange = [item['date'].strftime('%b-%y') for item in dateQs[:12]]
+        context['dateRange'] = dateRange
+
 
         # - get enquiry data and build table
         dataQs = qsEnqs.exclude(referrer=directTypesEnum.REFERRAL.value) \
@@ -134,23 +147,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             .annotate(leads=Count('enqUID')) \
             .values('referrer', 'date', 'leads').order_by('date')
 
-        tableData = {}
-        for item in dataQs:
-            if item['date'].strftime('%b-%y') not in tableData:
-                tableData[item['date'].strftime('%b-%y')] = {item['referrer']: item['leads']}
-            else:
-                tableData[item['date'].strftime('%b-%y')][item['referrer']] = item['leads']
-
-        context['directData'] = tableData
+        context['directData'] = self.__createTableData(dataQs, 'referrer', 'leads')
         context['directTypesEnum'] = directTypesEnum
 
-        #- get monthly date range
-        dateQs = qsEnqs.annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
-            .values_list('date') \
-            .annotate(leads=Count('enqUID')) \
-            .values('date').order_by('date')
-
-        dateRange = [item['date'].strftime('%b-%y') for item in dateQs]
 
         # - get case data and build table
         qsCases = Case.objects.all()
@@ -160,16 +159,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             .annotate(cases=Count('caseUID')) \
             .values('salesChannel', 'date', 'cases').order_by('date')
 
-        tableData = {}
-        for item in dataQs:
-            if item['date'].strftime('%b-%y') not in tableData:
-                tableData[item['date'].strftime('%b-%y')] = {item['salesChannel']: item['cases']}
-            else:
-                tableData[item['date'].strftime('%b-%y')][item['salesChannel']] = item['cases']
-
-        context['dateRange'] = dateRange
-        context['referralData'] = tableData
+        context['referralData'] = self.__createTableData(dataQs, 'salesChannel', 'cases')
         context['channelTypesEnum'] = channelTypesEnum
+
 
         # - get interaction data and build table
         qsInteractions = WebCalculator.objects.all()
@@ -179,16 +171,10 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             .annotate(interactions=Count('calcUID')) \
             .values('date', 'interactions').order_by('date')
 
-        tableData = {}
-        for item in dataQs:
-            if item['date'].strftime('%b-%y') not in tableData:
-                tableData[item['date'].strftime('%b-%y')] = {'interactions': item['interactions']}
-            else:
-                tableData[item['date'].strftime('%b-%y')][item['interactions']] = item['interactions']
+        context['interactionData'] = self.__createTableData(dataQs, 'interactions', 'interactions')
 
-        context['interactionData'] = tableData
 
-        # - calc totals
+        # - generate totals
         tableData = {}
         for column in dateRange:
             total = 0
@@ -204,6 +190,56 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         context['totalData'] = tableData
 
+
+        # MEETING AND SETTLEMENT GRAPH DATA
+
+        # - get meeting data
+        qsMeetings = Case.objects.filter(meetingDate__isnull=False)
+        dataQs = qsMeetings \
+            .annotate(date=Cast(TruncMonth('meetingDate', tzinfo=tz), DateField())) \
+            .values_list('date') \
+            .annotate(meetings=Count('caseUID')) \
+            .values('date', 'meetings').order_by('date')
+
+        context['chartMeetingData']=json.dumps(self.__createTimeSeries(dataQs, 'meetings'),default=self.dateParse)
+
+        # - get zoom meeting data
+        qsMeetings = Case.objects.filter(meetingDate__isnull=False)
+        dataQs = qsMeetings \
+            .annotate(date=Cast(TruncMonth('meetingDate', tzinfo=tz), DateField())) \
+            .values_list('date') \
+            .annotate(zoomMeetings=Count(dbCase(When(isZoomMeeting=True, then=1)))) \
+            .values('date', 'zoomMeetings').order_by('date')
+
+        context['chartZoomMeetingData']=json.dumps(self.__createTimeSeries(dataQs, 'zoomMeetings'),default=self.dateParse)
+
+        # - get settlement data
+        qsMeetings = FundedData.objects.filter(settlementDate__isnull=False)
+        dataQs = qsMeetings \
+            .annotate(date=Cast(TruncMonth('settlementDate', tzinfo=tz), DateField())) \
+            .values_list('date') \
+            .annotate(settlements=Count('settlementDate')) \
+            .values('date', 'settlements').order_by('date')
+
+        context['chartSettlementData']=json.dumps(self.__createTimeSeries(dataQs, 'settlements'),default=self.dateParse)
+
+
+
+        # NEW LOANS / PORTFOLIO DATA
+
+        qsNewLoans = FundedData.objects.filter(settlementDate__isnull=False).order_by("settlementDate")
+        dataQs = qsNewLoans \
+            .annotate(date=Cast(TruncMonth('settlementDate', tzinfo=tz), DateField())) \
+            .values_list('date') \
+            .annotate(newLoans=Sum('application')) \
+            .values('date', 'newLoans').order_by('date')
+
+        context['chartNewLoansData'] = json.dumps(self.__createTimeSeries(dataQs, 'newLoans'),
+                                                    default=self.dateParse)
+
+        context['chartPortfolioData'] = json.dumps(self.__createCumulativeTimeSeries(dataQs, 'newLoans'),
+                                                  default=self.dateParse)
+
         return context
 
     def __deDupe(self, qs):
@@ -216,3 +252,25 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         else:
             return 0
 
+    def __createTableData(self, dataQs, labelName, itemName):
+        tableData = {}
+        for item in dataQs:
+            if item['date'].strftime('%b-%y') not in tableData:
+                tableData[item['date'].strftime('%b-%y')] = {labelName: item[itemName]}
+            else:
+                tableData[item['date'].strftime('%b-%y')][item[labelName]] = item[itemName]
+        return tableData
+
+    def __createTimeSeries(self, dataQs, itemName):
+        timeSeriesData = []
+        for item in dataQs:
+            timeSeriesData.append([item['date'],item[itemName]])
+        return timeSeriesData
+
+    def __createCumulativeTimeSeries(self, dataQs, itemName):
+        timeSeriesData = []
+        total = 0
+        for item in dataQs:
+            total += item[itemName]
+            timeSeriesData.append([item['date'],total])
+        return timeSeriesData
