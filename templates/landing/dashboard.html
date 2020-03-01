@@ -327,6 +327,18 @@
         </div>
     </div>
 
+        <div class="row justify-content-center pt-5">
+        <div class="col-lg-10 text-left">
+
+            <b>Meeting Date to Settlement Date</b>&nbsp;&nbsp;
+            <div class="chart-container pt-3" style="height:370px;">
+
+                <canvas id="aveDaysChart"></canvas>
+            </div>
+
+        </div>
+    </div>
+
     <br><br><br>
 
 
@@ -365,6 +377,9 @@
         var chartSettlementData = {{ chartSettlementData | safe }};
         var chartNewLoansData = {{ chartNewLoansData | safe }};
         var chartPortfolioData = {{ chartPortfolioData | safe }};
+        var chartAverageDays = {{ chartAverageDays | safe }};
+        var chartMinDays = {{ chartMinDays | safe }};
+
 
         // Timeseries data
         var interactionData = createTimeSeries(chartInteractionData);
@@ -375,11 +390,15 @@
         var settlementData = createTimeSeries(chartSettlementData);
         var newLoansData = createTimeSeries(chartNewLoansData);
         var portfolioData = createTimeSeries(chartPortfolioData);
+        var averageDays = createTimeSeries(chartAverageDays);
+        var minDays = createTimeSeries(chartMinDays);
+
 
         // Chart references
         var ctx_interaction = document.getElementById('interactionChart').getContext('2d');
         var ctx_activity = document.getElementById('activityChart').getContext('2d');
         var ctx_portfolio = document.getElementById('portfolioChart').getContext('2d');
+        var ctx_aveDays = document.getElementById('aveDaysChart').getContext('2d');
 
         // Chart definitions
 
@@ -543,6 +562,54 @@
             }
         });
 
+        var aveDaysChart = new Chart(ctx_aveDays, {
+            type: 'line',
+            data: {
+                datasets: [
+                    {
+                        label: "Average - All Loans",
+                        data: averageDays,
+                        borderColor: "#fdb600",
+                    },
+                    {
+                        label: "Minimum - All Loans",
+                        data: minDays,
+                        borderColor: "#86b3b5",
+                    },
+
+
+
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                    display: false,
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'month',
+                            tooltipFormat: 'ddd DD-MMM-YYYY',
+                        },
+
+
+
+                    }],
+                    yAxes: [{
+                        display: true,
+                        ticks: {
+                            beginAtZero: true,
+
+                        }
+                    }]
+                },
+
+
+            }
+        });
     </script>
 
 {% endblock %}

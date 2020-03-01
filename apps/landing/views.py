@@ -3,9 +3,9 @@ import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.db.models.functions import TruncDate, TruncDay, TruncMonth, Cast
+from django.db.models.functions import TruncDate, TruncDay, TruncMonth, Cast, ExtractDay
 from django.db.models.fields import DateField
-from django.db.models import Sum, F, Func
+from django.db.models import Sum, F, Func,  Avg, Min, Max
 from django.db.models import Count, When, Case as dbCase
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
@@ -60,6 +60,8 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     def dateParse(self, arg):
         if isinstance(arg, datetime.date):
             return str(arg)
+        if isinstance(arg,datetime.timedelta):
+            return str(arg.days)
 
     def get_context_data(self, **kwargs):
         context = super(DashboardView, self).get_context_data(**kwargs)
@@ -136,8 +138,8 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             .annotate(leads=Count('enqUID')) \
             .values('date').order_by('date')
 
-        dateRange = [item['date'].strftime('%b-%y') for item in dateQs[:12]]
-        context['dateRange'] = dateRange
+        dateRange = [item['date'].strftime('%b-%y') for item in dateQs]
+        context['dateRange'] = dateRange[-12:]
 
 
         # - get enquiry data and build table
@@ -224,7 +226,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context['chartSettlementData']=json.dumps(self.__createTimeSeries(dataQs, 'settlements'),default=self.dateParse)
 
 
-
         # NEW LOANS / PORTFOLIO DATA
 
         qsNewLoans = FundedData.objects.filter(settlementDate__isnull=False).order_by("settlementDate")
@@ -239,6 +240,42 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         context['chartPortfolioData'] = json.dumps(self.__createCumulativeTimeSeries(dataQs, 'newLoans'),
                                                   default=self.dateParse)
+
+        # AVERAGE DAYS
+        qsMeetings = FundedData.objects.filter(settlementDate__isnull=False)
+        dataQs = qsMeetings \
+            .annotate(date=Cast(TruncMonth('settlementDate', tzinfo=tz), DateField())) \
+            .values_list('date') \
+            .annotate(ave_days=Avg((F('settlementDate')-F('case__meetingDate')))) \
+            .annotate(min_days=Min((F('settlementDate') - F('case__meetingDate')))) \
+            .values('date', 'ave_days', 'min_days').order_by('date')
+
+        context['chartAverageDays'] = json.dumps(self.__createTimeSeries(dataQs, 'ave_days'),
+                                                  default=self.dateParse)
+        context['chartMinDays'] = json.dumps(self.__createTimeSeries(dataQs, 'min_days'),
+                                                  default=self.dateParse)
+
+        #No Refinance
+        #qsMeetings = FundedData.objects.filter(settlementDate__isnull=False, case__loan__refinanceAmount__exact=0)
+        #dataQs = qsMeetings \
+        #    .annotate(date=Cast(TruncMonth('settlementDate', tzinfo=tz), DateField())) \
+        #     .values_list('date') \
+        #    .annotate(ave_days=Avg((F('settlementDate') - F('case__meetingDate')))) \
+        #    .values('date', 'ave_days').order_by('date')
+
+        #context['chartNoRefiAveDays'] = json.dumps(self.__createTimeSeries(dataQs, 'ave_days'),
+        #                                         default=self.dateParse)
+
+        #Refinance
+        #qsMeetings = FundedData.objects.filter(settlementDate__isnull=False, case__loan__refinanceAmount__gt=0)
+        #dataQs = qsMeetings \
+        #    .annotate(date=Cast(TruncMonth('settlementDate', tzinfo=tz), DateField())) \
+        #    .values_list('date') \
+        #    .annotate(ave_days=Avg((F('settlementDate') - F('case__meetingDate')))) \
+        #    .values('date', 'ave_days').order_by('date')
+
+        #context['chartRefiAveDays'] = json.dumps(self.__createTimeSeries(dataQs, 'ave_days'),
+        #                                         default=self.dateParse)
 
         return context
 
