@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.db.models.functions import TruncDate, TruncDay, TruncMonth, Cast, ExtractDay
 from django.db.models.fields import DateField
-from django.db.models import Sum, F, Func,  Avg, Min, Max
+from django.db.models import Sum, F, Func,  Avg, Min, Max, Value, CharField
 from django.db.models import Count, When, Case as dbCase
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
@@ -165,17 +165,16 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context['referralData'] = self.__createTableData(dataQs, 'salesChannel', 'cases')
         context['channelTypesEnum'] = channelTypesEnum
 
-
         # - get interaction data and build table
         qsInteractions = WebCalculator.objects.all()
         dataQs = qsInteractions \
             .annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
             .values_list('date') \
             .annotate(interactions=Count('calcUID')) \
-            .values('date', 'interactions').order_by('date')
+            .annotate(type=Value('interactions', output_field=CharField())) \
+            .values('type','date', 'interactions').order_by('date')
 
-        context['interactionData'] = self.__createTableData(dataQs, 'interactions', 'interactions')
-
+        context['interactionData'] = self.__createTableData(dataQs, 'type', 'interactions')
 
         # - generate totals
         tableData = {}
