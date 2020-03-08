@@ -143,11 +143,17 @@
                                     <!-- MEETING HELD -->
                                     {% if obj.caseType == caseTypesEnum.MEETING_HELD.value %}
 
-                                        {% if obj.summaryDocument and obj.email %}
+                                         {% if obj.summaryDocument and obj.email %}
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" data-toggle="modal" href="#clientModal">
-                                                &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Client
+                                            <a class="dropdown-item pb-3" data-toggle="modal" href="#clientModal1">
+                                                &nbsp;<i class="fas fa-mail-bulk fa-fw"></i>&nbsp;&nbsp;Email and Mail
                                                 Summary&nbsp;</a>
+                                        {% endif %}
+
+
+                                        {% if obj.summaryDocument and obj.email %}
+                                            <a class="dropdown-item" data-toggle="modal" href="#clientModal2">
+                                                &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Updated Summary&nbsp;</a>
                                         {% endif %}
 
                                         <div class="dropdown-divider"></div>
@@ -331,18 +337,41 @@
 
     <!-- Modals -->
     {% if isUpdate %}
-        <div class="modal fade" id="clientModal" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel"
+        <div class="modal fade" id="clientModal1" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel1"
              aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="clientModalLabel">Email client?</h5>
+                        <h5 class="modal-title" id="clientModalLabel1">Email and mail client?</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>You are about to send the client the Loan Summary document via email - are you sure ?</p>
+                        <p>You are about to send the client a Loan Summary document via email and physical mail - are you sure ?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <a href="{% url 'case:caseMailLoanSummary' uid=obj.caseUID %}">
+                            <div class=" btn btn-primary">Yes, send document</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="clientModal2" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel2"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="clientModalLabel2">Email client?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>You are about to send the client an updated Loan Summary document via email (only) - are you sure ?</p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -353,7 +382,6 @@
                 </div>
             </div>
         </div>
-
 
         <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
              aria-hidden="true">

@@ -187,6 +187,8 @@ class Case(models.Model):
 
     meetingDate = models.DateTimeField(blank=True, null=True)
     summaryDocument = models.FileField(max_length=150,null=True, blank=True)
+    summarySentDate = models.DateTimeField(blank=True, null=True)
+    summarySentRef = models.CharField(max_length=30, null=True, blank=True)
     responsibleDocument= models.FileField(max_length=150,null=True, blank=True)
     privacyDocument= models.FileField(max_length=150,null=True, blank=True)
     electronicDocument= models.FileField(max_length=150,null=True, blank=True)

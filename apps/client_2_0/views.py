@@ -1450,6 +1450,30 @@ class NewPdfLoanSummary(TemplateView):
             result = loanProj.create(context, frequency=12)
             result = loanProj.calcProjections()
 
+
+            #Get point results
+            period1, period2 = loanProj.getAsicProjectionPeriods()
+
+            results = loanProj.getPeriodResults(period1)
+            context['pointYears1'] = period1
+            context['pointAge1'] = int(round(results['BOPAge'],0))
+            context['pointHouseValue1'] = int(round(results['BOPHouseValue'],0))
+            context['pointLoanValue1'] = int(round(results['BOPLoanValue'],0))
+            context['pointHomeEquity1'] = int(round(results['BOPHomeEquity'], 0))
+            context['pointHomeEquityPC1'] = int(round(results['BOPHomeEquityPC'],0))
+            context['pointImage1'] =  settings.STATIC_URL + 'img/icons/result_{0}_icon.png'.format(
+                results['HomeEquityPercentile'])
+
+            results = loanProj.getPeriodResults(period2)
+            context['pointYears2'] = period2
+            context['pointAge2'] = int(round(results['BOPAge'],0))
+            context['pointHouseValue2'] = int(round(results['BOPHouseValue'],0))
+            context['pointLoanValue2'] = int(round(results['BOPLoanValue'],0))
+            context['pointHomeEquity2'] = int(round(results['BOPHomeEquity'], 0))
+            context['pointHomeEquityPC2'] = int(round(results['BOPHomeEquityPC'],0))
+            context['pointImage2'] = settings.STATIC_URL + 'img/icons/result_{0}_icon.png'.format(
+                results['HomeEquityPercentile'])
+
             if context["topUpDrawdownAmount"] == 0:
                 context['topUpProjections'] = False
             else:
@@ -1481,10 +1505,13 @@ class NewPdfLoanSummary(TemplateView):
             if context['loanType'] == loanTypesEnum.JOINT_BORROWER.value:
                 if context['age_1'] < context['age_2']:
                     context['ageAxis'] = firstNameSplit(context['firstname_1']) + "'s age"
+                    context['personLabel'] = firstNameSplit(context['firstname_1']) + " is"
                 else:
                     context['ageAxis'] = firstNameSplit(context['firstname_2']) + "'s age"
+                    context['personLabel'] = firstNameSplit(context['firstname_2']) + " is"
             else:
                 context['ageAxis'] = "Your age"
+                context['personLabel'] = "you are"
 
             context['cumLumpSum'] = loanProj.getResultsList('CumLumpSum')['data']
             context['cumRegular'] = loanProj.getResultsList('CumRegular')['data']
@@ -1495,18 +1522,7 @@ class NewPdfLoanSummary(TemplateView):
 
             # Stress Results
 
-            # Stress-1
-            result = loanProj.calcProjections(hpiStressLevel=APP_SETTINGS['hpiLowStressLevel'])
-            context['hpi1'] = APP_SETTINGS['hpiLowStressLevel']
-            context['intRate1'] = context['totalInterestRate']
-
-            context['resultsLoanBalance1'] = loanProj.getResultsList('BOPLoanValue')['data']
-            context['resultsHomeEquity1'] = loanProj.getResultsList('BOPHomeEquity')['data']
-            context['resultsHomeEquityPC1'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
-            context['resultsHomeImages1'] = \
-                loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
-            context['resultsHouseValue1'] = loanProj.getResultsList('BOPHouseValue', imageSize=110, imageMethod='lin')[
-                'data']
+            # Stress-1 removed
 
             # Stress-2
             result = loanProj.calcProjections(hpiStressLevel=APP_SETTINGS['hpiHighStressLevel'])

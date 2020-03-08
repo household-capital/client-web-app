@@ -151,7 +151,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             .values('referrer', 'date', 'leads').order_by('date')
 
         context['directData'] = self.__createTableData(dataQs, 'referrer', 'leads')
-        print(context['directData'])
         context['directTypesEnum'] = directTypesEnum
 
 
