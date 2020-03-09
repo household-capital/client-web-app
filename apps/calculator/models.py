@@ -30,33 +30,33 @@ class WebManager(models.Manager):
     def queueCount(self):
         return WebCalculator.objects.filter(email__isnull=False, actioned=0).count()
 
-    def __timeSeriesQry(self, qs, length):
+    def __timeSeriesQry(self, qs, length, deDupe=False):
         #utility function appended to base time series query
         tz = get_current_timezone()
         qryDate=datetime.now(tz)-timedelta(days=length)
 
         return qs.filter(timestamp__gte=qryDate).annotate(date=Cast(TruncDay('timestamp', tzinfo=tz), DateField())) \
                    .values_list('date') \
-                   .annotate(interactions=Count('postcode',distinct=True)) \
+                   .annotate(interactions=Count('postcode',distinct=deDupe)) \
                    .values_list('date', 'interactions').order_by('-date')
 
     def timeSeries(self, seriesType, length, search=None):
         tz = get_current_timezone()
 
         if seriesType == 'Interactions':
-            return self.__timeSeriesQry(WebCalculator.objects.all(),length)
+            return self.__timeSeriesQry(WebCalculator.objects.all(),length, True)
 
         if seriesType == 'Email':
             return self.__timeSeriesQry(WebCalculator.objects.filter(email__isnull=False),length)
 
         if seriesType == 'InteractionsByState':
-            return self.__timeSeriesQry(WebCalculator.objects.filter(postcode__startswith=search),length)
+            return self.__timeSeriesQry(WebCalculator.objects.filter(postcode__startswith=search),length, True)
 
         if seriesType == 'InteractionsBySource' and search == True:
-            return self.__timeSeriesQry(WebCalculator.objects.filter(referrer__icontains='calculator'), length)
+            return self.__timeSeriesQry(WebCalculator.objects.filter(referrer__icontains='calculator'), length, True)
 
         if seriesType == 'InteractionsBySource' and search == False:
-            return self.__timeSeriesQry(WebCalculator.objects.exclude(referrer__icontains='calculator'), length)
+            return self.__timeSeriesQry(WebCalculator.objects.exclude(referrer__icontains='calculator'), length, True)
 
         if seriesType == 'EmailBySource' and search == True:
             return self.__timeSeriesQry(WebCalculator.objects.filter(referrer__icontains='calculator').filter(
