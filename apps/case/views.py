@@ -28,6 +28,7 @@ from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.site_Globals import LOAN_LIMITS
 from apps.lib.site_Logging import write_applog
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
+from apps.lib.api_Docsaway import apiDocsAway
 from apps.enquiry.models import Enquiry
 from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignForm
 from .models import Case, LossData, Loan, FundedData, TransactionData
@@ -436,7 +437,7 @@ class CaseAnalysisView(LoginRequiredMixin, TemplateView):
 
 # Loan Summary Email
 class CaseEmailLoanSummary(LoginRequiredMixin, TemplateView):
-    template_name = 'case/email/loanSummary/email.html'
+    template_name = 'case/email/loanSummary/update-email.html'
     model = Case
 
     def get(self, request, *args, **kwargs):
@@ -466,6 +467,8 @@ class CaseEmailLoanSummary(LoginRequiredMixin, TemplateView):
             msg.attach(attachFilename, pdfContents, 'application/pdf')
             msg.send()
             messages.success(self.request, "Loan Summary emailed to client")
+            caseObj.summarySentDate = timezone.now()
+            caseObj.save(update_fields=['summarySentDate'])
             return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
         except:
@@ -474,6 +477,81 @@ class CaseEmailLoanSummary(LoginRequiredMixin, TemplateView):
             messages.error(self.request, "Loan Summary could not be emailed")
             return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
+
+class CaseMailLoanSummary(LoginRequiredMixin, TemplateView):
+    '''Email and Physically Mail Loan Summary'''
+    template_name = 'case/email/loanSummary/email.html'
+    model = Case
+
+    def get(self, request, *args, **kwargs):
+        email_context = {}
+        caseUID = str(kwargs['uid'])
+
+        caseObj = Case.objects.queryset_byUID(caseUID).get()
+
+        email_context['obj'] = caseObj
+        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+        email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
+
+        attachFilename = "HouseholdLoanSummary.pdf"
+        bcc = caseObj.user.email
+
+        subject, from_email, to = "Household Loan Summary Report", caseObj.user.email, caseObj.email
+        text_content = "Text Message"
+
+        localfile = open(caseObj.summaryDocument.name, 'rb')
+        pdfContents = localfile.read()
+
+        try:
+            html = get_template(self.template_name)
+            html_content = html.render(email_context)
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [bcc])
+            msg.attach_alternative(html_content, "text/html")
+            msg.attach(attachFilename, pdfContents, 'application/pdf')
+            msg.send()
+            caseObj.summarySentDate = timezone.now()
+            caseObj.save(update_fields=['summarySentDate'])
+            messages.success(self.request, "Loan Summary emailed to client")
+
+        except:
+            write_applog("ERROR", 'CaseEmailLoanSummary', 'get',
+                         "Failed to email Loan Summary Report:" + caseUID)
+            messages.error(self.request, "Loan Summary could not be emailed")
+            return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
+
+        ## Mail via docsaway
+        docs = apiDocsAway()
+        result = docs.sendPdfByMail(caseObj.summaryDocument.name,
+                                    caseObj.enumSalutation()[0]+" "+caseObj.firstname_1+" "+ caseObj.surname_1,
+                                    caseObj.street,
+                                    caseObj.suburb,
+                                    caseObj.state,
+                                    caseObj.postcode
+                                    )
+
+        if result['status'] != "Ok":
+            messages.error(self.request, "Loan Summary could not be mailed")
+            write_applog("ERROR", 'CaseMailLoanSummary', 'get',
+                         "Failed to mail Loan Summary Report:" + caseUID + " - " + result['responseText'] )
+        else:
+            resultDict = json.loads(result['data'])
+
+            #Check for other send errors
+            if resultDict["APIErrorNumber"] != 0 or resultDict["transaction"]["approved"] != 'y':
+                write_applog("ERROR", 'CaseMailLoanSummary', 'get',
+                             "Failed to mail Loan Summary Report:" + caseUID + " - " + result['data'])
+
+            else:
+                #Record the send reference
+                caseObj.summarySentRef = resultDict["transaction"]["reference"]
+                caseObj.save(update_fields=['summarySentRef'])
+
+                messages.success(self.request, "Loan Summary mailed to client")
+
+                write_applog("INFO", 'CaseMmailLoanSummary', 'get',
+                             "Mailed Loan Summary Report:" + caseUID + " - " + result['data'])
+
+        return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
 
 class CaseOwnView(LoginRequiredMixin, View):

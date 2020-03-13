@@ -14,6 +14,7 @@ urlpatterns = [
     path('caseClose/<uuid:uid>', views.CaseCloseView.as_view(), name='caseClose'),
     path('caseAnalysis/<int:pk>', views.CaseAnalysisView.as_view(), name='caseAnalysis'),
     path('caseEmailLoanSummary/<uuid:uid>', views.CaseEmailLoanSummary.as_view(), name = 'caseEmailLoanSummary'),
+    path('caseMailLoanSummary/<uuid:uid>', views.CaseMailLoanSummary.as_view(), name='caseMailLoanSummary'),
     path('caseOwn/<uuid:uid>',views.CaseOwnView.as_view(),name='caseOwn'),
     path('caseAssign/<uuid:uid>', views.CaseAssignView.as_view(), name='caseAssign'),
     path('caseData/<uuid:uid>',views.CaseDataExtract.as_view(),name='caseData'),

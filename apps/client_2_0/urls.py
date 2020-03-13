@@ -48,7 +48,7 @@ urlpatterns = [
     path('finalPdf', views.FinalPDFView.as_view(), name='finalPdf'),
     path('finalError', views.FinalErrorView.as_view(), name='finalError'),
 
-    path('pdfLoanSummary/<uuid:uid>', views.PdfLoanSummary.as_view(), name='pdfLoanSummary'),
+    path('pdfLoanSummary/<uuid:uid>', views.pdfLoanSummary.as_view(), name='pdfLoanSummary'),
     path('pdfRespLending/<uuid:uid>', views.PdfRespLending.as_view(), name='pdfRespLending'),
     path('pdfPrivacy/<uuid:uid>', views.PdfPrivacy.as_view(), name='pdfPrivacy'),
     path('pdfElectronic/<uuid:uid>', views.PdfElectronic.as_view(), name='pdfElectronic'),
@@ -57,7 +57,6 @@ urlpatterns = [
     path('pdfValInstruction/<uuid:uid>', views.PdfValInstruction.as_view(), name='pdfValInstruction'),
 
     path('newFinalPdf', views.NewFinalPDFView.as_view(), name='newFinalPdf'),
-    path('newPdfLoanSummary/<uuid:uid>', views.NewPdfLoanSummary.as_view(), name='newPdfLoanSummary'),
 
 ]
 

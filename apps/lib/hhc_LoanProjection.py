@@ -25,7 +25,8 @@ class LoanProjection():
 
     # Class variables
 
-    minProjectionYears=APP_SETTINGS['minProjectionYears']
+    minProjectionAge = 90
+    minProjectionYears = 10
 
     minimumDataList = ['loanType',                  # Joint or Single
                        'age_1',                     # Borrower 1 Age
@@ -65,6 +66,8 @@ class LoanProjection():
         self.isInit = False
         self.initDict = {}
         self.FREQUENCY = 12  # 12 = Monthly modelling, 1 = Annual Modelling
+
+        self.projectionYears = 15
 
         self.payIntAmount = 0
         self.payIntPeriod = 0
@@ -152,6 +155,19 @@ class LoanProjection():
                 self.isInit = False
                 return {'status': 'Error','responseText':'Missing Data - age_2'}
 
+        #Projection Years
+        projectionAge = max(self.minProjectionAge,self.minAge + self.minProjectionYears)
+        self.projectionYears = projectionAge - self.minProjectionYears
+
+        if self.minAge < 75:
+            self.asicProjAge1 = self.minAge + 15
+        elif self.minAge < 80:
+            self.asicProjAge1 = self.minAge + 10
+        else:
+            self.asicProjAge1 = self.minAge + 5
+
+        self.asicProjAge2 = projectionAge
+
         # Important! 
         # Convert rates to equivalent compounding basis
         self.totalInterestRate   = self.__effectiveAnnual(self.initDict['interestRate'] + self.initDict['lendingMargin'],12/self.FREQUENCY) # Simple monthly rate
@@ -211,7 +227,7 @@ class LoanProjection():
                            'BOPHouseValue':0, 'BOPHomeEquity':0, 'BOPHomeEquityPC':0,
                            'TotalIncome':0, 'PensionIncome':0, 'PensionIncomePC':0,
                            'CumLumpSum':0, 'CumRegular':0, 'CumFee':0, 'CumDrawn':0, 'CumInt':0}
-                          for periods in range(((self.minProjectionYears+1) * self.FREQUENCY) + 1)]
+                          for periods in range(((self.projectionYears + 1 ) * self.FREQUENCY) + 1)]
 
 
         # Initial Period Calculations
@@ -254,7 +270,7 @@ class LoanProjection():
 
         # Loop through future periods
 
-        for period in range(1,(self.minProjectionYears+1) * self.FREQUENCY+1):
+        for period in range(1,(self.projectionYears +1) * self.FREQUENCY+1):
 
             self.calcArray[period]["BOPAge"] = self.calcArray[period - 1]["BOPAge"] + 1 / self.FREQUENCY
 
@@ -335,7 +351,6 @@ class LoanProjection():
 
         scaleList = []
 
-
         if 'Income' in keyName:
             #Flow variables (next 12 months)
             figuresList=[]
@@ -362,6 +377,22 @@ class LoanProjection():
                 scaleList = [int(figuresList[i] / maxValueLog * kwargs['imageSize']) for i in range(4)]
 
         return {'status': 'Ok', 'data': figuresList + scaleList}
+
+
+    def getPeriodResults(self, period, **kwargs):
+        # Returns results for specific period
+        if len(self.calcArray)==0:
+            return {'status': 'Error', 'responseText': 'Projections not calculated'}
+
+        results = self.calcArray[period * self.FREQUENCY]
+        results['HomeEquityPercentile'] = str(int(self.__myround(results['BOPHomeEquityPC'],5)))
+
+        return self.calcArray[period * self.FREQUENCY]
+
+
+    def getAsicProjectionPeriods(self):
+        return self.asicProjAge1 -  self.minAge ,self.asicProjAge2 - self.minAge
+
 
     def getImageList(self, keyName, imageURL):
         if len(self.calcArray)==0:

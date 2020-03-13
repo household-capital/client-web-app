@@ -225,7 +225,7 @@ class CalcCreateEnquiry(LoginRequiredMixin, UpdateView):
                                            obj.email, \
                                            self.request.user.email
             text_content = "Text Message"
-            attachFilename = 'HHC-CalculatorSummary'
+            attachFilename = 'HHC-CalculatorSummary.pdf'
 
             sent = pdf.emailPdf(self.template_name, email_context, subject, from_email, to, bcc, text_content,
                                     attachFilename)
