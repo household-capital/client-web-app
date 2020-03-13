@@ -311,3 +311,5 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             total += item[itemName]
             timeSeriesData.append([item['date'],total])
         return timeSeriesData
+
+

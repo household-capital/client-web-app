@@ -480,7 +480,7 @@ class CaseEmailLoanSummary(LoginRequiredMixin, TemplateView):
 
 class CaseMailLoanSummary(LoginRequiredMixin, TemplateView):
     '''Email and Physically Mail Loan Summary'''
-    template_name = 'case/email/loanSummary/update-email.html'
+    template_name = 'case/email/loanSummary/email.html'
     model = Case
 
     def get(self, request, *args, **kwargs):

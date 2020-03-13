@@ -349,6 +349,7 @@
                     </div>
                     <div class="modal-body">
                         <p>You are about to send the client a Loan Summary document via email and physical mail - are you sure ?</p>
+                        {% if obj.summarySentRef %}<br><p>PLEASE NOTE: THIS CLIENT HAS BEEN PHYSICALLY SENT A LOAN SUMMARY PREVIOUSLY</p>{% endif %}
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

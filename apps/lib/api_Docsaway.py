@@ -50,7 +50,7 @@ class apiDocsAway():
                 "email": self.username,
                 "key": self.key
             },
-            "APIMode": "TEST",
+            "APIMode": "LIVE",
             "APIReport": False,
             "Recipient":
                 {
