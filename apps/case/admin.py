@@ -6,7 +6,7 @@ from .models import Case, Loan, ModelSetting, FundDetail, LossData, FundedData, 
 
 
 class FundedDataAdmin(admin.ModelAdmin):
-    list_display = ('case', 'advanced', 'principal', 'application', 'totalValuation', 'settlementDate')
+    list_display = ('case', 'advanced', 'principal', 'approved', 'totalValuation', 'settlementDate')
 
 
 # Model registration to enable maintenance in the Admin screens

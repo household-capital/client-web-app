@@ -72,14 +72,12 @@
                 {% for obj in object_list %}
                     <tr>
                         <td class="text-center">
-                            {% if obj.actioned == 1 %}<i style='color:green' class="far fa-check-circle"></i>
-                            {% elif obj.actioned == -1 %}<i style='color:grey' class="far fa-times-circle"></i>
-                            {% else %}
-                                <a href="{% url 'calculator:calcCreateEnquiry' uid=obj.calcUID %}">
-                                    <button {% if obj.status%}class="btn btn-success" {% else %}class="btn btn-warning"{% endif %} data-toggle="tooltip" data-placement="top"
+
+                            <a href="{% url 'calculator:calcCreateEnquiry' uid=obj.calcUID %}">
+                                    <button {% if obj.status%}class="btn btn-success" {% else %}class="btn btn-warning"{% endif %}
+                                            data-toggle="tooltip" data-placement="top"
                                             title="Assign enquiry to you"><i class="far fa-envelope"></i></button>
                                 </a>
-                            {% endif %}
                         </td>
                         <td>{{ obj.name }}</td>
                         <td class="d-none d-sm-table-cell">{% if obj.loanType == 1 %}Couple{% else %}
@@ -92,6 +90,11 @@
                         <td class="d-none d-sm-table-cell">{{ obj.maxLoanAmount|intBlank|intcomma }}</td>
                         <td class="d-none d-sm-table-cell">{{ obj.maxLVR|intBlank }}</td>
                         <td>{{ obj.email }}</td>
+                        <td><a href="{% url 'calculator:calcDelete' uid=obj.calcUID %}">
+                                    <button class="btn btn-sm btn-outline-secondary"
+                                            data-toggle="tooltip" data-placement="top"
+                                            title="Delete calculator enquiry "><i class="fas fa-trash-alt fa-fw"></i></button>
+                                </a></td>
 
                     </tr>
                 {% endfor %}

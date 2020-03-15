@@ -205,6 +205,14 @@ class EnquiryUpdateView(LoginRequiredMixin, UpdateView):
         context['obj'] = obj
         context['isUpdate'] = True
 
+        paramStr = "?name="+(obj.name if obj.name else '') + "&email=" + \
+                   (obj.email if obj.email else '')
+
+        if self.object.user.profile.calendlyUrl:
+            context['calendlyUrl'] = self.object.user.profile.calendlyUrl + paramStr
+        else:
+            context['calendlyUrl']=""
+
         return context
 
     def form_valid(self, form):

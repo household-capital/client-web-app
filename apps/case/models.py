@@ -160,6 +160,7 @@ class Case(models.Model):
     maritalStatus_1 = models.IntegerField(choices=maritalTypes,null=True, blank=True)
     surname_1=models.CharField(max_length=30, null=True, blank=True)
     firstname_1=models.CharField(max_length=30, null=True, blank=True)
+    preferredName_1=models.CharField(max_length=30, null=True, blank=True)
     birthdate_1=models.DateField(null=True, blank=True)
     age_1=models.IntegerField(null=True, blank=True)
     sex_1=models.IntegerField(choices=clientSex,null=True, blank=True)
@@ -169,6 +170,7 @@ class Case(models.Model):
     maritalStatus_2 = models.IntegerField(choices=maritalTypes,null=True, blank=True)
     surname_2=models.CharField(max_length=30, null=True, blank=True)
     firstname_2=models.CharField(max_length=30, null=True, blank=True)
+    preferredName_2=models.CharField(max_length=30, null=True, blank=True)
     birthdate_2=models.DateField(null=True, blank=True)
     age_2=models.IntegerField(null=True, blank=True)
     sex_2=models.IntegerField(choices=clientSex,null=True, blank=True)
@@ -474,7 +476,7 @@ class FactFind(models.Model):
 
 class FundedData(models.Model):
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
-    application = models.FloatField(default=0,blank=True, null=True)
+    approved = models.FloatField(default=0,blank=True, null=True)
     advanced = models.FloatField(default=0,blank=True, null=True)
     principal = models.FloatField(default=0,blank=True, null=True)
     totalValuation = models.FloatField(default=1,blank=True, null=True)

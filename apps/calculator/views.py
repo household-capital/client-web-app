@@ -246,6 +246,17 @@ class CalcCreateEnquiry(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
 
 
+# Calculator Delete View (Delete View)
+class CalcDeleteView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        obj = WebCalculator.objects.filter(calcUID=kwargs['uid']).get()
+        obj.actioned = 1
+        obj.save(update_fields=['actioned'])
+        messages.success(self.request, "Web Calculator Enquiry deleted")
+
+        return HttpResponseRedirect(reverse_lazy('calculator:calcList'))
+
 # Contact Queue
 class ContactListView(LoginRequiredMixin, ListView):
     paginate_by = 10
@@ -318,9 +329,11 @@ class ContactActionView(LoginRequiredMixin, View):
 class ContactDeleteView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
-        if "uid" in kwargs:
-            WebContact.objects.filter(contUID=kwargs['uid']).delete()
-            messages.success(self.request, "Contact deleted")
+
+        obj = WebContact.objects.filter(contUID=kwargs['uid']).get()
+        obj.actioned = 1
+        obj.save(update_fields=['actioned'])
+        messages.success(self.request, "Contact deleted")
 
         return HttpResponseRedirect(reverse_lazy('calculator:contactList'))
 

@@ -10,6 +10,7 @@ urlpatterns = [
 
     path('calcList', views.CalcListView.as_view(), name='calcList'),
     path('calcCreateEnquiry/<uuid:uid>', views.CalcCreateEnquiry.as_view(), name='calcCreateEnquiry'),
+    path('calcDelete/<uuid:uid>', views.CalcDeleteView.as_view(), name='calcDelete'),
     path('calcSummaryNewPdf/<uuid:uid>', views.CalcSummaryNewPdf.as_view(), name='calcSummaryNewPdf'),
 
     path('contactList', views.ContactListView.as_view(), name='contactList'),
