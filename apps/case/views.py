@@ -218,12 +218,12 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
         initialcaseStage = pre_obj.caseStage
         loan_obj = Loan.objects.queryset_byUID(str(self.kwargs['uid'])).get()
 
-        # Don't allow to manually change to Application
-        if form.cleaned_data['caseStage'] == caseStagesEnum.APPLICATION.value and initialcaseStage == caseStagesEnum.DISCOVERY.value:
-            messages.error(self.request, "Please update to Meeting Held first")
-            return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': self.kwargs.get('uid')}))
-
         obj = form.save(commit=False)
+
+        # Don't allow later stages to be updated in the GUI (excluding closed)
+        if pre_obj.caseStage != caseStagesEnum.DISCOVERY and pre_obj.caseStage != caseStagesEnum.MEETING_HELD:
+            obj.caseStage = pre_obj.caseStage
+            messages.info(self.request, "Stage not updated")
 
         #Prior Nullable field
         if not obj.pensionAmount:
@@ -268,7 +268,7 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
     def salesforceSynch(self, caseObj):
 
         if caseObj.caseStage == caseStagesEnum.MEETING_HELD.value and caseObj.sfOpportunityID is None:
-            # Background task to update SF
+            # Background task to update SF and synch
             app.send_task('SF_Lead_Convert', kwargs={'caseUID': str(caseObj.caseUID)})
 
         elif not caseObj.sfLeadID:
@@ -404,10 +404,14 @@ class CaseCloseView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         obj = form.save(commit=False)
-        obj.caseStage = caseStagesEnum.CLOSED.value
         if form.cleaned_data['closeReason']:
             obj.closeDate=timezone.now()
         obj.save()
+
+        caseObj = Case.objects.filter(caseUID=str(self.kwargs.get('uid'))).get()
+        caseObj.caseStage = caseStagesEnum.CLOSED.value
+        caseObj.save(update_fields=['caseStage'])
+
         messages.success(self.request, "Case closed or marked as followed-up")
 
         try:
@@ -421,6 +425,13 @@ class CaseCloseView(LoginRequiredMixin, UpdateView):
         app.send_task('Update_SF_Case_Lead', kwargs={'caseUID': str(obj.case.caseUID)})
         return super(CaseCloseView, self).form_valid(form)
 
+class CaseUncloseView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        obj= Case.objects.filter(caseUID=kwargs['uid']).get()
+        obj.caseStage = caseStagesEnum.DISCOVERY.value
+        obj.save(update_fields=['caseStage'])
+        messages.success(self.request, "Case restored")
+        return HttpResponseRedirect(reverse_lazy('case:caseList'))
 
 class CaseAnalysisView(LoginRequiredMixin, TemplateView):
     context_object_name = 'object_list'

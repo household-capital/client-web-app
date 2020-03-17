@@ -150,7 +150,9 @@ def sfLeadConvert(caseUID):
         return "Error - "+ description+"-"+result['responseText']
     else:
         write_applog("INFO", 'Case', 'Tasks-SF_Lead_Convert',  description+"-"+"Lead Converted")
-        return "Lead converted!"
+        sfOppSynch(caseUID)
+        sfDocSynch(caseUID)
+        return "Lead converted and synchd!"
 
 
 @app.task(name='SF_Opp_Synch')
