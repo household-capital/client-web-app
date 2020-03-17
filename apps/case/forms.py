@@ -45,8 +45,7 @@ class CaseDetailsForm(forms.ModelForm):
     caseStages=(
                   (caseStagesEnum.DISCOVERY.value,"Discovery"),
                   (caseStagesEnum.MEETING_HELD.value, "Meeting Held"),
-
-
+                  (caseStagesEnum.APPLICATION.value, "Application"),
     )
 
 
