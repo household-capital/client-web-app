@@ -220,8 +220,10 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
 
         obj = form.save(commit=False)
 
-        # Don't allow later stages to be updated in the GUI (excluding closed)
-        if pre_obj.caseStage != caseStagesEnum.DISCOVERY and pre_obj.caseStage != caseStagesEnum.MEETING_HELD:
+        # Don't allow later stages to be updated in the GUI
+        if pre_obj.caseStage == caseStagesEnum.DISCOVERY or pre_obj.caseStage == caseStagesEnum.MEETING_HELD:
+            pass
+        else:
             obj.caseStage = pre_obj.caseStage
             messages.info(self.request, "Stage not updated")
 
