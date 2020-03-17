@@ -113,6 +113,12 @@
                                         &nbsp;<i class="fas fa-fw fa-hand-point-right"></i>&nbsp;&nbsp;Assign Ownership&nbsp;&nbsp;
                                     </a>
 
+                                    <div class="dropdown-divider"></div>
+
+                                    <a class="dropdown-item"
+                                           href="{% url 'case:caseClose' uid=obj.caseUID %}">
+                                            &nbsp;<i class="far fa-fw fa-window-close"></i>&nbsp;&nbsp;Close Case&nbsp;&nbsp;
+                                        </a>
 
                                     <!-- DISCOVERY -->
                                     {% if obj.caseStage == caseStagesEnum.DISCOVERY.value %}
@@ -140,7 +146,7 @@
                                     <!-- MEETING HELD -->
                                     {% if obj.caseStage == caseStagesEnum.MEETING_HELD.value %}
 
-                                         {% if obj.summaryDocument and obj.email %}
+                                         {% if obj.summaryDocument %}
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item pb-3" data-toggle="modal" href="#clientModal1">
                                                 &nbsp;<i class="fas fa-mail-bulk fa-fw"></i>&nbsp;&nbsp;Email and Mail
@@ -176,12 +182,6 @@
 
                                     <!-- DOCUMENTATION -->
                                     {% if obj.caseStage == caseStagesEnum.DOCUMENTATION.value %}
-                                        <div class="dropdown-divider"></div>
-
-                                        <a class="dropdown-item" href="{% url 'case:caseData' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-file-csv fa-fw"></i>&nbsp;&nbsp;Document CSV&nbsp;&nbsp;
-                                        </a>
-
 
                                         <div class="dropdown-divider"></div>
 

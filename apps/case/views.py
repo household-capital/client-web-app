@@ -247,11 +247,7 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
             obj.propertyImage = path + "/" + str(obj.caseUID) + "." + ext
             obj.save(update_fields=['propertyImage'])
 
-        # Checks for a closed case and redirects to Case Close View
-        if obj.caseStage == caseStagesEnum.CLOSED.value:
-            return HttpResponseRedirect(reverse_lazy('case:caseClose', kwargs={'uid': str(obj.caseUID)}))
-
-        if obj.caseStage == caseStagesEnum.APPLICATION.value:
+        if obj.caseStage == caseStagesEnum.MEETING_HELD.value:
             # Order Title Documents
             self.orderTitleDocuments(obj, loan_obj)
 
@@ -408,9 +404,10 @@ class CaseCloseView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         obj = form.save(commit=False)
+        obj.caseStage = caseStagesEnum.CLOSED.value
         if form.cleaned_data['closeReason']:
             obj.closeDate=timezone.now()
-
+        obj.save()
         messages.success(self.request, "Case closed or marked as followed-up")
 
         try:

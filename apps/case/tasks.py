@@ -691,8 +691,7 @@ def updateSFDocs(caseUID, sfAPI):
                      "Responsible Lending Summary": caseObj.responsibleDocument,
                      "Enquiry Document": caseObj.enquiryDocument,
                      "Loan Summary": caseObj.summaryDocument,
-                     "Solicitor Instruction": caseObj.solicitorInstruction,
-                     "Valuer Instruction": caseObj.valuerInstruction}
+                    }
 
     for docName, docObj in DOCUMENT_LIST.items():
         if docObj:
