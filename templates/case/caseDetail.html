@@ -115,7 +115,7 @@
 
 
                                     <!-- DISCOVERY -->
-                                    {% if obj.caseType == caseTypesEnum.DISCOVERY.value %}
+                                    {% if obj.caseStage == caseStagesEnum.DISCOVERY.value %}
 
                                         <div class="dropdown-divider"></div>
 
@@ -138,7 +138,7 @@
 
 
                                     <!-- MEETING HELD -->
-                                    {% if obj.caseType == caseTypesEnum.MEETING_HELD.value %}
+                                    {% if obj.caseStage == caseStagesEnum.MEETING_HELD.value %}
 
                                          {% if obj.summaryDocument and obj.email %}
                                             <div class="dropdown-divider"></div>
@@ -163,7 +163,7 @@
                                     {% endif %}
 
                                     <!-- Application -->
-                                    {% if obj.caseType == caseTypesEnum.APPLICATION.value %}
+                                    {% if obj.caseStage == caseStagesEnum.APPLICATION.value %}
                                         <div class="dropdown-divider"></div>
 
                                         <a class="dropdown-item"
@@ -175,7 +175,7 @@
                                     {% endif %}
 
                                     <!-- DOCUMENTATION -->
-                                    {% if obj.caseType == caseTypesEnum.DOCUMENTATION.value %}
+                                    {% if obj.caseStage == caseStagesEnum.DOCUMENTATION.value %}
                                         <div class="dropdown-divider"></div>
 
                                         <a class="dropdown-item" href="{% url 'case:caseData' uid=obj.caseUID %}">
@@ -191,8 +191,21 @@
                                     {% endif %}
 
 
+
+                                    <!-- FUNDED -->
+                                    {% if obj.caseStage == caseStagesEnum.FUNDED.value %}
+                                        <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item" href="{% url 'case:caseVariation' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-edit fa-fw"></i>&nbsp;&nbsp;Create Loan Variation&nbsp;&nbsp;
+                                        </a>
+
+
+                                    {% endif %}
+
+
                                     <!-- CLOSED -->
-                                    {% if obj.caseType == caseTypesEnum.CLOSED.value %}
+                                    {% if obj.caseStage == caseStagesEnum.CLOSED.value %}
 
                                         <div class="dropdown-divider"></div>
 
@@ -215,6 +228,14 @@
                                 <div class="col-lg-12">
 
                                     <div class="jumbotron">
+
+                                        {% if obj.appType == appTypesEnum.VARIATION.value %}
+                                            <p class="large text-success"><i
+                                                    class="fas fa-edit btn-outline-success pb-4"></i>&nbsp;
+                                                Loan Variation</p>
+                                        {% endif %}
+
+                                        <p class="small pb-3">Create Date: {{ obj.timestamp | date:'d M y' }}</p>
 
                                         <p class="larger">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
                                         <br>

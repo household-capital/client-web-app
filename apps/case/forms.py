@@ -12,7 +12,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, Div, HTML
 
 # Local Application Imports
-from apps.lib.site_Enums import loanTypesEnum, caseTypesEnum
+from apps.lib.site_Enums import loanTypesEnum, caseStagesEnum
 from .models import Case, LossData
 
 
@@ -30,7 +30,7 @@ class CaseDetailsForm(forms.ModelForm):
 
     class Meta:
         model = Case
-        fields = ['caseDescription', 'adviser', 'caseNotes', 'loanType', 'caseType',
+        fields = ['caseDescription', 'adviser', 'caseNotes', 'loanType', 'caseStage',
                   'clientType1', 'surname_1', 'firstname_1', 'preferredName_1','birthdate_1', 'age_1', 'sex_1',
                   'salutation_1','middlename_1','maritalStatus_1',
                   'clientType2', 'surname_2', 'firstname_2', 'preferredName_2','birthdate_2', 'age_2', 'sex_2',
@@ -42,18 +42,18 @@ class CaseDetailsForm(forms.ModelForm):
             'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
         }
 
-    caseTypes=(
-                  (caseTypesEnum.DISCOVERY.value,"Discovery"),
-                  (caseTypesEnum.MEETING_HELD.value, "Meeting Held"),
-                  (caseTypesEnum.APPLICATION.value, "Application"),
-                  (caseTypesEnum.DOCUMENTATION.value, "Documentation"),
-                  (caseTypesEnum.FUNDED.value, "Funded"),
-                  (caseTypesEnum.CLOSED.value, "Closed"),
+    caseStages=(
+                  (caseStagesEnum.DISCOVERY.value,"Discovery"),
+                  (caseStagesEnum.MEETING_HELD.value, "Meeting Held"),
+                  (caseStagesEnum.APPLICATION.value, "Application"),
+                  (caseStagesEnum.DOCUMENTATION.value, "Documentation"),
+                  (caseStagesEnum.FUNDED.value, "Funded"),
+                  (caseStagesEnum.CLOSED.value, "Closed"),
 
     )
 
 
-    caseType = forms.TypedChoiceField(choices=caseTypes, coerce=int, initial=caseTypesEnum.DISCOVERY.value)
+    caseStage = forms.TypedChoiceField(choices=caseStages, coerce=int, initial=caseStagesEnum.DISCOVERY.value)
 
 
     # Form Layout
@@ -81,7 +81,7 @@ class CaseDetailsForm(forms.ModelForm):
                     Div(Field('salesChannel')), css_class="col-lg-6"),
                 Div(
                     Div(HTML("Current Status"), css_class='form-label'),
-                    Div(Field('caseType')), css_class="col-lg-6"),
+                    Div(Field('caseStage')), css_class="col-lg-6"),
                 css_class="row"),
 
             Div(

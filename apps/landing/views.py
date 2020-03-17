@@ -17,7 +17,7 @@ from apps.calculator.models import WebCalculator, WebContact
 from apps.case.models import Case, FundedData, TransactionData
 
 from apps.enquiry.models import Enquiry
-from apps.lib.site_Enums import caseTypesEnum, directTypesEnum, channelTypesEnum
+from apps.lib.site_Enums import caseStagesEnum, directTypesEnum, channelTypesEnum
 
 # Create your views here.
 
@@ -83,10 +83,10 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         # Open Case
         qsOpenCases = Case.objects.openCases()
         context['openCases'] = qsOpenCases.count()
-        context['openDiscovery'] = qsOpenCases.filter(caseType=caseTypesEnum.DISCOVERY.value).count()
-        context['openMeetingHeld'] = qsOpenCases.filter(caseType=caseTypesEnum.MEETING_HELD.value).count()
-        context['openApplication'] = qsOpenCases.filter(caseType=caseTypesEnum.APPLICATION.value).count()
-        context['openDocumentation'] = qsOpenCases.filter(caseType=caseTypesEnum.DOCUMENTATION.value).count()
+        context['openDiscovery'] = qsOpenCases.filter(caseStage=caseStagesEnum.DISCOVERY.value).count()
+        context['openMeetingHeld'] = qsOpenCases.filter(caseStage=caseStagesEnum.MEETING_HELD.value).count()
+        context['openApplication'] = qsOpenCases.filter(caseStage=caseStagesEnum.APPLICATION.value).count()
+        context['openDocumentation'] = qsOpenCases.filter(caseStage=caseStagesEnum.DOCUMENTATION.value).count()
 
 
         # Totals
@@ -102,7 +102,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context['totalCases'] = qsCases.count()
         context['meetings'] = qsCases.filter(meetingDate__isnull=False).count()
         context['applications'] = qsCases.filter(titleDocument__isnull=False).exclude(titleDocument="").count()
-        context['funded'] = qsCases.filter(caseType=caseTypesEnum.FUNDED.value).count()
+        context['funded'] = qsCases.filter(caseStage=caseStagesEnum.FUNDED.value).count()
 
         # Funded Data
         qsFunded = FundedData.objects.filter(principal__gt=0, dischargeDate__isnull=True)

@@ -175,8 +175,8 @@
                 <table class="table table-hover table-sm">
                     <thead>
                     <tr>
-                        <th scope="col" class="d-none d-sm-table-cell"><a href="?order=-caseType&search={{ search }}">
-                            {% if order == '-caseType' %}<i class="fas fa-sort-down"></i>{% endif %}&nbsp;Case Status</a></th>
+                        <th scope="col" class="d-none d-sm-table-cell"><a href="?order=-caseStage&search={{ search }}">
+                            {% if order == '-caseStage' %}<i class="fas fa-sort-down"></i>{% endif %}&nbsp;Case Status</a></th>
                         <th scope="col"><a href="?order=caseDescription&search={{ search }}">
                             {% if order == 'caseDescription' %}<i class="fas fa-sort-down"></i>{% endif %}&nbsp;Description</a></th>
                         <th scope="col"><a href="?order=user&search={{ search }}">
@@ -200,7 +200,7 @@
                         <tr>
                             <td class="d-none d-sm-table-cell">
                                 <a href="{{ obj.get_absolute_url }}">
-                                    {{ obj.enumCaseType }}&nbsp; </a></td>
+                                    {{ obj.enumCaseStage }}&nbsp; </a></td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.caseDescription }}</a></td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.user }}</a></td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.adviser }}</a></td>

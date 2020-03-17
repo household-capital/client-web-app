@@ -27,7 +27,7 @@ from apps.calculator.models import WebCalculator, WebContact
 from apps.case.models import Case
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.hhc_LoanProjection import LoanProjection
-from apps.lib.site_Enums import caseTypesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum
+from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Logging import write_applog
 from apps.lib.api_Pdf import pdfGenerator
@@ -208,10 +208,11 @@ class EnquiryUpdateView(LoginRequiredMixin, UpdateView):
         paramStr = "?name="+(obj.name if obj.name else '') + "&email=" + \
                    (obj.email if obj.email else '')
 
-        if self.object.user.profile.calendlyUrl:
-            context['calendlyUrl'] = self.object.user.profile.calendlyUrl + paramStr
+        if obj.user:
+            if obj.user.profile.calendlyUrl:
+                context['calendlyUrl'] = obj.user.profile.calendlyUrl + paramStr
         else:
-            context['calendlyUrl']=""
+            context['calendlyUrl'] = ""
 
         return context
 
@@ -414,7 +415,7 @@ class EnqSummaryPdfView(TemplateView):
         context["transfer_img"] = settings.STATIC_URL + "img/icons/transfer_" + str(
             context['maxLVRPercentile']) + "_icon.png"
 
-        context['caseTypesEnum'] = caseTypesEnum
+        context['caseStagesEnum'] = caseStagesEnum
         context['loanTypesEnum'] = loanTypesEnum
         context['dwellingTypesEnum'] = dwellingTypesEnum
         context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
@@ -559,7 +560,7 @@ class EnquiryConvert(LoginRequiredMixin, View):
             surname = enqDict['name']
 
         caseDict = {}
-        caseDict['caseType'] = caseTypesEnum.DISCOVERY.value
+        caseDict['caseStage'] = caseStagesEnum.DISCOVERY.value
         caseDict['caseDescription'] = surname + " - " + str(enqDict['postcode'])
         caseDict['enquiryDocument'] = enqDict['summaryDocument']
         caseDict['caseNotes'] = enqDict['enquiryNotes']

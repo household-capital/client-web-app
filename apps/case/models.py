@@ -11,9 +11,9 @@ from django.utils import timezone
 from django.urls import reverse_lazy
 
 #Local Application Imports
-from apps.lib.site_Enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,\
+from apps.lib.site_Enums import caseStagesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,\
     pensionTypesEnum, loanTypesEnum, ragTypesEnum, channelTypesEnum, stateTypesEnum, incomeFrequencyEnum, \
-    closeReasonEnum, salutationEnum, maritalEnum
+    closeReasonEnum, salutationEnum, maritalEnum, appTypesEnum
 
 
 class FundDetail(models.Model):
@@ -48,20 +48,25 @@ class CaseManager(models.Manager):
 
     # Custom data queries
     def openCases(self):
-        closedTypes = [caseTypesEnum.CLOSED.value, caseTypesEnum.FUNDED.value]
-        return Case.objects.exclude(caseType__in=closedTypes)
+        closedTypes = [caseStagesEnum.CLOSED.value, caseStagesEnum.FUNDED.value]
+        return Case.objects.exclude(caseStage__in=closedTypes)
 
 
 class Case(models.Model):
     # Main model - extended by Loan, ModelSettings and LossData
 
-    caseTypes=(
-                  (caseTypesEnum.DISCOVERY.value,"Discovery"),
-                  (caseTypesEnum.MEETING_HELD.value, "Meeting Held"),
-                  (caseTypesEnum.APPLICATION.value, "Application"),
-                  (caseTypesEnum.DOCUMENTATION.value, "Documentation"),
-                  (caseTypesEnum.FUNDED.value, "Funded"),
-                  (caseTypesEnum.CLOSED.value, "Closed"),    )
+    appTypes = (
+        (appTypesEnum.NEW_APPLICATION.value, "Application"),
+        (appTypesEnum.VARIATION.value, "Variation"),
+    )
+
+    caseStages=(
+                  (caseStagesEnum.DISCOVERY.value,"Discovery"),
+                  (caseStagesEnum.MEETING_HELD.value, "Meeting Held"),
+                  (caseStagesEnum.APPLICATION.value, "Application"),
+                  (caseStagesEnum.DOCUMENTATION.value, "Documentation"),
+                  (caseStagesEnum.FUNDED.value, "Funded"),
+                  (caseStagesEnum.CLOSED.value, "Closed"),    )
 
     clientTypes=(
         (clientTypesEnum.BORROWER.value, 'Borrower'),
@@ -115,16 +120,6 @@ class Case(models.Model):
         (stateTypesEnum.NT.value, "NT"),
     )
 
-    valuers=(
-        ('WBP Group','WBP Group'),
-        ('Opteon Solutions','Opteon Solutions')
-    )
-
-    valuerEmails=(
-        ('valuations@wbpgroup.com.au','valuations@wbpgroup.com.au'),
-        ('instructions@opteonsolutions.com','instructions@opteonsolutions.com'),
-        ('quotes@opteonsolutions.com', 'quotes@opteonsolutions.com')
-    )
 
     salutationTypes=(
         (salutationEnum.MR.value,"Mr."),
@@ -144,7 +139,9 @@ class Case(models.Model):
 
     caseID = models.AutoField(primary_key=True)
     caseUID = models.UUIDField(default=uuid.uuid4, editable=False)
-    caseType = models.IntegerField(choices=caseTypes)
+    refCaseUID = models.UUIDField(null=True, blank=True)
+    caseStage = models.IntegerField(choices=caseStages)
+    appType = models.IntegerField(default = 0, choices = appTypes)
     caseDescription = models.CharField(max_length=60, null=False, blank=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     adviser = models.CharField(max_length=60, null=True, blank=True)
@@ -192,22 +189,11 @@ class Case(models.Model):
     summarySentDate = models.DateTimeField(blank=True, null=True)
     summarySentRef = models.CharField(max_length=30, null=True, blank=True)
     responsibleDocument= models.FileField(max_length=150,null=True, blank=True)
-    privacyDocument= models.FileField(max_length=150,null=True, blank=True)
-    electronicDocument= models.FileField(max_length=150,null=True, blank=True)
-    dataDocument= models.FileField(max_length=150,null=True, blank=True)
     enquiryDocument = models.FileField(max_length=150,null=True, blank=True)
     valuationDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='customerDocuments')
-    solicitorInstruction = models.FileField(max_length=150,null=True, blank=True)
-    valuerInstruction= models.FileField(max_length=150, null=True, blank=True)
     titleDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='customerDocuments')
     titleRequest = models.BooleanField(null=True, blank=True)
-    specialConditions=models.TextField(null=True, blank=True)
-    dataCSV = models.FileField(max_length=150, null=True, blank=True, upload_to='customerDocuments')
     lixiFile= models.FileField(max_length=150, null=True, blank=True)
-
-    valuerFirm=models.CharField(max_length=20, null=True, blank=True, choices=valuers)
-    valuerEmail=models.EmailField(null=True, blank=True, choices=valuerEmails)
-    valuerContact=models.TextField(null=True, blank=True)
 
     salesChannel = models.IntegerField(choices=channelTypes,null=True, blank=True)
 
@@ -234,8 +220,8 @@ class Case(models.Model):
     class Meta:
         ordering = ('-updated',)
 
-    def enumCaseType(self):
-        return dict(self.caseTypes)[self.caseType]
+    def enumCaseStage(self):
+        return dict(self.caseStages)[self.caseStage]
 
     def enumLoanType(self):
         if self.loanType is not None:
