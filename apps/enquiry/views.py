@@ -31,7 +31,7 @@ from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, dwellingTypesEnum
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Logging import write_applog
 from apps.lib.api_Pdf import pdfGenerator
-from .forms import EnquiryForm, EnquiryDetailForm, ReferrerForm, EnquiryCloseForm, EnquiryAssignForm
+from .forms import EnquiryForm, EnquiryDetailForm, EnquiryCloseForm, EnquiryAssignForm
 from .models import Enquiry
 
 
@@ -50,14 +50,6 @@ class LoginRequiredMixin():
             return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
         else:
             return HttpResponseRedirect(reverse_lazy('landing:landing'))
-
-
-class ReferrerRequiredMixin():
-    # Ensures views will not render unless logged in, redirects to login page
-    @classmethod
-    def as_view(cls, **kwargs):
-        view = super(ReferrerRequiredMixin, cls).as_view(**kwargs)
-        return login_required(view)
 
 
 # ENQUIRY
@@ -661,105 +653,3 @@ class EnquiryAssignView(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
 
 
-# Referrer Views
-
-# Referrer Detail View
-class ReferrerView(ReferrerRequiredMixin, UpdateView):
-    template_name = "enquiry/referrer.html"
-    form_class = ReferrerForm
-    model = Enquiry
-
-    def get_object(self, queryset=None):
-        if "uid" in self.kwargs:
-            enqUID = str(self.kwargs['uid'])
-            queryset = Enquiry.objects.queryset_byUID(str(enqUID))
-            obj = queryset.get()
-            return obj
-
-    def get_context_data(self, **kwargs):
-        context = super(ReferrerView, self).get_context_data(**kwargs)
-        context['title'] = 'Referral'
-        context['hideNavbar'] = True
-
-        if "uid" in self.kwargs:
-            clientDict = Enquiry.objects.dictionary_byUID(str(self.kwargs['uid']))
-            loanObj = LoanValidator(clientDict)
-            chkOpp = loanObj.validateLoan()
-            context['status'] = chkOpp
-            queryset = Enquiry.objects.queryset_byUID(str(self.kwargs['uid']))
-            obj = queryset.get()
-            context['obj'] = obj
-            context['isUpdate'] = True
-        return context
-
-    def form_valid(self, form):
-
-        clientDict = form.cleaned_data
-        obj = form.save(commit=False)
-        obj.valuation = 1000000
-        clientDict['valuation'] = obj.valuation
-
-        loanObj = LoanValidator(clientDict)
-        chkOpp = loanObj.validateLoan()
-
-        obj.referralUser = self.request.user
-        obj.referrer = directTypesEnum.REFERRAL.value
-        obj.referrerID = self.request.user.profile.referrer.companyName + " - " + \
-                         self.request.user.first_name + \
-                         " " + self.request.user.last_name
-
-        if chkOpp['status'] == "Error":
-            obj.status = 0
-            obj.errorText = chkOpp['responseText']
-            obj.save()
-        else:
-            obj.status = 1
-            obj.maxLoanAmount = chkOpp['data']['maxLoan']
-            obj.maxLVR = chkOpp['data']['maxLVR']
-            obj.save()
-
-        # Background task to update SF
-        app.send_task('Update_SF_Lead', kwargs={'enqUID': str(obj.enqUID)})
-
-        messages.success(self.request, "Referral Captured or Updated")
-
-        return HttpResponseRedirect(reverse_lazy('enquiry:enqReferrerUpdate', kwargs={'uid': str(obj.enqUID)}))
-
-
-class ReferralEmail(LoginRequiredMixin, TemplateView):
-    template_name = 'enquiry/email/email_referral.html'
-    model = Enquiry
-
-    def get(self, request, *args, **kwargs):
-        email_context = {}
-        enqID = str(kwargs['uid'])
-
-        enqObj = Enquiry.objects.queryset_byUID(enqID).get()
-
-        email_context['obj'] = enqObj
-        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-        email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
-
-        if not enqObj.user:
-            messages.error(self.request, "This enquiry is not assigned to a user. Please take ownership")
-            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
-
-        bcc = enqObj.user.email
-        subject, from_email, to = "Household Capital: Introduction", enqObj.user.email, enqObj.email
-        text_content = "Text Message"
-
-        try:
-            html = get_template(self.template_name)
-            html_content = html.render(email_context)
-            msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [bcc])
-            msg.attach_alternative(html_content, "text/html")
-            msg.send()
-            messages.success(self.request, "Introduction emailed to client")
-
-            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))
-
-        except:
-            write_applog("ERROR", 'FollowUpEmail', 'get',
-                         "Failed to email introduction:" + enqID)
-            messages.error(self.request, "Introduction could not be emailed")
-            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqObj.enqUID}))

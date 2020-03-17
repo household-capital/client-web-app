@@ -1,0 +1,399 @@
+{% extends 'site/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+{% block message_display %}
+
+    <div class="container">
+        {% if messages %}
+            <div class="row justify-content-md-center pt-3">
+                <div class="col-6 text-center">
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %} class="alert alert-danger"{% endif %}
+                                {% if message.tags == 'warning' %} class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                    <br>
+                </div>
+
+            </div>
+
+        {% endif %}
+    </div>
+
+{% endblock %}
+
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12 title">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+        <div class="row">
+
+            <div class="col-lg-8">
+
+                <br>
+
+                {% if obj.sfOpportunityID %}
+                    <p class="larger" style="color:deepskyblue"><i class="fas fa-cloud fa-lg pb-4"></i>&nbsp;
+                        Salesforce {{ obj.sfLoanID }}</p>
+
+                {% else %}
+
+                    {% if form.errors %}
+
+                        <i class="far fa-times-circle fa-lg btn-outline-danger">&nbsp;Form errors - refer below</i>
+                    {% else %}
+                        {% if status.status == 'Ok' %}
+                            <i class="far fa-check-circle fa-lg btn-outline-success">&nbsp;Eligible Case</i>
+                            <br><br>
+                        {% elif status.status == 'Error' %}
+                            <i class="far fa-times-circle fa-lg btn-outline-danger">&nbsp;Ineligible
+                                - {{ status.responseText }}</i>
+                            <br><br>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-lg-8">
+
+                {% crispy form %}
+
+
+            </div>
+
+            <div class="col-lg-4">
+
+
+                <div class="row">
+                    <div class="col-lg-12">
+
+                        <br>
+                        <div class="padding-15px">
+
+                            {% if isUpdate %}
+                                <div class="btn-group">
+                                <button type="button" class="btn btn-outline-secondary dropdown-toggle"
+                                        data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false" id="btnCaseActions">
+                                    Case Actions
+                                </button>
+                                <div class="dropdown-menu">
+
+                                    <!-- All -->
+                                    <a class="dropdown-item"
+                                       href="{% url 'case:caseOwn' uid=obj.caseUID %}">
+                                        &nbsp;<i class="fas fa-crown"></i>&nbsp;&nbsp;Take Ownership
+                                    </a>
+
+                                    <div class="dropdown-divider"></div>
+
+                                    <a class="dropdown-item"
+                                       href="{% url 'case:caseAssign' uid=obj.caseUID %}">
+                                        &nbsp;<i class="fas fa-fw fa-hand-point-right"></i>&nbsp;&nbsp;Assign Ownership&nbsp;&nbsp;
+                                    </a>
+
+
+                                    <!-- DISCOVERY -->
+                                    {% if obj.caseStage == caseStagesEnum.DISCOVERY.value %}
+
+                                        <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item"
+                                           href="{% url 'case:caseClose' uid=obj.caseUID %}">
+                                            &nbsp;<i class="far fa-fw fa-window-close"></i>&nbsp;&nbsp;Close Case&nbsp;&nbsp;
+                                        </a>
+
+                                        <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item" data-toggle="modal" href="#deleteModal">
+                                            &nbsp;<i class="far fa-trash-alt fa-fw"></i>&nbsp;&nbsp;Delete
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item" href="{{ calendlyUrl }}" target="_blank">
+                                            &nbsp;<i class="fas fa-video fa-fw"></i>&nbsp;&nbsp;Book Zoom
+                                        </a>
+
+                                        <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item" href="{% url 'client2:meeting' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-users fa-fw"></i>&nbsp;&nbsp;Meeting
+                                        </a>
+
+                                    {% endif %}
+
+
+                                    <!-- MEETING HELD -->
+                                    {% if obj.caseStage == caseStagesEnum.MEETING_HELD.value %}
+
+                                          <div class="dropdown-divider"></div>
+
+                                          <a class="dropdown-item"
+                                           href="{% url 'case:caseClose' uid=obj.caseUID %}">
+                                            &nbsp;<i class="far fa-fw fa-window-close"></i>&nbsp;&nbsp;Close Case&nbsp;&nbsp;
+                                          </a>
+
+                                         {% if obj.summaryDocument %}
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item pb-3" data-toggle="modal" href="#clientModal1">
+                                                &nbsp;<i class="fas fa-mail-bulk fa-fw"></i>&nbsp;&nbsp;Email and Mail
+                                                Summary&nbsp;</a>
+                                        {% endif %}
+
+
+                                        {% if obj.summaryDocument and obj.email %}
+                                            <a class="dropdown-item" data-toggle="modal" href="#clientModal2">
+                                                &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Updated Summary&nbsp;</a>
+                                        {% endif %}
+
+                                        <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item"
+                                           href="{% url 'fact_find:factfind' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-user-edit  fa-fw"></i>&nbsp;&nbsp;Case Summary&nbsp;&nbsp;
+                                        </a>
+
+                                    {% endif %}
+
+                                    <!-- Application -->
+                                    {% if obj.caseStage == caseStagesEnum.APPLICATION.value %}
+                                        <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item"
+                                           href="{% url 'fact_find:factfind' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-user-edit  fa-fw"></i>&nbsp;&nbsp;Case Summary&nbsp;&nbsp;
+                                        </a>
+
+
+                                    {% endif %}
+
+                                    <!-- DOCUMENTATION -->
+                                    {% if obj.caseStage == caseStagesEnum.DOCUMENTATION.value %}
+
+                                        <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item" href="{% url 'case:cloudBridge' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-code fa-fw"></i>&nbsp;&nbsp;Send to AMAL&nbsp;&nbsp;
+                                        </a>
+                                    {% endif %}
+
+
+
+                                    <!-- FUNDED -->
+                                    {% if obj.caseStage == caseStagesEnum.FUNDED.value %}
+                                        <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item" href="{% url 'case:caseVariation' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-edit fa-fw"></i>&nbsp;&nbsp;Create Loan Variation&nbsp;&nbsp;
+                                        </a>
+
+
+                                    {% endif %}
+
+
+                                    <!-- CLOSED -->
+                                    {% if obj.caseStage == caseStagesEnum.CLOSED.value %}
+
+                                        <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item" href="{% url 'case:caseClose' uid=obj.caseUID %}">
+                                            &nbsp;<i class="far fa-folder"></i>&nbsp;&nbsp;Show Close Information&nbsp;&nbsp;
+                                        </a>
+
+                                          <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item"
+                                           href="{% url 'case:caseUnclose' uid=obj.caseUID %}">
+                                            &nbsp;<i class="far fa-fw fa-check-square"></i>&nbsp;&nbsp;Reopen Case&nbsp;&nbsp;
+                                        </a>
+
+                                    {% endif %}
+
+                                </div>
+                            {% endif %}
+
+                            </div>
+                        </div>
+
+
+                        {% if status.status == 'Ok' %}
+
+                            <div class="row">
+                                <div class="col-lg-12">
+
+                                    <div class="jumbotron">
+
+                                        {% if obj.appType == appTypesEnum.VARIATION.value %}
+                                            <p class="large text-success"><i
+                                                    class="fas fa-edit btn-outline-success pb-4"></i>&nbsp;
+                                                Loan Variation</p>
+                                        {% endif %}
+
+                                        <p class="small pb-3">Create Date: {{ obj.timestamp | date:'d M y' }}</p>
+
+                                        <p class="larger">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
+                                        <br>
+                                        {% if status.data.postcode != 'Valid' %}
+
+                                            <p><i class="fas fa-tractor fa-lg btn-outline-warning"></i>&nbsp;Refer
+                                                Postcode
+                                            </p> <br>
+                                        {% endif %}
+                                        <p class="small"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
+
+                                        <p class="small">Max Loan is: ${{ status.data.maxLoan|intcomma }} (incl
+                                            establishment fee)</p>
+                                        <p class="small">
+                                            {% if status.data.maxLoan > status.data.maxTopUp %}
+                                                Max for
+                                                Super Top Up is: ${{ status.data.maxTopUp|intcomma }}
+                                                </p>{% endif %}
+                                        <p class="small">
+                                            {% if status.data.maxLoan > status.data.maxCare %}
+                                                Max for
+                                                Age Care is: ${{ status.data.maxCare|intcomma }}</p>{% endif %}
+                                        <p class="small">Max for Refinance is:
+                                            ${{ status.data.maxRefi|intcomma }}</p>
+                                        <p class="small">
+                                            {% if status.data.maxLoan > status.data.maxReno %}
+                                                Max for
+                                                Renovations is: ${{ status.data.maxReno|intcomma }}
+                                                </p>{% endif %}
+                                        <p class="small">Max for Giving is:
+                                            ${{ status.data.maxGive|intcomma }}</p>
+                                        <p class="small">Max for Transport and Travel is:
+                                            ${{ status.data.maxTravel|intcomma }}</p>
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                        {% endif %}
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Modals -->
+    {% if isUpdate %}
+        <div class="modal fade" id="clientModal1" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel1"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="clientModalLabel1">Email and mail client?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>You are about to send the client a Loan Summary document via email and physical mail - are you sure ?</p>
+                        {% if obj.summarySentRef %}<br><p>PLEASE NOTE: THIS CLIENT HAS BEEN PHYSICALLY SENT A LOAN SUMMARY PREVIOUSLY</p>{% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <a href="{% url 'case:caseMailLoanSummary' uid=obj.caseUID %}">
+                            <div class=" btn btn-primary">Yes, send document</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="clientModal2" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel2"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="clientModalLabel2">Email client?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>You are about to send the client an updated Loan Summary document via email (only) - are you sure ?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <a href="{% url 'case:caseEmailLoanSummary' uid=obj.caseUID %}">
+                            <div class=" btn btn-primary">Yes, send document</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel">Delete case?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Do you want to delete the case (as opposed closing it)?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <a href="{% url 'case:caseDelete' uid=obj.caseUID %}">
+                            <div class="btn btn-primary">Yes, delete this</div>
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    {% endif %}
+
+
+{% endblock %}
+
+
+{% block javascript %}
+    <script>
+        $(document).ready(function () {
+            $("form").one('click focus change', function (e) {
+                console.log("Click");
+                $('#submit-id-submit').addClass('btn-warning').removeClass('btn-outline-secondary');
+                $('#btnCaseActions').attr('disabled', true)
+
+            })
+        })
+
+    </script>
+
+{% endblock %}

@@ -31,6 +31,7 @@ urlpatterns = [
     path('factfind/', include('apps.fact_find.urls')),
     path('hhcadmin/', admin.site.urls),
     path('landing/', include('apps.landing.urls')),
+    path('referrer/', include('apps.referrer.urls')),
     path('relationship/', include('apps.relationship.urls')),
 ]
 
