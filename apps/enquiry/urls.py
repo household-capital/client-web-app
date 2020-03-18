@@ -20,9 +20,5 @@ urlpatterns = [
     path('enquiryCloseFollowUp/<uuid:uid>',views.EnquiryCloseFollowUp.as_view(),name='enqMarkFollowUp'),
     path('enquiryDelete/<uuid:uid>', views.EnquiryDeleteView.as_view(), name='enqDelete'),
 
-    path('referrer', views.ReferrerView.as_view(), name='enqReferrerCreate'),
-    path('referrer/<uuid:uid>', views.ReferrerView.as_view(), name='enqReferrerUpdate'),
-    path('referrerEmail/<uuid:uid>', views.ReferralEmail.as_view(), name='enqReferrerEmail'),
-
  ]
 

@@ -6,8 +6,9 @@ from django.utils.encoding import smart_text
 
 
 class Referer(models.Model):
-    companyName=models.CharField(max_length=30,null=False,blank=False)
-    companyImage=models.ImageField(null=True, blank=True, upload_to='referrerImages')
+    companyName = models.CharField(max_length=30,null=False,blank=False)
+    companyImage = models.ImageField(null=True, blank=True, upload_to='referrerImages')
+    isCaseReferrer = models.BooleanField(default = False)
 
     def __str__(self):
         return smart_text(self.companyName)
