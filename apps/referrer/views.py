@@ -30,21 +30,6 @@ from apps.case.models import Case
 
 # VIEWS
 
-class LoginRequiredMixin():
-    # Ensures views will not render unless logged in, redirects to login page
-    @classmethod
-    def as_view(cls, **kwargs):
-        view = super(LoginRequiredMixin, cls).as_view(**kwargs)
-        return login_required(view)
-
-    # Ensures views will not render unless Household employee, redirects to Landing
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.profile.isHousehold:
-            return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
-        else:
-            return HttpResponseRedirect(reverse_lazy('landing:landing'))
-
-
 class ReferrerRequiredMixin():
     # Ensures views will not render unless logged in, redirects to login page
     @classmethod
@@ -52,12 +37,21 @@ class ReferrerRequiredMixin():
         view = super(ReferrerRequiredMixin, cls).as_view(**kwargs)
         return login_required(view)
 
+        # Ensures views will not render unless Household employee, redirects to Landing
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.profile.referrer:
+            return super(ReferrerRequiredMixin, self).dispatch(request, *args, **kwargs)
+        else:
+            return HttpResponseRedirect(reverse_lazy('landing:landing'))
+
 
 # Referrer Views
 
 class MainView(ReferrerRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
+
         if request.user.profile.referrer.isCaseReferrer:
             return HttpResponseRedirect(reverse_lazy("referrer:caseList"))
         else:
@@ -208,7 +202,8 @@ class CaseDetailView(ReferrerRequiredMixin, UpdateView):
             obj.age_2 = int((datetime.date.today() - obj.birthdate_2).days / 365.25)
 
         obj.salesChannel = channelTypesEnum.BROKERS.value
-        obj.referrer = self.request.user.first_name + " " + self.request.user.last_name
+        obj.adviser = self.request.user.first_name + " " + self.request.user.last_name
+        obj.referralUser = self.request.user
 
         obj.save()
 
@@ -250,6 +245,7 @@ class CaseCreateView(ReferrerRequiredMixin, CreateView):
         obj.user = self.request.user
         obj.salesChannel = channelTypesEnum.BROKERS.value
         obj.adviser = self.request.user.first_name + " " + self.request.user.last_name
+        obj.referralUser = self.request.user
 
         obj.save()
         messages.success(self.request, "Case Created")
