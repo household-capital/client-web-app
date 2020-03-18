@@ -240,6 +240,4 @@ class CaseDetailsForm(forms.ModelForm):
                 if self.cleaned_data['valuation'] == None:
                     raise forms.ValidationError("Please enter property valuation estimate")
 
-            if self.cleaned_data['salesChannel'] == None:
-                raise forms.ValidationError("Please enter a sales channel")
 

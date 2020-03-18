@@ -269,6 +269,9 @@ class Case(models.Model):
     def get_absolute_url(self):
         return reverse_lazy("case:caseDetail", kwargs={"uid": self.caseUID})
 
+    def get_referrer_url(self):
+        return reverse_lazy("referrer:caseDetail", kwargs={"uid": self.caseUID})
+
 
 # Pre-save function to extend Case
 def create_case_extensions(sender, instance, created, **kwargs):

@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMultiAlternatives
 from django.http import HttpResponseRedirect, HttpResponse
+from django.db.models import Q
 from django.template.loader import get_template
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, ListView, TemplateView, View
@@ -21,7 +22,7 @@ from config.celery import app
 
 # Local Application Imports
 from apps.lib.hhc_LoanValidator import LoanValidator
-from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum
+from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum, channelTypesEnum
 from apps.lib.site_Logging import write_applog
 from .forms import EnquiryForm, CaseDetailsForm
 from apps.enquiry.models import Enquiry
@@ -58,7 +59,7 @@ class MainView(ReferrerRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         if request.user.profile.referrer.isCaseReferrer:
-            return HttpResponseRedirect(reverse_lazy("referrer:caseCreate"))
+            return HttpResponseRedirect(reverse_lazy("referrer:caseList"))
         else:
             return HttpResponseRedirect(reverse_lazy("referrer:enqCreate"))
 
@@ -182,7 +183,7 @@ class CaseDetailView(ReferrerRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(CaseDetailView, self).get_context_data(**kwargs)
-        context['title'] = 'Case Detail'
+        context['title'] = 'Referral Detail'
         context['isUpdate'] = True
         context['caseStagesEnum'] = caseStagesEnum
         context['hideNavbar'] = True
@@ -205,6 +206,10 @@ class CaseDetailView(ReferrerRequiredMixin, UpdateView):
             obj.age_1 = int((datetime.date.today() - obj.birthdate_1).days / 365.25)
         if obj.birthdate_2 != None:
             obj.age_2 = int((datetime.date.today() - obj.birthdate_2).days / 365.25)
+
+        obj.salesChannel = channelTypesEnum.BROKERS.value
+        obj.referrer = self.request.user.first_name + " " + self.request.user.last_name
+
         obj.save()
 
         messages.success(self.request, "Case has been updated")
@@ -220,7 +225,7 @@ class CaseCreateView(ReferrerRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CaseCreateView, self).get_context_data(**kwargs)
-        context['title'] = 'New Case'
+        context['title'] = 'New Referral'
         context['hideNavbar'] = True
 
 
@@ -243,6 +248,8 @@ class CaseCreateView(ReferrerRequiredMixin, CreateView):
         # Set fields manually
         obj.caseStage = caseStagesEnum.DISCOVERY.value
         obj.user = self.request.user
+        obj.salesChannel = channelTypesEnum.BROKERS.value
+        obj.adviser = self.request.user.first_name + " " + self.request.user.last_name
 
         obj.save()
         messages.success(self.request, "Case Created")
@@ -251,3 +258,35 @@ class CaseCreateView(ReferrerRequiredMixin, CreateView):
 
 
 
+# Case List View
+class CaseListView(ReferrerRequiredMixin, ListView):
+    paginate_by = 8
+    template_name = 'referrer/caseList.html'
+    context_object_name = 'object_list'
+    model = Case
+
+    def get_queryset(self, **kwargs):
+        # overrides queryset to filter search parameter
+        qs =Case.objects.filter(user__profile__referrer__companyName = self.request.user.profile.referrer.companyName)
+
+        if self.request.GET.get('search'):
+            search = self.request.GET.get('search')
+
+            qs = qs.filter(
+                Q(caseDescription__icontains=search) |
+                Q(adviser__icontains=search) |
+                Q(user__first_name__icontains=search) |
+                Q(user__last_name__icontains=search) |
+                Q(caseNotes__icontains=search) |
+                Q(street__icontains=search) |
+                Q(surname_1__icontains=search))
+
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super(CaseListView, self).get_context_data(**kwargs)
+        context['title'] = 'Referral List'
+        context['hideNavbar'] = True
+
+
+        return context

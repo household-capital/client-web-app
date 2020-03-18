@@ -13,6 +13,7 @@ urlpatterns = [
     path('enquiryEmail/<uuid:uid>', views.EnquiryEmail.as_view(), name='enqEmail'),
     path('case', views.CaseCreateView.as_view(), name='caseCreate'),
     path('caseDetail/<uuid:uid>', views.CaseDetailView.as_view(), name='caseDetail'),
+    path('caseList', views.CaseListView.as_view(), name='caseList'),
 
 ]
 
