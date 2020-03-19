@@ -147,14 +147,14 @@
                                     <!-- MEETING HELD -->
                                     {% if obj.caseStage == caseStagesEnum.MEETING_HELD.value %}
 
-                                          <div class="dropdown-divider"></div>
+                                        <div class="dropdown-divider"></div>
 
-                                          <a class="dropdown-item"
+                                        <a class="dropdown-item"
                                            href="{% url 'case:caseClose' uid=obj.caseUID %}">
                                             &nbsp;<i class="far fa-fw fa-window-close"></i>&nbsp;&nbsp;Close Case&nbsp;&nbsp;
-                                          </a>
+                                        </a>
 
-                                         {% if obj.summaryDocument %}
+                                        {% if obj.summaryDocument %}
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item pb-3" data-toggle="modal" href="#clientModal1">
                                                 &nbsp;<i class="fas fa-mail-bulk fa-fw"></i>&nbsp;&nbsp;Email and Mail
@@ -164,7 +164,8 @@
 
                                         {% if obj.summaryDocument and obj.email %}
                                             <a class="dropdown-item" data-toggle="modal" href="#clientModal2">
-                                                &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Updated Summary&nbsp;</a>
+                                                &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Updated
+                                                Summary&nbsp;</a>
                                         {% endif %}
 
                                         <div class="dropdown-divider"></div>
@@ -221,7 +222,7 @@
                                             &nbsp;<i class="far fa-folder"></i>&nbsp;&nbsp;Show Close Information&nbsp;&nbsp;
                                         </a>
 
-                                          <div class="dropdown-divider"></div>
+                                        <div class="dropdown-divider"></div>
 
                                         <a class="dropdown-item"
                                            href="{% url 'case:caseUnclose' uid=obj.caseUID %}">
@@ -355,6 +356,22 @@
 
                             </div>
 
+                        {% else %}
+
+                            <div class="row">
+                                <div class="col-lg-12">
+
+                                    <div class="jumbotron">
+
+
+                                        <p class="large text-danger"><i
+                                                class="fas fa-exclamation-circle pb-4"></i>&nbsp;
+                                            Invalid Loan<br>Please re-open meeting</p>
+                                    </div>
+                                </div>
+                            </div>
+
+
 
                         {% endif %}
                     </div>
@@ -381,8 +398,12 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>You are about to send the client a Loan Summary document via email and physical mail - are you sure ?</p>
-                        {% if obj.summarySentRef %}<br><p>PLEASE NOTE: THIS CLIENT HAS BEEN PHYSICALLY SENT A LOAN SUMMARY PREVIOUSLY</p>{% endif %}
+                        <p>You are about to send the client a Loan Summary document via email and physical mail - are
+                            you
+                            sure ?</p>
+                        {% if obj.summarySentRef %}<br>
+                            <p>PLEASE NOTE: THIS CLIENT HAS BEEN PHYSICALLY SENT A LOAN SUMMARY
+                                PREVIOUSLY</p>{% endif %}
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -405,7 +426,9 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>You are about to send the client an updated Loan Summary document via email (only) - are you sure ?</p>
+                        <p>You are about to send the client an updated Loan Summary document via email (only) - are you
+                            sure
+                            ?</p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

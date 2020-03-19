@@ -17,7 +17,7 @@ from apps.lib.site_Logging import write_applog
 from apps.lib.site_Utilities import taskError, sendTemplateEmail
 
 
-from .models import Case, LossData, FundedData, FactFind, TransactionData
+from .models import Case, LossData, FundedData, TransactionData, Loan, ModelSetting
 
 # CASE TASKS
 
@@ -217,7 +217,7 @@ def sfDocSynch(caseUID):
 
 @app.task(name='AMAL_Send_Docs')
 def amalDocs(caseUID):
-
+    '''Task to send documents to AMAL using submission identifier '''
     # Get object
     qs = Case.objects.queryset_byUID(caseUID)
     caseObj = qs.get()
@@ -302,6 +302,63 @@ def stageSynch():
 
     write_applog("INFO", 'stageSynch', 'task', "SF Stages Synched")
     return "Success - SF Stages Synched"
+
+
+@app.task(name='SF_Integrity_Check')
+def integrityCheck():
+    '''Compare Amounts between Salesforce and ClientApp'''
+
+    #Get stage list from SF
+    sfAPI = apiSalesforce()
+    result = sfAPI.openAPI(True)
+    output= sfAPI.getAmountCheckList()
+
+    if output['status'] == "Ok":
+        dataFrame = output['data']
+
+        #Loop through SF list and update stage of CaseObjects
+        for index, row in dataFrame.iterrows():
+            try:
+                obj = Case.objects.filter(sfOpportunityID=row['Id']).get()
+                loanObj = Loan.objects.filter(case__sfOpportunityID=row['Id']).get()
+                modelObj = ModelSetting.objects.filter(case__sfOpportunityID=row['Id']).get()
+            except obj.DoesNotExist:
+                obj = None
+
+            if obj:
+                errorFlag=False
+
+                if abs(loanObj.totalLoanAmount - row['Total_Household_Loan_Amount__c'])>1:
+                    errorFlag=True
+
+                if abs(loanObj.totalPlanAmount - row['Total_Plan_Amount__c']) > 1:
+                    errorFlag=True
+
+                if modelObj.establishmentFeeRate:
+                    if abs(modelObj.establishmentFeeRate - row['Establishment_Fee_Percent__c']/100) > 0.0001:
+                        errorFlag=True
+
+                if errorFlag==True:
+                    write_applog("INFO", 'integrityCheck', 'task', "Difference on "+obj.caseDescription)
+                    email_template = 'case/email/clientAppEmails/email.html'
+                    email_context = {"obj":obj,
+                                     "loanObj":loanObj,
+                                     'establishmentFeeRate':modelObj.establishmentFeeRate*100,
+                                     'Total_Household_Loan_Amount__c':row['Total_Household_Loan_Amount__c'],
+                                     'Total_Plan_Amount__c':row['Total_Plan_Amount__c'],
+                                     'Establishment_Fee_Percent__c': row['Establishment_Fee_Percent__c']
+                                     }
+                    email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+
+                    subject, from_email, to, cc = "Salesforce - ClientApp Integrity Check", \
+                                                  'noreply@householdcapital.app', \
+                                                  [obj.user.email], \
+                                                  'paul.murray@householdcapital.com'
+
+                    emailSent = sendTemplateEmail(email_template, email_context, subject, from_email, to, cc)
+
+
+    return "Success - Integrity Check Complete"
 
 
 # UTILITIES
@@ -632,6 +689,7 @@ def updateSFOpp(caseUID, sfAPI):
         'careDescription': caseObj.loan.careDescription,
         'careDrawdownDescription': caseObj.loan.careDrawdownDescription,
         'giveDescription': caseObj.loan.giveDescription,
+        'detailedTitle' : caseObj.loan.detailedTitle,
 
         # Model Setting Data
         'inflationRate': caseObj.modelsetting.inflationRate,
