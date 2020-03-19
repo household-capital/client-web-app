@@ -144,7 +144,6 @@ class Case(models.Model):
     appType = models.IntegerField(default = 0, choices = appTypes)
     caseDescription = models.CharField(max_length=60, null=False, blank=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
-    adviser = models.CharField(max_length=60, null=True, blank=True)
     caseNotes = models.TextField(blank=True, null=True)
 
     phoneNumber=models.CharField(max_length=20, null=True, blank=True)
@@ -196,8 +195,11 @@ class Case(models.Model):
     lixiFile= models.FileField(max_length=150, null=True, blank=True)
 
     salesChannel = models.IntegerField(choices=channelTypes,null=True, blank=True)
-    referralUser = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='caseReferralUser', null=True, blank=True,
+    adviser = models.CharField(max_length=60, null=True, blank=True)
+    referralCompany = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='caseReferralCompany', null=True, blank=True,
                                      on_delete=models.SET_NULL)
+    referralRepNo = models.CharField(max_length=60, null=True, blank=True)
+
 
     sfLeadID = models.CharField(max_length=20, null=True, blank=True)
     sfOpportunityID = models.CharField(max_length=20, null=True, blank=True)
