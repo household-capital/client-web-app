@@ -33,6 +33,8 @@ urlpatterns = [
     path('landing/', include('apps.landing.urls')),
     path('referrer/', include('apps.referrer.urls')),
     path('relationship/', include('apps.relationship.urls')),
+    path('servicing/', include('apps.servicing.urls')),
+
 ]
 
 

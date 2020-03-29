@@ -25,7 +25,7 @@ class apiSalesforce():
                           "Select Id,Name,StageName,CloseDate, OwnerId, Establishment_Fee_Percent__c from Opportunity where Id=\'{0}\'",
                       'Properties':
                           "Select Id, Name, Street_Address__c,Suburb_City__c,State__c,Postcode__c,Country__c, Property_Type__c, Last_Valuation_Date__c, Home_Value_AVM__c, Home_Value_FullVal__c, Valuer__c, Valuer_Name__c, Insurer__c, Policy_Number__c, Minimum_Insurance_Value__c, Insurance_Expiry_Date__c  from Properties__c where Opportunity__c=\'{0}\' and isDeleted=False",
-                      'Loan':
+                      'OpportunityDetails':
                           "Select Loan_Number__c,Name, Interest_Type__c,Establishment_Fee__c, Planned_Establishment_Fee__c, Interest_Rate__c, Loan_Settlement_Date__c, Protected_Equity_Percent__c, Distribution_Partner_Contact__c, Total_Household_Loan_Amount__c, Total_Plan_Amount__c from Opportunity where Id=\'{0}\' and isDeleted=False",
                       'Purposes':
                           "Select Name, Category__c, Description__c, Intention__c, Amount__c from Purpose__c where Opportunity__c=\'{0}\' and isDeleted=False",
@@ -52,10 +52,30 @@ class apiSalesforce():
                       'LeadByPhone':
                           "Select Id, PostalCode from Lead where Phone=\'{0}\'",
                       'StageList':
-                          "Select Id, StageName from Opportunity where Lead_Record_Type__c = 'Household'",
+                          "Select Id, Name, StageName from Opportunity where RecordType.Name = \'Household\'",
                       'AmountCheckList':
-                           "Select Id, Total_Household_Loan_Amount__c, Total_Plan_Amount__c, Establishment_Fee_Percent__c from Opportunity where Lead_Record_Type__c = 'Household' and StageName in ('Meeting Held', 'Application Sent', 'Build Case', 'Assess')"
+                           "Select Id, Total_Household_Loan_Amount__c, Total_Plan_Amount__c, Establishment_Fee_Percent__c from Opportunity where Lead_Record_Type__c = 'Household' and StageName in ('Meeting Held', 'Application Sent', 'Build Case', 'Assess')",
 
+                      'LoanObject':
+                           "Select Id, Status__c, Name, Total_Loan_Amount__c, Total_Limits__c, Total_Establishment_Fee__c, Establishment_Fee_Percent__c, Mortgage_Number__c, Account_Number__c, BSB__c from Loan__c where Opportunity__c=\'{0}\'",
+
+                      'LoanObjectList':
+                            "Select Id, Opportunity__c from Loan__c where Status__c != \'Inactive\'",
+
+                      'LoanObjectRoles':
+                            "Select Id, Name, Loan__c, Contact__c, Role__c from LoanContactRole__c",
+
+                      'LoanObjectContacts':
+                            "Select Id, Salutation, FirstName, MiddleName, LastName, Birthdate__c, Gender__c, Marital_Status__c, MailingStreet, MailingCity, MailingPostalCode, MailingStateCode, Phone, MobilePhone, Email from Contact" ,
+
+                      'LoanObjectProperties':
+                            "Select Id, Street_Address__c, Suburb_City__c, State__c, Postcode__c, Property_Type__c, Insurer__c, Policy_Number__c, Insurance_Expiry_Date__c, Minimum_Insurance_Value__c, Home_Value_FullVal__c, Valuer__c, Valuer_Name__c, Last_Valuation_Date__c from Properties__c",
+
+                      'LoanObjectPropertyLink':
+                            "Select Id, Name, Loan__c, Property__c from LoanPropertyLink__c",
+
+                      'LoanObjectPurposes':
+                            "select Id, Category__c, Amount__c, Description__c, Drawdown_Amount__c, Drawdown_Frequency__c, Intention__c, Loan__c, Name, Notes__c, Plan_Amount__c, Plan_Period__c, TopUp_Buffer__c from Loan_Limit__c"
                       }
 
     def openAPI(self,production):
@@ -92,12 +112,14 @@ class apiSalesforce():
         responseDict={}
         #Utility function to build output dictionary from query results
         results = self.execSOQLQuery(qryName, qryParameter) # Get dataframe with qry results
-        if results['rows']!=0:
+
+        if results['status']!="Error":
             for i, row in results['data'].iterrows(): #Iterate over table using inbuilt generators
                 for j, column in row.iteritems():
                     responseDict[prefix + "." + j] = column #Store results in dictionary with prefix added to field name
-        return {'status':'Ok','data':responseDict}
-
+            return {'status':'Ok','data':responseDict}
+        else:
+            return {'status': 'Ok', 'data': None}
 
     def execSOQLQuery(self,qryName,qryVariable=None):
 
@@ -154,7 +176,7 @@ class apiSalesforce():
             return {'status':'Error','responseText':'Unknown' }
 
 
-    def getLoanExtract(self,OpportunityID):
+    def getOpportunityExtract(self,OpportunityID):
 
         #returns full extract dictionary for specific opportunityID
         logging.info("         Making multiple SOQL calls to produce dictionary")
@@ -165,7 +187,7 @@ class apiSalesforce():
 
         loanDict.update(self.qryToDict('Properties', OpportunityID, 'Prop')['data'])
 
-        loanDict.update(self.qryToDict('Loan', OpportunityID, 'Loan')['data'])
+        loanDict.update(self.qryToDict('OpportunityDetails', OpportunityID, 'Loan')['data'])
 
         loanDict.update(self.qryToDict('User',loanDict['Opp.OwnerId'],'User')['data'])
 
@@ -206,6 +228,17 @@ class apiSalesforce():
         return {'status':"Ok", "data":loanDict}
 
 
+    def getLoanObjExtract(self,OpportunityID):
+
+        #returns full extract dictionary for specific opportunityID
+        logging.info("         Making multiple SOQL calls to produce dictionary")
+        loanDict={}
+
+        loanDict.update(self.qryToDict('LoanObject', OpportunityID, 'Loan')['data'])
+
+        return {'status':"Ok", "data":loanDict}
+
+
     def getApprovedLoans(self):
         #returns a list of Approved Loans
         appLoans=self.execSOQLQuery('Opportunities',None)
@@ -225,6 +258,37 @@ class apiSalesforce():
         #returns a list of stages by sfLoanID
         amountList = self.execSOQLQuery('AmountCheckList', None)
         return amountList
+
+    def getLoanObjList(self):
+        # returns a list of LoanObjs (excluding inactive)
+        list = self.execSOQLQuery('LoanObjectList', None)
+        return list
+
+    def getLoanObjRoles(self):
+        # returns a list of Loan Object Roles
+        list = self.execSOQLQuery('LoanObjectRoles', None)
+        return list
+
+    def getLoanObjContacts(self):
+        # returns a list of Loan Obect Contacts
+        list = self.execSOQLQuery('LoanObjectContacts', None)
+        return list
+
+    def getLoanObjProperties(self):
+        # returns a list of Loan Object Properties
+        list = self.execSOQLQuery('LoanObjectProperties', None)
+        return list
+
+    def getLoanObjPropertyLinks(self):
+        # returns a list of Loan Object Property Links
+        list = self.execSOQLQuery('LoanObjectPropertyLink', None)
+        return list
+
+    def getLoanObjPurposes(self):
+        # returns a list of Loan Object Purposes
+        list = self.execSOQLQuery('LoanObjectPurposes', None)
+        return list
+
 
     def getDocumentFileStream(self, documentID):
         # Multi-call approach as SF has restrictions on calling the link table
@@ -250,11 +314,19 @@ class apiSalesforce():
 
 
     def updateLoanID(self, oppID, AMAL_loanId):
-
+        '''Update LoanID on Opportunity and Loan Object'''
         if len(oppID)<5 or len(AMAL_loanId)<5:
             return {'status':'Error' , "responseText":"ID not valid"}
         else:
+            #Update Opportunity
             self.sf.Opportunity.update(oppID,{"Loan_ID__c": AMAL_loanId})
+
+            #Update Loan Object
+            loanObj = self.qryToDict('LoanObject', oppID, "Loan")['data']
+            if loanObj:
+                loanID = loanObj['Loan.Id']
+                self.sf.Loan__c.update(loanID, {"Status__c": "Active"})
+                self.sf.Loan__c.update(loanID, {"Mortgage_Number__c": AMAL_loanId})
 
         return {'status':'Ok' }
 
@@ -294,3 +366,5 @@ class apiSalesforce():
             return None
         else:
             return str(Url['data'].iloc[0]["VersionData"])
+
+

@@ -32,7 +32,7 @@ from apps.lib.lixi.lixi_CloudBridge import CloudBridge
 from apps.lib.api_Docsaway import apiDocsAway
 from apps.enquiry.models import Enquiry
 from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignForm
-from .models import Case, LossData, Loan, FundedData, TransactionData, ModelSetting
+from .models import Case, LossData, Loan, ModelSetting
 
 
 # // UTILITIES
@@ -292,7 +292,7 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
         if not caseObj.titleDocument and not caseObj.titleRequest and caseObj.sfLeadID:
             title_email = 'credit@householdcapital.com'
             cc_email = 'lendingservices@householdcapital.com'
-            email_template = 'case/caseTitleEmail.html'
+            email_template = 'case/email/caseTitleEmail.html'
             email_context = {}
             email_context['caseObj'] = caseObj
             email_context['detailedTitle'] = loanObj.detailedTitle
@@ -491,6 +491,8 @@ class CaseEmailLoanSummary(LoginRequiredMixin, TemplateView):
             return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
 
+
+
 class CaseMailLoanSummary(LoginRequiredMixin, TemplateView):
     '''Email and Physically Mail Loan Summary'''
     template_name = 'case/email/loanSummary/email.html'
@@ -499,11 +501,17 @@ class CaseMailLoanSummary(LoginRequiredMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         email_context = {}
         caseUID = str(kwargs['uid'])
+        action = int(kwargs['pk'])
 
         caseObj = Case.objects.queryset_byUID(caseUID).get()
 
+        if caseObj.summarySentRef:
+            messages.info(self.request, "Loan Summary has already been sent")
+            return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
+
+
         #Email if present
-        if caseObj.email:
+        if caseObj.email and action != 1:
             email_context['obj'] = caseObj
             email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
             email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
@@ -673,7 +681,7 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
                 return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
             # generate dictionary from Salesforce
-            loanDict = sfAPI.getLoanExtract(caseObj.sfOpportunityID)['data']
+            loanDict = sfAPI.caseMailLoanSummary(caseObj.sfOpportunityID)['data']
 
             # enrich SOQL based dictionary
             # parse purposes from SF and enrich SOQL dictionary
@@ -896,9 +904,6 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
             caseObj.caseStage = caseStagesEnum.FUNDED.value
             caseObj.save(update_fields=['amalLoanID','amalIdentifier','caseStage'])
 
-            #Create related funded data (initial valuation $1)
-            funded_obj, created = FundedData.objects.get_or_create(case=caseObj, totalValuation=1)
-
             context['log'] = result['log']
             messages.success(self.request, "Successfully sent to AMAL Production. Documents being sent in background")
 
@@ -956,77 +961,4 @@ class CaseVariation(LoginRequiredMixin, TemplateView):
         messages.success(self.request, "Update the meeting based on additional amounts")
         return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': str(newCaseObj.caseUID)}))
 
-
-
-## Loan Views (AMAL)
-
-# Case List View
-class LoanListView(LoginRequiredMixin, ListView):
-    paginate_by = 8
-    template_name = 'case/loanList.html'
-    context_object_name = 'object_list'
-    model = FundedData
-
-    def get_queryset(self, **kwargs):
-        # overrides queryset to filter search parameter
-        queryset = FundedData.objects.filter(settlementDate__isnull=False)
-
-        if self.request.GET.get('search'):
-            search = self.request.GET.get('search')
-            queryset = queryset.filter(
-                Q(case__caseDescription__icontains=search) |
-                Q(case__user__first_name__icontains=search) |
-                Q(case__user__last_name__icontains=search) |
-                Q(case__street__icontains=search) |
-                Q(case__suburb__icontains = search) |
-                Q(case__surname_1__icontains=search)
-            )
-
-        orderBy = ['-settlementDate']
-
-        queryset = queryset.order_by(*orderBy)[:160]
-
-
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super(LoanListView, self).get_context_data(**kwargs)
-        context['title'] = 'Loans'
-
-        if self.request.GET.get('search'):
-            context['search'] = self.request.GET.get('search')
-        else:
-            context['search'] = ""
-
-        self.request.session['webCalcQueue'] = WebCalculator.objects.queueCount()
-        self.request.session['webContQueue'] = WebContact.objects.queueCount()
-        self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
-
-        return context
-
-# Loan Detail View
-class LoanDetailView(LoginRequiredMixin, ListView):
-    template_name = 'case/loanDetail.html'
-    model = FundedData
-
-    def get_object(self, queryset=None):
-        caseUID = str(self.kwargs['uid'])
-        queryset = FundedData.objects.queryset_byUID(str(caseUID))
-        obj = queryset.get()
-        return obj
-
-    def get_context_data(self, **kwargs):
-        context = super(LoanDetailView, self).get_context_data(**kwargs)
-        context['title'] = 'Loan Details'
-
-        caseUID = str(self.kwargs['uid'])
-        caseObj = Case.objects.queryset_byUID(str(caseUID)).get()
-        context['caseObj'] = caseObj
-        context['fundedObj'] = self.get_object()
-        context['loanTypesEnum'] = loanTypesEnum
-
-        transQs = TransactionData.objects.filter(case=caseObj).order_by('-tranRef')
-        context['transList']=transQs
-
-        return context
 

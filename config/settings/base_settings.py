@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'apps.fact_find',
     'apps.landing',
     'apps.relationship',
+    'apps.servicing',
     'apps.referrer',
     'apps.site_tags',
 ]

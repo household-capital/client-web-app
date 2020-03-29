@@ -130,6 +130,39 @@ class maritalEnum(Enum):
     WIDOWED = 4
     DEFACTO = 5
 
+@accessInTemplate
+class roleEnum(Enum):
+    PRINCIPAL_BORROWER = 0
+    SECONDARY_BORROWER = 1
+    BORROWER = 2
+    NOMINATED_OCCUPANT = 3
+    PERMITTED_COHABITANT = 4
+    POWER_OF_ATTORNEY = 5
+    AUTH_3RD_PARTY = 6
+    DISTRIBUTION_PARTNER = 7
+    ADVISER = 8
+    LOAN_ORIGINATOR = 9
+    LOAN_WRITER = 10
+    VALUER = 11
+    EXECUTOR = 12
+
+
+@accessInTemplate
+class authTypesEnum(Enum):
+    NO = 0
+    YES = 1
+    REFER_POA = 2
+
+
+@accessInTemplate
+class facilityStatusEnum(Enum):
+    INACTIVE = 0
+    ACTIVE = 1
+    REPAID = 2
+    SUSPENDED = 3
+
+
+
 
 #Squash migrations and delete
 class closeReasonTypes(Enum):
@@ -146,3 +179,5 @@ class closeReasonTypes(Enum):
     COMPETITOR=11
     NO_CLIENT_ACTION=13
     OTHER = 12
+    
+    

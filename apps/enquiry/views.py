@@ -78,7 +78,7 @@ class EnquiryListView(LoginRequiredMixin, ListView):
                 Q(email__icontains=search) |
                 Q(phoneNumber__icontains=search) |
                 Q(postcode__icontains=search) |
-                Q(enquiryNotes__icontains=search)
+                Q(enquiryNotes__icontains=search) 
             ).exclude(actioned=-1)
 
         # ...and for open my items

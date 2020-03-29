@@ -14,10 +14,11 @@ from django.utils.timezone import get_current_timezone
 from django.views.generic import TemplateView, View
 
 from apps.calculator.models import WebCalculator, WebContact
-from apps.case.models import Case, FundedData, TransactionData
+from apps.case.models import Case
+from apps.servicing.models import Facility
 
 from apps.enquiry.models import Enquiry
-from apps.lib.site_Enums import caseStagesEnum, directTypesEnum, channelTypesEnum
+from apps.lib.site_Enums import caseStagesEnum, directTypesEnum, channelTypesEnum, appTypesEnum
 
 # Create your views here.
 
@@ -102,14 +103,13 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context['totalCases'] = qsCases.count()
         context['meetings'] = qsCases.filter(meetingDate__isnull=False).count()
         context['applications'] = qsCases.filter(titleDocument__isnull=False).exclude(titleDocument="").count()
-        context['funded'] = qsCases.filter(caseStage=caseStagesEnum.FUNDED.value).count()
 
         # Funded Data
-        qsFunded = FundedData.objects.filter(principal__gt=0, dischargeDate__isnull=True)
+        qsFunded = Facility.objects.filter(currentBalance__gt=0, dischargeDate__isnull=True)
         if qsFunded:
-            context['portfolioLimit'] = int(qsFunded.aggregate(Sum('approved'))['approved__sum'])
-            context['portfolioBalance'] = int(qsFunded.aggregate(Sum('principal'))['principal__sum'])
-            context['portfolioFunded'] = int(qsFunded.aggregate(Sum('advanced'))['advanced__sum'])
+            context['portfolioLimit'] = int(qsFunded.aggregate(Sum('approvedAmount'))['approvedAmount__sum'])
+            context['portfolioBalance'] = int(qsFunded.aggregate(Sum('currentBalance'))['currentBalance__sum'])
+            context['portfolioFunded'] = int(qsFunded.aggregate(Sum('advancedAmount'))['advancedAmount__sum'])
         else:
             context['portfolioLimit'] = 0
             context['portfolioBalance']=0
@@ -117,11 +117,17 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         if context['portfolioBalance'] > 0:
             hashSum = \
-            qsFunded.annotate(lvr=Sum(F('principal') / F('totalValuation') * F('principal'))).aggregate(Sum('lvr'))[
-                'lvr__sum']
+            qsFunded.annotate(lvr=Sum(F('currentBalance') / F('totalValuation') * F('currentBalance'))).aggregate(Sum('lvr'))['lvr__sum']
             context['portfolioLvr'] = int(hashSum / context['portfolioBalance'] * 100)
 
-        context['portfolioLoans'] = qsFunded.filter(principal__gt=0).count()
+        context['portfolioLoans'] = Facility.objects.filter(currentBalance__gt=0, dischargeDate__isnull=True).count()
+        context['facilityLoans'] = Facility.objects.exclude(status=0).count()
+        context['caseLoans'] = qsCases.filter(caseStage=caseStagesEnum.FUNDED.value).exclude(appType=appTypesEnum.VARIATION.value).count()
+        if context['facilityLoans'] == context['caseLoans']:
+            context['clientSFRec'] = True
+        else:
+            context['clientSFRec'] = False
+
 
         self.request.session['webCalcQueue'] = WebCalculator.objects.queueCount()
         self.request.session['webContQueue'] = WebContact.objects.queueCount()
@@ -176,8 +182,24 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         context['interactionData'] = self.__createTableData(dataQs, 'type', 'interactions')
 
+        #tableTsData = []
+        #for key, item in context['interactionData'].items():
+        #    tableTsData.append([datetime.datetime.strptime(key, "%b-%y").strftime('%Y-%m-%d'), item['interactions']])
+
+        #context['chartInteraction'] = tableTsData[-12:]
+
+        tableTsPhoneData = []
+        tableTsCalcData = []
+        for key, item in context['directData'].items():
+            tableTsPhoneData.append([datetime.datetime.strptime(key, "%b-%y").strftime('%Y-%m-%d'), self.__getItem(item,directTypesEnum.PHONE.value, 0)])
+            tableTsCalcData.append([datetime.datetime.strptime(key, "%b-%y").strftime('%Y-%m-%d'), self.__getItem(item,directTypesEnum.WEB_CALCULATOR.value, 0)])
+
+        context['chartCalcMthData'] = tableTsCalcData[-12:]
+        context['chartPhoneMthData'] = tableTsPhoneData[-12:]
+
         # - generate totals
         tableData = {}
+        tableTsData=[]
         for column in dateRange:
             total = 0
             if column in context['directData']:
@@ -189,9 +211,10 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                 for item, value in case.items():
                     total += value
             tableData[column] = total
+            tableTsData.append([datetime.datetime.strptime(column, "%b-%y").strftime('%Y-%m-%d'), total])
 
         context['totalData'] = tableData
-
+        context['chartEnquiry'] = tableTsData
 
         # MEETING AND SETTLEMENT GRAPH DATA
 
@@ -216,7 +239,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context['chartZoomMeetingData']=json.dumps(self.__createTimeSeries(dataQs, 'zoomMeetings'),default=self.dateParse)
 
         # - get settlement data
-        qsMeetings = FundedData.objects.filter(settlementDate__isnull=False)
+        qsMeetings = Facility.objects.filter(settlementDate__isnull=False)
         dataQs = qsMeetings \
             .annotate(date=Cast(TruncMonth('settlementDate', tzinfo=tz), DateField())) \
             .values_list('date') \
@@ -228,11 +251,11 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         # NEW LOANS / PORTFOLIO DATA
 
-        qsNewLoans = FundedData.objects.filter(settlementDate__isnull=False).order_by("settlementDate")
+        qsNewLoans = Facility.objects.filter(settlementDate__isnull=False).order_by("settlementDate")
         dataQs = qsNewLoans \
             .annotate(date=Cast(TruncMonth('settlementDate', tzinfo=tz), DateField())) \
             .values_list('date') \
-            .annotate(newLoans=Sum('approved')) \
+            .annotate(newLoans=Sum('approvedAmount')) \
             .values('date', 'newLoans').order_by('date')
 
         context['chartNewLoansData'] = json.dumps(self.__createTimeSeries(dataQs, 'newLoans'),
@@ -242,41 +265,18 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                                                   default=self.dateParse)
 
         # AVERAGE DAYS
-        qsMeetings = FundedData.objects.filter(settlementDate__isnull=False)
+        qsMeetings = Facility.objects.filter(settlementDate__isnull=False)
         dataQs = qsMeetings \
             .annotate(date=Cast(TruncMonth('settlementDate', tzinfo=tz), DateField())) \
             .values_list('date') \
-            .annotate(ave_days=Avg((F('settlementDate')-F('case__meetingDate')))) \
-            .annotate(min_days=Min((F('settlementDate') - F('case__meetingDate')))) \
+            .annotate(ave_days=Avg((F('settlementDate')-F('meetingDate')))) \
+            .annotate(min_days=Min((F('settlementDate') - F('meetingDate')))) \
             .values('date', 'ave_days', 'min_days').order_by('date')
 
         context['chartAverageDays'] = json.dumps(self.__createTimeSeries(dataQs, 'ave_days'),
                                                   default=self.dateParse)
         context['chartMinDays'] = json.dumps(self.__createTimeSeries(dataQs, 'min_days'),
                                                   default=self.dateParse)
-
-        #No Refinance
-        #qsMeetings = FundedData.objects.filter(settlementDate__isnull=False, case__loan__refinanceAmount__exact=0)
-        #dataQs = qsMeetings \
-        #    .annotate(date=Cast(TruncMonth('settlementDate', tzinfo=tz), DateField())) \
-        #     .values_list('date') \
-        #    .annotate(ave_days=Avg((F('settlementDate') - F('case__meetingDate')))) \
-        #    .values('date', 'ave_days').order_by('date')
-
-        #context['chartNoRefiAveDays'] = json.dumps(self.__createTimeSeries(dataQs, 'ave_days'),
-        #                                         default=self.dateParse)
-
-        #Refinance
-        #qsMeetings = FundedData.objects.filter(settlementDate__isnull=False, case__loan__refinanceAmount__gt=0)
-        #dataQs = qsMeetings \
-        #    .annotate(date=Cast(TruncMonth('settlementDate', tzinfo=tz), DateField())) \
-        #    .values_list('date') \
-        #    .annotate(ave_days=Avg((F('settlementDate') - F('case__meetingDate')))) \
-        #    .values('date', 'ave_days').order_by('date')
-
-        #context['chartRefiAveDays'] = json.dumps(self.__createTimeSeries(dataQs, 'ave_days'),
-        #                                         default=self.dateParse)
-
         return context
 
     def __deDupe(self, qs):
@@ -312,4 +312,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             timeSeriesData.append([item['date'],total])
         return timeSeriesData
 
+    def __getItem(self,dict,key, default=None):
+        if key in dict:
+            return dict[key]
+        else:
+            return default
 

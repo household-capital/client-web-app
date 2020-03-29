@@ -28,9 +28,9 @@
                     {% for message in messages %}
                         <p{% if message.tags == 'error' %}
                             class="alert alert-warning"{% endif %}
-                          {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
 
-                          {% if message.tags == 'success' %}
+                                {% if message.tags == 'success' %}
                             class="alert alert-success"{% endif %}>
                             {{ message }}</p>
                     {% endfor %}
@@ -60,11 +60,34 @@
 
                             <div class="row form-group justify-content-center">
 
-                                <label class="d-none d-sm-table-cell" for="search" class="col-form-label"><i class="fas fa-search fa-lg"></i></label>
+                                <label class="d-none d-sm-table-cell" for="search" class="col-form-label"><i
+                                        class="fas fa-search fa-lg"></i></label>
 
                                 <div class="col-lg-5 pb-3">
                                     <input class='form-control' type='text' name='search' placeholder='Search loans'
                                            value='{{ request.GET.search }}'/>
+                                </div>
+
+                                <div class="col-lg-5 text-left">
+                                    {% if request.GET.filter == 'Reconciliation' %}
+                                        <a href="?filter=">
+                                            <div class="btn btn-secondary" data-toggle="tooltip"
+                                                 data-placement="top"
+                                                 title="Meeting Held"><i class="fas fa-balance-scale fa-fw"></i>
+                                                <span class="badge btn-danger align-text-top">{{ recItems }}</span>
+                                            </div>
+                                        </a>
+                                    {% else %}
+                                        <a href="?filter=Reconciliation">
+                                            <div class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
+                                                 title="Meeting Held"><i class="fas fa-balance-scale fa-fw"></i>
+                                                {% if recItems > 0 %}
+                                                    <span class="badge btn-danger align-text-top">{{ recItems }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </a>
+                                    {% endif %}
+
                                 </div>
                             </div>
 
@@ -78,20 +101,26 @@
                     <thead>
                     <tr>
                         <th scope="col">&nbsp;Description</th>
-                        <th scope="col">&nbsp;Street</th>
-                        <th scope="col">&nbsp;Suburb</th>
                         <th scope="col">&nbsp;User</th>
                         <th scope="col">&nbsp;Settlement Date</th>
+                        <th scope="col">&nbsp;Status</th>
+                        <th scope="col">&nbsp;Rec</th>
+
+
                     </tr>
                     </thead>
                     <tbody>
                     {% for obj in object_list %}
                         <tr>
-                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.case.caseDescription }}</a></td>
-                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.case.street }}</a></td>
-                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.case.suburb }}</a></td>
-                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.case.user }}</a></td>
+                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.sfLoanName }}</a></td>
+                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.owner }}</a></td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.settlementDate | date:'d M Y'}}</a></td>
+                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.enumStatus }}</a></td>
+                            <td>{% if obj.amalReconciliation %}
+                                <i class="text-success far fa-check-circle"></i>
+                            {% else %}
+                                <i class="text-danger far fa-times-circle"></i>
+                            {% endif %}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

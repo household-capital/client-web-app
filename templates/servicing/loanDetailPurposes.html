@@ -1,0 +1,232 @@
+{% extends 'site/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+{% block message_display %}
+
+    <div class="container">
+        {% if messages %}
+            <div class="row justify-content-md-center pt-3">
+                <div class="col-6 text-center">
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %} class="alert alert-danger"{% endif %}
+                                {% if message.tags == 'warning' %} class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                    <br>
+                </div>
+
+            </div>
+
+        {% endif %}
+    </div>
+
+{% endblock %}
+
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12 title">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+        <div class="row">
+
+            <div class="col-lg-11">
+
+                <p class="pt-3 pb-2"><b>{{ obj.sfLoanName }}</b>&nbsp;&nbsp;&nbsp;
+                    {% if obj.status == 1 %}<span class="badge badge-success">Active</span>{% endif %}
+                    {% if obj.status == 2 %}<span class="badge badge-secondary">Repaid</span>    {% endif %}
+                    {% if obj.status == 3 %}<span class="badge badge-warning">Suspended</span>    {% endif %}
+
+
+                </p>
+                <br>
+
+                <a href="{% url 'servicing:loanDetail' uid=obj.facilityUID %}">
+                    <button class="btn btn-outline-secondary"><i class="fas fa-search"></i> Overview</button>
+                </a>
+                <a href="{% url 'servicing:loanDetailRoles' uid=obj.facilityUID %}">
+                    <button class="btn btn-outline-secondary"><i class="fas fa-user-friends"></i> Borrowers</button>
+                </a>
+                <a href="{% url 'servicing:loanDetailBalances' uid=obj.facilityUID %}">
+                    <button class="btn btn-outline-secondary"><i class="fa fa-bars"></i> Balances</button>
+                </a>
+                <a href="{% url 'servicing:loanDetailPurposes' uid=obj.facilityUID %}">
+                    <button class="btn btn-secondary"><i class="far fa-cog"></i> Purposes</button>
+                </a>
+
+                <a href="{% url 'servicing:loanDetailProperty' uid=obj.facilityUID %}">
+                    <button class="btn btn-outline-secondary"><i class="fa fa-home"></i> Property</button>
+                </a>
+                <button class="btn btn-outline-secondary"><i class="far fa-calendar-alt"></i> Annual Servicing</button>
+                <button class="btn btn-outline-secondary"><i class="fas fa-headset"></i> Enquiry</button>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-lg-3 text-left pt-4">
+                <p class="small"><b>Loan Amounts</b></p>
+
+                <div class="row no-gutters">
+                    <div class="col-lg-7">
+                        <p> Total Purposes:</p>
+                        <p class="pt-1"> Establishment Fee</p>
+                        <p class="pt-1"> Total Loan:</p>
+                    </div>
+                    <div class="col-lg-5 text-right">
+                        <p>$ {{ obj.totalPurposeAmount|intVal|intcomma }}</p>
+                        <p class="pt-1"> $ {{ obj.totalEstablishmentFee |intVal|intcomma }}</p>
+                        <p class="pt-1">$ {{ obj.totalLoanAmount |intVal|intcomma }}</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-lg-3 text-left ml-3 pt-4">
+                <p class="small"><b>Plan Amounts</b></p>
+
+                <div class="row no-gutters">
+                    <div class="col-lg-7">
+                        <p> Total Purposes:</p>
+                        <p class="pt-1"> Establishment Fee</p>
+                        <p class="pt-1"> Total Loan:</p>
+                    </div>
+                    <div class="col-lg-5 text-right">
+                        <p>$ {{ obj.totalPlanPurposeAmount|intVal|intcomma }}</p>
+                        <p class="pt-1"> $ {{ obj.totalPlanEstablishmentFee |intVal|intcomma }}</p>
+                        <p class="pt-1">$ {{ obj.totalPlanAmount |intVal|intcomma }}</p>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="col-lg-3 text-left ml-3 pt-4">
+                <p class="small"><b>Fees</b></p>
+                <div class="row no-gutters">
+                    <div class="col-lg-6">
+                        <p> Establishment:</p>
+                    </div>
+                    <div class="col-lg-3 text-right">
+                        <p>{{ obj.establishmentFeeRate|percent }}%</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row">
+
+
+            <div class="col-lg-11">
+                <br><br>
+
+                <div class="accordion" id="accordionExample">
+                    {% for purpose in purposeList %}
+
+                        <div class="card">
+                            <div class="card-header" id="headingOne">
+                                <h2 class="mb-0">
+                                    <button class="btn btn-sm btn-info"
+                                            type="button" data-toggle="collapse"
+                                            data-target="#collapse{{ forloop.counter }}"
+                                            aria-expanded="true" aria-controls="collapse">
+                                        {{ purpose.category }} - {{ purpose.intention }}
+                                    </button>
+                                    <button class="btn btn-sm btn-secondary"
+                                            type="button" data-toggle="collapse"
+                                            data-target="#collapse{{ forloop.counter }}"
+                                            aria-expanded="true" aria-controls="collapse">
+                                        ${{ purpose.amount|intVal|intcomma }}
+                                    </button>
+                                    {% if 'Draw-down' in purpose.intention %}
+                                        <button class="btn btn-sm btn-info"
+                                                type="button" data-toggle="collapse"
+                                                data-target="#collapse{{ forloop.counter }}"
+                                                aria-expanded="true" aria-controls="collapse">
+                                            <i class="fas fa-repeat-alt"></i>
+                                        </button>
+                                    {% endif %}
+                                </h2>
+                            </div>
+
+                            <div id="collapse{{ forloop.counter }}" class="collapse hide" aria-labelledby="headingOne"
+                                 data-parent="#accordionExample">
+                                <div class="card-body">
+
+                                    <div class="row">
+
+
+                                        <div class="col-lg-6">
+                                            <p><i class="far fa-comment-alt-lines"></i> Description <br>
+                                                {{ purpose.description|default:"" }}</p>
+
+                                        </div>
+
+                                        {% if 'Draw-down' in purpose.intention %}
+                                            <div class="col-lg-3">
+                                                <p><i class="fas fa-repeat-alt"></i><b> Drawdown Details</b></p>
+                                                <p>Drawdown Amount: ${{ purpose.drawdownAmount|intVal|intcomma }}</p>
+                                                <p>Frequency: {{ purpose.drawdownFrequency|default:""  }}</p>
+                                                <p>Period: {{ purpose.planPeriod|default:""  }} years</p>
+                                                {% if topUpBuffer %}<p>Top-up Buffer: YES</p>{% endif %}
+                                                <p>Plan Amount: ${{ purpose.planAmount|intVal|intcomma }}</p>
+                                            </div>
+
+                                            <div class="col-lg-3">
+                                                <br>
+                                                <p>Start: {{ purpose.drawdownStartDate|default:""|date:'d M Y' }}</p>
+                                                <p>End: {{ purpose.drawdownEndDate|default:""|date:'d M Y' }}</p>
+                                            </div>
+                                        {% endif %}
+
+                                    </div>
+                                    <div class="row">
+
+                                        <div class="col-lg-6 pt-4">
+                                            <p><i class="far fa-sticky-note"></i> Notes
+                                                <br>{{ purpose.Notes|default:"" }}</p>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    {% endfor %}
+                    <div class="card" border="dark" bg='light'></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <br><br>
+
+
+
+{% endblock %}
+
+
+{% block javascript %}
+
+
+{% endblock %}
