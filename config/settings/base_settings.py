@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django_celery_results',
     # my apps
     'apps.accounts',
+    'apps.application',
     'apps.calculator',
     'apps.calendly',
     'apps.case',
