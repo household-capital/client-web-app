@@ -6,22 +6,18 @@ import os
 import pathlib
 
 # Django Imports
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.core.mail import EmailMultiAlternatives
-from django.db.models import Q
-from django.forms import model_to_dict
+
+from django.db.models import Q, F
 from django.http import HttpResponseRedirect
-from django.template.loader import get_template
 from django.urls import reverse_lazy
-from django.utils import timezone
 from django.views.generic import ListView, UpdateView, CreateView, TemplateView, View, FormView, DetailView
 
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Enums import roleEnum
 
-from .models import Facility, FacilityTransactions, FacilityRoles, FacilityProperty, FacilityPropertyVal, FacilityPurposes, FacilityEvents
+from .models import Facility, FacilityTransactions, FacilityRoles, FacilityProperty, FacilityPropertyVal, \
+    FacilityPurposes, FacilityEvents
 
 
 class LoginRequiredMixin():
@@ -48,11 +44,19 @@ class LoanListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self, **kwargs):
         # overrides queryset to filter search parameter
-        queryset = Facility.objects.filter(settlementDate__isnull=False)
+        queryset = Facility.objects\
+            .annotate(availableAmount = F('approvedAmount')-F('advancedAmount')) \
+            .filter(settlementDate__isnull=False)
+        #    .annotate(planAddition = F('totalLoanAmount')-F('totalPlanAmount'))\
+
 
         if self.request.GET.get('filter') == "Reconciliation":
             queryset = queryset.filter(
                 Q(amalReconciliation=False))
+
+        if self.request.GET.get('filter') == "Breach":
+            queryset = queryset.filter(
+                Q(amalBreach=True))
 
         if self.request.GET.get('search'):
             search = self.request.GET.get('search')
@@ -77,9 +81,38 @@ class LoanListView(LoginRequiredMixin, ListView):
         else:
             context['search'] = ""
 
-        context['recItems'] = Facility.objects.filter(amalReconciliation=False).count()
+        context['recItems'] = Facility.objects.filter(amalReconciliation=False, settlementDate__isnull=False).count()
+        context['breachItems'] = Facility.objects.filter(amalBreach=True, settlementDate__isnull=False).count()
 
         return context
+
+class LoanEventList(LoginRequiredMixin, ListView):
+    paginate_by = 8
+    template_name = 'servicing/loanEvents.html'
+    context_object_name = 'object_list'
+    model = Facility
+
+    def get_queryset(self, **kwargs):
+        # overrides queryset to filter search parameter
+        queryset = FacilityEvents.objects.all().order_by('-eventDate')
+
+        if self.request.GET.get('search'):
+            search = self.request.GET.get('search')
+            queryset = queryset.filter(
+                Q(facility__sfLoanName__icontains = search) |
+                Q(facility__sfLoanID__icontains=search)
+            )
+
+        queryset=queryset.exclude(eventType = 1) ####
+
+        return queryset[:160]
+
+    def get_context_data(self, **kwargs):
+        context = super(LoanEventList, self).get_context_data(**kwargs)
+        context['title'] = 'Recent Events'
+
+        return context
+
 
 # Loan Detail View
 class LoanDetailView(LoginRequiredMixin, DetailView):
@@ -191,13 +224,3 @@ class LoanDetailPurposes(LoginRequiredMixin, DetailView):
         context['purposeList'] = purposeQs
 
         return context
-
-
-
-
-from .tasks import sfDetailSynch, sfSynch, fundedData
-class Test(View):
-    def get(self, request):
-        #print(sfSynch())
-        print(sfDetailSynch())
-        #print(fundedData())

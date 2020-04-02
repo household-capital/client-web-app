@@ -104,10 +104,18 @@ def fundedData(*arg, **kwargs):
             if not loan.maxDrawdownDate and loan.settlementDate:
                 loan.maxDrawdownDate = loan.settlementDate + timezone.timedelta(days=365)
 
+            #Check approved amounts agree
             if (loan.totalLoanAmount - loan.approvedAmount) > 1:
                 loan.amalReconciliation = False
             else:
                 loan.amalReconciliation = True
+
+            #Check for limit breaches
+            if (loan.advancedAmount - loan.approvedAmount) > 1:
+                loan.amalBreach = True
+            else:
+                loan.amalBreach = False
+
 
             loan.save()
 

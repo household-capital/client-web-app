@@ -67,53 +67,6 @@
                                     <input class='form-control' type='text' name='search' placeholder='Search loans'
                                            value='{{ request.GET.search }}'/>
                                 </div>
-
-                                <div class="col-lg-5 text-left">
-                                    {% if request.GET.filter == 'Reconciliation' %}
-                                        <a href="?filter=">
-                                            <div class="btn btn-secondary" data-toggle="tooltip"
-                                                 data-placement="top"
-                                                 title="Limit Reconciliation"><i class="fas fa-balance-scale fa-fw"></i>
-                                                <span class="badge btn-danger align-text-top">{{ recItems }}</span>
-                                            </div>
-                                        </a>
-                                    {% else %}
-                                        <a href="?filter=Reconciliation">
-                                            <div class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
-                                                 title="Limit Reconciliation"><i class="fas fa-balance-scale fa-fw"></i>
-                                                {% if recItems > 0 %}
-                                                    <span class="badge btn-danger align-text-top">{{ recItems }}</span>
-                                                {% endif %}
-                                            </div>
-                                        </a>
-                                    {% endif %}
-
-                                    {% if request.GET.filter == 'Breach' %}
-                                        <a href="?filter=">
-                                            <div class="btn btn-secondary" data-toggle="tooltip"
-                                                 data-placement="top"
-                                                 title="Limit Breach"><i class="fas fa-siren-on fa-fw"></i>
-                                                <span class="badge btn-danger align-text-top">{{ breachItems }}</span>
-                                            </div>
-                                        </a>
-                                    {% else %}
-                                        <a href="?filter=Breach">
-                                            <div class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
-                                                 title="Limit Breach"><i class="fas fa-siren-on fa-fw"></i>
-                                                {% if breachItems > 0 %}
-                                                    <span class="badge btn-danger align-text-top">{{ breachItems }}</span>
-                                                {% endif %}
-                                            </div>
-                                        </a>
-                                    {% endif %}
-
-                                     <a href="{% url 'servicing:loanEventList' %}">
-                                            <div class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
-                                                 title="Loan Events"><i class="far fa-calendar-plus fa-fw"></i>
-                                            </div>
-                                      </a>
-
-                                </div>
                             </div>
 
                         </form>
@@ -125,26 +78,19 @@
                 <table class="table table-hover table-sm">
                     <thead>
                     <tr>
-                        <th scope="col">&nbsp;Description</th>
-                        <th scope="col">&nbsp;User</th>
-                        <th scope="col">&nbsp;Settlement Date</th>
-                        <th scope="col">&nbsp;Status</th>
-                        <th scope="col">&nbsp;</th>
-                        <th scope="col">&nbsp;</th>
-
+                        <th scope="col">&nbsp;Facility</th>
+                        <th scope="col">&nbsp;Event</th>
+                        <th scope="col">&nbsp;Event Date</th>
 
                     </tr>
                     </thead>
                     <tbody>
                     {% for obj in object_list %}
                         <tr>
-                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.sfLoanName }}</a></td>
-                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.owner }}</a></td>
-                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.settlementDate | date:'d M Y'}}</a></td>
-                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.enumStatus }}</a></td>
-                            <td>{% if obj.availableAmount > 1000 %}<i class="fas fa-wallet fa-fw"></i>{% endif %}</td>
-                            <td>{% if obj.planAddition > 1000 %}<i class="fas fa-repeat-alt"></i>{% endif %}</td>
-                        </tr>
+                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.facility.sfLoanName }}</a></td>
+                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.enumEventType }}</a></td>
+                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.eventDate | date:'d M Y'}}</a></td>
+                      </tr>
                     {% endfor %}
                     </tbody>
                 </table>

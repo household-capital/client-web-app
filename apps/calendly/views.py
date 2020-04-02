@@ -121,7 +121,7 @@ class CalendlyWebhook(View):
                 obj.customerPhone = customer_phone
                 obj.isZoomLive = True
 
-                caseObj = Case.objects.filter(email=customer_email).order_by("-timestamp").first()
+                caseObj = Case.objects.filter(email__iexact=customer_email).order_by("-timestamp").first()
 
                 if caseObj:
                     obj.caseUID = caseObj.caseUID

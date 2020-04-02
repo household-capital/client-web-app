@@ -87,6 +87,7 @@ class Facility(models.Model):
     lastAnnualService = models.DateTimeField(blank=True, null=True)
 
     amalReconciliation = models.BooleanField(default=False)
+    amalBreach = models.BooleanField(default=False)
 
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
@@ -320,3 +321,6 @@ class FacilityEvents(models.Model):
 
     def enumEventType(self):
         return dict(self.eventTypes)[self.eventType]
+
+    def get_absolute_url(self):
+        return self.facility.get_absolute_url()

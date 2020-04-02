@@ -12,7 +12,5 @@ urlpatterns = [
      path('loanDetailRoles/<uuid:uid>', views.LoanDetailRoles.as_view(), name='loanDetailRoles'),
      path('loanDetailProperty/<uuid:uid>', views.LoanDetailProperty.as_view(), name='loanDetailProperty'),
      path('loanDetailPurposes/<uuid:uid>', views.LoanDetailPurposes.as_view(), name='loanDetailPurposes'),
-
-     path('test', views.Test.as_view())
-
+     path('loanEvents', views.LoanEventList.as_view(), name='loanEventList'),
 ]
