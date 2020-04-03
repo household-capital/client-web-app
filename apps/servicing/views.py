@@ -100,7 +100,8 @@ class LoanEventList(LoginRequiredMixin, ListView):
             search = self.request.GET.get('search')
             queryset = queryset.filter(
                 Q(facility__sfLoanName__icontains = search) |
-                Q(facility__sfLoanID__icontains=search)
+                Q(facility__sfLoanID__icontains=search) |
+                Q(facility__amalID__contains=search)
             )
 
         queryset=queryset.exclude(eventType = 1) ####

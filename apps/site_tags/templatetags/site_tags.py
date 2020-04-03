@@ -32,7 +32,10 @@ def shortUID(arg):
     return str(arg)[-12:]
 
 def filename(value):
-    return os.path.basename(value.file.name)
+    try:
+        return os.path.basename(value.file.name)
+    except:
+        return None
 
 def upto(value, delimiter=','):
     return value.split(delimiter)[0]
