@@ -15,6 +15,8 @@ from django.views.generic import ListView, UpdateView, CreateView, TemplateView,
 
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Enums import roleEnum
+from apps.lib.site_Utilities import updateNavQueue
+
 
 from .models import Facility, FacilityTransactions, FacilityRoles, FacilityProperty, FacilityPropertyVal, \
     FacilityPurposes, FacilityEvents, FacilityEnquiry
@@ -85,6 +87,9 @@ class LoanListView(LoginRequiredMixin, ListView):
         context['recItems'] = Facility.objects.filter(amalReconciliation=False, settlementDate__isnull=False).count()
         context['breachItems'] = Facility.objects.filter(amalBreach=True, settlementDate__isnull=False).count()
         context['enquiryItems'] = FacilityEnquiry.objects.filter(actioned=False).count()
+
+        # Update Nav Queues
+        updateNavQueue(self.request)
 
         return context
 

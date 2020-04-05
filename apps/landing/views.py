@@ -13,12 +13,14 @@ from django.utils.timezone import get_current_timezone
 
 from django.views.generic import TemplateView, View
 
-from apps.calculator.models import WebCalculator, WebContact
+from apps.calculator.models import WebCalculator
 from apps.case.models import Case
-from apps.servicing.models import Facility, FacilityEnquiry
+from apps.servicing.models import Facility
 
 from apps.enquiry.models import Enquiry
 from apps.lib.site_Enums import caseStagesEnum, directTypesEnum, channelTypesEnum, appTypesEnum
+from apps.lib.site_Utilities import updateNavQueue
+
 
 # Create your views here.
 
@@ -128,11 +130,8 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         else:
             context['clientSFRec'] = False
 
-
-        self.request.session['webCalcQueue'] = WebCalculator.objects.queueCount()
-        self.request.session['webContQueue'] = WebContact.objects.queueCount()
-        self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
-        self.request.session['loanEnquiryQueue'] =  FacilityEnquiry.objects.queueCount()
+        #Update Nav Queues
+        updateNavQueue(self.request)
 
         # LEAD GENERATION TABLE
 

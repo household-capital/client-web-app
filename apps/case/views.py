@@ -22,16 +22,16 @@ from django.views.generic import ListView, UpdateView, CreateView, TemplateView,
 from config.celery import app
 
 # Local Application Imports
-from apps.calculator.models import WebCalculator, WebContact
+from apps.calculator.models import WebCalculator
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, appTypesEnum
 from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.site_Globals import LOAN_LIMITS
 from apps.lib.site_Logging import write_applog
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
+from apps.lib.site_Utilities import updateNavQueue
 from apps.lib.api_Docsaway import apiDocsAway
 from apps.enquiry.models import Enquiry
-from apps.servicing.models import FacilityEnquiry
 from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignForm
 from .models import Case, LossData, Loan, ModelSetting
 
@@ -170,10 +170,8 @@ class CaseListView(LoginRequiredMixin, ListView):
         else:
             context['order'] = self.request.GET.get('order')
 
-        self.request.session['webCalcQueue'] = WebCalculator.objects.queueCount()
-        self.request.session['webContQueue'] = WebContact.objects.queueCount()
-        self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
-        self.request.session['loanEnquiryQueue'] = FacilityEnquiry.objects.queueCount()
+        # Update Nav Queues
+        updateNavQueue(self.request)
 
         return context
 

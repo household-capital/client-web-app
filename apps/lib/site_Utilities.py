@@ -5,6 +5,17 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 
+from apps.calculator.models import WebCalculator, WebContact
+from apps.enquiry.models import Enquiry
+from apps.servicing.models import FacilityEnquiry
+
+
+def updateNavQueue(request):
+    request.session['webCalcQueue'] = WebCalculator.objects.queueCount()
+    request.session['webContQueue'] = WebContact.objects.queueCount()
+    request.session['enquiryQueue'] = Enquiry.objects.queueCount()
+    request.session['loanEnquiryQueue'] = FacilityEnquiry.objects.queueCount()
+    return
 
 def firstNameSplit(str):
 
