@@ -1,0 +1,64 @@
+{% extends 'application/base/base_app.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div class="row justify-content-md-center">
+                <div class="col-6 text-center">
+                    <br>
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning"{% endif %}>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="container">
+
+    <div class="row">
+        <div class="col-lg-6 pb-3">
+            <br>
+            <div class="secondary_title">Start an application</div>
+            <br>
+            <p>You can complete an application entirely on-line. </p>
+            <br>
+            <p>During this journey we will: </p>
+            <ul>
+                <li>explain key features of a Household Income loan</li>
+                <li>review your needs and objectives</li>
+                <li>provide you with important future projections</li>
+                <li>ask you to provide certain information</li>
+            </ul>
+            <br>
+            <p>We will email you a link so you can stop and resume your application.</p>
+
+ <br>
+            {% crispy form %}
+
+        </div>
+        <br>
+
+        <div class="col-lg-6 text-left">
+
+
+        </div>
+    </div>
+
+
+{% endblock %}

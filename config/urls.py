@@ -23,6 +23,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('', lambda r: HttpResponseRedirect('landing/')),
     path('accounts/', include('apps.accounts.urls')),
+    path('application/', include('apps.application.urls')),
     path('calculator/', include('apps.calculator.urls')),
     path('calendly/', include('apps.calendly.urls')),
     path('case/', include('apps.case.urls')),
