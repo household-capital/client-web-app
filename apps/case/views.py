@@ -31,8 +31,10 @@ from apps.lib.site_Logging import write_applog
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
 from apps.lib.api_Docsaway import apiDocsAway
 from apps.enquiry.models import Enquiry
+from apps.servicing.models import FacilityEnquiry
 from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignForm
 from .models import Case, LossData, Loan, ModelSetting
+
 
 
 # // UTILITIES
@@ -171,6 +173,7 @@ class CaseListView(LoginRequiredMixin, ListView):
         self.request.session['webCalcQueue'] = WebCalculator.objects.queueCount()
         self.request.session['webContQueue'] = WebContact.objects.queueCount()
         self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
+        self.request.session['loanEnquiryQueue'] = FacilityEnquiry.objects.queueCount()
 
         return context
 

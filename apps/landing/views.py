@@ -15,7 +15,7 @@ from django.views.generic import TemplateView, View
 
 from apps.calculator.models import WebCalculator, WebContact
 from apps.case.models import Case
-from apps.servicing.models import Facility
+from apps.servicing.models import Facility, FacilityEnquiry
 
 from apps.enquiry.models import Enquiry
 from apps.lib.site_Enums import caseStagesEnum, directTypesEnum, channelTypesEnum, appTypesEnum
@@ -132,7 +132,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         self.request.session['webCalcQueue'] = WebCalculator.objects.queueCount()
         self.request.session['webContQueue'] = WebContact.objects.queueCount()
         self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
-
+        self.request.session['loanEnquiryQueue'] =  FacilityEnquiry.objects.queueCount()
 
         # LEAD GENERATION TABLE
 

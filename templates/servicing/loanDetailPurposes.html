@@ -42,40 +42,7 @@
 
     <div class="container">
 
-        <div class="row">
-
-            <div class="col-lg-11">
-
-                <p class="pt-3 pb-2"><b>{{ obj.sfLoanName }}</b>&nbsp;&nbsp;&nbsp;
-                    {% if obj.status == 1 %}<span class="badge badge-success">Active</span>{% endif %}
-                    {% if obj.status == 2 %}<span class="badge badge-secondary">Repaid</span>    {% endif %}
-                    {% if obj.status == 3 %}<span class="badge badge-warning">Suspended</span>    {% endif %}
-
-
-                </p>
-                <br>
-
-                <a href="{% url 'servicing:loanDetail' uid=obj.facilityUID %}">
-                    <button class="btn btn-outline-secondary"><i class="fas fa-search"></i> Overview</button>
-                </a>
-                <a href="{% url 'servicing:loanDetailRoles' uid=obj.facilityUID %}">
-                    <button class="btn btn-outline-secondary"><i class="fas fa-user-friends"></i> Borrowers</button>
-                </a>
-                <a href="{% url 'servicing:loanDetailBalances' uid=obj.facilityUID %}">
-                    <button class="btn btn-outline-secondary"><i class="fa fa-bars"></i> Balances</button>
-                </a>
-                <a href="{% url 'servicing:loanDetailPurposes' uid=obj.facilityUID %}">
-                    <button class="btn btn-secondary"><i class="far fa-cog"></i> Purposes</button>
-                </a>
-
-                <a href="{% url 'servicing:loanDetailProperty' uid=obj.facilityUID %}">
-                    <button class="btn btn-outline-secondary"><i class="fa fa-home"></i> Property</button>
-                </a>
-                <button class="btn btn-outline-secondary"><i class="far fa-calendar-alt"></i> Annual Servicing</button>
-                <button class="btn btn-outline-secondary"><i class="fas fa-headset"></i> Enquiry</button>
-
-            </div>
-        </div>
+              {% include 'servicing/loanMenu.html' %}
 
     </div>
 

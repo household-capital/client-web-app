@@ -27,6 +27,21 @@
             <ul class="nav navbar-nav pl-3 pt-2">
                 {% if not hideNavbar %}
 
+
+
+                    <li>
+                        <a href="{% url 'servicing:loanList' %}"><i class="fas fa-headset fa-fw"></i> Servicing
+                            {% if request.session.loanEnquiryQueue|intVal > 0 %}
+                            <span class="badge btn-success align-text-top">{{ request.session.loanEnquiryQueue }}</span>{% endif %}
+                        </a>
+                    <br>
+                     <a href="{% url 'landing:dashboard' %}"><i class="fas fa-tachometer-alt fa-fw"></i> Dashboard
+                        </a>
+                    </li>
+
+                    <li class="d-none d-sm-table-cell pl-2 pr-2"> | &nbsp;&nbsp;
+                    </li>
+
                     <li><a href="{% url 'calculator:calcList' %}"><i class="fas fa-calculator fa-fw"></i> Queue
                             {% if request.session.webCalcQueue|intVal > 0 %}
                                 <span class="badge btn-success align-text-top">{{ request.session.webCalcQueue }}</span>{% endif %}
@@ -59,25 +74,6 @@
                     <li><a href="{% url 'case:caseList' %}"><i class="far fa-list-alt fa-fw"></i> Case List </a> &nbsp;&nbsp;
                         <br>
                         <a href="{% url 'calendly:meetings' %}"><i class="fas fa-video fa-fw"></i> Meetings </a> &nbsp;&nbsp;
-                    </li>
-
-
-
-                    <li class="d-none d-sm-table-cell pl-2 pr-2"> | &nbsp;&nbsp;
-                    </li>
-
-                    <li>
-                        <a href="{% url 'landing:dashboard' %}"><i class="fas fa-tachometer-alt fa-fw"></i> Dashboard
-                        </a>
-                    </li>
-
-
-                    <li class="d-none d-sm-table-cell pl-2 pr-2"> | &nbsp;&nbsp;
-                    </li>
-
-                    <li>
-                        <a href="{% url 'servicing:loanList' %}"><i class="fas fa-headset"></i> Servicing
-                        </a>
                     </li>
 
 

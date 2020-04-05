@@ -69,6 +69,23 @@
                                 </div>
 
                                 <div class="col-lg-5 text-left">
+                                    <a href="{% url 'servicing:loanEnquiryList' %}">
+                                        <div class="btn btn-outline-secondary" data-toggle="tooltip"
+                                             data-placement="top"
+                                             title="Open Loan Enquiries"><i class="fas fa-user-clock"></i>
+                                            {% if enquiryItems > 0 %}
+                                                    <span class="badge btn-success align-text-top">{{ enquiryItems }}</span>
+                                                {% endif %}
+                                        </div>
+                                    </a>
+
+                                    <a href="{% url 'servicing:loanEventList' %}">
+                                        <div class="btn btn-outline-secondary" data-toggle="tooltip"
+                                             data-placement="top"
+                                             title="Recent Loan Events"><i class="far fa-calendar-plus fa-fw"></i>
+                                        </div>
+                                    </a>
+
                                     {% if request.GET.filter == 'Reconciliation' %}
                                         <a href="?filter=">
                                             <div class="btn btn-secondary" data-toggle="tooltip"
@@ -79,7 +96,8 @@
                                         </a>
                                     {% else %}
                                         <a href="?filter=Reconciliation">
-                                            <div class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
+                                            <div class="btn btn-outline-secondary" data-toggle="tooltip"
+                                                 data-placement="top"
                                                  title="Limit Reconciliation"><i class="fas fa-balance-scale fa-fw"></i>
                                                 {% if recItems > 0 %}
                                                     <span class="badge btn-danger align-text-top">{{ recItems }}</span>
@@ -98,7 +116,8 @@
                                         </a>
                                     {% else %}
                                         <a href="?filter=Breach">
-                                            <div class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
+                                            <div class="btn btn-outline-secondary" data-toggle="tooltip"
+                                                 data-placement="top"
                                                  title="Limit Breach"><i class="fas fa-siren-on fa-fw"></i>
                                                 {% if breachItems > 0 %}
                                                     <span class="badge btn-danger align-text-top">{{ breachItems }}</span>
@@ -107,11 +126,6 @@
                                         </a>
                                     {% endif %}
 
-                                     <a href="{% url 'servicing:loanEventList' %}">
-                                            <div class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
-                                                 title="Loan Events"><i class="far fa-calendar-plus fa-fw"></i>
-                                            </div>
-                                      </a>
 
                                 </div>
                             </div>
@@ -126,7 +140,7 @@
                     <thead>
                     <tr>
                         <th scope="col">&nbsp;Description</th>
-                        <th scope="col">&nbsp;User</th>
+                        <th scope="col">&nbsp;Originator</th>
                         <th scope="col">&nbsp;Settlement Date</th>
                         <th scope="col">&nbsp;Status</th>
                         <th scope="col">&nbsp;</th>

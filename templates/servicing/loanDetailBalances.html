@@ -42,128 +42,98 @@
 
     <div class="container">
 
-        <div class="row">
-
-            <div class="col-lg-11">
-
-                <p class="pt-3 pb-2"><b>{{ obj.sfLoanName }}</b>&nbsp;&nbsp;&nbsp;
-                    {% if obj.status == 1 %}<span class="badge badge-success">Active</span>{% endif %}
-                    {% if obj.status == 2 %}<span class="badge badge-secondary">Repaid</span>    {% endif %}
-                    {% if obj.status == 3 %}<span class="badge badge-warning">Suspended</span>    {% endif %}
+        {% include 'servicing/loanMenu.html' %}
 
 
-                </p>
-                <br>
+        <div class="row pt-4">
 
-                <a href="{% url 'servicing:loanDetail' uid=obj.facilityUID %}">
-                    <button class="btn btn-outline-secondary"><i class="fas fa-search"></i> Overview</button>
-                </a>
-                <a href="{% url 'servicing:loanDetailRoles' uid=obj.facilityUID %}">
-                    <button class="btn btn-outline-secondary"><i class="fas fa-user-friends"></i> Borrowers</button>
-                </a>
-                <a href="{% url 'servicing:loanDetailBalances' uid=obj.facilityUID %}">
-                    <button class="btn btn-secondary"><i class="fa fa-bars"></i> Balances</button>
-                </a>
-                <a href="{% url 'servicing:loanDetailPurposes' uid=obj.facilityUID %}">
-                    <button class="btn btn-outline-secondary"><i class="far fa-cog"></i> Purposes</button>
-                </a>
+            <div class="col-lg-3 text-left">
+                <p class="small"><b>Loan Amounts</b></p>
 
-                <a href="{% url 'servicing:loanDetailProperty' uid=obj.facilityUID %}">
-                    <button class="btn btn-outline-secondary"><i class="fa fa-home"></i> Property</button>
-                </a>
-                <button class="btn btn-outline-secondary"><i class="far fa-calendar-alt"></i> Annual Servicing</button>
-                <button class="btn btn-outline-secondary"><i class="fas fa-headset"></i> Enquiry</button>
-
-
-                <div class="row pt-4">
-
-                    <div class="col-lg-3 text-left">
-                        <p class="small"><b>Loan Amounts</b></p>
-
-                        <div class="row no-gutters">
-                            <div class="col-lg-7">
-                                <p> Loan Limit:</p>
-                                <p class="pt-1"> Advanced Funds</p>
-                                <p class="pt-1"> Current Balance:</p>
-                            </div>
-                            <div class="col-lg-5 text-right">
-                                <p>$ {{ obj.totalLoanAmount|intVal|intcomma }}</p>
-                                <p class="pt-1"> $ {{ obj.advancedAmount |intVal|intcomma }}</p>
-                                <p class="pt-1">$ {{ obj.currentBalance |intVal|intcomma }}</p>
-                            </div>
-
-                        </div>
+                <div class="row no-gutters">
+                    <div class="col-lg-7">
+                        <p> Loan Limit:</p>
+                        <p class="pt-1"> Advanced Funds</p>
+                        <p class="pt-1"> Current Balance:</p>
+                    </div>
+                    <div class="col-lg-5 text-right">
+                        <p>$ {{ obj.totalLoanAmount|intVal|intcomma }}</p>
+                        <p class="pt-1"> $ {{ obj.advancedAmount |intVal|intcomma }}</p>
+                        <p class="pt-1">$ {{ obj.currentBalance |intVal|intcomma }}</p>
                     </div>
 
-                    <div class="col-lg-3 text-left ml-3">
-                        <p class="small"><b>Loan Dates</b></p>
-
-                        <div class="row no-gutters">
-                            <div class="col-lg-7">
-                                <p> Settlement</p>
-                                <p class="pt-1"> Max Drawdown</p>
-                                {% if obj.dischargeDate %} <p class="pt-1">Discharge</p>{% endif %}
-
-                            </div>
-                            <div class="col-lg-5 text-right">
-                                <p>{{ obj.settlementDate |date:'d M Y' }}</p>
-                                <p class="pt-1"> {{ obj.maxDrawdownDate |date:'d M Y' }}</p>
-                                {% if obj.dischargeDate %} <p class="pt-1">{{ obj.dischargeDate |date:'d M Y'}}</p>{% endif %}
-                            </div>
-
-                        </div>
-                    </div>
-
-                <div class="col-lg-3 text-left ml-3">
-                        <p class="small"><b>BPay</b></p>
-
-                        <div class="row no-gutters">
-                            <div class="col-lg-7">
-                                <p> Biller Code</p>
-                                <p class="pt-1"> Reference</p>
-
-
-                            </div>
-                            <div class="col-lg-5 text-right">
-                                <p>{{ obj.bPayBillerCode|default:""  }}</p>
-                                <p class="pt-1"> {{ obj.bPayReference|default:""  }}</p>
-                            </div>
-
-                        </div>
-                    </div>
-
-                </div>
-                <br><br>
-                <div class="row">
-                    <div class="col-lg-11">
-
-                        <table class="table table-hover table-sm">
-                            <thead>
-                            <tr>
-                                <th scope="col">&nbsp;Date</th>
-                                <th scope="col">&nbsp;Description</th>
-                                <th scope="col" style="text-align:right">&nbsp;Debit</th>
-                                <th scope="col" style="text-align:right">&nbsp;Credit</th>
-                                <th scope="col" style="text-align:right">&nbsp;Balance</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for obj in transList %}
-                                <tr>
-                                    <td>{{ obj.effectiveDate| date:'d M Y' }}</td>
-                                    <td>{{ obj.description |truncatechars:49 }}</td>
-                                    <td align="right">$ {{ obj.creditAmount|floatformat:2|intcomma  }}</td>
-                                    <td align="right">$ {{ obj.debitAmount |floatformat:2|intcomma  }}</td>
-                                    <td align="right">$ {{ obj.balance |floatformat:2|intcomma }}</td>
-
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
             </div>
+
+            <div class="col-lg-3 text-left ml-3">
+                <p class="small"><b>Loan Dates</b></p>
+
+                <div class="row no-gutters">
+                    <div class="col-lg-7">
+                        <p> Settlement</p>
+                        <p class="pt-1"> Max Drawdown</p>
+                        {% if obj.dischargeDate %} <p class="pt-1">Discharge</p>{% endif %}
+
+                    </div>
+                    <div class="col-lg-5 text-right">
+                        <p>{{ obj.settlementDate |date:'d M Y' }}</p>
+                        <p class="pt-1"> {{ obj.maxDrawdownDate |date:'d M Y' }}</p>
+                        {% if obj.dischargeDate %} <p class="pt-1">{{ obj.dischargeDate |date:'d M Y'}}</p>{% endif %}
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-lg-3 text-left ml-3">
+                <p class="small"><b>BPay</b></p>
+
+                <div class="row no-gutters">
+                    <div class="col-lg-7">
+                        <p> Biller Code</p>
+                        <p class="pt-1"> Reference</p>
+
+
+                    </div>
+                    <div class="col-lg-5 text-right">
+                        <p>{{ obj.bPayBillerCode|default:""  }}</p>
+                        <p class="pt-1"> {{ obj.bPayReference|default:""  }}</p>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
+        <br><br>
+        <div class="row">
+            <div class="col-lg-11">
+
+                <table class="table table-hover table-sm">
+                    <thead>
+                    <tr>
+                        <th scope="col">&nbsp;Date</th>
+                        <th scope="col">&nbsp;Description</th>
+                        <th scope="col" style="text-align:right">&nbsp;Debit</th>
+                        <th scope="col" style="text-align:right">&nbsp;Credit</th>
+                        <th scope="col" style="text-align:right">&nbsp;Balance</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for obj in transList %}
+                        <tr>
+                            <td>{{ obj.effectiveDate| date:'d M Y' }}</td>
+                            <td>{{ obj.description |truncatechars:49 }}</td>
+                            <td align="right">$ {{ obj.creditAmount|floatformat:2|intcomma  }}</td>
+                            <td align="right">$ {{ obj.debitAmount |floatformat:2|intcomma  }}</td>
+                            <td align="right">$ {{ obj.balance |floatformat:2|intcomma }}</td>
+
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
 
     </div>
 
