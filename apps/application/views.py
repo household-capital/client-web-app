@@ -11,13 +11,13 @@ from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import FormView, TemplateView, View, UpdateView
 
-
 # Local Application Imports
 from apps.lib.site_Logging import write_applog
 from .models import LowLVR
 from .forms import InitiateForm
 from apps.lib.site_Utilities import sendTemplateEmail
 
+## WARNING VIEWS ARE EXTERNALLY EXPOSED OR SESSION VERIFIED ##
 
 class SessionRequiredMixin(object):
     # Ensures any attempt to access without UID set is redirect to error view
@@ -26,6 +26,8 @@ class SessionRequiredMixin(object):
             return HttpResponseRedirect(reverse_lazy('application:sessionError'))
         return super(SessionRequiredMixin, self).dispatch(request, *args, **kwargs)
 
+
+## EXTERNALLY EXPOSED VIEWS
 
 class SessionErrorView(TemplateView):
     '''Error page for session errors'''
@@ -117,6 +119,8 @@ class InitiateView(FormView):
             write_applog("ERROR", 'application', 'email_link', "Application email link not sent")
             return "Error - reminder email could not be sent"
 
+
+## SESSION VALIDATED VIEWS
 
 class IntroductionView(SessionRequiredMixin, TemplateView):
     '''Error page for validation errors'''
