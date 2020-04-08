@@ -7,6 +7,9 @@ from . import views
 app_name = 'referrer'
 
 urlpatterns = [
+
+    #Authenticated Views (Referrer)
+
     path('', views.MainView.as_view(), name='main'),
     path('enquiry', views.EnquiryView.as_view(), name='enqCreate'),
     path('enquiry/<uuid:uid>', views.EnquiryView.as_view(), name='enqUpdate'),

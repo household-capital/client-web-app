@@ -19,35 +19,13 @@ from apps.servicing.models import Facility
 
 from apps.enquiry.models import Enquiry
 from apps.lib.site_Enums import caseStagesEnum, directTypesEnum, channelTypesEnum, appTypesEnum
-from apps.lib.site_Utilities import updateNavQueue
+from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, LoginOnlyRequiredMixin, updateNavQueue
 
 
-# Create your views here.
-
-class LoginOnlyRequiredMixin():
-    # Ensures views will not render unless logged in, redirects to login page
-    @classmethod
-    def as_view(cls, **kwargs):
-        view = super(LoginOnlyRequiredMixin, cls).as_view(**kwargs)
-        return login_required(view)
-
-
-class LoginRequiredMixin():
-    # Ensures views will not render unless logged in, redirects to login page
-    @classmethod
-    def as_view(cls, **kwargs):
-        view = super(LoginRequiredMixin, cls).as_view(**kwargs)
-        return login_required(view)
-
-    # Ensures views will not render unless Household employee, redirects to Landing
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.profile.isHousehold:
-            return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
-        else:
-            return HttpResponseRedirect(reverse_lazy('landing:landing'))
 
 
 class LandingView(LoginOnlyRequiredMixin, View):
+    #Main entry point view - switch between Household Views and Referrer Views
 
     def get(self, request, *args, **kwargs):
         if request.user.profile.isHousehold:
@@ -57,7 +35,7 @@ class LandingView(LoginOnlyRequiredMixin, View):
 
 
 
-class DashboardView(LoginRequiredMixin, TemplateView):
+class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
     template_name = "landing/dashboard.html"
 
     def dateParse(self, arg):

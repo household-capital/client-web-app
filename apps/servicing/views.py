@@ -6,40 +6,37 @@ import os
 import pathlib
 
 # Django Imports
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
-
+from django.contrib import messages
+from django.core import signing
 from django.db.models import Q, F
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views.generic import ListView, UpdateView, CreateView, TemplateView, View, FormView, DetailView
 
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Enums import roleEnum
-from apps.lib.site_Utilities import updateNavQueue
-
+from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, updateNavQueue, sendTemplateEmail
 
 from .models import Facility, FacilityTransactions, FacilityRoles, FacilityProperty, FacilityPropertyVal, \
-    FacilityPurposes, FacilityEvents, FacilityEnquiry
+    FacilityPurposes, FacilityEvents, FacilityEnquiry, FacilityAdditional
 
-from .forms import FacilityEnquiryForm
+from .forms import FacilityEnquiryForm, FacilityAdditionalRequest, FacilityBorrowerForm, FacilityAdditionalConfirm
 
-class LoginRequiredMixin():
-    # Ensures views will not render unless logged in, redirects to login page
-    @classmethod
-    def as_view(cls, **kwargs):
-        view = super(LoginRequiredMixin, cls).as_view(**kwargs)
-        return login_required(view)
 
-    # Ensures views will not render unless Household employee, redirects to Landing
+class SessionRequiredMixin(object):
+    # Ensures any attempt to access without UID set is redirect to error view
     def dispatch(self, request, *args, **kwargs):
-        if request.user.profile.isHousehold:
-            return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
-        else:
-            return HttpResponseRedirect(reverse_lazy('landing:landing'))
+        if 'additionalUID' not in request.session:
+            return HttpResponseRedirect(reverse_lazy('servicing:sessionError'))
+        return super(SessionRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
 # List View
-class LoanListView(LoginRequiredMixin, ListView):
+class LoanListView(HouseholdLoginRequiredMixin, ListView):
+    #List view of all loans (Facility Objects)
     paginate_by = 8
     template_name = 'servicing/loanList.html'
     context_object_name = 'object_list'
@@ -50,8 +47,6 @@ class LoanListView(LoginRequiredMixin, ListView):
         queryset = Facility.objects\
             .annotate(availableAmount = F('approvedAmount')-F('advancedAmount')) \
             .filter(settlementDate__isnull=False)
-        #    .annotate(planAddition = F('totalLoanAmount')-F('totalPlanAmount'))\
-
 
         if self.request.GET.get('filter') == "Reconciliation":
             queryset = queryset.filter(
@@ -84,6 +79,7 @@ class LoanListView(LoginRequiredMixin, ListView):
         else:
             context['search'] = ""
 
+        # Counts for pills in buttons
         context['recItems'] = Facility.objects.filter(amalReconciliation=False, settlementDate__isnull=False).count()
         context['breachItems'] = Facility.objects.filter(amalBreach=True, settlementDate__isnull=False).count()
         context['enquiryItems'] = FacilityEnquiry.objects.filter(actioned=False).count()
@@ -93,7 +89,8 @@ class LoanListView(LoginRequiredMixin, ListView):
 
         return context
 
-class LoanEventList(LoginRequiredMixin, ListView):
+class LoanEventList(HouseholdLoginRequiredMixin, ListView):
+    #List view of recent loan events
     paginate_by = 8
     template_name = 'servicing/loanEventList.html'
     context_object_name = 'object_list'
@@ -121,7 +118,8 @@ class LoanEventList(LoginRequiredMixin, ListView):
 
         return context
 
-class LoanEnquiryList(LoginRequiredMixin, ListView):
+class LoanEnquiryList(HouseholdLoginRequiredMixin, ListView):
+    #List view of unactioned Loan Enquiries
     paginate_by = 8
     template_name = 'servicing/loanEnquiryList.html'
     context_object_name = 'object_list'
@@ -149,8 +147,38 @@ class LoanEnquiryList(LoginRequiredMixin, ListView):
 
         return context
 
-# Loan Detail View
-class LoanDetailView(LoginRequiredMixin, DetailView):
+
+class LoanRecentEnquiryList(HouseholdLoginRequiredMixin, ListView):
+    #List view of recent Loan Enquiries
+    paginate_by = 8
+    template_name = 'servicing/loanEnquiryList.html'
+    context_object_name = 'object_list'
+    model = FacilityEnquiry
+
+    def get_queryset(self, **kwargs):
+        # overrides queryset to filter search parameter
+        queryset = FacilityEnquiry.objects.all().order_by('-timestamp')
+
+        if self.request.GET.get('search'):
+            search = self.request.GET.get('search')
+            queryset = queryset.filter(
+                Q(facility__sfLoanName__icontains = search) |
+                Q(facility__sfLoanID__icontains=search) |
+                Q(facility__amalID__contains=search) |
+                Q(actionNotes__contains=search)
+            )
+
+        return queryset[:160]
+
+    def get_context_data(self, **kwargs):
+        context = super(LoanRecentEnquiryList, self).get_context_data(**kwargs)
+        context['title'] = 'Recent Enquiries'
+
+        return context
+
+
+class LoanDetailView(HouseholdLoginRequiredMixin, DetailView):
+    # Loan Detail View
     template_name = 'servicing/loanDetail.html'
     model = FacilityPurposes
     context_object_name = "obj"
@@ -165,6 +193,7 @@ class LoanDetailView(LoginRequiredMixin, DetailView):
         context = super(LoanDetailView, self).get_context_data(**kwargs)
         context['title'] = 'Loan Details - Overview'
 
+        # Data for event and equiry lists
         facilityObj = self.get_object()
         purposeQs = FacilityEvents.objects.filter(facility=facilityObj).order_by('-eventDate')
         context['eventList'] = purposeQs
@@ -177,7 +206,8 @@ class LoanDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class LoanDetailBalances(LoginRequiredMixin, DetailView):
+class LoanDetailBalances(HouseholdLoginRequiredMixin, DetailView):
+    # Sub-menu view of Loan Balances and Transactions
     template_name = 'servicing/loanDetailBalances.html'
     model = Facility
     context_object_name = "obj"
@@ -200,7 +230,9 @@ class LoanDetailBalances(LoginRequiredMixin, DetailView):
 
         return context
 
-class LoanDetailRoles(LoginRequiredMixin, DetailView):
+
+class LoanDetailRoles(HouseholdLoginRequiredMixin, DetailView):
+    # Sub-menu view of Loan Roles/Contacts
     template_name = 'servicing/loanDetailRoles.html'
     model = Facility
     context_object_name = "obj"
@@ -224,32 +256,35 @@ class LoanDetailRoles(LoginRequiredMixin, DetailView):
 
         return context
 
-class LoanDetailProperty(LoginRequiredMixin, DetailView):
-        template_name = 'servicing/loanDetailProperty.html'
-        model = FacilityProperty
-        context_object_name = "obj"
 
-        def get_object(self, queryset=None):
-            facilityUID = str(self.kwargs['uid'])
-            queryset = Facility.objects.queryset_byUID(str(facilityUID))
-            obj = queryset.get()
-            return obj
+class LoanDetailProperty(HouseholdLoginRequiredMixin, DetailView):
+    # Sub-menu view of Loan property details
+    template_name = 'servicing/loanDetailProperty.html'
+    model = FacilityProperty
+    context_object_name = "obj"
 
-        def get_context_data(self, **kwargs):
-            context = super(LoanDetailProperty, self).get_context_data(**kwargs)
-            context['title'] = 'Loan Details - Property'
+    def get_object(self, queryset=None):
+        facilityUID = str(self.kwargs['uid'])
+        queryset = Facility.objects.queryset_byUID(str(facilityUID))
+        obj = queryset.get()
+        return obj
 
-            propertyObj = FacilityProperty.objects.filter(facility= self.get_object()).get()
-            valQs = FacilityPropertyVal.objects.filter(property=propertyObj).order_by('valuationDate')
-            context['valuationList'] = valQs
-            context['property'] = propertyObj
-            context['menuProperty'] = True
-            context['facilityObj'] = self.get_object()
+    def get_context_data(self, **kwargs):
+        context = super(LoanDetailProperty, self).get_context_data(**kwargs)
+        context['title'] = 'Loan Details - Property'
 
-            return context
+        propertyObj = FacilityProperty.objects.filter(facility= self.get_object()).get()
+        valQs = FacilityPropertyVal.objects.filter(property=propertyObj).order_by('valuationDate')
+        context['valuationList'] = valQs
+        context['property'] = propertyObj
+        context['menuProperty'] = True
+        context['facilityObj'] = self.get_object()
+
+        return context
 
 
-class LoanDetailPurposes(LoginRequiredMixin, DetailView):
+class LoanDetailPurposes(HouseholdLoginRequiredMixin, DetailView):
+    # Sub-menu view of Loan purposes
     template_name = 'servicing/loanDetailPurposes.html'
     model = FacilityPurposes
     context_object_name = "obj"
@@ -273,7 +308,8 @@ class LoanDetailPurposes(LoginRequiredMixin, DetailView):
         return context
 
 
-class LoanEnquiry(LoginRequiredMixin, CreateView):
+class LoanEnquiry(HouseholdLoginRequiredMixin, CreateView):
+    # Loan Action - create an enquiry
     template_name = 'servicing/loanEnquiry.html'
     model=FacilityEnquiry
     form_class = FacilityEnquiryForm
@@ -316,7 +352,8 @@ class LoanEnquiry(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse_lazy('servicing:loanDetail', kwargs={'uid': self.kwargs.get('uid')}))
 
 
-class LoanEnquiryUpdate(LoginRequiredMixin, UpdateView):
+class LoanEnquiryUpdate(HouseholdLoginRequiredMixin, UpdateView):
+    #Update view for a loan enquiry
     template_name = 'servicing/loanEnquiry.html'
     model=FacilityEnquiry
     form_class = FacilityEnquiryForm
@@ -364,3 +401,285 @@ class LoanEnquiryUpdate(LoginRequiredMixin, UpdateView):
         obj.owner = self.request.user
         obj.save()
         return HttpResponseRedirect(reverse_lazy('servicing:loanDetail', kwargs={'uid': self.kwargs.get('uid')}))
+
+
+class LoanAdditionalLink(HouseholdLoginRequiredMixin, FormView):
+    #Loan Action - Create Additional Amount email link
+    form_class = FacilityBorrowerForm
+    template_name = 'servicing/loanAdditional.html'
+
+    def get(self,request, *args, **kwargs):
+        maxDrawDown = self.get_max_drawdown()
+        if maxDrawDown <= 0:
+            messages.error(request, "There are no available funds for the client to draw")
+            return HttpResponseRedirect(reverse_lazy('servicing:loanDetail', kwargs={'uid': str(self.kwargs['uid'])}))
+
+        if maxDrawDown < 500:
+            messages.info(request, "Info: there is only a small balance available $ "+str(int(maxDrawDown)))
+
+        return super(LoanAdditionalLink, self).get(self,request, *args, **kwargs)
+
+    def get_max_drawdown(self):
+        facilityObj = self.get_facility_object()
+        availableLimit = facilityObj.approvedAmount - facilityObj.advancedAmount
+        maxDrawdownAmount = availableLimit / (1 + facilityObj.establishmentFeeRate)
+        return int(maxDrawdownAmount)
+
+    def get_facility_object(self, queryset=None):
+        facilityUID = str(self.kwargs['uid'])
+        queryset = Facility.objects.queryset_byUID(str(facilityUID))
+        obj = queryset.get()
+        return obj
+
+    def get_form_kwargs(self, **kwargs):
+        # add facility object to form kwargs (ussd to populate dropdown in form)
+        kwargs = super(LoanAdditionalLink, self).get_form_kwargs(**kwargs)
+        obj = self.get_facility_object()
+        kwargs.update({'facility_instance': obj})
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(LoanAdditionalLink, self).get_context_data(**kwargs)
+        context['title'] = 'Additional Drawdown Request'
+        context['facilityObj'] = self.get_facility_object()
+        context['hideActions'] = True
+
+        # Contact Details (used to autofill based on drop down - jquery)
+        data=[]
+        qs = FacilityRoles.objects.filter(facility=context['facilityObj'])
+        for role in qs:
+            phone= role.mobile if role.mobile is not None else role.phone
+            data.append({"enquirer": role.firstName + " " + role.lastName + " - " + role.enumRole(), "email" : role.email, "phone" : phone })
+        context['dataLookup'] = json.dumps(data)
+
+        return context
+
+    def form_valid(self, form):
+        roleObj = form.cleaned_data['identifiedEnquirer']
+        facilityObj = self.get_facility_object()
+
+        # Creation Additional Drawdown object
+        additionalDict = {
+            'facility': facilityObj,
+            'identifiedRequester': roleObj,
+            'requestedEmail': form.cleaned_data['contactEmail'],
+            'establishmentFeeRate': facilityObj.establishmentFeeRate,
+        }
+
+        try:
+            obj = FacilityAdditional.objects.create(**additionalDict)
+        except:
+            write_applog("ERROR", 'servicing', 'form_valid', "Additional drawdown instance not created")
+            messages.error(self.request, "Additional drawdown link not sent")
+            return HttpResponseRedirect(reverse_lazy('servicing:loanDetail', kwargs={'uid': self.kwargs.get('uid')}))
+
+        # Email Signed Link to customer
+        payload = {'additionalUID':str(obj.additionalUID)}
+        result = self.email_link(obj, payload)
+
+        if result['status'] == 'Ok':
+            messages.success(self.request, result['responseText'])
+
+            #Create automated enquiry entry
+            payload = {'facility': facilityObj,
+                       'owner': self.request.user,
+                       'identifiedEnquirer': roleObj,
+                       'contactEmail': form.cleaned_data['contactEmail'] ,
+                       'actionNotes': 'Additional drawdown link sent to client',
+                       'actioned': True,
+                       'actionedBy': self.request.user
+            }
+
+            FacilityEnquiry.objects.create(**payload)
+
+        else:
+            messages.error(self.request, result['responseText'])
+
+        return HttpResponseRedirect(reverse_lazy('servicing:loanDetail', kwargs={'uid': self.kwargs.get('uid')}))
+
+    def email_link(self, obj, payload):
+        #Use signing to generate signed URL parameter
+        signed_payload = signing.dumps(payload)
+        signedURL = settings.SITE_URL + str(reverse_lazy('servicing:loanAdditionalValidate',  kwargs={'signed_pk':signed_payload}))
+
+        email_template = 'servicing/email/email_additional_link.html'
+        email_context = {}
+        email_context['firstName'] = obj.identifiedRequester.firstName
+        email_context['signedURL'] = signedURL
+        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+        subject, from_email, to = "HHC: Additional drawdown request link", \
+                                      'noreply@householdcapital.com', \
+                                      [obj.requestedEmail]
+
+        emailSent = sendTemplateEmail(email_template, email_context, subject, from_email, to)
+
+        if emailSent:
+            return {"status":"Ok", "responseText": "Additional drawdown link emailed to client" }
+        else:
+            write_applog("ERROR", 'servicing', 'email_link', "Additional drawdown link not sent")
+            return {"status": "Error", "responseText": "Additional drawdown link not sent"}
+
+
+## UNAUTHENTICATED VIEWS
+
+class SessionErrorView(TemplateView):
+    #Error page for session errors
+    template_name = 'servicing/interface/session_error.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SessionErrorView, self).get_context_data(**kwargs)
+        context['title'] = 'Session Error'
+        return context
+
+
+class ValidationErrorView(TemplateView):
+    #Error page for validation errors
+    template_name = 'servicing/interface/validation_error.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ValidationErrorView, self).get_context_data(**kwargs)
+        context['title'] = 'Validation Error'
+        return context
+
+
+class LoanAdditionalValidate(View):
+    # Validate signed URL parameter
+
+    def get(self, request, *args, **kwargs):
+        signed_payload = kwargs['signed_pk']
+        try:
+            #Decrypt with expiry check
+            payload = signing.loads(signed_payload, max_age=60 * 60 * 24 * 2)
+
+            #Save payload (UID) to session
+            request.session.update(payload)
+            return HttpResponseRedirect(reverse_lazy('servicing:loanAdditionalRequest'))
+
+        except signing.SignatureExpired:
+            write_applog("INFO", 'ApplicationValidate', 'get',
+                         "Expired Signature")
+
+            return HttpResponseRedirect(reverse_lazy('servicing:validationError'))
+
+        except signing.BadSignature:
+            write_applog("ERROR", 'ApplicationValidate', 'get',
+                         "BAD Signature")
+
+            return HttpResponseRedirect(reverse_lazy('servicing:validationError'))
+
+
+
+## SESSION VALIDATED VIEWS
+
+class LoanAdditionalRequest(SessionRequiredMixin, UpdateView):
+    '''First Page for Additional Request'''
+    template_name = 'servicing/interface/additionalRequest.html'
+    model = FacilityAdditional
+    form_class = FacilityAdditionalRequest
+
+    def get(self,request, *args, **kwargs):
+        obj = self.get_object()
+        if obj.submitted:
+            return HttpResponseRedirect(reverse_lazy('servicing:loanAdditionalSubmitted'))
+        return super(LoanAdditionalRequest, self).get(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        additionalUID = self.request.session['additionalUID']
+        queryset = FacilityAdditional.objects.filter(additionalUID=additionalUID).get()
+        return queryset
+
+    def get_max_drawdown(self):
+        #Calculate available funds that may be drawn
+        obj = self.get_object()
+        facilityObj = obj.facility
+
+        availableLimit = facilityObj.approvedAmount - facilityObj.advancedAmount
+        maxDrawdownAmount = availableLimit / (1 + facilityObj.establishmentFeeRate)
+        return int(maxDrawdownAmount)
+
+    def get_form_kwargs(self, **kwargs):
+        # add maxDrawdownAmount to form kwargs
+        kwargs = super(LoanAdditionalRequest, self).get_form_kwargs(**kwargs)
+
+        kwargs.update({'maxDrawdownAmount': self.get_max_drawdown()})
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(LoanAdditionalRequest, self).get_context_data(**kwargs)
+        context['title'] = 'Drawdown Request'
+        context['maxDrawdownAmount'] = self.get_max_drawdown()
+        context['obj'] = self.get_object()
+        return context
+
+    def form_valid(self, form):
+        obj=form.save()
+        obj.amountEstablishmentFee = round(obj.amountRequested * obj.establishmentFeeRate,0)
+        obj.amountTotal = round(obj.amountRequested * (1+obj.establishmentFeeRate), 0)
+        obj.requestedDate = timezone.now()
+        obj.IP = self.request.META.get("REMOTE_ADDR")
+        obj.save()
+
+        return HttpResponseRedirect(reverse_lazy('servicing:loanAdditionalConfirm'))
+
+
+class LoanAdditionalConfirm(SessionRequiredMixin, UpdateView):
+    '''Second Page for Additional Request'''
+    template_name = 'servicing/interface/additionalConfirm.html'
+    model = FacilityAdditional
+    form_class = FacilityAdditionalConfirm
+
+    def get_object(self, queryset=None):
+        additionalUID = self.request.session['additionalUID']
+        queryset = FacilityAdditional.objects.filter(additionalUID=additionalUID).get()
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(LoanAdditionalConfirm, self).get_context_data(**kwargs)
+        context['title'] = 'Drawdown Request'
+        context['obj'] = self.get_object()
+
+        return context
+
+    def form_valid(self, form):
+        obj=form.save(commit=False)
+        obj.submitted=True
+        obj.save()
+
+        # Create automated event
+        try:
+            payload = {'facility': obj.facility,
+                       'owner': obj.facility.owner,
+                       'identifiedEnquirer': obj.identifiedRequester,
+                       'contactEmail': obj.requestedEmail,
+                       'actionNotes': 'Drawdown request received from customer and submitted for funding. Drawdown request: $ '+str(int(obj.amountTotal)),
+                       'actioned': True,
+                       'actionedBy': obj.facility.owner
+                       }
+
+            FacilityEnquiry.objects.create(**payload)
+        except:
+            pass
+
+        return HttpResponseRedirect(reverse_lazy('servicing:loanAdditionalThankYou'))
+
+
+class LoanAdditionalThankYou(SessionRequiredMixin, TemplateView):
+    '''Thank You Page for Additional Request'''
+    template_name = 'servicing/interface/additionalThankYou.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(LoanAdditionalThankYou, self).get_context_data(**kwargs)
+        context['title'] = 'Thank you'
+        self.request.session.flush()
+        return context
+
+
+class LoanAdditionalSubmitted(SessionRequiredMixin, TemplateView):
+    #Request already submitted page
+    template_name = 'servicing/interface/additionalSubmitted.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(LoanAdditionalSubmitted, self).get_context_data(**kwargs)
+        context['title'] = 'Drawdown submitted'
+        self.request.session.flush()
+        return context

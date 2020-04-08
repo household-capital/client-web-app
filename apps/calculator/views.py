@@ -4,7 +4,6 @@ import json
 # Django Imports
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.core.files import File
 from django.http import HttpResponseRedirect
 from django.utils import timezone
@@ -21,7 +20,7 @@ from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, dwellingTypesEnum
 from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
-from apps.lib.site_Utilities import updateNavQueue
+from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, updateNavQueue
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.hhc_LoanProjection import LoanProjection
 from apps.enquiry.models import Enquiry
@@ -29,6 +28,8 @@ from apps.enquiry.models import Enquiry
 from .models import WebCalculator, WebContact
 from .forms import WebContactDetail
 
+
+# EXTERNALLY EXPOSED VIEWS
 
 class CalcSummaryNewPdf(TemplateView):
     # Produce Summary Report View (called by Api2Pdf)
@@ -97,24 +98,12 @@ class CalcSummaryNewPdf(TemplateView):
 
         return context
 
+
+# AUTHENTICATED VIEWS EXPOSED VIEWS
+
 # Calculator Queue
 
-class LoginRequiredMixin():
-    # Ensures views will not render unless logged in, redirects to login page
-    @classmethod
-    def as_view(cls, **kwargs):
-        view = super(LoginRequiredMixin, cls).as_view(**kwargs)
-        return login_required(view)
-
-    # Ensures views will not render unless Household employee, redirects to Landing
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.profile.isHousehold:
-            return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
-        else:
-            return HttpResponseRedirect(reverse_lazy('landing:landing'))
-
-
-class CalcListView(LoginRequiredMixin, ListView):
+class CalcListView(HouseholdLoginRequiredMixin, ListView):
     paginate_by = 6
     template_name = 'calculator/calculatorList.html'
     context_object_name = 'object_list'
@@ -136,7 +125,7 @@ class CalcListView(LoginRequiredMixin, ListView):
 
         return context
 
-class CalcCreateEnquiry(LoginRequiredMixin, UpdateView):
+class CalcCreateEnquiry(HouseholdLoginRequiredMixin, UpdateView):
     # This view does not render it creates and enquiry, sends an email, updates the calculator
     # and redirects to the Enquiry ListView
     context_object_name = 'object_list'
@@ -247,7 +236,7 @@ class CalcCreateEnquiry(LoginRequiredMixin, UpdateView):
 
 
 # Calculator Delete View (Delete View)
-class CalcDeleteView(LoginRequiredMixin, View):
+class CalcDeleteView(HouseholdLoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         obj = WebCalculator.objects.filter(calcUID=kwargs['uid']).get()
@@ -257,8 +246,9 @@ class CalcDeleteView(LoginRequiredMixin, View):
 
         return HttpResponseRedirect(reverse_lazy('calculator:calcList'))
 
+
 # Contact Queue
-class ContactListView(LoginRequiredMixin, ListView):
+class ContactListView(HouseholdLoginRequiredMixin, ListView):
     paginate_by = 10
     template_name = 'calculator/contactList.html'
     context_object_name = 'object_list'
@@ -282,7 +272,7 @@ class ContactListView(LoginRequiredMixin, ListView):
 
 
 # Contact Detail View
-class ContactDetailView(LoginRequiredMixin, UpdateView):
+class ContactDetailView(HouseholdLoginRequiredMixin, UpdateView):
     template_name = "calculator/contactDetail.html"
     form_class = WebContactDetail
     model = WebContact
@@ -309,7 +299,7 @@ class ContactDetailView(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy('calculator:contactDetail', kwargs={'uid': str(obj.contUID)}))
 
 
-class ContactActionView(LoginRequiredMixin, View):
+class ContactActionView(HouseholdLoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         if "uid" in kwargs:
@@ -325,7 +315,7 @@ class ContactActionView(LoginRequiredMixin, View):
 
 
 # Enquiry Delete View (Delete View)
-class ContactDeleteView(LoginRequiredMixin, View):
+class ContactDeleteView(HouseholdLoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
 
@@ -337,7 +327,7 @@ class ContactDeleteView(LoginRequiredMixin, View):
         return HttpResponseRedirect(reverse_lazy('calculator:contactList'))
 
 # Convert Contact
-class ContractConvertView(LoginRequiredMixin, View):
+class ContractConvertView(HouseholdLoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
 

@@ -7,42 +7,22 @@ from urllib.request import urlopen
 # Django Imports
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.core.mail import EmailMultiAlternatives
-from django.core.files import File
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.db.models import Q
-from django.template.loader import get_template
 from django.utils import timezone
 from django.urls import reverse_lazy
 from django.views.generic import UpdateView, ListView, TemplateView, View, CreateView
 
 # Local Application Imports
 from apps.lib.api_LinkedIn import LinkedInParser
+from apps.lib.site_Utilities import HouseholdLoginRequiredMixin
 from .models import Organisation, OrganisationType, Contact
 from .forms import ContactDetailsForm, OrganisationDetailsForm
 
 
-# VIEWS
 
-class LoginRequiredMixin():
-    # Ensures views will not render unless logged in, redirects to login page
-    @classmethod
-    def as_view(cls, **kwargs):
-        view = super(LoginRequiredMixin, cls).as_view(**kwargs)
-        return login_required(view)
-
-    # Ensures views will not render unless Household employee, redirects to Landing
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.profile.isCapital:
-            return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
-        else:
-            return HttpResponseRedirect(reverse_lazy('landing:landing'))
-
-
-
-class ContactListView(LoginRequiredMixin, ListView):
+class ContactListView(HouseholdLoginRequiredMixin, ListView):
     paginate_by = 50
     template_name = 'relationship/contactList.html'
     context_object_name = 'object_list'
@@ -95,7 +75,7 @@ class ContactListView(LoginRequiredMixin, ListView):
 
 
 # Contact Detail View
-class ContactDetailView(LoginRequiredMixin, UpdateView):
+class ContactDetailView(HouseholdLoginRequiredMixin, UpdateView):
     template_name = "relationship/contactDetail.html"
     form_class = ContactDetailsForm
     model = Contact
@@ -162,7 +142,7 @@ class ContactDetailView(LoginRequiredMixin, UpdateView):
 
 
 # Enquiry Delete View (Delete View)
-class ContactDelete(LoginRequiredMixin, View):
+class ContactDelete(HouseholdLoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         if "contId" in kwargs:
@@ -173,7 +153,7 @@ class ContactDelete(LoginRequiredMixin, View):
 
 
 # Organisation Create View
-class OrganisationCreateView(LoginRequiredMixin, CreateView):
+class OrganisationCreateView(HouseholdLoginRequiredMixin, CreateView):
     template_name = "relationship/organisationDetail.html"
     form_class = OrganisationDetailsForm
     model = Organisation
@@ -197,7 +177,7 @@ class OrganisationCreateView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse_lazy('relationship:contactList'))
 
 
-class ExportCSV(LoginRequiredMixin,ListView):
+class ExportCSV(HouseholdLoginRequiredMixin,ListView):
 
     def get(self, request, *args, **kwargs):
 
@@ -230,7 +210,7 @@ class ExportCSV(LoginRequiredMixin,ListView):
         return response
 
 
-class ExportStatusCSV(LoginRequiredMixin,ListView):
+class ExportStatusCSV(HouseholdLoginRequiredMixin,ListView):
 
     def get(self, request, *args, **kwargs):
 

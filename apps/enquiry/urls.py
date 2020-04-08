@@ -7,10 +7,10 @@ from . import views
 app_name = 'enquiry'
 
 urlpatterns = [
+    #Authenticated Views
     path('', views.EnquiryCreateView.as_view(), name='enquiry'),
     path('<uuid:uid>', views.EnquiryUpdateView.as_view(), name='enquiryDetail'),
     path('enquiryList', views.EnquiryListView.as_view(), name='enquiryList'),
-    path('enquirySummaryPdf/<uuid:uid>', views.EnqSummaryPdfView.as_view(), name='enqSummaryPdf'),
     path('enquiryCreateSummary/<uuid:uid>',views.CreateEnquirySummary.as_view(),name='enqCreateSummary'),
     path('enquirySendDetail/<uuid:uid>', views.SendEnquirySummary.as_view(), name='enqSendDetails'),
     path('enquiryEligibility/<uuid:uid>',views.EnquiryEmailEligibility.as_view(), name='enqEligibility'),
@@ -20,5 +20,8 @@ urlpatterns = [
     path('enquiryCloseFollowUp/<uuid:uid>',views.EnquiryCloseFollowUp.as_view(),name='enqMarkFollowUp'),
     path('enquiryDelete/<uuid:uid>', views.EnquiryDeleteView.as_view(), name='enqDelete'),
 
- ]
+    #Unauthenticated Views
+    path('enquirySummaryPdf/<uuid:uid>', views.EnqSummaryPdfView.as_view(), name='enqSummaryPdf'),
+
+]
 

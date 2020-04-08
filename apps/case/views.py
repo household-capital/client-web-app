@@ -7,7 +7,6 @@ import pathlib
 
 # Django Imports
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q
@@ -29,7 +28,7 @@ from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.site_Globals import LOAN_LIMITS
 from apps.lib.site_Logging import write_applog
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
-from apps.lib.site_Utilities import updateNavQueue
+from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, updateNavQueue
 from apps.lib.api_Docsaway import apiDocsAway
 from apps.enquiry.models import Enquiry
 from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignForm
@@ -70,25 +69,10 @@ class SFHelper():
 
 # //MIXINS
 
-class LoginRequiredMixin():
-    # Ensures views will not render unless logged in, redirects to login page
-    @classmethod
-    def as_view(cls, **kwargs):
-        view = super(LoginRequiredMixin, cls).as_view(**kwargs)
-        return login_required(view)
-
-    # Ensures views will not render unless Household employee, redirects to Landing
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.profile.isHousehold:
-            return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
-        else:
-            return HttpResponseRedirect(reverse_lazy('landing:landing'))
-
-
 # //CLASS BASED VIEWS
 
 # Case List View
-class CaseListView(LoginRequiredMixin, ListView):
+class CaseListView(HouseholdLoginRequiredMixin, ListView):
     paginate_by = 8
     template_name = 'case/caseList.html'
     context_object_name = 'object_list'
@@ -177,7 +161,7 @@ class CaseListView(LoginRequiredMixin, ListView):
 
 
 # Case Detail View (UpdateView)
-class CaseDetailView(LoginRequiredMixin, UpdateView):
+class CaseDetailView(HouseholdLoginRequiredMixin, UpdateView):
     template_name = 'case/caseDetail.html'
     model = Case
     form_class = CaseDetailsForm
@@ -340,7 +324,7 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
 
 
 # Case Create View (Create View)
-class CaseCreateView(LoginRequiredMixin, CreateView):
+class CaseCreateView(HouseholdLoginRequiredMixin, CreateView):
     template_name = 'case/caseDetail.html'
     model = Case
     form_class = CaseDetailsForm
@@ -379,7 +363,7 @@ class CaseCreateView(LoginRequiredMixin, CreateView):
 
 
 # Case Delete View (Delete View)
-class CaseDeleteView(LoginRequiredMixin, View):
+class CaseDeleteView(HouseholdLoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         if "uid" in kwargs:
@@ -390,7 +374,7 @@ class CaseDeleteView(LoginRequiredMixin, View):
 
 
 # Case Close View (Update View)
-class CaseCloseView(LoginRequiredMixin, UpdateView):
+class CaseCloseView(HouseholdLoginRequiredMixin, UpdateView):
     model = LossData
     template_name = 'case/caseLoss.html'
     form_class = LossDetailsForm
@@ -430,7 +414,7 @@ class CaseCloseView(LoginRequiredMixin, UpdateView):
         app.send_task('Update_SF_Case_Lead', kwargs={'caseUID': str(obj.case.caseUID)})
         return super(CaseCloseView, self).form_valid(form)
 
-class CaseUncloseView(LoginRequiredMixin, View):
+class CaseUncloseView(HouseholdLoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         obj= Case.objects.filter(caseUID=kwargs['uid']).get()
         obj.caseStage = caseStagesEnum.DISCOVERY.value
@@ -438,7 +422,7 @@ class CaseUncloseView(LoginRequiredMixin, View):
         messages.success(self.request, "Case restored")
         return HttpResponseRedirect(reverse_lazy('case:caseList'))
 
-class CaseAnalysisView(LoginRequiredMixin, TemplateView):
+class CaseAnalysisView(HouseholdLoginRequiredMixin, TemplateView):
     context_object_name = 'object_list'
     model = WebCalculator
     template_name = 'case/caseAnalysis.html'
@@ -451,7 +435,7 @@ class CaseAnalysisView(LoginRequiredMixin, TemplateView):
 
 
 # Loan Summary Email
-class CaseEmailLoanSummary(LoginRequiredMixin, TemplateView):
+class CaseEmailLoanSummary(HouseholdLoginRequiredMixin, TemplateView):
     template_name = 'case/email/loanSummary/update-email.html'
     model = Case
 
@@ -495,7 +479,7 @@ class CaseEmailLoanSummary(LoginRequiredMixin, TemplateView):
 
 
 
-class CaseMailLoanSummary(LoginRequiredMixin, TemplateView):
+class CaseMailLoanSummary(HouseholdLoginRequiredMixin, TemplateView):
     '''Email and Physically Mail Loan Summary'''
     template_name = 'case/email/loanSummary/email.html'
     model = Case
@@ -583,7 +567,7 @@ class CaseMailLoanSummary(LoginRequiredMixin, TemplateView):
         return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
 
-class CaseOwnView(LoginRequiredMixin, View):
+class CaseOwnView(HouseholdLoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
 
         caseUID = str(kwargs['uid'])
@@ -600,7 +584,7 @@ class CaseOwnView(LoginRequiredMixin, View):
         return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
 
-class CaseAssignView(LoginRequiredMixin, UpdateView):
+class CaseAssignView(HouseholdLoginRequiredMixin, UpdateView):
     template_name = 'case/caseDetail.html'
     email_template_name='case/email/assignEmail.html'
     form_class = CaseAssignForm
@@ -646,7 +630,7 @@ class CaseAssignView(LoginRequiredMixin, UpdateView):
 
 
 
-class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
+class CaseDataExtract(HouseholdLoginRequiredMixin, SFHelper, FormView):
     # This view creates a data file (.csv) for use in creating the on-boarding pack
     # The data is sourced from Salesforce
     # This is a temporary solution only
@@ -803,7 +787,7 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
             return HttpResponseRedirect(reverse_lazy('case:caseData', kwargs={'uid': str(caseObj.caseUID)}))
 
 
-class CloudbridgeView(LoginRequiredMixin, TemplateView):
+class CloudbridgeView(HouseholdLoginRequiredMixin, TemplateView):
     template_name = 'case/caseCloudbridge.html'
 
     def get(self, request, *args, **kwargs):
@@ -918,7 +902,7 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class CaseVariation(LoginRequiredMixin, TemplateView):
+class CaseVariation(HouseholdLoginRequiredMixin, TemplateView):
     template_name = 'case/caseCloudbridge.html'
 
     def get(self, request, *args, **kwargs):

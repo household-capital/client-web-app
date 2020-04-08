@@ -8,6 +8,8 @@ app_name = 'relationship'
 
 urlpatterns = [
 
+    #Authenticated Views
+
     path('', views.ContactListView.as_view(),name='contactList'),
     path('contact/<int:contId>', views.ContactDetailView.as_view(), name='contactDetail'),
     path('contactCreate', views.ContactDetailView.as_view(), name='contactCreate'),

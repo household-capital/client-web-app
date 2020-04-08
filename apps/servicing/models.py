@@ -348,7 +348,6 @@ class FacilityEnquiry(models.Model):
     otherEnquirerName = models.CharField(max_length=60, blank=True, null=True)
     contactEmail=models.EmailField(null=True,blank=True)
     contactPhone=models.CharField(max_length=15,null=True,blank=True)
-    enquiryNotes = models.TextField(blank=True, null=True)
     actionNotes = models.TextField(blank=True, null=True)
     actioned = models.BooleanField(choices = actionChoices, default = False)
     actionedBy = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name='actionedBy')
@@ -366,4 +365,25 @@ class FacilityEnquiry(models.Model):
 
     def get_absolute_url(self):
         return reverse_lazy("servicing:loanEnquiryUpdate", kwargs={"uid": self.facility.facilityUID, 'pk':self.id})
+
+
+class FacilityAdditional(models.Model):
+    facility = models.ForeignKey(Facility, on_delete=models.CASCADE)
+    additionalUID = models.UUIDField(default=uuid.uuid4, editable=False)
+    amountRequested = models.IntegerField(default=0, null=True, blank=True)
+    amountEstablishmentFee = models.FloatField(default=0, null=True, blank=True)
+    amountTotal = models.FloatField(default=0, null=True, blank=True)
+    establishmentFeeRate = models.FloatField(default=0, null=True, blank=True)
+    identifiedRequester = models.ForeignKey(FacilityRoles, on_delete=models.CASCADE, blank=True, null=True)
+    requestedEmail = models.EmailField(null=True,blank=True)
+    requestedIP = models.CharField(max_length=45, null=True, blank=True)
+    requestedDate = models.DateTimeField(null=True,blank=True)
+    choicePurposes = models.BooleanField(default=False)
+    choiceNoMaterialChange = models.BooleanField(default=False)
+    submitted = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
+    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Facility Additional Drawdown"
 

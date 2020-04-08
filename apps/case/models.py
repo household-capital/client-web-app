@@ -15,6 +15,8 @@ from apps.lib.site_Enums import caseStagesEnum, clientSexEnum, clientTypesEnum, 
     pensionTypesEnum, loanTypesEnum, ragTypesEnum, channelTypesEnum, stateTypesEnum, incomeFrequencyEnum, \
     closeReasonEnum, salutationEnum, maritalEnum, appTypesEnum
 
+from apps.accounts.models import Referer
+
 
 class FundDetail(models.Model):
     #Model for Fund Names/Images
@@ -50,6 +52,9 @@ class CaseManager(models.Manager):
     def openCases(self):
         closedTypes = [caseStagesEnum.CLOSED.value, caseStagesEnum.FUNDED.value]
         return Case.objects.exclude(caseStage__in=closedTypes)
+
+    def referrerQueueCount(self):
+        return Case.objects.filter(user__profile__referrer__isnull=False).count()
 
 
 class Case(models.Model):
@@ -196,8 +201,7 @@ class Case(models.Model):
 
     salesChannel = models.IntegerField(choices=channelTypes,null=True, blank=True)
     adviser = models.CharField(max_length=60, null=True, blank=True)
-    referralCompany = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='caseReferralCompany', null=True, blank=True,
-                                     on_delete=models.SET_NULL)
+    referralCompany = models.ForeignKey(Referer ,null=True, blank=True, on_delete=models.SET_NULL)
     referralRepNo = models.CharField(max_length=60, null=True, blank=True)
 
 

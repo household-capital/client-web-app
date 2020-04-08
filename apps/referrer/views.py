@@ -24,31 +24,16 @@ from config.celery import app
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum, channelTypesEnum
 from apps.lib.site_Logging import write_applog
+from apps.lib.site_Utilities import ReferrerLoginRequiredMixin
 from .forms import EnquiryForm, CaseDetailsForm
 from apps.enquiry.models import Enquiry
 from apps.case.models import Case
 
-# VIEWS
-
-class ReferrerRequiredMixin():
-    # Ensures views will not render unless logged in, redirects to login page
-    @classmethod
-    def as_view(cls, **kwargs):
-        view = super(ReferrerRequiredMixin, cls).as_view(**kwargs)
-        return login_required(view)
-
-        # Ensures views will not render unless Household employee, redirects to Landing
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.profile.referrer:
-            return super(ReferrerRequiredMixin, self).dispatch(request, *args, **kwargs)
-        else:
-            return HttpResponseRedirect(reverse_lazy('landing:landing'))
 
 
 # Referrer Views
 
-class MainView(ReferrerRequiredMixin, View):
+class MainView(ReferrerLoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
 
@@ -59,7 +44,7 @@ class MainView(ReferrerRequiredMixin, View):
 
 
 # Enquiry Detail View
-class EnquiryView(ReferrerRequiredMixin, UpdateView):
+class EnquiryView(ReferrerLoginRequiredMixin, UpdateView):
     template_name = "referrer/enquiry.html"
     form_class = EnquiryForm
     model = Enquiry
@@ -121,7 +106,7 @@ class EnquiryView(ReferrerRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy('referrer:enqUpdate', kwargs={'uid': str(obj.enqUID)}))
 
 
-class EnquiryEmail(ReferrerRequiredMixin, TemplateView):
+class EnquiryEmail(ReferrerLoginRequiredMixin, TemplateView):
     template_name = 'referrer/email/email_referral.html'
     model = Enquiry
 
@@ -163,7 +148,7 @@ class EnquiryEmail(ReferrerRequiredMixin, TemplateView):
 # Case Views
 
 # Case Detail View (UpdateView)
-class CaseDetailView(ReferrerRequiredMixin, UpdateView):
+class CaseDetailView(ReferrerLoginRequiredMixin, UpdateView):
     template_name = 'referrer/caseDetail.html'
     model = Case
     form_class = CaseDetailsForm
@@ -202,7 +187,7 @@ class CaseDetailView(ReferrerRequiredMixin, UpdateView):
             obj.age_2 = int((datetime.date.today() - obj.birthdate_2).days / 365.25)
 
         obj.salesChannel = channelTypesEnum.BROKERS.value
-        obj.referralCompany = self.request.user
+        obj.referralCompany = self.request.user.profile.referrer
 
         obj.save()
 
@@ -212,7 +197,7 @@ class CaseDetailView(ReferrerRequiredMixin, UpdateView):
 
 
 # Case Create View (Create View)
-class CaseCreateView(ReferrerRequiredMixin, CreateView):
+class CaseCreateView(ReferrerLoginRequiredMixin, CreateView):
     template_name = 'referrer/caseDetail.html'
     model = Case
     form_class = CaseDetailsForm
@@ -242,7 +227,7 @@ class CaseCreateView(ReferrerRequiredMixin, CreateView):
         # Set fields manually
         obj.caseStage = caseStagesEnum.DISCOVERY.value
         obj.user = self.request.user
-        obj.referralCompany = self.request.user
+        obj.referralCompany = self.request.user.profile.referrer
         obj.salesChannel = channelTypesEnum.BROKERS.value
 
         obj.save()
@@ -253,7 +238,7 @@ class CaseCreateView(ReferrerRequiredMixin, CreateView):
 
 
 # Case List View
-class CaseListView(ReferrerRequiredMixin, ListView):
+class CaseListView(ReferrerLoginRequiredMixin, ListView):
     paginate_by = 8
     template_name = 'referrer/caseList.html'
     context_object_name = 'object_list'
@@ -261,7 +246,7 @@ class CaseListView(ReferrerRequiredMixin, ListView):
 
     def get_queryset(self, **kwargs):
         # overrides queryset to filter search parameter
-        qs =Case.objects.filter(user__profile__referrer__companyName = self.request.user.profile.referrer.companyName)
+        qs =Case.objects.filter(referralCompany = self.request.user.profile.referrer)
 
         if self.request.GET.get('search'):
             search = self.request.GET.get('search')

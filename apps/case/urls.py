@@ -7,6 +7,9 @@ from . import views
 app_name = 'case'
 
 urlpatterns = [
+
+    #Authenticated Views
+
     path('caseList' ,views.CaseListView.as_view() ,name='caseList'),
     path('caseCreate', views.CaseCreateView.as_view(),name='caseCreate'),
     path('caseDetail/<uuid:uid>' ,views.CaseDetailView.as_view() ,name='caseDetail'),
