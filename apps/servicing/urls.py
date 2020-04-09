@@ -19,8 +19,9 @@ urlpatterns = [
      path('loanEnquiry/<uuid:uid>', views.LoanEnquiry.as_view(), name='loanEnquiry'),
      path('loanEvents', views.LoanEventList.as_view(), name='loanEventList'),
      path('loanAdditionalLink/<uuid:uid>', views.LoanAdditionalLink.as_view(), name='loanAdditionalLink'),
+     path('loanCreateVariation/<uuid:uid>', views.LoanCreateVariation.as_view(), name='loanCreateVariation'),
 
-     # Externally Exposed Views
+     # Unauthenticated Views
      re_path(r'^loanAdditionalValidate/(?P<signed_pk>[A-Za-z0-9_:=-]+)/$', views.LoanAdditionalValidate.as_view(), name='loanAdditionalValidate'),
      path('validationError', views.ValidationErrorView.as_view(), name='validationError'),
      path('sessionError', views.SessionErrorView.as_view(), name='sessionError'),

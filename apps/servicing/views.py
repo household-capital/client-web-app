@@ -7,38 +7,27 @@ import pathlib
 
 # Django Imports
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core import signing
 from django.db.models import Q, F
-from django.http import HttpResponseRedirect, JsonResponse
+
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import ListView, UpdateView, CreateView, TemplateView, View, FormView, DetailView
 
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Enums import roleEnum
-from apps.lib.site_Utilities import updateNavQueue, sendTemplateEmail
+from apps.lib.site_DataMapping import mapFacilityToCase
+from apps.lib.site_Enums import roleEnum, caseStagesEnum, loanTypesEnum, appTypesEnum, clientTypesEnum, channelTypesEnum
+
+from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, updateNavQueue, sendTemplateEmail
+from apps.case.models import Case
 
 from .models import Facility, FacilityTransactions, FacilityRoles, FacilityProperty, FacilityPropertyVal, \
     FacilityPurposes, FacilityEvents, FacilityEnquiry, FacilityAdditional
 
 from .forms import FacilityEnquiryForm, FacilityAdditionalRequest, FacilityBorrowerForm, FacilityAdditionalConfirm
 
-
-class LoginRequiredMixin():
-    # Ensures views will not render unless logged in, redirects to login page
-    @classmethod
-    def as_view(cls, **kwargs):
-        view = super(LoginRequiredMixin, cls).as_view(**kwargs)
-        return login_required(view)
-
-    # Ensures views will not render unless Household employee, redirects to Landing
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.profile.isHousehold:
-            return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
-        else:
-            return HttpResponseRedirect(reverse_lazy('landing:landing'))
 
 class SessionRequiredMixin(object):
     # Ensures any attempt to access without UID set is redirect to error view
@@ -49,7 +38,7 @@ class SessionRequiredMixin(object):
 
 
 # List View
-class LoanListView(LoginRequiredMixin, ListView):
+class LoanListView(HouseholdLoginRequiredMixin, ListView):
     #List view of all loans (Facility Objects)
     paginate_by = 8
     template_name = 'servicing/loanList.html'
@@ -103,7 +92,7 @@ class LoanListView(LoginRequiredMixin, ListView):
 
         return context
 
-class LoanEventList(LoginRequiredMixin, ListView):
+class LoanEventList(HouseholdLoginRequiredMixin, ListView):
     #List view of recent loan events
     paginate_by = 8
     template_name = 'servicing/loanEventList.html'
@@ -132,7 +121,7 @@ class LoanEventList(LoginRequiredMixin, ListView):
 
         return context
 
-class LoanEnquiryList(LoginRequiredMixin, ListView):
+class LoanEnquiryList(HouseholdLoginRequiredMixin, ListView):
     #List view of unactioned Loan Enquiries
     paginate_by = 8
     template_name = 'servicing/loanEnquiryList.html'
@@ -162,7 +151,7 @@ class LoanEnquiryList(LoginRequiredMixin, ListView):
         return context
 
 
-class LoanRecentEnquiryList(LoginRequiredMixin, ListView):
+class LoanRecentEnquiryList(HouseholdLoginRequiredMixin, ListView):
     #List view of recent Loan Enquiries
     paginate_by = 8
     template_name = 'servicing/loanEnquiryList.html'
@@ -191,7 +180,7 @@ class LoanRecentEnquiryList(LoginRequiredMixin, ListView):
         return context
 
 
-class LoanDetailView(LoginRequiredMixin, DetailView):
+class LoanDetailView(HouseholdLoginRequiredMixin, DetailView):
     # Loan Detail View
     template_name = 'servicing/loanDetail.html'
     model = FacilityPurposes
@@ -220,7 +209,7 @@ class LoanDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class LoanDetailBalances(LoginRequiredMixin, DetailView):
+class LoanDetailBalances(HouseholdLoginRequiredMixin, DetailView):
     # Sub-menu view of Loan Balances and Transactions
     template_name = 'servicing/loanDetailBalances.html'
     model = Facility
@@ -245,7 +234,7 @@ class LoanDetailBalances(LoginRequiredMixin, DetailView):
         return context
 
 
-class LoanDetailRoles(LoginRequiredMixin, DetailView):
+class LoanDetailRoles(HouseholdLoginRequiredMixin, DetailView):
     # Sub-menu view of Loan Roles/Contacts
     template_name = 'servicing/loanDetailRoles.html'
     model = Facility
@@ -271,7 +260,7 @@ class LoanDetailRoles(LoginRequiredMixin, DetailView):
         return context
 
 
-class LoanDetailProperty(LoginRequiredMixin, DetailView):
+class LoanDetailProperty(HouseholdLoginRequiredMixin, DetailView):
     # Sub-menu view of Loan property details
     template_name = 'servicing/loanDetailProperty.html'
     model = FacilityProperty
@@ -297,7 +286,7 @@ class LoanDetailProperty(LoginRequiredMixin, DetailView):
         return context
 
 
-class LoanDetailPurposes(LoginRequiredMixin, DetailView):
+class LoanDetailPurposes(HouseholdLoginRequiredMixin, DetailView):
     # Sub-menu view of Loan purposes
     template_name = 'servicing/loanDetailPurposes.html'
     model = FacilityPurposes
@@ -322,7 +311,7 @@ class LoanDetailPurposes(LoginRequiredMixin, DetailView):
         return context
 
 
-class LoanEnquiry(LoginRequiredMixin, CreateView):
+class LoanEnquiry(HouseholdLoginRequiredMixin, CreateView):
     # Loan Action - create an enquiry
     template_name = 'servicing/loanEnquiry.html'
     model=FacilityEnquiry
@@ -366,7 +355,7 @@ class LoanEnquiry(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse_lazy('servicing:loanDetail', kwargs={'uid': self.kwargs.get('uid')}))
 
 
-class LoanEnquiryUpdate(LoginRequiredMixin, UpdateView):
+class LoanEnquiryUpdate(HouseholdLoginRequiredMixin, UpdateView):
     #Update view for a loan enquiry
     template_name = 'servicing/loanEnquiry.html'
     model=FacilityEnquiry
@@ -417,7 +406,36 @@ class LoanEnquiryUpdate(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy('servicing:loanDetail', kwargs={'uid': self.kwargs.get('uid')}))
 
 
-class LoanAdditionalLink(LoginRequiredMixin, FormView):
+class LoanCreateVariation(HouseholdLoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        facilityUID = str(self.kwargs['uid'])
+        facilityObj = Facility.objects.queryset_byUID(facilityUID).get()
+
+
+        # 1. Case Object
+
+        payload = mapFacilityToCase(facilityObj)
+
+        try:
+            newCaseObj = Case.objects.create(**payload)
+        except:
+            messages.error(self.request, "Could not create variation")
+            return HttpResponseRedirect(reverse_lazy('servicing:loanDetail', kwargs={'uid': facilityUID}))
+
+
+
+
+
+        messages.success(self.request, "This is a variation of the original loan")
+        messages.success(self.request, "Update the meeting based on additional amounts")
+        return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': str(newCaseObj.caseUID)}))
+
+
+
+
+
+class LoanAdditionalLink(HouseholdLoginRequiredMixin, FormView):
     #Loan Action - Create Additional Amount email link
     form_class = FacilityBorrowerForm
     template_name = 'servicing/loanAdditional.html'
@@ -534,7 +552,7 @@ class LoanAdditionalLink(LoginRequiredMixin, FormView):
             return {"status": "Error", "responseText": "Additional drawdown link not sent"}
 
 
-## EXTERNALLY EXPOSED VIEWS ##
+## UNAUTHENTICATED VIEWS
 
 class SessionErrorView(TemplateView):
     #Error page for session errors

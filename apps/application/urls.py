@@ -10,7 +10,7 @@ urlpatterns = [
     # Authenticated Views
 
 
-    # Externally Exposed Views
+    # Unauthenticated Views
     path('sessionError', views.SessionErrorView.as_view(), name='sessionError'),
     path('validationError', views.ValidationErrorView.as_view(), name='validationError'),
     path('apply', views.InitiateView.as_view(), name='initiate'),

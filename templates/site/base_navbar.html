@@ -71,7 +71,9 @@
                    <li class="d-none d-sm-table-cell pl-2 pr-2"> | &nbsp;&nbsp;
                     </li>
 
-                    <li><a href="{% url 'case:caseList' %}"><i class="far fa-list-alt fa-fw"></i> Case List </a> &nbsp;&nbsp;
+                    <li><a href="{% url 'case:caseList' %}"><i class="far fa-list-alt fa-fw"></i> Case List
+                    {% if request.session.referrerQueue|intVal > 0 %}
+                                <span class="badge btn-success align-text-top">{{ request.session.referrerQueue }}</span>{% endif %}</a> &nbsp;&nbsp;
                         <br>
                         <a href="{% url 'calendly:meetings' %}"><i class="fas fa-video fa-fw"></i> Meetings </a> &nbsp;&nbsp;
                     </li>

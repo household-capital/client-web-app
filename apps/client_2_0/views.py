@@ -6,7 +6,6 @@ from datetime import datetime
 
 # Django Imports
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.contrib import messages
 from django.core.files import File
@@ -28,24 +27,11 @@ from .forms import ClientDetailsForm, SettingsForm, IntroChkBoxForm, topUpLumpSu
 from .forms import giveAmountForm, renovateAmountForm, travelAmountForm, careAmountForm, DetailedChkBoxForm, \
     protectedEquityForm, interestPaymentForm, careDrawdownForm,topUpContingencyForm
 from apps.lib.api_Pdf import pdfGenerator
-from apps.lib.site_Utilities import firstNameSplit
+from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, updateNavQueue, firstNameSplit
 
 
 # // MIXINS
 
-class LoginRequiredMixin():
-    # Ensures views will not render unless logged in, redirects to login page
-    @classmethod
-    def as_view(cls, **kwargs):
-        view = super(LoginRequiredMixin, cls).as_view(**kwargs)
-        return login_required(view)
-
-    # Ensures views will not render unless Household employee, redirects to Landing
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.profile.isHousehold:
-            return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
-        else:
-            return HttpResponseRedirect(reverse_lazy('landing:landing'))
 
 
 class SessionRequiredMixin(object):
@@ -106,7 +92,7 @@ class ContextHelper():
 # CLASS BASED VIEWS
 
 # Landing View
-class LandingView(LoginRequiredMixin, ContextHelper, TemplateView):
+class LandingView(HouseholdLoginRequiredMixin, ContextHelper, TemplateView):
     template_name = "client_2_0/interface/landing.html"
 
     def get(self, request, *args, **kwargs):
@@ -185,7 +171,7 @@ class LandingView(LoginRequiredMixin, ContextHelper, TemplateView):
 
 
 # Settings Views
-class SetClientView(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
+class SetClientView(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
     # Sets the initial client data (in associated dictionary)
 
     template_name = "client_2_0/interface/settings.html"
@@ -252,7 +238,7 @@ class SetClientView(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, Upd
             return self.render_to_response(context)
 
 
-class SettingsView(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
+class SettingsView(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
     template_name = "client_2_0/interface/settings.html"
     form_class = SettingsForm
     model = ModelSetting
@@ -276,7 +262,7 @@ class SettingsView(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, Upda
 
 
 # Introduction Views
-class IntroductionView1(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateView):
+class IntroductionView1(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateView):
     template_name = "client_2_0/interface/introduction1.html"
 
     def get_context_data(self, **kwargs):
@@ -304,7 +290,7 @@ class IntroductionView1(LoginRequiredMixin, SessionRequiredMixin, ContextHelper,
         return context
 
 
-class IntroductionView2(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
+class IntroductionView2(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
     template_name = "client_2_0/interface/introduction2.html"
     form_class = IntroChkBoxForm
     model = Loan
@@ -338,7 +324,7 @@ class IntroductionView2(LoginRequiredMixin, SessionRequiredMixin, ContextHelper,
         return obj
 
 
-class IntroductionView3(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateView):
+class IntroductionView3(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateView):
     template_name = "client_2_0/interface/introduction3.html"
 
     def get_context_data(self, **kwargs):
@@ -381,7 +367,7 @@ class IntroductionView3(LoginRequiredMixin, SessionRequiredMixin, ContextHelper,
 
 # Navigation View
 
-class NavigationView(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateView):
+class NavigationView(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateView):
     template_name = "client_2_0/interface/navigation.html"
 
     def get_context_data(self, **kwargs):
@@ -407,7 +393,7 @@ class NavigationView(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, Te
 
 
 # Top Up Views
-class TopUp1(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
+class TopUp1(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
     template_name = "client_2_0/interface/topUp1.html"
     model = Loan
     form_class = topUpLumpSumForm
@@ -441,7 +427,7 @@ class TopUp1(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView
 
 
 # Top Up Views
-class TopUp2(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
+class TopUp2(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
     template_name = "client_2_0/interface/topUp2.html"
     model = Loan
     form_class = topUpDrawdownForm
@@ -497,7 +483,7 @@ class TopUp2(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView
         return super(TopUp2, self).form_valid(form)
 
 
-class TopUp3(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
+class TopUp3(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
     template_name = "client_2_0/interface/topUp3.html"
     model = Loan
     form_class = topUpContingencyForm
@@ -530,7 +516,7 @@ class TopUp3(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView
         return obj
 
 # Refinance
-class Refi(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
+class Refi(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
     template_name = "client_2_0/interface/refi.html"
     form_class = debtRepayForm
     model = Loan
@@ -575,7 +561,7 @@ class Refi(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
 
 
 # Live Views
-class Live1(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
+class Live1(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
     template_name = "client_2_0/interface/live1.html"
     form_class = renovateAmountForm
     model = Loan
@@ -607,7 +593,7 @@ class Live1(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView)
         return obj
 
 
-class Live2(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
+class Live2(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
     template_name = "client_2_0/interface/live2.html"
     form_class = travelAmountForm
     model = Loan
@@ -640,7 +626,7 @@ class Live2(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView)
 
 
 # Give Views
-class Give(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
+class Give(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
     template_name = "client_2_0/interface/give.html"
     form_class = giveAmountForm
     model = Loan
@@ -673,7 +659,7 @@ class Give(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
 
 
 # Care Views
-class Care1(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
+class Care1(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
     template_name = "client_2_0/interface/care1.html"
     form_class = careAmountForm
     model = Loan
@@ -703,7 +689,7 @@ class Care1(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView)
         obj = queryset.get()
         return obj
 
-class Care2(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
+class Care2(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
         template_name = "client_2_0/interface/care2.html"
         form_class = careDrawdownForm
         model = Loan
@@ -753,7 +739,7 @@ class Care2(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView)
 
 
 # Options Views
-class Options1(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
+class Options1(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
     template_name = "client_2_0/interface/options1.html"
     form_class = protectedEquityForm
     model = Loan
@@ -787,7 +773,7 @@ class Options1(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateVi
         return obj
 
 
-class Options2(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
+class Options2(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
     template_name = "client_2_0/interface/options2.html"
     form_class = interestPaymentForm
     model = Loan
@@ -826,7 +812,7 @@ class Options2(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateVi
 
 # Results View
 
-class Results1(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateView):
+class Results1(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateView):
     template_name = "client_2_0/interface/results1.html"
 
     def get(self, request, *args, **kwargs):
@@ -865,7 +851,7 @@ class Results1(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, Template
         return context
 
 
-class Results2(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
+class Results2(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateView):
     template_name = "client_2_0/interface/results2.html"
     form_class = DetailedChkBoxForm
     model = Loan
@@ -920,7 +906,7 @@ class Results2(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, UpdateVi
         self.initFormData[fieldName] = initial
 
 
-class Results3(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateView):
+class Results3(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateView):
     template_name = "client_2_0/interface/results3.html"
 
     def get_context_data(self, **kwargs):
@@ -988,7 +974,7 @@ class Results3(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, Template
         return context
 
 
-class Results4(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateView):
+class Results4(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateView):
     template_name = "client_2_0/interface/results4.html"
 
     def get_context_data(self, **kwargs):
@@ -1008,7 +994,7 @@ class Results4(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, Template
 
 # Final Views
 
-class FinalView(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateView):
+class FinalView(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateView):
     template_name = "client_2_0/interface/final.html"
 
     def get_context_data(self, **kwargs):
@@ -1019,11 +1005,11 @@ class FinalView(LoginRequiredMixin, SessionRequiredMixin, ContextHelper, Templat
         return context
 
 
-class FinalErrorView(LoginRequiredMixin, ContextHelper, TemplateView):
+class FinalErrorView(HouseholdLoginRequiredMixin, ContextHelper, TemplateView):
     template_name = "client_2_0/interface/final_error.html"
 
 
-class FinalPDFView(LoginRequiredMixin, SessionRequiredMixin, View):
+class FinalPDFView(HouseholdLoginRequiredMixin, SessionRequiredMixin, View):
     # This view is called via javascript from the final page to generate the report pdf
     # It uses a utility to render the report and then save and serves the pdf
 
@@ -1397,7 +1383,7 @@ class PdfValInstruction(TemplateView):
 ## TEST HARNESS ##
 
 
-class NewFinalPDFView(LoginRequiredMixin, SessionRequiredMixin, View):
+class NewFinalPDFView(HouseholdLoginRequiredMixin, SessionRequiredMixin, View):
     # This view is called via javascript from the final page to generate the report pdf
     # It uses a utility to render the report and then save and serves the pdf
 

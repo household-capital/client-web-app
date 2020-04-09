@@ -15,6 +15,7 @@ from apps.lib.lixi.lixi_CloudBridge import CloudBridge
 from apps.lib.site_Enums import caseStagesEnum
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Utilities import taskError, sendTemplateEmail
+from apps.lib.site_DataMapping import mapCaseToOpportunity
 
 
 from .models import Case, LossData, Loan, ModelSetting
@@ -543,135 +544,8 @@ def updateSFOpp(caseUID, sfAPI):
     lossObj = LossData.objects.queryset_byUID(caseUID).get()
 
     # Update Opportunity [Application]
-    sfOpprtunityFields = {
-        # Core case data
-        'sfOpportunityId': caseObj.sfOpportunityID,
-        'caseUID': str(caseObj.caseUID),
-        'caseDescription': caseObj.caseDescription,
-        'user': caseObj.user.profile.salesforceID,
-        'adviser': caseObj.adviser,
-        'loanType': caseObj.enumLoanType(),
-        'salesChannel': caseObj.enumChannelType(),
-        'closeReason': caseObj.lossdata.enumCloseReason(),
-        'followUpNotes': caseObj.lossdata.followUpNotes,
-        'doNotMarket': caseObj.lossdata.doNotMarket,
-        'mortgageDebt': caseObj.mortgageDebt,
-        'superAmount': caseObj.superAmount,
-        'pensionType': caseObj.enumPensionType(),
-        'pensionAmount': caseObj.pensionAmount,
-        'clientType1': caseObj.enumClientType()[0],
-        'salutation_1':caseObj.enumSalutation()[0] ,
-        'surname_1': caseObj.surname_1,
-        'firstname_1': caseObj.firstname_1,
-        'preferredName_1': caseObj.preferredName_1,
-        'middlename_1':caseObj.middlename_1,
-        'age_1': caseObj.age_1,
-        'sex_1': caseObj.enumSex()[0],
-        'maritalStatus_1':caseObj.enumMaritalStatus()[0],
-        'phoneNumber': caseObj.phoneNumber,
-        'email': caseObj.email,
-        'clientType2': caseObj.enumClientType()[1],
-        'salutation_2': caseObj.enumSalutation()[1],
-        'surname_2': caseObj.surname_2,
-        'firstname_2': caseObj.firstname_2,
-        'preferredName_2': caseObj.preferredName_2,
-        'middlename_2': caseObj.middlename_2,
-        'age_2': caseObj.age_2,
-        'sex_2': caseObj.enumSex()[1],
-        'maritalStatus_2': caseObj.enumMaritalStatus()[1],
-        'street': caseObj.street,
-        'suburb': caseObj.suburb,
-        'postcode': caseObj.postcode,
-        'state': caseObj.enumStateType(),
-        'valuation': caseObj.valuation,
-        'dwellingType': caseObj.enumDwellingType(),
 
-        #Meeting Data
-        'maxLVR': caseObj.loan.maxLVR,
-        'actualLVR': caseObj.loan.actualLVR,
-        'establishmentFee': caseObj.loan.establishmentFee,
-        'totalLoanAmount': caseObj.loan.totalLoanAmount,
-        'annualPensionIncome': caseObj.loan.annualPensionIncome,
-        'choiceRetireAtHome': caseObj.loan.choiceRetireAtHome,
-        'choiceAvoidDownsizing': caseObj.loan.choiceAvoidDownsizing,
-        'choiceAccessFunds': caseObj.loan.choiceAccessFunds,
-        'choiceTopUp': caseObj.loan.choiceTopUp,
-        'choiceRefinance': caseObj.loan.choiceRefinance,
-        'choiceGive': caseObj.loan.choiceGive,
-        'choiceReserve': caseObj.loan.choiceReserve,
-        'choiceLive': caseObj.loan.choiceLive,
-        'choiceCare': caseObj.loan.choiceCare,
-        'choiceFuture': caseObj.loan.choiceFuture,
-        'choiceCenterlink': caseObj.loan.choiceCenterlink,
-        'choiceVariable': caseObj.loan.choiceVariable,
-        'consentPrivacy': caseObj.loan.consentPrivacy,
-        'consentElectronic': caseObj.loan.consentElectronic,
-        'protectedEquity': caseObj.loan.protectedEquity,
-        'interestPayAmount': caseObj.loan.interestPayAmount,
-        'interestPayPeriod': caseObj.loan.interestPayPeriod,
-        'topUpAmount': caseObj.loan.topUpAmount,
-        'topUpDrawdownAmount': caseObj.loan.topUpDrawdownAmount,
-        'topUpIncomeAmount': caseObj.loan.topUpIncomeAmount,
-        'topUpFrequency': caseObj.loan.enumDrawdownFrequency(),
-        'topUpPeriod': caseObj.loan.topUpPeriod,
-        'topUpBuffer': caseObj.loan.topUpBuffer,
-        'topUpContingencyAmount': caseObj.loan.topUpContingencyAmount,
-        'refinanceAmount': caseObj.loan.refinanceAmount,
-        'renovateAmount': caseObj.loan.renovateAmount,
-        'travelAmount': caseObj.loan.travelAmount,
-        'giveAmount': caseObj.loan.giveAmount,
-        'careAmount': caseObj.loan.careAmount,
-        'careDrawdownAmount': caseObj.loan.careDrawdownAmount,
-        'careRegularAmount': caseObj.loan.careRegularAmount,
-        'careFrequency': caseObj.loan.enumCareFrequency(),
-        'carePeriod': caseObj.loan.carePeriod,
-        'topUpDescription': caseObj.loan.topUpDescription,
-        'topUpContingencyDescription': caseObj.loan.topUpContingencyDescription,
-        'renovateDescription': caseObj.loan.renovateDescription,
-        'travelDescription': caseObj.loan.travelDescription,
-        'careDescription': caseObj.loan.careDescription,
-        'careDrawdownDescription': caseObj.loan.careDrawdownDescription,
-        'giveDescription': caseObj.loan.giveDescription,
-        'detailedTitle' : caseObj.loan.detailedTitle,
-
-        # Model Setting Data
-        'inflationRate': caseObj.modelsetting.inflationRate,
-        'housePriceInflation': caseObj.modelsetting.housePriceInflation,
-        'interestRate': caseObj.modelsetting.interestRate,
-        'lendingMargin': caseObj.modelsetting.lendingMargin,
-        'comparisonRateIncrement': caseObj.modelsetting.comparisonRateIncrement,
-        'establishmentFeeRate': caseObj.modelsetting.establishmentFeeRate,
-
-        # Notes/ Fact Find Fields
-        'caseNotes': caseObj.caseNotes,
-        'backgroundNotes': caseObj.factfind.backgroundNotes,
-        'requirementsNotes': caseObj.factfind.requirementsNotes,
-        'topUpNotes': caseObj.factfind.topUpNotes,
-        'refiNotes': caseObj.factfind.refiNotes,
-        'liveNotes': caseObj.factfind.liveNotes,
-        'giveNotes': caseObj.factfind.giveNotes,
-        'careNotes': caseObj.factfind.careNotes,
-        'futureNotes': caseObj.factfind.futureNotes,
-        'clientNotes': caseObj.factfind.clientNotes,
-    }
-
-    SF_DATE_FIELDS = ['timestamp', 'updated', 'birthdate_1', 'birthdate_2', 'meetingDate', 'closeDate', 'followUpDate']
-
-    objDict = caseObj.__dict__
-    objDict.update(lossObj.__dict__)
-
-    for field in SF_DATE_FIELDS:
-        if objDict[field]:
-            sfOpprtunityFields[field] = objDict[field].strftime("%Y-%m-%d")
-        else:
-            sfOpprtunityFields[field] = None
-
-    if caseObj.superFund:
-        sfOpprtunityFields['superFund'] = caseObj.superFund.fundName
-    else:
-        sfOpprtunityFields['superFund'] = ""
-
-    payload = sfOpprtunityFields
+    payload = mapCaseToOpportunity(caseObj, lossObj)
 
     #Call endpoint
     result = sfAPI.apexCall(end_point, end_point_method, data=payload)

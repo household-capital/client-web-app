@@ -22,24 +22,9 @@ from apps.lib.site_Globals import ECONOMIC, APP_SETTINGS, LOAN_LIMITS
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.hhc_LoanProjection import LoanProjection
 from apps.lib.site_Logging import write_applog
+from apps.lib.site_Utilities import HouseholdLoginRequiredMixin
 
 
-
-# // MIXINS
-
-class LoginRequiredMixin():
-    # Ensures views will not render unless logged in, redirects to login page
-    @classmethod
-    def as_view(cls, **kwargs):
-        view = super(LoginRequiredMixin, cls).as_view(**kwargs)
-        return login_required(view)
-
-    # Ensures views will not render unless Household employee, redirects to Landing
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.profile.isHousehold:
-            return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
-        else:
-            return HttpResponseRedirect(reverse_lazy('landing:landing'))
 
 # Utilities
 class ContextHelper():
@@ -131,7 +116,7 @@ class ContextHelper():
 
 # CLASS BASED VIEWS
 
-class Main(LoginRequiredMixin, ContextHelper,  UpdateView):
+class Main(HouseholdLoginRequiredMixin, ContextHelper,  UpdateView):
     template_name = "fact_find/main.html"
     form_class = FactFindForm
     model = FactFind

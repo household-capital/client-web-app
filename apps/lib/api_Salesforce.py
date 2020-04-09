@@ -66,7 +66,7 @@ class apiSalesforce():
                             "Select Id, Name, Loan__c, Contact__c, Role__c from LoanContactRole__c",
 
                       'LoanObjectContacts':
-                            "Select Id, Salutation, FirstName, MiddleName, LastName, Birthdate__c, Gender__c, Marital_Status__c, MailingStreet, MailingCity, MailingPostalCode, MailingStateCode, Phone, MobilePhone, Email from Contact" ,
+                            "Select Id, Salutation, FirstName, MiddleName, PreferredName__c, LastName, Birthdate__c, Gender__c, Marital_Status__c, MailingStreet, MailingCity, MailingPostalCode, MailingStateCode, Phone, MobilePhone, Email from Contact" ,
 
                       'LoanObjectProperties':
                             "Select Id, Street_Address__c, Suburb_City__c, State__c, Postcode__c, Property_Type__c, Insurer__c, Policy_Number__c, Insurance_Expiry_Date__c, Minimum_Insurance_Value__c, Home_Value_FullVal__c, Valuer__c, Valuer_Name__c, Last_Valuation_Date__c from Properties__c",

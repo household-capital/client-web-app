@@ -25,13 +25,6 @@ class caseStagesEnum(Enum):
     FUNDED = 6
 
 @accessInTemplate
-class clientTypesEnum(Enum):
-    BORROWER= 0
-    NOMINATED_OCCUPANT= 1
-    POWER_OF_ATTORNEY= 2
-    PERMITTED_COHABITANT = 3
-
-@accessInTemplate
 class clientSexEnum(Enum):
     FEMALE=0
     MALE=1
@@ -129,6 +122,13 @@ class maritalEnum(Enum):
     DIVORCED = 3
     WIDOWED = 4
     DEFACTO = 5
+
+@accessInTemplate
+class clientTypesEnum(Enum):
+    BORROWER= 0
+    NOMINATED_OCCUPANT= 1
+    POWER_OF_ATTORNEY= 2
+    PERMITTED_COHABITANT = 3
 
 @accessInTemplate
 class roleEnum(Enum):

@@ -30,6 +30,8 @@ from apps.enquiry.models import Enquiry
 from .models import Calendly
 
 
+# UNAUTHENTICATED VIEWS
+
 @method_decorator(csrf_exempt, name='dispatch')
 class CalendlyWebhook(View):
 

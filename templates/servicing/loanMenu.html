@@ -62,8 +62,8 @@
 
                 <div class="dropdown-divider"></div>
 
-                <a class="dropdown-item" href="">
-                    &nbsp;<i class="fas fa-edit fa-fw"></i>&nbsp;&nbsp;Loan Variation&nbsp;&nbsp;
+                 <a class="dropdown-item" data-toggle="modal" href="#loanVariation">
+                    &nbsp;<i class="fas fa-edit fa-fw"></i>&nbsp;&nbsp;Create Loan Variation&nbsp;&nbsp;
                 </a>
 
                 <div class="dropdown-divider"></div>
@@ -90,3 +90,34 @@
     {% endif %}
     </div>
 </div>
+
+<!-- Modals -->
+        <div class="modal fade" id="loanVariation" tabindex="-1" role="dialog" aria-labelledby="loanVariationLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="loanVariationLabel">Create Loan Variation?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>You are about to create a loan variation Case in the clientApp and corresponding Opportunity in SF.</p>
+                        <br>
+                        <p>The Case will be populated with existing values from the loan.  You will need to vary these values in the Meeting and create a new Loan Summary.</p>
+                    <br>
+                    </div>
+                    <div class="modal-footer">
+
+                         <a href="{% url 'servicing:loanCreateVariation' uid=facilityObj.facilityUID %}">
+                            <div class=" btn btn-warning ">Create</div>
+                         </a>&nbsp;&nbsp;&nbsp;&nbsp;
+
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+

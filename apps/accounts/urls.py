@@ -8,6 +8,8 @@ from apps.accounts.views import myLoginView, myPasswordResetView, myPasswordRese
 app_name = 'accounts'
 
 urlpatterns = [
+
+    # Unauthenticated Views
     path('login/', myLoginView.as_view(), name="login"),
     path('logout/', myLogoutView.as_view(), name="logout"),
     path('password_reset/done/', myPasswordResetDoneView.as_view(), name='password_reset_done'),

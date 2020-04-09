@@ -13,20 +13,15 @@ from config.celery import app
 # Local Application Imports
 from apps.lib.api_AMAL import apiAMAL
 from apps.lib.api_Salesforce import apiSalesforce
-from apps.lib.lixi.lixi_CloudBridge import CloudBridge
-from apps.lib.site_Enums import caseStagesEnum
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Utilities import taskError, sendTemplateEmail
+from apps.lib.site_DataMapping import mapLoanToFacility, mapRolesToFacility, mapPropertyToFacility, mapPurposesToFacility, \
+    mapValuationsToFacility, mapTransToFacility
 
 from apps.case.models import Case
 from .models import Facility, FacilityTransactions, FacilityRoles, FacilityProperty, FacilityPropertyVal, FacilityPurposes, FacilityEvents
 
-from apps.lib.site_Enums import caseStagesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum, \
-    pensionTypesEnum, loanTypesEnum, ragTypesEnum, channelTypesEnum, stateTypesEnum, incomeFrequencyEnum, \
-    closeReasonEnum, salutationEnum, maritalEnum, appTypesEnum
 
-
-# CASE TASKS
+# SERVICING TASKS
 
 @app.task(name="AMAL_Funded_Data")
 def fundedData(*arg, **kwargs):
@@ -78,17 +73,8 @@ def fundedData(*arg, **kwargs):
                         )
 
                         if created:
-                            transObj.facility = loan
-                            transObj.description = transaction['description']
-                            transObj.type = transaction['type']
-                            transObj.transactionDate = transaction['transactionDate']
-                            transObj.effectiveDate = transaction['effectiveDate']
-                            transObj.tranRef = transaction['tranRef']
-                            transObj.debitAmount = transaction['debitAmount']
-                            transObj.creditAmount = transaction['creditAmount']
-                            transObj.balance = transaction['balance']
-
-                            transObj.save()
+                            payload= mapTransToFacility(loan, transaction)
+                            transObj.update(**payload)
 
                     else:
                         #Ghosted transactions include reversals so attempt to remove existing transactions
@@ -127,7 +113,6 @@ def fundedData(*arg, **kwargs):
 @app.task(name="Servicing_Synch")
 def sfSynch():
     '''Updates Facility with Salesforce Loan Object Information'''
-    facilityStatus = {"Inactive": 0, "Active": 1, "Repaid": 2, "Suspended": 3}
 
     qsFacility = Facility.objects.all()
     sfAPI = apiSalesforce()
@@ -146,29 +131,7 @@ def sfSynch():
 
             if loanDict['Loan.Status__c'] != 'Inactive':
 
-                payload = {
-                    'owner': caseObj.user,
-                    'originalCaseUID': caseObj.caseUID,
-                    'sfLoanName': caseObj.surname_1 + ", " + caseObj.street + ", " + caseObj.suburb + ", " + caseObj.enumStateType() + ", " + str(
-                        caseObj.postcode),
-                    'sfLoanID': loanDict['Loan.Name'],
-                    'sfID': loanDict['Loan.Id'],
-                    # 'sfAccountID': 'unknown',
-                    # 'sfReferrerAccount' : 'unknown',
-                    'amalID': loanDict['Loan.Mortgage_Number__c'],
-                    'sfOriginatorID': caseObj.user.profile.salesforceID,  # Temporary
-                    'status': facilityStatus[loanDict['Loan.Status__c']],
-                    'totalPurposeAmount': loanDict['Loan.Total_Limits__c'],
-                    'totalLoanAmount': loanDict['Loan.Total_Loan_Amount__c'],
-                    'totalEstablishmentFee': loanDict['Loan.Total_Establishment_Fee__c'],
-                    'establishmentFeeRate': loanDict['Loan.Establishment_Fee_Percent__c'] / 100,
-                    # 'totalPlanPurposeAmount': loanObj.totalPlanAmount,
-                    # 'totalPlanAmount': loanObj.totalPlanAmount,
-                    # 'totalPlanEstablishmentFee': loanObj.planEstablishmentFee,
-                    'bankAccountNumber': loanDict['Loan.Account_Number__c'],
-                    'bsbNumber': loanDict['Loan.BSB__c'],
-                    'meetingDate': caseObj.meetingDate,  # Temporary
-                }
+                payload = mapLoanToFacility(caseObj, loanDict)
 
                 if qsFacility.filter(sfID__exact=loanDict['Loan.Id']):
                     payload.pop('sfID')
@@ -182,24 +145,6 @@ def sfSynch():
 @app.task(name="Servicing_Detail_Synch")
 def sfDetailSynch():
     '''Updates related Facility objects with Salesforce Loan Object Information'''
-
-    roleTypes = {"Principal Borrower": 0,
-                 "Secondary Borrower": 1,
-                 "Borrower": 2,
-                 "Nominated Occupant": 3,
-                 "Permitted Cohabitant": 4,
-                 "Power of Attorney": 5,
-                 "Authorised 3rd Party": 6,
-                 "Distribution Partner Contact": 7,
-                 "Adviser": 8,
-                 "Loan Originator": 9,
-                 "Loan Writer": 10,
-                 "Valuer": 11,
-                 "Executor": 12}
-
-    stateShortCode = {'Victoria': 'VIC', "New South Wales": 'NSW', "Queensland": 'QLD', "Tasmania": 'TAS',
-                      "South Australia": 'SA', "Western Australia": 'WA', "Northern Territory": 'NT',
-                      "Australian Capital Territory": 'ACT'}
 
     #Get Querysets
     qsFacility = Facility.objects.all()
@@ -227,36 +172,7 @@ def sfDetailSynch():
             contactTable = sfContact.query('Id == "' + str(role['Contact__c']) + '"', inplace=False)
             for ind, contact in contactTable.iterrows():
 
-                payload = {'facility': loan,
-                           'sfContactID': contact['Id'],
-                           'role': roleTypes[role['Role__c']],
-                           #'isContact': False,  ####
-                           #'isInformation:
-                           #'isAuthorised
-                           'lastName': contact['LastName'],
-                           'firstName': contact['FirstName'],
-                           'preferredName': None,  ####
-                           'birthdate': contact['Birthdate__c'],
-                           'mobile': contact['MobilePhone'],
-                           'phone': contact['Phone'],
-                           'email': contact['Email'],
-                           'street': contact['MailingStreet'],
-                           'suburb': contact['MailingCity'],
-                           'postcode': contact['MailingPostalCode'],
-                           'roleNotes': None
-                           }
-
-                if contact['Marital_Status__c']:
-                    payload['maritalStatus']= maritalEnum[contact['Marital_Status__c'].upper()].value
-
-                if contact['Salutation']:
-                    payload['salutation'] = salutationEnum[contact['Salutation'].replace('.', '').upper()].value
-
-                if contact['Gender__c']:
-                    payload['gender']= clientSexEnum[contact['Gender__c'].upper()].value
-
-                if contact['MailingStateCode']:
-                    payload['state'] = stateTypesEnum[contact["MailingStateCode"]].value
+                payload = mapRolesToFacility(loan, contact, role)
 
                 if qsFacilityRoles.filter(sfContactID__exact=contact['Id']):
                     payload.pop('sfContactID')
@@ -269,6 +185,7 @@ def sfDetailSynch():
 
         propertyRefTable = sfPropertyLinks.query('Loan__c == "' + str(loan.sfID) + '"', inplace=False)
 
+        # Nested loop required because of property links
         for index, property in propertyRefTable.iterrows():
             propertyID = property['Property__c']
 
@@ -276,21 +193,7 @@ def sfDetailSynch():
 
             for index2, propertyObj in propertyObjTable.iterrows():
 
-                payload = {'facility': loan,
-                           'sfPropertyID': propertyObj['Id'],
-                           'street': propertyObj['Street_Address__c'],
-                           'suburb' : propertyObj['Suburb_City__c'],
-                           'postcode': propertyObj['Postcode__c'],
-                           'propertyType': propertyObj['Property_Type__c'],
-                           'insuranceCompany': propertyObj['Insurer__c'],
-                           'insurancePolicy': propertyObj['Policy_Number__c'],
-                           'insuranceExpiryDate' :propertyObj['Insurance_Expiry_Date__c'],
-                           'insuredAmount': propertyObj['Minimum_Insurance_Value__c']
-                           }
-
-                if propertyObj['State__c']:
-                    stateCode = stateShortCode[propertyObj['State__c']]
-                    payload['state'] = stateTypesEnum[stateCode].value
+                payload = mapPropertyToFacility(loan,propertyObj)
 
                 if qsFacilityProperty.filter(sfPropertyID__exact=propertyObj['Id']):
                     payload.pop('sfPropertyID')
@@ -301,13 +204,7 @@ def sfDetailSynch():
                 # Pretend separate valuation object in SF
                 propertyRef = qsFacilityProperty.filter(sfPropertyID__exact=propertyObj['Id']).get()
 
-                payload = {'property': propertyRef,
-                           'valuationAmount': propertyObj['Home_Value_FullVal__c'],
-                           'valuationDate': propertyObj['Last_Valuation_Date__c'],
-                           'valuationType': 1, ###
-                           'valuationCompany': propertyObj['Valuer__c'],
-                           'valuerName':  propertyObj['Valuer_Name__c']
-                           }
+                payload = mapValuationsToFacility(propertyRef, propertyObj)
 
                 if qsValuations.filter(property=propertyRef):
                     payload.pop('property')
@@ -321,28 +218,14 @@ def sfDetailSynch():
 
         for index, purpose in purposesTable.iterrows():
 
-            payload = {'facility': loan,
-                       'sfPurposeID': purpose['Id'],
-                       'category': purpose['Category__c'],
-                       'intention': purpose['Intention__c'],
-                       'amount': __chkVal(purpose['Amount__c']),
-                       'drawdownAmount': __chkVal(purpose['Drawdown_Amount__c']),
-                       'drawdownFrequency': purpose['Drawdown_Frequency__c'],
-                       'drawdownStartDate': None, ###
-                       'drawdownEndDate': None, ###
-                       'planAmount': __chkVal(purpose['Plan_Amount__c']),
-                       'planPeriod': __chkVal(purpose['Plan_Period__c']),
-                       'topUpBuffer': purpose['TopUp_Buffer__c'],
-                       'description': purpose['Description__c'],
-                       'notes': purpose['Notes__c'],
-                       }
+            payload = mapPurposesToFacility(loan, purpose)
 
-            print(type(purpose['Plan_Period__c']))
             if qsPurposes.filter(sfPurposeID=purpose['Id']):
                 payload.pop('facility')
                 qsPurposes.filter(sfPurposeID=purpose['Id']).update(**payload)
             else:
                 FacilityPurposes.objects.create(**payload)
+
 
         # EVENTS (TEMP)
         try:
@@ -355,10 +238,3 @@ def sfDetailSynch():
 
 
 
-def __chkVal(arg):
-    if arg == None:
-        return None
-    if math.isnan(arg):
-        return None
-    else:
-        return arg

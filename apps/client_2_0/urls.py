@@ -7,6 +7,9 @@ from . import views
 app_name = 'client2'
 
 urlpatterns = [
+
+    #Authenticated Views
+
     path('meeting/<uuid:uid>', views.LandingView.as_view(), name='meeting'),
     path('meeting/start', views.LandingView.as_view(), name='meetingStart'),
     path('meeting/start/<int:post_id>/', views.LandingView.as_view()),

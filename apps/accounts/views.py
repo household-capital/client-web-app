@@ -9,6 +9,8 @@ from django.views import View
 from .forms import myLoginForm, myPasswordResetForm, myPasswordResetConfirmForm
 
 
+# UNAUTHENTICATED VIEWS
+
 class myLoginView(LoginView):
     form_class = myLoginForm
 

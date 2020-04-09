@@ -193,6 +193,7 @@ class FacilityRoles(models.Model):
     lastName = models.CharField(max_length=30, blank=True, null=True)
     firstName = models.CharField(max_length=30, blank=True, null=True)
     preferredName = models.CharField(max_length=30, blank=True, null=True)
+    middleName =  models.CharField(max_length=30, blank=True, null=True)
     salutation = models.IntegerField(choices=salutationTypes, blank=True, null=True)
     birthdate = models.DateField(null=True, blank=True)
     gender = models.IntegerField(choices=clientSex, blank=True, null=True)
@@ -243,13 +244,17 @@ class FacilityRoles(models.Model):
 
 class FacilityProperty(models.Model):
 
+    dwellingTypes=(
+        (dwellingTypesEnum.HOUSE.value, 'House'),
+        (dwellingTypesEnum.APARTMENT.value, 'Apartment'))
+
     facility = models.ForeignKey(Facility, on_delete=models.CASCADE)
     sfPropertyID = models.CharField(max_length=20, null=False, blank=False, unique=True)
     street = models.CharField(max_length=80, null=True, blank=True)
     suburb = models.CharField(max_length=30, null=True, blank=True)
     state = models.IntegerField(choices=stateTypes, null=True, blank=True)
     postcode = models.CharField(max_length=4, null=True, blank=True)
-    propertyType = models.CharField(max_length=60, null=True, blank=True)
+    dwellingType = models.IntegerField(choices=dwellingTypes, null=True, blank=True)
     insuranceCompany = models.CharField(max_length=60, null=True, blank=True)
     insurancePolicy = models.CharField(max_length=80, null=True, blank=True)
     insuranceExpiryDate = models.DateTimeField(blank=True, null=True)

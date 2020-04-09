@@ -200,19 +200,6 @@
                                     {% endif %}
 
 
-
-                                    <!-- FUNDED -->
-                                    {% if obj.caseStage == caseStagesEnum.FUNDED.value %}
-                                        <div class="dropdown-divider"></div>
-
-                                        <a class="dropdown-item" href="{% url 'case:caseVariation' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-edit fa-fw"></i>&nbsp;&nbsp;Create Loan Variation&nbsp;&nbsp;
-                                        </a>
-
-
-                                    {% endif %}
-
-
                                     <!-- CLOSED -->
                                     {% if obj.caseStage == caseStagesEnum.CLOSED.value %}
 

@@ -27,7 +27,7 @@ class SessionRequiredMixin(object):
         return super(SessionRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
-## EXTERNALLY EXPOSED VIEWS
+## UNAUTHENTICATED VIEWS
 
 class SessionErrorView(TemplateView):
     '''Error page for session errors'''
