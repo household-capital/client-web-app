@@ -31,7 +31,7 @@
         <br>
         <p><b>Your Household Transfer</b></p>
 
-        {% if topUpAmount != 0 %}
+        {% if topUpAmount %}
             <div class="row no-gutters">
                 <div class="col-sm-6">
                     <p class="small"> + Top-up
@@ -45,7 +45,7 @@
             </div>
         {% endif %}
 
-        {% if topUpDrawdownAmount != 0 %}
+        {% if topUpDrawdownAmount %}
             <div class="row no-gutters">
                 <div class="col-sm-6">
                     <p class="small"> + Top-up D/D
@@ -59,7 +59,7 @@
             </div>
         {% endif %}
 
-        {% if topUpContingencyAmount != 0 %}
+        {% if topUpContingencyAmount %}
             <div class="row no-gutters">
                 <div class="col-sm-6">
                     <p class="small"> + Contingency
@@ -73,7 +73,7 @@
             </div>
         {% endif %}
 
-        {% if refinanceAmount != 0 %}
+        {% if refinanceAmount %}
             <div class="row no-gutters">
                 <div class="col-sm-6">
                     <p class="small"> + Refinance
@@ -89,7 +89,7 @@
         {% endif %}
 
 
-        {% if renovateAmount != 0 %}
+        {% if renovateAmount %}
             <div class="row no-gutters">
                 <div class="col-sm-6">
                     <p class="small"> + Renovate
@@ -103,7 +103,7 @@
             </div>
         {% endif %}
 
-        {% if travelAmount != 0 %}
+        {% if travelAmount %}
             <div class="row no-gutters">
                 <div class="col-sm-6">
                     <p class="small"> + Transport
@@ -117,7 +117,7 @@
             </div>
         {% endif %}
 
-         {% if giveAmount != 0 %}
+         {% if giveAmount %}
             <div class="row no-gutters">
                 <div class="col-sm-6">
                     <p class="small"> + Give
@@ -131,7 +131,7 @@
             </div>
         {% endif %}
 
-        {% if careAmount != 0 %}
+        {% if careAmount %}
             <div class="row no-gutters" >
                 <div class="col-sm-6">
                     <p class="small"> + Care
@@ -145,7 +145,7 @@
             </div>
         {% endif %}
 
-        {% if careDrawdownAmount != 0 %}
+        {% if careDrawdownAmount %}
             <div class="row no-gutters">
                 <div class="col-sm-6">
                     <p class="small"> + Care D/D

@@ -59,8 +59,6 @@ urlpatterns = [
     path('pdfInstruction/<uuid:uid>', views.PdfInstruction.as_view(), name='pdfInstruction'),
     path('pdfValInstruction/<uuid:uid>', views.PdfValInstruction.as_view(), name='pdfValInstruction'),
 
-    path('newFinalPdf', views.NewFinalPDFView.as_view(), name='newFinalPdf'),
-
 ]
 
 

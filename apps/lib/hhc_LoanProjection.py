@@ -391,7 +391,7 @@ class LoanProjection():
 
 
     def getAsicProjectionPeriods(self):
-        return self.asicProjAge1 -  self.minAge ,self.asicProjAge2 - self.minAge
+        return self.asicProjAge1 -  self.minAge, self.asicProjAge2 - self.minAge
 
 
     def getImageList(self, keyName, imageURL):

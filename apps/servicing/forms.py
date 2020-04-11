@@ -14,17 +14,16 @@ from .models import FacilityEnquiry, FacilityRoles, FacilityAdditional
 
 class FacilityEnquiryForm(forms.ModelForm):
 
-    facility_instance = None
 
     def __init__(self, *args, **kwargs):
-        if kwargs['facility_instance']:
+        if 'facility_instance' in kwargs:
             facility_instance = kwargs['facility_instance']
             kwargs.pop('facility_instance')
 
         super(FacilityEnquiryForm, self).__init__(*args, **kwargs)
 
-        if self.facility_instance:
-            self.fields['identifiedEnquirer'].queryset = FacilityRoles.objects.filter(facility=self.facility_instance)
+        if facility_instance:
+            self.fields['identifiedEnquirer'].queryset = FacilityRoles.objects.filter(facility=facility_instance)
 
     class Meta:
         model = FacilityEnquiry
@@ -72,13 +71,14 @@ class FacilityEnquiryForm(forms.ModelForm):
 class FacilityBorrowerForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
-        if kwargs['facility_instance']:
+        if 'facility_instance' in kwargs:
             facility_instance = kwargs['facility_instance']
             kwargs.pop('facility_instance')
 
         super(FacilityBorrowerForm, self).__init__(*args, **kwargs)
 
-        self.fields['identifiedEnquirer'] = forms.ModelChoiceField(queryset=FacilityRoles.objects.filter(facility=facility_instance))
+        if facility_instance:
+            self.fields['identifiedEnquirer'] = forms.ModelChoiceField(queryset=FacilityRoles.objects.filter(facility=facility_instance))
 
 
     contactEmail=forms.EmailField(required=False)

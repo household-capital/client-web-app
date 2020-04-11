@@ -10,7 +10,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.template.loader import get_template
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -22,7 +22,7 @@ from config.celery import app
 # Local Application Imports
 from apps.calculator.models import WebCalculator
 from apps.lib.hhc_LoanValidator import LoanValidator
-from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, appTypesEnum
+from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, appTypesEnum, purposeCategoryEnum, purposeIntentionEnum
 from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.site_Globals import LOAN_LIMITS
 from apps.lib.site_Logging import write_applog
@@ -31,7 +31,8 @@ from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, updateNavQueue
 from apps.lib.api_Docsaway import apiDocsAway
 from apps.enquiry.models import Enquiry
 from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignForm
-from .models import Case, LossData, Loan, ModelSetting
+from .models import Case, LossData, Loan, ModelSetting, LoanPurposes
+
 
 
 
@@ -898,6 +899,9 @@ class CloudbridgeView(HouseholdLoginRequiredMixin, TemplateView):
             app.send_task('AMAL_Send_Docs', kwargs={'caseUID': str(caseObj.caseUID)})
 
         return context
+
+
+
 
 
 

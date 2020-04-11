@@ -85,3 +85,41 @@
 
 
 {% endblock %}
+
+{% block javascript %}
+
+    <script>
+
+    function currency(obj) {
+        var currentValue = obj.prop("value").replace(/[$,]+/g, "");
+        if ((isNaN(currentValue)) || (currentValue == 0)) {
+
+        } else {
+            var output = new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(currentValue);
+            obj.prop("value", output);
+        }
+    }
+
+       //Initialisation
+    $(document).ready(function () {
+
+        $('#id_amount').change(function () {
+            currency($(this));
+        });
+
+        $('#id_drawdownAmount').change(function () {
+            currency($(this));
+        })
+
+
+    })
+
+
+
+    </script>
+
+
+{% endblock %}
