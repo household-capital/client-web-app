@@ -251,7 +251,7 @@ class Case(models.Model):
             return [dict(self.clientSex)[self.sex_1],dict(self.clientSex)[self.sex_2]]
 
     def enumClientType(self):
-        if self.clientType2 is None:
+        if self.loanType==loanTypesEnum.SINGLE_BORROWER.value:
             return [dict(self.clientTypes)[self.clientType1],None]
         else:
             return [dict(self.clientTypes)[self.clientType1],dict(self.clientTypes)[self.clientType2]]
@@ -265,13 +265,13 @@ class Case(models.Model):
             return dict(self.pensionTypes)[self.pensionType]
 
     def enumMaritalStatus(self):
-        if self.clientType2 is None:
+        if self.loanType==loanTypesEnum.SINGLE_BORROWER.value:
             return [dict(self.maritalTypes)[self.maritalStatus_1],None]
         else:
             return [dict(self.maritalTypes)[self.maritalStatus_1],dict(self.maritalTypes)[self.maritalStatus_2]]
 
     def enumSalutation(self):
-        if self.clientType2 is None:
+        if self.loanType==loanTypesEnum.SINGLE_BORROWER.value:
             return [dict(self.salutationTypes)[self.salutation_1],None]
         else:
             return [dict(self.salutationTypes)[self.salutation_1],dict(self.salutationTypes)[self.salutation_2]]
@@ -311,11 +311,16 @@ class Loan(models.Model):
     localLoanID = models.AutoField(primary_key=True)
     maxLVR=models.FloatField(null=False, blank=False,default=0)
     actualLVR = models.FloatField(null=True, blank=True, default=0)
-    establishmentFee=models.IntegerField(default=0)
-    planEstablishmentFee=models.IntegerField(default=0)
     protectedEquity=models.IntegerField(default=0, choices=protectedChoices)
+    # Contract Amounts
+    purposeAmount =models.IntegerField(default=0)
+    establishmentFee=models.IntegerField(default=0)
     totalLoanAmount=models.IntegerField(default=0)
+    # Plan Amounts
+    planPurposeAmount =models.IntegerField(default=0)
+    planEstablishmentFee=models.IntegerField(default=0)
     totalPlanAmount=models.IntegerField(default=0)
+
     interestPayAmount=models.IntegerField(default=0)
     interestPayPeriod=models.IntegerField(default=0)
     annualPensionIncome=models.IntegerField(default=0)
@@ -334,6 +339,9 @@ class Loan(models.Model):
     consentPrivacy= models.BooleanField(default=False)
     consentElectronic = models.BooleanField(default=False)
     detailedTitle = models.BooleanField(default=False)
+
+    #Variations
+    accruedInterest = models.IntegerField(null=True, blank=True)
 
     objects=CaseManager()
 
@@ -367,8 +375,8 @@ class Loan(models.Model):
 class LoanPurposes(models.Model):
 
     drawdownFrequencyTypes=(
-        (incomeFrequencyEnum.FORTNIGHTLY.value, 'fortnightly'),
-        (incomeFrequencyEnum.MONTHLY.value, 'monthly'))
+        (incomeFrequencyEnum.FORTNIGHTLY.value, 'Fortnightly'),
+        (incomeFrequencyEnum.MONTHLY.value, 'Monthly'))
 
     categoryTypes = {
         (purposeCategoryEnum.TOP_UP.value, "TOP_UP"),
@@ -396,13 +404,17 @@ class LoanPurposes(models.Model):
     category = models.IntegerField(choices=categoryTypes)
     intention = models.IntegerField(choices=intentionTypes)
     amount = models.IntegerField(default=0,blank=True, null=True)
+
     drawdownAmount = models.IntegerField(default=0,blank=True, null=True)
     drawdownFrequency = models.IntegerField(choices=drawdownFrequencyTypes, blank=True, null=True)
     drawdownStartDate = models.DateTimeField(blank=True, null=True)
     drawdownEndDate = models.DateTimeField(blank=True, null=True)
-    planAmount = models.IntegerField(default=0,blank=True, null=True)
-    planPeriod = models.IntegerField(default = 0, blank=True, null=True)
+
+    planPeriod = models.IntegerField(default = 0, blank=True, null=True) #Years
+    contractDrawdowns = models.IntegerField(default = 0, blank=True, null=True)
     planDrawdowns = models.IntegerField(default = 0, blank=True, null=True)
+    planAmount = models.IntegerField(default=0,blank=True, null=True)
+
     topUpBuffer = models.BooleanField(default = False)
     description = models.CharField(max_length=60, null=True, blank=True)
     notes = models.TextField(blank=True, null=True)
@@ -423,6 +435,19 @@ class LoanPurposes(models.Model):
         if self.drawdownFrequency:
             return dict(self.drawdownFrequencyTypes)[self.drawdownFrequency]
 
+    def get_absolute_url(self):
+        if self.intention == purposeIntentionEnum.REGULAR_DRAWDOWN.value:
+            return reverse_lazy("case:caseVariationDrawdown", kwargs={"purposeUID": self.purposeUID})
+        else:
+            return reverse_lazy("case:caseVariationLumpSum", kwargs={"purposeUID": self.purposeUID})
+
+    @property
+    def enumCategoryPretty(self):
+        return dict(self.categoryTypes)[self.category].replace("_"," ").lower().title()
+
+    @property
+    def enumIntentionPretty(self):
+        return dict(self.intentionTypes)[self.intention].replace("_"," ").lower().title()
 
 
 class ModelSetting(models.Model):

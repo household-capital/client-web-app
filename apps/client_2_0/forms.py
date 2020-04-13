@@ -3,7 +3,7 @@ from django import forms
 from django.forms import widgets
 
 # Third-party Imports
-from crispy_forms.bootstrap import (PrependedText, InlineRadios)
+from crispy_forms.bootstrap import PrependedText, InlineRadios
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, Div, Fieldset, Button, HTML
 

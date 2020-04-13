@@ -22,7 +22,7 @@ class LoanValidator():
 
     loanDataList = ['topUpAmount', 'topUpDrawdownAmount', 'refinanceAmount', 'giveAmount', 'renovateAmount', 'travelAmount',
                     'careAmount', 'protectedEquity', 'mortgageDebt', 'careDrawdownAmount', 'topUpContingencyAmount',
-                    'topUpPlanAmount', 'carePlanAmount']
+                    'topUpPlanAmount', 'carePlanAmount', 'accruedInterest']
 
     POSTCODE_FILE='/apps/lib/hhc_Postcodes.csv'
 
@@ -145,8 +145,7 @@ class LoanValidator():
 
         # data
         data['maxLoan'] = int(self.loanLimit)
-        data['maxFee'] = int(
-        data['maxLoan'] * self.establishmentFee / (1 + self.establishmentFee))
+        data['maxFee'] = int(data['maxLoan'] * self.establishmentFee / (1 + self.establishmentFee))
         data['maxLVR'] = int(self.maxLvr)
         data['maxTopUp'] = LOAN_LIMITS['maxTopUp']
         data['maxCare'] = LOAN_LIMITS['maxCare']
@@ -185,22 +184,25 @@ class LoanValidator():
         maxEstablishmentFee = self.loanLimit * (
                 self.establishmentFee / (1 + self.establishmentFee))
 
-
-        totalLoanAmount = (self.initDict['topUpAmount'] + self.initDict['topUpContingencyAmount']+ self.initDict['topUpDrawdownAmount']+ self.initDict['refinanceAmount'] + self.initDict['giveAmount']
+        purposeAmount = (self.initDict['topUpAmount'] + self.initDict['topUpContingencyAmount']+ self.initDict['topUpDrawdownAmount']+ self.initDict['refinanceAmount'] + self.initDict['giveAmount']
                            + self.initDict['renovateAmount'] + self.initDict['travelAmount'] + self.initDict[
-                               'careAmount'] + self.initDict['careDrawdownAmount']) * (
-                                  1 + self.establishmentFee)
+                               'careAmount'] + self.initDict['careDrawdownAmount'])
+
+        totalLoanAmount = purposeAmount * (1 + self.establishmentFee)
 
         # This is based on total 'plan' amounts
-        totalPlanAmount = (self.initDict['topUpAmount'] + self.initDict['topUpContingencyAmount']+ self.initDict['topUpPlanAmount']+ self.initDict['refinanceAmount'] + self.initDict['giveAmount']
+
+        planPurposeAmount = (self.initDict['topUpAmount'] + self.initDict['topUpContingencyAmount']+ self.initDict['topUpPlanAmount']+ self.initDict['refinanceAmount'] + self.initDict['giveAmount']
                            + self.initDict['renovateAmount'] + self.initDict['travelAmount'] + self.initDict[
-                               'careAmount'] + self.initDict['carePlanAmount']) * (
-                                  1 + self.establishmentFee)
+                               'careAmount'] + self.initDict['carePlanAmount'])
+
+        totalPlanAmount = planPurposeAmount * (1 + self.establishmentFee)
 
         # Available amount always deducts the maximum establishment fee, so need to add back the calculated
-        # establishment fee from the total Loan Amount
+        # establishment fee from the total Loan Amount.
+        # Reduce by any accrued interest
         availableAmount = round(
-            self.loanLimit - totalPlanAmount / (1 + self.establishmentFee) - maxEstablishmentFee, 0)
+            self.loanLimit - totalPlanAmount / (1 + self.establishmentFee) - maxEstablishmentFee - self.initDict['accruedInterest'], 0)
 
         # Determine if detailed title search required
         detailedTitle = self._chkDetailedTitle(totalPlanAmount)
@@ -210,12 +212,15 @@ class LoanValidator():
         data['maxNetLoanAmount'] = int(round(self.loanLimit - maxEstablishmentFee, 0))
         data['maxLoanAmount'] = int(round(self.loanLimit,0))
         data['availableAmount'] = int(round(availableAmount, 0))
-        data['establishmentFee'] = int(round(
-            totalLoanAmount / (1 + self.establishmentFee) * self.establishmentFee, 0))
-        data['planEstablishmentFee'] = int(round(
-            totalPlanAmount / (1 + self.establishmentFee) * self.establishmentFee, 0))
+
+        data['purposeAmount'] = purposeAmount
+        data['establishmentFee'] = int(round(purposeAmount * self.establishmentFee, 0))
         data['totalLoanAmount'] = int(round(totalLoanAmount, 0))
+
+        data['planPurposeAmount'] = planPurposeAmount
+        data['planEstablishmentFee'] = int(round(planPurposeAmount * self.establishmentFee, 0))
         data['totalPlanAmount'] = int(round(totalPlanAmount, 0))
+
         data['actualLVR'] = round(totalLoanAmount / self.initDict['valuation'], 1) * 100
         data['maxLVRPercentile'] = int(self.__myround(self.maxLvr,5))
         data['detailedTitle'] = detailedTitle

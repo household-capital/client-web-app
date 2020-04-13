@@ -27,6 +27,7 @@ from apps.lib.hhc_LoanProjection import LoanProjection
 from apps.lib.site_Logging import write_applog
 from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, updateNavQueue, firstNameSplit
+from apps.lib.site_DataMapping import serialisePurposes
 
 from .forms import ClientDetailsForm, SettingsForm, IntroChkBoxForm, lumpSumPurposeForm, drawdownPurposeForm, \
     DetailedChkBoxForm,  protectedEquityForm, interestPaymentForm
@@ -50,25 +51,37 @@ class ContextHelper():
     # Most of the views require the same validation and context information
 
     def validate_and_get_context(self):
+
+        loanObj = Loan.objects.queryset_byUID(self.request.session['caseUID']).get()
+
         # get dictionaries from model
         clientDict = Case.objects.dictionary_byUID(self.request.session['caseUID'])
-        loanDict = self.get_extended_loan_dict(self.request.session['caseUID'])
+        loanDict = Loan.objects.dictionary_byUID(self.request.session['caseUID'])
         modelDict = ModelSetting.objects.dictionary_byUID(self.request.session['caseUID'])
 
+        # extend loanDict with purposes
+        loanDict.update(serialisePurposes(loanObj))
+
         # validate loan
-        loanObj = LoanValidator(clientDict, loanDict, modelDict)
-        loanStatus = loanObj.getStatus()
+        loanVal = LoanValidator(clientDict, loanDict, modelDict)
+        loanStatus = loanVal.getStatus()
 
         # update loan
         loanQS = Loan.objects.queryset_byUID(self.request.session['caseUID'])
-        loanQS.update(maxLVR=loanStatus['data']['maxLVR'],
-                      totalLoanAmount=loanStatus['data']['totalLoanAmount'],
-                      establishmentFee=loanStatus['data']['establishmentFee'],
-                      actualLVR=loanStatus['data']['actualLVR'],
-                      totalPlanAmount=loanStatus['data']['totalPlanAmount'],
-                      planEstablishmentFee=loanStatus['data']['planEstablishmentFee'],
-                      detailedTitle=loanStatus['data']['detailedTitle']
-                      )
+        loanQS.update(
+
+            purposeAmount=loanStatus['data']['purposeAmount'],
+            establishmentFee=loanStatus['data']['establishmentFee'],
+            totalLoanAmount=loanStatus['data']['totalLoanAmount'],
+
+            planPurposeAmount = loanStatus['data']['planPurposeAmount'],
+            planEstablishmentFee=loanStatus['data']['planEstablishmentFee'],
+            totalPlanAmount=loanStatus['data']['totalPlanAmount'],
+
+            maxLVR=loanStatus['data']['maxLVR'],
+            actualLVR=loanStatus['data']['actualLVR'],
+            detailedTitle=loanStatus['data']['detailedTitle']
+        )
 
         # create context
         context = {}
@@ -89,78 +102,6 @@ class ContextHelper():
 
         return context
 
-    def get_extended_loan_dict(self, caseUID):
-        # Create an extended dictionary with purposes (retro fit normalised data from new purpose objects)
-
-        amountFields = ['topUpAmount','topUpContingencyAmount','topUpDrawdownAmount','refinanceAmount',
-                        'renovateAmount','travelAmount','giveAmount', 'careDrawdownAmount',
-                        'topUpPlanAmount', 'carePlanAmount' ]
-
-        amountMap = {'TOP_UP':
-                         {'INVESTMENT': 'topUpAmount',
-                          'CONTINGENCY': 'topUpContingencyAmount',
-                          'REGULAR_DRAWDOWN': 'topUpDrawdownAmount'},
-                     'REFINANCE':
-                         {'MORTGAGE': 'refinanceAmount'},
-                     'LIVE':
-                         {'RENOVATIONS': 'renovateAmount',
-                          'TRANSPORT': 'travelAmount'},
-                     'GIVE':
-                         {'GIVE_TO_FAMILY': 'giveAmount'},
-                     'CARE':
-                         {'LUMP_SUM': 'careAmount',
-                          'REGULAR_DRAWDOWN': 'careDrawdownAmount'}
-                     }
-
-        planMap = {'TOP_UP':
-                       {'REGULAR_DRAWDOWN': 'topUpPlanAmount'},
-                   'CARE':
-                       {'REGULAR_DRAWDOWN': 'carePlanAmount'}}
-
-        regularMap = {'TOP_UP':
-                       {'REGULAR_DRAWDOWN': 'topUpIncomeAmount'},
-                   'CARE':
-                       {'REGULAR_DRAWDOWN': 'careRegularAmount'}}
-
-        freqMap = {'TOP_UP':
-                       {'REGULAR_DRAWDOWN': 'topUpFrequency'},
-                   'CARE':
-                       {'REGULAR_DRAWDOWN': 'careFrequency'}}
-
-        periodMap = {'TOP_UP':
-                       {'REGULAR_DRAWDOWN': 'topUpPeriod'},
-                   'CARE':
-                       {'REGULAR_DRAWDOWN': 'carePeriod'}}
-
-
-        # Get initial loan dictionay
-        loanDict = Loan.objects.dictionary_byUID(caseUID)
-
-        # Set all extended amount fields to 0
-        for field in amountFields:
-            loanDict[field] = 0
-
-        # Populate extended loan dictionary based on purposes
-        loan = Loan.objects.queryset_byUID(caseUID).get()
-        qs = LoanPurposes.objects.filter(loan=loan)
-
-        for purpose in qs:
-            #look-up amount variable name
-            varName=amountMap[purpose.enumCategory][purpose.enumIntention]
-            loanDict[varName] = purpose.amount
-
-            # look-up plan amount variable name (if applicable)
-            if purpose.planAmount:
-                varName = planMap[purpose.enumCategory][purpose.enumIntention]
-                loanDict[varName] = purpose.planAmount
-                varName = regularMap[purpose.enumCategory][purpose.enumIntention]
-                loanDict[varName] = purpose.drawdownAmount
-                varName = freqMap[purpose.enumCategory][purpose.enumIntention]
-                loanDict[varName] = purpose.drawdownFrequency
-                varName = periodMap[purpose.enumCategory][purpose.enumIntention]
-                loanDict[varName] = purpose.planPeriod
-
-        return loanDict
 
 
 # CLASS BASED VIEWS
@@ -425,7 +366,7 @@ class IntroductionView3(HouseholdLoginRequiredMixin, SessionRequiredMixin, Conte
         if context['post_id'] == 4:
             # Loan Projections
             loanProj = LoanProjection()
-            result = loanProj.create(self.extra_context, frequency=1)
+            result = loanProj.create(self.extra_context)
             proj_data = loanProj.getFutureEquityArray(increment=1000)['data']
             context['sliderData'] = json.dumps(proj_data['dataArray'])
             context['futHomeValue'] = proj_data['futHomeValue']
@@ -535,16 +476,20 @@ class TopUp2(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, U
     def form_valid(self, form):
         obj = form.save()
 
-        # Calculate Amounts and Periods
+        # Calculate Amounts and Periods (form specified in years)
         if obj.drawdownFrequency == incomeFrequencyEnum.FORTNIGHTLY.value:
-            obj.planAmount = obj.drawdownAmount * obj.planPeriod * 26
-            obj.amount = obj.drawdownAmount * 26
-            obj.planDrawdowns = obj.planPeriod * 26
-
+            freqMultiple = 26
         else:
-            obj.planAmount = obj.drawdownAmount * obj.planPeriod * 12
-            obj.amount = obj.drawdownAmount * 12
-            obj.planDrawdowns = obj.planPeriod * 12
+            freqMultiple = 12
+
+        # Contract for lower of limit or plan period
+        planDrawdowns = obj.planPeriod * freqMultiple
+        contractDrawdowns = min(obj.planPeriod * freqMultiple, LOAN_LIMITS['maxDrawdownYears'] * freqMultiple)
+        obj.planDrawdowns = planDrawdowns
+
+        obj.contractDrawdowns = contractDrawdowns
+        obj.planAmount = obj.drawdownAmount * planDrawdowns
+        obj.amount = obj.drawdownAmount * contractDrawdowns
 
         obj.save()
 
@@ -770,16 +715,20 @@ class Care2(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, Up
 
         obj = form.save()
 
-        # Calculate Amounts and Periods
+        # Calculate Amounts and Periods (form specified in years)
         if obj.drawdownFrequency == incomeFrequencyEnum.FORTNIGHTLY.value:
-            obj.planAmount = obj.drawdownAmount * obj.planPeriod * 26
-            obj.amount = obj.drawdownAmount * 26
-            obj.planDrawdowns = obj.planPeriod * 26
-
+            freqMultiple = 26
         else:
-            obj.planAmount = obj.drawdownAmount * obj.planPeriod * 12
-            obj.amount = obj.drawdownAmount * 12
-            obj.planDrawdowns = obj.planPeriod * 12
+            freqMultiple = 12
+
+        # Contract for lower of limit or plan period
+        planDrawdowns = obj.planPeriod * freqMultiple
+        contractDrawdowns = min(obj.planPeriod * freqMultiple, LOAN_LIMITS['maxDrawdownYears'] * freqMultiple)
+        obj.planDrawdowns = planDrawdowns
+
+        obj.contractDrawdowns = contractDrawdowns
+        obj.planAmount = obj.drawdownAmount * planDrawdowns
+        obj.amount = obj.drawdownAmount * contractDrawdowns
 
         obj.save()
         return super(Care2, self).form_valid(form)
@@ -931,7 +880,10 @@ class Results2(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper,
     def get_initial(self):
         # Uses the details saved in the client dictionary for the form
         self.initFormData = super(Results2, self).get_initial()
-        loanDict = self.get_extended_loan_dict(self.request.session['caseUID'])
+        loanObj = Loan.objects.queryset_byUID(self.request.session['caseUID']).get()
+        loanDict = loanObj.__dict__
+        # extend loanDict with purposes
+        loanDict.update(serialisePurposes(loanObj))
 
         self.setInitialValues('choiceTopUp', [loanDict['topUpAmount']])
         self.setInitialValues('choiceRefinance', [loanDict['refinanceAmount']])
@@ -968,7 +920,7 @@ class Results3(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper,
 
         # Loan Projections
         loanProj = LoanProjection()
-        result = loanProj.create(context, frequency=12)
+        result = loanProj.create(context)
         if result['status'] == "Error":
             write_applog("ERROR", 'client_1_0', 'Results3', result['responseText'])
         result = loanProj.calcProjections()
@@ -995,8 +947,6 @@ class Results3(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper,
             'data']
 
         context['totalInterestRate'] = context['interestRate'] + context['lendingMargin']
-
-        context['resultsNegAge'] = loanProj.getNegativeEquityAge()['data']
 
         if context['loanType'] == loanTypesEnum.JOINT_BORROWER.value:
             if context['age_1'] < context['age_2']:
@@ -1142,7 +1092,11 @@ class pdfLoanSummary(ContextHelper,TemplateView):
 
             context.update(clientObj.__dict__)
             context.update(modelObj.__dict__)
-            context.update(self.get_extended_loan_dict(caseUID))
+
+            loanDict = loanObj.__dict__
+            # extend loanDict with purposes
+            loanDict.update(serialisePurposes(loanObj))
+            context.update(loanDict)
 
             # validate loan
             loanValObj = LoanValidator(context)
@@ -1151,7 +1105,7 @@ class pdfLoanSummary(ContextHelper,TemplateView):
 
             # Loan Projections
             loanProj = LoanProjection()
-            result = loanProj.create(context, frequency=12)
+            result = loanProj.create(context)
 
             result = loanProj.calcProjections()
 
@@ -1212,7 +1166,6 @@ class pdfLoanSummary(ContextHelper,TemplateView):
                 'data']
 
             context['totalInterestRate'] = context['interestRate'] + context['lendingMargin']
-            context['resultsNegAge'] = loanProj.getNegativeEquityAge()['data']
             context['comparisonRate'] = context['totalInterestRate'] + context['comparisonRateIncrement']
             context['loanTypesEnum'] = loanTypesEnum
             context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL

@@ -1,12 +1,9 @@
-
 # Python Imports
 import datetime
 import math
 
-
 # Django Imports
 from django.forms import model_to_dict
-
 
 # Local Imports
 from apps.lib.site_Enums import roleEnum, dwellingTypesEnum, \
@@ -14,8 +11,8 @@ from apps.lib.site_Enums import roleEnum, dwellingTypesEnum, \
     loanTypesEnum, channelTypesEnum, stateTypesEnum, \
     salutationEnum, maritalEnum, appTypesEnum
 
-from apps.servicing.models import Facility, FacilityTransactions, FacilityRoles, FacilityProperty, FacilityPropertyVal, \
-    FacilityPurposes, FacilityEvents, FacilityEnquiry, FacilityAdditional
+from apps.servicing.models import FacilityRoles, FacilityProperty, FacilityPropertyVal
+from apps.case.models import LoanPurposes, Loan
 
 
 # INTERNAL MAPPING
@@ -23,13 +20,13 @@ from apps.servicing.models import Facility, FacilityTransactions, FacilityRoles,
 def mapFacilityToCase(facilityObj):
     # Reverse map from facility to case - for Loan Variation Creation
 
-    #Source objects
+    # Source objects
     roleQs = FacilityRoles.objects.filter(facility=facilityObj)
     roleDict = get_role_dict(roleQs)
     propertyObj = FacilityProperty.objects.filter(facility=facilityObj).get()
     valuationObj = FacilityPropertyVal.objects.filter(property=propertyObj).order_by('-valuationDate').first()
 
-    #Data map
+    # Data map
     payload = {
         'caseStage': caseStagesEnum.DISCOVERY.value,
         'appType': appTypesEnum.VARIATION.value,
@@ -57,7 +54,10 @@ def mapFacilityToCase(facilityObj):
         'state': propertyObj.state,
         'dwellingType': propertyObj.dwellingType,
         'valuation': valuationObj.valuationAmount,
-        'salesChannel': channelTypesEnum.DIRECT_ACQUISITION.value
+        'salesChannel': channelTypesEnum.DIRECT_ACQUISITION.value,
+
+        'refCaseUID': facilityObj.originalCaseUID,
+        'sfLeadID': "NO LEAD"
     }
 
     if roleDict['number'] == 2:
@@ -78,10 +78,9 @@ def mapFacilityToCase(facilityObj):
 
 
 def get_role_dict(roleQs):
-
     borrowerQs = roleQs.filter(role__in=[roleEnum.PRINCIPAL_BORROWER.value,
-                                                 roleEnum.SECONDARY_BORROWER.value,
-                                                 roleEnum.BORROWER.value]).order_by('role')
+                                         roleEnum.SECONDARY_BORROWER.value,
+                                         roleEnum.BORROWER.value]).order_by('role')
     roleDict = {'number': borrowerQs.count()}
     borrowerList = []
     for borrower in borrowerQs:
@@ -94,8 +93,7 @@ def get_role_dict(roleQs):
 # CLIENT APP TO SF MAPPING
 
 def mapCaseToOpportunity(caseObj, lossObj):
-
-    payload={
+    payload = {
         # Core case data
         'sfOpportunityId': caseObj.sfOpportunityID,
         'caseUID': str(caseObj.caseUID),
@@ -112,25 +110,16 @@ def mapCaseToOpportunity(caseObj, lossObj):
         'pensionType': caseObj.enumPensionType(),
         'pensionAmount': caseObj.pensionAmount,
         'clientType1': caseObj.enumClientType()[0],
-        'salutation_1':caseObj.enumSalutation()[0] ,
+        'salutation_1': caseObj.enumSalutation()[0],
         'surname_1': caseObj.surname_1,
         'firstname_1': caseObj.firstname_1,
         'preferredName_1': caseObj.preferredName_1,
-        'middlename_1':caseObj.middlename_1,
+        'middlename_1': caseObj.middlename_1,
         'age_1': caseObj.age_1,
         'sex_1': caseObj.enumSex()[0],
-        'maritalStatus_1':caseObj.enumMaritalStatus()[0],
+        'maritalStatus_1': caseObj.enumMaritalStatus()[0],
         'phoneNumber': caseObj.phoneNumber,
         'email': caseObj.email,
-        'clientType2': caseObj.enumClientType()[1],
-        'salutation_2': caseObj.enumSalutation()[1],
-        'surname_2': caseObj.surname_2,
-        'firstname_2': caseObj.firstname_2,
-        'preferredName_2': caseObj.preferredName_2,
-        'middlename_2': caseObj.middlename_2,
-        'age_2': caseObj.age_2,
-        'sex_2': caseObj.enumSex()[1],
-        'maritalStatus_2': caseObj.enumMaritalStatus()[1],
         'street': caseObj.street,
         'suburb': caseObj.suburb,
         'postcode': caseObj.postcode,
@@ -138,7 +127,7 @@ def mapCaseToOpportunity(caseObj, lossObj):
         'valuation': caseObj.valuation,
         'dwellingType': caseObj.enumDwellingType(),
 
-        #Meeting Data
+        # Meeting Data
         'maxLVR': caseObj.loan.maxLVR,
         'actualLVR': caseObj.loan.actualLVR,
         'establishmentFee': caseObj.loan.establishmentFee,
@@ -161,30 +150,7 @@ def mapCaseToOpportunity(caseObj, lossObj):
         'protectedEquity': caseObj.loan.protectedEquity,
         'interestPayAmount': caseObj.loan.interestPayAmount,
         'interestPayPeriod': caseObj.loan.interestPayPeriod,
-        'topUpAmount': caseObj.loan.topUpAmount,
-        'topUpDrawdownAmount': caseObj.loan.topUpDrawdownAmount,
-        'topUpIncomeAmount': caseObj.loan.topUpIncomeAmount,
-        'topUpFrequency': caseObj.loan.enumDrawdownFrequency(),
-        'topUpPeriod': caseObj.loan.topUpPeriod,
-        'topUpBuffer': caseObj.loan.topUpBuffer,
-        'topUpContingencyAmount': caseObj.loan.topUpContingencyAmount,
-        'refinanceAmount': caseObj.loan.refinanceAmount,
-        'renovateAmount': caseObj.loan.renovateAmount,
-        'travelAmount': caseObj.loan.travelAmount,
-        'giveAmount': caseObj.loan.giveAmount,
-        'careAmount': caseObj.loan.careAmount,
-        'careDrawdownAmount': caseObj.loan.careDrawdownAmount,
-        'careRegularAmount': caseObj.loan.careRegularAmount,
-        'careFrequency': caseObj.loan.enumCareFrequency(),
-        'carePeriod': caseObj.loan.carePeriod,
-        'topUpDescription': caseObj.loan.topUpDescription,
-        'topUpContingencyDescription': caseObj.loan.topUpContingencyDescription,
-        'renovateDescription': caseObj.loan.renovateDescription,
-        'travelDescription': caseObj.loan.travelDescription,
-        'careDescription': caseObj.loan.careDescription,
-        'careDrawdownDescription': caseObj.loan.careDrawdownDescription,
-        'giveDescription': caseObj.loan.giveDescription,
-        'detailedTitle' : caseObj.loan.detailedTitle,
+        'detailedTitle': caseObj.loan.detailedTitle,
 
         # Model Setting Data
         'inflationRate': caseObj.modelsetting.inflationRate,
@@ -207,6 +173,27 @@ def mapCaseToOpportunity(caseObj, lossObj):
         'clientNotes': caseObj.factfind.clientNotes,
     }
 
+    # Second Borrower
+    if caseObj.loanType == loanTypesEnum.JOINT_BORROWER.value:
+        payload.update({
+
+            'clientType2': caseObj.enumClientType()[1],
+            'salutation_2': caseObj.enumSalutation()[1],
+            'surname_2': caseObj.surname_2,
+            'firstname_2': caseObj.firstname_2,
+            'preferredName_2': caseObj.preferredName_2,
+            'middlename_2': caseObj.middlename_2,
+            'age_2': caseObj.age_2,
+            'sex_2': caseObj.enumSex()[1],
+            'maritalStatus_2': caseObj.enumMaritalStatus()[1],
+
+        })
+
+    # Purposes
+    loanObj = Loan.objects.queryset_byUID(str(caseObj.caseUID)).get()
+    payload.update(serialisePurposes(loanObj, True))
+
+    # Date Fields
     SF_DATE_FIELDS = ['timestamp', 'updated', 'birthdate_1', 'birthdate_2', 'meetingDate', 'closeDate', 'followUpDate']
 
     objDict = caseObj.__dict__
@@ -218,6 +205,7 @@ def mapCaseToOpportunity(caseObj, lossObj):
         else:
             payload[field] = None
 
+    # Super Fund
     if caseObj.superFund:
         payload['superFund'] = caseObj.superFund.fundName
     else:
@@ -227,15 +215,69 @@ def mapCaseToOpportunity(caseObj, lossObj):
     return payload
 
 
+# SERIALISE PURPOSES
+
+def serialisePurposes(loanObj, enum=False):
+    # Create purpose dictionary (retro fit data from new purpose objects)
+
+    def __getItem(category, intention, attr, default=None):
+        try:
+            return getattr(srcDict[category][intention], attr)
+        except:
+            return default
+
+    srcDict = loanObj.get_purposes()
+
+    purposeDict = {
+        'topUpAmount': __getItem('TOP_UP', 'INVESTMENT', 'amount', 0),
+        'topUpContingencyAmount': __getItem('TOP_UP', 'CONTINGENCY', 'amount', 0),
+        'refinanceAmount': __getItem('REFINANCE', 'MORTGAGE', 'amount', 0),
+        'renovateAmount': __getItem('LIVE', 'RENOVATIONS', 'amount', 0),
+        'travelAmount': __getItem('LIVE', 'TRANSPORT', 'amount', 0),
+        'giveAmount': __getItem('GIVE', 'GIVE_TO_FAMILY', 'amount', 0),
+        'careAmount': __getItem('CARE', 'LUMP_SUM', 'amount', 0),
+
+        'topUpDrawdownAmount': __getItem('TOP_UP', 'REGULAR_DRAWDOWN', 'amount', 0),
+        'topUpIncomeAmount': __getItem('TOP_UP', 'REGULAR_DRAWDOWN', 'drawdownAmount', 0),
+        'topUpFrequency': __getItem('TOP_UP', 'REGULAR_DRAWDOWN', 'drawdownFrequency', 0),
+        'topUpPeriod': __getItem('TOP_UP', 'REGULAR_DRAWDOWN', 'planPeriod', 0),
+        'topUpPlanDrawdowns': __getItem('TOP_UP', 'REGULAR_DRAWDOWN', 'planDrawdowns', 0),
+        'topUpContractDrawdowns': __getItem('TOP_UP', 'REGULAR_DRAWDOWN', 'contractDrawdowns', 0),
+        'topUpPlanAmount': __getItem('TOP_UP', 'REGULAR_DRAWDOWN', 'planAmount', 0),
+        'topUpBuffer': 0,
+
+        'careDrawdownAmount': __getItem('CARE', 'REGULAR_DRAWDOWN', 'amount', 0),
+        'careRegularAmount': __getItem('CARE', 'REGULAR_DRAWDOWN', 'drawdownAmount', 0),
+        'careFrequency': __getItem('CARE', 'REGULAR_DRAWDOWN', 'drawdownFrequency', 0),
+        'carePeriod': __getItem('CARE', 'REGULAR_DRAWDOWN', 'planPeriod', 0),
+        'carePlanDrawdowns': __getItem('CARE', 'REGULAR_DRAWDOWN', 'planDrawdowns', 0),
+        'careContractDrawdowns': __getItem('CARE', 'REGULAR_DRAWDOWN', 'contractDrawdowns', 0),
+
+        'carePlanAmount': __getItem('CARE', 'REGULAR_DRAWDOWN', 'planAmount', 0),
+
+        'topUpDescription': __getItem('TOP_UP', 'INVESTMENT', 'description', ""),
+        'topUpContingencyDescription': __getItem('TOP_UP', 'CONTINGENCY', 'description', ""),
+        'renovateDescription': __getItem('LIVE', 'RENOVATIONS', 'description', ""),
+        'travelDescription': __getItem('LIVE', 'TRANSPORT', 'description', ""),
+        'careDescription': __getItem('CARE', 'LUMP_SUM', 'description', ""),
+        'careDrawdownDescription': __getItem('CARE', 'REGULAR_DRAWDOWN', 'description', ""),
+        'giveDescription': __getItem('GIVE', 'GIVE_TO_FAMILY', 'description', ""),
+
+    }
+
+    if enum:
+        purposeDict['topUpFrequency'] = __getItem('TOP_UP', 'REGULAR_DRAWDOWN', 'enumDrawdownFrequency').lower()
+        purposeDict['careFrequency'] = __getItem('CARE', 'REGULAR_DRAWDOWN', 'enumDrawdownFrequency').lower()
+
+    return purposeDict
 
 
 # FACILITY: AMAL LOAN OBJECT MAPPING
 
 def mapTransToFacility(loan, transaction):
-
-    payload ={
+    payload = {
         'facility': loan,
-        'description':  transaction['description'],
+        'description': transaction['description'],
         'type': transaction['type'],
         'transactionDate': transaction['transactionDate'],
         'effectiveDate': transaction['effectiveDate'],
@@ -246,7 +288,6 @@ def mapTransToFacility(loan, transaction):
     }
 
     return payload
-
 
 
 # SF LOAN OBJECT MAPPING
@@ -284,7 +325,6 @@ def mapLoanToFacility(caseObj, loanDict):
 
 
 def mapRolesToFacility(loan, contact, role):
-
     roleTypes = {"Principal Borrower": 0,
                  "Secondary Borrower": 1,
                  "Borrower": 2,
@@ -334,9 +374,7 @@ def mapRolesToFacility(loan, contact, role):
     return payload
 
 
-
 def mapPropertyToFacility(loan, propertyObj):
-
     stateShortCode = {'Victoria': 'VIC', "New South Wales": 'NSW', "Queensland": 'QLD', "Tasmania": 'TAS',
                       "South Australia": 'SA', "Western Australia": 'WA', "Northern Territory": 'NT',
                       "Australian Capital Territory": 'ACT'}
@@ -361,8 +399,8 @@ def mapPropertyToFacility(loan, propertyObj):
 
 
 def get_property_type(arg):
-    #Convert SF Property Type:
-    if arg=="House":
+    # Convert SF Property Type:
+    if arg == "House":
         return dwellingTypesEnum.HOUSE.value
     else:
         return dwellingTypesEnum.APARTMENT.value
@@ -382,9 +420,8 @@ def mapValuationsToFacility(propertyRef, propertyObj):
     return payload
 
 
-
 def mapPurposesToFacility(loan, purpose):
-    #SF Purposes to Facility Purposes
+    # SF Purposes to Facility Purposes
 
     payload = {'facility': loan,
                'sfPurposeID': purpose['Id'],

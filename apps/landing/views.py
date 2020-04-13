@@ -7,7 +7,7 @@ from django.db.models.functions import TruncDate, TruncDay, TruncMonth, Cast, Ex
 from django.db.models.fields import DateField
 from django.db.models import Sum, F, Func,  Avg, Min, Max, Value, CharField
 from django.db.models import Count, When, Case as dbCase
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse_lazy
 from django.utils.timezone import get_current_timezone
 
@@ -294,4 +294,3 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
             return dict[key]
         else:
             return default
-

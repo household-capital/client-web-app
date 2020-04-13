@@ -21,19 +21,20 @@ from config.celery import app
 
 # Local Application Imports
 from apps.calculator.models import WebCalculator
-from apps.lib.hhc_LoanValidator import LoanValidator
-from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, appTypesEnum, purposeCategoryEnum, purposeIntentionEnum
+from apps.enquiry.models import Enquiry
+from apps.lib.api_Docsaway import apiDocsAway
 from apps.lib.api_Salesforce import apiSalesforce
+from apps.lib.hhc_LoanValidator import LoanValidator
+from apps.lib.site_DataMapping import serialisePurposes
+from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, appTypesEnum, purposeCategoryEnum, purposeIntentionEnum, incomeFrequencyEnum
 from apps.lib.site_Globals import LOAN_LIMITS
 from apps.lib.site_Logging import write_applog
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
 from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, updateNavQueue
-from apps.lib.api_Docsaway import apiDocsAway
-from apps.enquiry.models import Enquiry
-from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignForm
+
+from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignForm, \
+    lumpSumPurposeForm, drawdownPurposeForm, purposeAddForm
 from .models import Case, LossData, Loan, ModelSetting, LoanPurposes
-
-
 
 
 # // UTILITIES
@@ -901,7 +902,184 @@ class CloudbridgeView(HouseholdLoginRequiredMixin, TemplateView):
         return context
 
 
+# Variation Views
+
+class ContextHelper():
+    # Most of the views require the same validation and context information
+
+    def validate_and_get_context(self):
+
+        if 'uid' in self.kwargs:
+            caseUID = str(self.kwargs['uid'])
+        else:
+            obj=self.get_object()
+            caseUID = str(obj.loan.case.caseUID)
+
+        loanObj = Loan.objects.queryset_byUID(caseUID).get()
+
+        # get dictionaries from model
+        clientDict = Case.objects.dictionary_byUID(caseUID)
+        loanDict = Loan.objects.dictionary_byUID(caseUID)
+        modelDict = ModelSetting.objects.dictionary_byUID(caseUID)
+
+        # extend loanDict with purposes
+        loanDict.update(serialisePurposes(loanObj))
+
+        # validate loan
+        loanVal = LoanValidator(clientDict, loanDict, modelDict)
+        loanStatus = loanVal.getStatus()
+
+        # update loan
+        loanQS = Loan.objects.queryset_byUID(caseUID)
+        loanQS.update(
+
+            purposeAmount=loanStatus['data']['purposeAmount'],
+            establishmentFee=loanStatus['data']['establishmentFee'],
+            totalLoanAmount=loanStatus['data']['totalLoanAmount'],
+
+            planPurposeAmount = loanStatus['data']['planPurposeAmount'],
+            planEstablishmentFee=loanStatus['data']['planEstablishmentFee'],
+            totalPlanAmount=loanStatus['data']['totalPlanAmount'],
+
+            maxLVR=loanStatus['data']['maxLVR'],
+            actualLVR=loanStatus['data']['actualLVR'],
+            detailedTitle=loanStatus['data']['detailedTitle']
+        )
+
+        # create context
+        context = {}
+        context.update(clientDict)
+        context.update(loanDict)
+        context.update(modelDict)
+        context.update(loanStatus['data'])
+
+        return context
+
+class CaseVariation(HouseholdLoginRequiredMixin,ContextHelper, ListView):
+    paginate_by = 10
+    template_name = 'case/variationList.html'
+    context_object_name = 'object_list'
+    model = LoanPurposes
+
+    def get_queryset(self, **kwargs):
+
+        caseUID = str(self.kwargs['uid'])
+        loanObj = Loan.objects.queryset_byUID(caseUID).get()
+        queryset = LoanPurposes.objects.filter(loan=loanObj)
+        queryset = queryset.order_by('category')
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        self.extra_context = self.validate_and_get_context()
+
+        context = super(CaseVariation, self).get_context_data(**kwargs)
+
+        context['title'] = 'Loan Variation'
+
+        context['caseObj'] = Case.objects.queryset_byUID(str(self.kwargs['uid'])).get()
+        context['loanObj'] = Loan.objects.queryset_byUID(str(self.kwargs['uid'])).get()
 
 
+        return context
 
+class CaseVariationLumpSum(HouseholdLoginRequiredMixin, ContextHelper, UpdateView):
+    template_name = "case/variationDetail.html"
+    form_class = lumpSumPurposeForm
+
+    def get_object(self, queryset=None):
+        obj = LoanPurposes.objects.filter(purposeUID=self.kwargs['purposeUID']).get()
+        return obj
+
+
+    def get_context_data(self, **kwargs):
+        # Update and add dictionaries to context
+        self.extra_context = self.validate_and_get_context()
+
+        context = super(CaseVariationLumpSum, self).get_context_data(**kwargs)
+        context['title'] = 'Change purpose amount'
+
+        obj = self.get_object()
+        context['obj'] = obj
+
+        return context
+
+
+    def form_valid(self, form):
+        obj = form.save()
+        caseUID = str(obj.loan.case.caseUID)
+
+        return HttpResponseRedirect(reverse_lazy('case:caseVariation', kwargs={'uid': caseUID}))
+
+
+class CaseVariationDrawdown(HouseholdLoginRequiredMixin, ContextHelper, UpdateView):
+    template_name = "case/variationDetail.html"
+    form_class = drawdownPurposeForm
+
+    def get_object(self, queryset=None):
+        obj = LoanPurposes.objects.filter(purposeUID=self.kwargs['purposeUID']).get()
+        return obj
+
+
+    def get_context_data(self, **kwargs):
+        # Update and add dictionaries to context
+        self.extra_context = self.validate_and_get_context()
+
+        context = super(CaseVariationDrawdown, self).get_context_data(**kwargs)
+        context['title'] = 'Change purpose amount'
+
+        obj = self.get_object()
+        context['obj'] = obj
+
+        return context
+
+
+    def form_valid(self, form):
+        obj = form.save()
+
+        #Update Amounts
+        if obj.drawdownFrequency == incomeFrequencyEnum.FORTNIGHTLY.value:
+            freqMultiple = 26
+        else:
+            freqMultiple = 12
+
+        obj.planAmount = obj.drawdownAmount * obj.planDrawdowns
+        obj.amount = obj.drawdownAmount * obj.contractDrawdowns
+
+        #if not active plan amount = contract amount
+        if not obj.active:
+            obj.planAmount = obj.drawdownAmount * obj.contractDrawdowns
+
+        obj.save()
+
+        return HttpResponseRedirect(reverse_lazy('case:caseVariationDrawdown', kwargs={'purposeUID': str(obj.purposeUID)}))
+
+
+class CaseVariationAdd(HouseholdLoginRequiredMixin, ContextHelper, CreateView):
+    template_name = "case/variationAdd.html"
+    form_class = purposeAddForm
+    model = LoanPurposes
+
+    def form_valid(self, form):
+        category = form.cleaned_data['category']
+        intention = form.cleaned_data['intention']
+
+        loan = Loan.objects.filter(case__caseUID=str(self.kwargs['uid'])).get()
+        try:
+            obj=LoanPurposes.objects.filter(loan=loan, category = category, intention = intention, active =True ).get()
+            messages.error(self.request, "Purpose already exists")
+            return self.form_invalid(form)
+        except:
+            pass
+        obj = form.save(commit=False)
+        obj.loan = loan
+        obj.save()
+        return HttpResponseRedirect(reverse_lazy('case:caseVariation', kwargs={'uid': str(self.kwargs['uid'])}))
+
+    def get_context_data(self, **kwargs):
+        context = super(CaseVariationAdd, self).get_context_data(**kwargs)
+
+        context['title'] = 'Create new purpose'
+
+        return context
 
