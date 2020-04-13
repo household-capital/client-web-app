@@ -22,8 +22,15 @@ urlpatterns = [
     path('caseOwn/<uuid:uid>',views.CaseOwnView.as_view(),name='caseOwn'),
     path('caseAssign/<uuid:uid>', views.CaseAssignView.as_view(), name='caseAssign'),
     path('caseData/<uuid:uid>',views.CaseDataExtract.as_view(),name='caseData'),
+
     path('cloudBridge/<uuid:uid>', views.CloudbridgeView.as_view(), name='cloudBridge'),
 
+    path('caseVariation/<uuid:uid>', views.CaseVariation.as_view(), name='caseVariation'),
+    path('caseVariationLumpSum/<uuid:purposeUID>' , views.CaseVariationLumpSum.as_view(), name='caseVariationLumpSum'),
+    path('caseVariationDrawdown/<uuid:purposeUID>', views.CaseVariationDrawdown.as_view(), name='caseVariationDrawdown'),
+    path('caseVariationAdd/<uuid:uid>', views.CaseVariationAdd.as_view(), name='caseVariationAdd')
+
 ]
+
 
 

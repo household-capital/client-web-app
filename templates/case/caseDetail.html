@@ -141,6 +141,14 @@
                                             &nbsp;<i class="fas fa-users fa-fw"></i>&nbsp;&nbsp;Meeting
                                         </a>
 
+                                        {% if obj.appType == appTypesEnum.VARIATION.value %}
+                                            <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item" href="{% url 'case:caseVariation' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-edit fa-fw"></i>&nbsp;&nbsp;Purposes
+                                        </a>
+                                        {% endif %}
+
                                     {% endif %}
 
 

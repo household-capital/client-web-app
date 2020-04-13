@@ -13,7 +13,9 @@ from django.urls import reverse_lazy
 #Local Application Imports
 from apps.lib.site_Enums import caseStagesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,\
     pensionTypesEnum, loanTypesEnum, ragTypesEnum, channelTypesEnum, stateTypesEnum, incomeFrequencyEnum, \
-    closeReasonEnum, salutationEnum, maritalEnum, appTypesEnum
+    closeReasonEnum, salutationEnum, maritalEnum, appTypesEnum, purposeCategoryEnum, purposeIntentionEnum
+
+from apps.accounts.models import Referer
 
 from apps.accounts.models import Referer
 
@@ -32,6 +34,7 @@ class FundDetail(models.Model):
 
     class Meta:
         ordering = ('fundName',)
+        verbose_name_plural = "Superfund Definitions"
 
 
 class CaseManager(models.Manager):
@@ -227,6 +230,7 @@ class Case(models.Model):
 
     class Meta:
         ordering = ('-updated',)
+        verbose_name_plural = "Case"
 
     def enumCaseStage(self):
         return dict(self.caseStages)[self.caseStage]
@@ -249,7 +253,7 @@ class Case(models.Model):
             return [dict(self.clientSex)[self.sex_1],dict(self.clientSex)[self.sex_2]]
 
     def enumClientType(self):
-        if self.clientType2 is None:
+        if self.loanType==loanTypesEnum.SINGLE_BORROWER.value:
             return [dict(self.clientTypes)[self.clientType1],None]
         else:
             return [dict(self.clientTypes)[self.clientType1],dict(self.clientTypes)[self.clientType2]]
@@ -263,13 +267,13 @@ class Case(models.Model):
             return dict(self.pensionTypes)[self.pensionType]
 
     def enumMaritalStatus(self):
-        if self.clientType2 is None:
+        if self.loanType==loanTypesEnum.SINGLE_BORROWER.value:
             return [dict(self.maritalTypes)[self.maritalStatus_1],None]
         else:
             return [dict(self.maritalTypes)[self.maritalStatus_1],dict(self.maritalTypes)[self.maritalStatus_2]]
 
     def enumSalutation(self):
-        if self.clientType2 is None:
+        if self.loanType==loanTypesEnum.SINGLE_BORROWER.value:
             return [dict(self.salutationTypes)[self.salutation_1],None]
         else:
             return [dict(self.salutationTypes)[self.salutation_1],dict(self.salutationTypes)[self.salutation_2]]
@@ -302,43 +306,23 @@ class Loan(models.Model):
         (20, "20%"))
 
     drawdownFrequency=(
-        (incomeFrequencyEnum.FORTNIGHTLY.value, 'fortnightly'),
-        (incomeFrequencyEnum.MONTHLY.value, 'monthly'))
+        (incomeFrequencyEnum.FORTNIGHTLY.value, 'Fortnightly'),
+        (incomeFrequencyEnum.MONTHLY.value, 'Monthly'))
 
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
     localLoanID = models.AutoField(primary_key=True)
     maxLVR=models.FloatField(null=False, blank=False,default=0)
     actualLVR = models.FloatField(null=True, blank=True, default=0)
-    establishmentFee=models.IntegerField(default=0)
-    planEstablishmentFee=models.IntegerField(default=0)
     protectedEquity=models.IntegerField(default=0, choices=protectedChoices)
+    # Contract Amounts
+    purposeAmount =models.IntegerField(default=0)
+    establishmentFee=models.IntegerField(default=0)
     totalLoanAmount=models.IntegerField(default=0)
+    # Plan Amounts
+    planPurposeAmount =models.IntegerField(default=0)
+    planEstablishmentFee=models.IntegerField(default=0)
     totalPlanAmount=models.IntegerField(default=0)
-    topUpAmount=models.IntegerField(default=0)
-    topUpDrawdownAmount=models.IntegerField(default=0)
-    topUpPlanAmount=models.IntegerField(default=0)
-    topUpIncomeAmount = models.IntegerField(default=0)
-    topUpFrequency = models.IntegerField(default=2, choices=drawdownFrequency)
-    topUpPeriod = models.IntegerField(default=5)
-    topUpBuffer = models.IntegerField(default=0)
-    topUpContingencyAmount = models.IntegerField(default=0)
-    topUpDescription = models.CharField(max_length=60, null=True, blank=True)
-    topUpContingencyDescription = models.CharField(max_length=60, null=True, blank=True)
-    refinanceAmount=models.IntegerField(default=0)
-    renovateAmount=models.IntegerField(default=0)
-    travelAmount=models.IntegerField(default=0)
-    renovateDescription=models.CharField(max_length=60, null=True, blank=True)
-    travelDescription=models.CharField(max_length=60, null=True, blank=True)
-    giveAmount=models.IntegerField(default=0)
-    giveDescription = models.CharField(max_length=60, null=True, blank=True)
-    careAmount=models.IntegerField(default=0)
-    careDrawdownAmount=models.IntegerField(default=0)
-    carePlanAmount=models.IntegerField(default=0)
-    careRegularAmount=models.IntegerField(default=0)
-    careFrequency=models.IntegerField(default=2, choices=drawdownFrequency)
-    carePeriod=models.IntegerField(default=3)
-    careDrawdownDescription = models.CharField(max_length=60, null=True, blank=True)
-    careDescription=models.CharField(max_length=60, null=True, blank=True)
+
     interestPayAmount=models.IntegerField(default=0)
     interestPayPeriod=models.IntegerField(default=0)
     annualPensionIncome=models.IntegerField(default=0)
@@ -358,10 +342,8 @@ class Loan(models.Model):
     consentElectronic = models.BooleanField(default=False)
     detailedTitle = models.BooleanField(default=False)
 
-    #Version 1 Fields
-    topUpIncome=models.IntegerField(default=0)
-    incomeObjective=models.IntegerField(default=0)
-
+    #Variations
+    accruedInterest = models.IntegerField(null=True, blank=True)
 
     objects=CaseManager()
 
@@ -371,13 +353,104 @@ class Loan(models.Model):
     def __unicode__(self):
         return smart_text(self.case.caseDescription)
 
-    def enumDrawdownFrequency(self):
-        if self.topUpFrequency:
-            return dict(self.drawdownFrequency)[self.topUpFrequency]
+    class Meta:
+        verbose_name_plural = "Case Loan Details"
 
-    def enumCareFrequency(self):
-        if self.careFrequency:
-            return dict(self.drawdownFrequency)[self.careFrequency]
+    def get_purposes(self):
+        dict={}
+        qs = LoanPurposes.objects.filter(loan = self)
+        for purpose in qs:
+            if purpose.enumCategory in dict:
+                dict[purpose.enumCategory][purpose.enumIntention] = purpose
+            else:
+                dict[purpose.enumCategory]={purpose.enumIntention:purpose}
+        return dict
+
+    def purpose(self, category, intention):
+        qs = LoanPurposes.objects.filter(loan=self)
+        for purpose in qs:
+            if purpose.enumCategory == category and purpose.enumIntention == intention:
+                return purpose
+
+
+
+class LoanPurposes(models.Model):
+
+    drawdownFrequencyTypes=(
+        (incomeFrequencyEnum.FORTNIGHTLY.value, 'Fortnightly'),
+        (incomeFrequencyEnum.MONTHLY.value, 'Monthly'))
+
+    categoryTypes = {
+        (purposeCategoryEnum.TOP_UP.value, "TOP_UP"),
+        (purposeCategoryEnum.REFINANCE.value, "REFINANCE"),
+        (purposeCategoryEnum.LIVE.value, "LIVE"),
+        (purposeCategoryEnum.GIVE.value, "GIVE"),
+        (purposeCategoryEnum.CARE.value, "CARE")
+    }
+
+    intentionTypes = {
+        (purposeIntentionEnum.INVESTMENT.value, "INVESTMENT"),
+        (purposeIntentionEnum.CONTINGENCY.value, "CONTINGENCY"),
+        (purposeIntentionEnum.REGULAR_DRAWDOWN.value, "REGULAR_DRAWDOWN"),
+        (purposeIntentionEnum.GIVE_TO_FAMILY.value, "GIVE_TO_FAMILY"),
+        (purposeIntentionEnum.RENOVATIONS.value, "RENOVATIONS"),
+        (purposeIntentionEnum.TRANSPORT.value, "TRANSPORT"),
+        (purposeIntentionEnum.LUMP_SUM.value, "LUMP_SUM"),
+        (purposeIntentionEnum.MORTGAGE.value, "MORTGAGE")
+    }
+
+    loan = models.ForeignKey(Loan, on_delete=models.CASCADE)
+    purposeID = models.AutoField(primary_key=True)
+    purposeUID = models.UUIDField(default=uuid.uuid4, editable=False)
+    active = models.BooleanField(default=True)
+    category = models.IntegerField(choices=categoryTypes)
+    intention = models.IntegerField(choices=intentionTypes)
+    amount = models.IntegerField(default=0,blank=True, null=True)
+
+    drawdownAmount = models.IntegerField(default=0,blank=True, null=True)
+    drawdownFrequency = models.IntegerField(choices=drawdownFrequencyTypes, blank=True, null=True)
+    drawdownStartDate = models.DateTimeField(blank=True, null=True)
+    drawdownEndDate = models.DateTimeField(blank=True, null=True)
+
+    planPeriod = models.IntegerField(default = 0, blank=True, null=True) #Years
+    contractDrawdowns = models.IntegerField(default = 0, blank=True, null=True)
+    planDrawdowns = models.IntegerField(default = 0, blank=True, null=True)
+    planAmount = models.IntegerField(default=0,blank=True, null=True)
+
+    topUpBuffer = models.BooleanField(default = False)
+    description = models.CharField(max_length=60, null=True, blank=True)
+    notes = models.TextField(blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = "Case Loan Purposes"
+
+    @property
+    def enumCategory(self):
+        return dict(self.categoryTypes)[self.category]
+
+    @property
+    def enumIntention(self):
+        return dict(self.intentionTypes)[self.intention]
+
+    @property
+    def enumDrawdownFrequency(self):
+        if self.drawdownFrequency:
+            return dict(self.drawdownFrequencyTypes)[self.drawdownFrequency]
+
+    def get_absolute_url(self):
+        if self.intention == purposeIntentionEnum.REGULAR_DRAWDOWN.value:
+            return reverse_lazy("case:caseVariationDrawdown", kwargs={"purposeUID": self.purposeUID})
+        else:
+            return reverse_lazy("case:caseVariationLumpSum", kwargs={"purposeUID": self.purposeUID})
+
+    @property
+    def enumCategoryPretty(self):
+        return dict(self.categoryTypes)[self.category].replace("_"," ").lower().title()
+
+    @property
+    def enumIntentionPretty(self):
+        return dict(self.intentionTypes)[self.intention].replace("_"," ").lower().title()
+
 
 class ModelSetting(models.Model):
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
@@ -390,6 +463,8 @@ class ModelSetting(models.Model):
 
     objects=CaseManager()
 
+    class Meta:
+        verbose_name_plural = "Case Settings"
 
     def __str__(self):
         return smart_text(self.case.caseDescription)
@@ -429,6 +504,9 @@ class LossData(models.Model):
 
     objects = CaseManager()
 
+    class Meta:
+        verbose_name_plural = "Case Loss Data"
+
     def __str__(self):
         return smart_text(self.case.caseDescription)
 
@@ -442,7 +520,8 @@ class LossData(models.Model):
             return None
 
     class Meta:
-        verbose_name_plural = "Loss Data"
+        verbose_name_plural = "Case Loss Data"
+
 
 class FactFind(models.Model):
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
@@ -460,6 +539,9 @@ class FactFind(models.Model):
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
 
     objects = CaseManager()
+
+    class Meta:
+        verbose_name_plural = "Case Fact Find"
 
     def __str__(self):
         return smart_text(self.case.caseDescription)

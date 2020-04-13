@@ -8,12 +8,13 @@ from django.forms import ValidationError
 from django.forms import widgets
 
 # Third-party Imports
+from crispy_forms.bootstrap import PrependedText, InlineRadios
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, Div, HTML
 
 # Local Application Imports
-from apps.lib.site_Enums import loanTypesEnum, caseStagesEnum
-from .models import Case, LossData
+from apps.lib.site_Enums import loanTypesEnum, caseStagesEnum, incomeFrequencyEnum, purposeCategoryEnum, purposeIntentionEnum
+from .models import Case, LossData, LoanPurposes
 
 
 class CaseDetailsForm(forms.ModelForm):
@@ -305,3 +306,207 @@ class CaseAssignForm(forms.ModelForm):
     def clean(self):
         if not self.cleaned_data['user']:
             raise ValidationError("Please select Credit Representative")
+
+
+class lumpSumPurposeForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+
+        if 'amountLabel' in kwargs:
+            amountLabel = kwargs['amountLabel']
+            kwargs.pop('amountLabel')
+        else:
+            amountLabel = "Amount"
+
+        if 'descriptionLabel' in kwargs:
+            descriptionLabel = kwargs['descriptionLabel']
+            kwargs.pop('descriptionLabel')
+        else:
+            descriptionLabel = "Description"
+
+        super(lumpSumPurposeForm, self).__init__(*args, **kwargs)
+
+        # Form Layout
+        self.helper = FormHelper()
+        self.helper.form_id = 'clientForm'
+        self.helper.form_method = 'POST'
+        self.helper.form_class = 'form-horizontal'
+        self.helper.form_show_labels = False
+        self.helper.form_show_errors = True
+        self.helper.layout = Layout(
+            Div(
+                Div(Div(HTML(amountLabel), css_class='form-label'),
+                    Div(PrependedText('amount', '$'), css_class="col-lg-4")),
+                Div(Div(HTML(descriptionLabel), css_class='form-label'),
+                    Div(Field('description'), css_class="col-lg-8")),
+                Div(Div(HTML("Notes"), css_class='form-label'),
+                    Div(Field('notes'), css_class="col-lg-8")),
+
+                Submit('submit', 'Save', css_class='btn btn-warning'),
+            )
+        )
+
+    class Meta:
+        model = LoanPurposes
+        fields = ['amount', 'description', 'notes']
+        widgets = {
+            'notes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
+        }
+
+    # Form Fields
+    amount = forms.CharField(required=True, localize=True, widget=widgets.TextInput())
+    description = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 1, 'cols': 60}))
+
+    def clean_amount(self):
+        amount = self.cleaned_data['amount'].replace("$", "").replace(',', "")
+        try:
+            return int(amount)
+        except:
+            raise forms.ValidationError("Please enter a valid number")
+
+
+class drawdownPurposeForm(forms.ModelForm):
+    class Meta:
+        model = LoanPurposes
+        fields = ['description', 'drawdownAmount', 'drawdownFrequency', 'planDrawdowns', 'contractDrawdowns',
+                  'notes', 'drawdownStartDate', 'drawdownEndDate', 'active']
+        widgets = {
+            'notes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
+        }
+
+
+    # Form Fields
+    drawdownAmount = forms.CharField(required=True, localize=True, widget=widgets.TextInput())
+
+    drawdownFrequency = forms.ChoiceField(
+        choices=(
+            (incomeFrequencyEnum.FORTNIGHTLY.value, "Fortnightly"),
+            (incomeFrequencyEnum.MONTHLY.value, "Monthly"),
+        ),
+        widget=forms.RadioSelect,
+        label="")
+
+    # Form Layout
+    helper = FormHelper()
+    helper.form_id = 'clientForm'
+    helper.form_method = 'POST'
+    helper.form_class = 'form-horizontal sub-container'
+    helper.field_class = 'col-lg-12'
+    helper.form_show_labels = False
+    helper.form_show_errors = True
+    helper.layout = Layout(
+        Div(
+            Div(
+                Div(Div(HTML("Periodic Drawdown Amount"), css_class='form-label pb-2'),
+                    Div(Field('drawdownAmount'))),
+
+                Div(Div(HTML("Drawdown Frequency"), css_class='form-label pb-2'),
+                    Div(InlineRadios('drawdownFrequency'))),
+
+                Div(Div(HTML("Description"), css_class='form-label pb-2'),
+                    Div(Field('description'))),
+
+                Div(Div(HTML("Active"), css_class='form-label pb-2'),
+                    Div(Field('active'))),
+
+                Div(Div(Submit('submit', 'Update', css_class='btn btn-warning'),css_class='pt-4')),
+
+                css_class="col-lg-4"),
+
+            Div(
+                Div(Div(HTML("Contracted Drawdowns* (note not years)"), css_class='form-label pb-2'),
+                    Div(Field('contractDrawdowns'))),
+                Div(Div(HTML("Plan Drawdowns* (note not years)"), css_class='form-label pb-2'),
+                    Div(Field('planDrawdowns'))),
+                Div(Div(HTML("Start Date (info only)"), css_class='form-label pb-2'),
+                    Div(Field('drawdownStartDate'))),
+                Div(Div(HTML("End Date (info only)"), css_class='form-label pb-2'),
+                    Div(Field('drawdownEndDate'))),
+
+                css_class="col-lg-4"),
+
+            Div(
+                Div(Div(HTML("Notes"), css_class='form-label pb-2'),
+                    Div(Field('notes'))),
+
+
+
+
+                css_class="col-lg-4"),
+
+            css_class='row')
+    )
+
+    def clean_drawdownAmount(self):
+        amount = self.cleaned_data['drawdownAmount'].replace("$", "").replace(',', "")
+        try:
+            amount = int(amount)
+        except:
+            raise forms.ValidationError("Please enter a valid number")
+        if amount < 1:
+            raise forms.ValidationError("Please enter a positive number")
+        return amount
+
+    def clean_planDrawdowns(self):
+        if self.cleaned_data['planDrawdowns']< 0:
+            raise forms.ValidationError("Please enter a positive number")
+        return self.cleaned_data['planDrawdowns']
+
+    def clean_contractDrawdowns(self):
+        if self.cleaned_data['contractDrawdowns'] < 0:
+            raise forms.ValidationError("Please enter a positive number")
+        return self.cleaned_data['contractDrawdowns']
+
+    def clean(self):
+        if self.cleaned_data['planDrawdowns'] < self.cleaned_data['contractDrawdowns']:
+            raise forms.ValidationError("Plan drawdowns cannot be shorter than contracted drawdowns")
+
+
+class purposeAddForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+
+        super(purposeAddForm, self).__init__(*args, **kwargs)
+
+        # Form Layout
+        self.helper = FormHelper()
+        self.helper.form_id = 'clientForm'
+        self.helper.form_method = 'POST'
+        self.helper.form_class = 'form-horizontal'
+        self.helper.field_class = 'col-lg-12'
+        self.helper.form_show_labels = False
+        self.helper.form_show_errors = True
+        self.helper.layout = Layout(
+
+            Div(
+                Div(
+                    Div(Div(HTML("Category"), css_class='form-label'),
+                        Div(Field('category'))),
+                    Div(Div(HTML("Intention"), css_class='form-label'),
+                        Div(Field('intention'))),
+
+                    Div(Submit('submit', 'Save', css_class='btn btn-warning')),
+                        css_class="col-lg-12"),
+                css_class='row')
+        )
+
+    class Meta:
+        model = LoanPurposes
+        fields = ['category', 'intention']
+
+    def clean(self):
+        permitted = [
+            (purposeCategoryEnum.TOP_UP.value, purposeIntentionEnum.INVESTMENT.value),
+            (purposeCategoryEnum.TOP_UP.value, purposeIntentionEnum.REGULAR_DRAWDOWN.value),
+            (purposeCategoryEnum.TOP_UP.value, purposeIntentionEnum.CONTINGENCY.value),
+            (purposeCategoryEnum.REFINANCE.value, purposeIntentionEnum.MORTGAGE.value),
+            (purposeCategoryEnum.LIVE.value, purposeIntentionEnum.RENOVATIONS.value),
+            (purposeCategoryEnum.LIVE.value, purposeIntentionEnum.TRANSPORT.value),
+            (purposeCategoryEnum.GIVE.value, purposeIntentionEnum.GIVE_TO_FAMILY.value),
+            (purposeCategoryEnum.CARE.value, purposeIntentionEnum.LUMP_SUM.value),
+            (purposeCategoryEnum.CARE.value, purposeIntentionEnum.REGULAR_DRAWDOWN.value),
+        ]
+        combination = (self.cleaned_data['category'], self.cleaned_data['intention'])
+        if combination not in permitted:
+            raise ValidationError("This is not a permitted combination")
+

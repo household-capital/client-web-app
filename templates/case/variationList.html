@@ -1,0 +1,250 @@
+{% extends 'site/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12 title">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div class="row justify-content-md-center">
+                <div class="col-6 text-center">
+                    <br>
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+
+                                {% if message.tags == 'success' %}
+                            class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+
+        <p class="pt-3 pb-2">
+            <b>{{ caseObj.surname_1 }}, {{ caseObj.street }}, {{ caseObj.suburb }}, {{ caseObj.enumStateType }}, {{ caseObj.postcode|intStr }}</b>&nbsp;
+        </p>
+        <br>
+
+        <div class="row justify-content-center pb-3">
+            <div class="col-10">
+                <div class="row">
+
+                    <div class="col-lg-6 text-left">
+
+                        <div class="row no-gutters">
+                            <div class="col-lg-5">
+                                <p class="small"><b>Loan Variation</b></p>
+                                <p> Purposes:</p>
+                                <p class="pt-1"> Establishment Fee</p>
+                                <p class="pt-1"> Total Limit:</p>
+                            </div>
+                            <div class="col-lg-3 text-right">
+                                <p class="small"><b>Contracted</b></p>
+                                <p>$ {{ loanObj.purposeAmount|intVal|intcomma }} </p>
+                                <p class="pt-1">$ {{ loanObj.establishmentFee|intVal|intcomma }}</p>
+                                <p class="pt-1">$ {{ loanObj.totalLoanAmount|intVal|intcomma }}</p>
+
+                            </div>
+                            <div class="col-lg-3 text-right">
+                                <p class="small"><b>Plan</b></p>
+                                <p>$ {{ loanObj.planPurposeAmount|intVal|intcomma }} </p>
+                                <p class="pt-1">$ {{ loanObj.planEstablishmentFee|intVal|intcomma }}</p>
+                                <p class="pt-1">$ {{ loanObj.totalPlanAmount|intVal|intcomma }}</p>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="col-lg-1 text-left ">
+                    </div>
+
+
+                    <div class="col-lg-4 text-left ">
+
+                        <div class="row no-gutters">
+                            <div class="col-lg-8">
+
+                                <p class="small pb-1"><b>Status</b>
+                                <p> Available Amount</p>
+                                {% if availableStatus != 'Ok' %}
+                                    <p><i class="fas fa-exclamation-circle hhcGoldFont "></i> Exceeds available
+                                    </p>{% endif %}
+                                {% if topUpStatus != 'Ok' or topUpDrawdownStatus != 'Ok' or  topUpContingencyStatus != 'Ok' %}
+                                    <p><i class="fas fa-exclamation-circle hhcGoldFont "></i> Top-up exceeds max
+                                    </p>{% endif %}
+                                {% if refinanceStatus != 'Ok' %}
+                                    <p><i class="fas fa-exclamation-circle hhcGoldFont "></i> Refinance exceeds max
+                                    </p>{% endif %}
+                                {% if giveStatus != 'Ok' %}
+                                    <p><i class="fas fa-exclamation-circle hhcGoldFont "></i> Give exceeds max
+                                    </p>{% endif %}
+                                {% if renovateStatus != 'Ok' %}
+                                    <p><i class="fas fa-exclamation-circle hhcGoldFont "></i> Renovate exceeds max
+                                    </p>{% endif %}
+                                {% if travelStatus != 'Ok' %}
+                                    <p><i class="fas fa-exclamation-circle hhcGoldFont "></i> Transport exceeds max
+                                    </p>{% endif %}
+                                {% if careStatus != 'Ok' or careDrawdownStatus != 'Ok' %}
+                                    <p><i class="fas fa-exclamation-circle hhcGoldFont "></i> Care exceeds max
+                                    </p>{% endif %}
+
+                            </div>
+
+                            <div class="col-lg-4 text-right">
+                                <p>{% if errors %}
+                                    <i class="text-danger far fa-times-circle pl-3"></i>
+                                {% else %}
+                                    <i class="text-success far fa-check-circle pl-3"></i>
+                                {% endif %}</p>
+                                <p>${{ availableAmount }}</p>
+
+                            </div>
+
+
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-10">
+                <p class="text-right pb-1"><a href="{% url 'case:caseVariationAdd' uid=loanObj.case.caseUID %}">
+                    <button type="button" class="btn btn-outline-success btn-sm">+ Add</button>
+                </a></p>
+
+
+                <table class="table table-hover table-sm">
+                    <thead>
+                    <tr>
+                        <th scope="col" class="d-none d-sm-table-cell">&nbsp;Category</th>
+                        <th scope="col" class="d-none d-sm-table-cell">&nbsp;Intention</th>
+                        <th scope="col" class="d-none d-sm-table-cell text-right">&nbsp;Contract Amount</th>
+                        <th scope="col" class="d-none d-sm-table-cell text-right">&nbsp;Plan Amount</th>
+                        <th scope="col" class="d-none d-sm-table-cell text-right">&nbsp;Regular Amount</th>
+                        <th scope="col" class="d-none d-sm-table-cell text-right">&nbsp;Frequency</th>
+                        <th scope="col" class="d-none d-sm-table-cell text-right">&nbsp;Periods</th>
+                        <th scope="col" class="d-none d-sm-table-cell">&nbsp;Active</th>
+
+                    </thead>
+                    <tbody>
+                    {% for obj in object_list %}
+                        <tr>
+                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.enumCategoryPretty }}</a></td>
+                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.enumIntentionPretty }}</a></td>
+                            <td class="text-right"><a href="{{ obj.get_absolute_url }}">${{ obj.amount }}</a></td>
+                            <td class="text-right">{% if obj.drawdownAmount %}${{ obj.planAmount }}{% endif %}</td>
+                            <td class="text-right">{% if obj.drawdownAmount %}${{ obj.drawdownAmount }}{% endif %}</td>
+                            <td class="text-right">
+                                {% if obj.drawdownAmount %}{{ obj.enumDrawdownFrequency }}{% endif %}</td>
+                            <td class="text-right">{% if obj.drawdownAmount %}{{ obj.planDrawdowns }}{% endif %}</td>
+                            <td class="text-center">{% if obj.drawdownAmount %}{% if obj.active %}
+                                <i class="text-success far fa-check-circle"></i>
+                            {% else %}<i class="text-danger far fa-times-circle"></i>{% endif %}{% endif %}</td>
+
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="row pt-3">
+
+                    <div class="col-lg-3">
+                        <p>Includes Accrued Interest</p>
+                        <p>Protected Equity</p>
+
+                    </div>
+                    <div class="col-lg-2">
+                        <p>${{ loanObj.accruedInterest }}</p>
+                        <p>{{ loanObj.protectedEquity }}%</p>
+
+                    </div>
+                </div>
+
+                {% if is_paginated %}
+                    <hr>
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center pagination-sm">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link"
+                                       href="?order={{ order }}&search={{ search }}&page={{ page_obj.previous_page_number }}&filter={{ filter }}"
+                                       tabindex="-1">Previous</a>
+                                </li>
+
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link"
+                                       href="#order={{ order }}&search={{ search }}&filter={{ filter }}"
+                                       tabindex="-1">Previous</a>
+                                </li>
+                            {% endif %}
+                            {% for object in page_obj.paginator.page_range %}
+                                <li class="page-item"><a class="page-link"
+                                                         href="?page={{ forloop.counter }}&order={{ order }}&search={{ search }}&filter={{ filter }}">{{ forloop.counter }}</a>
+                                </li>
+                            {% endfor %}
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link"
+                                       href="?search={{ search }}&order={{ order }}&page={{ page_obj.next_page_number }}&filter={{ filter }}">Next</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link"
+                                       href="#&order={{ order }}&filter={{ filter }}">Next</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+{% endblock %}
+
+
+{% block javascript %}
+
+{% endblock %}

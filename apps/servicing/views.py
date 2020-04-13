@@ -21,7 +21,7 @@ from apps.lib.site_DataMapping import mapFacilityToCase
 from apps.lib.site_Enums import roleEnum, caseStagesEnum, loanTypesEnum, appTypesEnum, clientTypesEnum, channelTypesEnum
 
 from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, updateNavQueue, sendTemplateEmail
-from apps.case.models import Case
+from apps.case.utils import createLoanVariation
 
 from .models import Facility, FacilityTransactions, FacilityRoles, FacilityProperty, FacilityPropertyVal, \
     FacilityPurposes, FacilityEvents, FacilityEnquiry, FacilityAdditional
@@ -412,27 +412,24 @@ class LoanCreateVariation(HouseholdLoginRequiredMixin, View):
         facilityUID = str(self.kwargs['uid'])
         facilityObj = Facility.objects.queryset_byUID(facilityUID).get()
 
-
-        # 1. Case Object
-
-        payload = mapFacilityToCase(facilityObj)
-
+        #Calculate Accrued Interest
         try:
-            newCaseObj = Case.objects.create(**payload)
+            accruedInterest =  max(facilityObj.currentBalance -  facilityObj.advancedAmount,0)
         except:
-            messages.error(self.request, "Could not create variation")
+            accruedInterest = 0
+
+        result = createLoanVariation(facilityObj, accruedInterest)
+
+        if result['status'] == 'Error':
+            messages.error(self.request, result['responseText'])
             return HttpResponseRedirect(reverse_lazy('servicing:loanDetail', kwargs={'uid': facilityUID}))
 
-
-
-
+        else:
+            newCaseUID = result['data']['caseUID']
 
         messages.success(self.request, "This is a variation of the original loan")
         messages.success(self.request, "Update the meeting based on additional amounts")
-        return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': str(newCaseObj.caseUID)}))
-
-
-
+        return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': newCaseUID}))
 
 
 class LoanAdditionalLink(HouseholdLoginRequiredMixin, FormView):

@@ -18,6 +18,7 @@ LOAN_LIMITS={'minSingleAge' : 60,
              'topUpBufferAmount':5000,
              'titleUtilTrigger': 0.60,
              'titleAmountTrigger':400000,
+             'maxDrawdownYears': 1,
 }
 
 ECONOMIC={'inflationRate' :float(2.50),

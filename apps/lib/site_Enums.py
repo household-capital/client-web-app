@@ -161,8 +161,24 @@ class facilityStatusEnum(Enum):
     REPAID = 2
     SUSPENDED = 3
 
+@accessInTemplate
+class purposeCategoryEnum(Enum):
+    TOP_UP = 1
+    REFINANCE = 2
+    LIVE = 3
+    GIVE = 4
+    CARE = 5
 
-
+@accessInTemplate
+class purposeIntentionEnum(Enum):
+    INVESTMENT = 1
+    CONTINGENCY = 2
+    REGULAR_DRAWDOWN = 3
+    GIVE_TO_FAMILY = 4
+    RENOVATIONS = 5
+    TRANSPORT = 6
+    LUMP_SUM = 7
+    MORTGAGE  = 8
 
 #Squash migrations and delete
 class closeReasonTypes(Enum):
