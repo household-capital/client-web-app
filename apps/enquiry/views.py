@@ -31,7 +31,7 @@ from apps.lib.site_Logging import write_applog
 from apps.lib.api_Pdf import pdfGenerator
 from .forms import EnquiryForm, EnquiryDetailForm, EnquiryCloseForm, EnquiryAssignForm
 from .models import Enquiry
-from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, updateNavQueue
+from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, getEnquiryProjections, updateNavQueue
 
 
 
@@ -483,7 +483,7 @@ class EnquiryConvert(HouseholdLoginRequiredMixin, View):
             caseDict[field] = enqDict[field]
 
         # Create and save new Case
-        case_obj = Case.objects.create(user=user, **caseDict)
+        case_obj = Case.objects.create(owner=user, **caseDict)
         case_obj.save()
 
         # Set enquiry to actioned
@@ -588,58 +588,8 @@ class EnqSummaryPdfView(TemplateView):
 
         enqUID = str(kwargs['uid'])
 
-        obj = Enquiry.objects.queryset_byUID(enqUID).get()
-
-        loanObj = LoanValidator(obj.__dict__)
-        loanStatus = loanObj.getStatus()['data']
-
-        context["obj"] = obj
-        context.update(loanStatus)
-
-        context["transfer_img"] = settings.STATIC_URL + "img/icons/transfer_" + str(
-            context['maxLVRPercentile']) + "_icon.png"
-
-        context['caseStagesEnum'] = caseStagesEnum
-        context['loanTypesEnum'] = loanTypesEnum
-        context['dwellingTypesEnum'] = dwellingTypesEnum
-        context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-
-        totalLoanAmount = 0
-        if obj.calcTotal == None or obj.calcTotal == 0:
-            totalLoanAmount = obj.maxLoanAmount
-        else:
-            totalLoanAmount = min(obj.maxLoanAmount, obj.calcTotal)
-        context['totalLoanAmount'] = totalLoanAmount
-
-        context['totalInterestRate'] = ECONOMIC['interestRate'] + ECONOMIC['lendingMargin']
-        context['housePriceInflation'] = ECONOMIC['housePriceInflation']
-        context['comparisonRate'] = context['totalInterestRate'] + ECONOMIC['comparisonRateIncrement']
-
-        # Get Loan Projections
-        clientDict = Enquiry.objects.dictionary_byUID(enqUID)
-        clientDict.update(ECONOMIC)
-        clientDict['totalLoanAmount'] = totalLoanAmount
-        clientDict['maxNetLoanAmount'] = obj.maxLoanAmount
-
-        loanProj = LoanProjection()
-        result = loanProj.create(clientDict, frequency=12)
-
-        if obj.payIntAmount:
-            result = loanProj.calcProjections(makeIntPayment=True)
-        else:
-            result = loanProj.calcProjections()
-
-        # Build results dictionaries
-
-        # Check for no top-up Amount
-
-        context['resultsAge'] = loanProj.getResultsList('BOPAge')['data']
-        context['resultsLoanBalance'] = loanProj.getResultsList('BOPLoanValue')['data']
-        context['resultsHomeEquity'] = loanProj.getResultsList('BOPHomeEquity')['data']
-        context['resultsHomeEquityPC'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
-        context['resultsHomeImages'] = \
-            loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
-        context['resultsHouseValue'] = loanProj.getResultsList('BOPHouseValue', imageSize=100, imageMethod='lin')[
-            'data']
+        # Projection Results (site.utilities)
+        projectionContext = getEnquiryProjections(enqUID)
+        context.update(projectionContext)
 
         return context

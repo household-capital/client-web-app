@@ -47,12 +47,12 @@
 
 <div class="col-lg-12 "><br><br><br>
     <p class="print-text">This Loan Summary was prepared by:</p><br>
-    <img src="{{ absolute_media_url }}{{ obj.user.profile.picture }}" height="100px">
+    <img src="{{ absolute_media_url }}{{ owner.profile.picture }}" height="100px">
     <br><br>
-    <p class="print-text">{{ obj.user.first_name }} {{ obj.user.last_name }}</p>
+    <p class="print-text">{{ owner.first_name }} {{ owner.last_name }}</p>
     <br>
-    <p class="print-text">{{ obj.user.profile.mobile }}</p>
-    <p class="print-text"> {{ obj.user.email }}</p>
+    <p class="print-text">{{ owner.profile.mobile }}</p>
+    <p class="print-text"> {{ owner.email }}</p>
     <br>
 
 </div>

@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.core import signing
 from django.db.models import Q, F
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import ListView, UpdateView, CreateView, TemplateView, View, FormView, DetailView
@@ -412,13 +412,7 @@ class LoanCreateVariation(HouseholdLoginRequiredMixin, View):
         facilityUID = str(self.kwargs['uid'])
         facilityObj = Facility.objects.queryset_byUID(facilityUID).get()
 
-        #Calculate Accrued Interest
-        try:
-            accruedInterest =  max(facilityObj.currentBalance -  facilityObj.advancedAmount,0)
-        except:
-            accruedInterest = 0
-
-        result = createLoanVariation(facilityObj, accruedInterest)
+        result = createLoanVariation(facilityObj)
 
         if result['status'] == 'Error':
             messages.error(self.request, result['responseText'])
@@ -712,3 +706,4 @@ class LoanAdditionalSubmitted(SessionRequiredMixin, TemplateView):
         context['title'] = 'Drawdown submitted'
         self.request.session.flush()
         return context
+

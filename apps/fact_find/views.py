@@ -22,7 +22,8 @@ from apps.lib.site_Globals import ECONOMIC, APP_SETTINGS, LOAN_LIMITS
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.hhc_LoanProjection import LoanProjection
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Utilities import HouseholdLoginRequiredMixin
+from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, validateLoanGetContext, getProjectionResults
+from apps.lib.site_DataMapping import serialisePurposes
 
 
 
@@ -32,84 +33,15 @@ class ContextHelper():
 
     def getLoanContext(self):
 
-        context={}
         caseUID = self.request.session['caseUID']
 
-        clientObj = Case.objects.queryset_byUID(caseUID).get()
-        loanObj = Loan.objects.queryset_byUID(caseUID).get()
-        modelObj = ModelSetting.objects.queryset_byUID(caseUID).get()
-        factObj = FactFind.objects.queryset_byUID(caseUID).get()
+        # Validate the loan and generate combined context
+        context = validateLoanGetContext(caseUID)
 
-        context['obj'] = clientObj
-        context['loanObj'] = loanObj
-        context['clientObj'] = clientObj
-        context['factObj'] = factObj
-
-        context.update(clientObj.__dict__)
-        context.update(loanObj.__dict__)
-        context.update(modelObj.__dict__)
-
-        # validate loan
-        loanObj = LoanValidator(context)
-        loanStatus = loanObj.getStatus()
-        context.update(loanStatus['data'])
-
-        # Loan Projections
-        loanProj = LoanProjection()
-        result = loanProj.create(context, frequency=12)
-        result = loanProj.calcProjections()
-
-        if context["topUpDrawdownAmount"] == 0:
-            context['topUpProjections'] = False
-        else:
-            context['topUpProjections'] = True
-            context['resultsTotalIncome'] = \
-                loanProj.getResultsList('TotalIncome', imageSize=150, imageMethod='lin')[
-                    'data']
-            context['resultsIncomeImages'] = \
-                loanProj.getImageList('PensionIncomePC', settings.STATIC_URL + 'img/icons/income_{0}_icon.png')[
-                    'data']
-
-        context['resultsAge'] = loanProj.getResultsList('BOPAge')['data']
-        context['resultsLoanBalance'] = loanProj.getResultsList('BOPLoanValue')['data']
-        context['resultsHomeEquity'] = loanProj.getResultsList('BOPHomeEquity')['data']
-        context['resultsHomeEquityPC'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
-        context['resultsHomeImages'] = \
-            loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
-        context['resultsHouseValue'] = loanProj.getResultsList('BOPHouseValue', imageSize=110, imageMethod='lin')[
-            'data']
-
-        context['totalInterestRate'] = context['interestRate'] + context['lendingMargin']
-
-        context['resultsNegAge'] = loanProj.getNegativeEquityAge()['data']
-
-        context['comparisonRate'] = context['totalInterestRate'] + context['comparisonRateIncrement']
-
-        context['loanTypesEnum'] = loanTypesEnum
-        context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
-
-        if context['loanType'] == loanTypesEnum.JOINT_BORROWER.value:
-            if context['age_1'] < context['age_2']:
-                context['ageAxis'] = context['firstname_1'] + "'s age"
-            else:
-                context['ageAxis'] = context['firstname_2'] + "'s age"
-        else:
-            context['ageAxis'] = "Your age"
-
-        # Stress Results
-
-        # Stress-1
-        result = loanProj.calcProjections(hpiStressLevel=APP_SETTINGS['hpiLowStressLevel'])
-        context['hpi1'] = APP_SETTINGS['hpiLowStressLevel']
-        context['intRate1'] = context['totalInterestRate']
-
-        context['resultsLoanBalance1'] = loanProj.getResultsList('BOPLoanValue')['data']
-        context['resultsHomeEquity1'] = loanProj.getResultsList('BOPHomeEquity')['data']
-        context['resultsHomeEquityPC1'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
-        context['resultsHomeImages1'] = \
-            loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
-        context['resultsHouseValue1'] = loanProj.getResultsList('BOPHouseValue', imageSize=110, imageMethod='lin')[
-            'data']
+        # Get projection results (site utility using Loan Projection)
+        projectionContext = getProjectionResults(context, ['baseScenario', 'intPayScenario',
+                                                           'stressScenario'])
+        context.update(projectionContext)
 
         return context
 

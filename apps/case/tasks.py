@@ -296,13 +296,45 @@ def integrityCheck():
 
                     subject, from_email, to, cc = "Salesforce - ClientApp Integrity Check", \
                                                   'noreply@householdcapital.app', \
-                                                  [obj.user.email], \
+                                                  [obj.owner.email], \
                                                   'paul.murray@householdcapital.com'
 
                     emailSent = sendTemplateEmail(email_template, email_context, subject, from_email, to, cc)
 
 
     return "Success - Integrity Check Complete"
+
+
+@app.task(name='SF_Create_Variation')
+def sfCreateVariation(newCaseUID, orgCaseUID):
+
+    end_point = 'CreateLoanVariation/v1/'
+    end_point_method = 'POST'
+
+    orgSfOpportunityID = Case.objects.queryset_byUID(orgCaseUID).get().sfOpportunityID
+
+    payload = {"opportunityId": orgSfOpportunityID}
+
+    sfAPI = apiSalesforce()
+    result = sfAPI.openAPI(True)
+
+    result = sfAPI.apexCall(end_point, end_point_method, data=payload)
+
+    if result['status'] != 'Ok':
+        write_applog("Error", 'Case', 'task-sfCreateVariation', 'Could not create variation - ' + json.dumps(result['responseText']))
+        return "Variation could not be created"
+
+    else:
+        newCaseObj = Case.objects.queryset_byUID(newCaseUID).get()
+
+        # Save response data
+        newCaseObj.sfOpportunityID = result['responseText']['opportunityid']
+        newCaseObj.sfLoanID = result['responseText']['loanNumber']
+        newCaseObj.save()
+
+        write_applog("Info", 'Case', 'task-sfCreateVariation', 'New variation created - '+ str(result['responseText']['loanNumber']))
+
+        return "Variation successfully created!"
 
 
 # UTILITIES
@@ -340,7 +372,7 @@ def createSFLeadCase(caseUID, sfAPIInstance=None):
             return {"status":"Error"}
 
     # Check for an email or phoneNumber as well as a user
-    if (case.email or case.phoneNumber) and case.user:
+    if (case.email or case.phoneNumber) and case.owner:
         # Check for Household email address
         if case.email:
             if 'householdcapital.com' in case.email:
@@ -473,7 +505,7 @@ def __buildLeadCasePayload(case):
         payload['Lastname']="Unknown"
 
     payload['External_ID__c'] = str(caseDict['caseUID'])
-    payload['OwnerID'] = case.user.profile.salesforceID
+    payload['OwnerID'] = case.owner.profile.salesforceID
     payload['Loan_Type__c'] = case.enumLoanType()
     payload['Dwelling_Type__c'] = case.enumDwellingType()
 
@@ -519,7 +551,7 @@ def convertSFLead(caseUID, sfAPI):
     if not caseObj.sfOpportunityID:
 
         payload = {"leadId": caseObj.sfLeadID,
-                   "ownerId": caseObj.user.profile.salesforceID}
+                   "ownerId": caseObj.owner.profile.salesforceID}
 
         result = sfAPI.apexCall(end_point, end_point_method, data=payload)
 
@@ -564,7 +596,6 @@ def updateSFDocs(caseUID, sfAPI):
     caseObj = Case.objects.queryset_byUID(caseUID).get()
 
     DOCUMENT_LIST = {"Automated Valuation": caseObj.valuationDocument,
-                     "Title Search": caseObj.titleDocument,
                      "Responsible Lending Summary": caseObj.responsibleDocument,
                      "Enquiry Document": caseObj.enquiryDocument,
                      "Loan Summary": caseObj.summaryDocument,

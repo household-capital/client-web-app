@@ -20,7 +20,7 @@
 
                 <li><a href=""><i class="fas fa-user"></i>  {{ surname_1 }}&nbsp;&nbsp;&nbsp;</a></li>
                 <li><a href=""><i class="fas fa-user-circle"></i> &nbsp{{ request.user.username }}&nbsp&nbsp;&nbsp;</a></li>
-                <li><a href='{% url "fact_find:generatePdf" uid=obj.caseUID %}'><i class="fas fa-sign-out-alt"></i>  Exit </a></li>
+                <li><a href='{% url "fact_find:generatePdf" uid=caseUID %}'><i class="fas fa-sign-out-alt"></i>  Exit </a></li>
             </ul>
 
         </div><!--/.navbar-collapse -->

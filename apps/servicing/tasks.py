@@ -124,7 +124,7 @@ def sfSynch():
     if listObj['status'] == 'Ok':
 
         for index, loan in listObj['data'].iterrows():
-
+ 
             caseObj = Case.objects.filter(sfOpportunityID=loan['Opportunity__c']).get()
 
             loanDict = sfAPI.getLoanObjExtract(caseObj.sfOpportunityID)['data']

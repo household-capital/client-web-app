@@ -9,6 +9,9 @@ import pathlib
 from django.contrib import messages
 from django.forms.models import model_to_dict
 
+# Third-party Imports
+from config.celery import app
+
 
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_DataMapping import mapFacilityToCase
@@ -18,7 +21,7 @@ from apps.case.models import Case, Loan, ModelSetting, LoanPurposes
 
 
 
-def createLoanVariation(facilityObj, accruedInterest):
+def createLoanVariation(facilityObj):
 
     # 1. Create New Case Object
 
@@ -30,14 +33,17 @@ def createLoanVariation(facilityObj, accruedInterest):
         return {'status': "Error", 'responseText':'Could not create variation'}
 
 
-    ## TEMPORARY APPROACH UNTIL SF OBJECTS UPDATED ##
+    ## TEMPORARY MIXED APPROACH UNTIL SF OBJECTS UPDATED ##
 
     orgCaseUID = str(facilityObj.originalCaseUID)
 
     # 2. Case Loan Object
     orgLoanObj = Loan.objects.queryset_byUID(orgCaseUID).get()
     orgLoanDict = model_to_dict(orgLoanObj, exclude=['case', 'localLoanID'])
-    orgLoanDict['accruedInterest'] = int(accruedInterest)
+
+    orgLoanDict['accruedInterest'] = int(max(facilityObj.currentBalance - facilityObj.advancedAmount, 0))
+    orgLoanDict['orgTotalLoanAmount'] = facilityObj.totalLoanAmount
+    orgLoanDict['orgTotalPlanAmount'] = facilityObj.totalPlanAmount
 
     Loan.objects.filter(case=newCaseObj).update(**orgLoanDict)
     newLoanObj = Loan.objects.filter(case=newCaseObj).get()
@@ -56,26 +62,6 @@ def createLoanVariation(facilityObj, accruedInterest):
         LoanPurposes.objects.create(**orgPurposeDict)
 
     # 5. Create SF Opportunity
-    end_point = 'CreateLoanVariation/v1/'
-    end_point_method = 'POST'
-
-    orgSfOpportunityID = Case.objects.queryset_byUID(orgCaseUID).get().sfOpportunityID
-
-    payload = {"opportunityId": orgSfOpportunityID}
-
-    sfAPI = apiSalesforce()
-    result = sfAPI.openAPI(True)
-
-    result = sfAPI.apexCall(end_point, end_point_method, data=payload)
-
-
-    if result['status'] != 'Ok':
-        write_applog("Error", 'Case', 'createLoanVariation', 'Could not create variation - ' + json.dumps(result['responseText']))
-
-    else:
-        # Save response data
-        newCaseObj.sfOpportunityID = result['responseText']['opportunityid']
-        newCaseObj.sfLoanID = result['responseText']['loanNumber']
-        newCaseObj.save()
+    app.send_task('SF_Create_Variation', kwargs={'newCaseUID': str(newCaseObj.caseUID), 'orgCaseUID': orgCaseUID })
 
     return {'status':'Ok', 'data':{'caseUID':str(newCaseObj.caseUID)}}

@@ -15,9 +15,9 @@
 <br>
 <p>Kind regards</p>
 <br>
-<p>{{ obj.user.first_name }}&nbsp;{{ obj.user.last_name }}</p>
+<p>{{ obj.owner.first_name }}&nbsp;{{ obj.user.owner }}</p>
 <br>
-<img src="{{ absolute_media_url }}{{ obj.user.profile.picture }}" width="100px">
+<img src="{{ absolute_media_url }}{{ obj.owner.profile.picture }}" width="100px">
 
 
 {% endblock %}

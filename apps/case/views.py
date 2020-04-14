@@ -30,7 +30,7 @@ from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, appTypesEnum, pur
 from apps.lib.site_Globals import LOAN_LIMITS
 from apps.lib.site_Logging import write_applog
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
-from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, updateNavQueue
+from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, validateLoanGetContext, updateNavQueue
 
 from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignForm, \
     lumpSumPurposeForm, drawdownPurposeForm, purposeAddForm
@@ -88,8 +88,8 @@ class CaseListView(HouseholdLoginRequiredMixin, ListView):
             queryset = queryset.filter(
                 Q(caseDescription__icontains=search) |
                 Q(adviser__icontains=search) |
-                Q(user__first_name__icontains=search) |
-                Q(user__last_name__icontains=search) |
+                Q(owner__first_name__icontains=search) |
+                Q(owner__last_name__icontains=search) |
                 Q(caseNotes__icontains=search) |
                 Q(street__icontains=search) |
                 Q(surname_1__icontains=search) |
@@ -118,7 +118,7 @@ class CaseListView(HouseholdLoginRequiredMixin, ListView):
                 Q(caseStage=caseStagesEnum.MEETING_HELD.value))
 
         elif self.request.GET.get('filter') == "Me":
-            queryset = queryset.filter(user=self.request.user)
+            queryset = queryset.filter(owner=self.request.user)
 
         elif not self.request.GET.get('search'):
             queryset = queryset.filter(
@@ -191,8 +191,8 @@ class CaseDetailView(HouseholdLoginRequiredMixin, UpdateView):
                    (clientObj.surname_1 if clientObj.surname_1 else '') + "&email=" + \
                    (clientObj.email if clientObj.email else '')
 
-        if self.object.user.profile.calendlyInterviewUrl:
-            context['calendlyUrl'] = self.object.user.profile.calendlyInterviewUrl + paramStr
+        if self.object.owner.profile.calendlyInterviewUrl:
+            context['calendlyUrl'] = self.object.owner.profile.calendlyInterviewUrl + paramStr
         else:
             context['calendlyUrl']=""
 
@@ -217,7 +217,7 @@ class CaseDetailView(HouseholdLoginRequiredMixin, UpdateView):
         if not obj.pensionAmount:
             obj.pensionAmount=0
 
-        # Update age if birthdate present and user
+        # Update age if birthdate present and owner
         if obj.birthdate_1 != None:
             obj.age_1 = int((datetime.date.today() - obj.birthdate_1).days / 365.25)
         if obj.birthdate_2 != None:
@@ -287,7 +287,7 @@ class CaseDetailView(HouseholdLoginRequiredMixin, UpdateView):
 
             subject, from_email, to, bcc = \
                 "Title Request - " + str(caseObj.caseDescription), \
-                caseObj.user.email, \
+                caseObj.owner.email, \
                 [title_email, cc_email], \
                 None
 
@@ -351,7 +351,7 @@ class CaseCreateView(HouseholdLoginRequiredMixin, CreateView):
 
         # Set fields manually
         obj.caseStage = caseStagesEnum.DISCOVERY.value
-        obj.user = self.request.user
+        obj.owner = self.request.user
 
         obj.save()
         messages.success(self.request, "Case Created")
@@ -450,9 +450,9 @@ class CaseEmailLoanSummary(HouseholdLoginRequiredMixin, TemplateView):
         email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
 
         attachFilename = "HouseholdLoanSummary.pdf"
-        bcc = caseObj.user.email
+        bcc = caseObj.owner.email
 
-        subject, from_email, to = "Household Loan Summary Report", caseObj.user.email, caseObj.email
+        subject, from_email, to = "Household Loan Summary Report", caseObj.owner.email, caseObj.email
         text_content = "Text Message"
 
         localfile = open(caseObj.summaryDocument.name, 'rb')
@@ -503,9 +503,9 @@ class CaseMailLoanSummary(HouseholdLoginRequiredMixin, TemplateView):
             email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
 
             attachFilename = "HouseholdLoanSummary.pdf"
-            bcc = caseObj.user.email
+            bcc = caseObj.owner.email
 
-            subject, from_email, to = "Household Loan Summary Report", caseObj.user.email, caseObj.email
+            subject, from_email, to = "Household Loan Summary Report", caseObj.owner.email, caseObj.email
             text_content = "Text Message"
 
             localfile = open(caseObj.summaryDocument.name, 'rb')
@@ -574,8 +574,8 @@ class CaseOwnView(HouseholdLoginRequiredMixin, View):
         caseObj = Case.objects.queryset_byUID(caseUID).get()
 
         if self.request.user.profile.isCreditRep == True:
-            caseObj.user = self.request.user
-            caseObj.save(update_fields=['user'])
+            caseObj.owner = self.request.user
+            caseObj.save(update_fields=['owner'])
             messages.success(self.request, "Ownership Changed")
 
         else:
@@ -607,11 +607,11 @@ class CaseAssignView(HouseholdLoginRequiredMixin, UpdateView):
         preObj = queryset = Case.objects.queryset_byUID(str(self.kwargs['uid'])).get()
 
         caseObj = form.save(commit=False)
-        caseObj.caseNotes += '\r\n[# Case assigned from ' + preObj.user.username + ' #]'
+        caseObj.caseNotes += '\r\n[# Case assigned from ' + preObj.owner.username + ' #]'
         caseObj.save()
 
         # Email recipient
-        subject, from_email, to = "Case Assigned to You", "noreply@householdcapital.app", caseObj.user.email
+        subject, from_email, to = "Case Assigned to You", "noreply@householdcapital.app", caseObj.owner.email
         text_content = "Text Message"
         email_context={}
         email_context['obj'] = caseObj
@@ -625,7 +625,7 @@ class CaseAssignView(HouseholdLoginRequiredMixin, UpdateView):
         except:
             pass
 
-        messages.success(self.request, "Case assigned to " + caseObj.user.username )
+        messages.success(self.request, "Case assigned to " + caseObj.owner.username )
         return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
 
@@ -905,7 +905,7 @@ class CloudbridgeView(HouseholdLoginRequiredMixin, TemplateView):
 # Variation Views
 
 class ContextHelper():
-    # Most of the views require the same validation and context information
+    # Most of the views require the same validation and context information (uses site utility)
 
     def validate_and_get_context(self):
 
@@ -915,43 +915,7 @@ class ContextHelper():
             obj=self.get_object()
             caseUID = str(obj.loan.case.caseUID)
 
-        loanObj = Loan.objects.queryset_byUID(caseUID).get()
-
-        # get dictionaries from model
-        clientDict = Case.objects.dictionary_byUID(caseUID)
-        loanDict = Loan.objects.dictionary_byUID(caseUID)
-        modelDict = ModelSetting.objects.dictionary_byUID(caseUID)
-
-        # extend loanDict with purposes
-        loanDict.update(serialisePurposes(loanObj))
-
-        # validate loan
-        loanVal = LoanValidator(clientDict, loanDict, modelDict)
-        loanStatus = loanVal.getStatus()
-
-        # update loan
-        loanQS = Loan.objects.queryset_byUID(caseUID)
-        loanQS.update(
-
-            purposeAmount=loanStatus['data']['purposeAmount'],
-            establishmentFee=loanStatus['data']['establishmentFee'],
-            totalLoanAmount=loanStatus['data']['totalLoanAmount'],
-
-            planPurposeAmount = loanStatus['data']['planPurposeAmount'],
-            planEstablishmentFee=loanStatus['data']['planEstablishmentFee'],
-            totalPlanAmount=loanStatus['data']['totalPlanAmount'],
-
-            maxLVR=loanStatus['data']['maxLVR'],
-            actualLVR=loanStatus['data']['actualLVR'],
-            detailedTitle=loanStatus['data']['detailedTitle']
-        )
-
-        # create context
-        context = {}
-        context.update(clientDict)
-        context.update(loanDict)
-        context.update(modelDict)
-        context.update(loanStatus['data'])
+        context = validateLoanGetContext(caseUID)
 
         return context
 

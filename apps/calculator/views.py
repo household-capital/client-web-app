@@ -20,7 +20,7 @@ from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, dwellingTypesEnum
 from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
-from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, updateNavQueue
+from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, getEnquiryProjections, updateNavQueue
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.hhc_LoanProjection import LoanProjection
 from apps.enquiry.models import Enquiry
@@ -40,61 +40,9 @@ class CalcSummaryNewPdf(TemplateView):
 
         enqUID = str(kwargs['uid'])
 
-        obj = Enquiry.objects.queryset_byUID(enqUID).get()
-
-        context["obj"] = obj
-
-        clientDict = obj.__dict__
-        loanObj = LoanValidator(clientDict)
-        chkOpp = loanObj.validateLoan()
-        loanStatus = loanObj.getStatus()['data']
-
-        context.update(loanStatus)
-
-        context["transfer_img"] = settings.STATIC_URL + "img/icons/transfer_" + str(
-            context['maxLVRPercentile']) + "_icon.png"
-
-        context['caseStagesEnum'] = caseStagesEnum
-        context['loanTypesEnum'] = loanTypesEnum
-        context['dwellingTypesEnum'] = dwellingTypesEnum
-        context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-
-        totalLoanAmount = 0
-        if obj.calcTotal == None or obj.calcTotal == 0:
-            totalLoanAmount = obj.maxLoanAmount
-        else:
-            totalLoanAmount = min(obj.maxLoanAmount, obj.calcTotal)
-        context['totalLoanAmount'] = totalLoanAmount
-
-        context['totalInterestRate'] = ECONOMIC['interestRate'] + ECONOMIC['lendingMargin']
-        context['housePriceInflation'] = ECONOMIC['housePriceInflation']
-        context['comparisonRate'] = context['totalInterestRate'] + ECONOMIC['comparisonRateIncrement']
-
-        # Get Loan Projections
-        clientDict = Enquiry.objects.dictionary_byUID(enqUID)
-        clientDict.update(ECONOMIC)
-        clientDict['totalLoanAmount'] = totalLoanAmount
-        clientDict['maxNetLoanAmount'] = obj.maxLoanAmount
-        loanProj = LoanProjection()
-        result = loanProj.create(clientDict,frequency=12)
-
-        if obj.payIntAmount:
-            result = loanProj.calcProjections(makeIntPayment=True)
-        else:
-            result = loanProj.calcProjections()
-
-        # Build results dictionaries
-
-        # Check for no top-up Amount
-
-        context['resultsAge'] = loanProj.getResultsList('BOPAge')['data']
-        context['resultsHomeEquity'] = loanProj.getResultsList('BOPHomeEquity')['data']
-        context['resultsLoanBalance'] = loanProj.getResultsList('BOPLoanValue')['data']
-        context['resultsHomeEquityPC'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
-        context['resultsHomeImages'] = \
-            loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
-        context['resultsHouseValue'] = loanProj.getResultsList('BOPHouseValue', imageSize=100, imageMethod='lin')[
-            'data']
+        # Projection Results (site.utilities)
+        projectionContext = getEnquiryProjections(enqUID)
+        context.update(projectionContext)
 
         return context
 
@@ -240,7 +188,7 @@ class CalcDeleteView(HouseholdLoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         obj = WebCalculator.objects.filter(calcUID=kwargs['uid']).get()
-        obj.actioned = 1
+        obj.actioned = -1
         obj.save(update_fields=['actioned'])
         messages.success(self.request, "Web Calculator Enquiry deleted")
 
@@ -257,7 +205,7 @@ class ContactListView(HouseholdLoginRequiredMixin, ListView):
     def get_queryset(self, **kwargs):
         queryset = super(ContactListView, self).get_queryset()
 
-        queryset = queryset.order_by('-timestamp')[:200]
+        queryset = queryset.exclude(actioned=-1).order_by('-timestamp')[:200]
 
         return queryset
 
@@ -320,7 +268,7 @@ class ContactDeleteView(HouseholdLoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
 
         obj = WebContact.objects.filter(contUID=kwargs['uid']).get()
-        obj.actioned = 1
+        obj.actioned = -1
         obj.save(update_fields=['actioned'])
         messages.success(self.request, "Contact deleted")
 

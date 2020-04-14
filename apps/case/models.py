@@ -57,7 +57,7 @@ class CaseManager(models.Manager):
         return Case.objects.exclude(caseStage__in=closedTypes)
 
     def referrerQueueCount(self):
-        return Case.objects.filter(user__profile__referrer__isnull=False).count()
+        return Case.objects.filter(owner__profile__referrer__isnull=False).count()
 
 
 class Case(models.Model):
@@ -145,19 +145,26 @@ class Case(models.Model):
         (maritalEnum.DEFACTO.value, "Defacto"),
     )
 
+    # ClientApp Identifiers
     caseID = models.AutoField(primary_key=True)
     caseUID = models.UUIDField(default=uuid.uuid4, editable=False)
+    # - Variation References
     refCaseUID = models.UUIDField(null=True, blank=True)
+    refFacilityUID  = models.UUIDField(null=True, blank=True)
+
+    # Case Summary Data
     caseStage = models.IntegerField(choices=caseStages)
     appType = models.IntegerField(default = 0, choices = appTypes)
     caseDescription = models.CharField(max_length=60, null=False, blank=False)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
-    caseNotes = models.TextField(blank=True, null=True)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
 
+    # Customer Data
+    caseNotes = models.TextField(blank=True, null=True)
     phoneNumber=models.CharField(max_length=20, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
-
     loanType=models.IntegerField(choices=loanTypes,null=True, blank=True)
+
+    #- Borrower 1
     clientType1=models.IntegerField(choices=clientTypes,null=True, blank=True)
     salutation_1 = models.IntegerField(choices=salutationTypes,null=True, blank=True)
     middlename_1 = models.CharField(max_length=30, null=True, blank=True)
@@ -168,6 +175,8 @@ class Case(models.Model):
     birthdate_1=models.DateField(null=True, blank=True)
     age_1=models.IntegerField(null=True, blank=True)
     sex_1=models.IntegerField(choices=clientSex,null=True, blank=True)
+
+    #- Borrower 2
     clientType2 = models.IntegerField(choices=clientTypes, null=True, blank=True)
     salutation_2 = models.IntegerField(choices=salutationTypes,null=True, blank=True)
     middlename_2 = models.CharField(max_length=30, null=True, blank=True)
@@ -178,44 +187,48 @@ class Case(models.Model):
     birthdate_2=models.DateField(null=True, blank=True)
     age_2=models.IntegerField(null=True, blank=True)
     sex_2=models.IntegerField(choices=clientSex,null=True, blank=True)
-    street=models.CharField(max_length=60, null=True, blank=True)
-    suburb=models.CharField(max_length=30, null=True, blank=True)
-    postcode=models.IntegerField(null=True, blank=True)
-    state=models.IntegerField(choices=stateTypes,null=True, blank=True)
-    valuation=models.IntegerField(null=True, blank=True)
-    dwellingType=models.IntegerField(choices=dwellingTypes,null=True, blank=True)
-    propertyImage=models.ImageField(null=True, blank=True,upload_to='customerImages')
-    mortgageDebt=models.IntegerField(null=True, blank=True)
+
+    #- Additional Data
     superFund=models.ForeignKey(FundDetail,null=True, blank=True, on_delete=models.SET_NULL)
     superAmount=models.IntegerField(null=True, blank=True)
     pensionType=models.IntegerField(choices=pensionTypes,default=2)
     pensionAmount=models.IntegerField(default=0)
+    mortgageDebt = models.IntegerField(null=True, blank=True)
 
+    # Property Data
+    street = models.CharField(max_length=60, null=True, blank=True)
+    suburb = models.CharField(max_length=30, null=True, blank=True)
+    postcode = models.IntegerField(null=True, blank=True)
+    state = models.IntegerField(choices=stateTypes, null=True, blank=True)
+    valuation = models.IntegerField(null=True, blank=True)
+    dwellingType = models.IntegerField(choices=dwellingTypes, null=True, blank=True)
+    propertyImage = models.ImageField(null=True, blank=True, upload_to='customerImages')
+
+    # Customer Document Data
     meetingDate = models.DateTimeField(blank=True, null=True)
+    isZoomMeeting = models.BooleanField(default=False, null=True, blank=True)
     summaryDocument = models.FileField(max_length=150,null=True, blank=True)
     summarySentDate = models.DateTimeField(blank=True, null=True)
     summarySentRef = models.CharField(max_length=30, null=True, blank=True)
     responsibleDocument= models.FileField(max_length=150,null=True, blank=True)
     enquiryDocument = models.FileField(max_length=150,null=True, blank=True)
     valuationDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='customerDocuments')
-    titleDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='customerDocuments')
+    titleDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='customerDocuments') # deprecated
     titleRequest = models.BooleanField(null=True, blank=True)
     lixiFile= models.FileField(max_length=150, null=True, blank=True)
 
+    # Referral / Channel Data
     salesChannel = models.IntegerField(choices=channelTypes,null=True, blank=True)
     adviser = models.CharField(max_length=60, null=True, blank=True)
     referralCompany = models.ForeignKey(Referer ,null=True, blank=True, on_delete=models.SET_NULL)
     referralRepNo = models.CharField(max_length=60, null=True, blank=True)
 
-
+    #Third Party Identifiers
     sfLeadID = models.CharField(max_length=20, null=True, blank=True)
     sfOpportunityID = models.CharField(max_length=20, null=True, blank=True)
     sfLoanID=models.CharField(max_length=20, null=True, blank=True)
-
     amalIdentifier=models.CharField(max_length=40, null=True, blank=True)
     amalLoanID=models.CharField(max_length=40, null=True, blank=True)
-
-    isZoomMeeting=models.BooleanField(default=False, null=True, blank=True)
 
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
@@ -314,10 +327,13 @@ class Loan(models.Model):
     maxLVR=models.FloatField(null=False, blank=False,default=0)
     actualLVR = models.FloatField(null=True, blank=True, default=0)
     protectedEquity=models.IntegerField(default=0, choices=protectedChoices)
+    detailedTitle = models.BooleanField(default=False)
+
     # Contract Amounts
     purposeAmount =models.IntegerField(default=0)
     establishmentFee=models.IntegerField(default=0)
     totalLoanAmount=models.IntegerField(default=0)
+
     # Plan Amounts
     planPurposeAmount =models.IntegerField(default=0)
     planEstablishmentFee=models.IntegerField(default=0)
@@ -326,6 +342,8 @@ class Loan(models.Model):
     interestPayAmount=models.IntegerField(default=0)
     interestPayPeriod=models.IntegerField(default=0)
     annualPensionIncome=models.IntegerField(default=0)
+
+    # Customer Selections
     choiceRetireAtHome = models.BooleanField(default=False)
     choiceAvoidDownsizing = models.BooleanField(default=False)
     choiceAccessFunds = models.BooleanField(default=False)
@@ -340,10 +358,11 @@ class Loan(models.Model):
     choiceVariable = models.BooleanField(default=False)
     consentPrivacy= models.BooleanField(default=False)
     consentElectronic = models.BooleanField(default=False)
-    detailedTitle = models.BooleanField(default=False)
 
     #Variations
     accruedInterest = models.IntegerField(null=True, blank=True)
+    orgTotalLoanAmount = models.IntegerField(default=0)
+    orgTotalPlanAmount = models.IntegerField(default=0)
 
     objects=CaseManager()
 
@@ -412,7 +431,6 @@ class LoanPurposes(models.Model):
     drawdownStartDate = models.DateTimeField(blank=True, null=True)
     drawdownEndDate = models.DateTimeField(blank=True, null=True)
 
-    planPeriod = models.IntegerField(default = 0, blank=True, null=True) #Years
     contractDrawdowns = models.IntegerField(default = 0, blank=True, null=True)
     planDrawdowns = models.IntegerField(default = 0, blank=True, null=True)
     planAmount = models.IntegerField(default=0,blank=True, null=True)
@@ -420,6 +438,8 @@ class LoanPurposes(models.Model):
     topUpBuffer = models.BooleanField(default = False)
     description = models.CharField(max_length=60, null=True, blank=True)
     notes = models.TextField(blank=True, null=True)
+
+    planPeriod = models.IntegerField(default = 0, blank=True, null=True) #Years - deprecated
 
     class Meta:
         verbose_name_plural = "Case Loan Purposes"

@@ -190,13 +190,13 @@
                                     {{ obj.enumCaseStage }}&nbsp; </a></td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.caseDescription }}</a></td>
                             <td><a href="{{ obj.get_absolute_url }}">
-                                {% if obj.user.profile.referrer %}
+                                {% if obj.owner.profile.referrer %}
                                             <button class="btn btn-info btn-sm" data-toggle="tooltip"
                                                     data-placement="top"
-                                                    title="Assign case to you">{{ obj.user.profile.referrer.companyName }}
+                                                    title="Assign case to you">{{ obj.owner.profile.referrer.companyName }}
                                             </button>
                                 {% else %}
-                                    {{ obj.user }}
+                                    {{ obj.owner }}
                                 {% endif %}
                             </a></td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.adviser }}</a></td>

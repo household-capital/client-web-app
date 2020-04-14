@@ -27,7 +27,6 @@ class CaseDetailsForm(forms.ModelForm):
     pensionAmount = forms.IntegerField(required=False, localize=True, widget=widgets.TextInput())
     propertyImage = forms.ImageField(required=False, widget=forms.FileInput)
     valuationDocument = forms.FileField(required=False, widget=forms.FileInput)
-    titleDocument = forms.FileField(required=False, widget=forms.FileInput)
 
     class Meta:
         model = Case
@@ -37,7 +36,7 @@ class CaseDetailsForm(forms.ModelForm):
                   'clientType2', 'surname_2', 'firstname_2', 'preferredName_2','birthdate_2', 'age_2', 'sex_2',
                   'salutation_2', 'middlename_2', 'maritalStatus_2',
                   'street', 'suburb', 'postcode', 'valuation', 'dwellingType', 'propertyImage', 'mortgageDebt',
-                  'superFund', 'valuationDocument', 'state', 'titleDocument',
+                  'superFund', 'valuationDocument', 'state',
                   'superAmount', 'pensionType', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email']
         widgets = {
             'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
@@ -173,8 +172,6 @@ class CaseDetailsForm(forms.ModelForm):
                         Field('propertyImage')),
                     Div(HTML("<p class='small pt-2'><i class='far fa-file-pdf'></i>&nbsp;&nbsp;</i>Auto Valuation</p>"),
                         Field('valuationDocument')),
-                    Div(HTML("<p class='small pt-2'><i class='far fa-file-pdf'></i>&nbsp;&nbsp;</i>TitleDocument</p>"),
-                        Field('titleDocument')),
                     css_class="col-lg-6"),
                 css_class="row")
         ))
@@ -277,11 +274,11 @@ class SFPasswordForm(forms.Form):
 class CaseAssignForm(forms.ModelForm):
     class Meta:
         model = Case
-        fields = ['user']
+        fields = ['owner']
 
     def __init__(self, *args, **kwargs):
         super(CaseAssignForm, self).__init__(*args, **kwargs)
-        self.fields['user'].queryset = User.objects.filter(profile__isCreditRep=True)
+        self.fields['owner'].queryset = User.objects.filter(profile__isCreditRep=True)
 
     helper = FormHelper()
     helper.form_method = 'POST'
@@ -295,7 +292,7 @@ class CaseAssignForm(forms.ModelForm):
                 Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Assign case"),css_class='form-header'),
                 Div(
                     Div(HTML("Credit Representative"), css_class='form-label'),
-                    Div(Field('user' ))),
+                    Div(Field('owner' ))),
                 Div(Div(Submit('submit', 'Assign', css_class='btn btn-outline-secondary')), css_class='text-right'),
                 Div(HTML("<br>")),
 
@@ -304,7 +301,7 @@ class CaseAssignForm(forms.ModelForm):
     )
 
     def clean(self):
-        if not self.cleaned_data['user']:
+        if not self.cleaned_data['owner']:
             raise ValidationError("Please select Credit Representative")
 
 

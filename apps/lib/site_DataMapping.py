@@ -98,7 +98,7 @@ def mapCaseToOpportunity(caseObj, lossObj):
         'sfOpportunityId': caseObj.sfOpportunityID,
         'caseUID': str(caseObj.caseUID),
         'caseDescription': caseObj.caseDescription,
-        'user': caseObj.user.profile.salesforceID,
+        'user': caseObj.owner.profile.salesforceID,
         'adviser': caseObj.adviser,
         'loanType': caseObj.enumLoanType(),
         'salesChannel': caseObj.enumChannelType(),
@@ -265,9 +265,22 @@ def serialisePurposes(loanObj, enum=False):
 
     }
 
+    purposeDict['enumTopUpFrequency'] = __getItem('TOP_UP', 'REGULAR_DRAWDOWN', 'enumDrawdownFrequency')
+    purposeDict['enumCareFrequency'] = __getItem('CARE', 'REGULAR_DRAWDOWN', 'enumDrawdownFrequency')
+
     if enum:
-        purposeDict['topUpFrequency'] = __getItem('TOP_UP', 'REGULAR_DRAWDOWN', 'enumDrawdownFrequency').lower()
-        purposeDict['careFrequency'] = __getItem('CARE', 'REGULAR_DRAWDOWN', 'enumDrawdownFrequency').lower()
+        # Overwrite with enum
+        if purposeDict['topUpFrequency']:
+            purposeDict['topUpFrequency']=purposeDict['enumTopUpFrequency'].lower()
+
+        if purposeDict['careFrequency']:
+            purposeDict['careFrequency'] = purposeDict['enumCareFrequency'].lower()
+    else:
+        if purposeDict['topUpFrequency']:
+            purposeDict['enumTopUpFrequency'] = purposeDict['enumTopUpFrequency'].lower()
+
+        if purposeDict['careFrequency']:
+            purposeDict['enumCareFrequency'] = purposeDict['enumCareFrequency'].lower()
 
     return purposeDict
 
@@ -298,7 +311,7 @@ def mapLoanToFacility(caseObj, loanDict):
     facilityStatus = {"Inactive": 0, "Active": 1, "Repaid": 2, "Suspended": 3}
 
     payload = {
-        'owner': caseObj.user,
+        'owner': caseObj.owner,
         'originalCaseUID': caseObj.caseUID,
         'sfLoanName': caseObj.surname_1 + ", " + caseObj.street + ", " + caseObj.suburb + ", " + caseObj.enumStateType() + ", " + str(
             caseObj.postcode),
@@ -307,7 +320,7 @@ def mapLoanToFacility(caseObj, loanDict):
         # 'sfAccountID': 'unknown',
         # 'sfReferrerAccount' : 'unknown',
         'amalID': loanDict['Loan.Mortgage_Number__c'],
-        'sfOriginatorID': caseObj.user.profile.salesforceID,  # Temporary
+        'sfOriginatorID': caseObj.owner.profile.salesforceID,  # Temporary
         'status': facilityStatus[loanDict['Loan.Status__c']],
         'totalPurposeAmount': loanDict['Loan.Total_Limits__c'],
         'totalLoanAmount': loanDict['Loan.Total_Loan_Amount__c'],

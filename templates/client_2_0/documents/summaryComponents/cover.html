@@ -28,23 +28,23 @@
 
 <div class="row ">
     <div class="col-sm-9  text-left">
-        {% if obj.loanType == loanTypesEnum.SINGLE_BORROWER.value %}
-            <p class="print-text"> {{ obj.firstname_1 | firstName}}&nbsp;{{ obj.surname_1 }}</p>
+        {% if loanType == loanTypesEnum.SINGLE_BORROWER.value %}
+            <p class="print-text"> {{ firstname_1 | firstName}}&nbsp;{{ surname_1 }}</p>
         {% else %}
-            <p class="print-text"> {{ obj.firstname_1 | firstName }}&nbsp;{{ obj.surname_1 }}</p>
-            <p class="print-text"> {{ obj.firstname_2 | firstName}}&nbsp;{{ obj.surname_2 }}</p>
+            <p class="print-text"> {{ firstname_1 | firstName }}&nbsp;{{ surname_1 }}</p>
+            <p class="print-text"> {{ firstname_2 | firstName}}&nbsp;{{ surname_2 }}</p>
         {% endif %}
-        <p class="print-text"> {{ obj.street }}</p>
-        <p class="print-text"> {{ obj.suburb }} {{ obj.enumStateType }} {{ obj.postcode|stringformat:"d" }}</p>
+        <p class="print-text"> {{ street }}</p>
+        <p class="print-text"> {{ suburb }} {{ enumState }} {{ postcode|stringformat:"d" }}</p>
 
         <br><br>
         <p class="print-text">{% now 'j F Y' %}</p>
 
         <br><br>
-        <p class="print-text">Dear {% if obj.loanType == loanTypesEnum.SINGLE_BORROWER.value %}
-            {{ obj.firstname_1 | firstName}}
+        <p class="print-text">Dear {% if loanType == loanTypesEnum.SINGLE_BORROWER.value %}
+            {{ firstname_1 | firstName}}
         {% else %}
-            {{ obj.firstname_1 | firstName}} and {{ obj.firstname_2 | firstName}}&nbsp;
+            {{ firstname_1 | firstName}} and {{ firstname_2 | firstName}}&nbsp;
         {% endif %}
         </p>
         <br>
@@ -79,11 +79,11 @@
             like further information on any aspect.</p>
 
         <br>
-        <p class="print-text"> If you would like to proceed, please email me at {{ obj.user.email }} or call me
-            on {{ obj.user.profile.mobile }} and I will provide you with an application form.</p><br>
+        <p class="print-text"> If you would like to proceed, please email me at {{ owner.email }} or call me
+            on {{ owner.profile.mobile }} and I will provide you with an application form.</p><br>
         <p class="print-text">Yours sincerely</p>
         <br><br>
-        <p class="print-text">{{ obj.user.first_name }} {{ obj.user.last_name }}</p>
+        <p class="print-text">{{ owner.first_name }} {{ owner.last_name }}</p>
         <br>
 
     </div>
