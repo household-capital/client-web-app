@@ -161,6 +161,7 @@ def validateLoanGetContext(caseUID):
     context['enumState'] = caseObj.enumStateType()
     context['enumChannelType']  = caseObj.enumChannelType()
     context['owner'] = caseObj.owner
+    context['enumInvestmentLabel'] = caseObj.enumInvestmentLabel()
 
 
     return context

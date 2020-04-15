@@ -130,9 +130,6 @@ class LoanProjection():
             self.drawdownPeriods = round(self.initDict['topUpPlanDrawdowns'] / paymentFreqAdj,0)  # in months
             self.drawdownContractPeriods = round(self.initDict['topUpContractDrawdowns'] / paymentFreqAdj,0)  # in months
 
-            print(self.periodDrawdown,self.drawdownPeriods,self.drawdownContractPeriods)
-
-
             # calculate drawdown amount with establishment fee for contracted period
             self.totalDrawdownAmount = self.periodDrawdown * self.drawdownContractPeriods \
                                        * (1 + self.establishmentFee)
@@ -147,8 +144,6 @@ class LoanProjection():
             self.carePeriodDrawdown = self.initDict['careRegularAmount'] * paymentFreqAdj  # Convert to monthly amount
             self.careDrawdownPeriods = round(self.initDict['carePlanDrawdowns'] / paymentFreqAdj,0)  # in months
             self.careContractPeriods = round(self.initDict['careContractDrawdowns'] / paymentFreqAdj,0)  # in months
-
-            print(self.carePeriodDrawdown,self.careDrawdownPeriods,self.careContractPeriods)
 
             # calculate drawdown amount with establishment fee for contracted period
             self.careDrawdownAmount = self.carePeriodDrawdown * self.careContractPeriods \

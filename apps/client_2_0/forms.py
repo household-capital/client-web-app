@@ -27,7 +27,7 @@ class ClientDetailsForm(forms.ModelForm):
                   'clientType1', 'surname_1', 'firstname_1', 'birthdate_1', 'age_1', 'sex_1',
                   'clientType2', 'surname_2', 'firstname_2', 'birthdate_2', 'age_2', 'sex_2',
                   'street', 'suburb', 'postcode', 'state', 'valuation', 'dwellingType', 'mortgageDebt', 'superFund',
-                  'superAmount', 'pensionType', 'pensionAmount']
+                  'superAmount', 'investmentLabel', 'pensionAmount']
         widgets = {
             'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
         }
@@ -92,6 +92,8 @@ class ClientDetailsForm(forms.ModelForm):
                 css_class="col-lg-4"),
 
             Div(Div(HTML("<i class='fas fa-piggy-bank'></i>&nbsp;&nbsp;Super/Investments"), css_class='form-header'),
+                Div(Div(HTML("Investment Description"), css_class='form-label'),
+                    Div(Field('investmentLabel'))),
                 Div(Div(HTML("Super or Investment Fund"), css_class='form-label'),
                     Div(Field('superFund'))),
                 Div(Div(HTML("Super Fund Assets"), css_class='form-label'),
@@ -99,9 +101,7 @@ class ClientDetailsForm(forms.ModelForm):
 
                 Div(Div(HTML("<i class='fas fa-hand-holding-usd'></i>&nbsp;&nbsp;Pension"), css_class='form-header'),
                     Div(Div(HTML("Pension Amount"), css_class='form-label'),
-                        Div(Field('pensionAmount'))),
-                    Div(Div(HTML("Pension Status"), css_class='form-label'),
-                        Div(Field('pensionType')))),
+                        Div(Field('pensionAmount')))),
                 Div(
                     Div(HTML("<i class='fas fa-users'></i>&nbsp;&nbsp;<small>Meeting</small>")),
                     Div(Div(Field('resetConsents'), css_class="col-lg-1 pl-0"),
@@ -346,7 +346,10 @@ class drawdownPurposeForm(forms.ModelForm):
             (4, "4 Years"),
             (5, "5 Years"),
             (6, "6 Years"),
-            (7, "7 Years")
+            (7, "7 Years"),
+            (8, "8 Years"),
+            (9, "9 Years"),
+            (10, "10 Years")
         ),
     widget=forms.Select)
 

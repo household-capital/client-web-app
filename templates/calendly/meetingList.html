@@ -50,16 +50,54 @@
     <br><br>
 
     <div class="row justify-content-center">
+
+
+        <div class="col-lg-5 text-center">
+            {% if request.GET.filter != "False" %}
+                <a href="?filter=False">
+                    <div class="btn btn-secondary" data-toggle="tooltip" data-placement="top"
+                         title="Meeting Held"><i class="fas fa-user fa-fw"></i></div>
+                </a>
+            {% else %}
+                <a href="?filter=True">
+                    <div class="btn btn-outline-secondary" data-toggle="tooltip"
+                         data-placement="top"
+                         title="Meeting Held"><i class="fas fa-user fa-fw"></i></div>
+                </a>
+
+            {% endif %}
+
+            {% if request.GET.filter != "False" %}
+                <a href="?filter=False">
+                    <div class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
+                         title="Meeting Held"><i class="fas fa-users fa-fw"></i></div>
+                </a>
+            {% else %}
+                <a href="?filter=True">
+                    <div class="btn btn-secondary" data-toggle="tooltip"
+                         data-placement="top"
+                         title="Meeting Held"><i class="fas fa-users fa-fw"></i></div>
+                </a>
+
+            {% endif %}
+        </div>
+    </div>
+
+
+    <br>
+
+    <div class="row justify-content-center">
         <div class="col-12">
 
             <table class="table table-hover table-sm">
                 <thead>
                 <tr>
                     <th scope="col" class="text-center">Action</th>
+                    <th>Owner</th>
                     <th>Customer Name</th>
                     <th class="d-none d-sm-table-cell">Customer Email</th>
                     <th>Start Time</th>
-                    <th>Customer Link</th>
+
 
                 </tr>
                 </thead>
@@ -74,17 +112,22 @@
                                 </button>
                             </a>
                             <a href="{{ zoomUrl }}{{ obj.zoomID }}" target="_blank">
-                                <button class="btn btn-primary btn-sm" data-toggle="tooltip"
+                                <button class="btn btn-info btn-sm" data-toggle="tooltip"
                                         data-placement="top"
                                         title="Start Zoom meeting">&nbsp;&nbsp;&nbsp;Start&nbsp;&nbsp;&nbsp;
                                 </button>
                             </a>
 
                         </td>
+                        <td>{{ obj.user }}</td>
                         <td>{{ obj.customerName }}</td>
                         <td class="d-none d-sm-table-cell">{{ obj.customerEmail }}</td>
                         <td>{{ obj.startTime }}</td>
-                        <td>{{ customerUrl }}{{ obj.zoomID }}</td>
+
+                    </tr>
+                    <td colspan="3"></td>
+                    <td colspan="2"><p class="small pb-3">{{ customerUrl }}{{ obj.zoomID }}</p></td>
+                    <tr>
 
                     </tr>
                 {% endfor %}
@@ -98,7 +141,7 @@
                         {% if page_obj.has_previous %}
                             <li class="page-item">
                                 <a class="page-link"
-                                   href="?page={{ page_obj.previous_page_number }}"
+                                   href="?filter={{ filter }}&page={{ page_obj.previous_page_number }}"
                                    tabindex="-1">Previous</a>
                             </li>
 
@@ -109,13 +152,13 @@
                         {% endif %}
                         {% for object in page_obj.paginator.page_range %}
                             <li class="page-item"><a class="page-link"
-                                                     href="?page={{ forloop.counter }}">{{ forloop.counter }}</a>
+                                                     href="?filter={{ filter }}&page={{ forloop.counter }}">{{ forloop.counter }}</a>
                             </li>
                         {% endfor %}
                         {% if page_obj.has_next %}
                             <li class="page-item">
                                 <a class="page-link"
-                                   href="?page={{ page_obj.next_page_number }}">Next</a>
+                                   href="?filter={{ filter }}&page={{ page_obj.next_page_number }}">Next</a>
                             </li>
                         {% else %}
                             <li class="page-item disabled">

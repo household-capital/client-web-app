@@ -36,6 +36,13 @@ class pensionTypesEnum(Enum):
     NO_PENSION =2
 
 @accessInTemplate
+class investmentTypesEnum(Enum):
+    SUPER = 0
+    SHARES =1
+    PROPERTY = 2
+    COMBINED = 3
+
+@accessInTemplate
 class loanTypesEnum(Enum):
     SINGLE_BORROWER=0
     JOINT_BORROWER=1

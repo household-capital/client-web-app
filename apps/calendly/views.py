@@ -281,13 +281,19 @@ class MeetingList(LoginRequiredMixin, ListView):
     def get_queryset(self, **kwargs):
         # overrides queryset to filter search parameter
 
-        delta = timedelta(days=1)
+        delta = timedelta(hours=8)
         windowDate = timezone.now() - delta
 
         queryset = super(MeetingList, self).get_queryset()
 
         qs = queryset.filter(startTime__gte=windowDate, meetingName__icontains="Loan",
-                              isCalendlyLive=True, user=self.request.user).order_by('startTime')
+                             isCalendlyLive=True, user=self.request.user).order_by('startTime')
+
+        filter = self.request.GET.get('filter')
+        if filter == "False":
+            qs = queryset.filter(startTime__gte=windowDate, meetingName__icontains="Loan",
+                                 isCalendlyLive=True).order_by('startTime')
+
         return qs
 
     def get_context_data(self, **kwargs):
@@ -296,5 +302,6 @@ class MeetingList(LoginRequiredMixin, ListView):
         context['zoomUrl'] = self.zoomUrl
         context['calendlyUrl'] =  self.calendlyUrl
         context['customerUrl']  =  self.customerUrl
+        context['filter'] = self.request.GET.get('filter')
 
         return context

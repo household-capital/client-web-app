@@ -315,22 +315,22 @@ def mapLoanToFacility(caseObj, loanDict):
         'originalCaseUID': caseObj.caseUID,
         'sfLoanName': caseObj.surname_1 + ", " + caseObj.street + ", " + caseObj.suburb + ", " + caseObj.enumStateType() + ", " + str(
             caseObj.postcode),
-        'sfLoanID': loanDict['Loan.Name'],
-        'sfID': loanDict['Loan.Id'],
+        'sfLoanID': loanDict['Name'],
+        'sfID': loanDict['Id'],
         # 'sfAccountID': 'unknown',
         # 'sfReferrerAccount' : 'unknown',
-        'amalID': loanDict['Loan.Mortgage_Number__c'],
+        'amalID': loanDict['Mortgage_Number__c'],
         'sfOriginatorID': caseObj.owner.profile.salesforceID,  # Temporary
-        'status': facilityStatus[loanDict['Loan.Status__c']],
-        'totalPurposeAmount': loanDict['Loan.Total_Limits__c'],
-        'totalLoanAmount': loanDict['Loan.Total_Loan_Amount__c'],
-        'totalEstablishmentFee': loanDict['Loan.Total_Establishment_Fee__c'],
-        'establishmentFeeRate': loanDict['Loan.Establishment_Fee_Percent__c'] / 100,
+        'status': facilityStatus[loanDict['Status__c']],
+        'totalPurposeAmount': loanDict['Total_Limits__c'],
+        'totalLoanAmount': loanDict['Total_Loan_Amount__c'],
+        'totalEstablishmentFee': loanDict['Total_Establishment_Fee__c'],
+        'establishmentFeeRate': loanDict['Establishment_Fee_Percent__c'] / 100,
         # 'totalPlanPurposeAmount': loanObj.totalPlanAmount,
         # 'totalPlanAmount': loanObj.totalPlanAmount,
         # 'totalPlanEstablishmentFee': loanObj.planEstablishmentFee,
-        'bankAccountNumber': loanDict['Loan.Account_Number__c'],
-        'bsbNumber': loanDict['Loan.BSB__c'],
+        'bankAccountNumber': loanDict['Account_Number__c'],
+        'bsbNumber': loanDict['BSB__c'],
         'meetingDate': caseObj.meetingDate,  # Temporary
     }
 

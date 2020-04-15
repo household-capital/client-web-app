@@ -32,5 +32,4 @@ urlpatterns = [
      path('loanAdditionalThankYou', views.LoanAdditionalThankYou.as_view(), name='loanAdditionalThankYou'),
      path('loanAdditionalSubmitted', views.LoanAdditionalSubmitted.as_view(), name='loanAdditionalSubmitted'),
 
-
 ]

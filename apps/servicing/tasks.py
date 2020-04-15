@@ -115,29 +115,34 @@ def sfSynch():
     '''Updates Facility with Salesforce Loan Object Information'''
 
     qsFacility = Facility.objects.all()
+
     sfAPI = apiSalesforce()
     statusResult = sfAPI.openAPI(True)
 
+    qsFacility = Facility.objects.all()
+
+    sfAPI = apiSalesforce()
+    statusResult = sfAPI.openAPI(True)
+
+    # Get SF Extracts
+    sfListObj = sfAPI.getLoanObjList()['data']
+    sfListLinkObj = sfAPI.getLoanLinkList()['data']
+
     # Loop through all SF Loan Objects and update Facility
-    listObj = sfAPI.getLoanObjList()
+    for index, loan in sfListObj.iterrows():
+        sfOpp = sfListLinkObj.query('Loan__c == "' + loan["Id"] + '"', inplace=False)
+        sfOpportunityId = sfOpp['Opportunity__c'].iloc[0]
 
-    if listObj['status'] == 'Ok':
+        caseObj = Case.objects.filter(sfOpportunityID=sfOpportunityId).get()
 
-        for index, loan in listObj['data'].iterrows():
- 
-            caseObj = Case.objects.filter(sfOpportunityID=loan['Opportunity__c']).get()
+        #Currently using LoanObj and Case to build Facility
+        payload = mapLoanToFacility(caseObj, loan)
 
-            loanDict = sfAPI.getLoanObjExtract(caseObj.sfOpportunityID)['data']
-
-            if loanDict['Loan.Status__c'] != 'Inactive':
-
-                payload = mapLoanToFacility(caseObj, loanDict)
-
-                if qsFacility.filter(sfID__exact=loanDict['Loan.Id']):
-                    payload.pop('sfID')
-                    qsFacility.filter(sfID__exact=loanDict['Loan.Id']).update(**payload)
-                else:
-                    facilityObj = Facility.objects.create(**payload)
+        if qsFacility.filter(sfID__exact=loan['Id']):
+            payload.pop('sfID')
+            qsFacility.filter(sfID__exact=loan['Id']).update(**payload)
+        else:
+            facilityObj = Facility.objects.create(**payload)
 
     return 'Task completed successfully'
 

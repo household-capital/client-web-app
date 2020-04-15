@@ -706,4 +706,3 @@ class LoanAdditionalSubmitted(SessionRequiredMixin, TemplateView):
         context['title'] = 'Drawdown submitted'
         self.request.session.flush()
         return context
-

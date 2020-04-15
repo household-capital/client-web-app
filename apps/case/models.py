@@ -13,7 +13,7 @@ from django.urls import reverse_lazy
 #Local Application Imports
 from apps.lib.site_Enums import caseStagesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,\
     pensionTypesEnum, loanTypesEnum, ragTypesEnum, channelTypesEnum, stateTypesEnum, incomeFrequencyEnum, \
-    closeReasonEnum, salutationEnum, maritalEnum, appTypesEnum, purposeCategoryEnum, purposeIntentionEnum
+    closeReasonEnum, salutationEnum, maritalEnum, appTypesEnum, purposeCategoryEnum, purposeIntentionEnum, investmentTypesEnum
 
 from apps.accounts.models import Referer
 
@@ -96,6 +96,14 @@ class Case(models.Model):
         (pensionTypesEnum.PARTIAL_PENSION.value, 'Partial'),
         (pensionTypesEnum.NO_PENSION.value, 'None')
     )
+
+    investmentTypes = (
+        (investmentTypesEnum.SUPER.value, 'Superannuation'),
+        (investmentTypesEnum.SHARES.value, 'Shares / Managed Funds'),
+        (investmentTypesEnum.PROPERTY.value, 'Investment Property'),
+        (investmentTypesEnum.COMBINED.value, 'Combined Investments'),
+    )
+
 
     loanTypes=(
         (loanTypesEnum.SINGLE_BORROWER.value,'Single'),
@@ -191,7 +199,8 @@ class Case(models.Model):
     #- Additional Data
     superFund=models.ForeignKey(FundDetail,null=True, blank=True, on_delete=models.SET_NULL)
     superAmount=models.IntegerField(null=True, blank=True)
-    pensionType=models.IntegerField(choices=pensionTypes,default=2)
+    investmentLabel = models.IntegerField(choices=investmentTypes,default=0)
+    pensionType=models.IntegerField(choices=pensionTypes,default=2) # deprecated
     pensionAmount=models.IntegerField(default=0)
     mortgageDebt = models.IntegerField(null=True, blank=True)
 
@@ -278,6 +287,9 @@ class Case(models.Model):
     def enumPensionType(self):
         if self.pensionType is not None:
             return dict(self.pensionTypes)[self.pensionType]
+
+    def enumInvestmentLabel(self):
+            return dict(self.investmentTypes)[self.investmentLabel]
 
     def enumMaritalStatus(self):
         if self.loanType==loanTypesEnum.SINGLE_BORROWER.value:

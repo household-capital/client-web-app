@@ -105,10 +105,6 @@ class CaseListView(HouseholdLoginRequiredMixin, ListView):
             queryset = queryset.filter(
                 Q(caseStage=caseStagesEnum.DOCUMENTATION.value))
 
-        elif self.request.GET.get('filter') == "Funded":
-            queryset = queryset.filter(
-                Q(caseStage=caseStagesEnum.FUNDED.value))
-
         elif self.request.GET.get('filter') == "Apply":
             queryset = queryset.filter(
                 Q(caseStage=caseStagesEnum.APPLICATION.value))
@@ -124,7 +120,6 @@ class CaseListView(HouseholdLoginRequiredMixin, ListView):
             queryset = queryset.filter(
                 Q(caseStage=caseStagesEnum.DISCOVERY.value))
 
-
         # ...and orderby.....
         if self.request.GET.get('order') == None or self.request.GET.get('order') == "":
             orderBy = ['-updated']
@@ -133,6 +128,10 @@ class CaseListView(HouseholdLoginRequiredMixin, ListView):
 
         queryset = queryset.order_by(*orderBy)[:160]
 
+        #Temporary hidden filter
+        if self.request.GET.get('filter') == "Funded":
+            queryset = super(CaseListView, self).get_queryset().filter(
+            Q(caseStage=caseStagesEnum.FUNDED.value)).exclude(appType=appTypesEnum.VARIATION.value).order_by('surname_1')
 
         return queryset
 

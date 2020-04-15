@@ -36,8 +36,8 @@ class CaseDetailsForm(forms.ModelForm):
                   'clientType2', 'surname_2', 'firstname_2', 'preferredName_2','birthdate_2', 'age_2', 'sex_2',
                   'salutation_2', 'middlename_2', 'maritalStatus_2',
                   'street', 'suburb', 'postcode', 'valuation', 'dwellingType', 'propertyImage', 'mortgageDebt',
-                  'superFund', 'valuationDocument', 'state',
-                  'superAmount', 'pensionType', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email']
+                  'superFund', 'valuationDocument', 'state', 'investmentLabel',
+                  'superAmount', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email']
         widgets = {
             'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
         }
@@ -159,15 +159,16 @@ class CaseDetailsForm(forms.ModelForm):
 
                     Div(HTML("<i class='fas fa-piggy-bank'></i>&nbsp;&nbsp;Super/Investments"),
                         css_class='form-header'),
-                    Div(Div(HTML("Super or Investment Fund"), css_class='form-label'),
+                    Div(Div(HTML("Investment Description"), css_class='form-label'),
+                        Div(Field('investmentLabel'))),
+                    Div(Div(HTML("Super or Investment Fund (if applicable)"), css_class='form-label'),
                         Div(Field('superFund'))),
-                    Div(Div(HTML("Super Fund Assets"), css_class='form-label'),
+                    Div(Div(HTML("Asset amount"), css_class='form-label'),
                         Div(Field('superAmount'))),
+
                     Div(HTML("<i class='fas fa-hand-holding-usd'></i>&nbsp;&nbsp;Pension"), css_class='form-header'),
                     Div(Div(HTML("Pension Amount"), css_class='form-label'),
                         Div(Field('pensionAmount'))),
-                    Div(Div(HTML("Pension Status"), css_class='form-label'),
-                        Div(Field('pensionType'))),
                     Div(HTML("<p class='small pt-2'><i class='fa fa-camera fa-fw'>&nbsp;&nbsp;</i>Property Image</p>"),
                         Field('propertyImage')),
                     Div(HTML("<p class='small pt-2'><i class='far fa-file-pdf'></i>&nbsp;&nbsp;</i>Auto Valuation</p>"),

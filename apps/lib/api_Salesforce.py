@@ -56,11 +56,11 @@ class apiSalesforce():
                       'AmountCheckList':
                            "Select Id, Total_Household_Loan_Amount__c, Total_Plan_Amount__c, Establishment_Fee_Percent__c from Opportunity where Lead_Record_Type__c = 'Household' and StageName in ('Meeting Held', 'Application Sent', 'Build Case', 'Assess')",
 
-                      'LoanObject':
-                           "Select Id, Status__c, Name, Total_Loan_Amount__c, Total_Limits__c, Total_Establishment_Fee__c, Establishment_Fee_Percent__c, Mortgage_Number__c, Account_Number__c, BSB__c from Loan__c where Opportunity__c=\'{0}\'",
-
                       'LoanObjectList':
-                            "Select Id, Opportunity__c from Loan__c where Status__c != \'Inactive\'",
+                           "Select Id, Status__c, Name, Total_Loan_Amount__c, Total_Limits__c, Total_Establishment_Fee__c, Establishment_Fee_Percent__c, Mortgage_Number__c, Account_Number__c, BSB__c from Loan__c where Status__c != \'Inactive\'",
+
+                      'LoanLink':
+                            "select Loan__c, Opportunity__c from LoanOpportunityLink__c order by CreatedDate",
 
                       'LoanObjectRoles':
                             "Select Id, Name, Loan__c, Contact__c, Role__c from LoanContactRole__c",
@@ -228,17 +228,6 @@ class apiSalesforce():
         return {'status':"Ok", "data":loanDict}
 
 
-    def getLoanObjExtract(self,OpportunityID):
-
-        #returns full extract dictionary for specific opportunityID
-        logging.info("         Making multiple SOQL calls to produce dictionary")
-        loanDict={}
-
-        loanDict.update(self.qryToDict('LoanObject', OpportunityID, 'Loan')['data'])
-
-        return {'status':"Ok", "data":loanDict}
-
-
     def getApprovedLoans(self):
         #returns a list of Approved Loans
         appLoans=self.execSOQLQuery('Opportunities',None)
@@ -263,6 +252,11 @@ class apiSalesforce():
         # returns a list of LoanObjs (excluding inactive)
         list = self.execSOQLQuery('LoanObjectList', None)
         return list
+
+    def getLoanLinkList(self):
+       #returns list of LoanObjData
+       list = self.execSOQLQuery('LoanLink', None)
+       return list
 
     def getLoanObjRoles(self):
         # returns a list of Loan Object Roles
