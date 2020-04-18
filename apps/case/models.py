@@ -269,13 +269,13 @@ class Case(models.Model):
         return dict(self.dwellingTypes)[self.dwellingType]
 
     def enumSex(self):
-        if self.loanType==loanTypesEnum.SINGLE_BORROWER.value:
+        if self.clientType2 == None:
             return [dict(self.clientSex)[self.sex_1],None]
         else:
             return [dict(self.clientSex)[self.sex_1],dict(self.clientSex)[self.sex_2]]
 
     def enumClientType(self):
-        if self.loanType==loanTypesEnum.SINGLE_BORROWER.value:
+        if self.clientType2 == None:
             return [dict(self.clientTypes)[self.clientType1],None]
         else:
             return [dict(self.clientTypes)[self.clientType1],dict(self.clientTypes)[self.clientType2]]
@@ -292,13 +292,13 @@ class Case(models.Model):
             return dict(self.investmentTypes)[self.investmentLabel]
 
     def enumMaritalStatus(self):
-        if self.loanType==loanTypesEnum.SINGLE_BORROWER.value:
+        if self.clientType2 == None:
             return [dict(self.maritalTypes)[self.maritalStatus_1],None]
         else:
             return [dict(self.maritalTypes)[self.maritalStatus_1],dict(self.maritalTypes)[self.maritalStatus_2]]
 
     def enumSalutation(self):
-        if self.loanType==loanTypesEnum.SINGLE_BORROWER.value:
+        if self.clientType2 == None:
             return [dict(self.salutationTypes)[self.salutation_1],None]
         else:
             return [dict(self.salutationTypes)[self.salutation_1],dict(self.salutationTypes)[self.salutation_2]]

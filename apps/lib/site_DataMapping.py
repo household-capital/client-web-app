@@ -31,7 +31,7 @@ def mapFacilityToCase(facilityObj):
         'caseStage': caseStagesEnum.DISCOVERY.value,
         'appType': appTypesEnum.VARIATION.value,
         'caseDescription': roleDict['borrowers'][0]['lastName'] + " - " + str(propertyObj.postcode) + " - Variation",
-        'user': facilityObj.owner,
+        'owner': facilityObj.owner,
         'caseNotes': '[# Variation - please update #]',
         'phoneNumber': roleDict['borrowers'][0]['mobile'] if roleDict['borrowers'][0]['mobile'] is not None else
         roleDict['borrowers'][0]['phone'],
@@ -174,7 +174,7 @@ def mapCaseToOpportunity(caseObj, lossObj):
     }
 
     # Second Borrower
-    if caseObj.loanType == loanTypesEnum.JOINT_BORROWER.value:
+    if caseObj.clientType2 != None:
         payload.update({
 
             'clientType2': caseObj.enumClientType()[1],

@@ -1,3 +1,6 @@
+#Python Imports
+from datetime import datetime
+
 # Django Imports
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -119,6 +122,7 @@ class PdfCaseSummary(ContextHelper,  TemplateView):
 
         context = super(PdfCaseSummary, self).get_context_data(**kwargs)
         context['title'] = 'Case Summary'
+        context['factObj'] = self.get_object()
         return context
 
     def get_object(self, queryset=None):
@@ -138,12 +142,14 @@ class GeneratePdf(View):
 
     def get(self,request, *args, **kwargs):
 
+        dateStr = datetime.now().strftime('%Y-%m-%d-%H:%M:%S%z')
+
         caseUID = str(kwargs['uid'])
         obj = Case.objects.filter(caseUID=self.kwargs.get('uid')).get()
 
         sourceUrl = 'https://householdcapital.app/factfind/pdfCaseSummary/' + self.request.session['caseUID']
         targetFileName = settings.MEDIA_ROOT + "/customerReports/CaseSummary-" + self.request.session['caseUID'][
-                                                                             -12:] + ".pdf"
+                                                                             -12:] + "-" + dateStr + ".pdf"
         pdf = pdfGenerator(caseUID)
         created, text = pdf.createPdfFromUrl(sourceUrl, 'CaseSummary.pdf', targetFileName)
 

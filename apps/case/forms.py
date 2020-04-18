@@ -13,7 +13,8 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, Div, HTML
 
 # Local Application Imports
-from apps.lib.site_Enums import loanTypesEnum, caseStagesEnum, incomeFrequencyEnum, purposeCategoryEnum, purposeIntentionEnum
+from apps.lib.site_Enums import loanTypesEnum, caseStagesEnum, incomeFrequencyEnum, purposeCategoryEnum, \
+    purposeIntentionEnum, clientTypesEnum
 from .models import Case, LossData, LoanPurposes
 
 
@@ -179,17 +180,17 @@ class CaseDetailsForm(forms.ModelForm):
 
     def clean(self):
         loanType = self.cleaned_data['loanType']
+        clientType_2 = self.cleaned_data['clientType2']
 
         if not self.errors:
-            if loanType == loanTypesEnum.SINGLE_BORROWER.value:
-                if self.cleaned_data['birthdate_1'] == None and self.cleaned_data['age_1'] == None:
-                    raise forms.ValidationError("Please enter age or birthdate for Borrower")
 
-            if loanType == loanTypesEnum.JOINT_BORROWER.value:
-                if self.cleaned_data['birthdate_1'] == None and self.cleaned_data['age_1'] == None:
-                    raise forms.ValidationError("Please nter age or birthdate for Borrower 1")
+            if self.cleaned_data['birthdate_1'] == None and self.cleaned_data['age_1'] == None:
+                raise forms.ValidationError("Please enter age or birthdate for Borrower 1")
+
+            if clientType_2 != None:
+
                 if self.cleaned_data['birthdate_2'] == None and self.cleaned_data['age_2'] == None:
-                    raise forms.ValidationError("Please enter age or birthdate for Borrower 2")
+                    raise forms.ValidationError("Please enter age or birthdate for Borrower/Role 2")
 
             if self.cleaned_data['postcode'] != None:
                 if self.cleaned_data['dwellingType'] == None:

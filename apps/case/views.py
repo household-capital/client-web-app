@@ -312,7 +312,7 @@ class CaseDetailView(HouseholdLoginRequiredMixin, UpdateView):
         if caseObj.loanType == None:
             return False
 
-        if caseObj.loanType == loanTypesEnum.JOINT_BORROWER.value:
+        if caseObj.clientType2 != None:
             requiredFields += additionalFields
 
         for field in requiredFields:

@@ -242,4 +242,21 @@ def sfDetailSynch():
             pass
 
 
+@app.task(name="SF_AMAL_Synch")
+def sfAMALData():
 
+    sfAPI = apiSalesforce()
+    statusResult = sfAPI.openAPI(True)
+
+    qsFacilities = Facility.objects.all()
+
+    for loan in qsFacilities:
+        sfAPI.updateLoanData(loan.sfID, {
+            "Loan_Settlement_Date__c": loan.settlementDate.strftime("%Y-%m-%d") if loan.settlementDate else None,
+            "MaxDrawdownDate__c" : loan.maxDrawdownDate.strftime("%Y-%m-%d") if loan.maxDrawdownDate else None,
+            "Loan_Maturity_Date__c": loan.dischargeDate.strftime("%Y-%m-%d") if loan.dischargeDate else None,
+            "Advanced_Amount__c": loan.advancedAmount,
+            "Current_Loan_Balance__c": loan.currentBalance
+        })
+
+    return "SF Updated Successfully"

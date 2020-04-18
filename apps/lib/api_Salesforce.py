@@ -59,8 +59,11 @@ class apiSalesforce():
                       'LoanObjectList':
                            "Select Id, Status__c, Name, Total_Loan_Amount__c, Total_Limits__c, Total_Establishment_Fee__c, Establishment_Fee_Percent__c, Mortgage_Number__c, Account_Number__c, BSB__c from Loan__c where Status__c != \'Inactive\'",
 
-                      'LoanLink':
+                      'LoanLinkList':
                             "select Loan__c, Opportunity__c from LoanOpportunityLink__c order by CreatedDate",
+
+                      'LoanLink':
+                          "Select Loan__c from LoanOpportunityLink__c where Opportunity__c=\'{0}\'",
 
                       'LoanObjectRoles':
                             "Select Id, Name, Loan__c, Contact__c, Role__c from LoanContactRole__c",
@@ -255,7 +258,7 @@ class apiSalesforce():
 
     def getLoanLinkList(self):
        #returns list of LoanObjData
-       list = self.execSOQLQuery('LoanLink', None)
+       list = self.execSOQLQuery('LoanLinkList', None)
        return list
 
     def getLoanObjRoles(self):
@@ -316,13 +319,20 @@ class apiSalesforce():
             self.sf.Opportunity.update(oppID,{"Loan_ID__c": AMAL_loanId})
 
             #Update Loan Object
-            loanObj = self.qryToDict('LoanObject', oppID, "Loan")['data']
+            loanObj = self.qryToDict('LoanLink', oppID, "Loan")['data']
+
             if loanObj:
-                loanID = loanObj['Loan.Id']
+                loanID = loanObj['Loan.Loan__c']
                 self.sf.Loan__c.update(loanID, {"Status__c": "Active"})
                 self.sf.Loan__c.update(loanID, {"Mortgage_Number__c": AMAL_loanId})
 
         return {'status':'Ok' }
+
+    def updateLoanData(self,sfID,srcDict):
+        for item, value in srcDict.items():
+            self.sf.Loan__c.update(sfID, {item: value})
+        return {'status': 'Ok'}
+
 
     def setResultsPrefix(self, prefix):
         self.resultsPrefix=prefix
