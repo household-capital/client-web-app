@@ -3,9 +3,9 @@ import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.db.models.functions import TruncDate, TruncDay, TruncMonth, Cast, ExtractDay
+from django.db.models.functions import TruncDate, TruncDay, TruncMonth, Cast, ExtractDay, ExtractWeek, ExtractYear, Concat
 from django.db.models.fields import DateField
-from django.db.models import Sum, F, Func,  Avg, Min, Max, Value, CharField
+from django.db.models import Sum, F, Func,  Avg, Min, Max, Value, CharField, ExpressionWrapper
 from django.db.models import Count, When, Case as dbCase
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse_lazy
@@ -294,3 +294,89 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
             return dict[key]
         else:
             return default
+
+
+class Weekly(HouseholdLoginRequiredMixin, TemplateView):
+    template_name = "landing/dashboard_weekly.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(Weekly, self).get_context_data(**kwargs)
+        context['title'] = 'Dashboard'
+        tz = get_current_timezone()
+
+        # - get ordered list
+        qsDates = Case.objects.filter(meetingDate__isnull=False) \
+            .annotate(date=Concat(ExtractYear('meetingDate'), Value('-W'), ExtractWeek('meetingDate'), output_field=CharField())) \
+            .values('date')\
+            .annotate(newDate=Max('meetingDate'))\
+            .order_by('-newDate')
+
+        # - get cases data
+        qsCases = Case.objects.all() \
+            .annotate(date=Concat(ExtractYear('timestamp'), Value('-W'), ExtractWeek('timestamp'), output_field=CharField())) \
+            .values('date') \
+            .annotate(cases=Count('caseUID')) \
+            .order_by()
+
+
+        # - get enquiry data
+        qsEnqs = Enquiry.objects.all() \
+            .annotate(date=Concat(ExtractYear('timestamp'), Value('-W'), ExtractWeek('timestamp'), output_field=CharField())) \
+            .values('date') \
+            .annotate(enquiries=Count('enqUID')) \
+            .order_by()
+
+        # - get meeting data
+        qsMeetings = Case.objects.filter(meetingDate__isnull=False)
+        dataMeetings = qsMeetings \
+            .annotate(date=Concat(ExtractYear('meetingDate'),Value('-W'), ExtractWeek('meetingDate'),output_field=CharField())) \
+            .values('date') \
+            .annotate(meetings=Count('caseUID')) \
+            .order_by()
+
+        # - get zoom meeting data
+        qsZoom = Case.objects.filter(meetingDate__isnull=False)
+        dataZoom = qsZoom \
+            .annotate(date=Concat(ExtractYear('meetingDate'),Value('-W'), ExtractWeek('meetingDate'),output_field=CharField())) \
+            .values('date') \
+            .annotate(zoomMeetings=Count(dbCase(When(isZoomMeeting=True, then=1)))) \
+            .order_by()
+
+        # - get settlement data
+        qsSettle = Facility.objects.filter(settlementDate__isnull=False)
+        dataSettle = qsSettle \
+            .annotate(date=Concat(ExtractYear('settlementDate'),Value('-W'), ExtractWeek('settlementDate'),output_field=CharField())) \
+            .values('date') \
+            .annotate(settlements=Count('settlementDate')) \
+            .order_by()
+
+        output=[]
+        for item in qsDates:
+
+            meetings = self.get_data_item('meetings',item['date'], dataMeetings)
+            zoomMeetings = self.get_data_item('zoomMeetings',item['date'], dataZoom)
+            settlements = self.get_data_item('settlements',item['date'], dataSettle)
+            cases = self.get_data_item('cases',item['date'], qsCases)
+            enquiries = self.get_data_item('enquiries',item['date'],qsEnqs )
+
+
+
+            output.append({'date':item['date'],
+                           'meetings': meetings,
+                           'zoomMeetings': zoomMeetings,
+                           'settlements': settlements,
+                           'enquiries': enquiries,
+                           'cases': cases
+                           })
+
+        context['object_list'] = output
+        context['dataMeetings'] = dataMeetings.__dict__
+
+        return context
+
+    def get_data_item(self,itemName,date, qs):
+        try:
+            value = qs.filter(date=date).get()[itemName]
+        except:
+            value = 0
+        return value

@@ -465,7 +465,7 @@
                     xAxes: [{
                         type: 'time',
                         time: {
-                            unit: 'month',
+                            unit: 'day',
                             tooltipFormat: 'ddd DD-MMM-YYYY',
                         }
 
@@ -687,6 +687,12 @@
 
             }
         });
+
+        $(document).ready(function () {
+            console.log(meetingData)
+
+            })
+
     </script>
 
 {% endblock %}
