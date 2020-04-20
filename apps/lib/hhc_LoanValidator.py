@@ -131,6 +131,7 @@ class LoanValidator():
         # Perform LVR calculations (for loan size validation)
         self.__calcLVR()
 
+
         # Check Min Loan Size
         if self.maxLvr / 100 * self.initDict['valuation'] < LOAN_LIMITS['minLoanSize']:
             response['status'] = "Error"
@@ -154,6 +155,7 @@ class LoanValidator():
         data['maxRefi'] = int(self.refinanceLimit)
         data['maxGive'] = int(self.giveLimit)
         data['maxTravel'] = int(self.travelLimit)
+        data['maxDrawdown'] = int((data['maxLoan']-data['maxFee'])*.80/(10 *12))  # Temporary calculation
 
         response['data'] = data
 

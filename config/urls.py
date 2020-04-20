@@ -28,6 +28,7 @@ urlpatterns = [
     path('calendly/', include('apps.calendly.urls')),
     path('case/', include('apps.case.urls')),
     path('client2/', include('apps.client_2_0.urls')),
+    path('drawdown/', include('apps.drawdown.urls')),
     path('enquiry/', include('apps.enquiry.urls')),
     path('factfind/', include('apps.fact_find.urls')),
     path('hhcadmin/', admin.site.urls),

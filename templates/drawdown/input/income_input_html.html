@@ -1,0 +1,280 @@
+{% load static %}
+{% load humanize %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load calc_extras %}
+
+<div class="row justify-content-center">
+    <div class="cal_container">
+        <div class="cal_background">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <form id="calc-data" method="post" class="track-form">
+                        {% csrf_token %}
+
+                        <div class="cal_background_white">
+
+                            <div class="container cal_container pb-5 pt-5">
+
+                                <div class="row justify-content-center ">
+
+                                    <!-- ABOUT YOU -->
+                                    <div class="col-sm-5">
+
+
+                                        <p class="x-large"><b>Tell us about yourself?</b></p>
+                                        <p>(please select single or couple)</p>
+
+                                        <div class="radio-hide">
+
+                                            <div class="row pt-1 pb-2 justify-content-center">
+                                                {% for choice in form.loanType.field.choices reversed %}
+                                                    <div class="col-6">
+
+                                                        <input {% if choice.0|intval == form.loanType.value|intval %}checked="checked" {% endif %}
+                                                               id=loanType_{{ choice.1 }} type="radio"
+                                                               name="loanType"
+                                                               value={{ choice.0 }}>
+
+                                                        <p class="small pb-2">{{ choice.1 }}</p>
+
+
+                                                        <label class="radio-label {{ choice.1 }}"
+                                                               for=loanType_{{ choice.1 }}></label>
+                                                    </div>
+
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+
+                                        <div id="div_id_name" class="form-group row justify-content-center pb-3">
+                                            <div class="col-6 pb-3">
+                                                <p class="small pb-1">Your age</p>
+                                                <input type="text" name="age_1" required
+                                                       class="textinput textInput form-control" id="id_age_1"
+                                                       {% if form.age_1.value != None %}value="{{ form.age_1.value }}"{% endif %}>
+                                                {{ form.age_1.errors }}
+                                            </div>
+                                            <div class="col-6">
+                                                <p class="small pb-1">Partner's age</p>
+                                                <input type="text" name="age_2"
+                                                       class="textinput textInput form-control" id="id_age_2"
+                                                       {% if form.age_2.value != None %}value="{{ form.age_2.value }}"{% endif %}>
+                                                {{ form.age_2.errors }}
+
+                                            </div>
+
+                                            <br><br>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-md-2"></div>
+
+
+                                    <!-- ABOUT YOUR HOME -->
+                                    <div class="col-sm-5">
+
+
+                                        <p class="x-large"><b>Tell us about your home?</b></p>
+                                        <p>(please select house or apartment)</p>
+
+                                        <div class="radio-hide">
+                                            <div class="row pt-1 pb-2 justify-content-center">
+                                                {% for choice in form.dwellingType.field.choices %}
+                                                    <div class="col-6">
+                                                        <input {% if choice.0|intval == form.dwellingType.value|intval %}checked="checked" {% endif %}
+                                                               id={{ choice.1 }} type="radio"
+                                                               name="dwellingType"
+                                                               value={{ choice.0 }}>
+                                                        <p class="small pb-2">{{ choice.1 }}</p>
+                                                        <label class="radio-label {{ choice.1 }} "
+                                                               for={{ choice.1 }}></label>
+
+
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+
+
+                                        <div class="col-12">
+                                            <p class="small pb-1 text-left">Estimated value</p>
+                                            <div id="div_id_valuation" class="form-group row ">
+                                                <input type="text" name="valuation"
+                                                       class="textinput textInput form-control" required
+                                                       id="id_valuation"
+                                                       {% if form.valuation.value != None %}value="{{ form.valuation.value }}"{% endif %}>
+                                                {{ form.valuation.errors }}
+                                            </div>
+
+                                        </div>
+
+                                        <!-- ADDRESS SEARCH -->
+                                        <div id="addressSearch">
+                                            <div class="col-12">
+                                                <p class="small text-left">Address</p>
+                                                <div id="div_id_address" class="row pb-1">
+                                                    <input type="text" name="address"
+                                                           class="textinput textInput form-control" id="id_address"
+                                                           value="">
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <select class="form-control" style="display:none" id="addressSelect">
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div id="addressButton" style="display:none">
+                                            <span class="small">
+                                                Please select your address or
+                                            <button id="manualButton" type="button"
+                                                    class="btn btn-square-hhcLightBlue btn-sm">Enter manually
+                                            </button>
+                                        </span>
+                                        </div>
+
+                                        <div id="addressData" style="display:none">
+                                            <div class="col-12">
+                                                <p class="small text-left">Street Address</p>
+                                                <div id="div_id_address" class="row pb-1">
+                                                    <input type="text" name="streetAddress"
+                                                           class="textinput textInput form-control"
+                                                           id="id_streetAddress"
+                                                           value="">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12">
+                                                <p class="small text-left">Suburb</p>
+                                                <div id="div_id_suburb" class="row pb-1">
+                                                    <input type="text" name="suburb"
+                                                           class="textinput textInput form-control" id="id_suburb"
+                                                           value="">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12">
+                                                <p class="small text-left">State</p>
+                                                <div id="div_id_state" class="row pb-1">
+                                                    <input type="text" name="state"
+                                                           class="textinput textInput form-control" id="id_state"
+                                                           value="">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12">
+                                                <p class="small text-left">Postcode</p>
+                                                <div id="div_id_postcode" class="row pb-1">
+                                                    <input type="text" name="postcode"
+                                                           class="textinput textInput form-control" id="id_postcode"
+                                                           value="">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+                                <!-- OBJECTIVES -->
+                                <div class="row justify-content-center pt-5">
+
+                                    <div class="col-sm-10 ">
+                                        <p class="text-center x-large"><b>Tell us about your objectives</b></p>
+                                    </div>
+                                </div>
+
+                                <div class="row justify-content-center pt-3">
+
+                                    <div class="col-sm-6 text-left align-self-center">
+                                        <p>Do you have other retirement funding needs? <br> (i.e., in addition to enhancing your income)</p>
+                                    </div>
+
+                                    <div class="col-sm-4 ">
+                                        <div class=" btn-group-toggle" data-toggle="buttons">
+                                            <label class="btn btn-square-choice-hhcLightBlue">
+                                                <input type="radio" name="choiceOtherNeeds" value="True"
+                                                       id="id_choiceOtherNeeds_0" autocomplete="off"> Yes
+                                            </label>
+                                            <label class="btn btn-square-choice-hhcLightBlue active">
+                                                <input type="radio" name="choiceOtherNeeds" value="False"
+                                                       id="choiceOtherNeeds_1" autocomplete="off" checked> &nbsp;No&nbsp;
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            <div class="row justify-content-center pt-3">
+
+                                    <div class="col-sm-6 text-left align-self-center">
+                                        <p>Do you have an existing mortgage on your home?</p>
+                                    </div>
+
+                                    <div class="col-sm-4 ">
+                                        <div class=" btn-group-toggle" data-toggle="buttons">
+                                            <label class="btn btn-square-choice-hhcLightBlue">
+                                                <input type="radio" name="choiceMortgage" value="True"
+                                                       id="id_choiceMortgage_0" autocomplete="off"> Yes
+                                            </label>
+                                            <label class="btn btn-square-choice-hhcLightBlue active">
+                                                <input type="radio" name="choiceMortgage" value="False"
+                                                       id="choiceMortgage_1" autocomplete="off" checked> &nbsp;No&nbsp;
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <!-- CTA -->
+                                <div class="row justify-content-center pt-5">
+                                    <div class="col-md-7 text-center">
+                                        <button id="summary" type="submit" value="Submit" form="calc-data"
+                                                class="btn btn-hhcGold btn-lg">
+                                            &nbsp;&nbsp;See your Summary&nbsp;&nbsp;
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="row justify-content-center pt-2">
+                                    <div class="col-md-5 text-center ">
+
+
+                                        {% if form.errors %}
+                                            <p class="errorlist">Please check input errors above</p>{% endif %}
+
+                                    </div>
+                                    <br> <br>
+                                </div>
+
+
+                                <input type='hidden' name="referrer" id="id_referrer"
+                                       value="">
+
+                                <input type='hidden' name="formName" id="id_formName"
+                                       value="calc-data">
+                            </div>
+                        </div>
+
+
+                    </form>
+               {{ form }}{{ form.errors }}
+
+                    <div class="row justify-content-center">
+                        <div class="col-md-8 text-center">
+                            {% for message in messages %}
+                                <p {% if message.tags == 'error' %} class="alert alert-info"{% endif %}
+                                        {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                                    {{ message }}</p>
+                            {% endfor %}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br><br>
+    </div>
+</div>

@@ -1,0 +1,32 @@
+<script>
+
+
+    $(document).ready(function () {
+
+        //Initialisation
+
+        $("#panelTopUp").click(function () {
+            $("#id_isTopUp").click();
+        });
+        $("#panelRefi").click(function () {
+            $("#id_isRefi").click();
+        });
+        $("#panelLive").click(function () {
+            $("#id_isLive").click();
+        });
+        $("#panelGive").click(function () {
+            $("#id_isGive").click();
+        });
+        $("#panelCare").click(function () {
+            $("#id_isCare").click();
+        })
+
+    });
+
+
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+
+</script>
