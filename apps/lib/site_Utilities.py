@@ -12,7 +12,7 @@ from apps.enquiry.models import Enquiry
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.hhc_LoanProjection import LoanProjection
 from apps.lib.site_DataMapping import serialisePurposes
-from apps.lib.site_Enums import loanTypesEnum, dwellingTypesEnum
+from apps.lib.site_Enums import loanTypesEnum, dwellingTypesEnum, appTypesEnum
 from apps.lib.site_Globals import ECONOMIC, APP_SETTINGS, LOAN_LIMITS
 from apps.lib.site_Logging import write_applog
 
@@ -147,6 +147,15 @@ def validateLoanGetContext(caseUID):
         actualLVR=loanStatus['data']['actualLVR'],
         detailedTitle=loanStatus['data']['detailedTitle']
     )
+
+    #Save Variation Amount
+    if clientDict['appType'] == appTypesEnum.VARIATION.value:
+        loanQS.update(
+            variationTotalAmount = max(loanStatus['data']['totalLoanAmount']-loanDict['orgTotalLoanAmount'],0),
+            variationPurposeAmount = max(loanStatus['data']['purposeAmount']-loanDict['orgPurposeAmount'],0),
+            variationFeeAmount=max(loanStatus['data']['establishmentFee'] - loanDict['orgEstablishmentFee'], 0),
+                      )
+
 
     # create context
     context = {}

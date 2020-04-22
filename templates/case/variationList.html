@@ -49,11 +49,21 @@
 
     <div class="container">
 
+        <div class="row justify-content-left pb-3">
+            <div class="col-8">
+                <p class="pt-3 pb-2">
+                    <b>{{ caseObj.surname_1 }}, {{ caseObj.street }}, {{ caseObj.suburb }}, {{ caseObj.enumStateType }}, {{ caseObj.postcode|intStr }}</b>&nbsp;
+                </p>
+                <br>
+            </div>
+            <div class="col-lg-3 text-right pt-2">
 
-        <p class="pt-3 pb-2">
-            <b>{{ caseObj.surname_1 }}, {{ caseObj.street }}, {{ caseObj.suburb }}, {{ caseObj.enumStateType }}, {{ caseObj.postcode|intStr }}</b>&nbsp;
-        </p>
-        <br>
+                <p class="text-right pb-1"><a
+                        href="{% url 'case:createLoanVariationSummary' uid=loanObj.case.caseUID %}">
+                    <button type="button" class="btn btn-secondary btn-sm">Create Variation Summary</button>
+                </a></p>
+            </div>
+        </div>
 
         <div class="row justify-content-center pb-3">
             <div class="col-10">
@@ -62,18 +72,26 @@
                     <div class="col-lg-6 text-left">
 
                         <div class="row no-gutters">
-                            <div class="col-lg-5">
+                            <div class="col-lg-3">
                                 <p class="small"><b>Loan Variation</b></p>
                                 <p> Purposes:</p>
-                                <p class="pt-1"> Establishment Fee</p>
-                                <p class="pt-1"> Total Limit:</p>
+                                <p class="pt-1"> Est Fee:</p>
+                                <p class="pt-1"> Total Amount:</p>
                             </div>
+
+                            <div class="col-lg-3 text-right">
+                                <p class="small text-success"><i class="far fa-caret-square-up"></i>&nbsp;&nbsp;<b>Variation</b>
+                                </p>
+                                <p>$ {{ loanObj.variationPurposeAmount|intVal|intcomma }} </p>
+                                <p class="pt-1">$ {{ loanObj.variationFeeAmount|intVal|intcomma }}</p>
+                                <p class="pt-1">$ {{ loanObj.variationTotalAmount|intVal|intcomma }}</p>
+                            </div>
+
                             <div class="col-lg-3 text-right">
                                 <p class="small"><b>Contracted</b></p>
                                 <p>$ {{ loanObj.purposeAmount|intVal|intcomma }} </p>
                                 <p class="pt-1">$ {{ loanObj.establishmentFee|intVal|intcomma }}</p>
                                 <p class="pt-1">$ {{ loanObj.totalLoanAmount|intVal|intcomma }}</p>
-
                             </div>
                             <div class="col-lg-3 text-right">
                                 <p class="small"><b>Plan</b></p>
@@ -143,7 +161,7 @@
         <div class="row justify-content-center">
             <div class="col-10">
                 <p class="text-right pb-1"><a href="{% url 'case:caseVariationAdd' uid=loanObj.case.caseUID %}">
-                    <button type="button" class="btn btn-outline-success btn-sm">+ Add</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm">+ Add</button>
                 </a></p>
 
 
@@ -172,8 +190,8 @@
                                 {% if obj.drawdownAmount %}{{ obj.enumDrawdownFrequency }}{% endif %}</td>
                             <td class="text-right">{% if obj.drawdownAmount %}{{ obj.planDrawdowns }}{% endif %}</td>
                             <td class="text-center">{% if obj.drawdownAmount %}{% if obj.active %}
-                                <i class="text-success far fa-check-circle"></i>
-                            {% else %}<i class="text-danger far fa-times-circle"></i>{% endif %}{% endif %}</td>
+                                <i class="far fa-check-circle"></i>
+                            {% else %}<i class="far fa-times-circle"></i>{% endif %}{% endif %}</td>
 
                         </tr>
                     {% endfor %}
@@ -190,8 +208,9 @@
                     <div class="col-lg-2">
                         <p>${{ loanObj.accruedInterest }}</p>
                         <p>{{ loanObj.protectedEquity }}%</p>
-
                     </div>
+
+
                 </div>
 
                 {% if is_paginated %}

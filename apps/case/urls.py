@@ -28,8 +28,9 @@ urlpatterns = [
     path('caseVariation/<uuid:uid>', views.CaseVariation.as_view(), name='caseVariation'),
     path('caseVariationLumpSum/<uuid:purposeUID>' , views.CaseVariationLumpSum.as_view(), name='caseVariationLumpSum'),
     path('caseVariationDrawdown/<uuid:purposeUID>', views.CaseVariationDrawdown.as_view(), name='caseVariationDrawdown'),
-    path('caseVariationAdd/<uuid:uid>', views.CaseVariationAdd.as_view(), name='caseVariationAdd')
-
+    path('caseVariationAdd/<uuid:uid>', views.CaseVariationAdd.as_view(), name='caseVariationAdd'),
+    path('pdfLoanVariationSummary/<uuid:uid>', views.PdfLoanVariationSummary.as_view(), name='pdfLoanVariationSummary'),
+    path('createLoanVariationSummary/<uuid:uid>', views.CreateLoanVariationSummary.as_view(), name='createLoanVariationSummary')
 ]
 
 

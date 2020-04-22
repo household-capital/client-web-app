@@ -20,7 +20,7 @@ class apiSalesforce():
                       'LoanRef':
                           "Select Loan_Number__c from Opportunity where Id=\'{0}\'",
                       'Opportunities':
-                          "Select Id,Name,StageName,CloseDate from Opportunity where RecordType.Name=\'Household\' and StageName=\'Loan Approved\' and isDeleted=False",
+                          "Select Id,Name,StageName,CloseDate from Opportunity where RecordType.Name != \'Distribution\' and StageName=\'Loan Approved\' and isDeleted=False",
                       'Opportunity':
                           "Select Id,Name,StageName,CloseDate, OwnerId, Establishment_Fee_Percent__c from Opportunity where Id=\'{0}\'",
                       'Properties':
@@ -52,7 +52,7 @@ class apiSalesforce():
                       'LeadByPhone':
                           "Select Id, PostalCode from Lead where Phone=\'{0}\'",
                       'StageList':
-                          "Select Id, Name, StageName from Opportunity where RecordType.Name = \'Household\'",
+                          "Select Id, Name, StageName from Opportunity where RecordType.Name != \'Distribution\'",
                       'AmountCheckList':
                            "Select Id, Total_Household_Loan_Amount__c, Total_Plan_Amount__c, Establishment_Fee_Percent__c from Opportunity where Lead_Record_Type__c = 'Household' and StageName in ('Meeting Held', 'Application Sent', 'Build Case', 'Assess')",
 

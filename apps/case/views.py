@@ -8,6 +8,7 @@ import pathlib
 # Django Imports
 from django.conf import settings
 from django.contrib import messages
+from django.core.files import File
 from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
@@ -23,6 +24,7 @@ from config.celery import app
 from apps.calculator.models import WebCalculator
 from apps.enquiry.models import Enquiry
 from apps.lib.api_Docsaway import apiDocsAway
+from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.site_DataMapping import serialisePurposes
@@ -30,7 +32,7 @@ from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, appTypesEnum, pur
 from apps.lib.site_Globals import LOAN_LIMITS
 from apps.lib.site_Logging import write_applog
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
-from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, validateLoanGetContext, updateNavQueue
+from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, validateLoanGetContext, updateNavQueue, getProjectionResults
 
 from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignForm, \
     lumpSumPurposeForm, drawdownPurposeForm, purposeAddForm
@@ -670,7 +672,7 @@ class CaseDataExtract(HouseholdLoginRequiredMixin, SFHelper, FormView):
                 return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
             # generate dictionary from Salesforce
-            loanDict = sfAPI.caseMailLoanSummary(caseObj.sfOpportunityID)['data']
+            loanDict = sfAPI.getOpportunityExtract(caseObj.sfOpportunityID)['data']
 
             # enrich SOQL based dictionary
             # parse purposes from SF and enrich SOQL dictionary
@@ -943,7 +945,6 @@ class CaseVariation(HouseholdLoginRequiredMixin,ContextHelper, ListView):
         context['caseObj'] = Case.objects.queryset_byUID(str(self.kwargs['uid'])).get()
         context['loanObj'] = Loan.objects.queryset_byUID(str(self.kwargs['uid'])).get()
 
-
         return context
 
 class CaseVariationLumpSum(HouseholdLoginRequiredMixin, ContextHelper, UpdateView):
@@ -1046,3 +1047,64 @@ class CaseVariationAdd(HouseholdLoginRequiredMixin, ContextHelper, CreateView):
 
         return context
 
+
+
+class PdfLoanVariationSummary(ContextHelper,TemplateView):
+    # This page is not designed to be viewed - it is to be called by the pdf generator
+    # It requires a UID to be passed to it
+
+    template_name = "case/documents/loanVariation.html"
+
+    def get_context_data(self, **kwargs):
+
+        context = super(PdfLoanVariationSummary, self).get_context_data(**kwargs)
+
+        caseUID = str(kwargs['uid'])
+
+        #Validate the loan and generate combined context
+        context = validateLoanGetContext(caseUID)
+
+        # Get projection results (site utility using Loan Projection)
+        projectionContext = getProjectionResults(context, ['baseScenario', 'intPayScenario',
+                                                               'pointScenario', 'stressScenario' ])
+        context.update(projectionContext)
+
+        return context
+
+class CreateLoanVariationSummary(HouseholdLoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+
+        dateStr = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S%z')
+        caseUID=str(self.kwargs['uid'])
+
+        sourceUrl = 'https://householdcapital.app/case/pdfLoanVariationSummary/' + caseUID
+        componentFileName = settings.MEDIA_ROOT + "/customerReports/Component-" + caseUID[
+                                                                                  -12:] + ".pdf"
+        componentURL = 'https://householdcapital.app/media/' + "/customerReports/Component-" + caseUID[
+                                                                                               -12:] + ".pdf"
+        targetFileName = settings.MEDIA_ROOT + "/customerReports/VariationSummary-" + caseUID[
+                                                                             -12:] + "-" + dateStr + ".pdf"
+
+        pdf = pdfGenerator(caseUID)
+        created, text = pdf.createPdfFromUrl(sourceUrl, 'HHC-LoanVariationSummary.pdf', targetFileName)
+
+        if not created:
+            write_applog("ERROR", 'PdfProduction', 'get',
+                         "Failed to generate pdf: " + caseUID)
+            messages.error(self.request, "Could not generate Loan Variation Summary")
+
+        try:
+            # SAVE TO DATABASE
+            localfile = open(targetFileName, 'rb')
+
+            qsCase = Case.objects.queryset_byUID(caseUID)
+            qsCase.update(summaryDocument=File(localfile))
+            messages.success(self.request, "Loan Variation Summary generated")
+
+        except:
+            write_applog("ERROR", 'PdfProduction', 'get',
+                         "Failed to save Summary Report in Database: " + caseUID)
+            messages.error(self.request, "Could not save Loan Variation Summary")
+
+        return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseUID}))

@@ -5,6 +5,7 @@ import math
 
 # Django Imports
 from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
 from django.utils import timezone
 
 # Third-party Imports
@@ -74,13 +75,26 @@ def fundedData(*arg, **kwargs):
 
                         if created:
                             payload= mapTransToFacility(loan, transaction)
-                            transObj.update(**payload)
+                            #Update object
+                            for attr, value in payload.items():
+                                setattr(transObj, attr, value)
+                            transObj.save()
 
                     else:
                         #Ghosted transactions include reversals so attempt to remove existing transactions
                         try:
                             qs=FacilityTransactions.objects.filter(facility=loan, tranRef=transaction['tranRef'])
+
+                            #TEST NOTIFICATION
+                            from_email = settings.DEFAULT_FROM_EMAIL
+                            to = settings.ADMINS[0][1]
+                            msg = EmailMultiAlternatives("AMAL REVERSAL", str(loan.case.caseDescription) + "  |   "
+                                                         + str(transaction['tranRef'],
+                                                               from_email, to))
+                            msg.send()
+
                             qs.delete()
+
                         except FacilityTransactions.DoesNotExist:
                             pass
 

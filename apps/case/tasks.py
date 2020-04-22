@@ -243,8 +243,8 @@ def stageSynch():
                 if obj.caseStage != caseStagesEnum.FUNDED.value and row['StageName'] in stageMapping:
                     obj.caseStage = stageMapping[row['StageName']]
                     obj.save(update_fields=['caseStage'])
-
     write_applog("INFO", 'stageSynch', 'task', "SF Stages Synched")
+
     return "Success - SF Stages Synched"
 
 

@@ -137,16 +137,15 @@
 
                                         <div class="dropdown-divider"></div>
 
-                                        <a class="dropdown-item" href="{% url 'client2:meeting' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-users fa-fw"></i>&nbsp;&nbsp;Meeting
-                                        </a>
-
                                         {% if obj.appType == appTypesEnum.VARIATION.value %}
-                                            <div class="dropdown-divider"></div>
-
-                                        <a class="dropdown-item" href="{% url 'case:caseVariation' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-edit fa-fw"></i>&nbsp;&nbsp;Purposes
-                                        </a>
+                                             <a class="dropdown-item"
+                                               href="{% url 'case:caseVariation' uid=obj.caseUID %}">
+                                                &nbsp;<i class="fas fa-edit fa-fw"></i>&nbsp;&nbsp;Variation
+                                            </a>
+                                        {% else %}
+                                            <a class="dropdown-item" href="{% url 'client2:meeting' uid=obj.caseUID %}">
+                                                &nbsp;<i class="fas fa-users fa-fw"></i>&nbsp;&nbsp;Meeting
+                                            </a>
                                         {% endif %}
 
                                     {% endif %}
@@ -394,22 +393,24 @@
                     </div>
                     <div class="modal-body">
                         {% if obj.summarySentRef %}
-                            <p>This client has already been sent a Loan Summary document via mail.  If you need to mail another physical document please contact IT to reset. </p>
+                            <p>This client has already been sent a Loan Summary document via mail. If you need to mail
+                                another physical document please contact IT to reset. </p>
                         {% else %}
                             <p>You are about to send the client a Loan Summary document via physical mail.</p>
                         {% endif %}
-                    <br>
+                        <br>
                     </div>
                     <div class="modal-footer">
-                         {% if not obj.summarySentRef %}<a href="{% url 'case:caseMailLoanSummary' uid=obj.caseUID pk=0 %}">
-                            <div class=" btn btn-primary">Send Mail and Email</div>
-                        </a>&nbsp;&nbsp;&nbsp;&nbsp;
+                        {% if not obj.summarySentRef %}
+                            <a href="{% url 'case:caseMailLoanSummary' uid=obj.caseUID pk=0 %}">
+                                <div class=" btn btn-primary">Send Mail and Email</div>
+                            </a>&nbsp;&nbsp;&nbsp;&nbsp;
 
 
-                         <a href="{% url 'case:caseMailLoanSummary' uid=obj.caseUID pk=1 %}">
-                            <div class=" btn btn-warning ">Send Mail Only</div>
-                        </a>&nbsp;&nbsp;&nbsp;&nbsp;
-                             {% endif %}
+                            <a href="{% url 'case:caseMailLoanSummary' uid=obj.caseUID pk=1 %}">
+                                <div class=" btn btn-warning ">Send Mail Only</div>
+                            </a>&nbsp;&nbsp;&nbsp;&nbsp;
+                        {% endif %}
 
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
 

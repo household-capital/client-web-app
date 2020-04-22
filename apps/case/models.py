@@ -374,7 +374,12 @@ class Loan(models.Model):
     #Variations
     accruedInterest = models.IntegerField(null=True, blank=True)
     orgTotalLoanAmount = models.IntegerField(default=0)
-    orgTotalPlanAmount = models.IntegerField(default=0)
+    orgPurposeAmount = models.IntegerField(default=0)
+    orgEstablishmentFee = models.IntegerField(default=0)
+    variationTotalAmount = models.IntegerField(default=0)
+    variationPurposeAmount = models.IntegerField(default=0)
+    variationFeeAmount = models.IntegerField(default=0)
+
 
     objects=CaseManager()
 
