@@ -68,7 +68,7 @@ class LoanListView(HouseholdLoginRequiredMixin, ListView):
 
         orderBy = ['-settlementDate']
 
-        queryset = queryset.order_by(*orderBy)[:160]
+        queryset = queryset.order_by(*orderBy)[:200]
 
 
         return queryset

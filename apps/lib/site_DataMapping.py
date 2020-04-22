@@ -322,9 +322,9 @@ def mapLoanToFacility(caseObj, loanDict):
         'amalID': loanDict['Mortgage_Number__c'],
         'sfOriginatorID': caseObj.owner.profile.salesforceID,  # Temporary
         'status': facilityStatus[loanDict['Status__c']],
-        'totalPurposeAmount': loanDict['Total_Limits__c'],
-        'totalLoanAmount': loanDict['Total_Loan_Amount__c'],
-        'totalEstablishmentFee': loanDict['Total_Establishment_Fee__c'],
+        'totalPurposeAmount': round(loanDict['Total_Limits__c'],0),
+        'totalLoanAmount': round(loanDict['Total_Loan_Amount__c'],0),
+        'totalEstablishmentFee': round(loanDict['Total_Establishment_Fee__c'],0),
         'establishmentFeeRate': loanDict['Establishment_Fee_Percent__c'] / 100,
         # 'totalPlanPurposeAmount': loanObj.totalPlanAmount,
         # 'totalPlanAmount': loanObj.totalPlanAmount,

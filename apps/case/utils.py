@@ -43,7 +43,8 @@ def createLoanVariation(facilityObj):
 
     orgLoanDict['accruedInterest'] = int(max(facilityObj.currentBalance - facilityObj.advancedAmount, 0))
     orgLoanDict['orgTotalLoanAmount'] = facilityObj.totalLoanAmount
-    orgLoanDict['orgTotalPlanAmount'] = facilityObj.totalPlanAmount
+    orgLoanDict['orgPurposeAmount'] = facilityObj.totalPurposeAmount
+    orgLoanDict['orgEstablishmentFee'] = facilityObj.totalEstablishmentFee
 
     Loan.objects.filter(case=newCaseObj).update(**orgLoanDict)
     newLoanObj = Loan.objects.filter(case=newCaseObj).get()
