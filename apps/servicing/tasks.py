@@ -82,20 +82,22 @@ def fundedData(*arg, **kwargs):
 
                     else:
                         #Ghosted transactions include reversals so attempt to remove existing transactions
-                        try:
-                            qs=FacilityTransactions.objects.filter(facility=loan, tranRef=transaction['tranRef'])
+                        qs=FacilityTransactions.objects.filter(facility=loan, tranRef=transaction['tranRef'])
 
-                            #TEST NOTIFICATION
-                            from_email = settings.DEFAULT_FROM_EMAIL
-                            to = settings.ADMINS[0][1]
-                            msg = EmailMultiAlternatives("AMAL REVERSAL", str(loan.case.caseDescription) + "  |   "
-                                                         + str(transaction['tranRef'],
-                                                               from_email, to))
-                            msg.send()
-
+                        if qs.exists():
+                            # A reversal
                             qs.delete()
 
-                        except FacilityTransactions.DoesNotExist:
+                            #Test notification of reversal
+                            text = str(loan.sfLoanName) + "  |  " + str(transaction['tranRef'])
+                            from_email = settings.DEFAULT_FROM_EMAIL
+                            subject = "AMAL REVERSAL"
+                            to = settings.ADMINS[0][1]
+                            msg = EmailMultiAlternatives(subject, text , from_email, [to])
+                            msg.send()
+
+                        else:
+                            # Did not exist in the database - a real ghosted transaction (not reverasl)
                             pass
 
         # Additional Items - independent loop, post-update
