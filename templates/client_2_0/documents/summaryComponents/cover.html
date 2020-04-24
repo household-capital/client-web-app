@@ -44,7 +44,7 @@
         <p class="print-text">Dear {% if obj.loanType == loanTypesEnum.SINGLE_BORROWER.value %}
             {{ obj.firstname_1 | firstName}}
         {% else %}
-            {{ obj.firstname_1 | firstName}}, {{ obj.firstname_2 | firstName}}&nbsp;
+            {{ obj.firstname_1 | firstName}} and {{ obj.firstname_2 | firstName}}&nbsp;
         {% endif %}
         </p>
         <br>

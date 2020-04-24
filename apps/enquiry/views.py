@@ -316,7 +316,7 @@ class SendEnquirySummary(LoginRequiredMixin, UpdateView):
                                        enq_obj.user.email
 
         text_content = "Text Message"
-        attachFilename = 'HHC-Summary'
+        attachFilename = 'HHC-Summary.pdf'
 
         sent = pdf.emailPdf(self.template_name, email_context, subject, from_email, to, bcc, text_content,
                             attachFilename)
