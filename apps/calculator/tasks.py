@@ -10,7 +10,6 @@ from config.celery import app
 from apps.calculator.models import WebCalculator, WebContact
 from apps.lib.api_Website import apiWebsite
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Utilities import taskError
 
 
 # TASKS

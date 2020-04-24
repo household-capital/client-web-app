@@ -14,7 +14,7 @@ from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
 from apps.lib.site_Enums import caseStagesEnum
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Utilities import taskError, sendTemplateEmail
+from apps.lib.site_Utilities import raiseTaskAdminError, sendTemplateEmail
 from apps.lib.site_DataMapping import mapCaseToOpportunity
 
 
@@ -76,21 +76,20 @@ def sfLeadConvert(caseUID):
     case = qs.get()
     description=case.caseDescription
 
-    taskErr=taskError()
     write_applog("INFO", 'Case', 'Tasks-SF_Lead_Convert', "Starting")
 
     sfAPI = apiSalesforce()
     result = sfAPI.openAPI(True)
     if result['status'] != "Ok":
         write_applog("Error", 'Case', 'Tasks-SF_Lead_Convert', result['responseText'])
-        taskErr.raiseAdminError('Tasks-SF_Lead_Convert',"Error - could not open Salesforce :"+result['responseText'])
+        raiseTaskAdminError('Tasks-SF_Lead_Convert',"Error - could not open Salesforce :"+result['responseText'])
         return "Error - could not open Salesforce"
 
     result=convertSFLead(caseUID, sfAPI)
 
     if result['status'] != "Ok":
         write_applog("Error", 'Case', 'Tasks-SF_Lead_Convert', result['responseText'])
-        taskErr.raiseAdminError('Tasks-SF_Lead_Convert',"Error - could not convert lead :"+ description+"-"+result['responseText'])
+        raiseTaskAdminError('Tasks-SF_Lead_Convert',"Error - could not convert lead :"+ description+"-"+result['responseText'])
         return "Error - "+ description+"-"+result['responseText']
     else:
         write_applog("INFO", 'Case', 'Tasks-SF_Lead_Convert',  description+"-"+"Lead Converted")
@@ -108,21 +107,20 @@ def sfOppSynch(caseUID):
     case = qs.get()
     description=case.caseDescription
 
-    taskErr = taskError()
     write_applog("INFO", 'Case', 'Tasks-SF_Opp_Synch', "Starting")
 
     sfAPI = apiSalesforce()
     result = sfAPI.openAPI(True)
     if result['status'] != "Ok":
         write_applog("Error", 'Case', 'Tasks-SF_Opp_Synch', result['responseText'])
-        taskErr.raiseAdminError('Tasks-SF_Opp_Synch',"Error - could not open Salesforce :"+result['responseText'])
+        raiseTaskAdminError('Tasks-SF_Opp_Synch',"Error - could not open Salesforce :"+result['responseText'])
         return "Error - could not open Salesforce"
 
     result=updateSFOpp(caseUID, sfAPI)
 
     if result['status'] != "Ok":
         write_applog("Error", 'Case', 'Tasks-SF_Opp_Synch', description+"-"+result['responseText'])
-        taskErr.raiseAdminError('Tasks-SF_Opp_Synch', "Error - could not synch Opp :" + description+"-"+ result['responseText'])
+        raiseTaskAdminError('Tasks-SF_Opp_Synch', "Error - could not synch Opp :" + description+"-"+ result['responseText'])
         return "Error - "+result['responseText']
     else:
         write_applog("INFO", 'Case', 'Tasks-SF_Opp_Synch', description+"-"+"Opp Synched!")
@@ -138,21 +136,20 @@ def sfDocSynch(caseUID):
     case = qs.get()
     description=case.caseDescription
 
-    taskErr = taskError()
     write_applog("INFO", 'Case', 'Tasks-SF_Doc_Synch', "Starting")
 
     sfAPI = apiSalesforce()
     result = sfAPI.openAPI(True)
     if result['status'] != "Ok":
         write_applog("Error", 'Case', 'Tasks-SF_Doc_Synch', result['responseText'])
-        taskErr.raiseAdminError('Tasks-SF_Doc_Synch',"Error - could not open Salesforce :"+result['responseText'])
+        raiseTaskAdminError('Tasks-SF_Doc_Synch',"Error - could not open Salesforce :"+result['responseText'])
         return "Error - could not open Salesforce"
 
     result=updateSFDocs(caseUID, sfAPI)
 
     if result['status'] != "Ok":
         write_applog("Error", 'Case', 'Tasks-SF_Doc_Synch', description+"-"+result['responseText'])
-        taskErr.raiseAdminError('Tasks-SF_Doc_Synch', "Error - could not synch Opp :" + description+"-"+ result['responseText'])
+        raiseTaskAdminError('Tasks-SF_Doc_Synch', "Error - could not synch Opp :" + description+"-"+ result['responseText'])
         return "Error - "+result['responseText']
     else:
         write_applog("INFO", 'Case', 'Tasks-SF_Doc_Synch', description+"-"+"Docs Synched!")

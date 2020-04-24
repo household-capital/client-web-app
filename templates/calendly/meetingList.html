@@ -47,129 +47,217 @@
 
     <div class="container">
 
-    <br><br>
+        <br><br>
+        <div class="row justify-content-center">
 
-    <div class="row justify-content-center">
-
-
-        <div class="col-lg-5 text-center">
-            {% if request.GET.filter != "False" %}
-                <a href="?filter=False">
-                    <div class="btn btn-secondary" data-toggle="tooltip" data-placement="top"
-                         title="Meeting Held"><i class="fas fa-user fa-fw"></i></div>
-                </a>
-            {% else %}
-                <a href="?filter=True">
-                    <div class="btn btn-outline-secondary" data-toggle="tooltip"
-                         data-placement="top"
-                         title="Meeting Held"><i class="fas fa-user fa-fw"></i></div>
-                </a>
-
-            {% endif %}
-
-            {% if request.GET.filter != "False" %}
-                <a href="?filter=False">
-                    <div class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
-                         title="Meeting Held"><i class="fas fa-users fa-fw"></i></div>
-                </a>
-            {% else %}
-                <a href="?filter=True">
-                    <div class="btn btn-secondary" data-toggle="tooltip"
-                         data-placement="top"
-                         title="Meeting Held"><i class="fas fa-users fa-fw"></i></div>
-                </a>
-
-            {% endif %}
+            <div class="col-lg-2 text-center">
+                <p class="small pb-1">Zoom</p>
+            </div>
+            <div class="col-lg-2 text-center">
+                <p class="small pb-1">Calendly</p>
+            </div>
         </div>
-    </div>
+
+        <div class="row justify-content-center">
+
+            <div class="col-lg-2 text-center">
+                {% if filter != "ZoomInd" %}
+                    <a href="?filter=ZoomInd">
+                        <div class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
+                             title="Meeting Held"><i class="fas fa-user fa-fw"></i></div>
+                    </a>
+                {% else %}
+                    <a href="?filter=ZoomInd">
+                        <div class="btn btn-secondary" data-toggle="tooltip"
+                             data-placement="top"
+                             title="Meeting Held"><i class="fas fa-user fa-fw"></i></div>
+                    </a>
+                {% endif %}
+
+                {% if filter != "ZoomGroup" %}
+                    <a href="?filter=ZoomGroup">
+                        <div class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
+                             title="Meeting Held"><i class="fas fa-users fa-fw"></i></div>
+                    </a>
+                {% else %}
+                    <a href="?filter=ZoomGroup">
+                        <div class="btn btn-secondary" data-toggle="tooltip"
+                             data-placement="top"
+                             title="Meeting Held"><i class="fas fa-users fa-fw"></i></div>
+                    </a>
+                {% endif %}
+            </div>
+            <div class="col-lg-2 text-center">
+
+                {% if filter != "CalendlyInd" %}
+                    <a href="?filter=CalendlyInd">
+                        <div class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
+                             title="Meeting Held"><i class="fas fa-user fa-fw"></i></div>
+                    </a>
+                {% else %}
+                    <a href="?filter=CalendlyInd">
+                        <div class="btn btn-secondary" data-toggle="tooltip"
+                             data-placement="top"
+                             title="Meeting Held"><i class="fas fa-user fa-fw"></i></div>
+                    </a>
+
+                {% endif %}
+
+                {% if filter != "CalendlyGroup" %}
+                    <a href="?filter=CalendlyGroup">
+                        <div class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
+                             title="Meeting Held"><i class="fas fa-users fa-fw"></i></div>
+                    </a>
+                {% else %}
+                    <a href="?filter=CalendlyGroup">
+                        <div class="btn btn-secondary" data-toggle="tooltip"
+                             data-placement="top"
+                             title="Meeting Held"><i class="fas fa-users fa-fw"></i></div>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
 
 
-    <br>
+        <br>
 
-    <div class="row justify-content-center">
-        <div class="col-12">
+        {% if isZoom %}
 
-            <table class="table table-hover table-sm">
-                <thead>
-                <tr>
-                    <th scope="col" class="text-center">Action</th>
-                    <th>Owner</th>
-                    <th>Customer Name</th>
-                    <th class="d-none d-sm-table-cell">Customer Email</th>
-                    <th>Start Time</th>
+            <div class="row justify-content-center">
+                <div class="col-12">
+
+                    <table class="table table-hover table-sm">
+                        <thead>
+                        <tr>
+                            <th scope="col" class="text-center">Action</th>
+                            <th>Owner</th>
+                            <th>Customer Name</th>
+                            <th class="d-none d-sm-table-cell">Customer Email</th>
+                            <th>Start Time</th>
 
 
-                </tr>
-                </thead>
-                <tbody>
-                {% for obj in object_list %}
-                    <tr>
-                        <td class="text-center">
-                            <a href="{{ calendlyUrl }}" target="_blank">
-                                <button class="btn btn-outline-secondary btn-sm" data-toggle="tooltip"
-                                        data-placement="top"
-                                        title="Manage Calendly meeting">Manage
-                                </button>
-                            </a>
-                            <a href="{{ zoomUrl }}{{ obj.zoomID }}" target="_blank">
-                                <button class="btn btn-info btn-sm" data-toggle="tooltip"
-                                        data-placement="top"
-                                        title="Start Zoom meeting">&nbsp;&nbsp;&nbsp;Start&nbsp;&nbsp;&nbsp;
-                                </button>
-                            </a>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for obj in object_list %}
+                            <tr>
+                                <td class="text-center">
+                                    <a href="{{ calendlyUrl }}" target="_blank">
+                                        <button class="btn btn-outline-secondary btn-sm" data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Manage Calendly meeting">Manage
+                                        </button>
+                                    </a>
+                                    <a href="{{ zoomUrl }}{{ obj.zoomID }}" target="_blank">
+                                        <button class="btn btn-info btn-sm" data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Start Zoom meeting">&nbsp;&nbsp;&nbsp;Start&nbsp;&nbsp;&nbsp;
+                                        </button>
+                                    </a>
 
-                        </td>
-                        <td>{{ obj.user }}</td>
-                        <td>{{ obj.customerName }}</td>
-                        <td class="d-none d-sm-table-cell">{{ obj.customerEmail }}</td>
-                        <td>{{ obj.startTime }}</td>
+                                </td>
+                                <td>{{ obj.user }}</td>
+                                <td>{{ obj.customerName }}</td>
+                                <td class="d-none d-sm-table-cell">{{ obj.customerEmail }}</td>
+                                <td>{{ obj.startTime }}</td>
 
-                    </tr>
-                    <td colspan="3"></td>
-                    <td colspan="2"><p class="small pb-3">{{ customerUrl }}{{ obj.zoomID }}</p></td>
-                    <tr>
+                            </tr>
+                            <td colspan="3"></td>
+                            <td colspan="2"><p class="small pb-3">{{ customerUrl }}{{ obj.zoomID }}</p></td>
+                            <tr>
 
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-
-            {% if is_paginated %}
-                <hr>
-                <nav aria-label="Page navigation example">
-                    <ul class="pagination justify-content-center pagination-sm">
-                        {% if page_obj.has_previous %}
-                            <li class="page-item">
-                                <a class="page-link"
-                                   href="?filter={{ filter }}&page={{ page_obj.previous_page_number }}"
-                                   tabindex="-1">Previous</a>
-                            </li>
-
-                        {% else %}
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1">Previous</a>
-                            </li>
-                        {% endif %}
-                        {% for object in page_obj.paginator.page_range %}
-                            <li class="page-item"><a class="page-link"
-                                                     href="?filter={{ filter }}&page={{ forloop.counter }}">{{ forloop.counter }}</a>
-                            </li>
+                            </tr>
                         {% endfor %}
-                        {% if page_obj.has_next %}
-                            <li class="page-item">
-                                <a class="page-link"
-                                   href="?filter={{ filter }}&page={{ page_obj.next_page_number }}">Next</a>
-                            </li>
-                        {% else %}
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#">Next</a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-            {% endif %}
+                        </tbody>
+                    </table>
+                    {% if object_list|length == 0 %}
+                        <p class="text-center pt-5">There are no scheduled meetings</p>{% endif %}
 
-        </div>
+                </div>
+            </div>
+        {% else %}
+
+            <div class="row justify-content-center">
+                <div class="col-12">
+
+                    <table class="table table-hover table-sm">
+                        <thead>
+                        <tr>
+                            <th scope="col" class="text-center">Action</th>
+                            <th>Owner</th>
+                            <th>Customer Name</th>
+                            <th class="d-none d-sm-table-cell">Meeting Type</th>
+                            <th>Start Time</th>
+
+
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for obj in object_list %}
+                            <tr>
+                                <td class="text-center">
+                                    <a href="{{ calendlyUrl }}" target="_blank">
+                                        <button class="btn btn-outline-secondary btn-sm" data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Manage Calendly meeting">Manage
+                                        </button>
+                                    </a>
+                                </td>
+                                <td>{{ obj.user }}</td>
+                                <td>{{ obj.customerName }}</td>
+                                <td class="d-none d-sm-table-cell">{{ obj.meetingName }}</td>
+                                <td>{{ obj.startTime }}</td>
+
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if object_list|length == 0 %}
+                        <p class="text-center pt-5">There are no scheduled meetings</p>{% endif %}
+                </div>
+            </div>
+
+        {% endif %}
+
+
+
+
+        {% if is_paginated %}
+            <hr>
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center pagination-sm">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?filter={{ filter }}&page={{ page_obj.previous_page_number }}"
+                               tabindex="-1">Previous</a>
+                        </li>
+
+                    {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Previous</a>
+                        </li>
+                    {% endif %}
+                    {% for object in page_obj.paginator.page_range %}
+                        <li class="page-item"><a class="page-link"
+                                                 href="?filter={{ filter }}&page={{ forloop.counter }}">{{ forloop.counter }}</a>
+                        </li>
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?filter={{ filter }}&page={{ page_obj.next_page_number }}">Next</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+
+    </div>
     </div>
 {% endblock %}
 

@@ -59,17 +59,6 @@ class ReferrerLoginRequiredMixin():
         else:
             return HttpResponseRedirect(reverse_lazy('landing:landing'))
 
-
-class taskError():
-    #Refactor and remove
-    def raiseAdminError(self, title, body):
-        msg_title = "[Django] ERROR (Celery Task): " + title
-        from_email = settings.DEFAULT_FROM_EMAIL
-        to = settings.ADMINS[0][1]
-        msg = EmailMultiAlternatives(msg_title, body, from_email, [to])
-        msg.send()
-        return
-
 def raiseAdminError(self, title, body):
     msg_title = title
     from_email = settings.DEFAULT_FROM_EMAIL
@@ -78,7 +67,7 @@ def raiseAdminError(self, title, body):
     msg.send()
     return
 
-def raiseTaskError(self, title, body):
+def raiseTaskAdminError(self, title, body):
     msg_title = "[Django] ERROR (Celery Task): " + title
     from_email = settings.DEFAULT_FROM_EMAIL
     to = settings.ADMINS[0][1]

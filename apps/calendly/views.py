@@ -292,13 +292,25 @@ class MeetingList(LoginRequiredMixin, ListView):
 
         queryset = super(MeetingList, self).get_queryset()
 
-        qs = queryset.filter(startTime__gte=windowDate, meetingName__icontains="Loan",
-                             isCalendlyLive=True, user=self.request.user).order_by('startTime')
-
         filter = self.request.GET.get('filter')
-        if filter == "False":
-            qs = queryset.filter(startTime__gte=windowDate, meetingName__icontains="Loan",
+
+        if filter == "ZoomGroup":
+            qs = queryset.filter(startTime__gte=windowDate, meetingName__icontains="Interview",
                                  isCalendlyLive=True).order_by('startTime')
+
+        elif filter == "CalendlyInd":
+            qs = queryset.filter(startTime__gte=windowDate, isCalendlyLive=True, user=self.request.user)\
+                .exclude(meetingName__icontains="Interview")\
+                .order_by('startTime')
+
+        elif filter == "CalendlyGroup":
+            qs = queryset.filter(startTime__gte=windowDate, isCalendlyLive=True)\
+                .exclude(meetingName__icontains="Interview")\
+                .order_by('startTime')
+
+        else:
+            qs = queryset.filter(startTime__gte=windowDate, meetingName__icontains="Loan",
+                                 isCalendlyLive=True, user=self.request.user).order_by('startTime')
 
         return qs
 
@@ -309,5 +321,10 @@ class MeetingList(LoginRequiredMixin, ListView):
         context['calendlyUrl'] =  self.calendlyUrl
         context['customerUrl']  =  self.customerUrl
         context['filter'] = self.request.GET.get('filter')
+        if context['filter'] == None:
+            context['filter'] = "ZoomInd"
+
+        if "Zoom" in context['filter']:
+            context['isZoom'] = True
 
         return context
