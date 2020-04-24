@@ -100,3 +100,18 @@ class apiMappify():
                return {'status': "Ok", "responseText": 'Address Match - High Confidence',"result":response['result'][0]}
         else:
             return {'status': "Ok", "responseText": 'Address Match - Low Confidence', "result": response['result'][0]}
+
+    def autoComplete(self, streetAddress):
+
+        # Use Autocomplete to get Postal Address
+        payload = {
+            "streetAddress": streetAddress,
+            "formatCase": True,
+            "includeInternalIdentifiers": True,
+            "apiKey": self.APIKey}
+
+        response = requests.post(self.mappifyUrlPost, data=json.dumps(payload),
+                                 headers={'content-type': 'application/json'})
+
+        response = response.json()
+        return response['result']

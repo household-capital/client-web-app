@@ -105,6 +105,22 @@ p.small {
     color: white !important;
 }
 
+.btn-square-choice-hhcLightBlue {
+    background-color: white;
+    border-color: rgb(81,132,161);
+    font-size: 16px;
+    font-weight: normal;
+    font-family: MaisonNeue;
+
+}
+.btn-square-choice-hhcLightBlue.active {
+    background-color: rgb(81,132,161);
+    font-size: 16px;
+    font-weight: normal;
+    font-family: MaisonNeue;
+    color: white !important;
+}
+
 
 
 /* Sliders */
@@ -515,3 +531,69 @@ footer ul li a:hover {
 }
 
 
+/* Banner Block */
+.banner-container {
+    position: relative;
+    text-align: center;
+    color: white;
+}
+
+.banner-title {
+    position: absolute;
+    top: 50%;
+    transform: translate(0%, -50%);
+    margin-left: 10%;
+}
+
+.banner-title h1 {
+    font-family: MercuryDisplay;
+    font-size: 22px;
+    line-height: 34px;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 1);
+    text-align: left
+}
+
+.banner-title h2 {
+    display: none
+}
+
+@media (min-width: 576px) {
+    .banner-title h1 {
+        font-size: 35px;
+        line-height: 40px;
+    }
+
+    .banner-title h2 {
+        display: none
+    }
+}
+
+@media (min-width: 720px) {
+    .banner-title h1 {
+        font-size: 50px;
+        line-height: 65px;
+    }
+
+    .banner-title h2 {
+        display: none
+    }
+}
+
+@media (min-width: 960px) {
+    .banner-title h1 {
+        font-size: 50px;
+        line-height: 65px;
+    }
+
+    .banner-title h2 {
+        font-family: MaisonNeue;
+        font-size: 20px;
+        line-height: 32px;
+        color: white;
+        text-shadow: 0 1px 4px rgba(0, 0, 0, .25);
+        display: block;
+        text-align: left;
+
+    }
+}

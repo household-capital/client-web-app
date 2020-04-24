@@ -1,0 +1,29 @@
+{% extends 'calculator/email/email_calc_template.html' %}
+{% load humanize %}
+{% load static %}
+
+
+{% block email_content %}
+
+    <p>{% if customerFirstName %}Dear {{ customerFirstName }}{% else %}Hello {% endif %}</p>
+    <br>
+    <p>Thank you for your interest in Household Capital. Your personalised calculator enquiry summary will be emailed to you within the next two business days.</p>
+    <br>
+    <p>It’s our goal is to help you live well at home in retirement.
+        We provide responsible access to home equity to meet the needs of Australia’s retirees for a range of purposes;
+        these might include improved retirement income, home renovations,
+        medical expenses or simply a rainy day fund to deal with the unexpected.</p>
+    <br>
+    <p>To learn more about us and home equity as a source of long term retirement funding, you can read our
+        <a href="https://householdcapital.com.au/frequently-asked-questions/">Frequently Asked Questions</a> or watch this
+        <a href="https://www.youtube.com/watch?v=0qc1ZIXBz7A&t=2s">short video.</a></p>
+    <br>
+    <p>Regards</p>
+    <br>
+    <p>The Team at Household Capital</p>
+
+    <br><br>
+    <small>Applications for credit are subject to eligibility and lending criteria. Fees and charges are payable and terms and conditions apply (available on request). Household Capital Pty Limited is a credit representative (512757) of Mortgage Direct Pty Limited ACN 075 721 434, Australian Credit Licence 391876.</small>
+    <br><br>
+{% endblock %}
+

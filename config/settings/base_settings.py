@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'apps.calendly',
     'apps.case',
     'apps.client_2_0',
+    'apps.drawdown',
     'apps.enquiry',
     'apps.fact_find',
     'apps.landing',

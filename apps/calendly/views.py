@@ -24,7 +24,7 @@ from django.views.decorators.csrf import csrf_exempt
 # Local Application Imports
 from apps.lib.site_Logging import write_applog
 from apps.lib.api_Zoom import apiZoom
-from apps.lib.site_Utilities import sendTemplateEmail
+from apps.lib.site_Utilities import sendTemplateEmail, raiseAdminError
 from apps.case.models import Case
 from apps.enquiry.models import Enquiry
 from .models import Calendly
@@ -36,6 +36,9 @@ from .models import Calendly
 class CalendlyWebhook(View):
 
     def post(self, request, *args, **kwargs):
+
+        zoom_meeting_set = {'interview'}
+        tracked_meeting_set = {'discovery', 'callback'}
 
         #Get webhook ID from environmental settings
         calendly_webhook_id = os.getenv("CALENDLY_WEBHOOK_ID")
@@ -56,6 +59,7 @@ class CalendlyWebhook(View):
 
         hook_event = data["event"]
         meeting_name = data["payload"]["event_type"]["name"]
+        meeting_set = set(meeting_name.lower().split())
         calendlyID = data['payload']["event"]["uuid"]
         user_email = data['payload']["event"]["extended_assigned_to"][0]['email']
         start_time = data['payload']["event"]["start_time"]
@@ -72,7 +76,8 @@ class CalendlyWebhook(View):
             write_applog("ERROR", 'Calendly', 'post', "Not processed - unknown user: " + user_email)
             return HttpResponse(status=200)
 
-        if "Discovery Call" in meeting_name:
+
+        if meeting_set & tracked_meeting_set:
 
             if 'created' in hook_event:
                 # Create db entry (or update if exists)
@@ -109,7 +114,7 @@ class CalendlyWebhook(View):
                 else:
                     write_applog("INFO", 'Calendly', 'post', "Discovery Call Cancelled (but not found):" + customer_email)
 
-        elif "HHC Loan Interview" in meeting_name:
+        elif meeting_set & zoom_meeting_set:
 
             if 'created' in hook_event:
                 # Create db entry (or update if exists)
@@ -219,6 +224,7 @@ class CalendlyWebhook(View):
         else:
             write_applog("INFO", 'Calendly', 'post',
                          "Unhandled Meeting:" + meeting_name)
+            raiseAdminError("Calendly - Unhandled Meeting", "The following meeting type was not handled by the webhook" + meeting_name)
 
         return HttpResponse(status=200)
 

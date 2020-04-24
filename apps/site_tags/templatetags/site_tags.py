@@ -70,6 +70,10 @@ def percent(arg):
         return arg * 100
     return None
 
+def roundNum(arg, ndigits):
+    n = int(ndigits)
+    return round(arg,n)
+
 
 
 # REGISTRATION
@@ -85,3 +89,4 @@ register.filter('firstName', firstName)
 register.filter('getDictItem', getDictItem)
 register.filter('yesNo', yesNo)
 register.filter('percent', percent)
+register.filter('roundNum', roundNum)

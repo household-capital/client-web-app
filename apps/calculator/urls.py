@@ -22,6 +22,7 @@ urlpatterns = [
     # Unauthenticated Views
     path('calcSummaryNewPdf/<uuid:uid>', views.CalcSummaryNewPdf.as_view(), name='calcSummaryNewPdf'),
 
+
 ]
 
 
