@@ -10,7 +10,12 @@ def accessInTemplate(cls):
 
 
 @accessInTemplate
-class caseTypesEnum(Enum):
+class appTypesEnum(Enum):
+    NEW_APPLICATION = 0
+    VARIATION = 1
+
+@accessInTemplate
+class caseStagesEnum(Enum):
     DISCOVERY=0
     PRE_MEETING= 1
     MEETING_HELD= 2

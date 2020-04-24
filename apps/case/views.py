@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q
+from django.forms import model_to_dict
 from django.http import HttpResponseRedirect
 from django.template.loader import get_template
 from django.urls import reverse_lazy
@@ -23,7 +24,7 @@ from config.celery import app
 # Local Application Imports
 from apps.calculator.models import WebCalculator, WebContact
 from apps.lib.hhc_LoanValidator import LoanValidator
-from apps.lib.site_Enums import caseTypesEnum, loanTypesEnum
+from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, appTypesEnum
 from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.site_Globals import LOAN_LIMITS
 from apps.lib.site_Logging import write_applog
@@ -31,7 +32,7 @@ from apps.lib.lixi.lixi_CloudBridge import CloudBridge
 from apps.lib.api_Docsaway import apiDocsAway
 from apps.enquiry.models import Enquiry
 from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignForm
-from .models import Case, LossData, Loan, FundedData, TransactionData
+from .models import Case, LossData, Loan, FundedData, TransactionData, ModelSetting
 
 
 # // UTILITIES
@@ -110,30 +111,30 @@ class CaseListView(LoginRequiredMixin, ListView):
         # ...and for open or closed cases
         if self.request.GET.get('filter') == "Closed":
             queryset = queryset.filter(
-                Q(caseType=caseTypesEnum.CLOSED.value))
+                Q(caseStage=caseStagesEnum.CLOSED.value))
 
         elif self.request.GET.get('filter') == "Documentation":
             queryset = queryset.filter(
-                Q(caseType=caseTypesEnum.DOCUMENTATION.value))
+                Q(caseStage=caseStagesEnum.DOCUMENTATION.value))
 
         elif self.request.GET.get('filter') == "Funded":
             queryset = queryset.filter(
-                Q(caseType=caseTypesEnum.FUNDED.value))
+                Q(caseStage=caseStagesEnum.FUNDED.value))
 
         elif self.request.GET.get('filter') == "Apply":
             queryset = queryset.filter(
-                Q(caseType=caseTypesEnum.APPLICATION.value))
+                Q(caseStage=caseStagesEnum.APPLICATION.value))
 
         elif self.request.GET.get('filter') == "Meet":
             queryset = queryset.filter(
-                Q(caseType=caseTypesEnum.MEETING_HELD.value))
+                Q(caseStage=caseStagesEnum.MEETING_HELD.value))
 
         elif self.request.GET.get('filter') == "Me":
             queryset = queryset.filter(user=self.request.user)
 
         elif not self.request.GET.get('search'):
             queryset = queryset.filter(
-                Q(caseType=caseTypesEnum.DISCOVERY.value))
+                Q(caseStage=caseStagesEnum.DISCOVERY.value))
 
 
         # ...and orderby.....
@@ -190,7 +191,8 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
         context = super(CaseDetailView, self).get_context_data(**kwargs)
         context['title'] = 'Case Detail'
         context['isUpdate'] = True
-        context['caseTypesEnum'] = caseTypesEnum
+        context['caseStagesEnum'] = caseStagesEnum
+        context['appTypesEnum'] = appTypesEnum
 
         clientDict = {}
         clientObj = self.object
@@ -213,11 +215,11 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
 
         # Get pre-save object and check whether we can change
         pre_obj = Case.objects.filter(caseUID=self.kwargs.get('uid')).get()
-        initialCaseType = pre_obj.caseType
+        initialcaseStage = pre_obj.caseStage
         loan_obj = Loan.objects.queryset_byUID(str(self.kwargs['uid'])).get()
 
         # Don't allow to manually change to Application
-        if form.cleaned_data['caseType'] == caseTypesEnum.APPLICATION.value and initialCaseType == caseTypesEnum.DISCOVERY.value:
+        if form.cleaned_data['caseStage'] == caseStagesEnum.APPLICATION.value and initialcaseStage == caseStagesEnum.DISCOVERY.value:
             messages.error(self.request, "Please update to Meeting Held first")
             return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': self.kwargs.get('uid')}))
 
@@ -246,10 +248,10 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
             obj.save(update_fields=['propertyImage'])
 
         # Checks for a closed case and redirects to Case Close View
-        if obj.caseType == caseTypesEnum.CLOSED.value:
+        if obj.caseStage == caseStagesEnum.CLOSED.value:
             return HttpResponseRedirect(reverse_lazy('case:caseClose', kwargs={'uid': str(obj.caseUID)}))
 
-        if obj.caseType == caseTypesEnum.APPLICATION.value:
+        if obj.caseStage == caseStagesEnum.APPLICATION.value:
             # Order Title Documents
             self.orderTitleDocuments(obj, loan_obj)
 
@@ -269,7 +271,7 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
 
     def salesforceSynch(self, caseObj):
 
-        if caseObj.caseType == caseTypesEnum.MEETING_HELD.value and caseObj.sfOpportunityID is None:
+        if caseObj.caseStage == caseStagesEnum.MEETING_HELD.value and caseObj.sfOpportunityID is None:
             # Background task to update SF
             app.send_task('SF_Lead_Convert', kwargs={'caseUID': str(caseObj.caseUID)})
 
@@ -363,7 +365,7 @@ class CaseCreateView(LoginRequiredMixin, CreateView):
             obj.age_2 = datetime.date.today().year - obj.birthdate_2.year
 
         # Set fields manually
-        obj.caseType = caseTypesEnum.DISCOVERY.value
+        obj.caseStage = caseStagesEnum.DISCOVERY.value
         obj.user = self.request.user
 
         obj.save()
@@ -489,35 +491,41 @@ class CaseMailLoanSummary(LoginRequiredMixin, TemplateView):
 
         caseObj = Case.objects.queryset_byUID(caseUID).get()
 
-        email_context['obj'] = caseObj
-        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-        email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
+        #Email if present
+        if caseObj.email:
+            email_context['obj'] = caseObj
+            email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+            email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
 
-        attachFilename = "HouseholdLoanSummary.pdf"
-        bcc = caseObj.user.email
+            attachFilename = "HouseholdLoanSummary.pdf"
+            bcc = caseObj.user.email
 
-        subject, from_email, to = "Household Loan Summary Report", caseObj.user.email, caseObj.email
-        text_content = "Text Message"
+            subject, from_email, to = "Household Loan Summary Report", caseObj.user.email, caseObj.email
+            text_content = "Text Message"
 
-        localfile = open(caseObj.summaryDocument.name, 'rb')
-        pdfContents = localfile.read()
+            localfile = open(caseObj.summaryDocument.name, 'rb')
+            pdfContents = localfile.read()
 
-        try:
-            html = get_template(self.template_name)
-            html_content = html.render(email_context)
-            msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [bcc])
-            msg.attach_alternative(html_content, "text/html")
-            msg.attach(attachFilename, pdfContents, 'application/pdf')
-            msg.send()
-            caseObj.summarySentDate = timezone.now()
-            caseObj.save(update_fields=['summarySentDate'])
-            messages.success(self.request, "Loan Summary emailed to client")
+            try:
+                html = get_template(self.template_name)
+                html_content = html.render(email_context)
+                msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [bcc])
+                msg.attach_alternative(html_content, "text/html")
+                msg.attach(attachFilename, pdfContents, 'application/pdf')
+                msg.send()
+                caseObj.summarySentDate = timezone.now()
+                caseObj.save(update_fields=['summarySentDate'])
+                messages.success(self.request, "Loan Summary emailed to client")
 
-        except:
-            write_applog("ERROR", 'CaseEmailLoanSummary', 'get',
-                         "Failed to email Loan Summary Report:" + caseUID)
-            messages.error(self.request, "Loan Summary could not be emailed")
-            return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
+            except:
+                write_applog("ERROR", 'CaseEmailLoanSummary', 'get',
+                             "Failed to email Loan Summary Report:" + caseUID)
+                messages.error(self.request, "Loan Summary could not be emailed")
+                return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
+
+        else:
+            messages.info(self.request, "No email address - not emailed")
+
 
         ## Mail via docsaway
         docs = apiDocsAway()
@@ -874,8 +882,8 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
             #Save AMAL submission data
             caseObj.amalIdentifier=result['data']['identifier']
             caseObj.amalLoanID = result['data']['AMAL_LoanId']
-            caseObj.caseType = caseTypesEnum.FUNDED.value
-            caseObj.save(update_fields=['amalLoanID','amalIdentifier','caseType'])
+            caseObj.caseStage = caseStagesEnum.FUNDED.value
+            caseObj.save(update_fields=['amalLoanID','amalIdentifier','caseStage'])
 
             #Create related funded data (initial valuation $1)
             funded_obj, created = FundedData.objects.get_or_create(case=caseObj, totalValuation=1)
@@ -886,6 +894,58 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
             app.send_task('AMAL_Send_Docs', kwargs={'caseUID': str(caseObj.caseUID)})
 
         return context
+
+
+class CaseVariation(LoginRequiredMixin, TemplateView):
+    template_name = 'case/caseCloudbridge.html'
+
+    def get(self, request, *args, **kwargs):
+        caseUID = str(self.kwargs['uid'])
+        baseObj = Case.objects.queryset_byUID(caseUID).get()
+
+        # 1. Case Object
+        baseDict = model_to_dict(baseObj, exclude=['caseID', 'caseUID','meetingDate','summaryDocument','summarySentDate','summarySentRef',
+                                                   'responsibleDocument', 'user', 'superFund',
+                                                   'enquiryDocument','valuationDocument',
+                                                   'meetingDate', 'summaryDocument',
+                                                   'titleDocument', 'lixiFile', 'sfOpportunityID', 'sfLoanID', 'amalIdentifier',
+                                                   'amalLoanID', 'isZoomMeeting', 'timestamp', 'updated'])
+
+
+        # Overwrite fields
+        baseDict['caseStage'] = caseStagesEnum.DISCOVERY.value
+        baseDict['refCaseUID'] = self.kwargs['uid']
+        baseDict['appType'] = appTypesEnum.VARIATION.value
+        baseDict['caseDescription'] += "- Variation"
+        baseDict['sfLeadID'] = "N/A"
+        baseDict['user'] = baseObj.user
+        baseDict['superFund'] = baseObj.superFund
+
+        try:
+            newCaseObj = Case.objects.create(**baseDict)
+        except:
+            messages.error(self.request, "Could not create variation")
+            return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseUID}))
+
+        # 2. Case Loan Object
+        baseLoanObj = Loan.objects.queryset_byUID(caseUID).get()
+        baseLoanDict = model_to_dict(baseLoanObj, exclude=['case', 'localLoanID' ])
+        baseLoanDict['case'] = newCaseObj
+
+        Loan.objects.queryset_byUID(str(newCaseObj.caseUID)).update(**baseLoanDict)
+
+        # 3. Case ModelSetting Object
+        baseSettingsObj = ModelSetting.objects.queryset_byUID(caseUID).get()
+        baseSettingsDict = model_to_dict(baseSettingsObj, exclude=['case', 'id'])
+        baseSettingsDict['case'] = newCaseObj
+
+        ModelSetting.objects.queryset_byUID(str(newCaseObj.caseUID)).update(**baseSettingsDict)
+
+        messages.success(self.request, "This is a variation of the original loan")
+        messages.success(self.request, "Update the meeting based on additional amounts")
+        return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': str(newCaseObj.caseUID)}))
+
+
 
 ## Loan Views (AMAL)
 

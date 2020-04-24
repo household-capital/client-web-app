@@ -12,7 +12,7 @@ from config.celery import app
 from apps.lib.api_AMAL import apiAMAL
 from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
-from apps.lib.site_Enums import caseTypesEnum
+from apps.lib.site_Enums import caseStagesEnum
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Utilities import taskError, sendTemplateEmail
 
@@ -261,21 +261,21 @@ def stageSynch():
     '''Reverse synch SF -> clientApp'''
 
     stageMapping = {
-            "Meeting Held": caseTypesEnum.MEETING_HELD.value,
-            "Application Sent": caseTypesEnum.APPLICATION.value,
-            "Approval": caseTypesEnum.APPLICATION.value,
-            "Assess": caseTypesEnum.APPLICATION.value,
-            "Build Case": caseTypesEnum.APPLICATION.value,
-            "Certification": caseTypesEnum.DOCUMENTATION.value,
-            "Documentation": caseTypesEnum.DOCUMENTATION.value,
-            "Settlement": caseTypesEnum.DOCUMENTATION.value,
-            "Settlement Booked": caseTypesEnum.DOCUMENTATION.value,
-            "Pre-Settlement": caseTypesEnum.DOCUMENTATION.value,
-            "Post-Settlement Review": caseTypesEnum.FUNDED.value,
-            "Loan Approved": caseTypesEnum.FUNDED.value,
-            "Parked": caseTypesEnum.CLOSED.value,
-            "Loan Application Withdrawn": caseTypesEnum.CLOSED.value,
-            "Loan Declined": caseTypesEnum.CLOSED.value,
+            "Meeting Held": caseStagesEnum.MEETING_HELD.value,
+            "Application Sent": caseStagesEnum.APPLICATION.value,
+            "Approval": caseStagesEnum.APPLICATION.value,
+            "Assess": caseStagesEnum.APPLICATION.value,
+            "Build Case": caseStagesEnum.APPLICATION.value,
+            "Certification": caseStagesEnum.DOCUMENTATION.value,
+            "Documentation": caseStagesEnum.DOCUMENTATION.value,
+            "Settlement": caseStagesEnum.DOCUMENTATION.value,
+            "Settlement Booked": caseStagesEnum.DOCUMENTATION.value,
+            "Pre-Settlement": caseStagesEnum.DOCUMENTATION.value,
+            "Post-Settlement Review": caseStagesEnum.FUNDED.value,
+            "Loan Approved": caseStagesEnum.FUNDED.value,
+            "Parked": caseStagesEnum.CLOSED.value,
+            "Loan Application Withdrawn": caseStagesEnum.CLOSED.value,
+            "Loan Declined": caseStagesEnum.CLOSED.value,
     }
 
     #Get stage list from SF
@@ -294,9 +294,9 @@ def stageSynch():
                 obj = None
 
             if obj:
-                if obj.caseType != caseTypesEnum.FUNDED.value and row['StageName'] in stageMapping:
-                    obj.caseType = stageMapping[row['StageName']]
-                    obj.save(update_fields=['caseType'])
+                if obj.caseStage != caseStagesEnum.FUNDED.value and row['StageName'] in stageMapping:
+                    obj.caseStage = stageMapping[row['StageName']]
+                    obj.save(update_fields=['caseStage'])
 
     write_applog("INFO", 'stageSynch', 'task', "SF Stages Synched")
     return "Success - SF Stages Synched"

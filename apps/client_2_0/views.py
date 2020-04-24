@@ -17,7 +17,7 @@ from django.views.generic import FormView, TemplateView, View, UpdateView
 
 # Local Application Imports
 from apps.case.models import ModelSetting, Loan, Case
-from apps.lib.site_Enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum, pensionTypesEnum, \
+from apps.lib.site_Enums import caseStagesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum, pensionTypesEnum, \
     loanTypesEnum, incomeFrequencyEnum
 from apps.lib.site_Globals import ECONOMIC, APP_SETTINGS, LOAN_LIMITS
 from apps.lib.hhc_LoanValidator import LoanValidator
@@ -89,7 +89,7 @@ class ContextHelper():
         context.update(modelDict)
         context.update(loanStatus['data'])
 
-        context['caseTypesEnum'] = caseTypesEnum
+        context['caseStagesEnum'] = caseStagesEnum
         context['clientSexEnum'] = clientSexEnum
         context['clientTypesEnum'] = clientTypesEnum
         context['dwellingTypesEnum'] = dwellingTypesEnum

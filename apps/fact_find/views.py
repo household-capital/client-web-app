@@ -16,8 +16,7 @@ from config.celery import app
 # Local Application Imports
 from .forms import FactFindForm
 from apps.case.models import ModelSetting, Loan, Case, FactFind
-from apps.lib.site_Enums import caseTypesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum, pensionTypesEnum, \
-    loanTypesEnum, incomeFrequencyEnum
+from apps.lib.site_Enums import loanTypesEnum
 from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.site_Globals import ECONOMIC, APP_SETTINGS, LOAN_LIMITS
 from apps.lib.hhc_LoanValidator import LoanValidator

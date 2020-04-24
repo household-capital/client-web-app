@@ -17,7 +17,7 @@ from config.celery import app
 
 
 # Local Application Imports
-from apps.lib.site_Enums import caseTypesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum
+from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum
 from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
@@ -52,7 +52,7 @@ class CalcSummaryNewPdf(TemplateView):
         context["transfer_img"] = settings.STATIC_URL + "img/icons/transfer_" + str(
             context['maxLVRPercentile']) + "_icon.png"
 
-        context['caseTypesEnum'] = caseTypesEnum
+        context['caseStagesEnum'] = caseStagesEnum
         context['loanTypesEnum'] = loanTypesEnum
         context['dwellingTypesEnum'] = dwellingTypesEnum
         context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
