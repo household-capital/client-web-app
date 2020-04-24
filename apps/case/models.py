@@ -256,9 +256,6 @@ class Case(models.Model):
         else:
             return [dict(self.clientTypes)[self.clientType1],dict(self.clientTypes)[self.clientType2]]
 
-    def get_absolute_url(self):
-        return reverse_lazy("case:caseDetail", kwargs={"uid":self.caseUID})
-
     def enumChannelType(self):
         if self.salesChannel is not None:
             return dict(self.channelTypes)[self.salesChannel]
@@ -278,6 +275,10 @@ class Case(models.Model):
             return [dict(self.salutationTypes)[self.salutation_1],None]
         else:
             return [dict(self.salutationTypes)[self.salutation_1],dict(self.salutationTypes)[self.salutation_2]]
+
+    def get_absolute_url(self):
+        return reverse_lazy("case:caseDetail", kwargs={"uid": self.caseUID})
+
 
 # Pre-save function to extend Case
 def create_case_extensions(sender, instance, created, **kwargs):
@@ -443,27 +444,6 @@ class LossData(models.Model):
     class Meta:
         verbose_name_plural = "Loss Data"
 
-
-class FundedData(models.Model):
-    case = models.OneToOneField(Case, on_delete=models.CASCADE)
-    advanced=models.FloatField(default=0,blank=True, null=True)
-    principal=models.FloatField(default=0,blank=True, null=True)
-    totalValuation=models.FloatField(default=0,blank=True, null=True)
-    timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
-    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
-
-    objects = CaseManager()
-
-    def __str__(self):
-        return smart_text(self.case.caseDescription)
-
-    def __unicode__(self):
-        return smart_text(self.case.caseDescription)
-
-    class Meta:
-        verbose_name_plural = "Funded Data"
-
-
 class FactFind(models.Model):
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
     backgroundNotes = models.TextField(blank=True, null=True)
@@ -486,3 +466,58 @@ class FactFind(models.Model):
 
     def __unicode__(self):
         return smart_text(self.case.caseDescription)
+
+
+#AMAL Tables
+
+class FundedData(models.Model):
+    case = models.OneToOneField(Case, on_delete=models.CASCADE)
+    application = models.FloatField(default=0,blank=True, null=True)
+    advanced = models.FloatField(default=0,blank=True, null=True)
+    principal = models.FloatField(default=0,blank=True, null=True)
+    totalValuation = models.FloatField(default=1,blank=True, null=True)
+    currentLVR = models.FloatField(default=0,blank=True, null=True)
+    settlementDate = models.DateTimeField(blank=True, null=True)
+    dischargeDate = models.DateTimeField(blank=True, null=True)
+    bPayCode = models.CharField(max_length=30, blank=True, null=True)
+    bPayRef = models.CharField(max_length=30, blank=True, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
+    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+    objects = CaseManager()
+
+    def __str__(self):
+        return smart_text(self.case.caseDescription)
+
+    def __unicode__(self):
+        return smart_text(self.case.caseDescription)
+
+    class Meta:
+        verbose_name_plural = "Funded Data"
+
+    def get_absolute_url(self):
+        return reverse_lazy("case:loanDetail", kwargs={"uid": self.case.caseUID})
+
+class TransactionData(models.Model):
+    case = models.ForeignKey(Case, on_delete=models.CASCADE)
+    description = models.CharField(max_length=120, blank=True, null=True)
+    type = models.CharField(max_length=30, blank=True, null=True)
+    transactionDate = models.DateTimeField(blank=True, null=True)
+    effectiveDate = models.DateTimeField(blank=True, null=True)
+    tranRef = models.CharField(max_length=30,blank=False, null=False)
+    debitAmount =  models.FloatField(default=0,blank=True, null=True)
+    creditAmount = models.FloatField(default=0, blank=True, null=True)
+    balance = models.FloatField(default=0, blank=True, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
+    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+    objects = CaseManager()
+
+    def __str__(self):
+        return smart_text(self.case.caseDescription)
+
+    def __unicode__(self):
+        return smart_text(self.case.caseDescription)
+
+    class Meta:
+        verbose_name_plural = "Transaction Data"
+        unique_together = (('case', 'tranRef'),)
+

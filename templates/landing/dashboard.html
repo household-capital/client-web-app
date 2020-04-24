@@ -59,7 +59,8 @@
 
                             <div class="col-12">
                                 <button type="button" class="btn btn-jumbotron">
-                                    Enquiries&nbsp;&nbsp;&nbsp; <span class="badge badge-hhcBlue">{{ openEnquiries }}</span>
+                                    Enquiries&nbsp;&nbsp;&nbsp; <span
+                                        class="badge badge-hhcBlue">{{ openEnquiries }}</span>
                                 </button>
 
                             </div>
@@ -137,6 +138,7 @@
 
                     <div class="col-7">
                         <b>Portfolio</b><br>
+                        <p>Approved Limit</p>
                         <p>Current Balance</p>
                         <p>Funded</p>
                         <p>W.Ave LVR</p>
@@ -145,6 +147,7 @@
 
                     <div class="col-4 text-right">
                         <b>&nbsp;</b><br>
+                        <p>${{ portfolioLimit|intcomma }}</p>
                         <p>${{ portfolioBalance|intcomma }}</p>
                         <p>${{ portfolioFunded|intcomma }}</p>
                         <p>{{ portfolioLvr }}%</p>
@@ -191,22 +194,22 @@
                 <tr>
                     <td class="small text-left"><b>Interactions</b></td>
                     <td></td>
-                     {% for month in dateRange %}
+                    {% for month in dateRange %}
                         <td class="small">{{ interactionData|getDictItem:month|getDictItem:'interactions' }}</td>
                     {% endfor %}
                 </tr>
-                    <td></td>
-                    <td></td>
-                     {% for month in dateRange %}
-                        <td>&nbsp;</td>
-                    {% endfor %}
+                <td></td>
+                <td></td>
+                {% for month in dateRange %}
+                    <td>&nbsp;</td>
+                {% endfor %}
                 <tr>
 
                 </tr>
 
                 <tr>
                     <td class="text-left"><b>Direct</b></td>
-                     <td></td>
+                    <td></td>
                     {% for month in dateRange %}
                         <td></td>{% endfor %}
                 </tr>
@@ -300,6 +303,30 @@
         </div>
     </div>
 
+    <div class="row justify-content-center pt-5">
+        <div class="col-lg-10 text-left">
+
+            <b>Platform Activity</b>&nbsp;&nbsp;
+            <div class="chart-container pt-3" style="height:370px;">
+
+                <canvas id="activityChart"></canvas>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row justify-content-center pt-5">
+        <div class="col-lg-10 text-left">
+
+            <b>Asset Writing</b>&nbsp;&nbsp;
+            <div class="chart-container pt-3" style="height:370px;">
+
+                <canvas id="portfolioChart"></canvas>
+            </div>
+
+        </div>
+    </div>
+
     <br><br><br>
 
 
@@ -324,18 +351,35 @@
             return timeSeriesArray;
         }
 
+        //Formatting
+        function currencyFormat(num) {
+            return '$' + num.toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+        }
+
         // Chart data
         var chartInteractionData = {{ chartInteractionData|safe}};
         var chartEmailData = {{ chartEmailData|safe}};
         var chartPhoneData = {{ chartPhoneData|safe}};
+        var chartMeetingData = {{ chartMeetingData | safe }};
+        var chartZoomMeetingData = {{ chartZoomMeetingData | safe }};
+        var chartSettlementData = {{ chartSettlementData | safe }};
+        var chartNewLoansData = {{ chartNewLoansData | safe }};
+        var chartPortfolioData = {{ chartPortfolioData | safe }};
 
         // Timeseries data
         var interactionData = createTimeSeries(chartInteractionData);
         var emailData = createTimeSeries(chartEmailData);
         var phoneData = createTimeSeries(chartPhoneData);
+        var meetingData = createTimeSeries(chartMeetingData);
+        var zoomMeetingData = createTimeSeries(chartZoomMeetingData);
+        var settlementData = createTimeSeries(chartSettlementData);
+        var newLoansData = createTimeSeries(chartNewLoansData);
+        var portfolioData = createTimeSeries(chartPortfolioData);
 
         // Chart references
         var ctx_interaction = document.getElementById('interactionChart').getContext('2d');
+        var ctx_activity = document.getElementById('activityChart').getContext('2d');
+        var ctx_portfolio = document.getElementById('portfolioChart').getContext('2d');
 
         // Chart definitions
 
@@ -344,11 +388,11 @@
             data: {
                 datasets: [
                     {
-                    label: "Interactions",
-                    data: interactionData,
-                    borderColor: "#5184a1",
-                    backgroundColor: "#5184a1",
-                    fill: false
+                        label: "Interactions",
+                        data: interactionData,
+                        borderColor: "#5184a1",
+                        backgroundColor: "#5184a1",
+                        fill: false
                     },
 
                     {
@@ -359,7 +403,7 @@
                         fill: false
                     },
 
-                   {
+                    {
                         label: "Phone Enquiries",
                         data: phoneData,
                         borderColor: "#86b3b5",
@@ -396,9 +440,108 @@
             }
         });
 
+        var activityChart = new Chart(ctx_activity, {
+            type: 'line',
+            data: {
+                datasets: [
+                    {
+                        label: "Total Customer Meetings",
+                        data: meetingData,
+                        borderColor: "#5184a1",
+                    },
+                    {
+                        label: "Zoom Meetings",
+                        data: zoomMeetingData,
+                        borderColor: "#86b3b5",
+                        fill: false,
+                        borderWidth: 1,
+
+                    },
+                    {
+                        label: "New Loan Settlements",
+                        data: settlementData,
+                        borderColor: "#fdb600",
+                    },
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                    display: false,
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'month',
+                            tooltipFormat: 'ddd DD-MMM-YYYY',
+                        },
 
 
 
+                    }],
+                    yAxes: [{
+                        display: true,
+                        ticks: {
+                            beginAtZero: true,
+
+                        }
+                    }]
+                },
+
+
+            }
+        });
+
+        var portfolioChart = new Chart(ctx_portfolio, {
+            type: 'line',
+            data: {
+                datasets: [
+                    {
+                        label: "New Loans Written",
+                        data: newLoansData,
+                        borderColor: "#5184a1",
+                    },
+                    {
+                        label: "Total Loans Written",
+                        data: portfolioData,
+                        borderColor: "#fdb600",
+                    },
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                    display: false,
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'month',
+                            tooltipFormat: 'ddd DD-MMM-YYYY',
+                        },
+
+
+
+                    }],
+                    yAxes: [{
+                        display: true,
+                        ticks: {
+                            beginAtZero: true,
+                            callback: function (value, index, values) {
+                                return currencyFormat(value);
+
+                            }
+                        }
+                    }]
+                },
+
+
+            }
+        });
 
     </script>
 

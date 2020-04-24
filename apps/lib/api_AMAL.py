@@ -12,7 +12,10 @@ class apiAMAL():
     api_url_session = '/api/session'
     api_url_lixi = '/api/lixiapplications'
     api_url_balance = '/api/accounts/{0}/balances/{1}'
+    api_url_dates = '/api/loans/{0}/dates'
     api_url_lvr = '/api/loans/{0}/lvr'
+    api_url_bpay = '/api/loans/{0}/bpay'
+    api_url_transactions = '/api/loans/{0}/transactions'
     api_url_schema = '/api/lixivalidateschema'
     api_url_documents='/api/lixiapplications/{0}/documents'
     api_url_nuke='/api/loanapplicationmaintenance/cleanup'
@@ -115,28 +118,70 @@ class apiAMAL():
 
         #Get Valuation
         response = requests.get(self.api_path + self.api_url_lvr.format(ARN), headers=headers)
-
         response=json.loads(response.content)
 
         if response['status']=='ok':
             totalValuation=response['data'][0]['totalValuation']
         else:
-            write_applog("ERROR", 'apiAMAL', 'getFundedData', 'Could not retrieve valuation - '+ARN)
-            return {'status':"Error",'responseText':'Could not retrieve valuation - '+ARN}
+            totalValuation = 1
 
         #Get Advanced / Principal
-        response_advanced = requests.get(self.api_path + self.api_url_balance.format(ARN,'advanced'), headers=headers)
-        response_principal = requests.get(self.api_path + self.api_url_balance.format(ARN,'principal'), headers=headers)
+        advanced = self.__getBalanceValue(ARN, 'advanced', headers)
+        principal = self.__getBalanceValue(ARN, 'principal', headers)
+        application = self.__getBalanceValue(ARN, 'application', headers)
 
-        response_advanced = json.loads(response_advanced.content)
-        response_principal = json.loads(response_principal.content)
+        #Calc LVR
+        currentLVR = principal / totalValuation
 
-        if response_advanced['status'] == 'ok' and response_principal['status'] == 'ok':
-            advanced = response_advanced['data'][0]['balance']
-            principal= response_principal['data'][0]['balance']
+        #Get Dates
+        response = requests.get(self.api_path + self.api_url_dates.format(ARN), headers=headers)
+        response = json.loads(response.content)
+
+        if response['status'] == 'ok':
+            settlement = response['data'][0]['settlement']
+            discharge = response['data'][0]['discharge']
         else:
-            write_applog("ERROR", 'apiAMAL', 'getFundedData', 'Could not retrieve balances - ' + ARN)
-            return {'status': "Error", 'responseText': 'Could not retrieve balances - ' + ARN}
+            settlement = None
+            discharge = None
+
+        #Get BPay
+        response = requests.get(self.api_path + self.api_url_bpay.format(ARN), headers=headers)
+        response = json.loads(response.content)
+
+        if response['status'] == 'ok':
+            bPayCode = response['data'][0]['billerCode']
+            bPayRef = response['data'][0]['referenceNumber']
+        else:
+            bPayCode = None
+            bPayRef = None
 
         write_applog("INFO", 'apiAMAL', 'getFundedData', 'Funded data retrieved - ' + ARN)
-        return {'status':"Ok",'responseText':'','data':{'totalValuation':totalValuation,'advanced':advanced,'principal':principal}}
+        return {'status':"Ok",'responseText':'','data':{'totalValuation':totalValuation,'advanced':advanced,
+                                                        'principal':principal, 'application':application,
+                                                        'currentLVR':currentLVR,
+                                                        'settlementDate':settlement, 'dischargeDate':discharge,
+                                                        'bPayCode':bPayCode,'bPayRef':bPayRef}}
+
+    def __getBalanceValue(self, ARN, balanceName, headers):
+        response = requests.get(self.api_path + self.api_url_balance.format(ARN,balanceName), headers=headers)
+        response_dict = json.loads(response.content)
+        if response_dict['status'] == 'ok':
+            return response_dict['data'][0]['balance']
+        else:
+            return 0
+
+    def getTransactionData(self,ARN):
+
+        headers = dict(Accept="application/json", AccessToken=self.token)
+
+        #Get Valuation
+        response = requests.get(self.api_path + self.api_url_transactions.format(ARN), headers=headers)
+        if response.status_code!=200:
+            return {'status': "Error", 'responseText': response.status_code}
+
+        response=json.loads(response.content)
+
+        if response['status']=='ok':
+            return {'status': "Ok", 'data': response['data']}
+        else:
+            return {'status': "Error", 'responseText': ""}
