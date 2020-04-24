@@ -48,6 +48,7 @@ class IncomeCalculator(models.Model):
     status = models.BooleanField(default=True, blank=False, null=False)
     maxLoanAmount = models.IntegerField(blank=True, null=True)
     maxDrawdownAmount = models.IntegerField(blank=True, null=True)
+    maxDrawdownMonthly = models.IntegerField(blank=True, null=True)
     maxLVR = models.FloatField(blank=True, null=True)
     errorText = models.CharField(max_length=40,blank= True,null=True)
 

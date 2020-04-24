@@ -74,6 +74,7 @@ class LoanValidator():
         self.maxLvr = 0
         self.maxLoan = 0
         self.loanLimit = 0
+        self.drawdownLimit = 0
         self.refinanceLimit = 0
         self.giveLimit = 0
         self.travelLimit = 0
@@ -155,7 +156,8 @@ class LoanValidator():
         data['maxRefi'] = int(self.refinanceLimit)
         data['maxGive'] = int(self.giveLimit)
         data['maxTravel'] = int(self.travelLimit)
-        data['maxDrawdown'] = int((data['maxLoan']-data['maxFee'])*.80/(10 *12))  # Temporary calculation
+        data['maxDrawdown'] = int(self.drawdownLimit)
+        data['maxDrawdownMonthly'] = round(((self.drawdownLimit / (10 * 12 ))/(1 + self.establishmentFee)),-1) # Temporary calculation
 
         response['data'] = data
 
@@ -304,6 +306,9 @@ class LoanValidator():
         self.refinanceLimit = min(int(lvr * self.initDict['valuation'] * LOAN_LIMITS['maxRefi']), self.loanLimit)
         self.giveLimit = self.loanLimit * LOAN_LIMITS['maxGive']
         self.travelLimit = self.loanLimit * LOAN_LIMITS['maxTravel']
+
+        # Drawdown Limits - income product
+        self.drawdownLimit = self.loanLimit * 0.80  # Temporary calculation
 
     def __valueExists(self, item, sourceDict):
         if item in sourceDict:

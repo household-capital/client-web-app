@@ -42,7 +42,9 @@ class LoanProjection():
                        'inflationRate',
                        'interestRate',  # Base interest rate
                        'lendingMargin',
-                       'maxLoanAmount']
+                       'maxLoanAmount',
+                       'maxDrawdownAmount',
+                       'maxDrawdownMonthly']
 
     optionalDefaultDict = {
         'interestPayAmount': 0,  # Planned interest payment (monthly)
@@ -62,7 +64,7 @@ class LoanProjection():
         'establishmentFeeRate': LOAN_LIMITS['establishmentFee'],
 
         'annualPensionIncome': 0,
-        'accruedInterest': 0
+        'accruedInterest': 0,
 
     }
 
@@ -408,12 +410,6 @@ class LoanProjection():
 
         return {'status': 'Ok', 'data': imageList}
 
-    def getNegativeEquityAge(self):
-        if self.isInit:
-            return {'status': 'Ok', 'data': self.__calcNegAge}
-        else:
-            return {'status': 'Error', 'responseText': 'Object not instantiated'}
-
     def getFutureEquityArray(self, projectionYears=15, increment=1000):
         # Returns loan / projected equity combinations (for slider)
         if increment < 100:
@@ -447,6 +443,49 @@ class LoanProjection():
                     'data': {"intervals": intervals, "futHomeValue": int(homeValue), "dataArray": dataArray}}
         else:
             return {'status': 'Error', 'responseText': 'Object not instantiated'}
+
+
+    def getFutureIncomeEquityArray(self, projectionYears=10, increment=20):
+        # Returns loan / projected equity combinations (for slider)
+        if increment < 10:
+            increment = 10
+
+        maxDrawdownMonthly = self.initDict['maxDrawdownMonthly']
+
+        if self.isInit:
+            dataArray = []
+            intervals = int(maxDrawdownMonthly / increment) + 1
+
+            homeValue = (self.initDict['valuation'] * (1 + self.hpiRate / 100) ** projectionYears)
+
+            for item in range(intervals + 1):
+                if item == intervals:
+                    loanAmount = maxDrawdownMonthly
+                else:
+                    loanAmount = round((item * increment), -1)
+
+                # Future value annuity formula
+                loanBalance = (loanAmount * (1 + self.establishmentFee)) * \
+                              ((((1+self.totalInterestRate/1200) ** (projectionYears*12)) - 1) / (self.totalInterestRate/1200))
+
+                print((1+self.totalInterestRate/1200), projectionYears, self.totalInterestRate )
+
+                projectedEquity = homeValue - loanBalance
+
+                dataArray.append({'item': item,
+                                  "loanAmount": int(loanAmount),
+                                  "loanPercentile": int(self.__myround(loanAmount / self.initDict['valuation'] * 100)),
+                                  "futLoanBalance": int(loanBalance),
+                                  "futHomeEquity": int(round(projectedEquity, 0)),
+                                  "futHomeEquityPC": int(round(projectedEquity / homeValue * 100, 0)),
+                                  "percentile": int(self.__myround(projectedEquity / homeValue * 100))
+                                  })
+
+            return {'status': 'Ok',
+                    'data': {"intervals": intervals, "futHomeValue": int(homeValue), "dataArray": dataArray}}
+        else:
+            return {'status': 'Error', 'responseText': 'Object not instantiated'}
+
 
     # INTERNAL METHODS
     def __myround(self, val, base=5):

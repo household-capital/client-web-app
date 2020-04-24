@@ -1,6 +1,6 @@
 {% load static %}
 {% load humanize %}
-{% load static %}
+{% load site_tags %}
 {% load crispy_forms_tags %}
 {% load calc_extras %}
 
@@ -29,8 +29,8 @@
 
                         <div class="row justify-content-center">
                             <div class="col-12">
-                                <p class="x-large"><b>Your Household Transfer</b></p>
-                                <p>You may be eligible for a loan of up to:</p>
+                                <p class="x-large"><b>Your Household Income Loan</b></p>
+                                <p>You may be eligible to drawdown a regular income stream of up to:</p>
                                 <br><br>
                             </div>
                         </div>
@@ -43,7 +43,7 @@
 
                             </div>
                             <div class="col-4 text-left">
-                                <p class="larger">Maximum amount</p>
+                                <p class="larger">Maximum amount </p>
                             </div>
 
                         </div>
@@ -57,7 +57,8 @@
                                 <div>
                                     <br><br>
                                 </div>
-                                <p class="x-large">${{ obj.maxDrawdownAmount }}*</p>
+                                <p class="x-large">${{ obj.maxDrawdownMonthly }}* / month</p>
+                                <p class="">for up to 10 years</p>
                             </div>
                         </div>
 

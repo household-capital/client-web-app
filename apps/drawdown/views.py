@@ -15,6 +15,7 @@ from django.urls import reverse_lazy
 
 # Local Application Imports
 from apps.lib.hhc_LoanValidator import LoanValidator
+from apps.lib.hhc_LoanProjection import LoanProjection
 
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
@@ -121,6 +122,7 @@ class IncomeInputView(CreateView):
             obj.maxLoanAmount = chk_opp['data']['maxLoan']
             obj.maxLVR = chk_opp['data']['maxLVR']
             obj.maxDrawdownAmount = chk_opp['data']['maxDrawdown']
+            obj.maxDrawdownMonthly = chk_opp['data']['maxDrawdownMonthly']
             obj.save()
 
             success = reverse_lazy(self.url_location, kwargs={'uid': str(obj.calcUID)})
@@ -167,31 +169,37 @@ class IncomeOutputView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+
+#### TEMP
+
         obj = self.get_object()
         client_dict = obj.__dict__
-        loan_obj = LoanValidator(client_dict)
-        chk_opp = loan_obj.validateLoan()
-        loan_status = loan_obj.getStatus()['data']
+        loanObj = LoanValidator(client_dict)
+        chkOpp = loanObj.validateLoan()
+        loanStatus = loanObj.getStatus()['data']
 
-        data = chk_opp['data']
-        context['topUpMax'] = min(data['maxTopUp'], data['maxLoan'])
-        context['refiMax'] = min(data['maxRefi'], data['maxLoan'])
-        context['liveMax'] = min(data['maxReno'], data['maxLoan'])
-        context['giveMax'] = min(data['maxGive'], data['maxLoan'])
-        context['careMax'] = min(data['maxCare'], data['maxLoan'])
-        context['loanRate'] = ECONOMIC['interestRate'] + ECONOMIC['lendingMargin']
+        combinedDict ={}
+        combinedDict.update(client_dict)
+        combinedDict['totalLoanAmount'] = client_dict['maxLoanAmount']
+        combinedDict['interestRate'] = ECONOMIC['interestRate']
+        combinedDict['lendingMargin']  = ECONOMIC['lendingMargin']
+        combinedDict['inflationRate'] = ECONOMIC['inflationRate']
+        combinedDict['housePriceInflation'] = ECONOMIC['housePriceInflation']
+
+        loanProj = LoanProjection()
+        result = loanProj.create(combinedDict)
+        print(result)
+        proj_data = loanProj.getFutureIncomeEquityArray(increment=100)['data']
+        context['sliderData'] = json.dumps(proj_data['dataArray'])
+        context['futHomeValue'] = proj_data['futHomeValue']
+        context['sliderPoints'] = proj_data['intervals']
+        print(context['sliderData'])
 
         context["obj"] = obj
-        context.update(loan_status)
+        context.update(loanStatus)
 
         context["transfer_img"] = settings.STATIC_URL + "img/icons/transfer_%s_icon.png" % context['maxLVRPercentile']
 
-        # Add additional calculator context
-        context['calc_age_1'] = obj.age_1
-        context['calc_age_2'] = obj.age_2
-        context['calc_postcode'] = obj.postcode
-        context['calc_valuation'] = obj.valuation
-        context['calc_marital_status'] = obj.enumMaritalStatus()
 
         return context
 
