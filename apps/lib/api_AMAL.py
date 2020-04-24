@@ -128,7 +128,7 @@ class apiAMAL():
         #Get Advanced / Principal
         advanced = self.__getBalanceValue(ARN, 'advanced', headers)
         principal = self.__getBalanceValue(ARN, 'principal', headers)
-        application = self.__getBalanceValue(ARN, 'application', headers)
+        approved = self.__getBalanceValue(ARN, 'approved', headers)
 
         #Calc LVR
         currentLVR = principal / totalValuation
@@ -157,7 +157,7 @@ class apiAMAL():
 
         write_applog("INFO", 'apiAMAL', 'getFundedData', 'Funded data retrieved - ' + ARN)
         return {'status':"Ok",'responseText':'','data':{'totalValuation':totalValuation,'advanced':advanced,
-                                                        'principal':principal, 'application':application,
+                                                        'principal':principal, 'approved':approved,
                                                         'currentLVR':currentLVR,
                                                         'settlementDate':settlement, 'dischargeDate':discharge,
                                                         'bPayCode':bPayCode,'bPayRef':bPayRef}}

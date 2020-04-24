@@ -78,7 +78,7 @@
                         <p class="small"><b>Loan Details</b></p>
                         <p> Settlement Date: {{ fundedObj.settlementDate |date:'d M Y' }}</p>
                         <br>
-                        <p> Loan Limit Amount: $ {{ fundedObj.application |intVal|intcomma }}</p>
+                        <p> Loan Limit Amount: $ {{ fundedObj.approved |intVal|intcomma }}</p>
                         <p> Advanced Amount: $ {{ fundedObj.advanced |intVal|intcomma }}</p>
                         <br>
                         <p> Current Balance:   $ {{ fundedObj.principal |intVal|intcomma }}</p>

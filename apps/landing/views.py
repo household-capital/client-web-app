@@ -107,7 +107,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         # Funded Data
         qsFunded = FundedData.objects.filter(principal__gt=0, dischargeDate__isnull=True)
         if qsFunded:
-            context['portfolioLimit'] = int(qsFunded.aggregate(Sum('application'))['application__sum'])
+            context['portfolioLimit'] = int(qsFunded.aggregate(Sum('approved'))['approved__sum'])
             context['portfolioBalance'] = int(qsFunded.aggregate(Sum('principal'))['principal__sum'])
             context['portfolioFunded'] = int(qsFunded.aggregate(Sum('advanced'))['advanced__sum'])
         else:
@@ -232,7 +232,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         dataQs = qsNewLoans \
             .annotate(date=Cast(TruncMonth('settlementDate', tzinfo=tz), DateField())) \
             .values_list('date') \
-            .annotate(newLoans=Sum('application')) \
+            .annotate(newLoans=Sum('approved')) \
             .values('date', 'newLoans').order_by('date')
 
         context['chartNewLoansData'] = json.dumps(self.__createTimeSeries(dataQs, 'newLoans'),
