@@ -129,6 +129,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
 
         # LEAD GENERATION TABLE
+
         qsEnqs = Enquiry.objects.all()
         tz = get_current_timezone()
 
@@ -138,8 +139,8 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             .annotate(leads=Count('enqUID')) \
             .values('date').order_by('date')
 
-        dateRange = [item['date'].strftime('%b-%y') for item in dateQs]
-        context['dateRange'] = dateRange[-12:]
+        dateRange = [item['date'].strftime('%b-%y') for item in dateQs][-12:]
+        context['dateRange'] = dateRange
 
 
         # - get enquiry data and build table
@@ -150,6 +151,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             .values('referrer', 'date', 'leads').order_by('date')
 
         context['directData'] = self.__createTableData(dataQs, 'referrer', 'leads')
+        print(context['directData'])
         context['directTypesEnum'] = directTypesEnum
 
 
@@ -293,7 +295,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         tableData = {}
         for item in dataQs:
             if item['date'].strftime('%b-%y') not in tableData:
-                tableData[item['date'].strftime('%b-%y')] = {labelName: item[itemName]}
+                tableData[item['date'].strftime('%b-%y')] = {item[labelName]: item[itemName]}
             else:
                 tableData[item['date'].strftime('%b-%y')][item[labelName]] = item[itemName]
         return tableData
