@@ -1126,6 +1126,10 @@ class PdfLoanSummary(TemplateView):
                     loanProj.getImageList('PensionIncomePC', settings.STATIC_URL + 'img/icons/income_{0}_icon.png')[
                         'data']
 
+                context["totalDrawdownAmount"]=context["topUpDrawdownAmount"]+context["careDrawdownAmount"]
+                context["totalDrawdownPlanAmount"] = context["topUpPlanAmount"] + context["carePlanAmount"]
+
+
             context['resultsAge'] = loanProj.getResultsList('BOPAge')['data']
             context['resultsLoanBalance'] = loanProj.getResultsList('BOPLoanValue')['data']
             context['resultsHomeEquity'] = loanProj.getResultsList('BOPHomeEquity')['data']
@@ -1457,7 +1461,7 @@ class NewPdfLoanSummary(TemplateView):
                     loanProj.getImageList('PensionIncomePC', settings.STATIC_URL + 'img/icons/income_{0}_icon.png')[
                         'data']
                 context["totalDrawdownAmount"]=context["topUpDrawdownAmount"]+context["careDrawdownAmount"]
-                context["totalPlanAmount"] = context["topUpPlanAmount"] + context["carePlanAmount"]
+                context["totalDrawdownPlanAmount"] = context["topUpPlanAmount"] + context["carePlanAmount"]
 
             context['resultsAge'] = loanProj.getResultsList('BOPAge')['data']
             context['resultsLoanBalance'] = loanProj.getResultsList('BOPLoanValue')['data']

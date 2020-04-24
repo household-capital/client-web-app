@@ -143,7 +143,7 @@
         <li class="print-text">Initial annual pension income of ${{ annualPensionIncome |intcomma }}</li>
         <li class="print-text">Inflation rate (pension indexation) of {{ inflationRate }}% pa
         <li class="print-text">A total of ${{ totalDrawdownAmount|intcomma }} will be drawn in the first 12 months</li>
-        <li class="print-text">A total of ${{ totalPlanAmount|intcomma }} will be drawn over the plan period</li>
+        <li class="print-text">A total of ${{ totalDrawdownPlanAmount|intcomma }} will be drawn over the plan period</li>
         {% if topUpBuffer %}
         <li class="print-text">The total amount assumes one $5,000 'Rainy Day' drawing</li>
         {% endif %}
