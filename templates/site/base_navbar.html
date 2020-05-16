@@ -16,7 +16,7 @@
 
             </button>
 
-            <a class="navbar-brand pl-3 pt-1" href="{% url 'landing:landing' %}">
+            <a class="navbar-brand pt-1" href="{% url 'landing:landing' %}">
                 <img src="{% static '/img/hhc/HC_Logo_Flat.png' %}" height="40">
             </a>
 
@@ -31,8 +31,8 @@
 
                     <li>
                         <a href="{% url 'servicing:loanList' %}"><i class="fas fa-headset fa-fw"></i> Servicing
-                            {% if request.session.loanEnquiryQueue|intVal > 0 %}
-                            <span class="badge btn-success align-text-top">{{ request.session.loanEnquiryQueue }}</span>{% endif %}
+                            {% if request.session.servicingQueue|intVal > 0 %}
+                            <span class="badge btn-success align-text-top">{{ request.session.servicingQueue }}</span>{% endif %}
                         </a>
                     <br>
                      <a href="{% url 'landing:dashboard' %}"><i class="fas fa-tachometer-alt fa-fw"></i> Dashboard

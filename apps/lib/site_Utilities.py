@@ -6,17 +6,18 @@ from django.http import HttpResponseRedirect
 from django.template.loader import get_template
 from django.urls import reverse_lazy
 
-from apps.calculator.models import WebCalculator, WebContact
-from apps.case.models import Case, LossData, Loan, ModelSetting, LoanPurposes
-from apps.enquiry.models import Enquiry
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.hhc_LoanProjection import LoanProjection
 from apps.lib.site_DataMapping import serialisePurposes
-from apps.lib.site_Enums import loanTypesEnum, dwellingTypesEnum, appTypesEnum
+from apps.lib.site_Enums import loanTypesEnum, dwellingTypesEnum, appTypesEnum, productTypesEnum, incomeFrequencyEnum
 from apps.lib.site_Globals import ECONOMIC, APP_SETTINGS, LOAN_LIMITS
 from apps.lib.site_Logging import write_applog
 
-from apps.servicing.models import FacilityEnquiry
+from apps.application.models import Application
+from apps.calculator.models import WebCalculator, WebContact
+from apps.case.models import Case, LossData, Loan, ModelSetting, LoanPurposes
+from apps.enquiry.models import Enquiry
+from apps.servicing.models import FacilityEnquiry, Facility
 
 
 
@@ -59,7 +60,7 @@ class ReferrerLoginRequiredMixin():
         else:
             return HttpResponseRedirect(reverse_lazy('landing:landing'))
 
-def raiseAdminError(self, title, body):
+def raiseAdminError(title, body):
     msg_title = title
     from_email = settings.DEFAULT_FROM_EMAIL
     to = settings.ADMINS[0][1]
@@ -67,7 +68,7 @@ def raiseAdminError(self, title, body):
     msg.send()
     return
 
-def raiseTaskAdminError(self, title, body):
+def raiseTaskAdminError(title, body):
     msg_title = "[Django] ERROR (Celery Task): " + title
     from_email = settings.DEFAULT_FROM_EMAIL
     to = settings.ADMINS[0][1]
@@ -84,6 +85,14 @@ def updateNavQueue(request):
     request.session['enquiryQueue'] = Enquiry.objects.queueCount()
     request.session['loanEnquiryQueue'] = FacilityEnquiry.objects.queueCount()
     request.session['referrerQueue'] = Case.objects.referrerQueueCount()
+
+    # Servicing
+    recItems = Facility.objects.filter(amalReconciliation=False, settlementDate__isnull=False).count()
+    breachItems = Facility.objects.filter(amalBreach=True, settlementDate__isnull=False).count()
+    enquiryItems = FacilityEnquiry.objects.filter(actioned=False).count()
+
+    request.session['servicingQueue'] = max(recItems,enquiryItems, breachItems)
+
     return
 
 
@@ -180,9 +189,58 @@ def validateLoanGetContext(caseUID):
 
     return context
 
+def validateApplicationGetContext(appUID):
+    # common function to validate a loan and return full context
 
-def getProjectionResults(sourceDict, scenarioList):
+    appObj = Application.objects.queryset_byUID(appUID).get()
+
+    # get dictionaries from model
+    appDict = Application.objects.dictionary_byUID(appUID)
+
+    # extend appDict with purposes
+    appDict.update(serialisePurposes(appObj))
+    # also provide purposes dictonary
+    purposes = appObj.get_purposes()
+
+
+    # validate app
+    loanVal = LoanValidator(appDict)
+    loanStatus = loanVal.getStatus()
+
+
+    # update loan
+
+    appQS = Application.objects.queryset_byUID(appUID)
+    appQS.update(
+
+        purposeAmount=loanStatus['data']['purposeAmount'],
+        establishmentFee=loanStatus['data']['establishmentFee'],
+        totalLoanAmount=loanStatus['data']['totalLoanAmount'],
+
+        planPurposeAmount=loanStatus['data']['planPurposeAmount'],
+        planEstablishmentFee=loanStatus['data']['planEstablishmentFee'],
+        totalPlanAmount=loanStatus['data']['totalPlanAmount'],
+
+        maxLVR=loanStatus['data']['maxLVR'],
+        actualLVR=loanStatus['data']['actualLVR'],
+    )
+
+    # create context
+    context = {}
+    context.update(appDict)
+    context.update(loanStatus['data'])
+    context['purposes'] = purposes
+
+    return context
+
+
+
+def getProjectionResults(sourceDict, scenarioList, img_url = None):
     # Loan Projections - calls the Loan Projection class to provide required projection scenarios
+
+    if img_url == None:
+        img_url = 'img/icons/equity_{0}_icon.png'
+
 
     loanProj = LoanProjection()
     result = loanProj.create(sourceDict)
@@ -224,32 +282,12 @@ def getProjectionResults(sourceDict, scenarioList):
 
         # Build results dictionaries
 
-        # Income Scenarios - check for top-up Amount
-        if sourceDict["topUpDrawdownAmount"] == 0:
-            context['topUpProjections'] = False
-        else:
-            context['topUpProjections'] = True
-            context['resultsTotalIncome'] = loanProj.getResultsList('TotalIncome', imageSize=150, imageMethod='lin')[
-                'data']
-            context['resultsIncomeImages'] = \
-                loanProj.getImageList('PensionIncomePC', settings.STATIC_URL + 'img/icons/income_{0}_icon.png')['data']
-
-            topUpDrawdown = sourceDict['purposes']["TOP_UP"]["REGULAR_DRAWDOWN"]
-
-            if sourceDict["careDrawdownAmount"] != 0:
-                careDrawdown = sourceDict['purposes']["CARE"]["REGULAR_DRAWDOWN"]
-                context["totalDrawdownAmount"] = topUpDrawdown.amount + careDrawdown.amount
-                context["totalDrawdownPlanAmount"] = topUpDrawdown.planAmount + careDrawdown.planAmount
-            else:
-                context["totalDrawdownAmount"] = topUpDrawdown.amount
-                context["totalDrawdownPlanAmount"] = topUpDrawdown.planAmount
-
         context['resultsAge'] = loanProj.getResultsList('BOPAge')['data']
         context['resultsLoanBalance'] = loanProj.getResultsList('BOPLoanValue')['data']
         context['resultsHomeEquity'] = loanProj.getResultsList('BOPHomeEquity')['data']
         context['resultsHomeEquityPC'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
         context['resultsHomeImages'] = \
-            loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
+            loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + img_url)['data']
         context['resultsHouseValue'] = loanProj.getResultsList('BOPHouseValue', imageSize=110, imageMethod='lin')[
             'data']
 
@@ -258,22 +296,47 @@ def getProjectionResults(sourceDict, scenarioList):
         context['loanTypesEnum'] = loanTypesEnum
         context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
 
-        if sourceDict['loanType'] == loanTypesEnum.JOINT_BORROWER.value:
-            if sourceDict['age_1'] < sourceDict['age_2']:
-                context['ageAxis'] = firstNameSplit(sourceDict['firstname_1']) + "'s age"
-                context['personLabel'] = firstNameSplit(sourceDict['firstname_1']) + " is"
+        if 'firstname_1' not in sourceDict:
+            if sourceDict['loanType'] == loanTypesEnum.JOINT_BORROWER.value:
+                context['ageAxis'] = "Youngest borrower's age"
             else:
-                context['ageAxis'] = firstNameSplit(sourceDict['firstname_2']) + "'s age"
-                context['personLabel'] = firstNameSplit(sourceDict['firstname_2']) + " is"
+                context['ageAxis'] = "Your age"
         else:
-            context['ageAxis'] = "Your age"
-            context['personLabel'] = "you are"
+            if sourceDict['loanType'] == loanTypesEnum.JOINT_BORROWER.value:
+                if sourceDict['age_1'] < sourceDict['age_2']:
+                    context['ageAxis'] = firstNameSplit(sourceDict['firstname_1']) + "'s age"
+                    context['personLabel'] = firstNameSplit(sourceDict['firstname_1']) + " is"
+                else:
+                    context['ageAxis'] = firstNameSplit(sourceDict['firstname_2']) + "'s age"
+                    context['personLabel'] = firstNameSplit(sourceDict['firstname_2']) + " is"
+            else:
+                context['ageAxis'] = "Your age"
+                context['personLabel'] = "you are"
 
         context['cumLumpSum'] = loanProj.getResultsList('CumLumpSum')['data']
         context['cumRegular'] = loanProj.getResultsList('CumRegular')['data']
         context['cumFee'] = loanProj.getResultsList('CumFee')['data']
         context['cumDrawn'] = loanProj.getResultsList('CumDrawn')['data']
         context['cumInt'] = loanProj.getResultsList('CumInt')['data']
+
+    if 'incomeScenario' in scenarioList:
+        context['topUpProjections'] = True
+        context['resultsTotalIncome'] = loanProj.getResultsList('TotalIncome', imageSize=150, imageMethod='lin')[
+            'data']
+        context['resultsIncomeImages'] = \
+            loanProj.getImageList('PensionIncomePC', settings.STATIC_URL + 'img/icons/income_{0}_icon.png')['data']
+
+        topUpDrawdown = sourceDict['purposes']["TOP_UP"]["REGULAR_DRAWDOWN"]
+
+        if sourceDict["careDrawdownAmount"] != 0:
+            careDrawdown = sourceDict['purposes']["CARE"]["REGULAR_DRAWDOWN"]
+            context["totalDrawdownAmount"] = topUpDrawdown.amount + careDrawdown.amount
+            context["totalDrawdownPlanAmount"] = topUpDrawdown.planAmount + careDrawdown.planAmount
+        else:
+            context["totalDrawdownAmount"] = topUpDrawdown.amount
+            context["totalDrawdownPlanAmount"] = topUpDrawdown.planAmount
+    else:
+        context['topUpProjections'] = False
 
     if 'stressScenario' in scenarioList:
 
@@ -286,7 +349,7 @@ def getProjectionResults(sourceDict, scenarioList):
         context['resultsHomeEquity2'] = loanProj.getResultsList('BOPHomeEquity')['data']
         context['resultsHomeEquityPC2'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
         context['resultsHomeImages2'] = \
-            loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
+            loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + img_url)['data']
         context['resultsHouseValue2'] = loanProj.getResultsList('BOPHouseValue', imageSize=110, imageMethod='lin')[
             'data']
         context['cumLumpSum2'] = loanProj.getResultsList('CumLumpSum')['data']
@@ -304,7 +367,7 @@ def getProjectionResults(sourceDict, scenarioList):
         context['resultsHomeEquity3'] = loanProj.getResultsList('BOPHomeEquity')['data']
         context['resultsHomeEquityPC3'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
         context['resultsHomeImages3'] = \
-            loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
+            loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + img_url)['data']
         context['resultsHouseValue3'] = loanProj.getResultsList('BOPHouseValue', imageSize=110, imageMethod='lin')[
             'data']
         context['cumLumpSum3'] = loanProj.getResultsList('CumLumpSum')['data']
@@ -321,7 +384,7 @@ def getProjectionResults(sourceDict, scenarioList):
         context['resultsHomeEquity4'] = loanProj.getResultsList('BOPHomeEquity')['data']
         context['resultsHomeEquityPC4'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
         context['resultsHomeImages4'] = \
-            loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
+            loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + img_url)['data']
         context['resultsHouseValue4'] = loanProj.getResultsList('BOPHouseValue', imageSize=110, imageMethod='lin')[
             'data']
         context['cumLumpSum4'] = loanProj.getResultsList('CumLumpSum')['data']
@@ -334,15 +397,18 @@ def getProjectionResults(sourceDict, scenarioList):
 
 
 def getEnquiryProjections(enqUID):
-    # Loan Projections - calls the Loan Projection class to provide simple enquiry projections
+    # Wrapper for getProjectionResults
+    # Given this is based off enquiry information only, need to enhance inputs to Loan Projection as required
 
-    context={}
+    # Create dictionaries
     obj = Enquiry.objects.queryset_byUID(enqUID).get()
-
-    loanObj = LoanValidator(obj.__dict__)
-    loanStatus = loanObj.getStatus()['data']
-
+    context={}
+    context.update(obj.__dict__)
     context["obj"] = obj
+
+    #Validate loan to get limit amounts
+    loanObj = LoanValidator(context)
+    loanStatus = loanObj.getStatus()['data']
     context.update(loanStatus)
 
     context["transfer_img"] = settings.STATIC_URL + "img/icons/transfer_" + str(
@@ -352,35 +418,62 @@ def getEnquiryProjections(enqUID):
     context['dwellingTypesEnum'] = dwellingTypesEnum
     context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
 
-    totalLoanAmount = 0
-    if obj.calcTotal == None or obj.calcTotal == 0:
-        totalLoanAmount = obj.maxLoanAmount
-    else:
-        totalLoanAmount = min(obj.maxLoanAmount, obj.calcTotal)
-    context['totalLoanAmount'] = totalLoanAmount
+    # Set initial values (given this is an under-specified enquiry)
+    if obj.productType == productTypesEnum.INCOME.value:
+        # Income Loan Override
 
+        if obj.calcDrawdown == None or obj.calcDrawdown == 0:
+            topUpIncomeAmount = context['maxDrawdownMonthly']
+        else:
+            topUpIncomeAmount = obj.calcDrawdown
+
+        context['topUpIncomeAmount'] = topUpIncomeAmount
+        context['topUpFrequency'] = incomeFrequencyEnum.MONTHLY.value
+        context['topUpPlanDrawdowns'] = APP_SETTINGS['incomeProjectionYears'] * 12
+        context['topUpContractDrawdowns'] = LOAN_LIMITS['maxDrawdownYears'] * 12
+        context["topUpDrawdownAmount"] = topUpIncomeAmount * 12
+        context['totalLoanAmount'] = int(round(context['topUpContractDrawdowns'] * topUpIncomeAmount
+                                               * (1 + LOAN_LIMITS['establishmentFee']), 0))
+
+        context['totalPlanAmount'] = int(round(context['topUpPlanDrawdowns'] * topUpIncomeAmount
+                                           * (1 + LOAN_LIMITS['establishmentFee']),0))
+
+    else:
+        #Override the loan amount to maximum if not provided
+        if obj.calcTotal == None or obj.calcTotal == 0:
+            totalLoanAmount = obj.maxLoanAmount
+        else:
+            totalLoanAmount = int(round(min(obj.maxLoanAmount, obj.calcTotal * (1 + LOAN_LIMITS['establishmentFee'])),0))
+
+        context['totalLoanAmount'] = totalLoanAmount
+
+    context.update(ECONOMIC)
     context['totalInterestRate'] = ECONOMIC['interestRate'] + ECONOMIC['lendingMargin']
     context['housePriceInflation'] = ECONOMIC['housePriceInflation']
     context['comparisonRate'] = context['totalInterestRate'] + ECONOMIC['comparisonRateIncrement']
 
-
     # Get Loan Projections
-    clientDict = Enquiry.objects.dictionary_byUID(enqUID)
-    clientDict.update(ECONOMIC)
-    clientDict['totalLoanAmount'] = totalLoanAmount
-    clientDict['maxNetLoanAmount'] = obj.maxLoanAmount
-
-    loanProj = LoanProjection()
-    result = loanProj.create(clientDict)
-    result = loanProj.calcProjections()
-
-    context['resultsAge'] = loanProj.getResultsList('BOPAge')['data']
-    context['resultsLoanBalance'] = loanProj.getResultsList('BOPLoanValue')['data']
-    context['resultsHomeEquity'] = loanProj.getResultsList('BOPHomeEquity')['data']
-    context['resultsHomeEquityPC'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
-    context['resultsHomeImages'] = \
-        loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + 'img/icons/equity_{0}_icon.png')['data']
-    context['resultsHouseValue'] = loanProj.getResultsList('BOPHouseValue', imageSize=100, imageMethod='lin')[
-        'data']
+    results = getProjectionResults(context, ['baseScenario'])
+    context.update(results)
 
     return context
+
+
+
+def populateDrawdownPurpose(purposeObj):
+    # Calculate Amounts and Periods (form specified in years)
+    if purposeObj.drawdownFrequency == incomeFrequencyEnum.FORTNIGHTLY.value:
+        freqMultiple = 26
+    else:
+        freqMultiple = 12
+
+    # Contract for lower of limit or plan period
+    planDrawdowns = purposeObj.planPeriod * freqMultiple
+    contractDrawdowns = min(purposeObj.planPeriod * freqMultiple, LOAN_LIMITS['maxDrawdownYears'] * freqMultiple)
+    purposeObj.planDrawdowns = planDrawdowns
+
+    purposeObj.contractDrawdowns = contractDrawdowns
+    purposeObj.planAmount = purposeObj.drawdownAmount * planDrawdowns
+    purposeObj.amount = purposeObj.drawdownAmount * contractDrawdowns
+
+    return purposeObj

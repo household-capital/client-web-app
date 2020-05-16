@@ -19,10 +19,6 @@ urlpatterns = [
     path('contactDelete/<uuid:uid>', views.ContactDeleteView.as_view(), name='contactDelete'),
     path('contactConvert/<uuid:uid>', views.ContractConvertView.as_view(), name = 'contactConvert'),
 
-    # Unauthenticated Views
-    path('calcSummaryNewPdf/<uuid:uid>', views.CalcSummaryNewPdf.as_view(), name='calcSummaryNewPdf'),
-
-
 ]
 
 

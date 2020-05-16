@@ -202,8 +202,8 @@
             <div class="row">
                 <div class="col-lg-3"></div>
 
-                <div class="col-lg-5 alert alert-info text-center">
-                    <p class="larger">Today</p>
+                <div class="col-lg-5 button btn-lg alert-info text-center">
+                    <p >Today</p>
                 </div>
             </div>
         </div>
@@ -253,8 +253,8 @@
             <div class="row">
                 <div class="col-lg-3"></div>
 
-                <div class="col-lg-5 alert alert-HHCBlue text-center">
-                    <p class="larger">15 years time</p>
+                <div class="col-lg-5 button btn-lg alert-HHCBlue text-center">
+                    <p >15 years time</p>
                 </div>
             </div>
         </div>
@@ -312,8 +312,8 @@
                     <div class="col-lg-2"></div>
                     <div class="col-lg-10">
                         <br>
-                        <div class='alert alert-household'>
-                            <p>You could access up to <span class="larger">{{ maxLVR|intVal }}%</span> of your home
+                        <div class='button btn btn-lg alert-household'>
+                            <p class="small">You could access up to {{ maxLVR|intVal }}% of your home
                                 savings
                             </p>
                         </div>
@@ -395,8 +395,8 @@
                     <div class="col-lg-2"></div>
                     <div class="col-lg-10">
                         <br>
-                        <div class='alert alert-household'>
-                            <p>You could access up to <span class="larger">{{ maxLVR|intVal }}%</span> of your home
+                        <div class='button btn btn-lg alert-household'>
+                            <p class="small">You could access up to {{ maxLVR|intVal }}% of your home
                                 savings
                             </p>
                         </div>
@@ -451,9 +451,9 @@
                 <div class="row">
                     <div class="col-lg-2"></div>
                     <div class="col-lg-10">
-                        <div class='alert alert-household text-center'>
+                        <div class='button btn btn-lg alert-household text-center'>
 
-                            <p>A loan to access the savings in your home (equity) </p>
+                            <p class="small">A loan to access the savings in your home (equity) </p>
                         </div>
                     </div>
                 </div>
@@ -470,14 +470,14 @@
 {% block javascript %}
     <script>
         var sliderData = {{ sliderData|safe }};
-        var imagePath = '{{ imgPath }}';
-        var transferImagePath = '{{ transferImagePath }}';
+        var imagePath = '{{ imgPath |safe }}';
+        var transferImagePath = '{{ transferImagePath |safe }}';
 
         $(document).ready(function () {
 
             $("#equitySlider").slider({
                 min: 0,
-                max: {{ sliderPoints }},
+                max: {{ sliderPoints|safe }},
                 range: 'min',
                 slide: function (event, ui) {
                     $("loanAmount").html(numberWithCommas(sliderData[ui.value].loanAmount));

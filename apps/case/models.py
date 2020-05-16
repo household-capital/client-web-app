@@ -309,6 +309,10 @@ class Case(models.Model):
     def get_referrer_url(self):
         return reverse_lazy("referrer:caseDetail", kwargs={"uid": self.caseUID})
 
+    def get_SF_url(self):
+        if self.sfOpportunityID:
+            return "https://householdcapital.lightning.force.com/lightning/r/Opportunity/{0}/view".format(self.sfOpportunityID)
+
 
 # Pre-save function to extend Case
 def create_case_extensions(sender, instance, created, **kwargs):
@@ -452,11 +456,13 @@ class LoanPurposes(models.Model):
     planDrawdowns = models.IntegerField(default = 0, blank=True, null=True)
     planAmount = models.IntegerField(default=0,blank=True, null=True)
 
-    topUpBuffer = models.BooleanField(default = False)
+    planPeriod = models.IntegerField(default=0, blank=True, null=True)  # used for simple input
+
     description = models.CharField(max_length=60, null=True, blank=True)
     notes = models.TextField(blank=True, null=True)
 
-    planPeriod = models.IntegerField(default = 0, blank=True, null=True) #Years - deprecated
+    topUpBuffer = models.BooleanField(default = False) #deprecated
+
 
     class Meta:
         verbose_name_plural = "Case Loan Purposes"
@@ -486,7 +492,7 @@ class LoanPurposes(models.Model):
 
     @property
     def enumIntentionPretty(self):
-        return dict(self.intentionTypes)[self.intention].replace("_"," ").lower().title()
+        return dict(self.intentionTypes)[self.intention].replace("_"," ").lower().title().replace(" To ", " to ")
 
 
 class ModelSetting(models.Model):

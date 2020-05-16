@@ -1,0 +1,350 @@
+{% extends 'application/base/base_app.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+{% block message_display %}
+    <div class="container">
+        {% if messages %}
+            <div class="row justify-content-md-center pt-2">
+                <div class="col-6 text-center">
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %}
+                            class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+        </div>
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 pb-3">
+                <br>
+                <div class="secondary_title">{{ subtitle }}</div>
+
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-5 pb-3">
+
+                <!-- Slider -->
+                <div class="row justify-content-center">
+
+                    <div class="col-6 text-center">
+                        <div class="slider-img-text">
+                            <p class="xx-large text-white">
+                                <homeEquityPC>100</homeEquityPC>
+                                %
+                            </p>
+                            <p class="text-white"> Home equity</p>
+                        </div>
+
+                        <img id="equityImage" src="{% static 'img/icons/block_equity_100_icon.png' %}"
+                             width="200px"
+                             class="img-fluid">
+                    </div>
+
+                    <div class="col-6 text-center">
+                        <div class="row">
+
+
+                            <div class="col-sm-10">
+                                <br>
+
+                                <p class="x-large">$
+                                    <loanAmount>0</loanAmount>
+                                </p>
+
+                                <p id="equityPopover" class="text-right" data-toggle="popover" data-timeout="3000"
+                                   data-content="Drag slider" data-placement="right"></p>
+                                <div id="equitySlider" class="equitySlider mr-3"></div>
+                                <br>
+
+                                {% crispy form %}
+
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="row justify-content-center no-gutters">
+
+                    <div class="col-6 ">
+                        <div class='mx-auto' style="width:160px">
+                            <div class="row no-gutters">
+                                <div class="col-5">
+                                    <p class="text-left small"><i class="fas fa-square text-warning"></i>&nbsp;&nbsp;Loan
+                                    </p>
+                                    <p class="text-left  small"><i class="fas fa-square hhcBlueFont"></i>&nbsp;&nbsp;Equity
+                                    </p>
+                                    <p class="pt-1 text-left small">Home </p>
+                                </div>
+                                <div class="col-7">
+                                    <p class="text-right small">$
+                                        <loanBalance>0</loanBalance>
+                                    </p>
+                                    <p class="text-right small">$
+                                        <homeEquity>0</homeEquity>
+                                    </p>
+                                    <p class="text-right pt-1 small">$ {{ futHomeValue }}</p>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+
+                    </div>
+                </div>
+
+
+                <div class="row justify-content-center pt-3 pb-4">
+                    <div class="col-5 button pt-2 pb-2 btn alert-HHCBlue text-center">
+                        <p class="larger">10 years time</p>
+                    </div>
+                    <span>&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-sm btn-light" data-toggle="modal"
+                                                    data-target="#assumptionModal">
+                                    <i class="fas fa-info"></i></button></span>
+
+                </div>
+
+
+            </div>
+            <!-- CHOICES -->
+            <div class="col-lg-5 pb-3">
+
+                <div class="row">
+                    <div class="col-lg-12 text-left">
+
+                        <p class=" pb-3 text-left"><b>Loan choices</b>
+                        </p>
+
+                        <div class="row no-gutters">
+                            <div class="col-1 text-center align-self-start text-warning pr-1">
+                                <span><i class="far fa-arrow-alt-circle-right fa-lg"></i></span>
+                            </div>
+                            <div class="col-11 align-self-center"><p> Please choose:</p>
+                                <ul>
+                                    <li>the drawdown amount;</li>
+                                    <li>the drawdown frequency; and</li>
+                                    <li>the drawdown period</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="row no-gutters">
+                            <div class="col-1 text-center align-self-start text-warning pr-1">
+                                <span><i class="far fa-arrow-alt-circle-right fa-lg"></i></span>
+                            </div>
+                            <div class="col-11 align-self-center"><p> As you drag the slider and make your choices, the 10-year projected balances will update</p>
+                            </div>
+                        </div>
+
+                        <div class="row no-gutters pt-3">
+                            <div class="col-1 text-center align-self-start text-warning pr-1">
+                                <span><i class="far fa-arrow-alt-circle-right fa-lg"></i></span>
+                            </div>
+                            <div class="col-11 align-self-center"><p> In chosing your drawdown amount you should consider both your current requirements and your future needs (which may be met from home equity)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+    <div class="modal fade" id="assumptionModal" tabindex="-1" role="dialog" aria-labelledby="assumptionModalLabel"
+         aria-hidden="true" data-timeout="30000">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assumptionModalLabel"><i class="far fa-info-circle"></i>&nbsp;
+                        Your Loan Choices</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <b>Calculator</b>
+                    <p>This calculator projects the future <b>value your home</b> and the future <b>balance of the
+                        loan</b>, in ten years time</p>
+                    <br>
+                    <p>The difference between the two values is referred to as your <b>home equity</b>. It represents the
+                        estimated value that you will have in
+                        your home, should you decide to sell it and repay the loan at that point </p>
+                    <br>
+                    <p>The objective is to help you consider your ability to meet your future requirements and
+                        objectives (e.g., future aged care needs)</p>
+                    <br>
+                    <p>Additional projections will be provided in the later
+                        steps</p>
+                    <br>
+
+                    <b>Assumptions</b>
+                    <ul>
+                        <li>constant house price growth of {{ housePriceInflation }}% pa</li>
+                        <li>constant loan interest rate of {{ totalInterestRate }}% p.a.</li>
+                        <li>an establishment fee of {{ establishmentFeeRate|percent }}% on drawn amounts</li>
+                    </ul>
+
+                    <p class="small">Note: these are estimates only. Actual performance could be very different. You may
+                        end up with more or
+                        less equity in your home
+                    </p>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}
+
+
+
+
+{% block javascript %}
+    <script>
+
+        var sliderData = {{ sliderData|safe }};
+        var imagePath = '{{ imgPath }}';
+        var transferImagePath = '{{ transferImagePath }}';
+        var equitySlider = $("#equitySlider");
+
+        function refreshSlider() {
+
+            var drawdownFrequency = $("#id_drawdownFrequency");
+            var planPeriod = $("#id_planPeriod");
+            var drawdownAmount = $("#id_drawdownAmount");
+
+            var frm = $('#clientForm');
+            return $.ajax({
+                url: "{{ ajaxURL }}",
+                type: "post",
+                data: frm.serialize(),
+                success: function (data) {
+                    sliderData = data;
+                    $('#btn_submit').prop('disabled', false);
+                    updateSlider({'value': equitySlider.slider("option", "value")})
+                },
+                error: function(data){
+                    console.log("Could not update slider");
+                }
+            });
+        }
+
+        function updateSlider(ui) {
+            $("loanAmount").html(numberWithCommas(sliderData[ui.value].loanAmount));
+            $("#id_drawdownAmount").val(sliderData[ui.value].loanAmount);
+            $("loanBalance").html(numberWithCommas(sliderData[ui.value].futLoanBalance));
+            $("homeEquity").html(numberWithCommas(sliderData[ui.value].futHomeEquity));
+            $("homeEquityPC").html(sliderData[ui.value].futHomeEquityPC);
+            $("#equityImage").attr("src", imagePath.replace('0', sliderData[ui.value].percentile));
+            $("#transferImage").attr("src", transferImagePath.replace('0', sliderData[ui.value].loanPercentile));
+            $("#id_loanLabel").html(numberWithCommas(sliderData[ui.value].loanAmount));
+            $('#btn_submit').prop('disabled', false)
+        }
+
+
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        function isInViewport(e) {
+            var elementTop = e.offset().top;
+            var elementBottom = elementTop + e.outerHeight();
+            var viewportTop = $(window).scrollTop();
+            var viewportBottom = viewportTop + $(window).height();
+
+            return elementBottom > viewportTop && elementTop < viewportBottom;
+        }
+
+        $(document).ready(function () {
+
+            //Equity Slider
+            $("#equitySlider").slider({
+                min: 0,
+                max: {{ sliderPoints }},
+                range: 'min',
+                slide: function (event, ui) {
+                    updateSlider(ui);
+                },
+                create: function (event, ui) {
+                    var initial = Math.round({{ sliderPoints }} /2)
+                    $(this).slider('value', initial);
+                    $("loanAmount").html(numberWithCommas(sliderData[initial].loanAmount));
+                    $("#id_drawdownAmount").val(sliderData[initial].loanAmount);
+                    $("loanBalance").html(numberWithCommas(sliderData[initial].futLoanBalance));
+                    $("homeEquity").html(numberWithCommas(sliderData[initial].futHomeEquity));
+                    $("homeEquityPC").html(sliderData[initial].futHomeEquityPC);
+                    $("#equityImage").attr("src", imagePath.replace('0', sliderData[initial].percentile));
+                    $("#transferImage").attr("src", transferImagePath.replace('0', sliderData[initial].loanPercentile));
+                }
+            });
+
+            $("#id_drawdownFrequency").change(function () {
+                refreshSlider()
+            });
+
+            $("#id_planPeriod").change(function () {
+                refreshSlider()
+            });
+
+            // Popover
+            $('[data-toggle="popover"]').popover();
+
+            $('#equityPopover').popover('show');
+
+            $(window).on('resize scroll', function () {
+                if (isInViewport($('#equityPopover'))) {
+                    $('#equityPopover').popover('show')
+                } else {
+                    $('#equityPopover').popover('enable')
+                }
+            });
+
+            $('#equityPopover').on('shown.bs.popover', function () {
+                this_popover = $(this);
+                setTimeout(function () {
+                    this_popover.popover('hide');
+                    this_popover.popover('disable')
+                }, $(this).data("timeout"));
+            });
+
+            // Submit
+            $('#btn_submit').prop('disabled', true)
+
+        })
+
+
+    </script>
+
+{% endblock %}

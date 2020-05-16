@@ -13,7 +13,7 @@ from django.utils.encoding import smart_text
 from django.urls import reverse_lazy
 
 #Local Imports
-from apps.lib.site_Enums import dwellingTypesEnum, loanTypesEnum, directTypesEnum, closeReasonEnum
+from apps.lib.site_Enums import dwellingTypesEnum, loanTypesEnum, directTypesEnum, closeReasonEnum, productTypesEnum
 
 
 class EnquiryManager(models.Manager):
@@ -51,6 +51,11 @@ class EnquiryManager(models.Manager):
 
 class Enquiry(models.Model):
 
+    productTypes = (
+        (productTypesEnum.LUMP_SUM.value, "Lump Sum"),
+        (productTypesEnum.INCOME.value, "Income")
+    )
+
     loanTypes = (
         (loanTypesEnum.SINGLE_BORROWER.value, 'Single'),
         (loanTypesEnum.JOINT_BORROWER.value, 'Joint')
@@ -85,19 +90,28 @@ class Enquiry(models.Model):
         (closeReasonEnum.OTHER.value , 'Other')
     )
 
+    # Identifiers
     enqUID = models.UUIDField(default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
-    loanType = models.IntegerField(choices=loanTypes, null=True, blank=True, default=True)
+    referrer=models.IntegerField(blank=False,null=False,choices=referrerTypes)
+    referrerID=models.CharField(max_length=200,blank= True,null=True)
+    referralUser=models.ForeignKey(settings.AUTH_USER_MODEL, related_name='referralUser', null=True, blank=True, on_delete=models.SET_NULL)
+    sfLeadID = models.CharField(max_length=20, null=True, blank=True)
+
+    #Client Data
+    email=models.EmailField(blank=True, null=True)
+    phoneNumber = models.CharField(max_length=15, blank=True, null=True)
+    enquiryNotes = models.TextField(null=True, blank=True)
+
+    # Enquiry Inputs
+    productType = models.IntegerField(choices=productTypes, null=True, blank=True, default=0)
+    loanType = models.IntegerField(choices=loanTypes, null=True, blank=True)
     name=models.CharField(max_length=30,blank= True,null=True)
     age_1=models.IntegerField(blank=True, null=True)
     age_2 = models.IntegerField(blank=True, null=True)
     dwellingType=models.IntegerField(blank=True, null=True, choices=dwellingTypes)
     valuation=models.IntegerField(blank=True, null=True)
     postcode=models.IntegerField(blank=True, null=True)
-    status=models.BooleanField(default=True, blank=False, null=False)
-    maxLoanAmount=models.IntegerField(blank=True, null=True)
-    maxLVR=models.FloatField(blank=True, null=True)
-    errorText=models.CharField(max_length=40,blank= True,null=True)
     isRefi=models.BooleanField(default=False, blank=True, null=True)
     isTopUp=models.BooleanField(default=False, blank=True, null=True)
     isLive=models.BooleanField(default=False, blank=True, null=True)
@@ -109,37 +123,41 @@ class Enquiry(models.Model):
     calcGive=models.IntegerField(blank=True, null=True)
     calcCare = models.IntegerField( blank=True, null=True)
     calcTotal=models.IntegerField(blank=True, null=True)
+    calcDrawdown = models.IntegerField(blank=True, null=True)
     payIntAmount=models.IntegerField(blank=True, null=True)
     payIntPeriod = models.IntegerField(blank=True, null=True)
-    email=models.EmailField(blank=True, null=True)
-    referrer=models.IntegerField(blank=False,null=False,choices=referrerTypes)
-    referrerID=models.CharField(max_length=200,blank= True,null=True)
+
+    #Calculated Data
+    status = models.BooleanField(default=True, blank=False, null=False)
+    maxLoanAmount = models.IntegerField(blank=True, null=True)
+    maxLVR = models.FloatField(blank=True, null=True)
+    errorText = models.CharField(max_length=40, blank=True, null=True)
+    summaryDocument = models.FileField(null=True, blank=True)
+
+    #Workflow
     actioned=models.IntegerField(default=0,blank=True, null=True)
-    timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
-    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+    isCalendly=models.BooleanField(default=False, blank=True, null=True)
     followUp = models.DateTimeField(null=True, blank=True, auto_now_add=False, auto_now=False)
     secondfollowUp = models.DateTimeField(null=True, blank=True, auto_now_add=False, auto_now=False)
-
-    lossNotes=models.TextField(blank=True, null=True) #remove this
-
     closeDate = models.DateField(blank=True, null=True)
     closeReason=models.IntegerField(blank=True, null=True, choices=closeReasons)
-
     followUpDate=models.DateField(blank=True, null=True)
     followUpNotes = models.TextField(blank=True, null=True)
     doNotMarket = models.BooleanField(default=False)
+    lossNotes=models.TextField(blank=True, null=True) #remove this
 
-    summaryDocument = models.FileField(null=True, blank=True)
-    referralUser=models.ForeignKey(settings.AUTH_USER_MODEL, related_name='referralUser', null=True, blank=True, on_delete=models.SET_NULL)
-    phoneNumber=models.CharField(max_length=15,blank=True,null=True)
-    enquiryNotes=models.TextField(null=True,blank=True)
-    sfLeadID = models.CharField(max_length=20, null=True, blank=True)
-    isCalendly=models.BooleanField(default=False, blank=True, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
+    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
 
     objects = EnquiryManager()
 
     def get_absolute_url(self):
         return reverse_lazy("enquiry:enquiryDetail", kwargs={"uid":self.enqUID})
+
+    def get_SF_url(self):
+        if self.sfLeadID:
+            return "https://householdcapital.lightning.force.com/lightning/r/Lead/{0}/view".format(self.sfLeadID)
+
 
     def enumReferrerType(self):
         if self.referrer:

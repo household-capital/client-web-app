@@ -346,10 +346,22 @@
     <div class="row justify-content-center pt-5">
         <div class="col-lg-10 text-left">
 
-            <b>Meeting Date to Settlement Date</b>&nbsp;&nbsp;
+            <b>Meeting Date to Settlement Date (Days)</b>&nbsp;&nbsp;
             <div class="chart-container pt-3" style="height:370px;">
 
                 <canvas id="aveDaysChart"></canvas>
+            </div>
+
+        </div>
+    </div>
+
+        <div class="row justify-content-center pt-5">
+        <div class="col-lg-10 text-left">
+
+            <b>Conversion Rates (%)</b>&nbsp;&nbsp;
+            <div class="chart-container pt-3" style="height:370px;">
+
+                <canvas id="conversionChart"></canvas>
             </div>
 
         </div>
@@ -398,8 +410,9 @@
         var chartEnquiry = {{ chartEnquiry | safe }};
         var chartCalcMthData = {{ chartCalcMthData | safe }};
         var chartPhoneMthData = {{ chartPhoneMthData | safe }};
-
-
+        var chartMeetingConversion = {{ chartMeetingConversion | safe }};
+        var chartEnquiryConversion = {{ chartEnquiryConversion | safe }};
+        var chartCalculatorConversion = {{ chartCalculatorConversion | safe }};
 
 
         // Timeseries data
@@ -416,6 +429,11 @@
         var enquiryData = createTimeSeries(chartEnquiry);
         var calcMthData = createTimeSeries(chartCalcMthData);
         var phoneMthData = createTimeSeries(chartPhoneMthData);
+        var meetingConversionData = createTimeSeries(chartMeetingConversion);
+        var enquiryConversionData = createTimeSeries(chartEnquiryConversion);
+        var calculatorConversionData = createTimeSeries(chartCalculatorConversion);
+
+
 
         // Chart references
         var ctx_interaction = document.getElementById('interactionChart').getContext('2d');
@@ -423,6 +441,7 @@
         var ctx_portfolio = document.getElementById('portfolioChart').getContext('2d');
         var ctx_aveDays = document.getElementById('aveDaysChart').getContext('2d');
         var ctx_enquiry = document.getElementById('enquiryChart').getContext('2d');
+        var ctx_conversion = document.getElementById('conversionChart').getContext('2d');
 
         // Chart definitions
 
@@ -437,7 +456,6 @@
                         backgroundColor: "#5184a1",
                         fill: false
                     },
-
                     {
                         label: "Calculator Enquiries",
                         data: emailData,
@@ -445,7 +463,6 @@
                         backgroundColor: "#fdb600",
                         fill: false
                     },
-
                     {
                         label: "Phone Enquiries",
                         data: phoneData,
@@ -468,7 +485,6 @@
                             unit: 'day',
                             tooltipFormat: 'ddd DD-MMM-YYYY',
                         }
-
                     }],
                     yAxes: [{
                         display: true,
@@ -478,8 +494,6 @@
                         }
                     }]
                 },
-
-
             }
         });
 
@@ -688,10 +702,56 @@
             }
         });
 
-        $(document).ready(function () {
-            console.log(meetingData)
+        var conversionChart = new Chart(ctx_conversion, {
+            type: 'line',
+            data: {
+                datasets: [
+                    {
+                        label: "Meeting to Settled Loan",
+                        data: meetingConversionData,
+                        borderColor: "#5184a1",
+                        fill: true
+                    },
+                {
+                        label: "Enquiry to Case",
+                        data: enquiryConversionData,
+                        borderColor: "#fdb600",
+                        fill: true
+                    },
+                    {
+                        label: "Calculator Enquiry",
+                        data: calculatorConversionData,
+                        borderColor: "#86b3b5",
+                        fill: true,
+                        borderWidth: 1,
+                    }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                    display: false,
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'month',
+                            tooltipFormat: 'ddd DD-MMM-YYYY',
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        ticks: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }]
+                },
+            }
+        });
 
-            })
+
 
     </script>
 

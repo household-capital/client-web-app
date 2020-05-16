@@ -10,7 +10,7 @@ from django.forms import widgets
 # Third-party Imports
 from crispy_forms.bootstrap import PrependedText, InlineRadios
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Field, Div, HTML
+from crispy_forms.layout import Submit, Layout, Field, Div, HTML, Row, Column
 
 # Local Application Imports
 from apps.lib.site_Enums import loanTypesEnum, caseStagesEnum, incomeFrequencyEnum, purposeCategoryEnum, \
@@ -31,10 +31,10 @@ class CaseDetailsForm(forms.ModelForm):
 
     class Meta:
         model = Case
-        fields = ['caseDescription', 'adviser', 'caseNotes', 'loanType', 'caseStage',
-                  'clientType1', 'surname_1', 'firstname_1', 'preferredName_1','birthdate_1', 'age_1', 'sex_1',
-                  'salutation_1','middlename_1','maritalStatus_1',
-                  'clientType2', 'surname_2', 'firstname_2', 'preferredName_2','birthdate_2', 'age_2', 'sex_2',
+        fields = ['caseDescription', 'adviser', 'referralCompany', 'caseNotes', 'loanType', 'caseStage',
+                  'clientType1', 'surname_1', 'firstname_1', 'preferredName_1', 'birthdate_1', 'age_1', 'sex_1',
+                  'salutation_1', 'middlename_1', 'maritalStatus_1',
+                  'clientType2', 'surname_2', 'firstname_2', 'preferredName_2', 'birthdate_2', 'age_2', 'sex_2',
                   'salutation_2', 'middlename_2', 'maritalStatus_2',
                   'street', 'suburb', 'postcode', 'valuation', 'dwellingType', 'propertyImage', 'mortgageDebt',
                   'superFund', 'valuationDocument', 'state', 'investmentLabel',
@@ -43,15 +43,13 @@ class CaseDetailsForm(forms.ModelForm):
             'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
         }
 
-    caseStages=(
-                  (caseStagesEnum.DISCOVERY.value,"Discovery"),
-                  (caseStagesEnum.MEETING_HELD.value, "Meeting Held"),
-                  (caseStagesEnum.APPLICATION.value, "Application"),
+    caseStages = (
+        (caseStagesEnum.DISCOVERY.value, "Discovery"),
+        (caseStagesEnum.MEETING_HELD.value, "Meeting Held"),
+        (caseStagesEnum.APPLICATION.value, "Application"),
     )
 
-
     caseStage = forms.TypedChoiceField(choices=caseStages, coerce=int, initial=caseStagesEnum.DISCOVERY.value)
-
 
     # Form Layout
     helper = FormHelper()
@@ -91,68 +89,76 @@ class CaseDetailsForm(forms.ModelForm):
                         Div(Field('phoneNumber'))),
                     Div(Div(HTML("Client Email"), css_class='form-label'),
                         Div(Field('email'))),
-                    Div(Div(HTML("Introducer or Advisor"), css_class='form-label'),
-                        Div(Field('adviser'))),
-                    HTML("<br>"),
-                    Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Borrower(s)"), css_class='form-header'),
+                    Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Borrower(s)"), css_class='form-header pt-2'),
                     Div(Div(HTML("Single or Joint Borrowers"), css_class='form-label'),
                         Div(Field('loanType'))),
                     HTML("<i class='fas fa-user'></i>&nbsp;&nbsp;<small>Borrower 1</small>"),
-                    Div(Div(HTML("Birthdate*"), css_class='form-label'),
-                        Div(Field('birthdate_1'))),
-                    Div(Div(HTML("Age"), css_class='form-label'),
-                        Div(Field('age_1'))),
+                    Row(
+                        Column(Div(Div(HTML("Birthdate*"), css_class='form-label'),
+                            Div(Field('birthdate_1'))),css_class='col-6'),
+                        Column(Div(Div(HTML("Age"), css_class='form-label'),
+                            Div(Field('age_1'))),css_class='col-6')),
                     Div(Div(HTML("Firstname*"), css_class='form-label'),
                         Div(Field('firstname_1'))),
-                    Div(Div(HTML("Preferred Name"), css_class='form-label'),
-                        Div(Field('preferredName_1'))),
-                    Div(Div(HTML("Middlename"), css_class='form-label'),
-                        Div(Field('middlename_1'))),
+                    Row(
+                        Column(Div(Div(HTML("Preferred Name*"), css_class='form-label pt-1'),
+                                   Div(Field('preferredName_1'))), css_class='col-6'),
+                        Column(Div(Div(HTML("Middlename"), css_class='form-label pt-1'),
+                                   Div(Field('middlename_1'))), css_class='col-6')),
                     Div(Div(HTML("Surname*"), css_class='form-label'),
                         Div(Field('surname_1'))),
-                    Div(Div(HTML("Salutation*"), css_class='form-label'),
-                        Div(Field('salutation_1'))),
-                    Div(Div(HTML("Gender*"), css_class='form-label'),
-                        Div(Field('sex_1'))),
+                    Row(
+                        Column(Div(Div(HTML("Salutation*"), css_class='form-label pt-1'),
+                                   Div(Field('salutation_1'))), css_class='col-6'),
+                        Column(Div(Div(HTML("Gender"), css_class='form-label pt-1'),
+                                   Div(Field('sex_1'))), css_class='col-6')),
                     Div(Div(HTML("Borrower Role*"), css_class='form-label'),
                         Div(Field('clientType1'))),
                     Div(Div(HTML("Marital Status*"), css_class='form-label'),
                         Div(Field('maritalStatus_1'))),
                     HTML("<i class='far fa-user'></i>&nbsp;&nbsp;<small>Borrower 2</small>"),
-                    Div(Div(HTML("Birthdate*"), css_class='form-label'),
-                        Div(Field('birthdate_2'))),
-                    Div(Div(HTML("Age"), css_class='form-label'),
-                        Div(Field('age_2'))),
+                    Row(
+                        Column(Div(Div(HTML("Birthdate*"), css_class='form-label pt-1'),
+                                   Div(Field('birthdate_2'))), css_class='col-6'),
+                        Column(Div(Div(HTML("Age"), css_class='form-label pt-1'),
+                                   Div(Field('age_2'))), css_class='col-6')),
                     Div(Div(HTML("Firstname*"), css_class='form-label'),
                         Div(Field('firstname_2'))),
-                    Div(Div(HTML("Preferred Name"), css_class='form-label'),
-                        Div(Field('preferredName_2'))),
-                    Div(Div(HTML("Middlename"), css_class='form-label'),
-                        Div(Field('middlename_2'))),
+                    Row(
+                        Column(Div(Div(HTML("Preferred Name*"), css_class='form-label pt-1'),
+                                   Div(Field('preferredName_2'))), css_class='col-6'),
+                        Column(Div(Div(HTML("Middlename"), css_class='form-label pt-1'),
+                                   Div(Field('middlename_2'))), css_class='col-6')),
                     Div(Div(HTML("Surname*"), css_class='form-label'),
                         Div(Field('surname_2'))),
-                    Div(Div(HTML("Salutation*"), css_class='form-label'),
-                        Div(Field('salutation_2'))),
-                    Div(Div(HTML("Gender*"), css_class='form-label'),
-                        Div(Field('sex_2'))),
+                    Row(
+                        Column(Div(Div(HTML("Salutation*"), css_class='form-label'),
+                                   Div(Field('salutation_2'))), css_class='col-6'),
+                        Column(Div(Div(HTML("Gender"), css_class='form-label'),
+                                   Div(Field('sex_2'))), css_class='col-6')),
                     Div(Div(HTML("Borrower Role*"), css_class='form-label'),
                         Div(Field('clientType2'))),
                     Div(Div(HTML("Marital Status*"), css_class='form-label'),
                         Div(Field('maritalStatus_2'))),
                     css_class="col-lg-6"),
 
-                Div(
-                    Div(HTML("<i class='fas fa-home'></i>&nbsp;&nbsp;Property"), css_class='form-header'),
+                Div(Div(HTML("&nbsp;"), css_class='form-header'),
+                    Div(Div(HTML("Introducer or Advisor"), css_class='form-label'),
+                        Div(Field('adviser'))),
+                    Div(Div(HTML("Referrer"), css_class='form-label'),
+                            Div(Field('referralCompany'))),
+                    Div(HTML("<i class='fas fa-home'></i>&nbsp;&nbsp;Property"), css_class='form-header pt-2'),
                     Div(Div(HTML("Dwelling Type*"), css_class='form-label'),
                         Div(Field('dwellingType'))),
                     Div(Div(HTML("Street Address*"), css_class='form-label'),
                         Div(Field('street'))),
                     Div(Div(HTML("Suburb*"), css_class='form-label'),
                         Div(Field('suburb'))),
-                    Div(Div(HTML("State*"), css_class='form-label'),
-                        Div(Field('state'))),
-                    Div(Div(HTML("Postcode*"), css_class='form-label'),
-                        Div(Field('postcode'))),
+                    Row(
+                        Column(Div(Div(HTML("State*"), css_class='form-label'),
+                                   Div(Field('state'))), css_class='col-6'),
+                        Column(Div(Div(HTML("Postcode"), css_class='form-label'),
+                                   Div(Field('postcode'))), css_class='col-6')),
                     Div(Div(HTML("Valuation*"), css_class='form-label'),
                         Div(Field('valuation'))),
                     Div(Div(HTML("Mortgage Debt"), css_class='form-label'),
@@ -164,7 +170,7 @@ class CaseDetailsForm(forms.ModelForm):
                         Div(Field('investmentLabel'))),
                     Div(Div(HTML("Super or Investment Fund (if applicable)"), css_class='form-label'),
                         Div(Field('superFund'))),
-                    Div(Div(HTML("Asset amount"), css_class='form-label'),
+                    Div(Div(HTML("Amount"), css_class='form-label'),
                         Div(Field('superAmount'))),
 
                     Div(HTML("<i class='fas fa-hand-holding-usd'></i>&nbsp;&nbsp;Pension"), css_class='form-header'),
@@ -254,7 +260,8 @@ class LossDetailsForm(forms.ModelForm):
             css_class='row'),
         Div(
 
-            Div(Div(Div(Submit('submit', 'Update', css_class='btn btn-warning')), css_class='col-lg-8 text-right'),css_class='row'),
+            Div(Div(Div(Submit('submit', 'Update', css_class='btn btn-warning')), css_class='col-lg-8 text-right'),
+                css_class='row'),
         ))
 
 
@@ -272,6 +279,7 @@ class SFPasswordForm(forms.Form):
                 Div(Submit('submit', 'Create ', css_class='btn btn-warning')),
             ),
         ))
+
 
 class CaseAssignForm(forms.ModelForm):
     class Meta:
@@ -291,10 +299,10 @@ class CaseAssignForm(forms.ModelForm):
     helper.layout = Layout(
         Div(
             Div(
-                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Assign case"),css_class='form-header'),
+                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Assign case"), css_class='form-header'),
                 Div(
                     Div(HTML("Credit Representative"), css_class='form-label'),
-                    Div(Field('owner' ))),
+                    Div(Field('owner'))),
                 Div(Div(Submit('submit', 'Assign', css_class='btn btn-outline-secondary')), css_class='text-right'),
                 Div(HTML("<br>")),
 
@@ -373,7 +381,6 @@ class drawdownPurposeForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
         }
 
-
     # Form Fields
     drawdownAmount = forms.CharField(required=True, localize=True, widget=widgets.TextInput())
 
@@ -408,7 +415,7 @@ class drawdownPurposeForm(forms.ModelForm):
                 Div(Div(HTML("Active"), css_class='form-label pb-2'),
                     Div(Field('active'))),
 
-                Div(Div(Submit('submit', 'Update', css_class='btn btn-warning'),css_class='pt-4')),
+                Div(Div(Submit('submit', 'Update', css_class='btn btn-warning'), css_class='pt-4')),
 
                 css_class="col-lg-4"),
 
@@ -428,9 +435,6 @@ class drawdownPurposeForm(forms.ModelForm):
                 Div(Div(HTML("Notes"), css_class='form-label pb-2'),
                     Div(Field('notes'))),
 
-
-
-
                 css_class="col-lg-4"),
 
             css_class='row')
@@ -447,7 +451,7 @@ class drawdownPurposeForm(forms.ModelForm):
         return amount
 
     def clean_planDrawdowns(self):
-        if self.cleaned_data['planDrawdowns']< 0:
+        if self.cleaned_data['planDrawdowns'] < 0:
             raise forms.ValidationError("Please enter a positive number")
         return self.cleaned_data['planDrawdowns']
 
@@ -464,7 +468,6 @@ class drawdownPurposeForm(forms.ModelForm):
 class purposeAddForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
-
         super(purposeAddForm, self).__init__(*args, **kwargs)
 
         # Form Layout
@@ -485,7 +488,7 @@ class purposeAddForm(forms.ModelForm):
                         Div(Field('intention'))),
 
                     Div(Submit('submit', 'Save', css_class='btn btn-warning')),
-                        css_class="col-lg-12"),
+                    css_class="col-lg-12"),
                 css_class='row')
         )
 
@@ -509,3 +512,26 @@ class purposeAddForm(forms.ModelForm):
         if combination not in permitted:
             raise ValidationError("This is not a permitted combination")
 
+
+class smsForm(forms.Form):
+    message = forms.CharField(widget=forms.Textarea(attrs={'rows': 6, 'cols': 100}))
+
+    # Form Layout
+    helper = FormHelper()
+    helper.form_id = 'clientForm'
+    helper.form_method = 'POST'
+    helper.form_class = 'form-horizontal'
+    helper.field_class = 'col-lg-12'
+    helper.form_show_labels = False
+    helper.form_show_errors = True
+
+    helper.layout = Layout(
+        Div(
+            Div(
+                Div(Div(HTML("Text Message"), css_class='form-label'),
+                    Div(Field('message'))),
+
+                Div(Submit('submit', 'Send text', css_class='btn btn-warning')),
+                css_class="col-lg-12"),
+            css_class='row')
+    )

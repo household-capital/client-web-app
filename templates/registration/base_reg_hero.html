@@ -11,7 +11,7 @@
     <meta name="author" content="">
     <link rel="icon" href="{% static 'img/favicon/favicon.png' %}"/>
 
-    {% include 'registration/base_reg.css.html' %}
+    {% include 'site/base.css.html' %}
 
     <title>HouseholdCapital.app</title>
   </head>
@@ -21,17 +21,15 @@
 
 {% block jumbotron %}{% endblock %}
 
-<!--<div class="container">
- -->
     {% block message_display %}{% endblock %}
 
     {% block content %}{% endblock %}
 
     {% block pagination %}{% endblock %}
 
-
-
-{% include 'site/base.js.html' %}
+    <!-- Javascript -->
+    {% block javascript %}{% endblock %}
+    {% include 'site/base.js.html' %}
 </body>
 </html>
 

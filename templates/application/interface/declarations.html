@@ -1,0 +1,175 @@
+{% extends 'application/base/base_app.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block message_display %}
+    <div class="container">
+        {% if messages %}
+            <div class="row justify-content-md-center pt-2">
+                <div class="col-6 text-center">
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %}
+                            class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 pb-3">
+                <br>
+                <div class="secondary_title">{{ subtitle }}</div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8 pb-3">
+
+                <p class="pb-3">By electronically signing this application form, you declare as follows: (please review
+                    carefully)</p>
+                <div class="row">
+                    <div class="col-1 pb-4">
+                        <button class="btn btn-square-choice-hhcLightBlue active" style="width:35px">1</button>
+                    </div>
+                    <div class="col-11 pb-3"><p>The information in this application form and the financial information
+                        supporting it are in
+                        all
+                        respects true and correct and complete to the best of your knowledge and belief. You acknowledge
+                        that we
+                        will rely on this information in deciding whether you are eligible for a Household Loan.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-1 pb-4">
+                        <button class="btn btn-square-choice-hhcLightBlue active" style="width:35px">2</button>
+                    </div>
+                    <div class="col-11 pb-3"><p>We have the right to verify the details of the information provided in
+                        this
+                        application
+                    </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-1 pb-4">
+                        <button class="btn btn-square-choice-hhcLightBlue active" style="width:35px">3</button>
+                    </div>
+                    <div class="col-11 pb-3"><p>As part of your loan agreement, you will need to be in a position to
+                        ensure your
+                        council rates
+                        are
+                        paid as and when due and your home insurance premiums and any strata levies will not fall into
+                        arrears
+                        in the future
+                    </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-1 pb-4">
+                        <button class="btn btn-square-choice-hhcLightBlue active" style="width:35px">4</button>
+                    </div>
+                    <div class="col-11 pb-3"><p>You understand that we may contact you from time to time to confirm that
+                        you are
+                        living at
+                        home. We
+                        may also ask you questions regarding the condition of your home, insurance and rates.
+                    </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-1 pb-4">
+                        <button class="btn btn-square-choice-hhcLightBlue active" style="width:35px">5</button>
+                    </div>
+                    <div class="col-11 pb-3"><p>You confirm that you have not been declared bankrupt in the last 20
+                        years.
+                    </p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-1 pb-4">
+                        <button class="btn btn-square-choice-hhcLightBlue active" style="width:35px">6</button>
+                    </div>
+                    <div class="col-11 pb-3"><p>You confirm that you will seek appropriate advice relating to the impact
+                        of a
+                        Household Loan
+                        on your
+                        Centrelink benefits.
+                    </p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-1 pb-4">
+                        <button class="btn btn-square-choice-hhcLightBlue active" style="width:35px">7</button>
+                    </div>
+                    <div class="col-11 pb-3"><p>You confirm that you have been provided and have reviewed a Household
+                        Capital Loan
+                        Summary,
+                        including
+                        your projections, our credit guide and Reverse Mortgage Information Statement.
+                    </p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-1 pb-4">
+                        <button class="btn btn-square-choice-hhcLightBlue active" style="width:35px">8</button>
+                    </div>
+                    <div class="col-11 pb-3"><p>You confirm that you own and live at the security property.
+                    </p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-1">
+                        <button class="btn btn-square-choice-hhcLightBlue active" style="width:35px">9</button>
+                    </div>
+                    <div class="col-11 pb-4"><p>You confirm that, other than as described in this application, there are
+                        no other occupants of the
+                        security
+                        property.
+                    </p>
+
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-12">
+                        <p class="larger pb-2"><b>Electronic Signing</b></p>
+
+                        <p>By signing below, you warrant that all the information provided above is correct and you give
+                            the various consents contained in this application</p>
+                        <br>
+                        <br>
+                        <p class="pb-2">Step 1: generate a signing pin (sent via SMS)</p>
+                        <a href="{% url 'application:generatePin' returnPage='declarations' %}">
+                            <button class="btn btn-warning">&nbsp;Generate PIN</button>
+                        </a>
+
+                        <br><br><br>
+                        <p class="pb-2">Step 2 enter your name and the pin</p>
+                        {% crispy form %}
+                        <p class="text-danger">{{ form.errors.pin|striptags }}</p>
+
+
+                        <br><br>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

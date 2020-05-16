@@ -155,6 +155,7 @@ class FacilityRoles(models.Model):
         (roleEnum.LOAN_WRITER.value, "Loan Writer"),
         (roleEnum.VALUER.value, "Valuer"),
         (roleEnum.EXECUTOR.value, "Executor"),
+        (roleEnum.SOLICITOR.value, "Solicitor"),
     )
 
     authorisationTypes = (

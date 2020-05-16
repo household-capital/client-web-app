@@ -1,0 +1,63 @@
+{% extends 'application/base/base_app.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block message_display %}
+    <div class="container">
+        {% if messages %}
+            <div class="row justify-content-md-center pt-2">
+                <div class="col-6 text-center">
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %}
+                            class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+        </div>
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="container">
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10 pb-3">
+                <br>
+                <div class="secondary_title">Multiple purposes</div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-6 pb-3">
+
+                <p>This application journey is for a <b>single income purpose</b> only </p>
+                <br>
+                <p>As you have other retirement funding purposes or have an existing mortgage, you will need a combination of lump-sum funding and regular income </p>
+                <br>
+                <p>We would be delighted to assist you with this.  This will require an online meeting with one of our retirement specialists</p>
+                <br>
+                <p>We would like to contact you to arrange a meeting. Please press the 'contact me' below</p>
+
+            </div>
+
+              <div class="col-lg-4 pb-3">
+              </div>
+
+
+        </div>
+    </div>
+
+{% endblock %}
+
+
+
+{% block javascript %}
+
+{% endblock %}

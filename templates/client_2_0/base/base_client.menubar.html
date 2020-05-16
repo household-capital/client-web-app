@@ -1,8 +1,8 @@
 {% load static %}
 
-<nav class="navbar fixed-bottom">
+<nav class="menu-bar">
 
-    <div class="row justify-content-center d-flex align-items-center menubar">
+    <div class="row justify-content-center d-flex align-items-center menu-bar-row">
         <div class="col-lg-10">
             <div class="row justify-content-center">
                 {% if menuBarItems %}
@@ -33,7 +33,7 @@
                 {% if menuPurposes.display %}
 
                     {% if menuPurposes.data.intro == True %}
-                        <div class="col text-center mt-auto">
+                        <div class="col fixed-bottom_heading">
                             <a href="{% url 'client2:introduction1' %}" class="menu_title">Introduction</a>
                         </div>
                     {% else %}
@@ -43,14 +43,14 @@
                     {% endif %}
 
                     {% if menuPurposes.data.topUp == True %}
-                        <div class="col text-center">{% if menuPurposes.navigation %}<a href="{% url 'client2:navigation' %}" class="menu_title">
+                        <div class="col fixed-bottom_heading">{% if menuPurposes.navigation %}<a href="{% url 'client2:navigation' %}" class="menu_title">
                                 {% else %}
                                 <a href="{% url 'client2:topUp1' %}" class="menu_title">{% endif %}
-                            <div><img src="{% static 'img/icons/topup_icon.png' %}" width="75px"></div>
-                            <span>Top-Up</span></a></div>
+                            <div><img class='pb-1' src="{% static 'img/icons/topup_icon.png' %}" width="70px"></div>
+                            <span >Top-Up</span></a></div>
                     {% else %}
-                        <div class="col text-center"><a href="" class="menu_title">
-                            <div><img class='greyscale' src="{% static 'img/icons/topup_icon.png' %}" width="75px">
+                        <div class="col fixed-bottom_heading"><a href="" class="menu_title">
+                            <div><img class='greyscale pb-1' src="{% static 'img/icons/topup_icon.png' %}" width="70px">
                             </div>
                             <span>Top-Up</span></a></div>
                     {% endif %}
@@ -59,11 +59,11 @@
                         <div class="col fixed-bottom_heading">{% if menuPurposes.navigation %}<a href="{% url 'client2:navigation' %}" class="menu_title">
                                 {% else %}
                                 <a href="{% url 'client2:refi' %}" class="menu_title">{% endif %}
-                            <div><img src="{% static 'img/icons/refi_icon.png' %}" width="75px"></div>
+                            <div><img class='pb-1' src="{% static 'img/icons/refi_icon.png' %}" width="70px"></div>
                             <span>Refinance</span></a></div>
                     {% else %}
                         <div class="col fixed-bottom_heading"><a href="" class="menu_title">
-                            <div><img class='greyscale' src="{% static 'img/icons/refi_icon.png' %}" width="75px"></div>
+                            <div><img class='greyscale pb-1' src="{% static 'img/icons/refi_icon.png' %}" width="70px"></div>
                             <span>Refinance</span></a></div>
                     {% endif %}
 
@@ -72,11 +72,11 @@
                             <a href="{% url 'client2:navigation' %}" class="menu_title">
                                 {% else %}
                                 <a href="{% url 'client2:live1' %}" class="menu_title">{% endif %}
-                            <div><img src="{% static 'img/icons/live_icon.png' %}" width="75px"></div>
+                            <div><img class='pb-1' src="{% static 'img/icons/live_icon.png' %}" width="70px"></div>
                             <span>Live</span></a></div>
                     {% else %}
                         <div class="col fixed-bottom_heading"><a href="" class="menu_title">
-                            <div><img class='greyscale' src="{% static 'img/icons/live_icon.png' %}" width="75px"></div>
+                            <div><img class='greyscale pb-1' src="{% static 'img/icons/live_icon.png' %}" width="70px"></div>
                             <span>Live</span></a></div>
                     {% endif %}
 
@@ -84,11 +84,11 @@
                         <div class="col fixed-bottom_heading">{% if menuPurposes.navigation %}<a href="{% url 'client2:navigation' %}" class="menu_title">
                                 {% else %}
                                 <a href="{% url 'client2:give' %}" class="menu_title">{% endif %}
-                            <div><img src="{% static 'img/icons/give_icon.png' %}" width="75px"></div>
+                            <div><img class='pb-1' src="{% static 'img/icons/give_icon.png' %}" width="70px"></div>
                             <span>Give</span></a></div>
                     {% else %}
                         <div class="col fixed-bottom_heading"><a href="" class="menu_title">
-                            <div><img class='greyscale' src="{% static 'img/icons/give_icon.png' %}" width="75px"></div>
+                            <div><img class='greyscale pb-1' src="{% static 'img/icons/give_icon.png' %}" width="70px"></div>
                             <span>Give</span></a></div>
                     {% endif %}
 
@@ -97,20 +97,20 @@
                             {% if menuPurposes.navigation %}<a href="{% url 'client2:navigation' %}" class="menu_title">
                                 {% else %}
                                 <a href="{% url 'client2:care1' %}" class="menu_title">{% endif %}
-                            <div><img src="{% static 'img/icons/care_icon.png' %}" width="75px"></div>
+                            <div><img class='pb-1' src="{% static 'img/icons/care_icon.png' %}" width="70px"></div>
                             <span>Care</span></a></div>
                     {% else %}
                         <div class="col fixed-bottom_heading"><a href="" class="menu_title">
-                            <div><img class='greyscale' src="{% static 'img/icons/care_icon.png' %}" width="75px"></div>
+                            <div><img class='greyscale pb-1' src="{% static 'img/icons/care_icon.png' %}" width="70px"></div>
                             <span>Care</span></a></div>
                     {% endif %}
 
                      {% if menuPurposes.data.options == True %}
-                        <div class="col text-center mt-auto">
+                        <div class="col fixed-bottom_heading">
                             <a href="{% url 'client2:options1' %}" class="menu_title">Options</a>
                         </div>
                     {% else %}
-                        <div class="col mt-auto text-center">
+                        <div class="col fixed-bottom_heading">
                                 <a href="" class="menu_title">Options</a>
                         </div>
                     {% endif %}

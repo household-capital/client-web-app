@@ -1,0 +1,165 @@
+{% extends 'application/base/base_app.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div class="row justify-content-md-center">
+                <div class="col-6 text-center">
+                    <br>
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %}
+                            class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 pb-3">
+                <br>
+                <div class="secondary_title">{{ subtitle }}</div>
+
+            </div>
+        </div>
+        <form method="post" id="clientForm">
+            {% csrf_token %}
+
+            <div class="row justify-content-center">
+                <div class="col-lg-5 pb-3">
+                    <p class="text-left pb-2"><b>Privacy consent</b>
+                        <span>&nbsp;<button type="button" class="btn btn-sm btn-light" data-toggle="modal"
+                                            data-target="#privacyModal">Full text </button></span></p>
+
+
+                    <p><b>Recording Personal and Financial Information</b></p>
+                    <p>We will be asking you questions on your needs and objectives
+                        for
+                        your retirement and recording some personal and Financial information</p>
+                    <br>
+                    <p><b>Handling Personal and Financial Information</b></p>
+                    <p>To help us better understand your financial requirements we may need to exchange some of this
+                        information with
+                        third parties</p>
+                    <br>
+                    <p><b>Recording Our Conversations</b></p>
+                    <p>As part of our quality assurance process telephone calls may be recorded
+                    </p>
+                    <br>
+                    <div class="small pl-3">{{ form.consentPrivacy|as_crispy_field }}</div>
+
+                </div>
+                <br>
+
+
+                <div class="col-lg-5 pb-3">
+
+                    <p class="text-left pb-2"><b>Electronic consent</b><span>&nbsp;<button type="button"
+                                                                                           class="btn btn-sm btn-light"
+                                                                                           data-toggle="modal"
+                                                                                           data-target="#electronicModal">Full text </button></span>
+                    </p>
+
+                    <p><b>Paper copies</b></p>
+                    <p>We may not send paper copies of notices and other documents to you</p>
+                    <br>
+                    <p><b>Email</b></p>
+                    <p>You should regularly check your nominated email address provided for notices and other documents.
+                        <br><br>We may send the notices and other documents by email, or provide a notice in an email
+                        that
+                        the
+                        documents are
+                        displayed on and can be retrieved from a website
+                    </p>
+                    <br>
+                    <div class="small pl-3">{{ form.consentElectronic|as_crispy_field }}</div>
+
+
+                </div>
+        </form>
+    </div>
+
+    </div>
+
+
+    <div class="modal fade" id="privacyModal" tabindex="-1" role="dialog" aria-labelledby="privacyModalLabel"
+         aria-hidden="true" data-timeout="30000">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="privacyModalLabel"><i class="far fa-info-circle"></i>&nbsp;
+                        Privacy Consent</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {% include 'application/interface/privacy.html' %}
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                    <a href="{{ success_url }}">
+                        <div class=" btn btn-warning">Send</div>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="electronicModal" tabindex="-1" role="dialog" aria-labelledby="electronicModalLabel"
+         aria-hidden="true" data-timeout="30000">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="electronicModalLabel"><i class="far fa-info-circle"></i>&nbsp;
+                        Electronic Consent</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {% include 'application/interface/electronic.html' %}
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                    <a href="{{ success_url }}">
+                        <div class=" btn btn-warning">Send</div>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}
+
+
+
+
+{% block javascript %}
+
+{% endblock %}

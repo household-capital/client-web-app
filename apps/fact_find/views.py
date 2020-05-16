@@ -66,6 +66,8 @@ class Main(HouseholdLoginRequiredMixin, ContextHelper,  UpdateView):
         # Use this to retrieve queryset for each page
         caseUID = str(kwargs['uid'])
         request.session['caseUID'] = caseUID
+
+        messages.info(request, "Remember to save as you go and hit exit to generate the Case Summary document")
         return super(Main, self).get(self, request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -123,6 +125,8 @@ class PdfCaseSummary(ContextHelper,  TemplateView):
         context = super(PdfCaseSummary, self).get_context_data(**kwargs)
         context['title'] = 'Case Summary'
         context['factObj'] = self.get_object()
+        context['clientObj'] = Case.objects.queryset_byUID(self.request.session['caseUID']).get()
+
         return context
 
     def get_object(self, queryset=None):
@@ -170,6 +174,7 @@ class GeneratePdf(View):
         except:
             write_applog("ERROR", 'GeneratePdf', 'get',
                          "Failed to save Meeting Summary in Database: " + self.request.session['caseUID'])
+            messages.error(request, "Failed to save Case Summary" )
             return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': self.request.session['caseUID']}))
 
         messages.success(self.request, "Meeting Summary generated")
@@ -179,3 +184,5 @@ class GeneratePdf(View):
             app.send_task('SF_Doc_Synch', kwargs={'caseUID': str(obj.caseUID)})
 
         return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': self.request.session['caseUID']}))
+
+

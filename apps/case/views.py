@@ -24,18 +24,21 @@ from config.celery import app
 from apps.calculator.models import WebCalculator
 from apps.enquiry.models import Enquiry
 from apps.lib.api_Docsaway import apiDocsAway
+from apps.lib.api_BurstSMS import apiBurst
 from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.site_DataMapping import serialisePurposes
-from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, appTypesEnum, purposeCategoryEnum, purposeIntentionEnum, incomeFrequencyEnum
+from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, appTypesEnum, purposeCategoryEnum, \
+    purposeIntentionEnum, incomeFrequencyEnum
 from apps.lib.site_Globals import LOAN_LIMITS
 from apps.lib.site_Logging import write_applog
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
-from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, validateLoanGetContext, updateNavQueue, getProjectionResults
+from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, validateLoanGetContext, \
+    updateNavQueue, getProjectionResults
 
 from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignForm, \
-    lumpSumPurposeForm, drawdownPurposeForm, purposeAddForm
+    lumpSumPurposeForm, drawdownPurposeForm, purposeAddForm, smsForm
 from .models import Case, LossData, Loan, ModelSetting, LoanPurposes
 
 
@@ -192,10 +195,11 @@ class CaseDetailView(HouseholdLoginRequiredMixin, UpdateView):
                    (clientObj.surname_1 if clientObj.surname_1 else '') + "&email=" + \
                    (clientObj.email if clientObj.email else '')
 
-        if self.object.owner.profile.calendlyInterviewUrl:
-            context['calendlyUrl'] = self.object.owner.profile.calendlyInterviewUrl + paramStr
-        else:
-            context['calendlyUrl']=""
+        context['calendlyUrl'] = ""
+        if self.object.owner:
+            if self.object.owner.profile.calendlyInterviewUrl:
+                context['calendlyUrl'] = self.object.owner.profile.calendlyInterviewUrl + paramStr
+                context['calendlyMainUrl'] = self.object.owner.profile.calendlyUrl[:len(self.object.owner.profile.calendlyUrl)-24] # Refactor
 
         return context
 
@@ -237,9 +241,9 @@ class CaseDetailView(HouseholdLoginRequiredMixin, UpdateView):
             obj.propertyImage = path + "/" + str(obj.caseUID) + "." + ext
             obj.save(update_fields=['propertyImage'])
 
-        if obj.caseStage == caseStagesEnum.MEETING_HELD.value:
+        #if obj.caseStage == caseStagesEnum.MEETING_HELD.value:  # Remove
             # Order Title Documents
-            self.orderTitleDocuments(obj, loan_obj)
+            # self.orderTitleDocuments(obj, loan_obj)
 
         # Case Field Validation
         isValid = self.checkFields(obj)
@@ -275,30 +279,30 @@ class CaseDetailView(HouseholdLoginRequiredMixin, UpdateView):
 
         return
 
-    def orderTitleDocuments(self, caseObj, loanObj):
-        if not caseObj.titleDocument and not caseObj.titleRequest and caseObj.sfLeadID:
-            title_email = 'credit@householdcapital.com'
-            cc_email = 'lendingservices@householdcapital.com'
-            email_template = 'case/email/caseTitleEmail.html'
-            email_context = {}
-            email_context['caseObj'] = caseObj
-            email_context['detailedTitle'] = loanObj.detailedTitle
-            html = get_template(email_template)
-            html_content = html.render(email_context)
+    #def orderTitleDocuments(self, caseObj, loanObj):
+    #    if not caseObj.titleDocument and not caseObj.titleRequest and caseObj.sfLeadID:
+    #        title_email = 'credit@householdcapital.com'
+    #        cc_email = 'lendingservices@householdcapital.com'
+    #        email_template = 'case/email/caseTitleEmail.html'
+    #        email_context = {}
+    #        email_context['caseObj'] = caseObj
+    #        email_context['detailedTitle'] = loanObj.detailedTitle
+    #        html = get_template(email_template)
+    #        html_content = html.render(email_context)
 
-            subject, from_email, to, bcc = \
-                "Title Request - " + str(caseObj.caseDescription), \
-                caseObj.owner.email, \
-                [title_email, cc_email], \
-                None
+    #        subject, from_email, to, bcc = \
+    #            "Title Request - " + str(caseObj.caseDescription), \
+    #            caseObj.owner.email, \
+    #            [title_email, cc_email], \
+    #            None
 
-            msg = EmailMultiAlternatives(subject, "Title Request", from_email, to, bcc)
-            msg.attach_alternative(html_content, "text/html")
-            msg.send()
-            messages.success(self.request, "Title documents requested")
-            caseObj.titleRequest = True
-            caseObj.save(update_fields=['titleRequest'])
-        return
+    #        msg = EmailMultiAlternatives(subject, "Title Request", from_email, to, bcc)
+    #        msg.attach_alternative(html_content, "text/html")
+    #        msg.send()
+    #        messages.success(self.request, "Title documents requested")
+    #        caseObj.titleRequest = True
+    #        caseObj.save(update_fields=['titleRequest'])
+    #    return
 
     def checkFields(self, caseObj):
 
@@ -1108,3 +1112,61 @@ class CreateLoanVariationSummary(HouseholdLoginRequiredMixin, View):
             messages.error(self.request, "Could not save Loan Variation Summary")
 
         return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseUID}))
+
+
+class SMSCustomerView(HouseholdLoginRequiredMixin, FormView):
+    template_name = 'case/caseSMS.html'
+    form_class = smsForm
+    success_url = reverse_lazy('case:caseList')
+
+    def get_context_data(self, **kwargs):
+        context = super(SMSCustomerView, self).get_context_data(**kwargs)
+        context['title'] = 'Text client'
+        return context
+
+    def form_valid(self, form):
+
+        message=form.cleaned_data['message']
+        caseUID = str(self.kwargs['uid'])
+        qs = Case.objects.queryset_byUID(caseUID)
+        obj = qs.get()
+
+        sms = apiBurst()
+        result = sms.sendSMS(obj.phoneNumber,message, 'Household')
+
+        if result['status']=="Ok":
+            messages.success(self.request, "SMS sent to customer")
+            write_applog("Info", 'SMSCustomerView', 'form_valid',
+                         "SMS sent to to customer: " + caseUID)
+            noteText = obj.caseNotes + "\r\n [#SMS "+ datetime.datetime.today().strftime("%d-%b-%y") +":"+ message + "]"
+            qs.update(caseNotes = noteText)
+        else:
+            messages.error(self.request, result['responseText'])
+
+        return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseUID}))
+
+
+from apps.lib.site_DataMapping import mapCaseToOpportunity
+class Test(View):
+
+    def get(self, request, *args, **kwargs):
+        caseUID=str(kwargs['uid'])
+        sfAPI = apiSalesforce()
+        result = sfAPI.openAPI(False)
+
+        end_point = 'caseopptysync/v1/'
+        end_point_method = 'POST'
+
+        caseObj = Case.objects.queryset_byUID(caseUID).get()
+        lossObj = LossData.objects.queryset_byUID(caseUID).get()
+
+        # Update Opportunity [Application]
+
+        payload = mapCaseToOpportunity(caseObj, lossObj, UAT=True)
+        print(payload)
+
+        # Call endpoint
+        result = sfAPI.apexCall(end_point, end_point_method, data=payload)
+
+        print(result['responseText'])
+        return HttpResponse("Done")

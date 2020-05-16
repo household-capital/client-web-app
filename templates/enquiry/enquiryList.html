@@ -66,9 +66,8 @@
                                 </div>
 
 
-
                                 <div class="col-3 text-center">
-                                {% if request.GET.action == "True" %}
+                                    {% if request.GET.action == "True" %}
                                         <a href="?action=False">
                                         <div class="btn btn-warning" data-toggle="tooltip"
                                              data-placement="top"
@@ -162,7 +161,7 @@
                                     </a>
                                 {% else %}
                                     {% if obj.sfLeadID is null %}
-                                            <i class="fal fa-question-circle"></i>
+                                        <i class="fal fa-question-circle"></i>
                                     {% endif %}
                                     <a href="{{ obj.get_absolute_url }}">{{ obj.user }}</a></td>
                                 {% endif %}
@@ -191,7 +190,8 @@
                             </td>
                             <td class="d-none d-sm-table-cell" data-toggle="tooltip" data-placement="top"
                                 title="Calendly">
-                                {% if obj.isCalendly %}<i style='color:darkgoldenrod' class="far fa-fw fa-calendar-check"></i>{% endif %}
+                                {% if obj.isCalendly %}
+                                    <i style='color:darkgoldenrod' class="far fa-fw fa-calendar-check"></i>{% endif %}
                             </td>
 
 
@@ -213,7 +213,8 @@
 
                             {% else %}
                                 <li class="page-item disabled">
-                                    <a class="page-link" href="#&myEnquiries={{ myEnquiries }}&search={{ search }}&recent={{ recent }}"
+                                    <a class="page-link"
+                                       href="#&myEnquiries={{ myEnquiries }}&search={{ search }}&recent={{ recent }}"
                                        tabindex="-1">Previous</a>
                                 </li>
                             {% endif %}

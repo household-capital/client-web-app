@@ -4,26 +4,22 @@
 {% load humanize %}
 
 {% block message_display %}
-
     <div class="container">
-
         {% if messages %}
-            <div class="row justify-content-md-center">
+            <div class="row justify-content-md-center pt-2">
                 <div class="col-6 text-center">
-                    <br>
                     {% for message in messages %}
                         <p{% if message.tags == 'error' %}
-                            class="alert alert-warning"{% endif %}>{{ message }}</p>
+                            class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %}
+                            class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
                     {% endfor %}
                 </div>
             </div>
         {% endif %}
-
-        <div class="row">
-
         </div>
-    </div>
-
 {% endblock %}
 
 
@@ -31,34 +27,47 @@
 
     <div class="container">
 
-    <div class="row">
-        <div class="col-lg-6 pb-3">
-            <br>
-            <div class="secondary_title">Start an application</div>
-            <br>
-            <p>You can complete an application entirely on-line. </p>
-            <br>
-            <p>During this journey we will: </p>
-            <ul>
-                <li>explain key features of a Household Income loan</li>
-                <li>review your needs and objectives</li>
-                <li>provide you with important future projections</li>
-                <li>ask you to provide certain information</li>
-            </ul>
-            <br>
-            <p>We will email you a link so you can stop and resume your application.</p>
-
- <br>
-            {% crispy form %}
-
+        <div class="row justify-content-center">
+            <div class="col-lg-10 pb-3">
+                <br>
+                <div class="secondary_title">Start an application</div>
+            </div>
         </div>
-        <br>
 
-        <div class="col-lg-6 text-left">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 pb-3">
+
+                <p>During this journey we will: </p>
+                <ul>
+                    <li>explain key features of a Household Income loan</li>
+                    <li>review your needs and objectives</li>
+                    <li>provide you with important future projections</li>
+                    <li>ask you to provide some financial information to support your application</li>
+                </ul>
+
+                <p>We will send you an email with a specific link so that you can resume your application. </p>
+                <br>
+
+                <p>For security reasons, please provide a mobile number so that we can send you a pin number to resume
+                    your
+                    application </p>
+
+                <br>
 
 
+            </div>
+
+            <div class="col-lg-5 pl-3 text-left">
+                <p><i class="fas fa-laptop pb-2"></i><b>&nbsp;&nbsp;Let's get started</b></p>
+                {% crispy form %}
+            </div>
         </div>
     </div>
 
+{% endblock %}
+
+
+
+{% block javascript %}
 
 {% endblock %}

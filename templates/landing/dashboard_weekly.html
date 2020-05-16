@@ -55,6 +55,7 @@
                 <thead>
                 <tr>
                     <th scope="col">Week</th>
+                    <th scope="col">Interactions</th>
                     <th scope="col">Enquiries</th>
                     <th scope="col">Cases</th>
                     <th scope="col" class="d-none d-sm-table-cell text-right">Meetings</th>
@@ -67,6 +68,7 @@
                 {% for obj in object_list %}
                     <tr>
                         <td class="">{{ obj.date }}</td>
+                        <td class="text-right">{{ obj.interactions }}</td>
                         <td class="text-right">{{ obj.enquiries }}</td>
                         <td class="text-right">{{ obj.cases }}</td>
                         <td class="text-right">{{ obj.meetings }}</td>

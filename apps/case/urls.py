@@ -22,6 +22,7 @@ urlpatterns = [
     path('caseOwn/<uuid:uid>',views.CaseOwnView.as_view(),name='caseOwn'),
     path('caseAssign/<uuid:uid>', views.CaseAssignView.as_view(), name='caseAssign'),
     path('caseData/<uuid:uid>',views.CaseDataExtract.as_view(),name='caseData'),
+    path('caseSMS/<uuid:uid>', views.SMSCustomerView.as_view(), name='caseSMS'),
 
     path('cloudBridge/<uuid:uid>', views.CloudbridgeView.as_view(), name='cloudBridge'),
 
@@ -30,7 +31,10 @@ urlpatterns = [
     path('caseVariationDrawdown/<uuid:purposeUID>', views.CaseVariationDrawdown.as_view(), name='caseVariationDrawdown'),
     path('caseVariationAdd/<uuid:uid>', views.CaseVariationAdd.as_view(), name='caseVariationAdd'),
     path('pdfLoanVariationSummary/<uuid:uid>', views.PdfLoanVariationSummary.as_view(), name='pdfLoanVariationSummary'),
-    path('createLoanVariationSummary/<uuid:uid>', views.CreateLoanVariationSummary.as_view(), name='createLoanVariationSummary')
+    path('createLoanVariationSummary/<uuid:uid>', views.CreateLoanVariationSummary.as_view(), name='createLoanVariationSummary'),
+
+    path('test/<uuid:uid>', views.Test.as_view(), name='test'),
+
 ]
 
 

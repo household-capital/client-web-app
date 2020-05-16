@@ -228,22 +228,12 @@ class EnrichEnum:
                     else:
                         self.loanDict[prefix + str(i + 1) + ".PrimaryApplicant"] = "No"
 
-                # NameTitle
-                enumTitles = {"Mr.": "Mr", "Mrs.": "Mrs", "Ms.": "Ms", "Dr.": "Dr"}
-                if self.loanDict[prefix + str(i + 1) + ".Salutation"] in enumTitles:
-                    self.loanDict[prefix + str(i + 1) + ".NameTitle"] = enumTitles[
-                        self.loanDict[prefix + str(i + 1) + ".Salutation"]]
+                # NameTitle - Strip dot
+                self.loanDict[prefix + str(i + 1) + ".NameTitle"] = \
+                    self.loanDict[prefix + str(i + 1) + ".Salutation"].replace(".","")
 
-                if " " in self.loanDict[prefix + str(i + 1) + ".FirstName"]:
-                    self.loanDict[prefix + str(i + 1) + ".FirstName"], middleName  =self.loanDict[prefix + str(i + 1) + ".FirstName"].split(" ",1)
-                    
-
-                enumMaritalStatus = {"Married": "Married", "Single.": "Single"}
-                if self.loanDict[prefix + str(i + 1) + ".Marital_Status__c"] in enumMaritalStatus:
-                    self.loanDict[prefix + str(i + 1) + ".MaritalStatus"] = enumMaritalStatus[
-                        self.loanDict[prefix + str(i + 1) + ".Marital_Status__c"]]
-                else:
-                    self.loanDict[prefix + str(i + 1) + ".MaritalStatus"] = "Unknown"
+                self.loanDict[prefix + str(i + 1) + ".MaritalStatus"] = \
+                        self.loanDict[prefix + str(i + 1) + ".Marital_Status__c"].replace(".","")
 
             return {"status": "Ok"}
         except:

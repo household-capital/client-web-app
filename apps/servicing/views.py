@@ -4,6 +4,7 @@ import json
 import base64
 import os
 import pathlib
+import uuid
 
 # Django Imports
 from django.conf import settings
@@ -16,6 +17,7 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import ListView, UpdateView, CreateView, TemplateView, View, FormView, DetailView
 
+from apps.accounts.models import SessionLog
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_DataMapping import mapFacilityToCase
 from apps.lib.site_Enums import roleEnum, caseStagesEnum, loanTypesEnum, appTypesEnum, clientTypesEnum, channelTypesEnum
@@ -576,6 +578,10 @@ class LoanAdditionalValidate(View):
 
             #Save payload (UID) to session
             request.session.update(payload)
+            SessionLog.objects.create(
+                description="Additional Drawdown session",
+                referenceUID=uuid.UUID(payload['additionalUID'])
+            )
             return HttpResponseRedirect(reverse_lazy('servicing:loanAdditionalRequest'))
 
         except signing.SignatureExpired:

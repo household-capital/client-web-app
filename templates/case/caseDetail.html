@@ -49,8 +49,9 @@
                 <br>
 
                 {% if obj.sfOpportunityID %}
+                    <a href="{{ obj.get_SF_url }}" target="_blank">
                     <p class="larger" style="color:deepskyblue"><i class="fas fa-cloud fa-lg pb-4"></i>&nbsp;
-                        Salesforce {{ obj.sfLoanID }}</p>
+                        Salesforce {{ obj.sfLoanID }}</p></a>
 
                 {% else %}
 
@@ -137,8 +138,14 @@
 
                                         <div class="dropdown-divider"></div>
 
+                                        <a class="dropdown-item" href="{{ calendlyMainUrl }}" target="_blank">
+                                            &nbsp;<i class="far fa-calendar-alt fa-fw"></i>&nbsp;&nbsp;Book Other
+                                        </a>
+
+                                        <div class="dropdown-divider"></div>
+
                                         {% if obj.appType == appTypesEnum.VARIATION.value %}
-                                             <a class="dropdown-item"
+                                            <a class="dropdown-item"
                                                href="{% url 'case:caseVariation' uid=obj.caseUID %}">
                                                 &nbsp;<i class="fas fa-edit fa-fw"></i>&nbsp;&nbsp;Variation
                                             </a>
@@ -477,6 +484,7 @@
 
 {% block javascript %}
     <script>
+
         $(document).ready(function () {
             $("form").one('click focus change', function (e) {
                 console.log("Click");
@@ -484,8 +492,11 @@
                 $('#btnCaseActions').attr('disabled', true)
 
             })
-        })
+        });
+
+
 
     </script>
+
 
 {% endblock %}

@@ -89,11 +89,13 @@ def fundedData(*arg, **kwargs):
                             qs.delete()
 
                             #Test notification of reversal
-                            text = str(loan.sfLoanName) + "  |  " + str(transaction['tranRef'])
+                            text = "A reversal has occurred for " + str(loan.sfLoanName) + "  |  " + str(transaction['tranRef'])
                             from_email = settings.DEFAULT_FROM_EMAIL
-                            subject = "AMAL REVERSAL"
-                            to = settings.ADMINS[0][1]
-                            msg = EmailMultiAlternatives(subject, text , from_email, [to])
+                            subject = "AMAL Reversal - Servicing Notification"
+                            to = [settings.ADMINS[0][1],
+                                  'sue.moorhen@householdcapital.com',
+                                  'jay.sewell@householdcapital.com']
+                            msg = EmailMultiAlternatives(subject, text , from_email, to)
                             msg.send()
 
                         else:
@@ -107,7 +109,7 @@ def fundedData(*arg, **kwargs):
                 loan.maxDrawdownDate = loan.settlementDate + timezone.timedelta(days=365)
 
             #Check approved amounts agree
-            if (loan.totalLoanAmount - loan.approvedAmount) > 1:
+            if abs(loan.totalLoanAmount - loan.approvedAmount) > 1:
                 loan.amalReconciliation = False
             else:
                 loan.amalReconciliation = True

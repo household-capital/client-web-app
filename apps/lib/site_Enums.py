@@ -43,6 +43,11 @@ class investmentTypesEnum(Enum):
     COMBINED = 3
 
 @accessInTemplate
+class productTypesEnum(Enum):
+    LUMP_SUM = 0
+    INCOME = 1
+
+@accessInTemplate
 class loanTypesEnum(Enum):
     SINGLE_BORROWER=0
     JOINT_BORROWER=1
@@ -97,6 +102,9 @@ class stateTypesEnum(Enum):
 class incomeFrequencyEnum(Enum):
     FORTNIGHTLY = 1
     MONTHLY = 2
+    WEEKLY = 3
+    QUARTERLY = 4
+    ANNUALLY = 5
 
 @accessInTemplate
 class closeReasonEnum(Enum):
@@ -152,6 +160,7 @@ class roleEnum(Enum):
     LOAN_WRITER = 10
     VALUER = 11
     EXECUTOR = 12
+    SOLICITOR = 13
 
 
 @accessInTemplate
@@ -187,6 +196,14 @@ class purposeIntentionEnum(Enum):
     LUMP_SUM = 7
     MORTGAGE  = 8
 
+@accessInTemplate
+class appStatusEnum(Enum):
+    CREATED = 0
+    IN_PROGRESS = 1
+    EXPIRED = 2
+    SUBMITTED = 3
+    CONTACT = 4
+
 #Squash migrations and delete
 class closeReasonTypes(Enum):
     AGE_RESTRICTION=1
@@ -202,5 +219,7 @@ class closeReasonTypes(Enum):
     COMPETITOR=11
     NO_CLIENT_ACTION=13
     OTHER = 12
+
+
     
     

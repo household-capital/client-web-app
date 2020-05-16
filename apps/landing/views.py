@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.db.models.functions import TruncDate, TruncDay, TruncMonth, Cast, ExtractDay, ExtractWeek, ExtractYear, Concat
 from django.db.models.fields import DateField
-from django.db.models import Sum, F, Func,  Avg, Min, Max, Value, CharField, ExpressionWrapper
+from django.db.models import Sum, F, Func,  Avg, Min, Max, Value, CharField, FloatField, BooleanField,ExpressionWrapper
 from django.db.models import Count, When, Case as dbCase
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse_lazy
@@ -203,7 +203,7 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
             .annotate(meetings=Count('caseUID')) \
             .values('date', 'meetings').order_by('date')
 
-        context['chartMeetingData']=json.dumps(self.__createTimeSeries(dataQs, 'meetings'),default=self.dateParse)
+        context['chartMeetingData']=json.dumps(self.__createTimeSeries(dataQs, 'meetings')[-12:],default=self.dateParse)
 
         # - get zoom meeting data
         qsMeetings = Case.objects.filter(meetingDate__isnull=False)
@@ -213,7 +213,7 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
             .annotate(zoomMeetings=Count(dbCase(When(isZoomMeeting=True, then=1)))) \
             .values('date', 'zoomMeetings').order_by('date')
 
-        context['chartZoomMeetingData']=json.dumps(self.__createTimeSeries(dataQs, 'zoomMeetings'),default=self.dateParse)
+        context['chartZoomMeetingData']=json.dumps(self.__createTimeSeries(dataQs, 'zoomMeetings')[-12:],default=self.dateParse)
 
         # - get settlement data
         qsMeetings = Facility.objects.filter(settlementDate__isnull=False)
@@ -223,7 +223,7 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
             .annotate(settlements=Count('settlementDate')) \
             .values('date', 'settlements').order_by('date')
 
-        context['chartSettlementData']=json.dumps(self.__createTimeSeries(dataQs, 'settlements'),default=self.dateParse)
+        context['chartSettlementData']=json.dumps(self.__createTimeSeries(dataQs, 'settlements')[-12:],default=self.dateParse)
 
 
         # NEW LOANS / PORTFOLIO DATA
@@ -235,10 +235,10 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
             .annotate(newLoans=Sum('approvedAmount')) \
             .values('date', 'newLoans').order_by('date')
 
-        context['chartNewLoansData'] = json.dumps(self.__createTimeSeries(dataQs, 'newLoans'),
+        context['chartNewLoansData'] = json.dumps(self.__createTimeSeries(dataQs, 'newLoans')[-12:],
                                                     default=self.dateParse)
 
-        context['chartPortfolioData'] = json.dumps(self.__createCumulativeTimeSeries(dataQs, 'newLoans'),
+        context['chartPortfolioData'] = json.dumps(self.__createCumulativeTimeSeries(dataQs, 'newLoans')[-12:],
                                                   default=self.dateParse)
 
         # AVERAGE DAYS
@@ -250,10 +250,52 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
             .annotate(min_days=Min((F('settlementDate') - F('meetingDate')))) \
             .values('date', 'ave_days', 'min_days').order_by('date')
 
-        context['chartAverageDays'] = json.dumps(self.__createTimeSeries(dataQs, 'ave_days'),
+        context['chartAverageDays'] = json.dumps(self.__createTimeSeries(dataQs, 'ave_days')[-12:],
                                                   default=self.dateParse)
-        context['chartMinDays'] = json.dumps(self.__createTimeSeries(dataQs, 'min_days'),
+        context['chartMinDays'] = json.dumps(self.__createTimeSeries(dataQs, 'min_days')[-12:],
                                                   default=self.dateParse)
+
+       # CONVERSION  DATA
+        # - get meeting conversion
+        qsMeetings = Case.objects.filter(meetingDate__isnull=False)
+        dataQs = qsMeetings \
+            .annotate(date=Cast(TruncMonth('meetingDate', tzinfo=tz), DateField())) \
+            .values_list('date') \
+            .annotate(proportion= ExpressionWrapper(Value(100.0) * Count('amalLoanID') / Count('meetingDate'), output_field =  FloatField())) \
+            .values('date', 'proportion').order_by('date')
+
+        context['chartMeetingConversion'] = json.dumps(self.__createTimeSeries(dataQs, 'proportion')[-12:],
+                                                 default=self.dateParse)
+
+        # - get enquiry conversion
+        qsEnqs = Enquiry.objects.all()
+        dataQs = qsEnqs \
+            .annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
+            .annotate(converted = dbCase(When(actioned=-1, then=True),
+                                       output_field=BooleanField()
+                                       )) \
+            .values_list('date') \
+            .annotate(proportion=ExpressionWrapper(Value(100.0) * Count('converted') / Count('enqUID'),
+                                                   output_field=FloatField())) \
+            .values('date', 'proportion').order_by('date')
+
+        context['chartEnquiryConversion'] = json.dumps(self.__createTimeSeries(dataQs, 'proportion')[-12:],
+                                                       default=self.dateParse)
+
+        # - get interaction conversion
+        qsMeetings = WebCalculator.objects.all()
+        dataQs = qsMeetings \
+            .annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
+            .values_list('date') \
+            .annotate(proportion=ExpressionWrapper(Value(100.0) * Count('email') / Count('calcUID'),
+                                                   output_field=FloatField())) \
+            .values('date', 'proportion').order_by('date')
+
+        context['chartCalculatorConversion'] = json.dumps(self.__createTimeSeries(dataQs, 'proportion')[-12:],
+                                                       default=self.dateParse)
+
+
+
         return context
 
     def __deDupe(self, qs):
@@ -318,6 +360,12 @@ class Weekly(HouseholdLoginRequiredMixin, TemplateView):
             .annotate(cases=Count('caseUID')) \
             .order_by()
 
+        # - get interaction data
+        qsInts = WebCalculator.objects.all() \
+            .annotate(date=Concat(ExtractYear('timestamp'), Value('-W'), ExtractWeek('timestamp'), output_field=CharField())) \
+            .values('date') \
+            .annotate(interactions=Count('calcUID')) \
+            .order_by()
 
         # - get enquiry data
         qsEnqs = Enquiry.objects.all() \
@@ -358,6 +406,7 @@ class Weekly(HouseholdLoginRequiredMixin, TemplateView):
             settlements = self.get_data_item('settlements',item['date'], dataSettle)
             cases = self.get_data_item('cases',item['date'], qsCases)
             enquiries = self.get_data_item('enquiries',item['date'],qsEnqs )
+            interactions = self.get_data_item('interactions',item['date'],qsInts )
 
 
 
@@ -366,7 +415,8 @@ class Weekly(HouseholdLoginRequiredMixin, TemplateView):
                            'zoomMeetings': zoomMeetings,
                            'settlements': settlements,
                            'enquiries': enquiries,
-                           'cases': cases
+                           'cases': cases,
+                           'interactions': interactions
                            })
 
         context['object_list'] = output

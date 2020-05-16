@@ -57,13 +57,16 @@ class apiSalesforce():
                            "Select Id, Total_Household_Loan_Amount__c, Total_Plan_Amount__c, Establishment_Fee_Percent__c from Opportunity where Lead_Record_Type__c = 'Household' and StageName in ('Meeting Held', 'Application Sent', 'Build Case', 'Assess')",
 
                       'LoanObjectList':
-                           "Select Id, Status__c, Name, Total_Loan_Amount__c, Total_Limits__c, Total_Establishment_Fee__c, Establishment_Fee_Percent__c, Mortgage_Number__c, Account_Number__c, BSB__c from Loan__c where Status__c != \'Inactive\'",
+                           "Select Id, Status__c, Name, LoanNumber__c, Total_Loan_Amount__c, Total_Limits__c, Total_Establishment_Fee__c, Establishment_Fee_Percent__c, Mortgage_Number__c, Account_Number__c, BSB__c from Loan__c where Status__c != \'Inactive\'",
 
                       'LoanLinkList':
                             "select Loan__c, Opportunity__c from LoanOpportunityLink__c order by CreatedDate",
 
                       'LoanLink':
                           "Select Loan__c from LoanOpportunityLink__c where Opportunity__c=\'{0}\'",
+
+                      'LoanObjectDetails':
+                           "Select LoanNumber__c from Loan__c where Id =\'{0}\'",
 
                       'LoanObjectRoles':
                             "Select Id, Name, Loan__c, Contact__c, Role__c from LoanContactRole__c",
@@ -185,7 +188,6 @@ class apiSalesforce():
         logging.info("         Making multiple SOQL calls to produce dictionary")
         loanDict={}
 
-
         loanDict.update(self.qryToDict('Opportunity', OpportunityID, 'Opp')['data'])
 
         loanDict.update(self.qryToDict('Properties', OpportunityID, 'Prop')['data'])
@@ -205,6 +207,7 @@ class apiSalesforce():
         loanDict['Purp.NoPurposes'] = results['rows']
         for  index, row in results['data'].iterrows():
             loanDict.update(self.qryToDict('Purpose', row['Name'], "Purp" + str(index+1) )['data'])
+
 
         #Nested loop - multiple borrowers
 
@@ -228,6 +231,12 @@ class apiSalesforce():
         loanDict['Brwr.Number'] = borrowerCount
         loanDict['POA.Number'] = poaCount
 
+
+        #Get LoanObjectID (Using Opportunity Link Table)
+        loanObj = self.qryToDict('LoanLink', OpportunityID, "Loan")['data']
+        loanDict['LoanObject.SFID'] = loanObj['Loan.Loan__c']
+        loanObj = self.qryToDict('LoanObjectDetails',loanDict['LoanObject.SFID'], "Loan")['data']
+        loanDict['LoanObject.LoanNumber'] = loanObj['Loan.LoanNumber__c']
         return {'status':"Ok", "data":loanDict}
 
 
@@ -285,7 +294,6 @@ class apiSalesforce():
         # returns a list of Loan Object Purposes
         list = self.execSOQLQuery('LoanObjectPurposes', None)
         return list
-
 
     def getDocumentFileStream(self, documentID):
         # Multi-call approach as SF has restrictions on calling the link table

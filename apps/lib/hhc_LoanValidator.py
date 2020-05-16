@@ -5,7 +5,7 @@ import csv
 from django.conf import settings
 
 # Local Application Imports
-from apps.lib.site_Enums import dwellingTypesEnum, loanTypesEnum
+from apps.lib.site_Enums import dwellingTypesEnum, loanTypesEnum, productTypesEnum
 from apps.lib.site_Globals import LOAN_LIMITS
 
 
@@ -74,13 +74,20 @@ class LoanValidator():
         self.maxLvr = 0
         self.maxLoan = 0
         self.loanLimit = 0
-        self.drawdownLimit = 0
         self.refinanceLimit = 0
         self.giveLimit = 0
         self.travelLimit = 0
+        self.drawdownLimit = 0
+        self.maxDrawdownMonthly = 0
 
         # Refer Postcode
         self.isRefer = False
+
+        # Product Type
+        if 'productType' in self.initDict:
+            self.productType = self.initDict['productType']
+        else:
+            self.productType = productTypesEnum.LUMP_SUM.value
 
     def validateLoan(self):
         # Checks basic borrower and loan restrictions providing a status and dictionary of data
@@ -129,15 +136,22 @@ class LoanValidator():
             response['responseText'] = 'Youngest joint borrower must be 65'
             return response
 
+
         # Perform LVR calculations (for loan size validation)
         self.__calcLVR()
 
 
         # Check Min Loan Size
-        if self.maxLvr / 100 * self.initDict['valuation'] < LOAN_LIMITS['minLoanSize']:
-            response['status'] = "Error"
-            response['responseText'] = 'Minimum Loan Size cannot be met'
-            return response
+        if self.productType == productTypesEnum.LUMP_SUM.value:
+            if self.maxLvr / 100 * self.initDict['valuation'] < LOAN_LIMITS['minLoanSize']:
+                response['status'] = "Error"
+                response['responseText'] = 'Minimum Loan Size cannot be met'
+                return response
+        else:
+            if int(self.maxDrawdownMonthly) < LOAN_LIMITS['minIncomeDrawdown']:
+                response['status'] = "Error"
+                response['responseText'] = 'Minimum Loan Size cannot be met'
+                return response
 
         # Check Mortgage Debt
         if int(self.initDict['mortgageDebt']) > int(
@@ -157,7 +171,7 @@ class LoanValidator():
         data['maxGive'] = int(self.giveLimit)
         data['maxTravel'] = int(self.travelLimit)
         data['maxDrawdown'] = int(self.drawdownLimit)
-        data['maxDrawdownMonthly'] = round(((self.drawdownLimit / (10 * 12 ))/(1 + self.establishmentFee)),-1) # Temporary calculation
+        data['maxDrawdownMonthly'] = int(self.maxDrawdownMonthly)
 
         response['data'] = data
 
@@ -221,6 +235,9 @@ class LoanValidator():
         data['maxLoanAmount'] = int(round(self.loanLimit, 0))
         data['availableAmount'] = int(round(availableAmount, 0))
 
+        data['maxDrawdownMonthly'] = int(self.maxDrawdownMonthly)
+        data['maxDrawdownAmount'] = int(self.drawdownLimit)
+
         data['purposeAmount'] = purposeAmount
         data['establishmentFee'] = int(round(purposeAmount * self.establishmentFee, 0))
         data['totalLoanAmount'] = int(round(totalLoanAmount, 0))
@@ -236,8 +253,6 @@ class LoanValidator():
         # Validate against limits and add to output dictionary
         data['errors'] = False
         self.__chkStatusItem(data, 'availableStatus', availableAmount, int(0), "LT")
-        self.__chkStatusItem(data, 'minloanAmountStatus', int(round(totalPlanAmount, 0)), LOAN_LIMITS['minLoanSize'],
-                             "LT")
         self.__chkStatusItem(data, 'maxloanAmountStatus', int(round(totalPlanAmount, 0)), self.loanLimit, "GTE")
         self.__chkStatusItem(data, 'topUpStatus',
                              self.initDict['topUpAmount'] + self.initDict['topUpContingencyAmount'] + self.initDict[
@@ -257,6 +272,13 @@ class LoanValidator():
         self.__chkStatusItem(data, 'careDrawdownStatus',
                              self.initDict['careAmount'] + self.initDict['careDrawdownAmount'], LOAN_LIMITS['maxCare'],
                              "GTE")
+
+        if self.productType == productTypesEnum.LUMP_SUM.value:
+            self.__chkStatusItem(data, 'minloanAmountStatus', int(round(totalPlanAmount, 0)),
+                                 LOAN_LIMITS['minLoanSize'],"LT")
+        else:
+            self.__chkStatusItem(data, 'minloanAmountStatus', int(round(self.maxDrawdownMonthly, 0)),
+                                 LOAN_LIMITS['minIncomeDrawdown'], "LT")
 
         response['status'] = "Ok"
         response['data'] = data
@@ -307,8 +329,19 @@ class LoanValidator():
         self.giveLimit = self.loanLimit * LOAN_LIMITS['maxGive']
         self.travelLimit = self.loanLimit * LOAN_LIMITS['maxTravel']
 
+        # TEMPORARY CALCULATION
         # Drawdown Limits - income product
-        self.drawdownLimit = self.loanLimit * 0.80  # Temporary calculation
+        lvr = 0.08 + (self.clientAge - LOAN_LIMITS['baseLvrAge']) * 0.012
+        if self.isApartment:
+            lvr = lvr - LOAN_LIMITS['apartmentLvrAdj']
+        lvr = lvr * (1 - self.initDict['protectedEquity'] / 100)
+        if lvr < 0:
+            lvr = 0
+
+        self.drawdownLimit = min(int(round(lvr * self.initDict['valuation'], 0)), self.maxLoan)
+        self.maxDrawdownMonthly =  round(((self.drawdownLimit / (10 * 12 ))/(1 + self.establishmentFee)),-1)
+
+        return
 
     def __valueExists(self, item, sourceDict):
         if item in sourceDict:

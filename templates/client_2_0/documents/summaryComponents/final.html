@@ -3,62 +3,68 @@
 
 
 <!-- Include -->
-<br>
-<div class="col-lg-12 "><br>
-    <p class="secondary_title">Your protections*</p>
-</div>
-<br>
+    <br>
+    <div class="col-lg-12 "><br>
+        <p class="secondary_title">Your protections*</p>
+    </div>
+    <br>
 
-<div class="col-lg-12 ">
+    <div class="col-lg-12 ">
 
-    <p class="print-text pb-3">A Household Loan is a Reverse Mortgage, which is regulated product under the National Consumer Credit Protection ("NCCP") Act. There are specific contractual protections that apply to these types of loans including:</p>
-    <ul class="pl-4">
-        <li class="print-text"><b>Ownership</b> - you own your own home and remain registered on the title</li>
+        <p class="print-text pb-3">A Household Loan is a Reverse Mortgage, which is regulated product under the National
+            Consumer Credit Protection ("NCCP") Act. There are specific contractual protections that apply to these
+            types of
+            loans including:</p>
+        <ul class="pl-4">
+            <li class="print-text"><b>Ownership</b> - you own your own home and remain registered on the title</li>
+            <br>
+            <li class="print-text"><b>Occupancy</b> - you cannot be forced to leave your home (unless you are no longer
+                able
+                to live independently)
+            </li>
+            <br>
+            <li class="print-text"><b> No Negative Equity Guarantee</b> - you cannot owe more than the value of your
+                home
+            </li>
+        </ul>
+
+
+    </div>
+    <br>
+
+    <div class="col-lg-12 ">
+        <p class="secondary_title">How we get paid</p>
+    </div>
+    <br>
+
+
+    <div class="col-lg-12 ">
+        <p class="print-text">Interest is charged on capital drawn from your home equity and paid when you repay your
+            loan. </p>    <br>
+        <p class="print-text">Our current variable rate {{ totalInterestRate }}%</p>
+        <p class="print-text">Comparison rate {{ comparisonRate }}% **</p>
         <br>
-        <li class="print-text"><b>Occupancy</b> - you cannot be forced to leave your home (unless you are no longer able to live independently)
-        </li>
+        <p class="print-text">A 1.5% establishment fee is charged at the inception of the loan and covers valuation and
+            conveyancing costs. There are no on-going fees. There are no fees for repayment of the loan (there is an
+            administrative fee associated with discharge of mortgage). </p>
+
+
+    </div>
+
+
+    <div class="col-lg-12 "><br><br><br>
+        <p class="print-text">This Loan Summary was prepared by:</p><br>
+        <img src="{{ absolute_media_url }}{{ owner.profile.picture }}" height="100px">
+        <br><br>
+        <p class="print-text">{{ owner.first_name }} {{ owner.last_name }}</p>
         <br>
-    <li class="print-text"><b> No Negative Equity Guarantee</b> - you cannot owe more than the value of your home
-        </li>
-    </ul>
+        <p class="print-text">{{ owner.profile.mobile }}</p>
+        <p class="print-text"> {{ owner.email }}</p>
+        <br>
+
+    </div>
 
 
-</div>
-<br>
-
-<div class="col-lg-12 ">
-    <p class="secondary_title">How we get paid</p>
-</div>
-<br>
-
-
-<div class="col-lg-12 ">
-    <p class="print-text">Interest is charged on capital drawn from your home equity and paid when you repay your
-        loan. </p>    <br>
-    <p class="print-text">Our current variable rate {{ totalInterestRate }}%</p>
-    <p class="print-text">Comparison rate {{ comparisonRate }}% **</p>
-    <br>
-    <p class="print-text">A 1.5% establishment fee is charged at the inception of the loan and covers valuation and
-        conveyancing costs. There are no on-going fees. There are no fees for repayment of the loan (there is an administrative fee associated with discharge of mortgage). </p>
-
-
-</div>
-
-
-<div class="col-lg-12 "><br><br><br>
-    <p class="print-text">This Loan Summary was prepared by:</p><br>
-    <img src="{{ absolute_media_url }}{{ owner.profile.picture }}" height="100px">
-    <br><br>
-    <p class="print-text">{{ owner.first_name }} {{ owner.last_name }}</p>
-    <br>
-    <p class="print-text">{{ owner.profile.mobile }}</p>
-    <p class="print-text"> {{ owner.email }}</p>
-    <br>
-
-</div>
-
-
-<div>
     <div class="print-container pb-2">
         <div class="col-lg-12 ">
 
@@ -67,7 +73,8 @@
                 <br>
             </div>
 
-            <p class="small">* Your protections are subject to the conditions specified in the terms of your loan contract.</p>
+            <p class="small">* Your protections are subject to the conditions specified in the terms of your loan
+                contract.</p>
 
             <p class="small">** The comparison rate is based on a loan of $150,000 secured for a term of 25 years.
                 Interest is calculated daily and accrued monthly. Please note that the comparison rate only applies to
@@ -75,14 +82,14 @@
             <br>
         </div>
     </div>
-</div>
 
-<!-- Final Padding -->
-<div class="padding-10px">
-    <br>
-</div>
 
-<div class="row HHCBlueBackground-Printed print-edge-row">
+    <!-- Final Padding -->
+    <div class="">
+
+    </div>
+
+<div class="HHCBlueBackground-Printed print-edge-row">
 
     <div class="print-container">
 
@@ -90,9 +97,9 @@
 
             <div class="col-lg-4 ">
                 <br>
-                <p><i class="far fa-envelope">&nbsp;&nbsp;info@householdcapital.com</i></p><br>
-                <p><i class="fas fa-phone">&nbsp;&nbsp;</i>1 300 622 100</p><br>
-                <p><i class="fas fa-desktop">&nbsp;&nbsp;www.householdcapital.com</i></p>
+                <p class="text-white"><i class="far fa-envelope">&nbsp;&nbsp;info@householdcapital.com</i></p><br>
+                <p class="text-white"><i class="fas fa-phone">&nbsp;&nbsp;</i>1 300 622 100</p><br>
+                <p class="text-white"><i class="fas fa-desktop">&nbsp;&nbsp;www.householdcapital.com</i></p>
                 <br>
                 <br>
 

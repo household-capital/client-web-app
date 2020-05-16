@@ -37,8 +37,8 @@ class CalendlyWebhook(View):
 
     def post(self, request, *args, **kwargs):
 
-        zoom_meeting_set = {'interview'}
-        tracked_meeting_set = {'discovery', 'callback'}
+        zoom_meeting_set = {'zoom'}
+        tracked_meeting_set = {'discovery', 'callback', 'phone'}
 
         #Get webhook ID from environmental settings
         calendly_webhook_id = os.getenv("CALENDLY_WEBHOOK_ID")
@@ -295,21 +295,22 @@ class MeetingList(LoginRequiredMixin, ListView):
         filter = self.request.GET.get('filter')
 
         if filter == "ZoomGroup":
-            qs = queryset.filter(startTime__gte=windowDate, meetingName__icontains="Interview",
+            qs = queryset.filter(startTime__gte=windowDate,
+                                 isZoomLive=True,
                                  isCalendlyLive=True).order_by('startTime')
 
         elif filter == "CalendlyInd":
             qs = queryset.filter(startTime__gte=windowDate, isCalendlyLive=True, user=self.request.user)\
-                .exclude(meetingName__icontains="Interview")\
+                .exclude(isZoomLive=True)\
                 .order_by('startTime')
 
         elif filter == "CalendlyGroup":
             qs = queryset.filter(startTime__gte=windowDate, isCalendlyLive=True)\
-                .exclude(meetingName__icontains="Interview")\
+                .exclude(isZoomLive=True)\
                 .order_by('startTime')
 
         else:
-            qs = queryset.filter(startTime__gte=windowDate, meetingName__icontains="Loan",
+            qs = queryset.filter(startTime__gte=windowDate, isZoomLive=True,
                                  isCalendlyLive=True, user=self.request.user).order_by('startTime')
 
         return qs

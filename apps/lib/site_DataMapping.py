@@ -9,7 +9,7 @@ from django.forms import model_to_dict
 from apps.lib.site_Enums import roleEnum, dwellingTypesEnum, \
     caseStagesEnum, clientSexEnum, clientTypesEnum, \
     loanTypesEnum, channelTypesEnum, stateTypesEnum, \
-    salutationEnum, maritalEnum, appTypesEnum
+    salutationEnum, maritalEnum, appTypesEnum, purposeIntentionEnum, purposeCategoryEnum
 
 from apps.servicing.models import FacilityRoles, FacilityProperty, FacilityPropertyVal
 from apps.case.models import LoanPurposes, Loan
@@ -55,6 +55,7 @@ def mapFacilityToCase(facilityObj):
         'dwellingType': propertyObj.dwellingType,
         'valuation': valuationObj.valuationAmount,
         'salesChannel': channelTypesEnum.DIRECT_ACQUISITION.value,
+        'titleRequest' : True,
 
         'refCaseUID': facilityObj.originalCaseUID,
         'sfLeadID': "NO LEAD"
@@ -93,6 +94,8 @@ def get_role_dict(roleQs):
 # CLIENT APP TO SF MAPPING
 
 def mapCaseToOpportunity(caseObj, lossObj):
+
+
     payload = {
         # Core case data
         'sfOpportunityId': caseObj.sfOpportunityID,
@@ -190,8 +193,33 @@ def mapCaseToOpportunity(caseObj, lossObj):
         })
 
     # Purposes
+
     loanObj = Loan.objects.queryset_byUID(str(caseObj.caseUID)).get()
-    payload.update(serialisePurposes(loanObj, True))
+
+    purposes=[]
+    purposeQs = LoanPurposes.objects.filter(loan = loanObj)
+
+    for purpose in purposeQs:
+        if purpose.amount != 0:
+            purposes.append(
+                {'purposeUID': str(purpose.purposeUID),
+                 'category': purpose.enumCategoryPretty,
+                 'intention': purpose.enumIntentionPretty,
+                 'amount': purpose.amount,
+                 'active': purpose.active,
+                 'drawdownAmount': purpose.drawdownAmount,
+                 'drawdownFrequency': purpose.enumDrawdownFrequency.lower() if purpose.enumDrawdownFrequency else None,
+                 'drawdownStartDate': purpose.drawdownStartDate.strftime("%Y-%m-%d") if purpose.drawdownStartDate else None,
+                 'drawdownEndDate': purpose.drawdownEndDate.strftime("%Y-%m-%d") if purpose.drawdownEndDate else None,
+                 'contractDrawdowns': purpose.contractDrawdowns,
+                 'planDrawdowns': purpose.planDrawdowns,
+                 'planAmount': purpose.planAmount,
+                 'description': purpose.description,
+                 'notes': purpose.notes
+                 }
+        )
+
+    payload['purposes'] = purposes
 
     # Date Fields
     SF_DATE_FIELDS = ['timestamp', 'updated', 'birthdate_1', 'birthdate_2', 'meetingDate', 'closeDate', 'followUpDate']
@@ -215,7 +243,7 @@ def mapCaseToOpportunity(caseObj, lossObj):
     return payload
 
 
-# SERIALISE PURPOSES
+# SERIALISE PURPOSES 
 
 def serialisePurposes(loanObj, enum=False):
     # Create purpose dictionary (retro fit data from new purpose objects)
@@ -252,7 +280,6 @@ def serialisePurposes(loanObj, enum=False):
         'carePeriod': __getItem('CARE', 'REGULAR_DRAWDOWN', 'planPeriod', 0),
         'carePlanDrawdowns': __getItem('CARE', 'REGULAR_DRAWDOWN', 'planDrawdowns', 0),
         'careContractDrawdowns': __getItem('CARE', 'REGULAR_DRAWDOWN', 'contractDrawdowns', 0),
-
         'carePlanAmount': __getItem('CARE', 'REGULAR_DRAWDOWN', 'planAmount', 0),
 
         'topUpDescription': __getItem('TOP_UP', 'INVESTMENT', 'description', ""),
@@ -269,7 +296,7 @@ def serialisePurposes(loanObj, enum=False):
     purposeDict['enumCareFrequency'] = __getItem('CARE', 'REGULAR_DRAWDOWN', 'enumDrawdownFrequency')
 
     if enum:
-        # Overwrite with enum
+         # Overwrite with enum
         if purposeDict['topUpFrequency']:
             purposeDict['topUpFrequency']=purposeDict['enumTopUpFrequency'].lower()
 
@@ -315,7 +342,7 @@ def mapLoanToFacility(caseObj, loanDict):
         'originalCaseUID': caseObj.caseUID,
         'sfLoanName': caseObj.surname_1 + ", " + caseObj.street + ", " + caseObj.suburb + ", " + caseObj.enumStateType() + ", " + str(
             caseObj.postcode),
-        'sfLoanID': loanDict['Name'],
+        'sfLoanID': loanDict['LoanNumber__c'],
         'sfID': loanDict['Id'],
         # 'sfAccountID': 'unknown',
         # 'sfReferrerAccount' : 'unknown',
@@ -350,7 +377,8 @@ def mapRolesToFacility(loan, contact, role):
                  "Loan Originator": 9,
                  "Loan Writer": 10,
                  "Valuer": 11,
-                 "Executor": 12}
+                 "Executor": 12,
+                 "Solicitor": 13}
 
     payload = {'facility': loan,
                'sfContactID': contact['Id'],

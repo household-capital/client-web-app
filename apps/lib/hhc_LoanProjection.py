@@ -42,9 +42,9 @@ class LoanProjection():
                        'inflationRate',
                        'interestRate',  # Base interest rate
                        'lendingMargin',
-                       'maxLoanAmount',
-                       'maxDrawdownAmount',
-                       'maxDrawdownMonthly']
+                       'maxLoanAmount', #For slider calculations
+                       'maxDrawdownMonthly' #For slider calculations
+                       ]
 
     optionalDefaultDict = {
         'interestPayAmount': 0,  # Planned interest payment (monthly)
@@ -131,6 +131,7 @@ class LoanProjection():
             self.periodDrawdown = self.initDict['topUpIncomeAmount'] * paymentFreqAdj  # Convert to monthly amount
             self.drawdownPeriods = round(self.initDict['topUpPlanDrawdowns'] / paymentFreqAdj,0)  # in months
             self.drawdownContractPeriods = round(self.initDict['topUpContractDrawdowns'] / paymentFreqAdj,0)  # in months
+
 
             # calculate drawdown amount with establishment fee for contracted period
             self.totalDrawdownAmount = self.periodDrawdown * self.drawdownContractPeriods \
@@ -451,12 +452,21 @@ class LoanProjection():
             increment = 10
 
         maxDrawdownMonthly = self.initDict['maxDrawdownMonthly']
+        if self.initDict['topUpFrequency'] == incomeFrequencyEnum.FORTNIGHTLY.value:
+            paymentFreqAdj = 13 / 6
+        else:
+            paymentFreqAdj = 1
 
         if self.isInit:
+            # Model monthly and adjust for payment frequency
             dataArray = []
             intervals = int(maxDrawdownMonthly / increment) + 1
+            intervalCount = 0
 
-            homeValue = (self.initDict['valuation'] * (1 + self.hpiRate / 100) ** projectionYears)
+            planYears = min(self.drawdownPeriods / 12, projectionYears)
+            residualYears = projectionYears - planYears
+
+            homeValue = round((self.initDict['valuation'] * (1 + self.hpiRate / 100) ** projectionYears),0)
 
             for item in range(intervals + 1):
                 if item == intervals:
@@ -464,25 +474,28 @@ class LoanProjection():
                 else:
                     loanAmount = round((item * increment), -1)
 
-                # Future value annuity formula
-                loanBalance = (loanAmount * (1 + self.establishmentFee)) * \
-                              ((((1+self.totalInterestRate/1200) ** (projectionYears*12)) - 1) / (self.totalInterestRate/1200))
+                if (loanAmount == 0) or (loanAmount >= LOAN_LIMITS['minIncomeDrawdown']):
+                    # Future value annuity formula for drawdown plan years
+                    intervalCount += 1
+                    loanBalance = (loanAmount * (1 + self.establishmentFee)) * \
+                                  ((((1+self.totalInterestRate/1200) ** (planYears*12)) - 1) / (self.totalInterestRate/1200))
 
-                print((1+self.totalInterestRate/1200), projectionYears, self.totalInterestRate )
+                    # Compound the loan for residual years
+                    loanBalance = loanBalance * ((1+self.totalInterestRate/1200) ** (residualYears*12))
 
-                projectedEquity = homeValue - loanBalance
+                    projectedEquity = homeValue - loanBalance
 
-                dataArray.append({'item': item,
-                                  "loanAmount": int(loanAmount),
-                                  "loanPercentile": int(self.__myround(loanAmount / self.initDict['valuation'] * 100)),
-                                  "futLoanBalance": int(loanBalance),
-                                  "futHomeEquity": int(round(projectedEquity, 0)),
-                                  "futHomeEquityPC": int(round(projectedEquity / homeValue * 100, 0)),
-                                  "percentile": int(self.__myround(projectedEquity / homeValue * 100))
-                                  })
+                    dataArray.append({'item': item,
+                                      "loanAmount": round((loanAmount/paymentFreqAdj),-1),
+                                      "loanPercentile": int(self.__myround(loanAmount / self.initDict['valuation'] * 100)),
+                                      "futLoanBalance": int(loanBalance),
+                                      "futHomeEquity": int(round(projectedEquity, 0)),
+                                      "futHomeEquityPC": int(round(projectedEquity / homeValue * 100, 0)),
+                                      "percentile": int(self.__myround(projectedEquity / homeValue * 100))
+                                      })
 
             return {'status': 'Ok',
-                    'data': {"intervals": intervals, "futHomeValue": int(homeValue), "dataArray": dataArray}}
+                    'data': {"intervals": intervalCount, "futHomeValue": int(homeValue), "dataArray": dataArray}}
         else:
             return {'status': 'Error', 'responseText': 'Object not instantiated'}
 

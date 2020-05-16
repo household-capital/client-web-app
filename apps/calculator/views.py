@@ -29,24 +29,6 @@ from .models import WebCalculator, WebContact
 from .forms import WebContactDetail
 
 
-# EXTERNALLY EXPOSED VIEWS
-
-class CalcSummaryNewPdf(TemplateView):
-    # Produce Summary Report View (called by Api2Pdf)
-    template_name = 'calculator/document/calculator_new_summary.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(CalcSummaryNewPdf, self).get_context_data(**kwargs)
-
-        enqUID = str(kwargs['uid'])
-
-        # Projection Results (site.utilities)
-        projectionContext = getEnquiryProjections(enqUID)
-        context.update(projectionContext)
-
-        return context
-
-
 # AUTHENTICATED VIEWS EXPOSED VIEWS
 
 # Calculator Queue
@@ -108,7 +90,7 @@ class CalcCreateEnquiry(HouseholdLoginRequiredMixin, UpdateView):
         if enq_obj.status:
 
             # PRODUCE PDF REPORT
-            sourceUrl = 'https://householdcapital.app/calculator/calcSummaryNewPdf/' + str(enq_obj.enqUID)
+            sourceUrl = 'https://householdcapital.app/enquiry/enquirySummaryPdf/' + str(enq_obj.enqUID)
             targetFileName = settings.MEDIA_ROOT + "/enquiryReports/Enquiry-" + str(enq_obj.enqUID)[
                                                                                 -12:] + ".pdf"
 

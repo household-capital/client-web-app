@@ -133,7 +133,10 @@ class CloudBridge():
     def checkSFData(self):
 
         msgString=""
-        loanDict = self.sfAPI.getOpportunityExtract(self.opportunityId)['data']
+        result = self.sfAPI.getOpportunityExtract(self.opportunityId)
+        if result['status'] == "Error":
+            return {"status": "Error", "responseText": result['responseText']}
+        loanDict= result['data']
 
         # Check loan settlement date
         reqs = ['Loan.Loan_Settlement_Date__c']
@@ -171,9 +174,6 @@ class CloudBridge():
         self.__logging("Step 1 - Extracting Salesforce Data to Loan Dictionary")
         loanDict = self.sfAPI.getOpportunityExtract(self.opportunityId)['data']
 
-
-        self.loanId=loanDict['Loan.Loan_Number__c'] #Loan ID used later - hence instance variable
-
         self.__logging("Step 2 - Enriching and enumerating the Loan Dictionary")
         objEnrich = EnrichEnum(loanDict)
         result=objEnrich.enrich()
@@ -191,8 +191,8 @@ class CloudBridge():
         self.__logging("Step 3 - Generating XML File")
 
         commentStr = str(
-            "This file is for short-form loan ID {0}, short-form property ID {1} and with opportunity description {2}").format(
-            loanDict['Loan.Name'], loanDict['Prop.Name'], loanDict['Opp.Name'])
+            "This file is for short-form loan ID {0}, short-form opportunity ID {1} and with opportunity description {2}").format(
+            loanDict['LoanObject.LoanNumber'], loanDict['Loan.Loan_Number__c'], loanDict['Opp.Name'])
         timestamp = time.strftime("%Y%m%d%H%M%S")
 
         self.__logging(" -  Creating XML Structure")

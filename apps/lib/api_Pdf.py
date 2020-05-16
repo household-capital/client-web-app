@@ -33,6 +33,8 @@ class pdfGenerator():
             options = {'preferCSSPageSize': True, 'marginBottom': 0, 'marginLeft': 0, 'marginRight': 0, 'marginTop': 0,
                        'paperWidth': 8.27, 'paperHeight': 11.69}
 
+            write_applog("INFO", 'pdfGenerator', 'createPdf', "Api2Pdf submitted: " + self.pdfID)
+
             api_response = self.a2p_client.HeadlessChrome.convert_from_url(sourceUrl,
                                                                            file_name=pdfDescription,
                                                                            **options)
@@ -43,12 +45,12 @@ class pdfGenerator():
                 write_applog("ERROR", 'pdfGenerator', 'createPdf', "Api2Pdf failure: " + self.pdfID + "-"
                              + str(api_response))
 
-                return {'False', "API Returned Error"}
+                return {False, "API Returned Error"}
 
         except:
             write_applog("ERROR", 'pdfGenerator', 'createPdf', "Presumed timeout error: " + self.pdfID)
 
-            return {'False', "API Error"}
+            return {False, "API Error"}
 
         self.pdfUrl = api_response.result['pdf']
 
@@ -69,9 +71,9 @@ class pdfGenerator():
             write_applog("ERROR", 'pdfGenerator', 'createPdf',
                          "Failed to save Summary Report: " + self.pdfID)
 
-            return {'False', "Could not save"}
+            return {False, "Could not save"}
 
-        return {'True', "File saved"}
+        return {True, "File saved"}
 
 
     def mergePdfs(self,urlList, pdfDescription, targetFileName):

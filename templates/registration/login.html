@@ -16,7 +16,7 @@
             <br>
 
             {% if messages %}
-            <div class="row">
+            <div class="row pb-1">
                 <div class="col-12">
                     {% for message in messages %}
                     <p{% if message.tags == 'success' %} class="alert alert-success"{% endif %}>{{ message }}</p>
@@ -39,6 +39,7 @@
               <br>  <br>
 
             {% crispy form %}
+            <!--<h3 class="text-info">Site Currently Unavailable</h3> -->
 
             <br>
             <small>
@@ -53,5 +54,24 @@
 </div>
 
 
+{% endblock %}
 
+
+{% block javascript %}
+    <script>
+
+
+        function hideAlerts() {
+            $(".alert").fadeOut();
+        }
+
+        $(document).ready(function () {
+
+            // Alerts
+            setTimeout(hideAlerts, 5000)
+
+
+        });
+
+    </script>
 {% endblock %}

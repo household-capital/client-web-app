@@ -47,19 +47,20 @@
 
     <div class="container">
 
-
         <br>
-
 
         {% if newEnquiry %}
             <!-- Button trigger modal -->
             <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#privacyModal">
                 Privacy statement
             </button>
-        {% else %}
-             {% if obj.sfLeadID is null %}
-                 <i class="fal fa-question-circle"></i> Warning no Salesforce Lead - potential duplicate?
-             {% endif %}
+        {% elif obj.sfLeadID is null %}
+                <p class="btn alert-info"><i class="fal fa-question-circle"></i> Note: no Salesforce Lead - insufficient data, not synch'd yet or potential duplicate?</p>
+
+        {% elif obj.sfLeadID %}
+                <a href="{{ obj.get_SF_url }}" target="_blank">
+                <p class="larger" style="color:deepskyblue"><i class="fas fa-cloud fa-lg "></i>&nbsp;
+                        Salesforce lead</p></a>
         {% endif %}
 
 
@@ -70,7 +71,7 @@
             </div>
         </div>
 
-        <div class="row pt-4">
+        <div class="row pt-2">
             <div class="col-lg-8 text-left">
 
 
@@ -136,9 +137,9 @@
                                 {% endif %}
 
                                 <div class="dropdown-divider"></div>
-                                 <a class="dropdown-item" href="{{ calendlyUrl }}" target="_blank">
-                                            &nbsp;<i class="fas fa-headset fa-fw"></i>&nbsp;&nbsp;Book Discovery
-                                        </a>
+                                <a class="dropdown-item" href="{{ calendlyUrl }}" target="_blank">
+                                    &nbsp;<i class="fas fa-headset fa-fw"></i>&nbsp;&nbsp;Book Discovery
+                                </a>
 
                             {% endif %}
 
@@ -166,13 +167,14 @@
                             </p>
                             {% if status.data.postcode != 'Valid' %}
                                 <br>
-                                <p><i class="fas fa-tractor fa-lg btn-outline-warning"></i>&nbsp;Refer Postcode
+                                <p class="pl-4"><i class="fas fa-tractor fa-lg btn-outline-warning"></i>&nbsp;Refer Postcode
                                 </p>
+                                <p class="small pl-4 pb-3">Get full address</p>
                             {% endif %}
 
                             <p class="large pl-4">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
                             <br>
-                            <p class="small"><i class="fas fa-search"></i>&nbsp;data </p>
+                            <p class="small"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
                             <p class="small">Max Loan is: ${{ status.data.maxLoan|intcomma }} (incl
                                 establishment
                                 fee)</p>
@@ -343,17 +345,18 @@
 
 {% block javascript %}
     <script>
+
+
         $(document).ready(function () {
             $("form").one('click focus change', function (e) {
                 $('#submit-id-submit').addClass('btn-warning').removeClass('btn-outline-secondary');
                 $('#btnEnquiryActions').attr('disabled', true)
 
             })
-        })
+        });
 
 
     </script>
 
 {% endblock %}
-
 

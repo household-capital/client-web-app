@@ -46,7 +46,6 @@ def updateSFLeadTask(caseUID):
     else:
         write_applog("INFO", 'Case', 'Tasks-updateSFLead', "Finished - Unsuccessfully")
         return "Finished - Unsuccessfully"
-    return
 
 
 @app.task(name="Catchall_SF_Case_Lead")
@@ -82,7 +81,7 @@ def sfLeadConvert(caseUID):
     result = sfAPI.openAPI(True)
     if result['status'] != "Ok":
         write_applog("Error", 'Case', 'Tasks-SF_Lead_Convert', result['responseText'])
-        raiseTaskAdminError('Tasks-SF_Lead_Convert',"Error - could not open Salesforce :"+result['responseText'])
+        raiseTaskAdminError('Tasks-SF_Lead_Convert', "Error - could not open Salesforce :"+result['responseText'])
         return "Error - could not open Salesforce"
 
     result=convertSFLead(caseUID, sfAPI)

@@ -2,8 +2,8 @@
 from django.contrib import admin
 
 #Local Application Imports
-from .models import LowLVR, IncomeCalculator
+from .models import Application, ApplicationPurposes
 
 # Model registration to enable maintenance in the Admin screens
-admin.site.register(LowLVR)
-admin.site.register(IncomeCalculator)
+admin.site.register(Application)
+admin.site.register(ApplicationPurposes)

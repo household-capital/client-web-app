@@ -14,6 +14,11 @@ from django.http import HttpResponse
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import FormView, TemplateView, View, UpdateView
+from django.views.generic.base import TemplateResponseMixin
+
+# Third-party Imports
+from config.celery import app
+
 
 # Local Application Imports
 from apps.case.models import ModelSetting, Loan, Case, LoanPurposes
@@ -28,7 +33,7 @@ from apps.lib.site_DataMapping import serialisePurposes
 from apps.lib.site_Globals import ECONOMIC, APP_SETTINGS, LOAN_LIMITS
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, validateLoanGetContext, getProjectionResults,\
-    updateNavQueue, firstNameSplit
+    updateNavQueue, firstNameSplit, populateDrawdownPurpose
 
 from .forms import ClientDetailsForm, SettingsForm, IntroChkBoxForm, lumpSumPurposeForm, drawdownPurposeForm, \
     DetailedChkBoxForm,  protectedEquityForm, interestPaymentForm
@@ -64,6 +69,8 @@ class ContextHelper():
 
         context["transfer_img"] = settings.STATIC_URL + "img/icons/transfer_" + str(
             context['maxLVRPercentile']) + "_icon.png"
+
+
 
         return context
 
@@ -331,7 +338,7 @@ class IntroductionView3(HouseholdLoginRequiredMixin, SessionRequiredMixin, Conte
             # Loan Projections
             loanProj = LoanProjection()
             result = loanProj.create(self.extra_context)
-            proj_data = loanProj.getFutureEquityArray(increment=1000)['data']
+            proj_data = loanProj.getFutureEquityArray(increment=100)['data']
             context['sliderData'] = json.dumps(proj_data['dataArray'])
             context['futHomeValue'] = proj_data['futHomeValue']
             context['sliderPoints'] = proj_data['intervals']
@@ -440,20 +447,8 @@ class TopUp2(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, U
     def form_valid(self, form):
         obj = form.save()
 
-        # Calculate Amounts and Periods (form specified in years)
-        if obj.drawdownFrequency == incomeFrequencyEnum.FORTNIGHTLY.value:
-            freqMultiple = 26
-        else:
-            freqMultiple = 12
-
-        # Contract for lower of limit or plan period
-        planDrawdowns = obj.planPeriod * freqMultiple
-        contractDrawdowns = min(obj.planPeriod * freqMultiple, LOAN_LIMITS['maxDrawdownYears'] * freqMultiple)
-        obj.planDrawdowns = planDrawdowns
-
-        obj.contractDrawdowns = contractDrawdowns
-        obj.planAmount = obj.drawdownAmount * planDrawdowns
-        obj.amount = obj.drawdownAmount * contractDrawdowns
+        #Purpose is specified in years, need to populate specific periods and amounts
+        obj = populateDrawdownPurpose(obj)
 
         obj.save()
 
@@ -679,22 +674,11 @@ class Care2(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, Up
 
         obj = form.save()
 
-        # Calculate Amounts and Periods (form specified in years)
-        if obj.drawdownFrequency == incomeFrequencyEnum.FORTNIGHTLY.value:
-            freqMultiple = 26
-        else:
-            freqMultiple = 12
-
-        # Contract for lower of limit or plan period
-        planDrawdowns = obj.planPeriod * freqMultiple
-        contractDrawdowns = min(obj.planPeriod * freqMultiple, LOAN_LIMITS['maxDrawdownYears'] * freqMultiple)
-        obj.planDrawdowns = planDrawdowns
-
-        obj.contractDrawdowns = contractDrawdowns
-        obj.planAmount = obj.drawdownAmount * planDrawdowns
-        obj.amount = obj.drawdownAmount * contractDrawdowns
+        # Purpose is specified in years, need to populate specific periods and amounts
+        obj = populateDrawdownPurpose(obj)
 
         obj.save()
+
         return super(Care2, self).form_valid(form)
 
 
@@ -883,7 +867,7 @@ class Results3(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper,
         context['hideMenu'] = True
 
         #Get projection results (site utility using Loan Projection)
-        projectionContext = getProjectionResults(context, ['baseScenario', 'intPayScenario'])
+        projectionContext = getProjectionResults(context, ['baseScenario', 'incomeScenario', 'intPayScenario'])
         context.update(projectionContext)
 
         return context
@@ -909,15 +893,26 @@ class Results4(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper,
 
 # Final Views
 
-class FinalView(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateView):
+class FinalView(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, TemplateResponseMixin, View):
     template_name = "client_2_0/interface/final.html"
 
-    def get_context_data(self, **kwargs):
-        context = super(FinalView, self).get_context_data(**kwargs)
+    def get(self, request, *args, **kwargs):
+        app.send_task('Create_Loan_Summary', kwargs={'caseUID': self.request.session['caseUID']})
+        context={}
+        context['failURL'] = self.request.build_absolute_uri(reverse('client2:finalError'))
+        messages.success(request, "File generating - please wait")
 
-        context['pdfURL'] = self.request.build_absolute_uri(reverse('client2:finalPdf'))
+        return self.render_to_response(context)
 
-        return context
+
+    def post(self, request, *args, **kwargs):
+        queryset = Case.objects.queryset_byUID(self.request.session['caseUID'])
+        obj = queryset.get()
+
+        if obj.summaryDocument:
+            return HttpResponse(json.dumps({'pdfURL': self.request.build_absolute_uri(reverse('client2:finalPdf'))}), content_type='application/json', status=200)
+        else:
+            return HttpResponse(json.dumps({"error": "Document not available"}), content_type='application/json', status=404)
 
 
 class FinalErrorView(HouseholdLoginRequiredMixin, ContextHelper, TemplateView):
@@ -930,56 +925,14 @@ class FinalPDFView(HouseholdLoginRequiredMixin, SessionRequiredMixin, View):
 
     def get(self, request):
 
-        dateStr = datetime.now().strftime('%Y-%m-%d-%H:%M:%S%z')
+        obj = Case.objects.queryset_byUID(self.request.session['caseUID']).get()
 
-        sourceUrl = 'https://householdcapital.app/client2/pdfLoanSummary/' + self.request.session['caseUID']
-        componentFileName = settings.MEDIA_ROOT + "/customerReports/Component-" + self.request.session['caseUID'][
-                                                                                  -12:] + ".pdf"
-        componentURL = 'https://householdcapital.app/media/' + "/customerReports/Component-" + self.request.session[
-                                                                                                   'caseUID'][
-                                                                                               -12:] + ".pdf"
-        targetFileName = settings.MEDIA_ROOT + "/customerReports/Summary-" + self.request.session['caseUID'][
-                                                                             -12:] + "-" + dateStr + ".pdf"
+        pdf_contents = obj.summaryDocument.read()
 
-        pdf = pdfGenerator(self.request.session['caseUID'])
-        created, text = pdf.createPdfFromUrl(sourceUrl, 'HouseholdSummary.pdf', componentFileName)
+        ## RENDER FILE TO HTTP RESPONSE
+        response = HttpResponse(pdf_contents, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="HHC-LoanSummary.pdf"'
 
-        if not created:
-            return HttpResponseRedirect(reverse_lazy('client2:finalError'))
-
-        # Merge Additional Components
-        urlList = [componentURL,
-                   'https://householdcapital.app/static/img/document/LoanSummaryAdditional.pdf']
-
-        created, text = pdf.mergePdfs(urlList=urlList, pdfDescription="HHC-LoanSummary.pdf",
-                                      targetFileName=targetFileName)
-
-        if not created:
-            return HttpResponseRedirect(reverse_lazy('client2:finalError'))
-
-        try:
-            # SAVE TO DATABASE
-            localfile = open(targetFileName, 'rb')
-
-            qsCase = Case.objects.queryset_byUID(self.request.session['caseUID'])
-            qsCase.update(summaryDocument=File(localfile))
-
-            pdf_contents = localfile.read()
-
-            ## RENDER FILE TO HTTP RESPONSE
-            response = HttpResponse(pdf.getContent(), content_type='application/pdf')
-            response['Content-Disposition'] = 'attachment; filename="HHC-LoanSummary.pdf"'
-            localfile.close()
-
-        except:
-            write_applog("ERROR", 'PdfProduction', 'get',
-                         "Failed to save Summary Report in Database: " + self.request.session['caseUID'])
-            return HttpResponseRedirect(reverse_lazy('client2:finalError'))
-
-        # log user out
-        write_applog("INFO", 'PdfProduction', 'get',
-                     "Meeting ended for:" + self.request.session['caseUID'])
-        logout(self.request)
         return response
 
 
@@ -1001,7 +954,7 @@ class pdfLoanSummary(ContextHelper,TemplateView):
         context = validateLoanGetContext(caseUID)
 
         # Get projection results (site utility using Loan Projection)
-        projectionContext = getProjectionResults(context, ['baseScenario', 'intPayScenario',
+        projectionContext = getProjectionResults(context, ['baseScenario', 'incomeScenario', 'intPayScenario',
                                                                'pointScenario', 'stressScenario' ])
         context.update(projectionContext)
 
@@ -1077,7 +1030,6 @@ class PdfElectronic(TemplateView):
             context['loanTypesEnum'] = loanTypesEnum
 
         return context
-
 
 
 

@@ -22,6 +22,7 @@ urlpatterns = [
 
     #Unauthenticated Views
     path('enquirySummaryPdf/<uuid:uid>', views.EnqSummaryPdfView.as_view(), name='enqSummaryPdf'),
+    path('enquiryIncomeSummaryPdf/<uuid:uid>', views.EnqIncomeSummaryPdfView.as_view(), name='enqIncomeSummaryPdf'),
 
 ]
 

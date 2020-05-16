@@ -103,7 +103,7 @@ class LixiXMLGenerator:
         #Loan Details
         try:
             self.__logging("Generating Loan Elements")
-            self.loanDetail = ElementTree.SubElement(self.application, 'LoanDetails',dict(EstimatedSettlementDate=srcDict['Loan.Loan_Settlement_Date__c'],OriginatorReferenceID="HHC-"+srcDict['Loan.Loan_Number__c'],
+            self.loanDetail = ElementTree.SubElement(self.application, 'LoanDetails',dict(EstimatedSettlementDate=srcDict['Loan.Loan_Settlement_Date__c'],OriginatorReferenceID="HHC-"+srcDict['LoanObject.LoanNumber'],
                                                                                       ProductCode='21001259',ProductName='HHC\HHC - Household Capital Longevity Variable IO Loan', LoanType='Reverse Mortgage',
                                                                                       AmountRequested=str(int(round(srcDict['Loan.Total_Household_Loan_Amount__c'],0))),ProposedAnnualInterestRate=str(srcDict['Loan.Interest_Rate__c'])))
         except:

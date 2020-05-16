@@ -577,14 +577,28 @@ class EnquiryAssignView(HouseholdLoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
 
 
-
 # UNAUTHENTICATED VIEWS
 class EnqSummaryPdfView(TemplateView):
     # Produce Summary Report View (called by Api2Pdf)
-    template_name = 'calculator/document/calculator_new_summary.html'
+    template_name = 'enquiry/document/calculator_summary.html'
 
     def get_context_data(self, **kwargs):
         context = super(EnqSummaryPdfView, self).get_context_data(**kwargs)
+
+        enqUID = str(kwargs['uid'])
+
+        # Projection Results (site.utilities)
+        projectionContext = getEnquiryProjections(enqUID)
+        context.update(projectionContext)
+
+        return context
+
+class EnqIncomeSummaryPdfView(TemplateView):
+    # Produce Summary Report View (called by Api2Pdf)
+    template_name =  'enquiry/document/calculator_income_summary.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(EnqIncomeSummaryPdfView, self).get_context_data(**kwargs)
 
         enqUID = str(kwargs['uid'])
 
