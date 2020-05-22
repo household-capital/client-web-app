@@ -196,6 +196,69 @@ class EnquiryDetailForm(forms.ModelForm):
 
 
 
+class EnquiryCallForm(forms.ModelForm):
+    class Meta:
+        model = Enquiry
+        fields = ['name', 'postcode', 'phoneNumber', 'marketingSource', 'callReason', 'enquiryNotes']
+
+        widgets = {
+            'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
+        }
+
+    helper = FormHelper()
+    helper.form_method = 'POST'
+    helper.field_class = 'col-lg-12'
+    helper.form_class = 'form-horizontal'
+    helper.form_show_labels = False
+    helper.form_show_errors = False
+    helper.layout = Layout(
+        Div(
+            Div(
+                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Client Details"),css_class='form-header'),
+                Div(
+                    Div(HTML("Client Name"), css_class='form-label'),
+                    Div(Field('name' ))),
+                Div(
+                    Div(HTML("Phone Number"), css_class='form-label'),
+                    Div(Field('phoneNumber'))),
+                Div(
+                    Div(HTML("Enquiry Notes"), css_class='form-label'),
+                    Div(Field('enquiryNotes'))),
+                css_class='col-lg-6'),
+
+            Div(
+                Div(HTML("<i class='fas fa-headset'></i>&nbsp;&nbsp;Call details"), css_class='form-header'),
+                Div(
+                    Div(HTML("How did you hear about us?"), css_class='form-label'),
+                    Div(Field('marketingSource'))),
+                Div(
+                    Div(HTML("Postcode"), css_class='form-label'),
+                    Div(Field('postcode'))),
+                Div(
+                    Div(HTML("Reason for call"), css_class='form-label'),
+                    Div(Field('callReason'))),
+
+                Div(css_class="row"),
+                Div(Div(Submit('submit', 'Update', css_class='btn btn-outline-secondary')), css_class='text-right'),
+                Div(HTML("<br>")),
+
+                css_class='col-lg-6'),
+
+            css_class="row ")
+    )
+
+    def clean(self):
+        if self.cleaned_data['loanType'] == loanTypesEnum.SINGLE_BORROWER.value and self.cleaned_data['age_2']:
+            raise ValidationError("Please check - is this a single or Joint Loan? ")
+
+        if self.cleaned_data['loanType'] == loanTypesEnum.JOINT_BORROWER.value and not self.cleaned_data['age_2']:
+            raise ValidationError("Please add second borrower age ")
+
+        return self.cleaned_data
+
+
+
+
 
 class EnquiryCloseForm(forms.ModelForm):
     # Form Data

@@ -87,6 +87,22 @@ class directTypesEnum(Enum):
     REFERRAL=4
     OTHER=100
 
+
+@accessInTemplate
+class marketingTypesEnum(Enum):
+    TV_ADVERT = 1
+    TV_ADVERTORIAL = 2
+    RADIO = 3
+    WORD_OF_MOUTH = 4
+    ADVISER = 5
+    COMPETITOR = 6
+    DIRECT_MAIL = 7
+    FACEBOOK = 8
+    LINKEDIN = 9
+    YOUR_LIFE_CHOICES = 10
+    OTHER = 100
+
+
 @accessInTemplate
 class stateTypesEnum(Enum):
     NSW = 0
@@ -203,6 +219,16 @@ class appStatusEnum(Enum):
     EXPIRED = 2
     SUBMITTED = 3
     CONTACT = 4
+
+@accessInTemplate
+class reasonCodeEnum(Enum):
+    NEW_BASIC_INFO = 1
+    NEW_SPECIFIC_NEED = 2
+    EXT_SALES_REP = 3
+    WRONG_NUMBER = 4
+    NUISANCE = 5
+    OTHER = 100
+
 
 #Squash migrations and delete
 class closeReasonTypes(Enum):

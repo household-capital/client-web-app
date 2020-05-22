@@ -29,7 +29,7 @@ from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, dwellingTypesEnum
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Logging import write_applog
 from apps.lib.api_Pdf import pdfGenerator
-from .forms import EnquiryForm, EnquiryDetailForm, EnquiryCloseForm, EnquiryAssignForm
+from .forms import EnquiryForm, EnquiryDetailForm, EnquiryCloseForm, EnquiryAssignForm, EnquiryCallForm
 from .models import Enquiry
 from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, getEnquiryProjections, updateNavQueue
 
@@ -227,6 +227,23 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, UpdateView):
         messages.success(self.request, "Enquiry Saved")
 
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': str(obj.enqUID)}))
+
+
+# Enquiry Detail View
+class EnquiryCallView(HouseholdLoginRequiredMixin, CreateView):
+    template_name = "enquiry/enquiry.html"
+    form_class = EnquiryCallForm
+    model = Enquiry
+
+    def get_context_data(self, **kwargs):
+        context = super(EnquiryCallView, self).get_context_data(**kwargs)
+        context['title'] = 'New Call'
+        context['isUpdate'] = False
+
+        return context
+
+
+
 
 
 # Enquiry Delete View (Delete View)

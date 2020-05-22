@@ -13,4 +13,6 @@ urlpatterns = [
     path('', views.LandingView.as_view(), name='landing'),
     path('dashboard',views.DashboardView.as_view(),name='dashboard'),
     path('dashboard/weekly',views.Weekly.as_view(),name='weekly'),
+    path('dashboard/portfolioSummary', views.PortfolioSummary.as_view(), name='portfolioSummary'),
+
 ]

@@ -302,7 +302,7 @@ class StartApplicationView(SessionIdOnlyMixin, ApplicationHelper, UpdateView):
             reverse_lazy('application:validateReturn', kwargs={'signed_pk': signed_payload}))
 
         app.send_task('Email_App_Link', kwargs={'appUID': str(obj.appUID), 'signedURL': signedURL})
-        messages.success(self.request, "Application linked emailed to you")
+        messages.success(self.request, "Application link emailed to you")
 
         return super(StartApplicationView, self).form_valid(form)
 

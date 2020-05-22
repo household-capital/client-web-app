@@ -54,6 +54,10 @@
             <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#privacyModal">
                 Privacy statement
             </button>
+
+        {% elif isUpdate == False %}
+
+
         {% elif obj.sfLeadID is null %}
                 <p class="btn alert-info"><i class="fal fa-question-circle"></i> Note: no Salesforce Lead - insufficient data, not synch'd yet or potential duplicate?</p>
 

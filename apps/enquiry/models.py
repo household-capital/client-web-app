@@ -13,7 +13,8 @@ from django.utils.encoding import smart_text
 from django.urls import reverse_lazy
 
 #Local Imports
-from apps.lib.site_Enums import dwellingTypesEnum, loanTypesEnum, directTypesEnum, closeReasonEnum, productTypesEnum
+from apps.lib.site_Enums import dwellingTypesEnum, loanTypesEnum, directTypesEnum, closeReasonEnum, \
+    productTypesEnum, reasonCodeEnum, marketingTypesEnum
 
 
 class EnquiryManager(models.Manager):
@@ -90,6 +91,28 @@ class Enquiry(models.Model):
         (closeReasonEnum.OTHER.value , 'Other')
     )
 
+    reasonTypes = (
+        (reasonCodeEnum.NEW_BASIC_INFO.value, 'New - Basic information'),
+        (reasonCodeEnum.NEW_SPECIFIC_NEED.value, 'New - Specific need'),
+        (reasonCodeEnum.WRONG_NUMBER.value, 'Wrong number'),
+        (reasonCodeEnum.NUISANCE.value, 'Nuisance number'),
+        (reasonCodeEnum.OTHER.value, 'Other'),
+    )
+    marketingTypes = (
+        (marketingTypesEnum.TV_ADVERT.value, "TV Advert"),
+        (marketingTypesEnum.TV_ADVERTORIAL.value, "TV Advertorial"),
+        (marketingTypesEnum.RADIO.value, "Radio"),
+        (marketingTypesEnum.WORD_OF_MOUTH.value, "Word of mouth"),
+        (marketingTypesEnum.COMPETITOR.value, "Competitor"),
+        (marketingTypesEnum.DIRECT_MAIL.value, "Direct mail/email"),
+        (marketingTypesEnum.FACEBOOK.value, "Facebook"),
+        (marketingTypesEnum.LINKEDIN.value, "LinkedIn"),
+        (marketingTypesEnum.YOUR_LIFE_CHOICES.value, "Your Life Choices"),
+        (marketingTypesEnum.OTHER.value, "OTHER"),
+
+    )
+
+
     # Identifiers
     enqUID = models.UUIDField(default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
@@ -97,6 +120,8 @@ class Enquiry(models.Model):
     referrerID=models.CharField(max_length=200,blank= True,null=True)
     referralUser=models.ForeignKey(settings.AUTH_USER_MODEL, related_name='referralUser', null=True, blank=True, on_delete=models.SET_NULL)
     sfLeadID = models.CharField(max_length=20, null=True, blank=True)
+    callReason = models.IntegerField(blank=True, null=True, choices=reasonTypes)
+    marketingSource = models.IntegerField(blank=True, null=True, choices=marketingTypes )
 
     #Client Data
     email=models.EmailField(blank=True, null=True)

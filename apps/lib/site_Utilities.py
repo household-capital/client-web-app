@@ -319,24 +319,41 @@ def getProjectionResults(sourceDict, scenarioList, img_url = None):
         context['cumDrawn'] = loanProj.getResultsList('CumDrawn')['data']
         context['cumInt'] = loanProj.getResultsList('CumInt')['data']
 
+
     if 'incomeScenario' in scenarioList:
-        context['topUpProjections'] = True
-        context['resultsTotalIncome'] = loanProj.getResultsList('TotalIncome', imageSize=150, imageMethod='lin')[
-            'data']
-        context['resultsIncomeImages'] = \
-            loanProj.getImageList('PensionIncomePC', settings.STATIC_URL + 'img/icons/income_{0}_icon.png')['data']
+        # Determine whether there is an income Scenario
+        context['topUpProjections'] = False
+        topUpDrawdown = None
+        careDrawdown = None
 
-        topUpDrawdown = sourceDict['purposes']["TOP_UP"]["REGULAR_DRAWDOWN"]
+        # Only show if top-up income
+        if "TOP_UP" in sourceDict['purposes']:
+            if "REGULAR_DRAWDOWN" in sourceDict['purposes']["TOP_UP"]:
+                topUpDrawdown = sourceDict['purposes']["TOP_UP"]["REGULAR_DRAWDOWN"]
+                if topUpDrawdown.amount != 0:
+                    context['topUpProjections'] = True
 
-        if sourceDict["careDrawdownAmount"] != 0:
-            careDrawdown = sourceDict['purposes']["CARE"]["REGULAR_DRAWDOWN"]
-            context["totalDrawdownAmount"] = topUpDrawdown.amount + careDrawdown.amount
-            context["totalDrawdownPlanAmount"] = topUpDrawdown.planAmount + careDrawdown.planAmount
-        else:
-            context["totalDrawdownAmount"] = topUpDrawdown.amount
-            context["totalDrawdownPlanAmount"] = topUpDrawdown.planAmount
+        if "CARE" in sourceDict['purposes']:
+            if "REGULAR_DRAWDOWN" in sourceDict['purposes']["CARE"]:
+                careDrawdown = sourceDict['purposes']["CARE"]["REGULAR_DRAWDOWN"]
+
+        if context['topUpProjections'] == True:
+            context['resultsTotalIncome'] = loanProj.getResultsList('TotalIncome', imageSize=150, imageMethod='lin')[
+                'data']
+            context['resultsIncomeImages'] = \
+                loanProj.getImageList('PensionIncomePC', settings.STATIC_URL + 'img/icons/income_{0}_icon.png')['data']
+
+            if topUpDrawdown:
+                context["totalDrawdownAmount"] = topUpDrawdown.amount
+                context["totalDrawdownPlanAmount"] = topUpDrawdown.planAmount
+
+            # However, if showing top-up income, also show care income
+            if careDrawdown:
+                context["totalDrawdownAmount"] += careDrawdown.amount
+                context["totalDrawdownPlanAmount"] += careDrawdown.planAmount
     else:
         context['topUpProjections'] = False
+
 
     if 'stressScenario' in scenarioList:
 

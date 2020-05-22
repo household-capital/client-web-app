@@ -9,6 +9,7 @@ app_name = 'enquiry'
 urlpatterns = [
     #Authenticated Views
     path('', views.EnquiryCreateView.as_view(), name='enquiry'),
+    path('call', views.EnquiryCallView.as_view(), name='enquiryCall'),
     path('<uuid:uid>', views.EnquiryUpdateView.as_view(), name='enquiryDetail'),
     path('enquiryList', views.EnquiryListView.as_view(), name='enquiryList'),
     path('enquiryCreateSummary/<uuid:uid>',views.CreateEnquirySummary.as_view(),name='enqCreateSummary'),
