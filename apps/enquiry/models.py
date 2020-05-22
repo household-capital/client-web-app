@@ -108,7 +108,7 @@ class Enquiry(models.Model):
         (marketingTypesEnum.FACEBOOK.value, "Facebook"),
         (marketingTypesEnum.LINKEDIN.value, "LinkedIn"),
         (marketingTypesEnum.YOUR_LIFE_CHOICES.value, "Your Life Choices"),
-        (marketingTypesEnum.OTHER.value, "OTHER"),
+        (marketingTypesEnum.OTHER.value, "Other"),
 
     )
 

@@ -242,9 +242,15 @@ class EnquiryCallView(HouseholdLoginRequiredMixin, CreateView):
 
         return context
 
+    def form_valid(self, form):
+        obj = form.save(commit = False)
+        obj.referrer = directTypesEnum.PHONE.value
+        obj.save()
 
-
-
+        if 'submit' in form.data:
+            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': str(obj.enqUID)}))
+        else:
+            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryList'))
 
 # Enquiry Delete View (Delete View)
 class EnquiryDeleteView(HouseholdLoginRequiredMixin, View):

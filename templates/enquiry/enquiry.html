@@ -49,24 +49,35 @@
 
         <br>
 
-        {% if newEnquiry %}
-            <!-- Button trigger modal -->
-            <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#privacyModal">
-                Privacy statement
-            </button>
+        <div class="row pt-2">
+            <div class="col-lg-8 text-left">
 
-        {% elif isUpdate == False %}
+                {% if newEnquiry %}
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-outline-primary" data-toggle="modal"
+                            data-target="#privacyModal">
+                        Privacy statement
+                    </button>
 
+                {% elif isUpdate == False %}
 
-        {% elif obj.sfLeadID is null %}
-                <p class="btn alert-info"><i class="fal fa-question-circle"></i> Note: no Salesforce Lead - insufficient data, not synch'd yet or potential duplicate?</p>
+                {% elif obj.status == False %}
 
-        {% elif obj.sfLeadID %}
-                <a href="{{ obj.get_SF_url }}" target="_blank">
-                <p class="larger" style="color:deepskyblue"><i class="fas fa-cloud fa-lg "></i>&nbsp;
-                        Salesforce lead</p></a>
-        {% endif %}
+                {% elif obj.sfLeadID is null %}
+                    <div class="alert alert-primary" role="alert">
+                        <p><i class="fal fa-question-circle"></i>
+                            Note: no Salesforce Lead - insufficient data, not synch'd yet or potential duplicate?
+                        </p>
+                    </div>
 
+                {% elif obj.sfLeadID %}
+                    <a href="{{ obj.get_SF_url }}" target="_blank">
+                        <p class="larger" style="color:deepskyblue"><i class="fas fa-cloud fa-lg "></i>&nbsp;
+                            Salesforce lead</p></a>
+                {% endif %}
+
+            </div>
+        </div>
 
         <div class="row justify-content-left pt-3">
             <div class="col-6">
@@ -171,7 +182,8 @@
                             </p>
                             {% if status.data.postcode != 'Valid' %}
                                 <br>
-                                <p class="pl-4"><i class="fas fa-tractor fa-lg btn-outline-warning"></i>&nbsp;Refer Postcode
+                                <p class="pl-4"><i class="fas fa-tractor fa-lg btn-outline-warning"></i>&nbsp;Refer
+                                    Postcode
                                 </p>
                                 <p class="small pl-4 pb-3">Get full address</p>
                             {% endif %}

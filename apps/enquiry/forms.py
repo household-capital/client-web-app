@@ -19,7 +19,8 @@ class EnquiryForm(forms.ModelForm):
     class Meta:
         model = Enquiry
         fields = ['loanType', 'name', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
-                  'referrer', 'email', 'phoneNumber', 'enquiryNotes', 'referrerID']
+                  'referrer', 'email', 'phoneNumber', 'enquiryNotes', 'referrerID',
+                  'marketingSource', 'callReason']
 
         widgets = {
             'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
@@ -53,6 +54,13 @@ class EnquiryForm(forms.ModelForm):
                 Div(
                     Div(HTML("Referral Source"), css_class='form-label'),
                     Div(Field('referrerID'))),
+                Div(
+                    Div(HTML("How did you hear about us?"), css_class='form-label'),
+                    Div(Field('marketingSource'))),
+                Div(
+                    Div(HTML("Reason for call"), css_class='form-label'),
+                    Div(Field('callReason'))),
+
                 css_class='col-lg-6'),
 
             Div(
@@ -102,6 +110,7 @@ class EnquiryDetailForm(forms.ModelForm):
         model = Enquiry
         fields = ['loanType', 'name', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
                   'referrer', 'email', 'phoneNumber', 'enquiryNotes', 'referrerID', 'calcTopUp',
+                  'marketingSource', 'callReason',
                   'calcRefi', 'calcLive', 'calcGive', 'calcCare']
 
         widgets = {
@@ -136,6 +145,12 @@ class EnquiryDetailForm(forms.ModelForm):
                 Div(
                     Div(HTML("Referral Source"), css_class='form-label'),
                     Div(Field('referrerID'))),
+                Div(
+                    Div(HTML("How did you hear about us?"), css_class='form-label'),
+                    Div(Field('marketingSource'))),
+                 Div(
+                    Div(HTML("Reason for call"), css_class='form-label'),
+                    Div(Field('callReason'))),
                 css_class='col-lg-6'),
 
             Div(
@@ -239,7 +254,8 @@ class EnquiryCallForm(forms.ModelForm):
                     Div(Field('callReason'))),
 
                 Div(css_class="row"),
-                Div(Div(Submit('submit', 'Update', css_class='btn btn-outline-secondary')), css_class='text-right'),
+                Div(Div(Submit('close', 'End call', css_class='btn btn-outline-secondary'),
+                        Submit('submit', 'Continue', css_class='btn btn-warning')), css_class='text-right'),
                 Div(HTML("<br>")),
 
                 css_class='col-lg-6'),
@@ -248,11 +264,11 @@ class EnquiryCallForm(forms.ModelForm):
     )
 
     def clean(self):
-        if self.cleaned_data['loanType'] == loanTypesEnum.SINGLE_BORROWER.value and self.cleaned_data['age_2']:
-            raise ValidationError("Please check - is this a single or Joint Loan? ")
-
-        if self.cleaned_data['loanType'] == loanTypesEnum.JOINT_BORROWER.value and not self.cleaned_data['age_2']:
-            raise ValidationError("Please add second borrower age ")
+        if 'close' in self.data:
+            if not self.cleaned_data['marketingSource']:
+                raise ValidationError('Please select a marketing source')
+            if not self.cleaned_data['callReason']:
+                raise ValidationError('Please select a call reason')
 
         return self.cleaned_data
 
