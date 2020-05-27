@@ -218,13 +218,13 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
         initialcaseStage = pre_obj.caseStage
         loan_obj = Loan.objects.queryset_byUID(str(self.kwargs['uid'])).get()
 
-        obj = form.save(commit=False)
-
         # Don't allow later stages to be updated in the GUI
+        if initialcaseStage != caseStagesEnum.DISCOVERY.value and initialcaseStage != caseStagesEnum.MEETING_HELD.value \
+                and initialcaseStage != caseStagesEnum.APPLICATION.value:
+            messages.error(self.request, "You can no longer update this Case ")
+            return super(CaseDetailView, self).form_valid(form)
 
-        if initialcaseStage != caseStagesEnum.DISCOVERY.value and initialcaseStage != caseStagesEnum.MEETING_HELD.value:
-            obj.caseStage = pre_obj.caseStage
-            messages.info(self.request, "Stage not updated")
+        obj = form.save(commit=False)
 
         #Prior Nullable field
         if not obj.pensionAmount:
@@ -235,6 +235,8 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
             obj.age_1 = int((datetime.date.today() - obj.birthdate_1).days / 365.25)
         if obj.birthdate_2 != None:
             obj.age_2 = int((datetime.date.today() - obj.birthdate_2).days / 365.25)
+
+        print(obj.caseStage)
         obj.save()
 
         # Renames and moves the image file if present
