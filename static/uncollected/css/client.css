@@ -593,3 +593,83 @@ html, body {
     }
 }
 
+
+
+/* Footer */
+.footer-container {
+    max-width: 1100px;
+    height: 100%;
+    padding-right: 30px;
+    padding-left: 30px;
+    margin-right: auto;
+    margin-left: auto;
+
+
+}
+
+footer {
+    background: rgb(25, 38, 63);;
+    padding: 20px 0 0;
+    color: white;
+    font-size: 12px
+}
+
+.footer-text,
+.footer-text p,
+.footer-text a,
+.footer-text a:link,
+.footer-text a:visited {
+    text-align: center;
+    font-family: MaisonNeue;
+    font-size: 16px;
+    line-height: 20px;
+    text-decoration: None;
+    color: white
+}
+
+@media (min-width: 768px) {
+    .footer-text,
+    .footer-text p,
+    .footer-text a,
+    .footer-text a:link,
+    .footer-text a:visited {
+        text-align: left;
+    }
+}
+
+.footer-padding-align {
+}
+
+.footer-margin-align {
+}
+
+@media (min-width: 768px) {
+    .footer-padding-align {
+        padding-left: 3rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .footer-margin-align {
+        margin-left: 3rem;
+    }
+}
+
+
+footer ul li {
+    display: inline-block;
+    padding: 0
+}
+
+.footer-social ul {
+    text-align: center;
+}
+
+.footer-social,
+.footer-social a,
+.footer-social a:link,
+.footer-social a:visited {
+    padding: 10px 16px;
+    font-size: 32px;
+    color: white;
+}

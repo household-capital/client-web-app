@@ -164,11 +164,14 @@ class apiAMAL():
 
     def __getBalanceValue(self, ARN, balanceName, headers):
         response = requests.get(self.api_path + self.api_url_balance.format(ARN,balanceName), headers=headers)
-        response_dict = json.loads(response.content)
-        if response_dict['status'] == 'ok':
-            return response_dict['data'][0]['balance']
-        else:
-            return 0
+        try:
+            response_dict = json.loads(response.content)
+            if response_dict['status'] == 'ok':
+                return response_dict['data'][0]['balance']
+        except:
+            pass
+
+        return 0
 
     def getTransactionData(self,ARN):
 
