@@ -119,6 +119,13 @@
 
                                         <div class="dropdown-divider"></div>
 
+                                        <a class="dropdown-item"
+                                           href="{% url 'case:caseClose' uid=obj.caseUID %}">
+                                            &nbsp;<i class="far fa-fw fa-window-close"></i>&nbsp;&nbsp;Close Case&nbsp;&nbsp;
+                                        </a>
+
+                                        <div class="dropdown-divider"></div>
+
                                         <a class="dropdown-item" data-toggle="modal" href="#deleteModal">
                                             &nbsp;<i class="far fa-trash-alt fa-fw"></i>&nbsp;&nbsp;Delete
                                         </a>
@@ -140,7 +147,14 @@
                                     <!-- MEETING HELD -->
                                     {% if obj.caseStage == caseStagesEnum.MEETING_HELD.value %}
 
-                                         {% if obj.summaryDocument and obj.email %}
+                                          <div class="dropdown-divider"></div>
+
+                                          <a class="dropdown-item"
+                                           href="{% url 'case:caseClose' uid=obj.caseUID %}">
+                                            &nbsp;<i class="far fa-fw fa-window-close"></i>&nbsp;&nbsp;Close Case&nbsp;&nbsp;
+                                          </a>
+
+                                         {% if obj.summaryDocument %}
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item pb-3" data-toggle="modal" href="#clientModal1">
                                                 &nbsp;<i class="fas fa-mail-bulk fa-fw"></i>&nbsp;&nbsp;Email and Mail
@@ -176,12 +190,6 @@
 
                                     <!-- DOCUMENTATION -->
                                     {% if obj.caseStage == caseStagesEnum.DOCUMENTATION.value %}
-                                        <div class="dropdown-divider"></div>
-
-                                        <a class="dropdown-item" href="{% url 'case:caseData' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-file-csv fa-fw"></i>&nbsp;&nbsp;Document CSV&nbsp;&nbsp;
-                                        </a>
-
 
                                         <div class="dropdown-divider"></div>
 
@@ -211,6 +219,13 @@
 
                                         <a class="dropdown-item" href="{% url 'case:caseClose' uid=obj.caseUID %}">
                                             &nbsp;<i class="far fa-folder"></i>&nbsp;&nbsp;Show Close Information&nbsp;&nbsp;
+                                        </a>
+
+                                          <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item"
+                                           href="{% url 'case:caseUnclose' uid=obj.caseUID %}">
+                                            &nbsp;<i class="far fa-fw fa-check-square"></i>&nbsp;&nbsp;Reopen Case&nbsp;&nbsp;
                                         </a>
 
                                     {% endif %}
