@@ -1,0 +1,92 @@
+<div class="row">
+
+
+    <div class="col-lg-11">
+
+        <p class="pt-3 pb-2"><b>{{ facilityObj.sfLoanName }}</b>&nbsp;&nbsp;&nbsp;
+            {% if obj.status == 1 %}<span class="badge badge-success">Active</span>{% endif %}
+            {% if obj.status == 2 %}<span class="badge badge-secondary">Repaid</span>    {% endif %}
+            {% if obj.status == 3 %}<span class="badge badge-warning">Suspended</span>    {% endif %}
+        </p>
+        <br>
+
+        <a href="{% url 'servicing:loanDetail' uid=facilityObj.facilityUID %}">
+            <button class="btn
+            {% if menuOverview %}btn-secondary{% else %}btn-outline-secondary{% endif %}
+            mt-1"><i class="fas fa-search"></i> Overview</button>
+        </a>
+        <a href="{% url 'servicing:loanDetailRoles' uid=facilityObj.facilityUID %}">
+            <button class="btn
+            {% if menuRoles %}btn-secondary{% else %}btn-outline-secondary{% endif %}
+            mt-1"><i class="fas fa-user-friends"></i> Borrowers
+            </button>
+        </a>
+        <a href="{% url 'servicing:loanDetailBalances' uid=facilityObj.facilityUID %}">
+            <button class="btn
+            {% if menuBalances %}btn-secondary{% else %}btn-outline-secondary{% endif %}
+            mt-1"><i class="fa fa-bars"></i> Balances</button>
+        </a>
+        <a href="{% url 'servicing:loanDetailPurposes' uid=facilityObj.facilityUID %}">
+            <button class="btn
+            {% if menuPurposes %}btn-secondary{% else %}btn-outline-secondary{% endif %}
+            mt-1"><i class="far fa-cog"></i> Purposes</button>
+        </a>
+
+        <a href="{% url 'servicing:loanDetailProperty' uid=facilityObj.facilityUID %}">
+            <button class="btn
+            {% if menuProperty %}btn-secondary{% else %}btn-outline-secondary{% endif %}
+            mt-1"><i class="fa fa-home"></i> Property</button>
+        </a>
+
+
+        {% if not hideActions %}
+        <div class="btn-group mt-1 ml-5">
+            <button type="button" class="btn btn-outline-secondary dropdown-toggle"
+                    data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false" id="btnLoanActions">
+                Loan Events
+            </button>
+            <div class="dropdown-menu">
+
+                <!-- All -->
+                <a class="dropdown-item"
+                   href="{% url 'servicing:loanEnquiry' uid=facilityObj.facilityUID %}">
+                    &nbsp;<i class="fas fa-headset fa-fw"></i>&nbsp;&nbsp;Enquiry
+                </a>
+
+                <div class="dropdown-divider"></div>
+
+                <a class="dropdown-item" href="">
+                    &nbsp;<i class="fas fa-comment-dollar fa-fw"></i>&nbsp;&nbsp;Additional Drawdown&nbsp;&nbsp;
+                </a>
+
+                <div class="dropdown-divider"></div>
+
+                <a class="dropdown-item" href="">
+                    &nbsp;<i class="fas fa-edit fa-fw"></i>&nbsp;&nbsp;Loan Variation&nbsp;&nbsp;
+                </a>
+
+                <div class="dropdown-divider"></div>
+
+                <a class="dropdown-item" href="">
+                    &nbsp;<i class="far fa-calendar-alt fa-fw"></i>&nbsp;&nbsp;Annual Servicing&nbsp;&nbsp;
+                </a>
+
+                <div class="dropdown-divider"></div>
+
+                <a class="dropdown-item" href="">
+                    &nbsp;<i class="fas fa-hands-usd fa-fw"></i>&nbsp;&nbsp;Loan Repayment&nbsp;&nbsp;
+                </a>
+
+                <div class="dropdown-divider"></div>
+
+                <a class="dropdown-item" href="">
+                    &nbsp;<i class="far fa-tombstone fa-fw"></i>&nbsp;&nbsp;Death of a Borrower&nbsp;&nbsp;
+                </a>
+
+
+            </div>
+        </div>
+    {% endif %}
+    </div>
+</div>

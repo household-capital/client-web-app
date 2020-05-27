@@ -29,6 +29,9 @@ stateTypes=(
 
 class FacilityManager(models.Manager):
 
+    def queueCount(self):
+        return FacilityEnquiry.objects.filter(actioned=0).count()
+
     #Custom model manager to return related querysets (using UID)
     def queryset_byUID(self,uidString):
        if self.model.__name__=='Facility':
@@ -229,6 +232,13 @@ class FacilityRoles(models.Model):
 
     class Meta:
         verbose_name_plural = "Facility Roles"
+        ordering = ('role',)
+
+    def __str__(self):
+        return smart_text(self.firstName + " "+self.lastName+ " - "+ self.enumRole())
+
+    def __unicode__(self):
+        return smart_text(self.firstName + " "+self.lastName+ " - "+ self.enumRole())
 
 
 class FacilityProperty(models.Model):
@@ -324,3 +334,36 @@ class FacilityEvents(models.Model):
 
     def get_absolute_url(self):
         return self.facility.get_absolute_url()
+
+class FacilityEnquiry(models.Model):
+
+    actionChoices = (
+        (False, "Open"),
+        (True, "Actioned")
+    )
+
+    facility = models.ForeignKey(Facility, on_delete=models.CASCADE)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    identifiedEnquirer = models.ForeignKey(FacilityRoles, on_delete=models.CASCADE, blank=True, null=True)
+    otherEnquirerName = models.CharField(max_length=60, blank=True, null=True)
+    contactEmail=models.EmailField(null=True,blank=True)
+    contactPhone=models.CharField(max_length=15,null=True,blank=True)
+    enquiryNotes = models.TextField(blank=True, null=True)
+    actionNotes = models.TextField(blank=True, null=True)
+    actioned = models.BooleanField(choices = actionChoices, default = False)
+    actionedBy = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name='actionedBy')
+    actionDate = models.DateTimeField(blank=True, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
+    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+    objects=FacilityManager()
+
+    class Meta:
+        verbose_name_plural = "Facility Enquiries"
+
+    def enumAction(self):
+        return dict(self.actionChoices)[self.actioned]
+
+    def get_absolute_url(self):
+        return reverse_lazy("servicing:loanEnquiryUpdate", kwargs={"uid": self.facility.facilityUID, 'pk':self.id})
+

@@ -2,7 +2,8 @@
 from django.contrib import admin
 
 #Local Application Imports
-from .models import Facility, FacilityTransactions, FacilityRoles, FacilityProperty, FacilityPropertyVal, FacilityPurposes, FacilityEvents
+from .models import Facility, FacilityTransactions, FacilityRoles, FacilityProperty, FacilityPropertyVal, FacilityPurposes, \
+    FacilityEvents, FacilityEnquiry
 
 
 class FacilityTransactionsAdmin(admin.ModelAdmin):
@@ -27,6 +28,8 @@ class FacilityPurposesAdmin(admin.ModelAdmin):
 class FacilityEventsAdmin(admin.ModelAdmin):
     list_display = ('facility', 'eventType', 'eventDate')
 
+class FacilityEnquiryAdmin(admin.ModelAdmin):
+    list_display = ('facility', 'timestamp')
 
 admin.site.register(Facility, FacilityAdmin)
 admin.site.register(FacilityTransactions, FacilityTransactionsAdmin)
@@ -35,3 +38,4 @@ admin.site.register(FacilityProperty,FacilityPropertyAdmin)
 admin.site.register(FacilityPropertyVal,FacilityPropertyValAdmin)
 admin.site.register(FacilityPurposes,FacilityPurposesAdmin)
 admin.site.register(FacilityEvents,FacilityEventsAdmin)
+admin.site.register(FacilityEnquiry,FacilityEnquiryAdmin)

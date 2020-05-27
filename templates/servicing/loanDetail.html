@@ -42,58 +42,54 @@
 
     <div class="container">
 
-    <div class="row">
 
-        <div class="col-lg-11">
-
-            <p class="pt-3 pb-2"><b>{{ obj.sfLoanName }}</b>&nbsp;&nbsp;&nbsp;
-                {% if obj.status == 1 %}<span class="badge badge-success">Active</span>{% endif %}
-                {% if obj.status == 2 %}<span class="badge badge-secondary">Repaid</span>    {% endif %}
-                {% if obj.status == 3 %}<span class="badge badge-warning">Suspended</span>    {% endif %}
+        {% include 'servicing/loanMenu.html' %}
 
 
-            </p>
-            <br>
+        <div class="row">
 
-            <a href="{% url 'servicing:loanDetail' uid=obj.facilityUID %}">
-                <button class="btn btn-secondary"><i class="fas fa-search"></i> Overview</button>
-            </a>
-            <a href="{% url 'servicing:loanDetailRoles' uid=obj.facilityUID %}">
-                <button class="btn btn-outline-secondary"><i class="fas fa-user-friends"></i> Borrowers</button>
-            </a>
-            <a href="{% url 'servicing:loanDetailBalances' uid=obj.facilityUID %}">
-                <button class="btn btn-outline-secondary"><i class="fa fa-bars"></i> Balances</button>
-            </a>
-            <a href="{% url 'servicing:loanDetailPurposes' uid=obj.facilityUID %}">
-                <button class="btn btn-outline-secondary"><i class="far fa-cog"></i> Purposes</button>
-            </a>
-            <a href="{% url 'servicing:loanDetailProperty' uid=obj.facilityUID %}">
-                <button class="btn btn-outline-secondary"><i class="fa fa-home"></i> Property</button>
-            </a>
-            <button class="btn btn-outline-secondary"><i class="far fa-calendar-alt"></i> Annual Servicing</button>
-            <button class="btn btn-outline-secondary"><i class="fas fa-headset"></i> Enquiry</button>
-
-        </div>
-    </div>
-
-    <div class="row">
-
-
-        <div class="col-lg-5">
-            <br><br>
-
-            <div class="accordion" id="accordionExample">
-
-                <ul class="timeline">
-                    {% for event in eventList %}
-                        <li>
-                            <span><button class="btn btn-sm btn-info" type="button">{{ event.enumEventType}}</button>
+            <div class="col-lg-5">
+                <br><br>
+                <p class="small"><b>Timeline</b></p>
+                {% for event in eventList %}
+                    <div class="card bg-light border-light mb-3">
+                        <div class="card-body">
+                            <span><button class="btn btn-sm btn-info" type="button">{{ event.enumEventType }}</button>
                                 <span class="float-right">{{ event.eventDate|date:'d M Y' }}</span></span>
-                            <p class="pb-2">{{ event.eventNotes}}</p>
-                        </li>
-                    {% endfor %}
-                </ul>
+                            <p class="pt-2 pb-2">{{ event.eventNotes }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
+
+            <div class="col-lg-5 ml-3">
+                <br><br>
+                {% if enquiryList %}<p class="small"><b>Enquiries</b></p>{% endif %}
+                {% for enquiry in enquiryList %}
+                    <div class="card bg-light border-light mb-3">
+                        <a href="{{ enquiry.get_absolute_url }}">
+                            <div class="card-body">
+                        <span><button class="btn btn-sm
+                        {% if enquiry.actioned == 0 %}btn-success {% else %}btn-secondary{% endif %}"
+                                      type="button">{{ enquiry.enumAction }}</button>
+                                <span class="float-right">{{ enquiry.timestamp|date:'d M Y' }}</span></span>
+
+                                <p class="card-subtitle pt-3 mb-2 text-muted">
+                                    {% if enquiry.identifiedEnquirer %}
+                                        <i class="fas fa-user-check fa-fw"></i>&nbsp;{{ enquiry.identifiedEnquirer }}
+                                    {% else %}
+                                        <i class="fas fa-user-slash fa-fw"></i>&nbsp; {{ enquiry.otherEnquirerName }}
+                                    {% endif %}</p>
+                                <p class="card-text">{{ enquiry.enquiryNotes|truncatewords:18 }}</p>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+
+
+            </div>
+
+
         </div>
     </div>
 

@@ -112,19 +112,6 @@
 
                                     {% endif %}
 
-                                    {% if request.GET.filter == "Funded" %}
-                                        <a href="?filter=None&search={{ search }}&order={{ order }}">
-                                            <div class="btn btn-secondary" data-toggle="tooltip" data-placement="top"
-                                                 title="Funded"><i class="fas fa-thumbs-up fa-fw"></i></div>
-                                        </a>
-                                    {% else %}
-                                        <a href="?filter=Funded&search={{ search }}&order={{ order }}">
-                                            <div class="btn btn-outline-secondary" data-toggle="tooltip"
-                                                 data-placement="top"
-                                                 title="Funded"><i class="fas fa-thumbs-up fa-fw"></i></div>
-                                        </a>
-
-                                    {% endif %}
 
                                     {% if request.GET.filter == "Closed" %}
                                         <a href="?filter=None&search={{ search }}&order={{ order }}">
