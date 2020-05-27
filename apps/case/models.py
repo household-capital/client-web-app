@@ -288,7 +288,6 @@ def create_case_extensions(sender, instance, created, **kwargs):
 post_save.connect(create_case_extensions, sender=Case)
 
 
-
 class Loan(models.Model):
 
     protectedChoices = (
@@ -463,58 +462,3 @@ class FactFind(models.Model):
 
     def __unicode__(self):
         return smart_text(self.case.caseDescription)
-
-
-#AMAL Tables
-
-class FundedData(models.Model):
-    case = models.OneToOneField(Case, on_delete=models.CASCADE)
-    approved = models.FloatField(default=0,blank=True, null=True)
-    advanced = models.FloatField(default=0,blank=True, null=True)
-    principal = models.FloatField(default=0,blank=True, null=True)
-    totalValuation = models.FloatField(default=1,blank=True, null=True)
-    currentLVR = models.FloatField(default=0,blank=True, null=True)
-    settlementDate = models.DateTimeField(blank=True, null=True)
-    dischargeDate = models.DateTimeField(blank=True, null=True)
-    bPayCode = models.CharField(max_length=30, blank=True, null=True)
-    bPayRef = models.CharField(max_length=30, blank=True, null=True)
-    timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
-    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
-    objects = CaseManager()
-
-    def __str__(self):
-        return smart_text(self.case.caseDescription)
-
-    def __unicode__(self):
-        return smart_text(self.case.caseDescription)
-
-    class Meta:
-        verbose_name_plural = "Funded Data"
-
-    def get_absolute_url(self):
-        return reverse_lazy("case:loanDetail", kwargs={"uid": self.case.caseUID})
-
-class TransactionData(models.Model):
-    case = models.ForeignKey(Case, on_delete=models.CASCADE)
-    description = models.CharField(max_length=120, blank=True, null=True)
-    type = models.CharField(max_length=30, blank=True, null=True)
-    transactionDate = models.DateTimeField(blank=True, null=True)
-    effectiveDate = models.DateTimeField(blank=True, null=True)
-    tranRef = models.CharField(max_length=30,blank=False, null=False)
-    debitAmount =  models.FloatField(default=0,blank=True, null=True)
-    creditAmount = models.FloatField(default=0, blank=True, null=True)
-    balance = models.FloatField(default=0, blank=True, null=True)
-    timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
-    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
-    objects = CaseManager()
-
-    def __str__(self):
-        return smart_text(self.case.caseDescription)
-
-    def __unicode__(self):
-        return smart_text(self.case.caseDescription)
-
-    class Meta:
-        verbose_name_plural = "Transaction Data"
-        unique_together = (('case', 'tranRef'),)
-

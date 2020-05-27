@@ -57,7 +57,7 @@ def catchallSFLeadTask():
         write_applog("Error", 'Enquiry', 'Tasks-createSFLead', result['responseText'])
         return result['responseText']
 
-    qs = Enquiry.objects.filter(sfLeadID__isnull=True, closeDate__isnull=True)
+    qs = Enquiry.objects.filter(sfLeadID__isnull=True, closeDate__isnull=True).exclude(postcode__isnull=True)
     for enquiry in qs:
         createSFLead(str(enquiry.enqUID),sfAPI)
     write_applog("INFO", 'Enquiry', 'Tasks-catchallSFLead', "Completed")
@@ -191,7 +191,7 @@ def createSFLead(enqUID, sfAPIInstance=None):
     enquiry = qs.get()
 
     # Check for an email or phoneNumber as well as a user
-    if (enquiry.email or enquiry.phoneNumber) and enquiry.user:
+    if (enquiry.email or enquiry.phoneNumber) and enquiry.user and enquiry.postcode:
 
         # Check for Household email address
         if enquiry.email:

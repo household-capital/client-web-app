@@ -54,6 +54,20 @@ def getDictItem(dictionary, key):
             return dictionary[key]
     return ""
 
+def yesNo(arg):
+    if arg is not None:
+        if arg == 1:
+            return "Yes"
+        elif arg == 0:
+            return "No"
+    return None
+
+def percent(arg):
+    if arg is not None:
+        return arg * 100
+    return None
+
+
 
 # REGISTRATION
 register = template.Library()
@@ -66,3 +80,5 @@ register.filter('filename', filename)
 register.filter('upto', upto)
 register.filter('firstName', firstName)
 register.filter('getDictItem', getDictItem)
+register.filter('yesNo', yesNo)
+register.filter('percent', percent)

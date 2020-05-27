@@ -120,7 +120,11 @@
                         <p>Cases</p>
                         <p>Meetings</p>
                         <p>Applications</p>
-                        <p>Settled</p>
+                        <p>Settled  {% if clientSFRec %}
+                            <i class="text-success far fa-check-circle"></i>
+                                {% else %}
+                            <i class="text-danger far fa-times-circle"></i>
+                            {% endif %}  </p>
                     </div>
 
                     <div class="col-4 text-right pb-3">
@@ -129,7 +133,7 @@
                         <p>{{ totalCases }}</p>
                         <p>{{ meetings }}</p>
                         <p>{{ applications }}</p>
-                        <p>{{ funded }}</p>
+                        <p>{{ caseLoans }}</p>
                     </div>
 
                 </div>
@@ -142,7 +146,7 @@
                         <p>Current Balance</p>
                         <p>Funded</p>
                         <p>W.Ave LVR</p>
-                        <p>Funded Loans</p>
+                        <p>Outstanding Loans</p>
                     </div>
 
                     <div class="col-4 text-right">
@@ -306,6 +310,18 @@
     <div class="row justify-content-center pt-5">
         <div class="col-lg-10 text-left">
 
+            <b>Lead Generation</b>&nbsp;&nbsp;
+            <div class="chart-container pt-3" style="height:370px;">
+
+                <canvas id="enquiryChart"></canvas>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row justify-content-center pt-5">
+        <div class="col-lg-10 text-left">
+
             <b>Platform Activity</b>&nbsp;&nbsp;
             <div class="chart-container pt-3" style="height:370px;">
 
@@ -327,7 +343,7 @@
         </div>
     </div>
 
-        <div class="row justify-content-center pt-5">
+    <div class="row justify-content-center pt-5">
         <div class="col-lg-10 text-left">
 
             <b>Meeting Date to Settlement Date</b>&nbsp;&nbsp;
@@ -379,6 +395,11 @@
         var chartPortfolioData = {{ chartPortfolioData | safe }};
         var chartAverageDays = {{ chartAverageDays | safe }};
         var chartMinDays = {{ chartMinDays | safe }};
+        var chartEnquiry = {{ chartEnquiry | safe }};
+        var chartCalcMthData = {{ chartCalcMthData | safe }};
+        var chartPhoneMthData = {{ chartPhoneMthData | safe }};
+
+
 
 
         // Timeseries data
@@ -392,13 +413,16 @@
         var portfolioData = createTimeSeries(chartPortfolioData);
         var averageDays = createTimeSeries(chartAverageDays);
         var minDays = createTimeSeries(chartMinDays);
-
+        var enquiryData = createTimeSeries(chartEnquiry);
+        var calcMthData = createTimeSeries(chartCalcMthData);
+        var phoneMthData = createTimeSeries(chartPhoneMthData);
 
         // Chart references
         var ctx_interaction = document.getElementById('interactionChart').getContext('2d');
         var ctx_activity = document.getElementById('activityChart').getContext('2d');
         var ctx_portfolio = document.getElementById('portfolioChart').getContext('2d');
         var ctx_aveDays = document.getElementById('aveDaysChart').getContext('2d');
+        var ctx_enquiry = document.getElementById('enquiryChart').getContext('2d');
 
         // Chart definitions
 
@@ -578,6 +602,59 @@
                     },
 
 
+
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                    display: false,
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'month',
+                            tooltipFormat: 'ddd DD-MMM-YYYY',
+                        },
+
+
+
+                    }],
+                    yAxes: [{
+                        display: true,
+                        ticks: {
+                            beginAtZero: true,
+
+                        }
+                    }]
+                },
+
+
+            }
+        });
+
+        var enquiryChart = new Chart(ctx_enquiry, {
+            type: 'line',
+            data: {
+                datasets: [
+                    {
+                        label: "Total Enquiries",
+                        data: enquiryData,
+                        borderColor: "#fdb600",
+                    },
+
+                    {
+                        label: "Calculator Enquiries",
+                        data: calcMthData,
+                        borderColor: "#5184a1",
+                    },
+                     {
+                        label: "Phone Enquiries",
+                        data: phoneMthData,
+                        borderColor: "#86b3b5",
+                    },
 
                 ]
             },

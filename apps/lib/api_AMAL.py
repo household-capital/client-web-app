@@ -156,11 +156,11 @@ class apiAMAL():
             bPayRef = None
 
         write_applog("INFO", 'apiAMAL', 'getFundedData', 'Funded data retrieved - ' + ARN)
-        return {'status':"Ok",'responseText':'','data':{'totalValuation':totalValuation,'advanced':advanced,
-                                                        'principal':principal, 'approved':approved,
+        return {'status':"Ok",'responseText':'','data':{'totalValuation':totalValuation,'advancedAmount':advanced,
+                                                        'currentBalance':principal, 'approvedAmount':approved,
                                                         'currentLVR':currentLVR,
                                                         'settlementDate':settlement, 'dischargeDate':discharge,
-                                                        'bPayCode':bPayCode,'bPayRef':bPayRef}}
+                                                        'bPayBillerCode':bPayCode,'bPayReference':bPayRef}}
 
     def __getBalanceValue(self, ARN, balanceName, headers):
         response = requests.get(self.api_path + self.api_url_balance.format(ARN,balanceName), headers=headers)

@@ -1,0 +1,109 @@
+{% extends 'site/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+{% block message_display %}
+
+    <div class="container">
+        {% if messages %}
+            <div class="row justify-content-md-center pt-3">
+                <div class="col-6 text-center">
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %} class="alert alert-danger"{% endif %}
+                                {% if message.tags == 'warning' %} class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                    <br>
+                </div>
+
+            </div>
+
+        {% endif %}
+    </div>
+
+{% endblock %}
+
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12 title">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+    <div class="row">
+
+        <div class="col-lg-11">
+
+            <p class="pt-3 pb-2"><b>{{ obj.sfLoanName }}</b>&nbsp;&nbsp;&nbsp;
+                {% if obj.status == 1 %}<span class="badge badge-success">Active</span>{% endif %}
+                {% if obj.status == 2 %}<span class="badge badge-secondary">Repaid</span>    {% endif %}
+                {% if obj.status == 3 %}<span class="badge badge-warning">Suspended</span>    {% endif %}
+
+
+            </p>
+            <br>
+
+            <a href="{% url 'servicing:loanDetail' uid=obj.facilityUID %}">
+                <button class="btn btn-secondary"><i class="fas fa-search"></i> Overview</button>
+            </a>
+            <a href="{% url 'servicing:loanDetailRoles' uid=obj.facilityUID %}">
+                <button class="btn btn-outline-secondary"><i class="fas fa-user-friends"></i> Borrowers</button>
+            </a>
+            <a href="{% url 'servicing:loanDetailBalances' uid=obj.facilityUID %}">
+                <button class="btn btn-outline-secondary"><i class="fa fa-bars"></i> Balances</button>
+            </a>
+            <a href="{% url 'servicing:loanDetailPurposes' uid=obj.facilityUID %}">
+                <button class="btn btn-outline-secondary"><i class="far fa-cog"></i> Purposes</button>
+            </a>
+            <a href="{% url 'servicing:loanDetailProperty' uid=obj.facilityUID %}">
+                <button class="btn btn-outline-secondary"><i class="fa fa-home"></i> Property</button>
+            </a>
+            <button class="btn btn-outline-secondary"><i class="far fa-calendar-alt"></i> Annual Servicing</button>
+            <button class="btn btn-outline-secondary"><i class="fas fa-headset"></i> Enquiry</button>
+
+        </div>
+    </div>
+
+    <div class="row">
+
+
+        <div class="col-lg-5">
+            <br><br>
+
+            <div class="accordion" id="accordionExample">
+
+                <ul class="timeline">
+                    {% for event in eventList %}
+                        <li>
+                            <span><button class="btn btn-sm btn-info" type="button">{{ event.enumEventType}}</button>
+                                <span class="float-right">{{ event.eventDate|date:'d M Y' }}</span></span>
+                            <p class="pb-2">{{ event.eventNotes}}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+
+
+{% endblock %}
+
+
+{% block javascript %}
+
+
+{% endblock %}

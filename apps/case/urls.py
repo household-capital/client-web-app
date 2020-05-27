@@ -15,16 +15,13 @@ urlpatterns = [
     path('caseUnclose/<uuid:uid>', views.CaseUncloseView.as_view(), name='caseUnclose'),
     path('caseAnalysis/<int:pk>', views.CaseAnalysisView.as_view(), name='caseAnalysis'),
     path('caseEmailLoanSummary/<uuid:uid>', views.CaseEmailLoanSummary.as_view(), name = 'caseEmailLoanSummary'),
-    path('caseMailLoanSummary/<uuid:uid>', views.CaseMailLoanSummary.as_view(), name='caseMailLoanSummary'),
+    path('caseMailLoanSummary/<uuid:uid>/<int:pk>', views.CaseMailLoanSummary.as_view(), name='caseMailLoanSummary'),
     path('caseOwn/<uuid:uid>',views.CaseOwnView.as_view(),name='caseOwn'),
     path('caseAssign/<uuid:uid>', views.CaseAssignView.as_view(), name='caseAssign'),
     path('caseData/<uuid:uid>',views.CaseDataExtract.as_view(),name='caseData'),
     path('caseVariation/<uuid:uid>',views.CaseVariation.as_view(),name='caseVariation'),
 
     path('cloudBridge/<uuid:uid>', views.CloudbridgeView.as_view(), name='cloudBridge'),
-
-    path('loanList', views.LoanListView.as_view() ,name='loanList'),
-    path('loanDetail/<uuid:uid>', views.LoanDetailView.as_view(), name='loanDetail'),
 
 ]
 

@@ -2,6 +2,7 @@
 
 import json
 from math import log
+from datetime import datetime
 
 # Django Imports
 from django.conf import settings
@@ -1028,13 +1029,15 @@ class FinalPDFView(LoginRequiredMixin, SessionRequiredMixin, View):
 
     def get(self, request):
 
+        dateStr = datetime.now().strftime('%Y-%m-%d-%H:%M:%S%z')
+
         sourceUrl = 'https://householdcapital.app/client2/pdfLoanSummary/' + self.request.session['caseUID']
         componentFileName = settings.MEDIA_ROOT + "/customerReports/Component-" + self.request.session['caseUID'][
                                                                              -12:] + ".pdf"
         componentURL= 'https://householdcapital.app/media/' + "/customerReports/Component-" + self.request.session['caseUID'][
                                                                              -12:] + ".pdf"
         targetFileName = settings.MEDIA_ROOT + "/customerReports/Summary-" + self.request.session['caseUID'][
-                                                                                  -12:] + ".pdf"
+                                                                                  -12:] + "-"+dateStr + ".pdf"
 
         pdf = pdfGenerator(self.request.session['caseUID'])
         created, text = pdf.createPdfFromUrl(sourceUrl, 'HouseholdSummary.pdf', componentFileName)

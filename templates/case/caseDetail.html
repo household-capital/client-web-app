@@ -356,7 +356,7 @@
 
                             </div>
 
-                        {% else %}
+                        {% elif isUpdate %}
 
                             <div class="row">
                                 <div class="col-lg-12">
@@ -398,18 +398,26 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>You are about to send the client a Loan Summary document via email and physical mail - are
-                            you
-                            sure ?</p>
-                        {% if obj.summarySentRef %}<br>
-                            <p>PLEASE NOTE: THIS CLIENT HAS BEEN PHYSICALLY SENT A LOAN SUMMARY
-                                PREVIOUSLY</p>{% endif %}
+                        {% if obj.summarySentRef %}
+                            <p>This client has already been sent a Loan Summary document via mail.  If you need to mail another physical document please contact IT to reset. </p>
+                        {% else %}
+                            <p>You are about to send the client a Loan Summary document via physical mail.</p>
+                        {% endif %}
+                    <br>
                     </div>
                     <div class="modal-footer">
+                         {% if not obj.summarySentRef %}<a href="{% url 'case:caseMailLoanSummary' uid=obj.caseUID pk=0 %}">
+                            <div class=" btn btn-primary">Send Mail and Email</div>
+                        </a>&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+                         <a href="{% url 'case:caseMailLoanSummary' uid=obj.caseUID pk=1 %}">
+                            <div class=" btn btn-warning ">Send Mail Only</div>
+                        </a>&nbsp;&nbsp;&nbsp;&nbsp;
+                             {% endif %}
+
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <a href="{% url 'case:caseMailLoanSummary' uid=obj.caseUID %}">
-                            <div class=" btn btn-primary">Yes, send document</div>
-                        </a>
+
                     </div>
                 </div>
             </div>

@@ -133,7 +133,7 @@ class CloudBridge():
     def checkSFData(self):
 
         msgString=""
-        loanDict = self.sfAPI.getLoanExtract(self.opportunityId)['data']
+        loanDict = self.sfAPI.getOpportunityExtract(self.opportunityId)['data']
 
         # Check loan settlement date
         reqs = ['Loan.Loan_Settlement_Date__c']
@@ -169,7 +169,7 @@ class CloudBridge():
         self.__logging("Generating Lixi File for "+str(self.opportunityId))
 
         self.__logging("Step 1 - Extracting Salesforce Data to Loan Dictionary")
-        loanDict = self.sfAPI.getLoanExtract(self.opportunityId)['data']
+        loanDict = self.sfAPI.getOpportunityExtract(self.opportunityId)['data']
 
 
         self.loanId=loanDict['Loan.Loan_Number__c'] #Loan ID used later - hence instance variable
@@ -252,6 +252,7 @@ class CloudBridge():
 
             try:
                 result=self.sfAPI.updateLoanID(oppID,AMAL_LoanId)
+
                 if result['status']=="Ok":
                     self.__logging(" -  Saved " + AMAL_LoanId + " to Opportunity " + oppID)
                     return {"status":"Ok"}
