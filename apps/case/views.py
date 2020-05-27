@@ -105,7 +105,8 @@ class CaseListView(LoginRequiredMixin, ListView):
                 Q(user__last_name__icontains=search) |
                 Q(caseNotes__icontains=search) |
                 Q(street__icontains=search) |
-                Q(surname_1__icontains=search)
+                Q(surname_1__icontains=search) |
+                Q(sfLoanID__icontains=search)
             )
 
         # ...and for open or closed cases
@@ -618,7 +619,11 @@ class CaseAssignView(LoginRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        caseObj = form.save()
+        preObj = queryset = Case.objects.queryset_byUID(str(self.kwargs['uid'])).get()
+
+        caseObj = form.save(commit=False)
+        caseObj.caseNotes += '\r\n[# Case assigned from ' + preObj.user.username + ' #]'
+        caseObj.save()
 
         # Email recipient
         subject, from_email, to = "Case Assigned to You", "noreply@householdcapital.app", caseObj.user.email
@@ -960,5 +965,3 @@ class CaseVariation(LoginRequiredMixin, TemplateView):
         messages.success(self.request, "This is a variation of the original loan")
         messages.success(self.request, "Update the meeting based on additional amounts")
         return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': str(newCaseObj.caseUID)}))
-
-

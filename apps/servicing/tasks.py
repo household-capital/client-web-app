@@ -350,6 +350,9 @@ def sfDetailSynch():
         except FacilityEvents.DoesNotExist:
             if loan.settlementDate:
                 FacilityEvents.objects.create(facility=loan, eventType=1, eventDate=loan.settlementDate, eventNotes="Facility established. Initial loan drawdown.")
+        except FacilityEvents.MultipleObjectsReturned:
+            pass
+
 
 
 def __chkVal(arg):

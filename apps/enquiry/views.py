@@ -632,7 +632,15 @@ class EnquiryAssignView(LoginRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        enq_obj = form.save()
+        preObj = queryset = Enquiry.objects.queryset_byUID(str(self.kwargs['uid'])).get()
+
+        enq_obj = form.save(commit=False)
+        if preObj.user:
+            enq_obj.enquiryNotes += '\r\n[# Enquiry assigned from ' + preObj.user.username + ' #]'
+        elif preObj.referrer == directTypesEnum.REFERRAL.value:
+            enq_obj.enquiryNotes += '\r\n[# Enquiry assigned from ' + preObj.referralUser.profile.referrer.companyName + ' #]'
+
+        enq_obj.save()
 
         # Email recipient
         subject, from_email, to = "Enquiry Assigned to You", "noreply@householdcapital.app", enq_obj.user.email
