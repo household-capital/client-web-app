@@ -50,7 +50,7 @@ class LandingView(LoginOnlyRequiredMixin, View):
         if request.user.profile.isHousehold:
             return HttpResponseRedirect(reverse_lazy("landing:dashboard"))
         else:
-            return HttpResponseRedirect(reverse_lazy("enquiry:enqReferrerCreate"))
+            return HttpResponseRedirect(reverse_lazy("referrer:main"))
 
 
 
