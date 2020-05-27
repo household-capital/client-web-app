@@ -1030,4 +1030,3 @@ class LoanDetailView(LoginRequiredMixin, ListView):
 
         return context
 
-

@@ -1,0 +1,29 @@
+{% extends 'case/email/clientAppEmails/email_template.html' %}
+{% load humanize %}
+{% load static %}
+
+
+{% block email_content %}
+<br>
+<p>{{ obj.user.first_name }}</p>
+<br>
+<p>There is a discrepancy between Salesforce and the ClientApp for {{ obj.caseDescription }}</p>
+<br>
+<p><b>Client App</b></p>
+<p>Total Loan Amount: ${{ loanObj.totalLoanAmount }}</p>
+<p>Total Plan Amount: ${{ loanObj.totalPlanAmount }}</p>
+<p>Establishment Fee: {{ establishmentFeeRate }} %</p>
+<br>
+<p><b>Salesforce</b></p>
+<p>Total Loan Amount: ${{ Total_Household_Loan_Amount__c }}</p>
+<p>Total Plan Amount: ${{ Total_Plan_Amount__c }}</p>
+<p>Establishment Fee: {{ Establishment_Fee_Percent__c }} %</p>
+<br>
+<p>This may just require a re-synch or may signify a change had been made to Salesforce directly.</p>
+<br>
+<p>Kind regards</p>
+<br>
+
+{% endblock %}
+
+
