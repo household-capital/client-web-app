@@ -98,12 +98,12 @@ class CaseDetailsForm(forms.ModelForm):
         model = Case
         fields = ['caseDescription', 'adviser', 'caseNotes', 'loanType',
                   'clientType1', 'surname_1', 'firstname_1', 'preferredName_1','birthdate_1', 'age_1', 'sex_1',
-                  'salutation_1','middlename_1','maritalStatus_1',
+                  'salutation_1','middlename_1','maritalStatus_1', 'referralRepNo',
                   'clientType2', 'surname_2', 'firstname_2', 'preferredName_2','birthdate_2', 'age_2', 'sex_2',
                   'salutation_2', 'middlename_2', 'maritalStatus_2',
                   'street', 'suburb', 'postcode', 'valuation', 'dwellingType', 'mortgageDebt',
-                  'superFund', 'state',
-                  'superAmount', 'pensionType', 'pensionAmount', 'phoneNumber', 'email']
+                   'state',
+                   'phoneNumber', 'email']
         widgets = {
             'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
         }
@@ -128,7 +128,7 @@ class CaseDetailsForm(forms.ModelForm):
                     css_class="col-lg-4 text-left"),
                 Div(css_class="col-lg-6"),
                 css_class="row align-items-center"),
-           Div(
+            Div(
                 Div(HTML("Case Notes"), css_class='form-label'),
                 Div(Field('caseNotes'))),
             Div(
@@ -138,8 +138,6 @@ class CaseDetailsForm(forms.ModelForm):
                         Div(Field('phoneNumber'))),
                     Div(Div(HTML("Client Email"), css_class='form-label'),
                         Div(Field('email'))),
-                    Div(Div(HTML("Introducer or Advisor"), css_class='form-label'),
-                        Div(Field('adviser'))),
                     HTML("<br>"),
                     Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Borrower(s)"), css_class='form-header'),
                     Div(Div(HTML("Single or Joint Borrowers"), css_class='form-label'),
@@ -151,10 +149,10 @@ class CaseDetailsForm(forms.ModelForm):
                         Div(Field('age_1'))),
                     Div(Div(HTML("Surname*"), css_class='form-label'),
                         Div(Field('surname_1'))),
-                    Div(Div(HTML("Preferred Name"), css_class='form-label'),
-                        Div(Field('preferredName_1'))),
                     Div(Div(HTML("Firstname*"), css_class='form-label'),
                         Div(Field('firstname_1'))),
+                    Div(Div(HTML("Preferred Name"), css_class='form-label'),
+                        Div(Field('preferredName_1'))),
                     Div(Div(HTML("Middlename"), css_class='form-label'),
                         Div(Field('middlename_1'))),
                     Div(Div(HTML("Salutation*"), css_class='form-label'),
@@ -172,10 +170,10 @@ class CaseDetailsForm(forms.ModelForm):
                         Div(Field('age_2'))),
                     Div(Div(HTML("Surname*"), css_class='form-label'),
                         Div(Field('surname_2'))),
-                    Div(Div(HTML("Preferred Name"), css_class='form-label'),
-                        Div(Field('preferredName_2'))),
                     Div(Div(HTML("Firstname*"), css_class='form-label'),
                         Div(Field('firstname_2'))),
+                    Div(Div(HTML("Preferred Name"), css_class='form-label'),
+                        Div(Field('preferredName_2'))),
                     Div(Div(HTML("Middlename"), css_class='form-label'),
                         Div(Field('middlename_2'))),
                     Div(Div(HTML("Salutation*"), css_class='form-label'),
@@ -188,7 +186,15 @@ class CaseDetailsForm(forms.ModelForm):
                         Div(Field('maritalStatus_2'))),
                     css_class="col-lg-6"),
 
+
+
                 Div(
+                    Div(HTML("<i class='far fa-handshake'></i>&nbsp;&nbsp;Broker"), css_class='form-header'),
+                    Div(Div(HTML("Broker Name*"), css_class='form-label'),
+                        Div(Field('adviser'))),
+                    Div(Div(HTML("Credit Rep Number*"), css_class='form-label'),
+                        Div(Field('referralRepNo'))),
+                    HTML("<br>"),
                     Div(HTML("<i class='fas fa-home'></i>&nbsp;&nbsp;Property"), css_class='form-header'),
                     Div(Div(HTML("Postcode*"), css_class='form-label'),
                         Div(Field('postcode'))),
@@ -204,18 +210,6 @@ class CaseDetailsForm(forms.ModelForm):
                         Div(Field('valuation'))),
                     Div(Div(HTML("Mortgage Debt"), css_class='form-label'),
                         Div(Field('mortgageDebt'))),
-
-                    Div(HTML("<i class='fas fa-piggy-bank'></i>&nbsp;&nbsp;Super/Investments"),
-                        css_class='form-header'),
-                    Div(Div(HTML("Super or Investment Fund"), css_class='form-label'),
-                        Div(Field('superFund'))),
-                    Div(Div(HTML("Super Fund Assets"), css_class='form-label'),
-                        Div(Field('superAmount'))),
-                    Div(HTML("<i class='fas fa-hand-holding-usd'></i>&nbsp;&nbsp;Pension"), css_class='form-header'),
-                    Div(Div(HTML("Pension Amount"), css_class='form-label'),
-                        Div(Field('pensionAmount'))),
-                    Div(Div(HTML("Pension Status"), css_class='form-label'),
-                        Div(Field('pensionType'))),
                     css_class="col-lg-6"),
                 css_class="row")
         ))
@@ -239,5 +233,12 @@ class CaseDetailsForm(forms.ModelForm):
                     raise forms.ValidationError("Enter property type")
                 if self.cleaned_data['valuation'] == None:
                     raise forms.ValidationError("Please enter property valuation estimate")
+
+            if self.cleaned_data['adviser'] == None:
+                raise forms.ValidationError("Enter broker name")
+
+            if not self.cleaned_data['referralRepNo']:
+                raise forms.ValidationError("Enter broker Credit Rep  Number")
+
 
 

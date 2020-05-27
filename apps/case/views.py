@@ -222,7 +222,7 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
         if initialcaseStage != caseStagesEnum.DISCOVERY.value and initialcaseStage != caseStagesEnum.MEETING_HELD.value \
                 and initialcaseStage != caseStagesEnum.APPLICATION.value:
             messages.error(self.request, "You can no longer update this Case ")
-            return super(CaseDetailView, self).form_valid(form)
+            return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': self.kwargs.get('uid')}))
 
         obj = form.save(commit=False)
 
