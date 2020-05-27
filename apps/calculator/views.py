@@ -21,6 +21,7 @@ from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, dwellingTypesEnum
 from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
+from apps.lib.site_Utilities import updateNavQueue
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.hhc_LoanProjection import LoanProjection
 from apps.enquiry.models import Enquiry
@@ -130,9 +131,8 @@ class CalcListView(LoginRequiredMixin, ListView):
         context = super(CalcListView, self).get_context_data(**kwargs)
         context['title'] = 'Web Calculator Queue'
 
-        self.request.session['webCalcQueue'] = WebCalculator.objects.queueCount()
-        self.request.session['webContQueue'] = WebContact.objects.queueCount()
-        self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
+        # Update Nav Queues
+        updateNavQueue(self.request)
 
         return context
 
@@ -275,9 +275,8 @@ class ContactListView(LoginRequiredMixin, ListView):
         context = super(ContactListView, self).get_context_data(**kwargs)
         context['title'] = 'Web Contact Queue'
 
-        self.request.session['webCalcQueue'] = WebCalculator.objects.queueCount()
-        self.request.session['webContQueue'] = WebContact.objects.queueCount()
-        self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
+        # Update Nav Queues
+        updateNavQueue(self.request)
 
         return context
 

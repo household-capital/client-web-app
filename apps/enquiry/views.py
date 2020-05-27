@@ -33,7 +33,8 @@ from apps.lib.site_Logging import write_applog
 from apps.lib.api_Pdf import pdfGenerator
 from .forms import EnquiryForm, EnquiryDetailForm, EnquiryCloseForm, EnquiryAssignForm
 from .models import Enquiry
-from apps.servicing.models import FacilityEnquiry
+from apps.lib.site_Utilities import updateNavQueue
+
 
 
 # VIEWS
@@ -117,10 +118,8 @@ class EnquiryListView(LoginRequiredMixin, ListView):
         if self.bool_convert(self.request.GET.get('recent')):
             context['recent'] = True
 
-        self.request.session['webCalcQueue'] = WebCalculator.objects.queueCount()
-        self.request.session['webContQueue'] = WebContact.objects.queueCount()
-        self.request.session['enquiryQueue'] = Enquiry.objects.queueCount()
-        self.request.session['loanEnquiryQueue'] = FacilityEnquiry.objects.queueCount()
+        # Update Nav Queues
+        updateNavQueue(self.request)
 
         return context
 
