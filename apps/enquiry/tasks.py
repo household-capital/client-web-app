@@ -201,7 +201,6 @@ def createSFLead(enqUID, sfAPIInstance=None):
                 return {"status": "Error", 'responseText':'Internal email re:' + str(enquiry.email)}
 
         payload = __buildLeadPayload(enquiry)
-        payload['CreatedDate'] = enquiry.timestamp.strftime("%Y-%m-%d")
 
         if enquiry.name:
             write_applog("INFO", 'Enquiry', 'Tasks-createSFLead',"Attempting:"+str(enquiry.name))
@@ -319,6 +318,8 @@ def __buildLeadPayload(enquiry):
         # Ensure Boolean fields are not null
         if app_field in BooleanList and not enquiryDict[app_field]:
             payload[sf_field] = False
+
+    payload['CreatedDate'] = enquiry.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     # Ensure name fields populated
     if not enquiryDict['name']:

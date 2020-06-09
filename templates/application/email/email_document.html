@@ -1,0 +1,24 @@
+{% extends 'application/email/email_template.html' %}
+{% load humanize %}
+{% load static %}
+
+
+{% block email_content %}
+
+<p><b>Application Document </b></p>
+
+<br>
+    <p>The following document was received via the online application process</p>
+    <br>
+
+    <p>Client Surname: {{ appObj.surname_1 }}</p>
+    <p>Client Postcode: {{ appObj.postcode|stringformat:"d" }}</p>
+    <p>Document Type: {{ docObj.enumDocumentType }}</p>
+    <p>File Type: {{ docObj.mimeType }}</p>
+    <br>
+    <p>The Client App</p>
+
+
+{% endblock %}
+
+

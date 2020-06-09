@@ -33,8 +33,6 @@ urlpatterns = [
     path('pdfLoanVariationSummary/<uuid:uid>', views.PdfLoanVariationSummary.as_view(), name='pdfLoanVariationSummary'),
     path('createLoanVariationSummary/<uuid:uid>', views.CreateLoanVariationSummary.as_view(), name='createLoanVariationSummary'),
 
-    path('test/<uuid:uid>', views.Test.as_view(), name='test'),
-
 ]
 
 

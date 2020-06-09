@@ -1,3 +1,5 @@
+import magic
+
 # Django Imports
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -84,7 +86,7 @@ def updateNavQueue(request):
     request.session['webContQueue'] = WebContact.objects.queueCount()
     request.session['enquiryQueue'] = Enquiry.objects.queueCount()
     request.session['loanEnquiryQueue'] = FacilityEnquiry.objects.queueCount()
-    request.session['referrerQueue'] = Case.objects.referrerQueueCount()
+    request.session['referrerQueue'] = Case.objects.queueCount()
 
     # Servicing
     recItems = Facility.objects.filter(amalReconciliation=False, settlementDate__isnull=False).count()
@@ -107,18 +109,46 @@ def firstNameSplit(str):
         return str
 
 
-def sendTemplateEmail(template_name, email_context, subject, from_email, to, cc=None, bcc=None):
+def sendTemplateEmail(template_name, email_context, subject, from_email, to, cc=None, bcc=None, attachments=None):
     text_content = "Email Message"
     html = get_template(template_name)
     html_content = html.render(email_context)
     msg = EmailMultiAlternatives(subject, text_content, from_email, to=ensureList(to), bcc=ensureList(bcc),
                                  cc=ensureList(cc))
     msg.attach_alternative(html_content, "text/html")
+
+    #Attached files (if present) - list of tuples (filename, file location)
+    if attachments:
+        for attachment in attachments:
+            msg = attachFile(msg,attachment[0],attachment[1])
+
     try:
         msg.send()
         return True
     except:
         return False
+
+def attachFile(msg, filename, fileLocation):
+
+    localfile = open(fileLocation, 'rb')
+    fileContents = localfile.read()
+    mimeType = magic.from_buffer(fileContents,mime=True)
+    msg.attach(filename, fileContents, mimeType)
+
+    return msg
+
+
+def getFileFieldMimeType(fieldObj):
+
+    if hasattr(fieldObj, 'temporary_file_path'):
+        # file is temporary on the disk, so we can get full path of it
+        mime_type = magic.from_file(fieldObj.temporary_file_path(), mime=True)
+    else:
+        # file is in memory
+        mime_type = magic.from_buffer(fieldObj.read(), mime=True)
+
+    return mime_type
+
 
 
 def ensureList(sourceItem):
@@ -159,7 +189,9 @@ def validateLoanGetContext(caseUID):
 
         maxLVR=loanStatus['data']['maxLVR'],
         actualLVR=loanStatus['data']['actualLVR'],
-        detailedTitle=loanStatus['data']['detailedTitle']
+        detailedTitle=loanStatus['data']['detailedTitle'],
+
+        isLowLVR = loanStatus['data']['isLowLVR']
     )
 
     #Save Variation Amount
@@ -199,9 +231,9 @@ def validateApplicationGetContext(appUID):
 
     # extend appDict with purposes
     appDict.update(serialisePurposes(appObj))
-    # also provide purposes dictonary
-    purposes = appObj.get_purposes()
 
+    # also provide purposes dictionary
+    purposes = appObj.get_purposes()
 
     # validate app
     loanVal = LoanValidator(appDict)
@@ -223,6 +255,7 @@ def validateApplicationGetContext(appUID):
 
         maxLVR=loanStatus['data']['maxLVR'],
         actualLVR=loanStatus['data']['actualLVR'],
+        isLowLVR = loanStatus['data']['isLowLVR']
     )
 
     # create context
@@ -436,13 +469,13 @@ def getEnquiryProjections(enqUID):
     context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
 
     # Set initial values (given this is an under-specified enquiry)
-    if obj.productType == productTypesEnum.INCOME.value:
+    if obj.productType == productTypesEnum.SINGLE_INCOME.value:
         # Income Loan Override
 
-        if obj.calcDrawdown == None or obj.calcDrawdown == 0:
+        if obj.calcTotal == None or obj.calcTotal == 0:
             topUpIncomeAmount = context['maxDrawdownMonthly']
         else:
-            topUpIncomeAmount = obj.calcDrawdown
+            topUpIncomeAmount = obj.calcTotal
 
         context['topUpIncomeAmount'] = topUpIncomeAmount
         context['topUpFrequency'] = incomeFrequencyEnum.MONTHLY.value
@@ -454,6 +487,9 @@ def getEnquiryProjections(enqUID):
 
         context['totalPlanAmount'] = int(round(context['topUpPlanDrawdowns'] * topUpIncomeAmount
                                            * (1 + LOAN_LIMITS['establishmentFee']),0))
+
+    elif obj.productType == productTypesEnum.SINGLE_LUMP_SUM_20K.value:
+        context['totalLoanAmount'] = LOAN_LIMITS['lumpSum20K']
 
     else:
         #Override the loan amount to maximum if not provided
@@ -494,3 +530,9 @@ def populateDrawdownPurpose(purposeObj):
     purposeObj.amount = purposeObj.drawdownAmount * contractDrawdowns
 
     return purposeObj
+
+
+def cleanPhoneNumber(phone):
+    return phone.replace(" ", "").replace("(", "").replace(")", "").replace("+61", "0").replace("-", "")
+
+

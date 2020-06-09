@@ -3,6 +3,7 @@ import logging
 import os
 import io
 import json
+from datetime import datetime
 
 from collections import OrderedDict
 
@@ -23,8 +24,10 @@ class apiSalesforce():
                           "Select Id,Name,StageName,CloseDate from Opportunity where RecordType.Name != \'Distribution\' and StageName=\'Loan Approved\' and isDeleted=False",
                       'Opportunity':
                           "Select Id,Name,StageName,CloseDate, OwnerId, Establishment_Fee_Percent__c from Opportunity where Id=\'{0}\'",
+                      'OpportunityPropertyLink':
+                          "Select Property__c from OpportunityPropertyLink__c where Opportunity__c=\'{0}\'",
                       'Properties':
-                          "Select Id, Name, Street_Address__c,Suburb_City__c,State__c,Postcode__c,Country__c, Property_Type__c, Last_Valuation_Date__c, Home_Value_AVM__c, Home_Value_FullVal__c, Valuer__c, Valuer_Name__c, Insurer__c, Policy_Number__c, Minimum_Insurance_Value__c, Insurance_Expiry_Date__c  from Properties__c where Opportunity__c=\'{0}\' and isDeleted=False",
+                          "Select Id, Name, Street_Address__c,Suburb_City__c,State__c,Postcode__c,Country__c, Property_Type__c, Last_Valuation_Date__c, Home_Value_AVM__c, Home_Value_FullVal__c, Valuer__c, Valuer_Name__c, Insurer__c, Policy_Number__c, Minimum_Insurance_Value__c, Insurance_Expiry_Date__c  from Properties__c where Id=\'{0}\' and isDeleted=False",
                       'OpportunityDetails':
                           "Select Loan_Number__c,Name, Interest_Type__c,Establishment_Fee__c, Planned_Establishment_Fee__c, Interest_Rate__c, Loan_Settlement_Date__c, Protected_Equity_Percent__c, Distribution_Partner_Contact__c, Total_Household_Loan_Amount__c, Total_Plan_Amount__c from Opportunity where Id=\'{0}\' and isDeleted=False",
                       'Purposes':
@@ -84,6 +87,7 @@ class apiSalesforce():
                             "select Id, Category__c, Amount__c, Description__c, Drawdown_Amount__c, Drawdown_Frequency__c, Intention__c, Loan__c, Name, Notes__c, Plan_Amount__c, Plan_Period__c, TopUp_Buffer__c from Loan_Limit__c"
                       }
 
+
     def openAPI(self,production):
 
         if production == True:
@@ -113,6 +117,9 @@ class apiSalesforce():
 
             return {'status':"Error", 'responseText':errorStr}
 
+
+    # Core Query Utilities
+
     def qryToDict(self,qryName,qryParameter,prefix):
 
         responseDict={}
@@ -126,6 +133,7 @@ class apiSalesforce():
             return {'status':'Ok','data':responseDict}
         else:
             return {'status': 'Ok', 'data': None}
+
 
     def execSOQLQuery(self,qryName,qryVariable=None):
 
@@ -160,6 +168,26 @@ class apiSalesforce():
         return {'status':'Ok', 'data':resultsTable, 'rows':len(resultsTable.index)}
 
 
+    def apexCall(self, callUrl, method="GET", data=None):
+
+        apexUrl = self.sf.apex_url
+        fullUrl = apexUrl + callUrl
+        if data:
+            data = json.dumps(data)
+
+        try:
+            response = self.sf._call_salesforce(method=method, url=fullUrl, data=data )
+        except SalesforceGeneralError as err:
+            return {'status':'Error', 'responseText':err.content}
+
+        if response.status_code != 200:
+            return {'status': 'Error', "responseText": json.loads(response.content)}
+        else:
+            return {'status': 'Ok', "responseText": json.loads(response.content)}
+
+
+    # SF Create / Update / Workflow
+
     def createLead(self,leadDict):
 
         try:
@@ -170,6 +198,7 @@ class apiSalesforce():
             return {'status':'Error', 'responseText':err.content[0]}
         except:
             return {'status':'Error','responseText':'Unknown' }
+
 
     def updateLead(self,leadID,leadDict):
         try:
@@ -182,6 +211,49 @@ class apiSalesforce():
             return {'status':'Error','responseText':'Unknown' }
 
 
+    def updateLoanID(self, oppID, AMAL_loanId):
+        '''Update LoanID on Opportunity and Loan Object'''
+        if len(oppID)<5 or len(AMAL_loanId)<5:
+            return {'status':'Error' , "responseText":"ID not valid"}
+        else:
+            #Update Opportunity
+            self.sf.Opportunity.update(oppID,{"Loan_ID__c": AMAL_loanId})
+
+            #Update Loan Object
+            loanObj = self.qryToDict('LoanLink', oppID, "Loan")['data']
+
+            if loanObj:
+                loanID = loanObj['Loan.Loan__c']
+                self.sf.Loan__c.update(loanID, {"Status__c": "Active",
+                                                "Mortgage_Number__c": AMAL_loanId,
+                                                "Date_Lixi_Sent__c": datetime.now().strftime("%Y-%m-%d")})
+        return {'status':'Ok' }
+
+
+    def updateOpportunity(self, oppID, oppDict):
+        try:
+            result = self.sf.Opportunity.update(oppID, oppDict)
+            return {'status': 'Ok', 'data': result}
+
+        except SalesforceMalformedRequest as err:
+            return {'status': 'Error', 'responseText': err.content[0]}
+        except:
+            return {'status': 'Error', 'responseText': 'Unknown'}
+
+
+    def updateLoan(self, loanID, loanDict):
+        try:
+            result = self.sf.Loan__c.update(loanID, loanDict)
+            return {'status': 'Ok', 'data': result}
+
+        except SalesforceMalformedRequest as err:
+            return {'status': 'Error', 'responseText': err.content[0]}
+        except:
+            return {'status': 'Error', 'responseText': 'Unknown'}
+
+
+    # SF Opportunity Extract
+
     def getOpportunityExtract(self,OpportunityID):
 
         #returns full extract dictionary for specific opportunityID
@@ -190,7 +262,10 @@ class apiSalesforce():
 
         loanDict.update(self.qryToDict('Opportunity', OpportunityID, 'Opp')['data'])
 
-        loanDict.update(self.qryToDict('Properties', OpportunityID, 'Prop')['data'])
+        print(self.qryToDict('OpportunityPropertyLink', OpportunityID,'Prop'))
+        propertyID = self.qryToDict('OpportunityPropertyLink', OpportunityID,'Prop')['data']['Prop.Property__c']
+
+        loanDict.update(self.qryToDict('Properties', propertyID, 'Prop')['data'])
 
         loanDict.update(self.qryToDict('OpportunityDetails', OpportunityID, 'Loan')['data'])
 
@@ -207,7 +282,6 @@ class apiSalesforce():
         loanDict['Purp.NoPurposes'] = results['rows']
         for  index, row in results['data'].iterrows():
             loanDict.update(self.qryToDict('Purpose', row['Name'], "Purp" + str(index+1) )['data'])
-
 
         #Nested loop - multiple borrowers
 
@@ -234,9 +308,11 @@ class apiSalesforce():
 
         #Get LoanObjectID (Using Opportunity Link Table)
         loanObj = self.qryToDict('LoanLink', OpportunityID, "Loan")['data']
-        loanDict['LoanObject.SFID'] = loanObj['Loan.Loan__c']
-        loanObj = self.qryToDict('LoanObjectDetails',loanDict['LoanObject.SFID'], "Loan")['data']
-        loanDict['LoanObject.LoanNumber'] = loanObj['Loan.LoanNumber__c']
+        if loanObj:
+            loanDict['LoanObject.SFID'] = loanObj['Loan.Loan__c']
+            loanObj = self.qryToDict('LoanObjectDetails',loanDict['LoanObject.SFID'], "Loan")['data']
+            loanDict['LoanObject.LoanNumber'] = loanObj['Loan.LoanNumber__c']
+
         return {'status':"Ok", "data":loanDict}
 
 
@@ -259,6 +335,9 @@ class apiSalesforce():
         #returns a list of stages by sfLoanID
         amountList = self.execSOQLQuery('AmountCheckList', None)
         return amountList
+
+
+    # Loan Object Extract
 
     def getLoanObjList(self):
         # returns a list of LoanObjs (excluding inactive)
@@ -295,6 +374,9 @@ class apiSalesforce():
         list = self.execSOQLQuery('LoanObjectPurposes', None)
         return list
 
+
+    # Document Extract
+
     def getDocumentFileStream(self, documentID):
         # Multi-call approach as SF has restrictions on calling the link table
 
@@ -318,50 +400,16 @@ class apiSalesforce():
             return {'status': 'Ok', 'data': io.BytesIO(response.content)}
 
 
-    def updateLoanID(self, oppID, AMAL_loanId):
-        '''Update LoanID on Opportunity and Loan Object'''
-        if len(oppID)<5 or len(AMAL_loanId)<5:
-            return {'status':'Error' , "responseText":"ID not valid"}
-        else:
-            #Update Opportunity
-            self.sf.Opportunity.update(oppID,{"Loan_ID__c": AMAL_loanId})
-
-            #Update Loan Object
-            loanObj = self.qryToDict('LoanLink', oppID, "Loan")['data']
-
-            if loanObj:
-                loanID = loanObj['Loan.Loan__c']
-                self.sf.Loan__c.update(loanID, {"Status__c": "Active"})
-                self.sf.Loan__c.update(loanID, {"Mortgage_Number__c": AMAL_loanId})
-
-        return {'status':'Ok' }
+    # Class Utilities
 
     def updateLoanData(self,sfID,srcDict):
         for item, value in srcDict.items():
             self.sf.Loan__c.update(sfID, {item: value})
         return {'status': 'Ok'}
 
-
     def setResultsPrefix(self, prefix):
         self.resultsPrefix=prefix
 
-
-    def apexCall(self, callUrl, method="GET", data=None):
-
-        apexUrl = self.sf.apex_url
-        fullUrl = apexUrl + callUrl
-        if data:
-            data = json.dumps(data)
-
-        try:
-            response = self.sf._call_salesforce(method=method, url=fullUrl, data=data )
-        except SalesforceGeneralError as err:
-            return {'status':'Error', 'responseText':err.content}
-
-        if response.status_code != 200:
-            return {'status': 'Error', "responseText": json.loads(response.content)}
-        else:
-            return {'status': 'Ok', "responseText": json.loads(response.content)}
 
     def __getContentDocumentID(self,LinkID):
         #returns link ID to Content Version table

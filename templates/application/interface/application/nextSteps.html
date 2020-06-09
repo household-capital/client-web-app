@@ -1,0 +1,90 @@
+{% extends 'application/base/base_app.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block message_display %}
+    <div class="container">
+        {% if messages %}
+            <div id='messages' class="row justify-content-md-center pt-2">
+                <div class="col-6 text-center">
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %}
+                            class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 pb-3">
+                <br>
+                <div class="secondary_title">{{ subtitle }}</div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10 pb-3">
+
+                <div class="row justify-content-center">
+                <div class="col-lg-4 col-md-6 col-xs-12 d-flex align-items-stretch pb-5">
+                    <div class="card">
+                        <div class="btn btn-square-choice-hhcLightBlue active text-left">
+                            <i class="pl-2 fas fa-users-cog fa-lg"></i> <b> &nbsp;Assessment</b>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">We have sent you an email summarising next steps:</p>
+                           <ul>
+                               <li>sourcing additional financial information and identification</li>
+                               <li>a phone discussion with one our retirement specialists</li>
+                               <li>a home valuation (which we organise)</li>
+                           </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-xs-12 d-flex align-items-stretch pb-5">
+                    <div class="card">
+                        <div class="btn btn-square-choice-hhcLightBlue active text-left">
+                            <i class="fas fa-edit fa-lg"></i>  <b> &nbsp; Documentation</b>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">When your loan is approved, our solicitors provide loan documentation for you to sign</p>
+                            <br>
+                                    <p class="card-text">We require you to seek independent legal advice on the loan documentation </p>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-xs-12 d-flex align-items-stretch pb-5">
+
+                    <div class="card">
+                        <div class="btn btn-square-choice-hhcLightBlue active text-left">
+                            <i class="far fa-house-day fa-lg"></i><b> &nbsp;Payment</b>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">{{ paymentText }}</p>
+                        </div>
+                    </div>
+                </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends 'application/base/base_app.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div id='messages' class="row justify-content-md-center">
+                <div class="col-6 text-center">
+                    <br>
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %}
+                            class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 pb-3">
+            <br>
+            <div class="secondary_title">{{ subtitle }}</div>
+
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+
+            {% crispy form %}
+
+        </div>
+
+
+        <div class="col-lg-5 pb-3">
+
+            <div class="row ">
+                <div class="col-lg-12 text-left">
+
+                    <p class=" pb-3 text-left"><b>Second applicant types</b>
+                    </p>
+
+                    <div class="row no-gutters">
+                        <div class="col-1 text-center align-self-start text-warning pr-1">
+                            <span><i class="far fa-arrow-alt-circle-right fa-lg"></i></span>
+                        </div>
+                        <div class="col-11 align-self-center"><p> Borrower - joint owner of your home</p>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row no-gutters">
+                        <div class="col-1 text-center align-self-start text-warning pr-1">
+                            <span><i class="far fa-arrow-alt-circle-right fa-lg"></i></span>
+                        </div>
+                        <div class="col-11 align-self-center"><p> Nominated Occupant - not a borrower, but whom you
+                            intend to allow to live in your home and have the same rights as you to occupy the property
+                            (must be older than 60)
+                        </p>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row no-gutters">
+                        <div class="col-1 text-center align-self-start text-warning pr-1">
+                            <span><i class="far fa-arrow-alt-circle-right fa-lg"></i></span>
+                        </div>
+                        <div class="col-11 align-self-center"><p> Permitted Cohabitant - not a borrower, but whom you
+                            intend to allow to live in your home, who will not have the same rights as you to occupy the
+                            property until death (can be any age)
+                        </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+
+
+
+{% endblock %}
+
+
+
+
+{% block javascript %}
+
+{% endblock %}

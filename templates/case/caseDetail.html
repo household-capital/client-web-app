@@ -8,18 +8,18 @@
 
     <div class="container">
         {% if messages %}
-            <div class="row justify-content-md-center pt-3">
+            <div id='messages' class="row justify-content-md-center pt-3">
                 <div class="col-6 text-center">
                     {% for message in messages %}
-                        <p{% if message.tags == 'error' %} class="alert alert-danger"{% endif %}
-                                {% if message.tags == 'warning' %} class="alert alert-warning"{% endif %}
-                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
-                                {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
-                            {{ message }}</p>
+                        <div class="pb-1">
+                            <p{% if message.tags == 'error' %} class="alert alert-danger"{% endif %}
+                                    {% if message.tags == 'warning' %} class="alert alert-warning"{% endif %}
+                                    {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                    {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                                {{ message }}</p>
+                        </div>
                     {% endfor %}
-                    <br>
                 </div>
-
             </div>
 
         {% endif %}
@@ -42,39 +42,19 @@
 
     <div class="container">
 
-        <div class="row">
+        <div class="row pt-1">
 
             <div class="col-lg-8">
-
-                <br>
-
                 {% if obj.sfOpportunityID %}
                     <a href="{{ obj.get_SF_url }}" target="_blank">
-                    <p class="larger" style="color:deepskyblue"><i class="fas fa-cloud fa-lg pb-4"></i>&nbsp;
-                        Salesforce {{ obj.sfLoanID }}</p></a>
-
-                {% else %}
-
-                    {% if form.errors %}
-
-                        <i class="far fa-times-circle fa-lg btn-outline-danger">&nbsp;Form errors - refer below</i>
-                    {% else %}
-                        {% if status.status == 'Ok' %}
-                            <i class="far fa-check-circle fa-lg btn-outline-success">&nbsp;Eligible Case</i>
-                            <br><br>
-                        {% elif status.status == 'Error' %}
-                            <i class="far fa-times-circle fa-lg btn-outline-danger">&nbsp;Ineligible
-                                - {{ status.responseText }}</i>
-                            <br><br>
-                        {% endif %}
-                    {% endif %}
+                        <p class="larger pt-3 pl-3" style="color:deepskyblue"><i class="fas fa-external-link-alt"></i>&nbsp;
+                            Salesforce {{ obj.sfLoanID }}</p></a>
                 {% endif %}
-
             </div>
 
         </div>
 
-        <div class="row">
+        <div class="row pt-4">
 
             <div class="col-lg-8">
 
@@ -142,14 +122,15 @@
                                             &nbsp;<i class="far fa-calendar-alt fa-fw"></i>&nbsp;&nbsp;Book Other
                                         </a>
 
-                                        <div class="dropdown-divider"></div>
 
                                         {% if obj.appType == appTypesEnum.VARIATION.value %}
+                                            <div class="dropdown-divider"></div>
                                             <a class="dropdown-item"
                                                href="{% url 'case:caseVariation' uid=obj.caseUID %}">
                                                 &nbsp;<i class="fas fa-edit fa-fw"></i>&nbsp;&nbsp;Variation
                                             </a>
-                                        {% else %}
+                                        {% elif obj.productType == productTypesEnum.MULTI_LUMP_SUM.value %}
+                                            <div class="dropdown-divider"></div>
                                             <a class="dropdown-item" href="{% url 'client2:meeting' uid=obj.caseUID %}">
                                                 &nbsp;<i class="fas fa-users fa-fw"></i>&nbsp;&nbsp;Meeting
                                             </a>
@@ -247,22 +228,54 @@
                                     <div class="jumbotron">
 
                                         {% if obj.appType == appTypesEnum.VARIATION.value %}
-                                            <p class="large text-success"><i
-                                                    class="fas fa-edit btn-outline-success pb-4"></i>&nbsp;
+                                            <p class="badge badge-info">
                                                 Loan Variation</p>
                                         {% endif %}
-
-                                        <p class="small pb-3">Create Date: {{ obj.timestamp | date:'d M y' }}</p>
-
-                                        <p class="larger">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
-                                        <br>
-                                        {% if status.data.postcode != 'Valid' %}
-
-                                            <p><i class="fas fa-tractor fa-lg btn-outline-warning"></i>&nbsp;Refer
-                                                Postcode
-                                            </p> <br>
+                                        {% if obj.productType == productTypesEnum.SINGLE_INCOME.value %}
+                                            <p class="badge badge-info">
+                                                Income Loan</p>
                                         {% endif %}
-                                        <p class="small"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
+                                        {% if obj.productType == productTypesEnum.SINGLE_LUMP_SUM_20K.value %}
+                                            <p class="badge badge-info">
+                                                20K Top-up</p>
+                                        {% endif %}
+
+
+                                        {% if isLowLVR %}
+                                            <p class="badge badge-warning">
+                                                Low LVR</p>
+                                        {% endif %}
+
+                                        <p class="small pt-2 pb-2">Create Date: {{ obj.timestamp | date:'d M y' }}</p>
+
+
+                                        <p class="small pt-4 pb-2"><i class="fas fa-users-cog fa-fw"></i>&nbsp;
+                                            Validation</p>
+
+                                        {% if status.errors %}
+                                            <p class="text-danger"><i
+                                                    class="far fa-times-circle fa-lg btn-outline-danger"></i>&nbsp;Validation
+                                                error - please re-open meeting
+                                            <p>
+                                        {% else %}
+                                            <p class="text-success"><i
+                                                    class="far fa-check-circle fa-lg btn-outline-success"></i>&nbsp;Eligible
+                                                Loan
+                                            </p>
+
+                                        {% endif %}
+
+                                        {% if status.data.postcode == 'Refer' %}
+
+                                            <p class="text-warning pt-2"><i
+                                                    class="fas fa-fw fa-exclamation-triangle"></i>&nbsp;Refer
+                                                Postcode
+                                            </p>
+
+                                        {% endif %}
+
+                                        <p class="small pt-4"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
+                                        <p class="small">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
 
                                         <p class="small">Max Loan is: ${{ status.data.maxLoan|intcomma }} (incl
                                             establishment fee)</p>
@@ -313,18 +326,12 @@
                                     <p><a href="/media/customerReports/{{ obj.summaryDocument.file|filename }}">Loan
                                         Summary</a>
                                     </p>{% endif %}
-                                {% if obj.privacyDocument %}
-                                    <p><a href="/media/customerReports/{{ obj.privacyDocument.file|filename }}">Privacy
-                                        Consent</a></p>{% endif %}
-                                {% if obj.electronicDocument %}
-                                    <p><a href="/media/customerReports/{{ obj.electronicDocument.file|filename }}">Electronic
-                                        Consent</a></p>{% endif %}
+                                {% if obj.applicationDocument %}
+                                    <p><a href="/media/customerReports/{{ obj.applicationDocument.file|filename }}">Application
+                                        Summary</a></p>{% endif %}
                                 {% if obj.responsibleDocument %}
                                     <p><a href="/media/customerReports/{{ obj.responsibleDocument.file|filename }}">Case
                                         Summary</a></p>{% endif %}
-                                {% if obj.dataDocument %}
-                                    <p><a href="/media/customerReports/{{ obj.dataDocument.file|filename }}">Customer
-                                        Data</a></p>{% endif %}
                                 {% if obj.dataCSV %}
                                     <p><a href="/media/customerReports/{{ obj.dataCSV.file|filename }}">Document
                                         Data File</a></p>{% endif %}
@@ -357,20 +364,27 @@
 
                             </div>
 
-                        {% elif isUpdate %}
+                        {% else %}
 
-                            <div class="row">
-                                <div class="col-lg-12">
+                            {% if isUpdate %}
 
-                                    <div class="jumbotron">
+                                <div class="row">
+                                    <div class="col-lg-12">
 
+                                        <div class="jumbotron">
 
-                                        <p class="large text-danger"><i
-                                                class="fas fa-exclamation-circle pb-4"></i>&nbsp;
-                                            Invalid Loan<br>Please re-open meeting</p>
+                                            <p class="pb-3 small"><i class="fas fa-users-cog fa-fw"></i>&nbsp;Initial
+                                                Validation</p>
+                                            <p class="text-danger"><i
+                                                    class="far fa-times-circle fa-lg btn-outline-danger"></i>&nbsp;Ineligible
+                                            <p>
+                                            <p class="pl-4 text-danger small"> {{ status.responseText }}</p>
+
+                                        </div>
+
                                     </div>
                                 </div>
-                            </div>
+                            {% endif %}
 
 
 
@@ -494,6 +508,14 @@
             })
         });
 
+        // Prevent form submission on enter
+        $('form input').keydown(function (e) {
+            if (e.keyCode == 13) {
+                e.preventDefault();
+                $(':focus').blur();
+                return false;
+            }
+        });
 
 
     </script>

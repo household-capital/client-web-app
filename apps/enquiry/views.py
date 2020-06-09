@@ -1,6 +1,7 @@
 # Python Imports
 import os
 import json
+import uuid
 from datetime import timedelta
 
 # Django Imports
@@ -9,7 +10,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMultiAlternatives
 from django.core.files import File
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.db.models import Q
 from django.template.loader import get_template
 from django.utils import timezone
@@ -23,15 +24,17 @@ from config.celery import app
 # Local Application Imports
 from apps.calculator.models import WebCalculator, WebContact
 from apps.case.models import Case
+from apps.lib.api_Mappify import apiMappify
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.hhc_LoanProjection import LoanProjection
-from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum
+from apps.lib.site_Enums import *
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Logging import write_applog
 from apps.lib.api_Pdf import pdfGenerator
-from .forms import EnquiryForm, EnquiryDetailForm, EnquiryCloseForm, EnquiryAssignForm, EnquiryCallForm
+from .forms import EnquiryForm, EnquiryDetailForm, EnquiryCloseForm, EnquiryAssignForm, EnquiryCallForm, \
+    AddressForm
 from .models import Enquiry
-from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, getEnquiryProjections, updateNavQueue
+from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, getEnquiryProjections, updateNavQueue, cleanPhoneNumber
 
 
 
@@ -72,7 +75,7 @@ class EnquiryListView(HouseholdLoginRequiredMixin, ListView):
         if self.request.GET.get('action')=="True":
             queryset=super(EnquiryListView, self).get_queryset().filter(user__isnull=True)
 
-        queryset = queryset.order_by('-updated')
+        queryset = queryset.order_by('-updated')[:160]
 
         if self.request.GET.get('recent')=="True":
             queryset=super(EnquiryListView, self).get_queryset().order_by('-updated')[:100]
@@ -124,15 +127,26 @@ class EnquiryCreateView(HouseholdLoginRequiredMixin, CreateView):
         context = super(EnquiryCreateView, self).get_context_data(**kwargs)
         context['title'] = 'New Enquiry'
         context['newEnquiry'] = True
+
+        # Pass address form
+        context['address_form'] = AddressForm()
+        #Ajax URl
+        context['ajaxURL'] = reverse_lazy("enquiry:addressComplete")
+
+
         return context
 
     def form_valid(self, form):
         clientDict = form.cleaned_data
         obj = form.save(commit=False)
 
+        if obj.phoneNumber:
+            obj.phoneNumber = form.cleaned_data['phoneNumber']
+
         loanObj = LoanValidator(clientDict)
         chkOpp = loanObj.validateLoan()
 
+        print(chkOpp)
         if obj.user == None and self.request.user.profile.calendlyUrl:
             obj.user = self.request.user
 
@@ -178,15 +192,22 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, UpdateView):
         obj = queryset.get()
         context['obj'] = obj
         context['isUpdate'] = True
+        context['productTypesEnum'] = productTypesEnum
 
+        # Pass Calendly information
         paramStr = "?name="+(obj.name if obj.name else '') + "&email=" + \
                    (obj.email if obj.email else '')
-
         if obj.user:
+
             if obj.user.profile.calendlyUrl:
                 context['calendlyUrl'] = obj.user.profile.calendlyUrl + paramStr
         else:
             context['calendlyUrl'] = ""
+
+        # Pass address form
+        context['address_form'] = AddressForm()
+        # Ajax URl
+        context['ajaxURL'] = reverse_lazy("enquiry:addressComplete")
 
         return context
 
@@ -194,19 +215,11 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, UpdateView):
         clientDict = form.cleaned_data
         obj = form.save(commit=False)
 
+        if obj.phoneNumber:
+            obj.phoneNumber = cleanPhoneNumber(form.cleaned_data['phoneNumber'])
+
         loanObj = LoanValidator(clientDict)
         chkOpp = loanObj.validateLoan()
-
-        calcTotal = 0
-        purposeList = ['calcTopUp', 'calcRefi', 'calcLive', 'calcGive', 'calcCare']
-
-        for purpose in purposeList:
-            if form.cleaned_data[purpose]:
-                setattr(obj, purpose, form.cleaned_data[purpose])
-                setattr(obj, purpose.replace('calc', 'is'), True)
-                calcTotal += int(form.cleaned_data[purpose])
-
-        obj.calcTotal = calcTotal
 
         if obj.user == None and self.request.user.profile.calendlyUrl:
             obj.user = self.request.user
@@ -229,9 +242,9 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': str(obj.enqUID)}))
 
 
-# Enquiry Detail View
+# Enquiry Call View
 class EnquiryCallView(HouseholdLoginRequiredMixin, CreateView):
-    template_name = "enquiry/enquiry.html"
+    template_name = "enquiry/enquiryCall.html"
     form_class = EnquiryCallForm
     model = Enquiry
 
@@ -243,14 +256,45 @@ class EnquiryCallView(HouseholdLoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
+
+        if self.request.is_ajax():
+            phoneNumberExists = None
+            postcodeStatus = None
+
+            if form.cleaned_data['phoneNumber']:
+                qs=Enquiry.objects.filter(phoneNumber=form.cleaned_data['phoneNumber']).exclude(actioned=-1)
+                if qs.count()>0:
+                    phoneNumberExists = True
+
+            if form.cleaned_data['postcode']:
+                obj = LoanValidator({})
+                result = obj.checkPostcode('3199')
+                print("hello", result)
+                postcodeStatus = obj.checkPostcode(form.cleaned_data['postcode'])
+
+            payload = {"success": {'phoneNumberExists':phoneNumberExists, 'postcodeStatus':postcodeStatus }}
+
+            return HttpResponse(json.dumps(payload), content_type='application/json', status=200)
+
         obj = form.save(commit = False)
+        obj.status = 0
         obj.referrer = directTypesEnum.PHONE.value
+        if obj.phoneNumber:
+            obj.phoneNumber = cleanPhoneNumber(form.cleaned_data['phoneNumber'])
+        if self.request.user.profile.calendlyUrl:
+            obj.user = self.request.user
         obj.save()
 
+
         if 'submit' in form.data:
+            #Continue to enquiry
             return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': str(obj.enqUID)}))
         else:
-            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryList'))
+            #Mark enquiry closed
+            obj.closeReason=closeReasonEnum.CALL_ONLY.value
+            obj.closeDate=timezone.now()
+            obj.save()
+            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryCall'))
 
 # Enquiry Delete View (Delete View)
 class EnquiryDeleteView(HouseholdLoginRequiredMixin, View):
@@ -424,7 +468,7 @@ class EnquiryEmailEligibility(HouseholdLoginRequiredMixin, TemplateView):
 
 
 class EnquiryCloseFollowUp(HouseholdLoginRequiredMixin, UpdateView):
-    template_name = 'enquiry/enquiry.html'
+    template_name = 'enquiry/enquiryOther.html'
     form_class = EnquiryCloseForm
     model = Enquiry
 
@@ -498,10 +542,14 @@ class EnquiryConvert(HouseholdLoginRequiredMixin, View):
         caseDict['firstname_1'] = firstname
         caseDict['surname_1'] = surname
         caseDict['adviser'] = enq_obj.enumReferrerType()
+        caseDict['enqUID'] = enq_obj.enqUID
+        caseDict['enquiryCreateDate'] = enq_obj.timestamp
+        caseDict['street'] = enq_obj.streetAddress
+
         user = self.request.user
 
-        copyFields = ['loanType', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode', 'email', 'phoneNumber',
-                      'sfLeadID']
+        copyFields = ['loanType', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode', 'suburb','state', 'email', 'phoneNumber',
+                      'sfLeadID', 'productType']
         for field in copyFields:
             caseDict[field] = enqDict[field]
 
@@ -552,7 +600,7 @@ class EnquiryOwnView(HouseholdLoginRequiredMixin, View):
 
 
 class EnquiryAssignView(HouseholdLoginRequiredMixin, UpdateView):
-    template_name = 'enquiry/enquiry.html'
+    template_name = 'enquiry/enquiryOther.html'
     email_template_name='enquiry/email/email_assign.html'
     form_class = EnquiryAssignForm
     model = Enquiry
@@ -603,7 +651,22 @@ class EnquiryAssignView(HouseholdLoginRequiredMixin, UpdateView):
 # UNAUTHENTICATED VIEWS
 class EnqSummaryPdfView(TemplateView):
     # Produce Summary Report View (called by Api2Pdf)
-    template_name = 'enquiry/document/calculator_summary.html'
+    template_name = None
+
+    def get(self, request, *args, **kwargs):
+        enqUID = str(kwargs['uid'])
+        obj = Enquiry.objects.queryset_byUID(enqUID).get()
+
+        if obj.productType == productTypesEnum.SINGLE_INCOME.value:
+            self.template_name = 'enquiry/document/calculator_income_summary.html'
+
+        elif obj.productType == productTypesEnum.SINGLE_LUMP_SUM_20K.value:
+            self.template_name = 'enquiry/document/calculator_summary_single_20K.html'
+
+        else:
+            self.template_name = 'enquiry/document/calculator_summary.html'
+
+        return super(EnqSummaryPdfView,self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(EnqSummaryPdfView, self).get_context_data(**kwargs)
@@ -616,17 +679,29 @@ class EnqSummaryPdfView(TemplateView):
 
         return context
 
-class EnqIncomeSummaryPdfView(TemplateView):
-    # Produce Summary Report View (called by Api2Pdf)
-    template_name =  'enquiry/document/calculator_income_summary.html'
 
-    def get_context_data(self, **kwargs):
-        context = super(EnqIncomeSummaryPdfView, self).get_context_data(**kwargs)
 
-        enqUID = str(kwargs['uid'])
+# AJAX Views
 
-        # Projection Results (site.utilities)
-        projectionContext = getEnquiryProjections(enqUID)
-        context.update(projectionContext)
+class AddressComplete(HouseholdLoginRequiredMixin, View):
+    form_class = AddressForm
+    def post(self, request, *args, **kwargs):
+        #Ajax View - provides auto address complete list using Mappify
 
-        return context
+        form = self.form_class(request.POST)
+
+        if form.is_valid():
+            address = form.cleaned_data['lookup_address']
+
+            api = apiMappify()
+            result = api.autoComplete(address)
+            # Split street address component
+            for item in result:
+                item['streetComponent'], remainder = item['streetAddress'].rsplit(",", 1)
+                item['stateCode'] = stateTypesEnum[item['state']].value
+
+            return HttpResponse(json.dumps(result), content_type='application/json')
+        else:
+            return HttpResponse(json.dumps({"error": "Form Invalid"}), content_type='application/json', status=400)
+
+

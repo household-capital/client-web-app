@@ -12,8 +12,10 @@
             <p class="print-text">You have chosen a regular drawdown plan to supplement your income. </p>
 
 
-            <p class="print-text">Under the plan, you will drawdown your loan in {{ purposes.TOP_UP.REGULAR_DRAWDOWN.enumDrawdownFrequency }}
-                instalments of ${{ purposes.TOP_UP.REGULAR_DRAWDOWN.drawdownAmount }} over a period of {{ purposes.TOP_UP.REGULAR_DRAWDOWN.planPeriod }} years.</p>
+            <p class="print-text">Under the plan, you will drawdown your loan
+                in {{ purposes.TOP_UP.REGULAR_DRAWDOWN.enumDrawdownFrequency }}
+                instalments of ${{ purposes.TOP_UP.REGULAR_DRAWDOWN.drawdownAmount }} over a period
+                of {{ purposes.TOP_UP.REGULAR_DRAWDOWN.planPeriod }} years.</p>
         {% endif %}
 
         {% if purposes.CARE.REGULAR_DRAWDOWN.amount %}
@@ -21,8 +23,10 @@
             <p class="print-text">You have chosen a regular drawdown plan to help fund care expenses. </p>
 
 
-            <p class="print-text">Under the plan, you will drawdown your loan in {{ purposes.CARE.REGULAR_DRAWDOWN.enumDrawdownFrequency }}
-                instalments of ${{ purposes.CARE.REGULAR_DRAWDOWN.drawdownAmount }} over a period of {{ purposes.CARE.REGULAR_DRAWDOWN.planPeriod }} years. </p>
+            <p class="print-text">Under the plan, you will drawdown your loan
+                in {{ purposes.CARE.REGULAR_DRAWDOWN.enumDrawdownFrequency }}
+                instalments of ${{ purposes.CARE.REGULAR_DRAWDOWN.drawdownAmount }} over a period
+                of {{ purposes.CARE.REGULAR_DRAWDOWN.planPeriod }} years. </p>
         {% endif %}
 
 
@@ -100,34 +104,35 @@
     </div>
 
     <div class="row justify-content-md-center align-items-end">
-            <div class="col-lg-12">
-                <div class="row">
-                    <div class="col-lg-2 text-right">
-                    </div>
-                    <div class="col-lg-2 text-center">
-                        <p class="">Now</p>
-                        <p class="">Age {{ resultsAge.0 }}</p>
-                    </div>
-                    <div class="col-lg-2 text-center">
-                        <p class="">In 5 years</p>
-                        <p class="">Age {{ resultsAge.1 }}</p>
-                    </div>
-                    <div class="col-lg-2 text-center ">
-                        <p class="">In 10 years</p>
-                        <p class="">Age {{ resultsAge.2 }}</p>
-                    </div>
-                    <div class="col-lg-2 text-center">
-                        <p class="">In 15 years</p>
-                        <p class="">Age {{ resultsAge.3 }}</p>
-                    </div>
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="col-lg-2 text-right">
+                </div>
+                <div class="col-lg-2 text-center">
+                    <p class="">Now</p>
+                    <p class="">Age {{ resultsAge.0 }}</p>
+                </div>
+                <div class="col-lg-2 text-center">
+                    <p class="">In 5 years</p>
+                    <p class="">Age {{ resultsAge.1 }}</p>
+                </div>
+                <div class="col-lg-2 text-center ">
+                    <p class="">In 10 years</p>
+                    <p class="">Age {{ resultsAge.2 }}</p>
+                </div>
+                <div class="col-lg-2 text-center">
+                    <p class="">In 15 years</p>
+                    <p class="">Age {{ resultsAge.3 }}</p>
                 </div>
             </div>
         </div>
+    </div>
 
     <div class="row justify-content-md-center align-items-end">
         <br>
         <p class="small">Note: We will review your regular payment plan on an annual basis. We do not guarantee that you
-            will be able to borrow planned amounts in future years. Specifically, we may elect not to provide progressive
+            will be able to borrow planned amounts in future years. Specifically, we may elect not to provide
+            progressive
             drawdowns after the first 12 months.</p>
         </p>
     </div>
@@ -140,6 +145,7 @@
         <li class="print-text">Initial annual pension income of ${{ annualPensionIncome |intcomma }}</li>
         <li class="print-text">Inflation rate (pension indexation) of {{ inflationRate }}% pa
         <li class="print-text">A total of ${{ totalDrawdownAmount|intcomma }} will be drawn in the first 12 months</li>
-        <li class="print-text">A total of ${{ totalDrawdownPlanAmount|intcomma }} will be drawn over the plan period</li>
+        <li class="print-text">A total of ${{ totalDrawdownPlanAmount|intcomma }} will be drawn over the plan period
+        </li>
     </div>
 </div>

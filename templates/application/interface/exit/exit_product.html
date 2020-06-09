@@ -1,0 +1,63 @@
+{% extends 'application/base/base_app.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block message_display %}
+    <div class="container">
+        {% if messages %}
+            <div id='messages' class="row justify-content-md-center pt-2">
+                <div class="col-6 text-center">
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %}
+                            class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+        </div>
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="container">
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10 pb-3">
+                <br>
+                <div class="secondary_title">Other purpose</div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-6 pb-3">
+
+                <p>{{ purpose }}</p>
+                <br>
+                <p>Household Loans can be used for many different purposes.  For example, we can help you access home equity to refinance an existing mortgage, improve your home, help others in your family or pay for home care and services</p>
+                <br>
+                <p>If you would like to explore other ways your household capital could help fund your retirement we would be delighted to assist you with this</p>
+                <br>
+                <p>We can explore this is personalised conversation with one of our Retirement Specialists by phone or video.  To get started simply press the 'contact me' below and we’ll be in touch</p>
+
+            </div>
+
+              <div class="col-lg-4 pb-3">
+              </div>
+
+
+        </div>
+    </div>
+
+{% endblock %}
+
+
+
+{% block javascript %}
+
+{% endblock %}

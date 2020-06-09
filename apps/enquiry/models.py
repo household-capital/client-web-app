@@ -13,9 +13,7 @@ from django.utils.encoding import smart_text
 from django.urls import reverse_lazy
 
 #Local Imports
-from apps.lib.site_Enums import dwellingTypesEnum, loanTypesEnum, directTypesEnum, closeReasonEnum, \
-    productTypesEnum, reasonCodeEnum, marketingTypesEnum
-
+from apps.lib.site_Enums import *
 
 class EnquiryManager(models.Manager):
 
@@ -53,9 +51,11 @@ class EnquiryManager(models.Manager):
 class Enquiry(models.Model):
 
     productTypes = (
-        (productTypesEnum.LUMP_SUM.value, "Lump Sum"),
-        (productTypesEnum.INCOME.value, "Income")
+        (productTypesEnum.MULTI_LUMP_SUM.value, "Multi Purpose Lump Sum"),
+        (productTypesEnum.SINGLE_INCOME.value, "Single Income"),
+        (productTypesEnum.SINGLE_LUMP_SUM_20K.value, "Single 20K"),
     )
+
 
     loanTypes = (
         (loanTypesEnum.SINGLE_BORROWER.value, 'Single'),
@@ -88,6 +88,7 @@ class Enquiry(models.Model):
         (closeReasonEnum.ALTERNATIVE_SOLUTION.value, 'Client Pursuing Alternative'),
         (closeReasonEnum.COMPETITOR.value, 'Client went to Competitor'),
         (closeReasonEnum.NO_CLIENT_ACTION.value, 'No further action by client'),
+        (closeReasonEnum.CALL_ONLY.value, 'Call only'),
         (closeReasonEnum.OTHER.value , 'Other')
     )
 
@@ -95,10 +96,11 @@ class Enquiry(models.Model):
         (reasonCodeEnum.NEW_BASIC_INFO.value, 'New - Basic information'),
         (reasonCodeEnum.NEW_SPECIFIC_NEED.value, 'New - Specific need'),
         (reasonCodeEnum.WRONG_NUMBER.value, 'Wrong number'),
-        (reasonCodeEnum.NUISANCE.value, 'Nuisance number'),
+        (reasonCodeEnum.NUISANCE.value, 'Nuisance call'),
         (reasonCodeEnum.OTHER.value, 'Other'),
     )
     marketingTypes = (
+        (marketingTypesEnum.WEB_SEARCH.value, "Web search"),
         (marketingTypesEnum.TV_ADVERT.value, "TV Advert"),
         (marketingTypesEnum.TV_ADVERTORIAL.value, "TV Advertorial"),
         (marketingTypesEnum.RADIO.value, "Radio"),
@@ -112,6 +114,16 @@ class Enquiry(models.Model):
 
     )
 
+    stateTypes=(
+        (stateTypesEnum.NSW.value, "NSW"),
+        (stateTypesEnum.VIC.value, "VIC"),
+        (stateTypesEnum.ACT.value, "ACT"),
+        (stateTypesEnum.QLD.value, "QLD"),
+        (stateTypesEnum.SA.value, "SA"),
+        (stateTypesEnum.WA.value, "WA"),
+        (stateTypesEnum.TAS.value, "TAS"),
+        (stateTypesEnum.NT.value, "NT"),
+    )
 
     # Identifiers
     enqUID = models.UUIDField(default=uuid.uuid4, editable=False)
@@ -135,26 +147,27 @@ class Enquiry(models.Model):
     age_1=models.IntegerField(blank=True, null=True)
     age_2 = models.IntegerField(blank=True, null=True)
     dwellingType=models.IntegerField(blank=True, null=True, choices=dwellingTypes)
-    valuation=models.IntegerField(blank=True, null=True)
+
+    # ~ Property Data
+    streetAddress = models.CharField(max_length=80, blank=True, null=True)
+    suburb = models.CharField(max_length=40, blank=True, null=True)
+    state = models.IntegerField(choices=stateTypes, null=True, blank=True)
     postcode=models.IntegerField(blank=True, null=True)
+    valuation=models.IntegerField(blank=True, null=True)
+
+    # ~ Purpose Data
     isRefi=models.BooleanField(default=False, blank=True, null=True)
     isTopUp=models.BooleanField(default=False, blank=True, null=True)
     isLive=models.BooleanField(default=False, blank=True, null=True)
     isGive=models.BooleanField(default=False, blank=True, null=True)
     isCare = models.BooleanField(default=False, blank=True, null=True)
-    calcTopUp=models.IntegerField( blank=True, null=True)
-    calcRefi=models.IntegerField(blank=True, null=True)
-    calcLive=models.IntegerField( blank=True, null=True)
-    calcGive=models.IntegerField(blank=True, null=True)
-    calcCare = models.IntegerField( blank=True, null=True)
     calcTotal=models.IntegerField(blank=True, null=True)
-    calcDrawdown = models.IntegerField(blank=True, null=True)
-    payIntAmount=models.IntegerField(blank=True, null=True)
-    payIntPeriod = models.IntegerField(blank=True, null=True)
 
     #Calculated Data
     status = models.BooleanField(default=True, blank=False, null=False)
     maxLoanAmount = models.IntegerField(blank=True, null=True)
+    maxDrawdownAmount = models.IntegerField(blank=True, null=True)
+    maxDrawdownMonthly = models.IntegerField(blank=True, null=True)
     maxLVR = models.FloatField(blank=True, null=True)
     errorText = models.CharField(max_length=40, blank=True, null=True)
     summaryDocument = models.FileField(null=True, blank=True)
@@ -169,10 +182,19 @@ class Enquiry(models.Model):
     followUpDate=models.DateField(blank=True, null=True)
     followUpNotes = models.TextField(blank=True, null=True)
     doNotMarket = models.BooleanField(default=False)
-    lossNotes=models.TextField(blank=True, null=True) #remove this
 
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+    calcTopUp=models.IntegerField( blank=True, null=True) # deprecated
+    calcRefi=models.IntegerField(blank=True, null=True)  # deprecated
+    calcLive=models.IntegerField( blank=True, null=True)  # deprecated
+    calcGive=models.IntegerField(blank=True, null=True)  # deprecated
+    calcCare = models.IntegerField( blank=True, null=True)  # deprecated
+    calcDrawdown = models.IntegerField(blank=True, null=True)  # deprecated
+    payIntAmount=models.IntegerField(blank=True, null=True)  # deprecated
+    payIntPeriod = models.IntegerField(blank=True, null=True)  # deprecated
+    lossNotes=models.TextField(blank=True, null=True)  # deprecated
 
     objects = EnquiryManager()
 
@@ -203,6 +225,10 @@ class Enquiry(models.Model):
     def enumCloseReason(self):
         if self.closeReason is not None:
             return dict(self.closeReasons)[self.closeReason]
+
+    def enumMarketingSource(self):
+        if self.marketingSource:
+            return dict(self.marketingTypes)[self.marketingSource]
 
     def __str__(self):
         return smart_text(self.email)

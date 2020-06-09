@@ -3,7 +3,7 @@
 
 LOAN_LIMITS={'minSingleAge' : 60,
              'minCoupleAge' : 60,
-             'minLoanSize' : 10000,
+             'minLoanSize' : 20000,
              'minIncomeDrawdown' : 500,
              'maxTopUp' : 500000,
              'maxCare' : 550000,
@@ -20,6 +20,7 @@ LOAN_LIMITS={'minSingleAge' : 60,
              'titleUtilTrigger': 0.60,
              'titleAmountTrigger':400000,
              'maxDrawdownYears': 1,
+             'lumpSum20K': 20000,
 }
 
 ECONOMIC={'inflationRate' :float(2.50),

@@ -13,6 +13,8 @@ from django.db.models.functions import TruncDate,TruncDay, Cast
 from django.db.models.fields import DateField
 from django.utils.timezone import get_current_timezone
 
+from apps.lib.site_Enums import *
+
 
 # WebCalculator
 
@@ -68,8 +70,35 @@ class WebManager(models.Manager):
 
 
 class WebCalculator(models.Model):
+    dwellingTypes = (
+        (dwellingTypesEnum.HOUSE.value, 'House'),
+        (dwellingTypesEnum.APARTMENT.value, 'Apartment'))
+
+
+    loanTypes=(
+        (loanTypesEnum.SINGLE_BORROWER.value,'Single'),
+        (loanTypesEnum.JOINT_BORROWER.value,'Joint')
+    )
+
+    productTypes = (
+        (productTypesEnum.MULTI_LUMP_SUM.value, "Multi Purpose Lump Sum"),
+        (productTypesEnum.SINGLE_INCOME.value, "Single Income"),
+        (productTypesEnum.SINGLE_LUMP_SUM_20K.value, "Single 20K"),
+    )
+
+    stateTypes=(
+        (stateTypesEnum.NSW.value, "NSW"),
+        (stateTypesEnum.VIC.value, "VIC"),
+        (stateTypesEnum.ACT.value, "ACT"),
+        (stateTypesEnum.QLD.value, "QLD"),
+        (stateTypesEnum.SA.value, "SA"),
+        (stateTypesEnum.WA.value, "WA"),
+        (stateTypesEnum.TAS.value, "TAS"),
+        (stateTypesEnum.NT.value, "NT"),
+    )
 
     calcUID = models.UUIDField(default=uuid.uuid4, editable=False)
+    productType = models.IntegerField(choices=productTypes, null=True, blank=True, default=0)
     referrer = models.URLField(blank=True, null=True)
 
     # Client Data
@@ -84,7 +113,7 @@ class WebCalculator(models.Model):
     # Address Data
     streetAddress = models.CharField(max_length=80, blank=True, null=True)
     suburb = models.CharField(max_length=40, blank=True, null=True)
-    state = models.CharField(max_length=20, blank=True, null=True)
+    state = models.IntegerField(choices=stateTypes, null=True, blank=True)
     postcode = models.IntegerField(blank=True, null=True)
 
     # Calculated Fields
@@ -110,10 +139,6 @@ class WebCalculator(models.Model):
     payIntAmount = models.IntegerField(blank=True, null=True)
     payIntPeriod = models.IntegerField(blank=True, null=True)
 
-    # Income fields
-    choiceOtherNeeds = models.BooleanField(blank=True, null=True)
-    choiceMortgage = models.BooleanField(blank=True, null=True)
-
     # Workflow
     actioned=models.IntegerField(default=0,blank=True, null=True)
     actionedBy=models.CharField(max_length=40,blank= True,null=True)
@@ -126,7 +151,12 @@ class WebCalculator(models.Model):
     def __str__(self):
         return smart_text(self.pk)
 
+    def enumLoanType(self):
+            if self.loanType is not None:
+                return dict(self.loanTypes)[self.loanType]
 
+    def enumDwellingType(self):
+        return dict(self.dwellingTypes)[self.dwellingType]
 
 
 # WebContact

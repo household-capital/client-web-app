@@ -254,8 +254,8 @@ class CaseListView(ReferrerLoginRequiredMixin, ListView):
             qs = qs.filter(
                 Q(caseDescription__icontains=search) |
                 Q(adviser__icontains=search) |
-                Q(user__first_name__icontains=search) |
-                Q(user__last_name__icontains=search) |
+                Q(owner__first_name__icontains=search) |
+                Q(owner__last_name__icontains=search) |
                 Q(caseNotes__icontains=search) |
                 Q(street__icontains=search) |
                 Q(surname_1__icontains=search))

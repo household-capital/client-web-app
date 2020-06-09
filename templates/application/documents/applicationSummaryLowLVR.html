@@ -1,0 +1,694 @@
+{% load static %}
+{% load humanize %}
+{% load site_tags %}
+
+<!doctype html>
+
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Other tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- CSS -->
+    {% include 'site/base.css.html' %}
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css"
+          integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
+
+
+    <title>Application Summary</title>
+</head>
+
+<body>
+
+
+<!-- PAGE 1 -->
+<div class="page">
+
+    <div class="print-container">
+
+        <div class="row pt-3 ">
+            <div class="col-sm-12  text-left">
+                <br>
+                <img src="{% static 'img/document/HC_Logo_Flat.png' %}" width="200px">
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="print-container">
+        <div class="row justify-content-center">
+            <div class="gold_underline">
+                <p class="secondary_title text-center ">Your Application Summary*</p>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="text-center">
+                <br>
+                <p class="x-large"><b>{{ productDescription }}</b></p>
+            </div>
+        </div>
+        {% if obj.productType != productTypesEnum.SINGLE_INCOME.value %}
+            <br>
+        {% endif %}
+    </div>
+
+
+    <div class="print-container">
+        <br>
+
+
+        <div class="row align-items-center justify-content-center">
+            <div class="col-lg-11 ">
+
+                <div class="row align-items-center justify-content-center ">
+                    <div class="col-lg-6">
+
+                        <p class="secondary_title pb-2">Applicant{% if obj.choiceOccupants %}s{% endif %}</p>
+                        <div class="row align-items-center justify-content-center pl-3 pt-2">
+                            <div class="col-lg-6 ">
+                                <p class="print-text">Applicant</p>
+                                <p class="print-text">Date of Birth</p>
+                                <p class="print-text">Role</p>
+
+                            </div>
+                            <div class="col-lg-6 ">
+                                <p class="print-text">{{ obj.enumSalutation.0 }} {{ obj.firstname_1 }} {{ obj.surname_1 }}</p>
+                                <p class="print-text">{{ obj.birthdate_1 }}</p>
+                                <p class="print-text">Borrower</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        {% if obj.choiceOccupants %}
+                            <button class="btn btn-light"></button>
+                            <div class="row align-items-center justify-content-center pl-1 pt-2">
+                                <div class="col-lg-6 ">
+                                    <p class="print-text">Applicant</p>
+                                    <p class="print-text">Date of Birth</p>
+                                    <p class="print-text">Role</p>
+
+                                </div>
+                                <div class="col-lg-6 ">
+                                    <p class="print-text">{{ obj.enumSalutation.1 }} {{ obj.firstname_2 }} {{ obj.surname_2 }}</p>
+                                    <p class="print-text">{{ obj.birthdate_2 }}</p>
+                                    <p class="print-text">{{ obj.enumClientType }}</p>
+                                </div>
+                            </div>
+
+                        {% endif %}
+                    </div>
+
+
+                </div>
+
+                <br>
+
+                <div class="row align-items-center justify-content-center pt-2">
+                    <div class="col-lg-6">
+
+                        <p class="secondary_title pb-2">Property</p>
+                        <div class="row align-items-center justify-content-center pl-3 pt-2">
+                            <div class="col-lg-6 ">
+                                <p class="print-text">Street address</p>
+                                <p class="print-text">Suburb</p>
+                                <p class="print-text">State</p>
+                                <p class="print-text">Postcode</p>
+                                <p class="print-text">Property type</p>
+                                <p class="print-text">Estimated valuation</p>
+
+                            </div>
+                            <div class="col-lg-6 ">
+                                <p class="print-text">{{ obj.streetAddress }}</p>
+                                <p class="print-text">{{ obj.suburb }}</p>
+                                <p class="print-text">{{ obj.enumStateType }}</p>
+                                <p class="print-text">{{ obj.postcode|stringformat:"d" }}</p>
+                                <p class="print-text">{{ obj.enumDwellingType }}</p>
+                                <p class="print-text">${{ obj.valuation|intcomma }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 "></div>
+                </div>
+
+                <br>
+            </div>
+        </div>
+
+
+        <div class="row align-items-center justify-content-center pt-2 ">
+            <div class="col-lg-11">
+
+                <p class="secondary_title pb-2">Requirements and objectives</p>
+                <div class="row align-items-center justify-content-center pl-3 pt-2">
+
+                    {% if obj.productType == productTypesEnum.SINGLE_INCOME.value %}
+                        <div class="col-lg-8 ">
+                            <p class="print-text">Are you seeking additional retirement income?</p>
+                        </div>
+                    {% else %}
+                        <div class="col-lg-8 ">
+                            <p class="print-text">Are you seeking a retirement top-up?</p>
+                        </div>
+                    {% endif %}
+
+                    <div class="col-lg-4 ">
+                        <span class="print-text-bold">{% if obj.choiceProduct %} Yes {% else %}
+                            No {% endif %}</span>
+                    </div>
+
+                    <div class="col-lg-8 pt-2">
+                        <p class="print-text">Do you require funding for other retirement purposes at this time?</p>
+                    </div>
+                    <div class="col-lg-4 ">
+                        <span class="print-text-bold">{% if obj.choiceOtherNeeds %} Yes {% else %}
+                            No{% endif %}</span>
+                    </div>
+                    <div class="col-lg-8 pt-2">
+                        <p class="print-text">Do you own you your home and are you on the title?</p>
+                    </div>
+                    <div class="col-lg-4 ">
+                        <span class="print-text-bold">{% if obj.choiceOwnership %} Yes {% else %}
+                            No {% endif %}</span>
+                    </div>
+                    <div class="col-lg-8 pt-2">
+                        <p class="print-text">Do you have an existing mortgage on your home?</p>
+                    </div>
+                    <div class="col-lg-4 pt-2">
+                        <span class="print-text-bold">{% if obj.choiceMortgage %} Yes {% else %}
+                            No {% endif %}</span>
+                    </div>
+
+                    <div class="col-lg-8 pt-2">
+                        <p class="print-text">Is there a second borrower? Or is there an other occupant that you intend
+                            to
+                            allow to live in your home?</p>
+                    </div>
+                    <div class="col-lg-4 ">
+                        <span class="print-text-bold">{% if obj.choiceOccupants %} Yes {% else %}
+                            No {% endif %}</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <br>
+
+        {% if obj.productType == productTypesEnum.SINGLE_INCOME.value %}
+            <div class="row align-items-center justify-content-center pl-3 pb-3 pt-3">
+                <div class="col-lg-11">
+                    <p class="print-text">You are seeking a regular drawdown of <span
+                            class="btn badge-form-labelBlue">${{ purpObj.drawdownAmount }}</span>
+                        <span class="btn badge-form-labelBlue">{{ purpObj.enumDrawdownFrequency|lower }}</span> for
+                        <span
+                                class="btn badge-form-labelBlue">{{ purpObj.planPeriod }} years</span></p>
+
+                </div>
+            </div>
+            <br>
+        {% endif %}
+
+    </div>
+
+
+    <div class="print-container">
+        <div class="cal_background_warm print-edge-row">
+            <div class="print-container">
+                <div class="row align-items-center justify-content-center pt-3 pb-3">
+                    <div class="col-lg-11">
+                        <p class="secondary_title pb-2">Proposed Loan</p>
+
+                        <p class="print-text pt-2 pb-1 pl-3">You are applying for a loan of:
+                        <ul class="pl-5">
+                            {% if obj.productType == productTypesEnum.SINGLE_INCOME.value %}
+                                <li class="print-text pb-1">${{ obj.purposeAmount }} (plus ${{ obj.establishmentFee }}
+                                    establishment fee) for the first 12 months;
+                                </li>
+                                <li class="print-text">${{ obj.planPurposeAmount }} (plus
+                                    ${{ obj.planEstablishmentFee }}
+                                    establishment fee) over a {{ purpObj.planPeriod }}-year plan period
+                                </li>
+
+                            {% else %}
+                                <li class="print-text pb-1">${{ obj.totalLoanAmount }}, comprised of
+                                    a ${{ obj.purposeAmount }} payment to you plus
+                                    an establishment fee of ${{ obj.establishmentFee }}
+                                </li>
+
+                            {% endif %}
+                        </ul>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br>
+    </div>
+
+    {% if obj.productType != productTypesEnum.SINGLE_INCOME.value %}
+        <br><br><br><br>
+    {% endif %}
+
+    <div class="print-container">
+
+        <div class="row justify-content-center pt-1">
+
+            <div class="col-md-10 text-center">
+
+                <br>
+                <p class="small pt-1">*This is a summary of your application and does not constitute an approval. Your
+                    application will be subject to additional information requirements, which includes a valuation and
+                    our
+                    loan approval criteria
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="print-container ">
+
+        <div class="padding-10px"></div> <!-- Document pages alignment -->
+
+        <div class="HHCBlueBackground-Printed print-edge-row">
+
+            <div class="print-container">
+
+                <div class="row">
+
+                    <div class="col-lg-3 ">
+                        <br>
+                        <p class="small text-white"><i class="far fa-envelope"></i>&nbsp;&nbsp;info@householdcapital.com
+                        </p>
+                        <p class="small text-white"><i class="fas fa-phone">&nbsp;&nbsp;</i>1 300 622 100</p>
+                        <p class="small text-white"><i class="fas fa-desktop"></i>&nbsp;&nbsp;www.householdcapital.com
+                        </p>
+                        <br>
+
+                    </div>
+                    <div class="col-lg-7 text-center pl-5 pr-5">
+                        <br>
+                        <p class="small text-white">Household Capital Pty Limited ACN 618 068 214 is the issuer of this
+                            document.
+                            Household Capital Pty Limited is a credit representative (512757) of Mortgage Direct Pty
+                            Limited ACN 075 721 434, Australian Credit Licence 391876</p>
+
+                    </div>
+                    <div class="col-lg-2 secondary_title text-center pt-2">Live Well At Home
+                        <br>
+                    </div>
+
+                </div>
+                <br>
+            </div>
+        </div>
+    </div>
+
+    <p style="page-break-before: always">
+
+</div>
+
+
+<!-- PAGE 2 -->
+<div class="page">
+
+    <div class="print-container">
+
+        <div class="row pt-3">
+            <div class="col-sm-12  text-left">
+                <br><br>
+                <img src="{% static 'img/document/HC_Logo_Flat.png' %}" width="200px">
+            </div>
+
+        </div>
+
+        <div class="row justify-content-center pt-5 pb-1">
+            <div class="col-lg-11 text-left">
+                <p class="secondary_title">Financial Information</p>
+
+                <div class="row  justify-content-center pt-3 ">
+                    <div class="col-lg-6">
+                        <p class="print-text-bold">Assets</p>
+                        <div class="row align-items-center justify-content-center ">
+                            <div class="col-lg-6">
+                                <p class="print-text">Savings/Investments</p>
+                            </div>
+                            <div class="col-lg-3 text-right">
+                                <p class="print-text">${{ obj.assetSaving }}</p>
+                            </div>
+                            <div class="col-lg-3 text-right"></div>
+                            <div class="col-lg-6">
+                                <p class="print-text">Motor Vehicles</p>
+                            </div>
+                            <div class="col-lg-3 text-right">
+                                <p class="print-text">${{ obj.assetVehicles }}</p>
+                            </div>
+                            <div class="col-lg-3 text-right"></div>
+                            <div class="col-lg-6">
+                                <p class="print-text">Other</p>
+                            </div>
+                            <div class="col-lg-3 text-right">
+                                <p class="print-text">${{ obj.assetOther }}</p>
+                            </div>
+                            <div class="col-lg-3 text-right"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <p class="print-text-bold">Liabilities</p>
+                        <div class="row align-items-center  ">
+                            <div class="col-lg-6">
+                                <p class="print-text">Home Loans</p>
+                            </div>
+                            <div class="col-lg-3 text-right">
+                                <p class="print-text">${{ obj.liabLoans }}</p>
+                            </div>
+                            <div class="col-lg-6">
+                                <p class="print-text">Credit Cards</p>
+                            </div>
+                            <div class="col-lg-3 text-right">
+                                <p class="print-text">${{ obj.liabCards }}</p>
+                            </div>
+                            <div class="col-lg-6">
+                                <p class="print-text">Other</p>
+                            </div>
+                            <div class="col-lg-3 text-right">
+                                <p class="print-text">${{ obj.liabOther }}</p>
+                            </div>
+                            <div class="col-lg-10">
+                                <hr>
+                            </div>
+                            <div class="col-lg-6">
+                                <p class="print-text">Credit Card <b>Limits</b></p>
+                            </div>
+                            <div class="col-lg-3 text-right">
+                                <p class="print-text">${{ obj.limitCards }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+
+        <div class="row justify-content-center pt-5">
+            <div class="col-lg-11 text-left">
+
+                <div class="row  justify-content-center pt-3 ">
+                    <div class="col-lg-6">
+                        <p class="print-text"><b>Home Related Expenses</b></p>
+                        <div class="row align-items-center justify-content-center no-gutters">
+                            <div class="col-lg-6">
+                                <p class="print-text">Home insurance</p>
+                            </div>
+                            <div class="col-lg-3 text-right">
+                                <p class="print-text">${{ obj.expenseHomeIns }}</p>
+                            </div>
+                            <div class="col-lg-3 text-left pl-1">
+                                <p class="small">{% modelMethod obj 'enumFreq' 'expenseHomeInsFreq' %}</p>
+                            </div>
+                            <div class="col-lg-6">
+                                <p class="print-text">Rates/body corporate</p>
+                            </div>
+                            <div class="col-lg-3 text-right">
+                                <p class="print-text">${{ obj.expenseRates }}</p>
+                            </div>
+                            <div class="col-lg-3 text-left pl-1">
+                                <p class="small">{% modelMethod obj 'enumFreq' 'expenseRatesFreq' %}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="row justify-content-center pt-5 pb-1">
+            <div class="col-lg-11 text-left">
+                <p class="secondary_title">Declarations</p>
+
+                <div class="row  justify-content-center pt-3 ">
+
+                    <div class="col-1 pb-4">
+                        <p class="text-center">1</p>
+                    </div>
+                    <div class="col-11 pb-3"><p>The information in this application form and the financial information
+                        supporting it are in
+                        all
+                        respects true and correct and complete to the best of your knowledge and belief. You acknowledge
+                        that we
+                        will rely on this information in deciding whether you are eligible for a Household Loan.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-1 pb-4">
+                        <p class="text-center">2</p>
+                    </div>
+                    <div class="col-11 pb-3"><p>We have the right to verify the details of the information provided in
+                        this
+                        application
+                    </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-1 pb-4">
+                        <p class="text-center">3</p>
+                    </div>
+                    <div class="col-11 pb-3"><p>As part of your loan agreement, you will need to be in a position to
+                        ensure your
+                        council rates
+                        are
+                        paid as and when due and your home insurance premiums and any strata levies will not fall into
+                        arrears
+                        in the future
+                    </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-1 pb-4">
+                        <p class="text-center">4</p>
+                    </div>
+                    <div class="col-11 pb-3"><p>You understand that we may contact you from time to time to confirm that
+                        you are
+                        living at
+                        home. We
+                        may also ask you questions regarding the condition of your home, insurance and rates.
+                    </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-1 pb-4">
+                        <p class="text-center">5</p>
+                    </div>
+                    <div class="col-11 pb-3"><p>You confirm that you have not been declared bankrupt in the last 20
+                        years.
+                    </p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-1 pb-4">
+                        <p class="text-center">6</p>
+                    </div>
+                    <div class="col-11 pb-3"><p>You confirm that you will seek appropriate advice relating to the impact
+                        of a
+                        Household Loan
+                        on your
+                        Centrelink benefits.
+                    </p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-1 pb-4">
+                        <p class="text-center">7</p>
+                    </div>
+                    <div class="col-11 pb-3"><p>You confirm that you have been provided and have reviewed a Household
+                        Capital Loan
+                        Summary,
+                        including
+                        your projections, our credit guide and Reverse Mortgage Information Statement.
+                    </p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-1 pb-4">
+                        <p class="text-center">8</p>
+                    </div>
+                    <div class="col-11 pb-3"><p>You confirm that you own and live at the security property.
+                    </p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-1">
+                        <p class="text-center">9</p>
+                    </div>
+                    <div class="col-11 pb-4"><p>You confirm that, other than as described in this application, there are
+                        no other occupants of the
+                        security
+                        property.
+                    </p>
+
+                    </div>
+                </div>
+                <br>
+            </div>
+        </div>
+    </div>
+    <div class="print-container ">
+
+        <div class="padding-15px">
+            <br><br><br>
+        </div> <!-- Document pages alignment -->
+
+        <div class="HHCBlueBackground-Printed print-edge-row">
+
+            <div class="print-container">
+
+                <div class="row pb-2">
+
+                    <div class="col-lg-3 ">
+                        <br>
+                        <p class="small text-white"><i class="far fa-envelope"></i>&nbsp;&nbsp;info@householdcapital.com
+                        </p>
+                        <p class="small text-white"><i class="fas fa-phone">&nbsp;&nbsp;</i>1 300 622 100</p>
+                        <p class="small text-white"><i class="fas fa-desktop"></i>&nbsp;&nbsp;www.householdcapital.com
+                        </p>
+                        <br>
+
+                    </div>
+                    <div class="col-lg-7 text-center pl-5 pr-5">
+                        <br>
+                        <p class="small text-white">Household Capital Pty Limited ACN 618 068 214 is the issuer of this
+                            document.
+                            Household Capital Pty Limited is a credit representative (512757) of Mortgage Direct Pty
+                            Limited ACN 075 721 434, Australian Credit Licence 391876</p>
+
+                    </div>
+                    <div class="col-lg-2 secondary_title text-center pt-2">Live Well At Home
+                        <br>
+                    </div>
+
+                </div>
+                <br>
+            </div>
+        </div>
+    </div>
+
+    <p style="page-break-before: always">
+    </p>
+</div>
+
+
+<!-- PAGE 3 -->
+<div class="page">
+
+    <div class="print-container">
+
+        <div class="row pt-3">
+            <div class="col-sm-12  text-left">
+                <br><br>
+                <img src="{% static 'img/document/HC_Logo_Flat.png' %}" width="200px">
+            </div>
+
+        </div>
+
+        <div class="row justify-content-center pt-5 pb-1">
+            <div class="col-lg-11 text-left">
+                <p class="secondary_title">Signatures</p>
+                <br>
+
+                <p class="print-text">By signing below, you warrant that all the information provided above is correct
+                    and you give the various consents contained in this document.</p>
+                <br>
+
+                <div class="row justify-content-center">
+                    <div class="col-lg-6 text-left">
+                        <p class="print-text">Signed electronically</p>
+                        <br>
+                        <p class="text-handwriting">{{ obj.firstname_1 }} {{ obj.surname_1 }}</p>
+                        <p class="text-handwriting">{{ obj.signingDate }}</p>
+
+                    </div>
+
+                    <div class="col-lg-6 text-left">
+                        {% if obj.clientType2 == clientTypesEnum.BORROWER.value %}
+                            <br>
+                            <br>
+                            <p class="text-handwriting">{{ obj.firstname_2 }} {{ obj.surname_2 }}</p>
+                            <p class="text-handwriting">{{ obj.signingDate }}</p>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+    </div>
+    <div class="padding-15px">
+        <br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+        <br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+        <br><br><br><br><br><br><br>
+    </div> <!-- Document pages alignment -->
+
+
+    <div class="print-container">
+        <div class="row HHCBlueBackground-Printed print-edge-row">
+
+            <div class="print-container">
+
+                <div class="row pb-2">
+
+                    <div class="col-lg-3 ">
+                        <br>
+                        <p class="small text-white"><i class="far fa-envelope"></i>&nbsp;&nbsp;info@householdcapital.com
+                        </p>
+                        <p class="small text-white"><i class="fas fa-phone">&nbsp;&nbsp;</i>1 300 622 100</p>
+                        <p class="small text-white"><i class="fas fa-desktop"></i>&nbsp;&nbsp;www.householdcapital.com
+                        </p>
+                        <br>
+
+                    </div>
+                    <div class="col-lg-7 text-center pl-5 pr-5">
+                        <br>
+                        <p class="small text-white">Household Capital Pty Limited ACN 618 068 214 is the issuer of
+                            this
+                            document.
+                            Household Capital Pty Limited is a credit representative (512757) of Mortgage Direct
+                            Pty
+                            Limited ACN 075 721 434, Australian Credit Licence 391876</p>
+
+                    </div>
+                    <div class="col-lg-2 secondary_title text-center pt-2">Live Well At Home
+                        <br>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
+

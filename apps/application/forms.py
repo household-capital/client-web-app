@@ -14,7 +14,7 @@ from crispy_forms.bootstrap import InlineRadios
 # Local Imports
 from apps.lib.site_Enums import incomeFrequencyEnum, clientTypesEnum
 
-from .models import Application, ApplicationPurposes
+from .models import Application, ApplicationPurposes, ApplicationDocuments
 
 
 def validate_string_int(value):
@@ -75,6 +75,7 @@ class TwoFactorForm(forms.Form):
     pin = forms.IntegerField(required=True)
 
     helper = FormHelper()
+    helper.form_id =" clientForm"
     helper.form_method = 'POST'
     helper.field_class = 'col-lg-12'
     helper.form_class = 'form-horizontal'
@@ -86,8 +87,6 @@ class TwoFactorForm(forms.Form):
                 Div(Div(HTML("Enter pin from SMS text message*"), css_class='form-label'),
                     Div(Field('pin'))),
 
-                Div(Div(Submit('submit', 'Enter', css_class='btn btn-warning')), css_class='text-right'),
-                Div(HTML("<br>")),
                 css_class='col-lg-10'),
             css_class="row ")
     )
@@ -138,15 +137,16 @@ class PrimaryBorrowerForm(forms.ModelForm):
 class ObjectivesForm(forms.ModelForm):
     class Meta:
         model = Application
-        fields = ['choiceIncome', 'choiceMortgage', 'choiceOtherNeeds', 'choiceOwnership', 'loanType']
+        fields = ['choiceProduct', 'choiceMortgage', 'choiceOtherNeeds', 'choiceOwnership', 'choiceOccupants']
 
     id = 'clientForm'
     booleanChoices = {(True, 'Yes'), (False, 'No')}
-    choiceIncome = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(), required=True)
+    choiceProduct = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(), required=True)
     choiceMortgage = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(), required=True)
     choiceOtherNeeds = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(), required=True)
     choiceOwnership = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(), required=True)
-    loanType = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(), required=True)
+    choiceOccupants = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(), required=True)
+
 
 
 class ApplicantForm(forms.ModelForm):
@@ -175,7 +175,7 @@ class ApplicantForm(forms.ModelForm):
     helper.layout = Layout(
         Div(
             Div(
-                Div(HTML("<p class='pb-2'><i class='fas fa-user'></i><b>&nbsp;&nbsp;Your details</b></p>")),
+                Div(HTML("<p class='pb-2'><i class='fas fa-user'></i><b>&nbsp;&nbsp;Applicant</b></p>")),
                 Row(
                     Column(
                         Div(Div(HTML("Salutation*"), css_class='form-label'),
@@ -192,7 +192,7 @@ class ApplicantForm(forms.ModelForm):
                     Div(Field('surname_1'))),
 
                 Row(
-                    Column(Div(Div(HTML("Birthdate*"), css_class='form-label'),
+                    Column(Div(Div(HTML("Birthdate* (dd/mm/yyyy)"), css_class='form-label'),
                                Div(Field('birthdate_1'))), css_class='form-group col-6'),
                     Column(Div(Div(HTML("Gender*"), css_class='form-label'),
                                Div(Field('sex_1'))), css_class='form-group col-6')),
@@ -279,7 +279,7 @@ class ApplicantTwoForm(forms.ModelForm):
                 Div(Div(HTML("Surname*"), css_class='form-label'),
                     Div(Field('surname_2'))),
                 Row(
-                    Column(Div(Div(HTML("Birthdate*"), css_class='form-label'),
+                    Column(Div(Div(HTML("Birthdate* (dd/mm/yyyy)"), css_class='form-label'),
                                Div(Field('birthdate_2'))), css_class='col-6'),
                     Column(Div(Div(HTML("Gender*"), css_class='form-label'),
                                Div(Field('sex_2'))), css_class='col-6')),
@@ -330,6 +330,12 @@ class LoanObjectivesForm(forms.ModelForm):
             Column(Field('planPeriod'), css_class='col-9')),
         Div(Field('drawdownAmount'))
     )
+
+    def clean_drawdownAmount(self):
+        if self.cleaned_data['drawdownAmount'] == 0:
+            raise ValidationError("Please select a drawdown amount")
+        else:
+            return self.cleaned_data['drawdownAmount']
 
 
 class AssetsForm(forms.ModelForm):
@@ -462,7 +468,7 @@ class IncomeForm(forms.ModelForm):
                         ), css_class='col-4')),
             Row(
                 Column(
-                    Div(Div(HTML("Savings Income"), css_class='form-label'),
+                    Div(Div(HTML("Super / Savings Income"), css_class='form-label'),
                         Div(Field('incomeSavings', css_class='text-right'))), css_class='col-6'),
                 Column(
                     Div(Div(HTML("&nbsp;"), css_class='form-label'),
@@ -548,11 +554,60 @@ class IncomeForm(forms.ModelForm):
             if 'Freq' not in field:
                 self.cleaned_data[field] = parseCurrencyToInt(self.cleaned_data[field])
 
-        if self.cleaned_data['totalAnnualIncome'] <= 0:
-            raise ValidationError('Please enter income')
-
         if self.cleaned_data['totalAnnualExpenses'] <= 0:
             raise ValidationError('Please enter expenses')
+
+        return self.cleaned_data
+
+
+class HomeExpensesForm(forms.ModelForm):
+    class Meta:
+        model = Application
+        fields = ['expenseHomeIns', 'expenseHomeInsFreq',
+                  'expenseRates', 'expenseRatesFreq',
+                  ]
+
+    expenseFrequencyTypes = (
+        (incomeFrequencyEnum.WEEKLY.value, "Weekly"),
+        (incomeFrequencyEnum.MONTHLY.value, "Monthly"),
+        (incomeFrequencyEnum.QUARTERLY.value, "Quarterly"),
+        (incomeFrequencyEnum.ANNUALLY.value, "Annually")
+    )
+
+    expenseHomeIns = forms.CharField(max_length=12, required=True, validators=[validate_string_int])
+    expenseRates = forms.CharField(max_length=12, required=True, validators=[validate_string_int])
+
+    helper = FormHelper()
+    helper.form_id = 'clientForm'
+    helper.form_method = 'POST'
+    helper.field_class = 'col-lg-12'
+    helper.form_class = 'form-horizontal'
+    helper.form_show_labels = False
+    helper.form_show_errors = True
+    helper.layout = Layout(
+        Div(Div(
+                Row(
+                    Column(
+                        Div(Div(HTML("Home insurance"), css_class='form-label'),
+                            Div(Field('expenseHomeIns', css_class='text-right'))), css_class='col-6'),
+                    Column(
+                        Div(Div(HTML("&nbsp;"), css_class='form-label'),
+                            Div(Field('expenseHomeInsFreq', css_class='form-label'))), css_class='col-4')),
+                Row(
+                    Column(
+                        Div(Div(HTML("Rates / body corporate fees"), css_class='form-label'),
+                            Div(Field('expenseRates', css_class='text-right'))), css_class='col-6'),
+                    Column(
+                        Div(Div(HTML("&nbsp;"), css_class='form-label'),
+                            Div(Field('expenseRatesFreq', css_class='form-label'))), css_class='col-4')),
+                css_class='col-lg-6 pb-4'),
+            css_class='row')
+    )
+
+    def clean(self):
+        for field in self.cleaned_data:
+            if 'Freq' not in field:
+                self.cleaned_data[field] = parseCurrencyToInt(self.cleaned_data[field])
 
         return self.cleaned_data
 
@@ -615,8 +670,6 @@ class SigningForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_id = 'clientForm'
         self.helper.form_method = 'POST'
-        self.helper.field_class = 'col-lg-12'
-        self.helper.form_class = 'form-horizontal'
         self.helper.form_show_labels = False
         self.helper.form_show_errors = True
 
@@ -640,10 +693,10 @@ class SigningForm(forms.ModelForm):
                             Div(HTML("Signing Pin*"), css_class='form-label pt-4'),
                             Div(Field('pin')),
 
-                            css_class="col-5"),
+                            css_class="col-md-5"),
                         Div(Div(HTML(customerName_2 + " *"), css_class='form-label'),
                             Div(Field('signingName_2')),
-                            css_class="col-5"),
+                            css_class="col-md-5"),
                     css_class="row")
             )
 
@@ -663,11 +716,9 @@ class SigningForm(forms.ModelForm):
                             Div(Field('signingName_1')),
                             Div(HTML("Signing Pin*"), css_class='form-label pt-4'),
                             Div(Field('pin')),
-                            css_class="col-5"),
+                            css_class="col-md-5"),
                         css_class="row")
                 ))
-
-
 
     pin = forms.IntegerField(required=True)
 
@@ -679,3 +730,29 @@ class SigningForm(forms.ModelForm):
         if (int(self.cleaned_data['pin']) > 9999) or (int(self.cleaned_data['pin']) < 1000):
             raise forms.ValidationError("Please enter a four digit pin")
         return self.cleaned_data['pin']
+
+
+class DocumentForm(forms.ModelForm):
+
+    class Meta:
+        model = ApplicationDocuments
+        fields = ['documentType', 'document']
+
+    document = forms.FileField(required=True, widget=forms.FileInput)
+
+    helper = FormHelper()
+    helper.form_id = 'clientForm'
+    helper.form_method = 'POST'
+    helper.field_class = 'col-lg-12'
+    helper.form_class = 'form-horizontal'
+    helper.form_show_labels = False
+    helper.form_show_errors = True
+    helper.layout = Layout(
+        Div(
+            Div(
+                Div(Div(HTML("Document Type*"), css_class='form-label'),
+                    Div(Field('documentType'))),
+                Div(Div(HTML("Document"), css_class='form-label'),
+                    Div(Field('document'))),
+        )
+    ))
