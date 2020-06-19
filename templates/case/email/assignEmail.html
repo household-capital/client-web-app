@@ -8,9 +8,12 @@
 
 Hey {{ obj.owner.first_name }}<br><br>
 
-Just for your information - one of your colleagues has assigned the case <b>{{ obj.caseDescription }}</b> to your capable hands.<br><br>
+Just for your information - one of your colleagues has assigned the case <a href="{{ base_url }}{{ obj.get_absolute_url}}">
+    <button style="background-color: #ffc107; border: none;color: black; padding: 10px 20px; text-align: center;
+            text-decoration: none; display: inline-block; font-size: 16px; border-radius: 12px">{{ obj.caseDescription}}
+</button></a> to your capable hands.<br><br>
 
-Check out the Case List for further details.<br><br>
+<br><br>
 
 Kind regards<br><br>
 

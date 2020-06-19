@@ -46,6 +46,8 @@ class investmentTypesEnum(Enum):
 class productTypesEnum(Enum):
     LUMP_SUM = 0
     INCOME = 1
+    COMBINATION = 2
+    CONTINGENCY_20K = 3
 
 @accessInTemplate
 class loanTypesEnum(Enum):
@@ -100,6 +102,8 @@ class marketingTypesEnum(Enum):
     FACEBOOK = 8
     LINKEDIN = 9
     YOUR_LIFE_CHOICES = 10
+    WEB_SEARCH = 11
+    DIRECT_EMAIL = 12
     OTHER = 100
 
 
@@ -136,6 +140,7 @@ class closeReasonEnum(Enum):
     ALTERNATIVE_SOLUTION=10
     COMPETITOR=11
     NO_CLIENT_ACTION=13
+    CALL_ONLY = 14
     OTHER = 12
 
 @accessInTemplate
@@ -228,6 +233,14 @@ class reasonCodeEnum(Enum):
     WRONG_NUMBER = 4
     NUISANCE = 5
     OTHER = 100
+
+@accessInTemplate
+class documentTypesEnum(Enum):
+    RATES=1
+    INSURANCE=2
+    STRATA_LEVIES = 3
+    OTHER = 100
+
 
 
 #Squash migrations and delete

@@ -79,7 +79,7 @@ class CalcCreateEnquiry(HouseholdLoginRequiredMixin, UpdateView):
         # Remove certain items from the dictionary
         referrer = calcDict['referrer']
 
-        popList = ['calcUID', 'actionedBy', 'id', 'referrer', 'updated', 'timestamp', 'actioned']
+        popList = ['calcUID', 'actionedBy', 'id', 'referrer', 'updated', 'timestamp', 'actioned', 'application']
         for item in popList:
             calcDict.pop(item)
 

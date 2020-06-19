@@ -6,9 +6,11 @@ from datetime import datetime, timedelta
 from django.db import models
 from django.utils.encoding import smart_text
 
+
 # Local Imports
 from apps.lib.site_Enums import appStatusEnum, salutationEnum, maritalEnum, clientSexEnum, dwellingTypesEnum, \
-    productTypesEnum, incomeFrequencyEnum, purposeCategoryEnum, purposeIntentionEnum, loanTypesEnum, clientTypesEnum
+    productTypesEnum, incomeFrequencyEnum, purposeCategoryEnum, purposeIntentionEnum, loanTypesEnum, \
+    clientTypesEnum, documentTypesEnum, stateTypesEnum
 
 class ApplicationManager(models.Manager):
     def queryset_byUID(self,uidString):
@@ -76,10 +78,22 @@ class Application(models.Model):
         (dwellingTypesEnum.HOUSE.value, 'House'),
         (dwellingTypesEnum.APARTMENT.value, 'Apartment'))
 
+    stateTypes=(
+        (stateTypesEnum.NSW.value, "NSW"),
+        (stateTypesEnum.VIC.value, "VIC"),
+        (stateTypesEnum.ACT.value, "ACT"),
+        (stateTypesEnum.QLD.value, "QLD"),
+        (stateTypesEnum.SA.value, "SA"),
+        (stateTypesEnum.WA.value, "WA"),
+        (stateTypesEnum.TAS.value, "TAS"),
+        (stateTypesEnum.NT.value, "NT"),
+    )
 
     productTypes = (
         (productTypesEnum.LUMP_SUM.value, "Lump Sum"),
-        (productTypesEnum.INCOME.value, "Income")
+        (productTypesEnum.INCOME.value, "Income"),
+        (productTypesEnum.COMBINATION.value, "Combination"),
+        (productTypesEnum.CONTINGENCY_20K.value, "Contingency 20K"),
     )
 
     loanTypes = (
@@ -129,7 +143,7 @@ class Application(models.Model):
     #Address Data
     streetAddress = models.CharField(max_length=80,blank= True,null=True)
     suburb = models.CharField(max_length=40, blank=True, null=True)
-    state = models.CharField(max_length=20, blank=True, null=True)
+    state = models.IntegerField(choices=stateTypes, null=True, blank=True)
     postcode = models.IntegerField(blank=True, null=True)
 
     #Calculated Fields
@@ -139,6 +153,7 @@ class Application(models.Model):
     maxDrawdownMonthly = models.IntegerField(blank=True, null=True)
     maxLVR = models.FloatField(blank=True, null=True)
     actualLVR = models.FloatField(blank=True, null=True)
+    isLowLVR = models.BooleanField(default=False)
 
     #Application Amount Fields
     purposeAmount = models.IntegerField(default=0)
@@ -148,6 +163,7 @@ class Application(models.Model):
     planEstablishmentFee=models.IntegerField(default=0)
     totalPlanAmount=models.IntegerField(default=0)
     summaryDocument = models.FileField(max_length=150,null=True, blank=True)
+    applicationDocument = models.FileField(max_length=150,null=True, blank=True)
 
     #Application Financial Fields
     assetSaving = models.IntegerField(default=0)
@@ -182,27 +198,35 @@ class Application(models.Model):
     expenseOther = models.IntegerField(default=0)
     expenseOtherFreq = models.IntegerField(choices=expenseFrequencyTypes, default=incomeFrequencyEnum.MONTHLY.value)
 
-    #Income Fields
-    choiceIncome = models.BooleanField(default=True)
+    #Choice Fields
+    choiceProduct = models.BooleanField(default=True)
     choiceOtherNeeds = models.BooleanField(blank=True, null=True)
     choiceMortgage = models.BooleanField(blank=True, null=True)
     choiceOwnership = models.BooleanField(blank=True, null=True)
+    choiceOccupants = models.BooleanField(blank=True, null=True)
 
     #Workflow
     pin = models.IntegerField(blank=True, null=True)
     pinExpiry = models.DateTimeField(blank=True, null=True)
     appStatus = models.IntegerField(choices=appStatusTypes, default=0 )
-    loanSummarySent = models.BooleanField(default=False)
+    summarySent = models.BooleanField(default=False)
+    summarySentDate = models.DateTimeField(blank=True, null=True)
+    summarySentRef = models.CharField(max_length=30, null=True, blank=True)
     loanSummaryAmount = models.IntegerField(default=0)
     signingName_1 = models.CharField(max_length=50, null=True, blank=True)
     signingName_2 = models.CharField(max_length=50, null=True, blank=True)
     signingDate = models.DateTimeField(blank=True, null=True)
     ip_address =  models.CharField(max_length=60, null=True, blank=True)
+    user_agent = models.CharField(max_length=200, null=True, blank=True)
 
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
 
     objects = ApplicationManager()
+
+    class Meta:
+        verbose_name_plural = "Application"
+
 
     def __str__(self):
         return smart_text(self.email)
@@ -225,6 +249,35 @@ class Application(models.Model):
         for purpose in qs:
             if purpose.enumCategory == category and purpose.enumIntention == intention:
                 return purpose
+
+    def enumClientType(self):
+        if self.clientType2 != None:
+            return dict(self.clientTypes)[self.clientType2]
+
+    def enumSalutation(self):
+        if self.clientType2 == None:
+            return [dict(self.salutationTypes)[self.salutation_1],None]
+        else:
+            return [dict(self.salutationTypes)[self.salutation_1],dict(self.salutationTypes)[self.salutation_2]]
+
+    def enumDwellingType(self):
+        return dict(self.dwellingTypes)[self.dwellingType]
+
+    def enumFreq(self, field):
+
+        frequencyTypes = (
+            (incomeFrequencyEnum.WEEKLY.value, "Weekly"),
+            (incomeFrequencyEnum.FORTNIGHTLY.value, "Fortnightly"),
+            (incomeFrequencyEnum.MONTHLY.value, "Monthly"),
+            (incomeFrequencyEnum.QUARTERLY.value, "Quarterly"),
+            (incomeFrequencyEnum.ANNUALLY.value, "Annually"))
+
+        return dict(frequencyTypes)[getattr(self,field)].lower()
+
+    def enumStateType(self):
+        if self.state is not None:
+            return dict(self.stateTypes)[self.state]
+
 
 
 class ApplicationPurposes(models.Model):
@@ -290,3 +343,33 @@ class ApplicationPurposes(models.Model):
     @property
     def enumIntentionPretty(self):
         return dict(self.intentionTypes)[self.intention].replace("_"," ").lower().title().replace(" To ", " to ")
+
+
+class ApplicationDocuments(models.Model):
+
+    documentTypes= (
+        (documentTypesEnum.RATES.value,'Rates Notice'),
+        (documentTypesEnum.INSURANCE.value,'Certificate of Insurance'),
+        (documentTypesEnum.STRATA_LEVIES.value, 'Stata Levies'),
+        (documentTypesEnum.OTHER.value,'Other')
+    )
+
+    application = models.ForeignKey(Application, on_delete=models.CASCADE)
+    docUID = models.UUIDField(default=uuid.uuid4, editable=False)
+    documentType = models.IntegerField(choices=documentTypes, blank=False, null=False)
+    document = models.FileField(max_length=150,null=False, blank=False, upload_to='customerDocuments')
+    mimeType = models.CharField(max_length=100, null=True, blank=True)
+    ip_address =  models.CharField(max_length=60, null=True, blank=True)
+    user_agent = models.CharField(max_length=200, null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
+    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+    objects = ApplicationManager()
+
+    class Meta:
+        verbose_name_plural = "Application Documents"
+
+    @property
+    def enumDocumentType(self):
+        return dict(self.documentTypes)[self.documentType]
+

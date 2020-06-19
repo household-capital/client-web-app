@@ -79,6 +79,7 @@ class LoanValidator():
         self.travelLimit = 0
         self.drawdownLimit = 0
         self.maxDrawdownMonthly = 0
+        self.lowLVRThreshold = 0
 
         # Refer Postcode
         self.isRefer = False
@@ -118,6 +119,7 @@ class LoanValidator():
         else:
             response['status'] = "Error"
             response['responseText'] = 'Invalid Postcode'
+            return response
 
         # Get maxLoan (from Postcode file)
         if str(self.initDict['postcode']) in pcodeDict:
@@ -133,22 +135,21 @@ class LoanValidator():
 
         elif self.isCouple and self.clientAge < LOAN_LIMITS['minCoupleAge']:
             response['status'] = "Error"
-            response['responseText'] = 'Youngest joint borrower must be 65'
+            response['responseText'] = 'Youngest borrower must be 60'
             return response
 
 
         # Perform LVR calculations (for loan size validation)
         self.__calcLVR()
 
-
         # Check Min Loan Size
-        if self.productType == productTypesEnum.LUMP_SUM.value:
-            if self.maxLvr / 100 * self.initDict['valuation'] < LOAN_LIMITS['minLoanSize']:
+        if (self.productType == productTypesEnum.INCOME.value) or (self.productType == productTypesEnum.COMBINATION.value):
+             if int(self.maxDrawdownMonthly) < LOAN_LIMITS['minIncomeDrawdown']:
                 response['status'] = "Error"
                 response['responseText'] = 'Minimum Loan Size cannot be met'
                 return response
         else:
-            if int(self.maxDrawdownMonthly) < LOAN_LIMITS['minIncomeDrawdown']:
+            if self.maxLvr / 100 * self.initDict['valuation'] < LOAN_LIMITS['minLoanSize']:
                 response['status'] = "Error"
                 response['responseText'] = 'Minimum Loan Size cannot be met'
                 return response
@@ -172,6 +173,7 @@ class LoanValidator():
         data['maxTravel'] = int(self.travelLimit)
         data['maxDrawdown'] = int(self.drawdownLimit)
         data['maxDrawdownMonthly'] = int(self.maxDrawdownMonthly)
+        data['lowLVRThreshold'] = int(self.lowLVRThreshold)
 
         response['data'] = data
 
@@ -247,8 +249,18 @@ class LoanValidator():
         data['totalPlanAmount'] = int(round(totalPlanAmount, 0))
 
         data['actualLVR'] = round(totalLoanAmount / self.initDict['valuation'], 1) * 100
+        data['planLVR'] = round(totalPlanAmount / self.initDict['valuation'], 1) * 100
+
         data['maxLVRPercentile'] = int(self.__myround(self.maxLvr, 5))
+        data['actualLVRPercentile'] = int(max(5 * round(data['actualLVR'] / 5),2))
         data['detailedTitle'] = detailedTitle
+        data['lowLVRThreshold'] = self.lowLVRThreshold
+
+        if data['planLVR'] <= data['lowLVRThreshold']:
+            data['isLowLVR'] = True
+        else:
+            data['isLowLVR'] = False
+
 
         # Validate against limits and add to output dictionary
         data['errors'] = False
@@ -273,17 +285,36 @@ class LoanValidator():
                              self.initDict['careAmount'] + self.initDict['careDrawdownAmount'], LOAN_LIMITS['maxCare'],
                              "GTE")
 
-        if self.productType == productTypesEnum.LUMP_SUM.value:
-            self.__chkStatusItem(data, 'minloanAmountStatus', int(round(totalPlanAmount, 0)),
-                                 LOAN_LIMITS['minLoanSize'],"LT")
-        else:
+        if self.productType == productTypesEnum.INCOME.value:
+
             self.__chkStatusItem(data, 'minloanAmountStatus', int(round(self.maxDrawdownMonthly, 0)),
                                  LOAN_LIMITS['minIncomeDrawdown'], "LT")
+        else:
+            self.__chkStatusItem(data, 'minloanAmountStatus', int(round(totalPlanAmount, 0)),
+                                 LOAN_LIMITS['minLoanSize'],"LT")
 
         response['status'] = "Ok"
         response['data'] = data
 
         return response
+
+
+    def checkPostcode(self,postcode):
+        # Check Valid Postcode
+        reader = csv.reader(open(settings.BASE_DIR + self.POSTCODE_FILE, 'r'))
+        pcodeDict = {}
+
+        for row in reader:
+            pcodeDict[row[0]] = {"Acceptable": row[1], "MaxLoan": row[2]}
+
+        if str(postcode) in pcodeDict:
+            if pcodeDict[str(postcode)]['Acceptable'] == "Refer":
+                return "Refer"
+            else:
+                return "Valid"
+        else:
+            return "Invalid"
+
 
     def __chkStatusItem(self, data, label, amount, limit, condition):
         # Utility function to check conditions and create response
@@ -329,17 +360,19 @@ class LoanValidator():
         self.giveLimit = self.loanLimit * LOAN_LIMITS['maxGive']
         self.travelLimit = self.loanLimit * LOAN_LIMITS['maxTravel']
 
-        # TEMPORARY CALCULATION
-        # Drawdown Limits - income product
-        lvr = 0.08 + (self.clientAge - LOAN_LIMITS['baseLvrAge']) * 0.012
-        if self.isApartment:
-            lvr = lvr - LOAN_LIMITS['apartmentLvrAdj']
-        lvr = lvr * (1 - self.initDict['protectedEquity'] / 100)
-        if lvr < 0:
-            lvr = 0
-
+        # Drawdown Limits
         self.drawdownLimit = min(int(round(lvr * self.initDict['valuation'], 0)), self.maxLoan)
-        self.maxDrawdownMonthly =  round(((self.drawdownLimit / (10 * 12 ))/(1 + self.establishmentFee)),-1)
+        self.maxDrawdownMonthly =  round((self.drawdownLimit / (10 * 12 )),-1)
+
+        # Low LVR Approximation [TEMPORARY]
+        low_lvr = 0.08 + (self.clientAge - LOAN_LIMITS['baseLvrAge']) * 0.012
+        if self.isApartment:
+            low_lvr = low_lvr - LOAN_LIMITS['apartmentLvrAdj']
+        low_lvr = low_lvr * (1 - self.initDict['protectedEquity'] / 100)
+        if low_lvr < 0:
+            low_lvr = 0
+
+        self.lowLVRThreshold = low_lvr * 100
 
         return
 

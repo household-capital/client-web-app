@@ -22,15 +22,15 @@
 
 
     function hideAlerts() {
-        $(".alert").fadeOut();
+        $("[id^=message]").fadeOut();
     }
 
     $(document).ready(function () {
 
         // Alerts
-        setTimeout(hideAlerts, 5000)
-
+        setTimeout(hideAlerts, 7000);
 
     });
+
 
 </script>

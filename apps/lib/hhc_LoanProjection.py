@@ -1,3 +1,34 @@
+"""
+Primary projection class - calculates projected loan, home value, home equity values
+
+.. note::
+    All projections are based on monthly compounding.
+    All rates converted to monthly compounded rates
+
+*Version 2.3*
+
+    * Prior model frequency properly removed
+    * Loan equity projections corrected to be monthly based
+    * Array data can be produced net or gross of fees (calculator vs client application usage)
+
+*Version 2.2*
+
+    * Updated to reflect contracted and planned drawdowns (monthly or fortnightly - not annual)
+    * Input data still serialised
+    * Change to Monthly model (frequency fixed)
+
+*Version 2.1*
+
+    * Utility class used to generate a table of loan projections - income, home equity
+    * Primary method: getProjections
+    * Additional methods return specific analytics
+    * Object instantiated with dictionary
+    * Consistent with ASIC projections
+    * Stress projections can be generated through passing shocks via specified keyword arguments
+    * Approach based on array calculation (no analytical solutions) to enable maximum flexibility and transparency
+"""
+
+
 # Python Imports
 from math import log
 
@@ -7,32 +38,11 @@ from apps.lib.site_Globals import APP_SETTINGS
 from apps.lib.site_Globals import LOAN_LIMITS
 
 
-# -- VERSION 2.2 --
-# -- PURPOSE OBJECTS CHANGE --
-# Updated to reflect contracted and planned drawdowns (not period)
-# Input data still serialised
-# Fixed Monthly model (frequency removed)
-
-
-# -- VERSION 2.1 --
-# -- MONTHLY CALCULATIONS --
-# -- ADDITIONAL DISCLOSURES --
-
-# Utility class used to generate a table of loan projections - income, home equity
-# Primary method: getProjections
-# Additional methods return specific analytics
-# Object instantiated with dictionary
-# Consistent with ASIC projections
-# Stress projections can be generated through passing shocks via specified keyword arguments
-# Approach based on array calculation (no analytical solutions) to enable maximum flexibility and transparency
-
-
 class LoanProjection():
-    # Class variables
+    """Calculates projected loan, home value, home equity values"""
 
     minProjectionAge = 90
     minProjectionYears = 10
-    modelFrequency = 12  # monthly model (do not change)
 
     minimumDataList = ['loanType',  # Joint or Single
                        'age_1',  # Borrower 1 Age
@@ -65,7 +75,6 @@ class LoanProjection():
 
         'annualPensionIncome': 0,
         'accruedInterest': 0,
-
     }
 
     def __init__(self):
@@ -94,6 +103,7 @@ class LoanProjection():
         self.calcArray = []
 
     def create(self, initDict):
+        """Populate class - check for underspecified initial dictionary"""
 
         self.isInit = True
 
@@ -116,7 +126,7 @@ class LoanProjection():
         # Interest Payment
         if self.initDict['interestPayAmount'] != 0:
             self.payIntAmount = self.initDict['interestPayAmount']  # monthly amount
-            self.payIntPeriod = self.initDict['interestPayPeriod'] * self.modelFrequency  # convert to months
+            self.payIntPeriod = self.initDict['interestPayPeriod'] * 12  # convert to months
         else:
             self.payIntAmount = 0
             self.payIntPeriod = 0
@@ -175,52 +185,60 @@ class LoanProjection():
 
         self.asicProjAge2 = projectionAge
 
-        # Important! Convert rates to equivalent compounding basis
-        self.totalInterestRate = self.__effectiveAnnual(self.initDict['interestRate'] + self.initDict['lendingMargin'],
-                                                        12 / self.modelFrequency)  # Simple monthly rate
-        self.inflationRate = self.__simpleCompounding(self.initDict['inflationRate'], self.modelFrequency)
-        self.hpiRate = self.__simpleCompounding(self.initDict['housePriceInflation'], self.modelFrequency)
+        # Important! Convert rates to equivalent monthly compounding basis
+        self.totalInterestRate = (self.initDict['interestRate'] + self.initDict['lendingMargin']) # Already a monthly rate
+        self.inflationRate = self.__simpleCompounding(self.initDict['inflationRate'], 12)
+        self.hpiRate = self.__simpleCompounding(self.initDict['housePriceInflation'], 12)
 
         return {'status': 'Ok'}
 
+
     # Public Methods - Projections
 
-    # Primary Projecton Method
     def calcProjections(self, **kwargs):
+        """Calculate projection array - primary projection method. Calculation method, results not returned"""
+
         if not self.isInit:
             return {'status': 'Error', 'responseText': 'Object not instantiated'}
 
-        # Perturb assumptions based on stress parameters passed as keyword arguments
 
+        # Step 1 - Perturb assumptions based on stress parameters passed as keyword arguments
+
+        #(a) Interest Rates - monthly compounded
         intRate = self.totalInterestRate
-        annualInflationRate = self.__effectiveAnnual(self.inflationRate, self.modelFrequency)
 
         if 'intRateStress' in kwargs:
-            intRate = self.__effectiveAnnual(
-                self.initDict['interestRate'] + self.initDict['lendingMargin'] + kwargs['intRateStress'],
-                12 / self.modelFrequency)
+            intRate = (self.initDict['interestRate'] + self.initDict['lendingMargin'] + kwargs['intRateStress'])
 
         if 'intRateStressLevel' in kwargs:
-            intRate = self.__effectiveAnnual(kwargs['intRateStressLevel'], 12 / self.modelFrequency)
+            intRate = kwargs['intRateStressLevel']
 
+        #(b) House Price Inflation - monthly compounded
         hpi = self.hpiRate
 
         if 'hpiStress' in kwargs:
-            hpi = self.__simpleCompounding(self.initDict['housePriceInflation'] + kwargs['hpiStress'],
-                                           self.modelFrequency)
+            hpi = self.__simpleCompounding(self.initDict['housePriceInflation'] + kwargs['hpiStress'], 12)
 
         if 'hpiStressLevel' in kwargs:
-            hpi = self.__simpleCompounding(kwargs['hpiStressLevel'], self.modelFrequency)
+            hpi = self.__simpleCompounding(kwargs['hpiStressLevel'], 12)
 
+        #(c) Interest payment flag
         if 'makeIntPayment' in kwargs:
             payInterestFlag = int(kwargs['makeIntPayment'])
         else:
             payInterestFlag = 0
 
-        # Define structure of the return array
-        # - the dictionary elements are like columns; and
-        # - the period index are like rows
-        # Project for an extra year for income calculation purposes
+        #(d) Inflation rate (used for pension projections)
+        #Converted back to an annual rate for specific used in an annual step function in main projection loop
+        annualInflationRate = self.__effectiveAnnual(self.inflationRate, 12)
+
+
+        # Step 2 - Define structure of return array - for explanation
+
+        # The dictionary elements are like columns; and
+        # The period index are like rows
+        # Monthly projections
+        # Nb: project for an extra year for income calculation purposes
 
         self.calcArray = []
 
@@ -231,14 +249,14 @@ class LoanProjection():
                            'TotalIncome': 0, 'PensionIncome': 0, 'PensionIncomePC': 0,
                            'CumLumpSum': 0, 'CumRegular': 0, 'CumFee': 0, 'CumDrawn': 0, 'CumInt': 0}
 
-                          for periods in range(((self.projectionYears + 1) * self.modelFrequency) + 1)]
+                          for periods in range(((self.projectionYears + 1) * 12) + 1)]
 
-        # Initial Period Calculations
+
+        # Step 3 - Initial Period Calculations
 
         self.calcArray[0]["BOPAge"] = self.minAge
 
-        ## Loan Drawdown Amounts
-
+        #(a) Loan Drawdown Amounts
         # Back out contracted drawdown amounts (these are incorporated in future periods)
         # Back out establishment fee
         self.calcArray[0]["DDLumpSum"] = (self.initDict['totalLoanAmount'] - self.totalDrawdownAmount
@@ -249,36 +267,37 @@ class LoanProjection():
                                        + self.calcArray[0]["DDFee"]
         self.calcArray[0]["DDIntPay"] = 0
 
-        ## Loan Balance
+        #(b) Loan Balance
         self.calcArray[0]['BOPLoanValue'] = self.calcArray[0]["DDTotal"] + self.initDict['accruedInterest']
         # For variations any accrued interest is included in projections - added to the loan balance and
         # appears as period zero interest owing
 
-        ## House Value
+        #(c) House Value
         self.calcArray[0]['BOPHouseValue'] = self.initDict['valuation']
         self.calcArray[0]['BOPHomeEquity'] = self.calcArray[0]['BOPHouseValue'] - self.calcArray[0]['BOPLoanValue']
         self.calcArray[0]['BOPHomeEquityPC'] = max(
             1 - self.calcArray[0]['BOPLoanValue'] / self.calcArray[0]['BOPHouseValue'], 0) * 100
 
-        ## Income Totals
+        #(d) Income Totals
         self.calcArray[0]["PensionIncome"] = 0
         self.calcArray[0]["TotalIncome"] = 0
         self.calcArray[0]["PensionIncomePC"] = 0
 
-        ## Cumulative Totals
+        #(e) Cumulative Totals
         self.calcArray[0]["CumLumpSum"] = self.calcArray[0]["DDLumpSum"]
         self.calcArray[0]["CumRegular"] = self.calcArray[0]["DDRegular"]
         self.calcArray[0]["CumFee"] = self.calcArray[0]["DDFee"]
         self.calcArray[0]["CumDrawn"] = self.calcArray[0]["DDTotal"]
         self.calcArray[0]["CumInt"] = self.calcArray[0]["BOPLoanValue"] - self.calcArray[0]["CumDrawn"]
 
-        # Loop through future periods
 
-        for period in range(1, (self.projectionYears + 1) * self.modelFrequency + 1):
+        # Step 4 - Loop through future periods
 
-            self.calcArray[period]["BOPAge"] = self.calcArray[period - 1]["BOPAge"] + 1 / self.modelFrequency
+        for period in range(1, (self.projectionYears + 1) * 12 + 1):
 
-            ## Loan Drawdown Amounts
+            self.calcArray[period]["BOPAge"] = self.calcArray[period - 1]["BOPAge"] + 1 / 12
+
+            #(a) Loan Drawdown Amounts
 
             self.calcArray[period]["DDLumpSum"] = 0
 
@@ -304,36 +323,36 @@ class LoanProjection():
             else:
                 self.calcArray[period]["DDIntPay"] = 0
 
-            ## Loan Balance
+            #(b) Loan Balance
 
-            self.calcArray[period]['BOPLoanValue'] = self.calcArray[period - 1]['BOPLoanValue'] * (
-                        1 + intRate / (100 * self.modelFrequency)) \
+            self.calcArray[period]['BOPLoanValue'] = self.calcArray[period - 1]['BOPLoanValue'] \
+                                                     * (1 + intRate / (100 * 12)) \
                                                      - self.calcArray[period]["DDIntPay"] \
                                                      + self.calcArray[period]["DDTotal"]
 
-            # Home Value
-            self.calcArray[period]['BOPHouseValue'] = self.calcArray[period - 1]['BOPHouseValue'] * (
-                        1 + hpi / (100 * self.modelFrequency))
+            #(c) Home Value
+            self.calcArray[period]['BOPHouseValue'] = self.calcArray[period - 1]['BOPHouseValue'] \
+                                                      * (1 + hpi / (100 * 12))
             self.calcArray[period]['BOPHomeEquity'] = self.calcArray[period]['BOPHouseValue'] - self.calcArray[period][
                 'BOPLoanValue']
             self.calcArray[period]['BOPHomeEquityPC'] = max(
                 1 - self.calcArray[period]['BOPLoanValue'] / self.calcArray[period]['BOPHouseValue'], 0) * 100
 
-            ## Income Totals
+            #(d) Income Totals
 
-            self.calcArray[period]["PensionIncome"] = self.initDict['annualPensionIncome'] / self.modelFrequency \
+            # calculate pension income indexation (note: is annual step function)
+            self.calcArray[period]["PensionIncome"] = self.initDict['annualPensionIncome'] / 12 \
                                                       * (1 + annualInflationRate / 100) ** (
-                                                          int((period - 1) / self.modelFrequency))
-            # calculate pension income indexation
+                                                          int((period - 1) /12))
 
             self.calcArray[period]["TotalIncome"] = self.calcArray[period]["PensionIncome"] \
                                                     + self.calcArray[period]["DDRegular"]
 
             self.calcArray[period]["PensionIncomePC"] = self.__chkDivZero(self.calcArray[period]["PensionIncome"],
-                                                                          self.calcArray[period]["TotalIncome"]) * 100 \
-                                                        / self.modelFrequency
+                                                                          self.calcArray[period]["TotalIncome"]) \
+                                                        * 100 / 12
 
-            ## Cumulative Totals
+            #(e) Cumulative Totals
             self.calcArray[period]["CumLumpSum"] = self.calcArray[period - 1]["CumLumpSum"] + self.calcArray[period][
                 "DDLumpSum"]
             self.calcArray[period]["CumRegular"] = self.calcArray[period - 1]["CumRegular"] + self.calcArray[period][
@@ -346,7 +365,9 @@ class LoanProjection():
 
         return {'status': 'Ok'}
 
+
     def getProjections(self, **kwargs):
+        """Returns full results array """
         if len(self.calcArray) == 0:
             result = self.calcProjections(**kwargs)
             if result['status'] != 'Ok':
@@ -354,9 +375,13 @@ class LoanProjection():
 
         return {'status': 'Ok', 'data': self.calcArray}
 
+
     def getResultsList(self, keyName, **kwargs):
-        # Builds a results list to pass to the template
-        # Optionally calculates scaling for images
+        """Returns results list for keyName
+        * standard result points 0, 5, 10 and 15 years
+        * primarily for used to pass to templates in Django views
+        * optionally calculates scaling for images
+         """
         if len(self.calcArray) == 0:
             return {'status': 'Error', 'responseText': 'Projections not calculated'}
 
@@ -367,13 +392,13 @@ class LoanProjection():
             figuresList = []
             for period in [0, 5, 10, 15]:
                 income = 0
-                for subPeriod in range(self.modelFrequency):
-                    income += self.calcArray[(period * self.modelFrequency) + subPeriod + 1][keyName]
+                for subPeriod in range(12):
+                    income += self.calcArray[(period * 12) + subPeriod + 1][keyName]
 
                 figuresList.append(int(round(income, 0)))
         else:
             # Stock variables (point in time)
-            figuresList = [int(round(self.calcArray[i * self.modelFrequency][keyName], 0)) for i in [0, 5, 10, 15]]
+            figuresList = [int(round(self.calcArray[i * 12][keyName], 0)) for i in [0, 5, 10, 15]]
 
         if 'imageSize' in kwargs:
             if kwargs['imageMethod'] == 'exp':
@@ -389,20 +414,26 @@ class LoanProjection():
 
         return {'status': 'Ok', 'data': figuresList + scaleList}
 
+
     def getPeriodResults(self, period, **kwargs):
-        # Returns results for specific period
+        """Returns results for specific period"""
+
         if len(self.calcArray) == 0:
             return {'status': 'Error', 'responseText': 'Projections not calculated'}
 
-        results = self.calcArray[period * self.modelFrequency]
+        results = self.calcArray[period * 12]
         results['HomeEquityPercentile'] = str(int(self.__myround(results['BOPHomeEquityPC'], 5)))
 
-        return self.calcArray[period * self.modelFrequency]
+        return self.calcArray[period * 12]
 
     def getAsicProjectionPeriods(self):
+        """Returns two point ASIC projection ages"""
         return self.asicProjAge1 - self.minAge, self.asicProjAge2 - self.minAge
 
+
     def getImageList(self, keyName, imageURL):
+        """Returns populated image list for specific keyName"""
+
         if len(self.calcArray) == 0:
             return {'status': 'Error', 'responseText': 'Projections not calculated'}
 
@@ -411,47 +442,99 @@ class LoanProjection():
 
         return {'status': 'Ok', 'data': imageList}
 
-    def getFutureEquityArray(self, projectionYears=15, increment=1000):
-        # Returns loan / projected equity combinations (for slider)
+
+    def getFutureEquityArray(self, projectionYears=15, increment=1000, netOfFee=False):
+        """
+        Returns loan and projected equity combinations (for slider) for:
+        - specified (default) projection period (in years); and
+        - for intervals of drawdown (minimum amount to maximum amount) in increments of 'increment' (default)
+        Assumes establishment fee included in the loan amount
+        Rates and calculations monthly compounded
+
+        args:
+        - projectionYears: terminal year that results are calculate for
+        - increment: step size between each slider value (i.e., we set increments and calculate the number of intervals)
+        - netOfFee: interval amounts based on 'purpose amounts' (amounts paid to client) instead of 'total loan' amounts (calculator)
+        """
+
         if increment < 100:
             increment = 100
 
+        if netOfFee:
+            maxLoanAmount = self.initDict['maxLoanAmount'] /  (1 + self.establishmentFee)
+        else:
+            maxLoanAmount = self.initDict['maxLoanAmount']
+
         if self.isInit:
             dataArray = []
-            intervals = int(self.initDict['maxLoanAmount'] / increment) + 1
+            intervals = int(maxLoanAmount / increment) + 1
+            intervalCount = -1
 
-            homeValue = (self.initDict['valuation'] * (1 + self.hpiRate / 100) ** projectionYears)
+            homeValue = self.initDict['valuation'] * ((1 + self.hpiRate / 1200) ** (projectionYears*12))
 
             for item in range(intervals + 1):
                 if item == intervals:
-                    loanAmount = self.initDict['maxLoanAmount']
+                    loanAmount = maxLoanAmount
                 else:
                     loanAmount = round((item * increment), 0)
 
-                loanBalance = loanAmount * (1 + self.totalInterestRate / 100) ** projectionYears
-                projectedEquity = homeValue - loanBalance
+                if (loanAmount == 0) or (loanAmount >= LOAN_LIMITS['minLoanSize']):
+                    intervalCount += 1
 
-                dataArray.append({'item': item,
-                                  "loanAmount": int(loanAmount),
-                                  "loanPercentile": int(self.__myround(loanAmount / self.initDict['valuation'] * 100)),
-                                  "futLoanBalance": int(loanBalance),
-                                  "futHomeEquity": int(round(projectedEquity, 0)),
-                                  "futHomeEquityPC": int(round(projectedEquity / homeValue * 100, 0)),
-                                  "percentile": int(self.__myround(projectedEquity / homeValue * 100))
-                                  })
+                    loanBalance = loanAmount * ((1 + self.totalInterestRate / 1200) ** (projectionYears*12))
+
+                    # Add interest if input is before fees
+                    if netOfFee:
+                        loanBalance = loanBalance * (1 + self.establishmentFee)
+
+                    projectedEquity = homeValue - loanBalance
+
+                    dataArray.append({'item': item,
+                                      "loanAmount": round(loanAmount,0),
+                                      "loanPercentile": int(
+                                          self.__myround(loanAmount / self.initDict['valuation'] * 100)),
+                                      "futLoanBalance": round(loanBalance,0),
+                                      "futHomeEquity": int(round(projectedEquity, 0)),
+                                      "futHomeEquityPC": int(round(projectedEquity / homeValue * 100, 0)),
+                                      "percentile": int(self.__myround(projectedEquity / homeValue * 100))
+                                      })
 
             return {'status': 'Ok',
-                    'data': {"intervals": intervals, "futHomeValue": int(homeValue), "dataArray": dataArray}}
+                    'data': {"intervals": intervalCount, "futHomeValue": int(round(homeValue,0)), "dataArray": dataArray}}
         else:
             return {'status': 'Error', 'responseText': 'Object not instantiated'}
 
 
-    def getFutureIncomeEquityArray(self, projectionYears=10, increment=20):
-        # Returns loan / projected equity combinations (for slider)
+    def getFutureIncomeEquityArray(self, projectionYears=10, increment=20, lumpSumComponent = 0, netOfFee = False):
+        """
+        Returns loan and projected equity combinations (for slider) for:
+        - specified (default) projection period (in years); and
+        - for intervals of income drawdown (minimumn amount to maximum amount) in increments of 'increment' (default)
+        - adjusting maximum amount by lumpSumComponent
+        Assumes establishment fee included in the drawdown amount
+        Rates and calculations monthly compounded
+
+        args:
+        - projectionYears: terminal year that results are calculate for
+        - increment: step size between each slider value (i.e., we set increments and calculate the number of intervals)
+        - lumSumComponent: used to reduce the maxLoanAmount if some of this has already been allocated
+        - netOfFee: interval amounts based on 'purpose amounts' (amounts paid to client) instead of 'total loan' amounts (calculator)
+        """
+
         if increment < 10:
             increment = 10
 
-        maxDrawdownMonthly = self.initDict['maxDrawdownMonthly']
+        if netOfFee:
+            maxDrawdownMonthly = self.initDict['maxDrawdownMonthly'] /  (1 + self.establishmentFee)
+        else:
+            maxDrawdownMonthly = self.initDict['maxDrawdownMonthly']
+
+        #Optional reduction for lump sum
+        if lumpSumComponent > 0:
+            maxDrawdownMonthly -= lumpSumComponent / (10 * 12) # based on 10 year monthly draw assumption
+            if maxDrawdownMonthly < 0:
+                maxDrawdownMonthly = 0
+
         if self.initDict['topUpFrequency'] == incomeFrequencyEnum.FORTNIGHTLY.value:
             paymentFreqAdj = 13 / 6
         else:
@@ -461,12 +544,12 @@ class LoanProjection():
             # Model monthly and adjust for payment frequency
             dataArray = []
             intervals = int(maxDrawdownMonthly / increment) + 1
-            intervalCount = 0
+            intervalCount = -1
 
             planYears = min(self.drawdownPeriods / 12, projectionYears)
             residualYears = projectionYears - planYears
 
-            homeValue = round((self.initDict['valuation'] * (1 + self.hpiRate / 100) ** projectionYears),0)
+            homeValue = (self.initDict['valuation'] * (1 + self.hpiRate / 1200) ** (projectionYears*12))
 
             for item in range(intervals + 1):
                 if item == intervals:
@@ -477,32 +560,49 @@ class LoanProjection():
                 if (loanAmount == 0) or (loanAmount >= LOAN_LIMITS['minIncomeDrawdown']):
                     # Future value annuity formula for drawdown plan years
                     intervalCount += 1
-                    loanBalance = (loanAmount * (1 + self.establishmentFee)) * \
-                                  ((((1+self.totalInterestRate/1200) ** (planYears*12)) - 1) / (self.totalInterestRate/1200))
+
+                    loanBalance = loanAmount * \
+                                  ((((1+self.totalInterestRate/1200) ** (planYears * 12)) - 1) / (self.totalInterestRate/1200))
+
+                    # Add interest if input is before fees
+                    if netOfFee:
+                        loanBalance = loanBalance * (1 + self.establishmentFee)
 
                     # Compound the loan for residual years
                     loanBalance = loanBalance * ((1+self.totalInterestRate/1200) ** (residualYears*12))
+
+                    # Add any lump sum component
+                    additionalAmount =  lumpSumComponent * (1 + self.totalInterestRate / 1200) ** (projectionYears * 12)
+                    if netOfFee:
+                        additionalAmount = additionalAmount * (1 + self.establishmentFee)
+
+                    loanBalance += additionalAmount
 
                     projectedEquity = homeValue - loanBalance
 
                     dataArray.append({'item': item,
                                       "loanAmount": round((loanAmount/paymentFreqAdj),-1),
                                       "loanPercentile": int(self.__myround(loanAmount / self.initDict['valuation'] * 100)),
-                                      "futLoanBalance": int(loanBalance),
+                                      "futLoanBalance": int(round(loanBalance,0)),
                                       "futHomeEquity": int(round(projectedEquity, 0)),
                                       "futHomeEquityPC": int(round(projectedEquity / homeValue * 100, 0)),
                                       "percentile": int(self.__myround(projectedEquity / homeValue * 100))
                                       })
 
             return {'status': 'Ok',
-                    'data': {"intervals": intervalCount, "futHomeValue": int(homeValue), "dataArray": dataArray}}
+                    'data': {"intervals": intervalCount, "futHomeValue": int(round(homeValue,0)), "dataArray": dataArray}}
         else:
             return {'status': 'Error', 'responseText': 'Object not instantiated'}
 
 
     # INTERNAL METHODS
+
     def __myround(self, val, base=5):
-        return base * round(val / base)
+        if val == 100:
+            return 100
+        else:
+            #Floor of 2% for graph purposes
+            return min(base * round(val / base), 98)
 
     def __logOrZero(self, val):
         if val <= 0:

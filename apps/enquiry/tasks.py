@@ -1,4 +1,5 @@
 #Python Imports
+import json
 from datetime import timedelta
 
 # Django Imports
@@ -23,7 +24,7 @@ from apps.lib.site_Utilities import sendTemplateEmail
 @app.task(name="Create_SF_Lead")
 def createSFLeadTask(enqUID):
     # Task to create(or retrieve) a SF Lead
-    write_applog("Info", 'Enquiry', 'Tasks-createSFLead', "Creating lead for:" + str(enqUID))
+    write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', "Creating lead for:" + str(enqUID))
     result = createSFLead(enqUID)
     if result['status'] == "Ok":
         write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', "Finished - Successfully")
@@ -36,7 +37,7 @@ def createSFLeadTask(enqUID):
 @app.task(name="Update_SF_Lead")
 def updateSFLeadTask(enqUID):
     # Task to create(or retrieve) a SF Lead
-    write_applog("Info", 'Enquiry', 'Tasks-updateSFLead', "Updating lead for:" + str(enqUID))
+    write_applog("INFO", 'Enquiry', 'Tasks-updateSFLead', "Updating lead for:" + str(enqUID))
     result = updateSFLead(enqUID)
     if result['status'] == "Ok":
         write_applog("INFO", 'Enquiry', 'Tasks-updateSFLead', "Finished - Successfully")
@@ -54,7 +55,7 @@ def catchallSFLeadTask():
     sfAPI = apiSalesforce()
     result = sfAPI.openAPI(True)
     if result['status'] != "Ok":
-        write_applog("Error", 'Enquiry', 'Tasks-createSFLead', result['responseText'])
+        write_applog("ERROR", 'Enquiry', 'Tasks-createSFLead', result['responseText'])
         return result['responseText']
 
     qs = Enquiry.objects.filter(sfLeadID__isnull=True, closeDate__isnull=True).exclude(postcode__isnull=True)
@@ -121,8 +122,8 @@ def FollowUpEmail(enqUID):
     email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
 
     if not enqObj.user:
-        write_applog("Error", 'Enquiry', 'Tasks-FollowUpEmail', "No associated user")
-        return {"status": "Error", 'responseText': "No associated user"}
+        write_applog("ERROR", 'Enquiry', 'Tasks-FollowUpEmail', "No associated user")
+        return {"status": "ERROR", 'responseText': "No associated user"}
 
     bcc = enqObj.user.email
     subject, from_email, to = "Household Capital: Enquiry Follow-up", enqObj.user.email, enqObj.email
@@ -133,7 +134,7 @@ def FollowUpEmail(enqUID):
         enqObj.followUp = timezone.now()
         enqObj.save(update_fields=['followUp'])
 
-        write_applog("Info", 'Enquiry', 'Tasks-FollowUpEmail', "Follow-up Email Sent: "+enqObj.name)
+        write_applog("INFO", 'Enquiry', 'Tasks-FollowUpEmail', "Follow-up Email Sent: "+enqObj.name)
         return {"status": "Ok", 'responseText': "Follow-up Email Sent"}
     else:
         write_applog("ERROR", 'Enquiry', 'Tasks-FollowUpEmail',
@@ -167,7 +168,8 @@ SF_LEAD_MAPPING = {'phoneNumber': 'Phone',
                    'maxLVR': 'Maximum_LVR__c',
                    'errorText': 'Ineligibility_Reason__c',
                    'referrerID': 'Referrer_ID__c',
-                   'doNotMarket':'DoNotMarket__c'
+                   'doNotMarket':'DoNotMarket__c',
+                   'isCalendly': 'isCalendly__c'
                    }
 
 
@@ -183,8 +185,8 @@ def createSFLead(enqUID, sfAPIInstance=None):
         sfAPI = apiSalesforce()
         result = sfAPI.openAPI(True)
         if result['status'] != "Ok":
-            write_applog("Error", 'Enquiry', 'Tasks-createSFLead', result['responseText'])
-            return {"status": "Error", 'responseText':result['responseText']}
+            write_applog("ERROR", 'Enquiry', 'Tasks-createSFLead', result['responseText'])
+            return {"status": "ERROR", 'responseText':result['responseText']}
 
     # Get object
     qs = Enquiry.objects.queryset_byUID(enqUID)
@@ -197,11 +199,11 @@ def createSFLead(enqUID, sfAPIInstance=None):
         if enquiry.email:
             if 'householdcapital.com' in enquiry.email:
                 # Don't create LeadID
-                write_applog("Info", 'Enquiry', 'Tasks-createSFLead', "Internal email re:" + str(enquiry.email))
-                return {"status": "Error", 'responseText':'Internal email re:' + str(enquiry.email)}
+                write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', "Internal email re:" + str(enquiry.email))
+                return {"status": "ERROR", 'responseText':'Internal email re:' + str(enquiry.email)}
 
         payload = __buildLeadPayload(enquiry)
-        payload['CreatedDate'] = enquiry.timestamp.strftime("%Y-%m-%d")
+        payload['CreatedDate'] = enquiry.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         if enquiry.name:
             write_applog("INFO", 'Enquiry', 'Tasks-createSFLead',"Attempting:"+str(enquiry.name))
@@ -229,9 +231,9 @@ def createSFLead(enqUID, sfAPIInstance=None):
                         result = sfAPI.qryToDict('LeadByEmail', enquiry.email, 'result')
                         if len(result['data']) == 0:
                             write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'No SF ID returned')
-                            return {"status": "Error","responseText":"No SF ID returned"}
+                            return {"status": "ERROR","responseText":"No SF ID returned"}
                         else:
-                            if int(result['data']['result.PostalCode']) == int(enquiry.postcode):
+                            if __checkInt(result['data']['result.PostalCode']) == __checkInt(enquiry.postcode):
                                 # match on postcode too
                                 enquiry.sfLeadID = result['data']['result.Id']
                                 enquiry.save(update_fields=['sfLeadID'])
@@ -240,14 +242,14 @@ def createSFLead(enqUID, sfAPIInstance=None):
                                 return {"status": "Ok"}
                             else:
                                 write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'Postcode mismatch')
-                                return {"status": "Error","responseText":"Postcode mismatch" }
+                                return {"status": "ERROR","responseText":"Postcode mismatch" }
 
                     elif enquiry.phoneNumber:
                         # Search for phone number in Leads
                         result = sfAPI.qryToDict('LeadByPhone', enquiry.phoneNumber, 'result')
                         if len(result['data']) == 0:
                             write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'No SF ID returned')
-                            return {"status": "Error","responseText":"No SF ID returned"}
+                            return {"status": "ERROR","responseText":"No SF ID returned"}
                         else:
                             if __checkInt(result['data']['result.PostalCode']) == __checkInt(enquiry.postcode):
                                 # match on postcode too
@@ -259,17 +261,17 @@ def createSFLead(enqUID, sfAPIInstance=None):
 
                             else:
                                 write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'Postcode mismatch')
-                                return {"status": "Error","responseText":"Postcode mismatch" }
+                                return {"status": "ERROR","responseText":"Postcode mismatch" }
                 else:
                     write_applog("INFO", 'Case', 'Tasks-createSFLead', result['responseText']['message'])
-                    return {"status": "Error", "responseText": result['responseText']['message']}
+                    return {"status": "ERROR", "responseText": result['responseText']['message']}
 
             else:
                 write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'Unknown SF error')
-                return {"status": "Error", "responseText":"Unknown SF error"}
+                return {"status": "ERROR", "responseText":"Unknown SF error"}
     else:
         write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'No email or phone number')
-        return {"status": "Error", "responseText":"No email or phone number"}
+        return {"status": "ERROR", "responseText":"No email or phone number"}
 
 
 def updateSFLead(enqUID, sfAPIInstance=None):
@@ -281,8 +283,8 @@ def updateSFLead(enqUID, sfAPIInstance=None):
         sfAPI = apiSalesforce()
         result = sfAPI.openAPI(True)
         if result['status'] != "Ok":
-            write_applog("Error", 'Enquiry', 'Tasks-createSFLead', result['responseText'])
-            return {"status": "Error", 'responseText': result['responseText']}
+            write_applog("ERROR", 'Enquiry', 'Tasks-createSFLead', result['responseText'])
+            return {"status": "ERROR", 'responseText': result['responseText']}
 
     # Get object
     qs = Enquiry.objects.queryset_byUID(enqUID)
@@ -291,8 +293,8 @@ def updateSFLead(enqUID, sfAPIInstance=None):
     if not enquiry.sfLeadID:
         result = createSFLead(enqUID)
         if result['status'] != "Ok":
-            write_applog("Error", 'Enquiry', 'Tasks-updateSFLead', "No SF ID for: " + str(enqUID))
-            return {"status": "Error", 'responseText':"No SF ID for: " + str(enqUID)}
+            write_applog("ERROR", 'Enquiry', 'Tasks-updateSFLead', "No SF ID for: " + str(enqUID))
+            return {"status": "ERROR", 'responseText':"No SF ID for: " + str(enqUID)}
         else:
             # Update object
             qs = Enquiry.objects.queryset_byUID(enqUID)
@@ -305,8 +307,8 @@ def updateSFLead(enqUID, sfAPIInstance=None):
     if result['status'] == "Ok":
         return {'status': 'Ok'}
     else:
-        write_applog("Error", 'Enquiry', 'Tasks-updateSFLead', result['status'])
-        return {'status': 'Error', 'responseText':result['status']}
+        write_applog("ERROR", 'Enquiry', 'Tasks-updateSFLead', json.dumps(result['responseText']))
+        return {'status': 'Error', 'responseText':json.dumps(result['responseText'])}
 
 
 def __buildLeadPayload(enquiry):
@@ -333,6 +335,7 @@ def __buildLeadPayload(enquiry):
     payload['Loan_Type__c'] = enquiry.enumLoanType()
     payload['Dwelling_Type__c'] = enquiry.enumDwellingType()
     payload['LeadSource'] = enquiry.enumReferrerType()
+    payload['Marketing_Source__c'] = enquiry.enumMarketingSource()
 
     # Map / create other fields
     if enquiry.referralUser:
@@ -358,3 +361,4 @@ def __checkInt(val):
         return int(val)
     else:
         return 0
+

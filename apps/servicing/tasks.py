@@ -15,6 +15,7 @@ from config.celery import app
 from apps.lib.api_AMAL import apiAMAL
 from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.site_Logging import write_applog
+from apps.lib.site_Utilities import raiseTaskAdminError
 from apps.lib.site_DataMapping import mapLoanToFacility, mapRolesToFacility, mapPropertyToFacility, mapPurposesToFacility, \
     mapValuationsToFacility, mapTransToFacility
 
@@ -201,7 +202,11 @@ def sfDetailSynch():
                     payload.pop('sfContactID')
                     qsFacilityRoles.filter(sfContactID__exact=contact['Id']).update(**payload)
                 else:
-                    FacilityRoles.objects.create(**payload)
+                    try:
+                        FacilityRoles.objects.create(**payload)
+                    except:
+                        write_applog("ERROR", 'Servicing', 'Tasks-sfDetailSynch', 'Could not create role -' + json.dumps(loan.sfLoanName))
+                        raiseTaskAdminError('Servicing: Could not create Facility Role', loan.sfLoanName)
 
 
         # PROPERTIES
@@ -233,8 +238,12 @@ def sfDetailSynch():
                     payload.pop('property')
                     qsValuations.filter(property=propertyRef).update(**payload)
                 else:
-                    FacilityPropertyVal.objects.create(**payload)
-
+                    try:
+                        FacilityPropertyVal.objects.create(**payload)
+                    except:
+                        write_applog("ERROR", 'Servicing', 'Tasks-sfDetailSynch',
+                                     'Could not create property -' + loan.sfLoanName)
+                        raiseTaskAdminError('Servicing: Could not create Facility Property', loan.sfLoanName)
 
         # PURPOSES
         purposesTable = sfPurposes.query('Loan__c == "' + str(loan.sfID) + '"', inplace=False)
@@ -247,8 +256,12 @@ def sfDetailSynch():
                 payload.pop('facility')
                 qsPurposes.filter(sfPurposeID=purpose['Id']).update(**payload)
             else:
-                FacilityPurposes.objects.create(**payload)
-
+                try:
+                    FacilityPurposes.objects.create(**payload)
+                except:
+                    write_applog("ERROR", 'Servicing', 'Tasks-sfDetailSynch',
+                                 'Could not create purpose -' + loan.sfLoanName)
+                    raiseTaskAdminError('Servicing: Could not create Facility Purpose', loan.sfLoanName)
 
         # EVENTS (TEMP)
         try:

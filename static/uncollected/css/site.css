@@ -180,8 +180,22 @@ p.small-blue {
 /* NavBar */
 
 .navbar {
-    padding-bottom: 30px;
     background-color: white;
+}
+
+.navbar-thin {
+    padding-bottom: 15px;
+    background-color: white;
+    position: relative;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -ms-flex-align: center;
+    align-items: center;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    padding: .5rem 1rem;
 }
 
 .navbar-nav > li > a {
@@ -230,6 +244,7 @@ a.menu_title:active {
     text-decoration: none;
 }
 
+
 /* Jumbotron */
 
 @media (min-width: 576px) {
@@ -275,7 +290,7 @@ a.menu_title:active {
 }
 
 @media (min-width: 992px) {
-    .menu-bar{
+    .menu-bar {
         position: fixed;
     }
 }
@@ -283,7 +298,6 @@ a.menu_title:active {
 .menu-bar-row {
     min-height: 120px;
 }
-
 
 
 .menu-bar-fixed {
@@ -313,8 +327,6 @@ a.menu_title:active {
 .menu-bar-thin-row {
     min-height: 100px;
 }
-
-
 
 
 /* Footer - external */
@@ -423,18 +435,18 @@ footer ul li {
 
 
 input[type='radio']:checked:after {
-        width: 15px;
-        height: 15px;
-        border-radius: 15px;
-        top: -2px;
-        left: -1px;
-        position: relative;
-        background-color: #5183A1;
-        content: '';
-        display: inline-block;
-        visibility: visible;
-        border: 2px solid white;
-    }
+    width: 15px;
+    height: 15px;
+    border-radius: 15px;
+    top: -2px;
+    left: -1px;
+    position: relative;
+    background-color: #5183A1;
+    content: '';
+    display: inline-block;
+    visibility: visible;
+    border: 2px solid white;
+}
 
 
 /* Errors */
@@ -589,6 +601,12 @@ a.btn-hhcGold {
     background-color: rgb(249, 248, 245);
 }
 
+.infoBtn {
+    color: #212529;
+    background: #eef4f9;
+    border-color: #d3d9df;
+}
+
 .HHCBlue {
     background-color: rgb(25, 38, 63);
     color: white
@@ -653,9 +671,10 @@ a.btn-hhcGold {
     top: 50%;
     left: 50%;
     width: 100%;
-    transform: translate(-50%, -30%);
+    transform: translate(-50%, -80%);
     color: white
 }
+
 
 #equitySlider .ui-slider-handle {
     height: 25px;
@@ -666,47 +685,43 @@ a.btn-hhcGold {
     background: rgb(81, 132, 161);
 }
 
-ul.timeline {
-    list-style-type: none;
+/* Application Progress */
+.hhc-progress:before {
+    content: '';
+    width: 100%;
+    height: 0.75px;
+    background: lightgrey;
+    position: absolute;
+    right: -45%;
+    top: 9px;
+    z-index: 0
+}
+
+.hhc-progress-text {
     position: relative;
+    z-index: 1;
 }
 
-ul.timeline:before {
-    content: ' ';
-    background: #d4d9df;
-    display: inline-block;
-    position: absolute;
-    left: 29px;
-    width: 2px;
-    height: 100%;
-    z-index: 400;
-}
-
-ul.timeline > li {
-    margin: 20px 0;
-    padding-left: 20px;
-}
-
-ul.timeline > li:before {
-    content: ' ';
-    background: white;
-    display: inline-block;
-    position: absolute;
-    border-radius: 50%;
-    border: 3px solid #22c0e8;
-    left: 20px;
-    width: 20px;
-    height: 20px;
-    z-index: 400;
+.fa-progress {
+    background-image: radial-gradient(at center, white 60%, transparent 40%);
 }
 
 
-.carousel-control-prev-icon{
+.carousel-control-prev-icon {
     background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='SteelBlue' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E");
 }
 
-.carousel-control-next-icon{
+.carousel-control-next-icon {
     background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='SteelBlue' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E")
+}
+
+.carousel-img-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    transform: translate(-50%, -40%);
+    color: white
 }
 
 /*** PAGE SPECIFIC ***/
@@ -812,6 +827,13 @@ ul.timeline > li:before {
     font-family: MaisonNeue;
     line-height: 130%;
     font-size: 115%;
+}
+
+.print-text-bold {
+    font-family: MaisonNeue;
+    line-height: 130%;
+    font-size: 115%;
+    font-weight: bolder;
 }
 
 .print-text-smaller {

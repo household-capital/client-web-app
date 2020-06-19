@@ -12,7 +12,10 @@ urlpatterns = [
 
     path('', views.LandingView.as_view(), name='landing'),
     path('dashboard',views.DashboardView.as_view(),name='dashboard'),
+
+    #Obscured views
     path('dashboard/weekly',views.Weekly.as_view(),name='weekly'),
-    path('dashboard/portfolioSummary', views.PortfolioSummary.as_view(), name='portfolioSummary'),
+    path('calculatorExtract', views.CalculatorExtract.as_view(), name='calculatorExtract'),
+    path('enquiryExtract', views.EnquiryExtract.as_view(), name='enquiryExtract'),
 
 ]

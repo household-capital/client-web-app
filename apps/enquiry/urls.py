@@ -21,9 +21,12 @@ urlpatterns = [
     path('enquiryCloseFollowUp/<uuid:uid>',views.EnquiryCloseFollowUp.as_view(),name='enqMarkFollowUp'),
     path('enquiryDelete/<uuid:uid>', views.EnquiryDeleteView.as_view(), name='enqDelete'),
 
+    # Ajax Views
+    path('addressComplete', views.AddressComplete.as_view(), name='addressComplete'),
+
     #Unauthenticated Views
     path('enquirySummaryPdf/<uuid:uid>', views.EnqSummaryPdfView.as_view(), name='enqSummaryPdf'),
-    path('enquiryIncomeSummaryPdf/<uuid:uid>', views.EnqIncomeSummaryPdfView.as_view(), name='enqIncomeSummaryPdf'),
+
 
 ]
 

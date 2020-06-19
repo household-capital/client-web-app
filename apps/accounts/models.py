@@ -10,6 +10,10 @@ from django.utils.encoding import smart_text
 
 
 class Referer(models.Model):
+    """
+    Referrer model with basic information including flag to determine whether Referrer can create cases
+    (as opposed to enquiries)
+    """
     companyName = models.CharField(max_length=30,null=False,blank=False)
     companyImage = models.ImageField(null=True, blank=True, upload_to='referrerImages')
     isCaseReferrer = models.BooleanField(default = False)
@@ -25,6 +29,7 @@ class Referer(models.Model):
 
 
 class Profile(models.Model):
+    """Extended user model with additional user information and identifiers"""
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     mobile = models.CharField(max_length=30, null=True, blank=True)
     picture=models.ImageField(null=True, blank=True, upload_to='profileImages')
@@ -39,13 +44,14 @@ class Profile(models.Model):
 
 
 class SessionLog(models.Model):
+    """Basic session log for all user authentication"""
     description  = models.CharField(max_length=60, null=True, blank=True)
     referenceUID = models.UUIDField(null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
 
 
-# Update Session Log on User Login
 def user_logged_in_handler(sender, request, user, **kwargs):
+    """User log-in signal used to create entry in Session Log"""
     SessionLog.objects.create(
         description = "User login: "+" ".join(filter(None, [str(user.username)])),
     )

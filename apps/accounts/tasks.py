@@ -12,11 +12,10 @@ from config.celery import app
 # Local Application Imports
 from apps.lib.site_Logging import write_applog
 
-
 @app.task(name="Clear_Session_Data")
 def clearSessionData():
-    # Clears session data and logs-out users
-    write_applog("Info", 'Accounts', 'Tasks-clearSessionData', "Creating all session data")
+    """Task to clear all session data (and log all users out)"""
+    write_applog("INFO", 'Accounts', 'Tasks-clearSessionData', "Clearing all session data")
     Session.objects.all().delete()
     return "Finished - Successfully"
 

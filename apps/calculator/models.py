@@ -13,6 +13,8 @@ from django.db.models.functions import TruncDate,TruncDay, Cast
 from django.db.models.fields import DateField
 from django.utils.timezone import get_current_timezone
 
+from apps.lib.site_Enums import *
+
 
 # WebCalculator
 
@@ -68,8 +70,36 @@ class WebManager(models.Manager):
 
 
 class WebCalculator(models.Model):
+    dwellingTypes = (
+        (dwellingTypesEnum.HOUSE.value, 'House'),
+        (dwellingTypesEnum.APARTMENT.value, 'Apartment'))
+
+
+    loanTypes=(
+        (loanTypesEnum.SINGLE_BORROWER.value,'Single'),
+        (loanTypesEnum.JOINT_BORROWER.value,'Joint')
+    )
+
+    productTypes = (
+        (productTypesEnum.LUMP_SUM.value, "Lump Sum"),
+        (productTypesEnum.INCOME.value, "Income"),
+        (productTypesEnum.COMBINATION.value, "Combination"),
+        (productTypesEnum.CONTINGENCY_20K.value, "Contingency 20K"),
+    )
+
+    stateTypes=(
+        (stateTypesEnum.NSW.value, "NSW"),
+        (stateTypesEnum.VIC.value, "VIC"),
+        (stateTypesEnum.ACT.value, "ACT"),
+        (stateTypesEnum.QLD.value, "QLD"),
+        (stateTypesEnum.SA.value, "SA"),
+        (stateTypesEnum.WA.value, "WA"),
+        (stateTypesEnum.TAS.value, "TAS"),
+        (stateTypesEnum.NT.value, "NT"),
+    )
 
     calcUID = models.UUIDField(default=uuid.uuid4, editable=False)
+    productType = models.IntegerField(choices=productTypes, null=True, blank=True, default=0)
     referrer = models.URLField(blank=True, null=True)
 
     # Client Data
@@ -84,7 +114,7 @@ class WebCalculator(models.Model):
     # Address Data
     streetAddress = models.CharField(max_length=80, blank=True, null=True)
     suburb = models.CharField(max_length=40, blank=True, null=True)
-    state = models.CharField(max_length=20, blank=True, null=True)
+    state = models.IntegerField(choices=stateTypes, null=True, blank=True)
     postcode = models.IntegerField(blank=True, null=True)
 
     # Calculated Fields
@@ -95,38 +125,43 @@ class WebCalculator(models.Model):
     maxLVR = models.FloatField(blank=True, null=True)
     errorText = models.CharField(max_length=40, blank=True, null=True)
 
-    # Lump sum fields
+    # Calculator fields
     isTopUp = models.BooleanField(blank=True, null=True)
     isRefi = models.BooleanField(blank=True, null=True)
     isLive = models.BooleanField(blank=True, null=True)
     isGive = models.BooleanField(blank=True, null=True)
     isCare = models.BooleanField(blank=True, null=True)
-    calcTopUp = models.IntegerField(blank=True, null=True)
-    calcRefi = models.IntegerField(blank=True, null=True)
-    calcLive = models.IntegerField(blank=True, null=True)
-    calcGive = models.IntegerField(blank=True, null=True)
-    calcCare = models.IntegerField(blank=True, null=True)
-    calcTotal = models.IntegerField(blank=True, null=True)
-    payIntAmount = models.IntegerField(blank=True, null=True)
-    payIntPeriod = models.IntegerField(blank=True, null=True)
-
-    # Income fields
-    choiceOtherNeeds = models.BooleanField(blank=True, null=True)
-    choiceMortgage = models.BooleanField(blank=True, null=True)
+    calcLumpSum = models.IntegerField(blank=True, null=True)
+    calcIncome = models.IntegerField(blank=True, null=True)
 
     # Workflow
+    application = models.BooleanField(default=False, blank=False, null=False)
     actioned=models.IntegerField(default=0,blank=True, null=True)
     actionedBy=models.CharField(max_length=40,blank= True,null=True)
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
 
+    # Other
+    calcTopUp = models.IntegerField(blank=True, null=True) #deprecated
+    calcRefi = models.IntegerField(blank=True, null=True) #deprecated
+    calcLive = models.IntegerField(blank=True, null=True) #deprecated
+    calcGive = models.IntegerField(blank=True, null=True) #deprecated
+    calcCare = models.IntegerField(blank=True, null=True) #deprecated
+    calcTotal = models.IntegerField(blank=True, null=True) #deprecated
+    payIntAmount = models.IntegerField(blank=True, null=True) #deprecated
+    payIntPeriod = models.IntegerField(blank=True, null=True) #deprecated
 
     objects = WebManager()
 
     def __str__(self):
         return smart_text(self.pk)
 
+    def enumLoanType(self):
+            if self.loanType is not None:
+                return dict(self.loanTypes)[self.loanType]
 
+    def enumDwellingType(self):
+        return dict(self.dwellingTypes)[self.dwellingType]
 
 
 # WebContact

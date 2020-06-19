@@ -38,7 +38,7 @@ class CaseDetailsForm(forms.ModelForm):
                   'salutation_2', 'middlename_2', 'maritalStatus_2',
                   'street', 'suburb', 'postcode', 'valuation', 'dwellingType', 'propertyImage', 'mortgageDebt',
                   'superFund', 'valuationDocument', 'state', 'investmentLabel',
-                  'superAmount', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email']
+                  'superAmount', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email', 'productType']
         widgets = {
             'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
         }
@@ -90,7 +90,7 @@ class CaseDetailsForm(forms.ModelForm):
                     Div(Div(HTML("Client Email"), css_class='form-label'),
                         Div(Field('email'))),
                     Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Borrower(s)"), css_class='form-header pt-2'),
-                    Div(Div(HTML("Single or Joint Borrowers"), css_class='form-label'),
+                    Div(Div(HTML("Single or Joint Borrowers (Nominated Occupant)"), css_class='form-label'),
                         Div(Field('loanType'))),
                     HTML("<i class='fas fa-user'></i>&nbsp;&nbsp;<small>Borrower 1</small>"),
                     Row(
@@ -176,6 +176,11 @@ class CaseDetailsForm(forms.ModelForm):
                     Div(HTML("<i class='fas fa-hand-holding-usd'></i>&nbsp;&nbsp;Pension"), css_class='form-header'),
                     Div(Div(HTML("Pension Amount"), css_class='form-label'),
                         Div(Field('pensionAmount'))),
+
+                    Div(HTML("<i class='fas fa-barcode'></i>&nbsp;&nbsp;Product Type"), css_class='form-header'),
+                    Div(Div(HTML("Product Type"), css_class='form-label'),
+                        Div(Field('productType'))),
+
                     Div(HTML("<p class='small pt-2'><i class='fa fa-camera fa-fw'>&nbsp;&nbsp;</i>Property Image</p>"),
                         Field('propertyImage')),
                     Div(HTML("<p class='small pt-2'><i class='far fa-file-pdf'></i>&nbsp;&nbsp;</i>Auto Valuation</p>"),

@@ -129,6 +129,8 @@ def mapCaseToOpportunity(caseObj, lossObj):
         'state': caseObj.enumStateType(),
         'valuation': caseObj.valuation,
         'dwellingType': caseObj.enumDwellingType(),
+        'meetingDate': caseObj.meetingDate,
+        'enquiryCreateDate': caseObj.enquiryCreateDate,
 
         # Meeting Data
         'maxLVR': caseObj.loan.maxLVR,
@@ -222,7 +224,8 @@ def mapCaseToOpportunity(caseObj, lossObj):
     payload['purposes'] = purposes
 
     # Date Fields
-    SF_DATE_FIELDS = ['timestamp', 'updated', 'birthdate_1', 'birthdate_2', 'meetingDate', 'closeDate', 'followUpDate']
+    SF_DATE_FIELDS = ['timestamp', 'updated', 'birthdate_1', 'birthdate_2', 'closeDate', 'followUpDate']
+    SF_DATE_TIME_FIELDS = ['meetingDate', 'enquiryCreateDate']
 
     objDict = caseObj.__dict__
     objDict.update(lossObj.__dict__)
@@ -232,6 +235,15 @@ def mapCaseToOpportunity(caseObj, lossObj):
             payload[field] = objDict[field].strftime("%Y-%m-%d")
         else:
             payload[field] = None
+
+
+    for field in SF_DATE_TIME_FIELDS:
+        if objDict[field]:
+            payload[field] = objDict[field].strftime("%Y-%m-%dT%H:%M:%SZ")
+        else:
+            payload[field] = None
+
+
 
     # Super Fund
     if caseObj.superFund:

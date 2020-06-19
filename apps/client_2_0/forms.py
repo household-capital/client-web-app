@@ -116,6 +116,12 @@ class ClientDetailsForm(forms.ModelForm):
             css_class="row")
     )
 
+    def clean_pensionAmount(self):
+        if not self.cleaned_data['pensionAmount']:
+            return 0
+        else:
+            return self.cleaned_data['pensionAmount']
+
     def clean(self):
         loanType = self.cleaned_data['loanType']
 

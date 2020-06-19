@@ -1,0 +1,60 @@
+{% extends 'application/base/base_app.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+
+{% block message_display %}
+    <div class="container">
+        {% if messages %}
+            <div id='messages' class="row justify-content-md-center pt-2">
+                <div class="col-6 text-center">
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %}
+                            class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+        </div>
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="container">
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10 pb-3">
+                <br>
+                <div class="secondary_title">Eligibility</div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-6 pb-3">
+
+                <p>To be eligible for a Household Loan you need to own your home and for all owners of the home to be Borrowers.  Your home needs to have a ‘freehold’ or ‘strata’ Certificate of Title.</p>
+<br>
+                <p>If you don’t own your home, or it’s a different type of property (maybe a retirement village) unfortunately we can’t help out.  </p>
+
+            </div>
+
+              <div class="col-lg-4 pb-3">
+              </div>
+
+
+        </div>
+    </div>
+
+{% endblock %}
+
+
+
+{% block javascript %}
+
+{% endblock %}

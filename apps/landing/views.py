@@ -1,6 +1,9 @@
 import csv
 import json
 import datetime
+import pytz
+from django.utils import timezone
+
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -20,7 +23,7 @@ from apps.case.models import Case, Loan
 from apps.servicing.models import Facility
 
 from apps.enquiry.models import Enquiry
-from apps.lib.site_Enums import caseStagesEnum, directTypesEnum, channelTypesEnum, appTypesEnum
+from apps.lib.site_Enums import caseStagesEnum, directTypesEnum, channelTypesEnum, appTypesEnum, closeReasonEnum
 from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, LoginOnlyRequiredMixin, updateNavQueue
 
 
@@ -69,7 +72,7 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
         context['openDocumentation'] = qsOpenCases.filter(caseStage=caseStagesEnum.DOCUMENTATION.value).count()
 
         # Totals
-        qsEnqs = Enquiry.objects.all()
+        qsEnqs = Enquiry.objects.all().exclude(closeReason=closeReasonEnum.CALL_ONLY.value)
         context['totalEnquiries'] = qsEnqs.count()
         context['webEnquiries'] = qsEnqs.filter(referrer=directTypesEnum.WEB_CALCULATOR.value).count()
         context['emailEnquiries'] = qsEnqs.filter(referrer=directTypesEnum.EMAIL.value).count() + \
@@ -113,7 +116,7 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
 
         # LEAD GENERATION TABLE
 
-        qsEnqs = Enquiry.objects.all()
+        qsEnqs = Enquiry.objects.all().exclude(closeReason=closeReasonEnum.CALL_ONLY.value)
         tz = get_current_timezone()
 
         # - get monthly date range
@@ -437,33 +440,75 @@ class Weekly(HouseholdLoginRequiredMixin, TemplateView):
         return value
 
 
-class PortfolioSummary(HouseholdLoginRequiredMixin, View):
+class CalculatorExtract(HouseholdLoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="Portfolio.csv"'
+        response['Content-Disposition'] = 'attachment; filename="Calculator.csv"'
 
         writer = csv.writer(response)
         writer.writerow(
-            ['CaseID', 'LoanType', 'Gender1', 'Age1', 'Gender2', 'Age2', 'LoanAmount', 'Valuation', 'DwellingType',
-             'State', 'Postcode'])
+            ['CalcUID', 'LoanType', 'Age1', 'Age2', 'DwellingType', 'Valuation', 'MaxLoanAmount',
+             'maxLVR', 'Postcode','Status','TimeStamp', 'Referrer'])
 
-        qs = Case.objects.filter(Q(caseStage=caseStagesEnum.FUNDED.value) | Q(caseStage=caseStagesEnum.DOCUMENTATION.value))
+        qs = WebCalculator.objects.all()
 
-        for facility in qs:
-            loanObj = Loan.objects.filter(case=facility).get()
+        for interaction in qs:
 
             row = []
-            row.append(facility.caseID)
-            row.append(facility.enumLoanType())
-            row.append(facility.enumSex()[0])
-            row.append(facility.age_1)
-            row.append(facility.enumSex()[1])
-            row.append(facility.age_2)
-            row.append(loanObj.totalLoanAmount)
-            row.append(facility.valuation)
-            row.append(facility.enumDwellingType())
-            row.append(facility.enumStateType())
-            row.append(facility.postcode)
+            row.append(interaction.calcUID)
+            row.append(interaction.enumLoanType())
+            row.append(interaction.age_1 if interaction.age_1 else 'null')
+            row.append(interaction.age_2 if interaction.age_2 else 'null')
+            row.append(interaction.enumDwellingType())
+            row.append(interaction.valuation if interaction.valuation else 'null')
+            row.append(interaction.maxLoanAmount if interaction.maxLoanAmount else 'null')
+            row.append(interaction.maxLVR if interaction.maxLVR else 'null')
+            row.append(interaction.postcode if interaction.postcode else 'null')
+            row.append(interaction.status)
+            row.append(timezone.localtime(interaction.timestamp))
+            row.append(interaction.referrer)
             writer.writerow(row)
         return response
+
+
+class EnquiryExtract(HouseholdLoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="Enquiry.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(
+            ['EnqUID', 'Phone Number','LoanType', 'Age1', 'Age2', 'DwellingType', 'Valuation', 'MaxLoanAmount',
+             'maxLVR', 'Postcode','Status','TimeStamp', 'Referrer', 'ReferrerID','marketingSource'])
+
+        qs = Enquiry.objects.all()
+
+        for interaction in qs:
+
+            row = []
+            row.append(interaction.enqUID)
+            row.append(interaction.phoneNumber if interaction.phoneNumber else 'null')
+            row.append(interaction.enumLoanType())
+            row.append(interaction.age_1 if interaction.age_1 else 'null')
+            row.append(interaction.age_2 if interaction.age_2 else 'null')
+            row.append(interaction.enumDwellingType())
+            row.append(interaction.valuation if interaction.valuation else 'null')
+            row.append(interaction.maxLoanAmount if interaction.maxLoanAmount else 'null')
+            row.append(interaction.maxLVR if interaction.maxLVR else 'null')
+            row.append(interaction.postcode if interaction.postcode else 'null')
+            row.append(interaction.status)
+            row.append(timezone.localtime(interaction.timestamp))
+            row.append(interaction.enumReferrerType())
+            row.append(interaction.referrerID)
+            row.append(interaction.enumMarketingSource())
+
+            writer.writerow(row)
+        return response
+
+
+
+
+
+

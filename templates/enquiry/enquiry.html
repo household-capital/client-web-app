@@ -22,7 +22,7 @@
     <div class="container">
 
         {% if messages %}
-            <div class="row justify-content-md-center">
+            <div id='messages' class="row justify-content-md-center">
                 <div class="col-6 text-center">
                     <br>
                     {% for message in messages %}
@@ -53,28 +53,47 @@
             <div class="col-lg-8 text-left">
 
                 {% if newEnquiry %}
-                    <!-- Button trigger modal -->
-                    <button type="button" class="btn btn-outline-primary" data-toggle="modal"
-                            data-target="#privacyModal">
-                        Privacy statement
-                    </button>
-
-                {% elif isUpdate == False %}
+                    <div id="messages" class="row pt-2">
+                        <div class="col-lg-6 text-left">
+                            <div class="alert alert-primary" role="alert">
+                                <p><i class="fas fa-info-circle"></i>&nbsp;&nbsp;
+                                    Privacy statement
+                                </p>
+                            </div>
+                        </div>
+                    </div>
 
                 {% elif obj.status == False %}
+                    <div id="messages" class="row pt-2">
+                        <div class="col-lg-6 text-left">
+                            <div class="alert alert-primary" role="alert">
+                                <p><i class="fas fa-info-circle"></i>&nbsp;&nbsp;
+                                    Privacy statement
+                                </p>
+                            </div>
+                        </div>
+                    </div>
 
                 {% elif obj.sfLeadID is null %}
-                    <div class="alert alert-primary" role="alert">
-                        <p><i class="fal fa-question-circle"></i>
-                            Note: no Salesforce Lead - insufficient data, not synch'd yet or potential duplicate?
-                        </p>
+                    <div id="messages" class="row pt-2">
+                        <div class="col-lg-6 text-left">
+                            <div class="alert alert-primary" role="alert">
+                                <p><i class="fas fa-info-circle"></i>&nbsp;&nbsp;
+                                    No Salesforce Lead
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
                 {% elif obj.sfLeadID %}
-                    <a href="{{ obj.get_SF_url }}" target="_blank">
-                        <p class="larger" style="color:deepskyblue"><i class="fas fa-cloud fa-lg "></i>&nbsp;
-                            Salesforce lead</p></a>
+                    <p class="larger">
+                        <a style="color:deepskyblue" href="{{ obj.get_SF_url }}" target="_blank"><i
+                                class="fas fa-external-link-alt"></i>&nbsp;
+                            Salesforce </a>
+                    </p>
+
                 {% endif %}
+
 
             </div>
         </div>
@@ -86,7 +105,7 @@
             </div>
         </div>
 
-        <div class="row pt-2">
+        <div class="row pt-2 pb-5">
             <div class="col-lg-8 text-left">
 
 
@@ -176,24 +195,46 @@
 
                     {% if status.status == 'Ok' %}
                         <div class="jumbotron">
-                            <p class="small"><i class="fas fa-users-cog fa-fw"></i>&nbsp;Initial Validation</p>
-                            <br>
-                            <p><i class="far fa-check-circle fa-lg btn-outline-success"></i>&nbsp;Eligible Opportunity
-                            </p>
-                            {% if status.data.postcode != 'Valid' %}
-                                <br>
-                                <p class="pl-4"><i class="fas fa-tractor fa-lg btn-outline-warning"></i>&nbsp;Refer
-                                    Postcode
-                                </p>
-                                <p class="small pl-4 pb-3">Get full address</p>
+                            {% if obj.productType == productTypesEnum.INCOME.value %}
+                                <p class="badge badge-info">
+                                    Income</p>
+
+                            {% elif obj.productType == productTypesEnum.CONTINGENCY_20K.value %}
+                                <p class="badge badge-info">
+                                    Contingency20K</p>
+
+                            {% elif obj.productType == productTypesEnum.COMBINATION.value %}
+                                <p class="badge badge-info">
+                                    Combination</p>
+                            {% else %}
+                                <p class="badge badge-dark">
+                                    Lump Sum</p>
                             {% endif %}
 
-                            <p class="large pl-4">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
+                            <p class="small pt-4"><i class="fas fa-users-cog fa-fw"></i>&nbsp;Initial Validation</p>
+                            {% if status.data.postcode == 'Valid' %}
+                                <p class="text-success"><i class="far fa-check-circle fa-lg btn-outline-success"></i>&nbsp;Eligible
+                                    Opportunity
+                                </p>
+                            {% else %}
+                                <p class="text-warning"><i class="fas fa-fw fa-exclamation-triangle"></i>&nbsp;Refer
+                                    Postcode - get full address
+                                </p>
+                            {% endif %}
+
+                            {% if requirementError %}
+                                <p class="text-danger pt-2"><i class="fas fa-lg fa-exclamation-circle"></i>&nbsp;{{ requirementError  }}
+                                </p>
+                            {% endif %}
+
+
                             <br>
                             <p class="small"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
+                            <p class="small">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
                             <p class="small">Max Loan is: ${{ status.data.maxLoan|intcomma }} (incl
                                 establishment
                                 fee)</p>
+                            <p class="small">Max Monthly Income is: ${{ status.data.maxDrawdownMonthly|intcomma }} (incl est fee)</p>
                             <p class="small">{% if status.data.maxLoan > status.data.maxTopUp %}Max for
                                 Super
                                 Top Up
@@ -215,8 +256,8 @@
                             {% if obj.summaryDocument %}
                                 <p class="small"><i class="far fa-file-pdf"></i>&nbsp;Documents</p>
                                 <p class="small"><a
-                                        href="/media/enquiryReports/{{ obj.summaryDocument.file|filename }}">Enquiry
-                                    Document</a>
+                                        href="/media/enquiryReports/{{ obj.summaryDocument.file|filename }}">Customer
+                                    Summary</a>
                                 </p>
                             {% endif %}
                         </div>
@@ -227,10 +268,10 @@
 
                         <div class="jumbotron">
 
-                            <p class="small"><i class="fas fa-users-cog fa-fw"></i>&nbsp;Initial Validation</p>
-                            <br>
-                            <p><i class="far fa-times-circle fa-lg btn-outline-danger"></i>&nbsp;Ineligible
-                                - {{ status.responseText }}</p>
+                            <p class="pb-3 small"><i class="fas fa-users-cog fa-fw"></i>&nbsp;Initial Validation</p>
+                            <p class="text-danger"><i class="far fa-times-circle fa-lg btn-outline-danger"></i>&nbsp;Ineligible
+                            <p>
+                            <p class="pl-4 text-danger small"> {{ status.responseText }}</p>
 
                         </div>
 
@@ -329,28 +370,89 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="privacyModal" tabindex="-1" role="dialog" aria-labelledby="privacyModalLabel"
+    <div class="modal" id="addressModal" tabindex="-1" role="dialog" aria-labelledby="addressModalLabel"
          aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="privacyModalLabel">Privacy statement</h5>
+                    <h5 class="modal-title" id="addressModalLabel">Address Lookup</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    Just before we start, I need to let you know that I am going to collect personal information from
-                    you.
-                    <br><br>
-                    How we collect, hold and use your personal and credit-related information is set out in our Privacy
-                    Policy, which is available on our website.
-                    <br><br>
-                    Is this ok?
+                    <div id="addressSearch">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col-10">
+                                <p class="small text-left pb-1">Address</p>
+                                <div class="pb-1 pr-1">
+                                    <form>
+                                        {{ address_form.lookup_address|as_crispy_field }}
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <div class="pt-1">
+                                    <button id="lookup" type="button"
+                                            class="btn btn-square-choice-hhcLightBlue active">Find
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row pt-1">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <select class="form-control" style="display:none" id="addressSelect">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <br>
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="productModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productModalLabel">Requirements and product</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
+                <div class="modal-body">
+                    <p>You can specify amounts to be used in the projections that are contained within the Customer Summary.  These will ordinarily be filled in, if the customer has used a calculator. </p>
+                    <br><p>This can
+                        be:</p>
+                    <ul>
+                        <li>a lump sum amount (total $ amount); and/or</li>
+                        <li>an income amount ($ per month for 10 years)</li>
+                    </ul>
+                    <p><b>Note:</b> these amounts INCLUDE the establishment fee</p>
+                    <br>
+                    <p>If you leave these blank, the projection will use the maximum or default amounts</p><br>
+                    <p>The <b>product type</b> determines which of these is used and also changes the summary document slightly:</p>
+                    <ul>
+                        <li>lump sum - just the lump sum amount</li>
+                        <li>income - just the income amount</li>
+                        <li>combination - both amounts</li>
+                    </ul>
+
+                </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">Agree</button>
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -362,13 +464,89 @@
 {% block javascript %}
     <script>
 
+        // Address Functions
+
+        function findAddress() {
+            var source = $("#id_lookup_address");
+            var dropdown = $("#addressSelect");
+            if (source.val().length > 5) {
+                return $.ajax({
+                    url: "{{ ajaxURL }}",
+                    type: "post",
+                    data: {
+                        "lookup_address": source.prop("value"),
+                        "csrfmiddlewaretoken": '{{ csrf_token }}'
+                    },
+                    success: function (data) {
+                        addressData = data;
+                        clearDropdown();
+                        $.each(addressData, function (i) {
+                            dropdown.append($("<option />").val(i).text(this.streetAddress));
+                            dropdown.attr('size', 10);
+                        });
+
+                    },
+                });
+            } else {
+                if (dropdown.val() == -1) {
+                    clearDropdown()
+                }
+            }
+        }
+
+        function setAddressData(obj) {
+            $('#id_streetAddress').prop("value", addressData[obj.val()].streetComponent);
+            $('#id_suburb').prop("value", addressData[obj.val()].suburb);
+            $('#id_state').prop("value", addressData[obj.val()].stateCode);
+            $('#id_postcode').prop("value", addressData[obj.val()].postCode);
+            $("#addressSelect").attr('size', 1.9);
+        }
+
+        function clearDropdown() {
+            $("#addressSelect option").remove();
+            $("#addressSelect").append('<option value="-1"> -- Please Select -- </option>');
+
+        }
 
         $(document).ready(function () {
             $("form").one('click focus change', function (e) {
                 $('#submit-id-submit').addClass('btn-warning').removeClass('btn-outline-secondary');
                 $('#btnEnquiryActions').attr('disabled', true)
 
-            })
+                $("#lookup_dialogue").click(function () {
+                    $('#addressModal').modal({
+                        keyboard: false
+                    })
+                })
+            });
+
+            $('#lookup').click(function () {
+                var search = $('#id_lookup_address').val();
+                if (search.length > 5) {
+                    $("#addressSelect").show();
+                    $("#addressButton").show();
+                    findAddress();
+                    $('html, body').animate({scrollTop: $("#addressSelect").offset().top - 50}, 'slow');
+                }
+
+            });
+
+            $('#addressSelect').change(function () {
+                if ($(this).val() > -1) {
+                    $('#id_address').val("");
+                    setAddressData($(this))
+                    $('#addressModal').modal('hide')
+                }
+            });
+        });
+
+        // Prevent form submission on enter
+        $('form input').keydown(function (e) {
+            if (e.keyCode == 13) {
+                e.preventDefault();
+                $(':focus').blur();
+                return false;
+            }
         });
 
 

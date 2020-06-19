@@ -8,6 +8,12 @@ from django import template
 
 # CUSTOM TEMPLATE TAGS
 
+def modelMethod(obj, method_name, *args):
+    method = getattr(obj, method_name)
+    return method(*args)
+
+# CUSTOM FILTERS
+
 def intVal(value):
     if value==None:
         return 0
@@ -90,3 +96,5 @@ register.filter('getDictItem', getDictItem)
 register.filter('yesNo', yesNo)
 register.filter('percent', percent)
 register.filter('roundNum', roundNum)
+
+register.simple_tag(modelMethod, name='modelMethod')

@@ -1,0 +1,612 @@
+{% load static %}
+{% load humanize %}
+{% load site_tags %}
+
+<!doctype html>
+
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Other tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- CSS -->
+    {% include 'site/base.css.html' %}
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css"
+          integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
+
+
+    <title>Household Summary</title>
+</head>
+
+<body>
+
+
+<!-- PAGE 1 -->
+<div class="page">
+
+    <div class="print-container">
+
+        <div class="row pt-3 ">
+            <div class="col-sm-12  text-left">
+                <br>
+                <img src="{% static 'img/document/HC_Logo_Flat.png' %}" width="200px">
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="print-container">
+        <div class="row justify-content-center">
+            <div class="gold_underline">
+                <p class="secondary_title text-center ">Your summary</p>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="text-center">
+                <br>
+                <p class="x-large"><b>Your Household Transfer</b></p>
+                <p class="print-text">You may be eligible for a Household Transfer as follows </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="print-container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 ">
+                <div class="row justify-content-center">
+                    <div class="col-lg-12 ">
+                        <br>
+                        <div class="row justify-content-md-center">
+                            <div class="col-lg-3 text-center pr-2">
+                                <p class="print-text">About you</p>
+                            </div>
+                            <div class="col-lg-3 text-center pr-2">
+                                <p class="print-text ">Your home</p>
+                            </div>
+
+                            <div class="col-lg-3 text-left">
+                                <p class="print-text text-left pl-2">Estimated value</p>
+                            </div>
+                            <div class="col-lg-3 text-left">
+                                <p class="print-text text-left">Top-up amount</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row justify-content-md-center">
+                    <div class="col-lg-3 text-center pt-3">
+                        {% if obj.loanType == loanTypesEnum.JOINT_BORROWER.value %}
+                            <img src="{% static 'img/icons/couple_icon.png' %}" width="130px">
+                        {% else %}
+                            <img src="{% static 'img/icons/single_icon.png' %}" width="130px">
+                        {% endif %}
+                    </div>
+
+                    <div class="col-lg-3 text-center pt-3">
+                        {% if obj.dwellingType == dwellingTypesEnum.HOUSE.value %}
+                            <img src="{% static 'img/icons/house_icon.png' %}" width="130px">
+                        {% else %}
+                            <img src="{% static 'img/icons/apartment_icon.png' %}" width="130px">
+                        {% endif %}
+                    </div>
+
+                    <div class="col-lg-3 text-center pt-1">
+
+                        <img width="235px"
+                             src="{{ transfer_img }}">
+                    </div>
+
+
+                    <div class="col-lg-3 text-left pt-1">
+
+                        <div>
+                            <br><br>
+                        </div>
+                        <p class="x-large pl-3">${{ totalLoanAmount }}*</p>
+
+                    </div>
+
+                </div>
+
+                <div class="row justify-content-md-center">
+                    <div class="col-lg-3 text-center pr-2 pt-3">
+                        {% if obj.loanType == loanTypesEnum.JOINT_BORROWER.value %}
+                            <p class="print-text">Couple</p>
+                            <p class="print-text">Ages: {{ obj.age_1 }},&nbsp;{{ obj.age_2 }}</p>
+                        {% else %}
+                            <p class="print-text">Single</p>
+                            <p class="print-text">Age: {{ obj.age_1 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-lg-3 text-center pr-2 pt-3">
+                        {% if obj.dwellingType == dwellingTypesEnum.HOUSE.value %}
+
+                            <p class="print-text">House</p>
+                        {% else %}
+                            <p class="print-text">Apartment</p>
+                        {% endif %}
+                        <p class="print-text">Postcode: {{ obj.postcode|intBlank }}</p>
+
+                    </div>
+
+                    <div class="col-lg-3 text-left pt-3 pl-5">
+                        <p class="print-text">${{ obj.valuation }}</p>
+                    </div>
+
+                    <div class="col-lg-3 text-left">
+                        <p class="print-text text-center"></p>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <br><br>
+
+    <div class="print-container">
+        <div class="cal_background_warm print-edge-row">
+
+            <div class="container">
+                <div class="row">
+
+                    <div class="col-lg-12 text-center ">
+                        <br>
+                        <p class="x-large"><b>Retirement funding needs</b></p>
+                        <p class="print-text">Household Transfers can be used for a range of funding needs</p>
+
+                        <br>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="print-container">
+        <br>
+
+        <div class="row {% if not obj.calcTotal %}pl-5{% endif %} ">
+            <div class="col-lg-11 ">
+
+                <div class="row align-items-center justify-content-center ">
+
+                    <div class="col-md-2 text-center pb-2 ">
+
+                        <img class=""
+                             src="{% static 'img/icons/topup_icon.png' %}" width="80px">
+                    </div>
+                    <div class="col-md-6">
+                        <p class="pl-2 print-text"><b>Top Up</b></p>
+                        <p class="pl-2"> Increase your super, investments or contingency funds</p>
+                    </div>
+                    <div class="col-md-2 text-right"><p class="larger">{% if obj.calcTopUp %}$
+                        {{ obj.calcTopUp }}{% endif %}</p></div>
+                </div>
+
+                <div class="row align-items-center justify-content-center">
+                    <div class="col-md-2 text-center pb-2">
+                        <img class=""
+                             src="{% static 'img/icons/refi_icon.png' %}" width="80px">
+                    </div>
+
+                    <div class="col-md-6 text-left">
+                        <p class="pl-2 print-text"><b>Refinance</b></p>
+                        <p class="pl-2">Refinance your existing mortgage (choose whether or not to make repayments)</p>
+                    </div>
+                    <div class="col-md-2 text-right"><p class="larger">{% if obj.calcRefi %}$
+                        {{ obj.calcRefi }}{% endif %}</p></div>
+                </div>
+
+                <div class="row align-items-center justify-content-center">
+                    <div class="col-md-2 text-center pb-2">
+                        <img class=""
+                             src="{% static 'img/icons/live_icon.png' %}" width="80px">
+                    </div>
+                    <div class="col-md-6 text-left">
+                        <p class="pl-2 print-text"><b>Live</b></p>
+                        <p class="pl-2">Renovate your home or help fund your transport and travel</p>
+                    </div>
+                    <div class="col-md-2 text-right"><p class="larger">{% if obj.calcLive %}$
+                        {{ obj.calcLive }}{% endif %}</p></div>
+                </div>
+
+                <div class="row align-items-center justify-content-center">
+                    <div class="col-md-2 text-center pb-2">
+                        <img class=""
+                             src="{% static 'img/icons/give_icon.png' %}" width="80px">
+                    </div>
+                    <div class="col-md-6 text-left">
+                        <p class="pl-2 print-text"><b>Give</b></p>
+                        <p class="pl-2">Help your family with funding a home deposit or education expenses</p>
+
+                    </div>
+                    <div class="col-md-2 text-right"><p class="larger">{% if obj.calcGive %}$
+                        {{ obj.calcGive }}{% endif %}</p></div>
+                </div>
+
+                <div class="row align-items-center justify-content-center">
+                    <div class="col-md-2 text-center pb-2">
+                        <img class=""
+                             src="{% static 'img/icons/care_icon.png' %}" width="80px">
+                    </div>
+                    <div class="col-md-6 text-left">
+                        <p class="pl-2 print-text"><b>Care</b></p>
+                        <p class="pl-2">Fund your medical expenses, in-home care or aged care requirements</p>
+                    </div>
+                    <div class="col-md-2 text-right"><p class="larger">{% if obj.calcCare %}$
+                        {{ obj.calcCare }}{% endif %}</p></div>
+                </div>
+
+                <div class="row align-items-center justify-content-center">
+                    {% if obj.calcTotal %}
+                        <div class="col-md-8 text-right">
+                            <p class="larger">Total retirement funding needs</p>
+                        </div>
+                        <div class="col-md-2 text-right">
+                            <div>
+                                <p class="x-large">${{ obj.calcTotal }}</p>
+
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="col-md-2 text-right">
+                            <div>
+                                <p class="x-large">&nbsp;</p>
+
+                            </div>
+                        </div>
+
+                    {% endif %}
+
+                </div>
+                <br>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="print-container">
+
+        <div class="row justify-content-center pt-1">
+
+            <div class="col-md-10 text-center">
+
+
+                <p class="small">*This calculation does not constitute an approval but provides an indication
+                    of the maximum possible loan. Household Transfers are subject to loan approval criteria, which
+                    includes a home valuation. Lending limits may apply for specific purposes. Full terms and conditions
+                    will be included in any loan
+                    application</p>
+                <br>
+            </div>
+        </div>
+    </div>
+
+    <div class="print-container ">
+
+        <div class="padding-2px"></div> <!-- Document pages alignment -->
+
+        <div class="HHCBlueBackground-Printed print-edge-row">
+
+            <div class="print-container">
+
+                <div class="row pb-2">
+
+                    <div class="col-lg-3 ">
+                        <br>
+                        <p class="small text-white"><i class="far fa-envelope"></i>&nbsp;&nbsp;info@householdcapital.com</p>
+                        <p class="small text-white"><i class="fas fa-phone">&nbsp;&nbsp;</i>1 300 622 100</p>
+                        <p class="small text-white"><i class="fas fa-desktop"></i>&nbsp;&nbsp;www.householdcapital.com</p>
+                        <br>
+
+                    </div>
+                    <div class="col-lg-7 text-center pl-5 pr-5">
+                        <br>
+                        <p class="small text-white">Household Capital Pty Limited ACN 618 068 214 is the issuer of this document.
+                            Household Capital Pty Limited is a credit representative (512757) of Mortgage Direct Pty
+                            Limited ACN 075 721 434, Australian Credit Licence 391876</p>
+
+                    </div>
+                    <div class="col-lg-2 secondary_title text-center pt-2">Live Well At Home
+                        <br>
+                    </div>
+
+                </div>
+                <br>
+            </div>
+        </div>
+    </div>
+
+    <p style="page-break-before: always">
+
+</div>
+
+
+<!-- PAGE 2 -->
+<div class="page">
+
+    <div class="print-container">
+
+        <div class="row pt-3">
+            <div class="col-sm-12  text-left">
+                <br><br>
+                <img src="{% static 'img/document/HC_Logo_Flat.png' %}" width="200px">
+            </div>
+
+        </div>
+
+        <div class="row justify-content-center pt-2">
+            <div class="text-center">
+                <p class="x-large pb-2"><b>How does a Household Transfer work?</b></p>
+            </div>
+
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-sm-9 text-center">
+                <p class="print-text-smaller">A Household Transfer is our approach to borrowing against home equity for
+                    responsible,
+                    long-term, retirement funding. Our loan is structured as a reverse mortgage and therefore you
+                    benefit
+                    from
+                    strong legal protections
+                </p>
+                <br>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-sm-11 text-left ">
+
+                <div class="row justify-content-center">
+                    <div class="col-sm-6 text-left ">
+                        <p class="larger"><b>Key benefits</b></p>
+                        <ul>
+                            <li>you remain the owner of your home</li>
+                            <li>you can stay in your home as long as you want to</li>
+                            <li>the loan is only repayable when you leave or sell your home</li>
+                            </li>
+                            <li>you cannot owe more than the house is worth</li>
+                        </ul>
+
+                    </div>
+
+                    <div class="col-sm-6 text-left ">
+                        <p class="larger"><b>Key features</b></p>
+                        <ul>
+                            <li>a low interest rate, currently &nbsp;
+                                <button type="button" class="btn btn-hhcGold"><p class="print-text">
+                                    &nbsp;&nbsp;{{ totalInterestRate }}% * &nbsp; </p></button>
+                            <li>no ongoing fees</li>
+                            <li>no requirement to pay interest (although you can)</li>
+                            <li>interest is added to the loan balance</li>
+                            <li>you can repay the loan at any time, without penalty</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+    </div>
+
+    <div class="print-container">
+        <div class="cal_background_warm print-edge-row ">
+            <div class="container">
+
+                <div class="row justify-content-center">
+                    <div class="col-sm-12 text-center">
+                        <br>
+                        <p class="x-large pb-2"><b>How does this change over time?</b></p>
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-sm-9 text-center">
+                        <p class="print-text-smaller">As the interest on a Household Transfer is added to the principal
+                            (the borrowed amount), the
+                            loan
+                            balance grows over time.
+                            However, the value of your home may also grow over time </p>
+                        <br>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="print-container">
+
+        <div class="row justify-content-center">
+            <div class="col-sm-10 text-center">
+
+                <br>
+                <p class="print-text-smaller"> The following is an illustration of how your home equity might change,
+                    over a fifteen year
+                    period,
+                    based on
+                    a Household Transfer of <b>${{ totalLoanAmount }}</b> (including establishment fee) and a
+                    current
+                    home value of
+                    <b>${{ obj.valuation }}</b> (see assumptions below)** </p>
+                <br>
+            </div>
+        </div>
+
+        <div class="row justify-content-center pt-2">
+            <div class="col-sm-10 text-center">
+
+                <div class="row justify-content-center">
+                    <div class="col-lg-3 text-center">
+                        <p class="small">Home value : ${{ resultsHouseValue.0|intcomma }}</p>
+                        <p class="small">Loan: ${{ resultsLoanBalance.0|intcomma }}</p>
+                        <p class="hhcBlueFont">Equity: ${{ resultsHomeEquity.0|intcomma }}</p>
+                        <p class="small">Equity: {{ resultsHomeEquityPC.0|intcomma }}%</p>
+
+                    </div>
+                    <div class="col-lg-3 text-center">
+                        <p class="small">Home value: ${{ resultsHouseValue.1|intcomma }}</p>
+                        <p class="small">Loan: ${{ resultsLoanBalance.1|intcomma }}</p>
+                        <p class="hhcBlueFont">Equity: ${{ resultsHomeEquity.1|intcomma }}</p>
+                        <p class="small">Equity: {{ resultsHomeEquityPC.1|intcomma }}%</p>
+
+                    </div>
+                    <div class="col-lg-3 text-center">
+                        <p class="small">Home value: ${{ resultsHouseValue.2|intcomma }}</p>
+                        <p class="small">Loan: ${{ resultsLoanBalance.2|intcomma }}</p>
+                        <p class="hhcBlueFont">Equity: ${{ resultsHomeEquity.2|intcomma }}</p>
+                        <p class="small">Equity: {{ resultsHomeEquityPC.2|intcomma }}%</p>
+
+                    </div>
+                    <div class="col-lg-3 text-center">
+                        <p class="small">Home value: ${{ resultsHouseValue.3|intcomma }}</p>
+                        <p class="small">Loan: ${{ resultsLoanBalance.3|intcomma }}</p>
+                        <p class="hhcBlueFont">Equity: ${{ resultsHomeEquity.3|intcomma }}</p>
+                        <p class="small">Equity: {{ resultsHomeEquityPC.3|intcomma }}%</p>
+                    </div>
+
+
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-lg-3 text-center my-auto">
+                        <div class="imgResults"><img src="{{ resultsHomeImages.0 }}"
+                                                     width="{{ resultsHouseValue.4 }}px">
+                        </div>
+                    </div>
+                    <div class="col-lg-3 text-center my-auto">
+                        <div class="imgResults"><img src="{{ resultsHomeImages.1 }}"
+                                                     width="{{ resultsHouseValue.5 }}px">
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 text-center my-auto ">
+                        <div class="imgResults"><img src="{{ resultsHomeImages.2 }}"
+                                                     width="{{ resultsHouseValue.6 }}px">
+                        </div>
+                    </div>
+                    <div class="col-lg-3 text-center my-auto">
+                        <div class="imgResults"><img src="{{ resultsHomeImages.3 }}"
+                                                     width="{{ resultsHouseValue.7 }}px">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center align-items-end">
+                    <div class="col-lg-3 text-center">
+                        <p class="larger">{{ resultsAge.0 }}</p>
+                    </div>
+                    <div class="col-lg-3 text-center">
+                        <p class="larger">{{ resultsAge.1 }}</p>
+                    </div>
+                    <div class="col-lg-3 text-center ">
+                        <p class="larger">{{ resultsAge.2 }}</p>
+                    </div>
+                    <div class="col-lg-3 text-center">
+                        <p class="larger">{{ resultsAge.3 }}</p>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center align-items-end">
+                    <div class="col-lg-6 text-center">
+                        {% if obj.loanType == loanTypesEnum.JOINT_BORROWER.value %}
+                            <p class="larger">Youngest borrower's age</p>
+                        {% else %}
+                            <p class="larger">Your age</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+    </div>
+
+    <div class="print-container">
+
+        <div class="cal_background_warm print-edge-row">
+            <div class="text-center">
+                <br>
+                <p class="x-large pb-2"><b>Could a Household Transfer be right for you?</b></p>
+                <p class="print-text-smaller">Contact {{ obj.user.first_name }} {{ obj.user.last_name }}
+                    ({{ obj.user.profile.mobile }}
+                    or {{ obj.user.email }}) to discuss your circumstances in more detail</p>
+                <br>
+            </div>
+        </div>
+    </div>
+
+    <div class="print-container">
+
+        <div class="row justify-content-center pt-3 ">
+            <div class="col-lg-11 text-center">
+
+                <p class="print-text-fine pb-2">* A 1.50% establishment fee is payable and included in the loan amount. The Comparison Rate
+                    is {{ comparisonRate }}%. This is based on a loan of $150,000 secured
+                    for a term of 25 years. Interest is calculated daily and
+                    accrued monthly. Please note that the comparison rate only applies to the example given.
+                    Different
+                    loan amounts and terms will result in different comparison rates.<br> <br>** This is an
+                    estimate,
+                    not a
+                    guarantee. You may end up with more or less equity in your home. Assumptions: a lump sum
+                    drawdown, {{ housePriceInflation }}% pa house price inflation and a {{ totalInterestRate }}% pa
+                    interest rate for the term of the loan. Establishment fee is included in the illustration.</p>
+
+            </div>
+        </div>
+
+        <div class="padding-15px"></div> <!-- Document pages alignment -->
+
+    </div>
+
+
+    <div class="print-container">
+        <div class="row HHCBlueBackground-Printed print-edge-row">
+
+            <div class="print-container">
+
+                <div class="row pb-2">
+
+                    <div class="col-lg-3 ">
+                        <br>
+                        <p class="small text-white"><i class="far fa-envelope"></i>&nbsp;&nbsp;info@householdcapital.com
+                        </p>
+                        <p class="small text-white"><i class="fas fa-phone">&nbsp;&nbsp;</i>1 300 622 100</p>
+                        <p class="small text-white"><i class="fas fa-desktop"></i>&nbsp;&nbsp;www.householdcapital.com</p>
+                        <br>
+
+                    </div>
+                    <div class="col-lg-7 text-center pl-5 pr-5">
+                        <br>
+                        <p class="small text-white">Household Capital Pty Limited ACN 618 068 214 is the issuer of this
+                            document.
+                            Household Capital Pty Limited is a credit representative (512757) of Mortgage Direct
+                            Pty
+                            Limited ACN 075 721 434, Australian Credit Licence 391876</p>
+
+                    </div>
+                    <div class="col-lg-2 secondary_title text-center pt-2">Live Well At Home
+                        <br>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
+

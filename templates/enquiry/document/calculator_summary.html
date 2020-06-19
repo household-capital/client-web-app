@@ -163,8 +163,13 @@
 
                     <div class="col-lg-12 text-center ">
                         <br>
-                        <p class="x-large"><b>Your retirement funding needs</b></p>
-                        <p class="print-text">You have indicated the following potential needs</p>
+                        <p class="x-large"><b>Retirement funding needs</b></p>
+                        <p class="print-text">Household Transfers can be used for a range of funding needs</p>
+                        {% if obj.calcLumpSum %}
+                        <p class="print-text">You have indicated a potential need for ${{ obj.calcLumpSum }}</p>
+                        {% else %}
+                        <p class="print-text">&nbsp;</p>
+                        {% endif %}
 
                         <br>
                     </div>
@@ -184,7 +189,7 @@
 
                     <div class="col-md-2 text-center pb-2 ">
 
-                        <img class="{% if not obj.isTopUp %}greyscale{% endif %}"
+                        <img class=""
                              src="{% static 'img/icons/topup_icon.png' %}" width="80px">
                     </div>
                     <div class="col-md-6">
@@ -197,7 +202,7 @@
 
                 <div class="row align-items-center justify-content-center">
                     <div class="col-md-2 text-center pb-2">
-                        <img class="{% if not obj.isRefi %}greyscale{% endif %}"
+                        <img class=""
                              src="{% static 'img/icons/refi_icon.png' %}" width="80px">
                     </div>
 
@@ -211,7 +216,7 @@
 
                 <div class="row align-items-center justify-content-center">
                     <div class="col-md-2 text-center pb-2">
-                        <img class="{% if not obj.isLive %}greyscale{% endif %}"
+                        <img class=""
                              src="{% static 'img/icons/live_icon.png' %}" width="80px">
                     </div>
                     <div class="col-md-6 text-left">
@@ -224,7 +229,7 @@
 
                 <div class="row align-items-center justify-content-center">
                     <div class="col-md-2 text-center pb-2">
-                        <img class="{% if not obj.isGive %}greyscale{% endif %}"
+                        <img class=""
                              src="{% static 'img/icons/give_icon.png' %}" width="80px">
                     </div>
                     <div class="col-md-6 text-left">
@@ -238,7 +243,7 @@
 
                 <div class="row align-items-center justify-content-center">
                     <div class="col-md-2 text-center pb-2">
-                        <img class="{% if not obj.isCare %}greyscale{% endif %}"
+                        <img class=""
                              src="{% static 'img/icons/care_icon.png' %}" width="80px">
                     </div>
                     <div class="col-md-6 text-left">
@@ -249,28 +254,6 @@
                         {{ obj.calcCare }}{% endif %}</p></div>
                 </div>
 
-                <div class="row align-items-center justify-content-center">
-                    {% if obj.calcTotal %}
-                        <div class="col-md-8 text-right">
-                            <p class="larger">Total retirement funding needs</p>
-                        </div>
-                        <div class="col-md-2 text-right">
-                            <div>
-                                <p class="x-large">${{ obj.calcTotal }}</p>
-
-                            </div>
-                        </div>
-                    {% else %}
-                        <div class="col-md-2 text-right">
-                            <div>
-                                <p class="x-large">&nbsp;</p>
-
-                            </div>
-                        </div>
-
-                    {% endif %}
-
-                </div>
                 <br>
 
             </div>
@@ -296,7 +279,7 @@
 
     <div class="print-container ">
 
-        <div class="padding-2px"></div> <!-- Document pages alignment -->
+        <div class="padding-10px"></div> <!-- Document pages alignment -->
 
         <div class="HHCBlueBackground-Printed print-edge-row">
 
@@ -437,13 +420,13 @@
                     a Household Transfer of <b>${{ totalLoanAmount }}</b> (including establishment fee) and a
                     current
                     home value of
-                    <b>${{ obj.valuation }}</b> (see assumptions below)** Assumes no payment of regular interest</p>
+                    <b>${{ obj.valuation }}</b> (see assumptions below)** </p>
                 <br>
             </div>
         </div>
 
         <div class="row justify-content-center pt-2">
-            <div class="col-sm-10 text-center">
+            <div class="col-sm-11 text-center">
 
                 <div class="row justify-content-center">
                     <div class="col-lg-3 text-center">
@@ -549,7 +532,7 @@
         <div class="row justify-content-center pt-3 ">
             <div class="col-lg-11 text-center">
 
-                <p class="print-text-fine pb-2">* A 1.50% establishment fee is payable. The Comparison Rate
+                <p class="print-text-fine pb-2">* A 1.50% establishment fee is payable and included in the loan amount. The Comparison Rate
                     is {{ comparisonRate }}%. This is based on a loan of $150,000 secured
                     for a term of 25 years. Interest is calculated daily and
                     accrued monthly. Please note that the comparison rate only applies to the example given.

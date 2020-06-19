@@ -13,9 +13,8 @@ from django.urls import reverse_lazy
 #Local Application Imports
 from apps.lib.site_Enums import caseStagesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,\
     pensionTypesEnum, loanTypesEnum, ragTypesEnum, channelTypesEnum, stateTypesEnum, incomeFrequencyEnum, \
-    closeReasonEnum, salutationEnum, maritalEnum, appTypesEnum, purposeCategoryEnum, purposeIntentionEnum, investmentTypesEnum
-
-from apps.accounts.models import Referer
+    closeReasonEnum, salutationEnum, maritalEnum, appTypesEnum, purposeCategoryEnum, purposeIntentionEnum, \
+    investmentTypesEnum, productTypesEnum
 
 from apps.accounts.models import Referer
 
@@ -56,8 +55,8 @@ class CaseManager(models.Manager):
         closedTypes = [caseStagesEnum.CLOSED.value, caseStagesEnum.FUNDED.value]
         return Case.objects.exclude(caseStage__in=closedTypes)
 
-    def referrerQueueCount(self):
-        return Case.objects.filter(owner__profile__referrer__isnull=False).count()
+    def queueCount(self):
+        return Case.objects.filter(owner__isnull=True).count()
 
 
 class Case(models.Model):
@@ -153,6 +152,13 @@ class Case(models.Model):
         (maritalEnum.DEFACTO.value, "Defacto"),
     )
 
+    productTypes = (
+        (productTypesEnum.LUMP_SUM.value, "Lump Sum"),
+        (productTypesEnum.INCOME.value, "Income"),
+        (productTypesEnum.COMBINATION.value, "Combination"),
+        (productTypesEnum.CONTINGENCY_20K.value, "Contingency 20K"),
+    )
+
     # ClientApp Identifiers
     caseID = models.AutoField(primary_key=True)
     caseUID = models.UUIDField(default=uuid.uuid4, editable=False)
@@ -163,6 +169,7 @@ class Case(models.Model):
     # Case Summary Data
     caseStage = models.IntegerField(choices=caseStages)
     appType = models.IntegerField(default = 0, choices = appTypes)
+    productType = models.IntegerField(choices=productTypes, null=True, blank=True, default=0)
     caseDescription = models.CharField(max_length=60, null=False, blank=False)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
 
@@ -225,6 +232,7 @@ class Case(models.Model):
     titleDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='customerDocuments') # deprecated
     titleRequest = models.BooleanField(null=True, blank=True)
     lixiFile= models.FileField(max_length=150, null=True, blank=True)
+    applicationDocument = models.FileField(max_length=150, null=True, blank=True)
 
     # Referral / Channel Data
     salesChannel = models.IntegerField(choices=channelTypes,null=True, blank=True)
@@ -232,12 +240,15 @@ class Case(models.Model):
     referralCompany = models.ForeignKey(Referer ,null=True, blank=True, on_delete=models.SET_NULL)
     referralRepNo = models.CharField(max_length=60, null=True, blank=True)
 
-    #Third Party Identifiers
+    #Third Party Identifiers / Workflow
     sfLeadID = models.CharField(max_length=20, null=True, blank=True)
     sfOpportunityID = models.CharField(max_length=20, null=True, blank=True)
     sfLoanID=models.CharField(max_length=20, null=True, blank=True)
     amalIdentifier=models.CharField(max_length=40, null=True, blank=True)
     amalLoanID=models.CharField(max_length=40, null=True, blank=True)
+
+    enquiryCreateDate = models.DateTimeField(null=True, blank=True)
+    enqUID = models.UUIDField(null=True, blank=True)
 
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
@@ -344,6 +355,7 @@ class Loan(models.Model):
     actualLVR = models.FloatField(null=True, blank=True, default=0)
     protectedEquity=models.IntegerField(default=0, choices=protectedChoices)
     detailedTitle = models.BooleanField(default=False)
+    isLowLVR = models.BooleanField(default=False)
 
     # Contract Amounts
     purposeAmount =models.IntegerField(default=0)
@@ -493,6 +505,88 @@ class LoanPurposes(models.Model):
     @property
     def enumIntentionPretty(self):
         return dict(self.intentionTypes)[self.intention].replace("_"," ").lower().title().replace(" To ", " to ")
+
+
+class LoanApplication(models.Model):
+    expenseFrequencyTypes = (
+        (incomeFrequencyEnum.WEEKLY.value, "Weekly"),
+        (incomeFrequencyEnum.MONTHLY.value, "Monthly"),
+        (incomeFrequencyEnum.QUARTERLY.value, "Quarterly"),
+        (incomeFrequencyEnum.ANNUALLY.value, "Annually")
+    )
+
+    incomeFrequencyTypes = (
+        (incomeFrequencyEnum.WEEKLY.value, "Weekly"),
+        (incomeFrequencyEnum.FORTNIGHTLY.value, "Fortnightly"),
+        (incomeFrequencyEnum.MONTHLY.value, "Monthly"),
+        (incomeFrequencyEnum.ANNUALLY.value, "Annually")
+    )
+
+    loan = models.OneToOneField(Loan, on_delete=models.CASCADE)
+    localAppID = models.AutoField(primary_key=True)
+    # reference field (to Applications Model)
+    appUID = models.UUIDField(null=True, blank=True)
+
+    #Application Financial Fields
+    assetSaving = models.IntegerField(default=0)
+    assetVehicles = models.IntegerField(default=0)
+    assetOther = models.IntegerField(default=0)
+    liabLoans = models.IntegerField(default=0)
+    liabCards = models.IntegerField(default=0)
+    liabOther = models.IntegerField(default=0)
+    limitCards = models.IntegerField(default=0)
+    totalAnnualIncome = models.IntegerField(default=0)
+    incomePension = models.IntegerField(default=0)
+    incomePensionFreq = models.IntegerField(choices=incomeFrequencyTypes, default=incomeFrequencyEnum.FORTNIGHTLY.value)
+    incomeSavings = models.IntegerField(default=0)
+    incomeSavingsFreq = models.IntegerField(choices=incomeFrequencyTypes, default=incomeFrequencyEnum.MONTHLY.value)
+    incomeOther = models.IntegerField(default=0)
+    incomeOtherFreq = models.IntegerField(choices=incomeFrequencyTypes, default=incomeFrequencyEnum.MONTHLY.value)
+    totalAnnualExpenses = models.IntegerField(default=0)
+    expenseHomeIns = models.IntegerField(default=0)
+    expenseHomeInsFreq = models.IntegerField(choices=expenseFrequencyTypes, default=incomeFrequencyEnum.MONTHLY.value)
+    expenseRates = models.IntegerField(default=0)
+    expenseRatesFreq = models.IntegerField(choices=expenseFrequencyTypes, default=incomeFrequencyEnum.QUARTERLY.value)
+    expenseGroceries = models.IntegerField(default=0)
+    expenseGroceriesFreq = models.IntegerField(choices=expenseFrequencyTypes, default=incomeFrequencyEnum.WEEKLY.value)
+    expenseUtilities = models.IntegerField(default=0)
+    expenseUtilitiesFreq = models.IntegerField(choices=expenseFrequencyTypes, default=incomeFrequencyEnum.QUARTERLY.value)
+    expenseMedical = models.IntegerField(default=0)
+    expenseMedicalFreq = models.IntegerField(choices=expenseFrequencyTypes, default=incomeFrequencyEnum.MONTHLY.value)
+    expenseTransport = models.IntegerField(default=0)
+    expenseTransportFreq = models.IntegerField(choices=expenseFrequencyTypes, default=incomeFrequencyEnum.MONTHLY.value)
+    expenseRepay = models.IntegerField(default=0)
+    expenseRepayFreq = models.IntegerField(choices=expenseFrequencyTypes, default=incomeFrequencyEnum.MONTHLY.value)
+    expenseOther = models.IntegerField(default=0)
+    expenseOtherFreq = models.IntegerField(choices=expenseFrequencyTypes, default=incomeFrequencyEnum.MONTHLY.value)
+
+    #Income Fields
+    choiceProduct = models.BooleanField(default=True)
+    choiceOtherNeeds = models.BooleanField(blank=True, null=True)
+    choiceMortgage = models.BooleanField(blank=True, null=True)
+    choiceOwnership = models.BooleanField(blank=True, null=True)
+    choiceOccupants = models.BooleanField(blank=True, null=True)
+
+    #Bank Details
+    bankBsbNumber = models.CharField(max_length=7, null=True, blank=True)
+    bankAccountName = models.CharField(max_length=20, null=True, blank=True)
+    bankAccountNumber = models.CharField(max_length=12, null=True, blank=True)
+
+    #Workflow
+    signingName_1 = models.CharField(max_length=50, null=True, blank=True)
+    signingName_2 = models.CharField(max_length=50, null=True, blank=True)
+    signingDate = models.DateTimeField(blank=True, null=True)
+    ip_address =  models.CharField(max_length=60, null=True, blank=True)
+    user_agent = models.CharField(max_length=200, null=True, blank=True)
+
+    class Meta:
+        verbose_name_plural = "Case Loan Application"
+
+    def __str__(self):
+        return smart_text(self.loan.case.caseDescription)
+
+    def __unicode__(self):
+        return smart_text(self.loan.case.caseDescription)
 
 
 class ModelSetting(models.Model):

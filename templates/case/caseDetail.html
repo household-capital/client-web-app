@@ -8,18 +8,18 @@
 
     <div class="container">
         {% if messages %}
-            <div class="row justify-content-md-center pt-3">
+            <div id='messages' class="row justify-content-md-center pt-3">
                 <div class="col-6 text-center">
                     {% for message in messages %}
-                        <p{% if message.tags == 'error' %} class="alert alert-danger"{% endif %}
-                                {% if message.tags == 'warning' %} class="alert alert-warning"{% endif %}
-                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
-                                {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
-                            {{ message }}</p>
+                        <div class="pb-1">
+                            <p{% if message.tags == 'error' %} class="alert alert-danger"{% endif %}
+                                    {% if message.tags == 'warning' %} class="alert alert-warning"{% endif %}
+                                    {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                    {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                                {{ message }}</p>
+                        </div>
                     {% endfor %}
-                    <br>
                 </div>
-
             </div>
 
         {% endif %}
@@ -42,39 +42,20 @@
 
     <div class="container">
 
-        <div class="row">
+        <div class="row pt-1">
 
             <div class="col-lg-8">
-
-                <br>
-
                 {% if obj.sfOpportunityID %}
-                    <a href="{{ obj.get_SF_url }}" target="_blank">
-                    <p class="larger" style="color:deepskyblue"><i class="fas fa-cloud fa-lg pb-4"></i>&nbsp;
-                        Salesforce {{ obj.sfLoanID }}</p></a>
-
-                {% else %}
-
-                    {% if form.errors %}
-
-                        <i class="far fa-times-circle fa-lg btn-outline-danger">&nbsp;Form errors - refer below</i>
-                    {% else %}
-                        {% if status.status == 'Ok' %}
-                            <i class="far fa-check-circle fa-lg btn-outline-success">&nbsp;Eligible Case</i>
-                            <br><br>
-                        {% elif status.status == 'Error' %}
-                            <i class="far fa-times-circle fa-lg btn-outline-danger">&nbsp;Ineligible
-                                - {{ status.responseText }}</i>
-                            <br><br>
-                        {% endif %}
-                    {% endif %}
+                    <p class="larger pt-3 pl-3">
+                        <a style="color:deepskyblue" href="{{ obj.get_SF_url }}" target="_blank">
+                            <i class="fas fa-external-link-alt"></i>&nbsp;
+                            Salesforce {{ obj.sfLoanID }}</a></p>
                 {% endif %}
-
             </div>
 
         </div>
 
-        <div class="row">
+        <div class="row pt-4">
 
             <div class="col-lg-8">
 
@@ -142,17 +123,26 @@
                                             &nbsp;<i class="far fa-calendar-alt fa-fw"></i>&nbsp;&nbsp;Book Other
                                         </a>
 
-                                        <div class="dropdown-divider"></div>
 
                                         {% if obj.appType == appTypesEnum.VARIATION.value %}
+                                            <div class="dropdown-divider"></div>
                                             <a class="dropdown-item"
                                                href="{% url 'case:caseVariation' uid=obj.caseUID %}">
                                                 &nbsp;<i class="fas fa-edit fa-fw"></i>&nbsp;&nbsp;Variation
                                             </a>
-                                        {% else %}
+                                        {% elif obj.productType == productTypesEnum.LUMP_SUM.value %}
+                                            <div class="dropdown-divider"></div>
                                             <a class="dropdown-item" href="{% url 'client2:meeting' uid=obj.caseUID %}">
                                                 &nbsp;<i class="fas fa-users fa-fw"></i>&nbsp;&nbsp;Meeting
                                             </a>
+                                        {% endif %}
+
+                                        {% if obj.appType == appTypesEnum.VARIATION.value %}
+                                            <div class="dropdown-divider"></div>
+
+                                        <a class="dropdown-item" href="{% url 'case:caseVariation' uid=obj.caseUID %}">
+                                            &nbsp;<i class="fas fa-edit fa-fw"></i>&nbsp;&nbsp;Purposes
+                                        </a>
                                         {% endif %}
 
                                     {% endif %}
@@ -168,17 +158,24 @@
                                             &nbsp;<i class="far fa-fw fa-window-close"></i>&nbsp;&nbsp;Close Case&nbsp;&nbsp;
                                         </a>
 
-                                        {% if obj.summaryDocument %}
+                                        {% if obj.summaryDocument and obj.email %}
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item pb-3" data-toggle="modal" href="#clientModal1">
-                                                &nbsp;<i class="fas fa-mail-bulk fa-fw"></i>&nbsp;&nbsp;Email and Mail
-                                                Summary&nbsp;</a>
+                                            <a class="dropdown-item pb-3" data-toggle="modal" href="#clientModal2">
+                                                &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Loan
+                                                Summary
+                                                &nbsp;</a>
                                         {% endif %}
 
-
                                         {% if obj.summaryDocument and obj.email %}
-                                            <a class="dropdown-item" data-toggle="modal" href="#clientModal2">
+                                            <a class="dropdown-item pb-3" data-toggle="modal" href="#clientModal3">
                                                 &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Updated
+                                                Summary
+                                                &nbsp;</a>
+                                        {% endif %}
+
+                                        {% if obj.summaryDocument %}
+                                            <a class="dropdown-item" data-toggle="modal" href="#clientModal1">
+                                                &nbsp;<i class="far fa-mailbox fa-fw"></i>&nbsp;&nbsp;Mail Loan
                                                 Summary&nbsp;</a>
                                         {% endif %}
 
@@ -246,23 +243,57 @@
 
                                     <div class="jumbotron">
 
-                                        {% if obj.appType == appTypesEnum.VARIATION.value %}
-                                            <p class="large text-success"><i
-                                                    class="fas fa-edit btn-outline-success pb-4"></i>&nbsp;
-                                                Loan Variation</p>
+                                        {% if obj.productType == productTypesEnum.INCOME.value %}
+                                            <p class="badge badge-info">
+                                                Income</p>
+
+                                        {% elif obj.productType == productTypesEnum.CONTINGENCY_20K.value %}
+                                            <p class="badge badge-info">
+                                                Contingency20K</p>
+
+                                        {% elif obj.productType == productTypesEnum.COMBINATION.value %}
+                                            <p class="badge badge-info">
+                                                Combination</p>
+                                        {% else %}
+                                            <p class="badge badge-dark">
+                                                Lump Sum</p>
                                         {% endif %}
 
-                                        <p class="small pb-3">Create Date: {{ obj.timestamp | date:'d M y' }}</p>
+                                        {% if isLowLVR %}
+                                            <p class="badge badge-warning">
+                                                Low LVR</p>
+                                        {% endif %}
 
-                                        <p class="larger">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
-                                        <br>
-                                        {% if status.data.postcode != 'Valid' %}
+                                        <p class="small pt-2 pb-2">Create Date: {{ obj.timestamp | date:'d M y' }}</p>
 
-                                            <p><i class="fas fa-tractor fa-lg btn-outline-warning"></i>&nbsp;Refer
+
+                                        <p class="small pt-4 pb-2"><i class="fas fa-users-cog fa-fw"></i>&nbsp;
+                                            Validation</p>
+
+                                        {% if status.errors %}
+                                            <p class="text-danger"><i
+                                                    class="far fa-times-circle fa-lg btn-outline-danger"></i>&nbsp;Validation
+                                                error - please re-open meeting
+                                            <p>
+                                                {% else %}
+                                            <p class="text-success"><i
+                                                    class="far fa-check-circle fa-lg btn-outline-success"></i>&nbsp;Eligible
+                                                Loan
+                                            </p>
+
+                                        {% endif %}
+
+                                        {% if status.data.postcode == 'Refer' %}
+
+                                            <p class="text-warning pt-2"><i
+                                                    class="fas fa-fw fa-exclamation-triangle"></i>&nbsp;Refer
                                                 Postcode
-                                            </p> <br>
+                                            </p>
+
                                         {% endif %}
-                                        <p class="small"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
+
+                                        <p class="small pt-4"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
+                                        <p class="small">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
 
                                         <p class="small">Max Loan is: ${{ status.data.maxLoan|intcomma }} (incl
                                             establishment fee)</p>
@@ -313,18 +344,12 @@
                                     <p><a href="/media/customerReports/{{ obj.summaryDocument.file|filename }}">Loan
                                         Summary</a>
                                     </p>{% endif %}
-                                {% if obj.privacyDocument %}
-                                    <p><a href="/media/customerReports/{{ obj.privacyDocument.file|filename }}">Privacy
-                                        Consent</a></p>{% endif %}
-                                {% if obj.electronicDocument %}
-                                    <p><a href="/media/customerReports/{{ obj.electronicDocument.file|filename }}">Electronic
-                                        Consent</a></p>{% endif %}
+                                {% if obj.applicationDocument %}
+                                    <p><a href="/media/customerReports/{{ obj.applicationDocument.file|filename }}">Application
+                                        Summary</a></p>{% endif %}
                                 {% if obj.responsibleDocument %}
                                     <p><a href="/media/customerReports/{{ obj.responsibleDocument.file|filename }}">Case
                                         Summary</a></p>{% endif %}
-                                {% if obj.dataDocument %}
-                                    <p><a href="/media/customerReports/{{ obj.dataDocument.file|filename }}">Customer
-                                        Data</a></p>{% endif %}
                                 {% if obj.dataCSV %}
                                     <p><a href="/media/customerReports/{{ obj.dataCSV.file|filename }}">Document
                                         Data File</a></p>{% endif %}
@@ -357,20 +382,27 @@
 
                             </div>
 
-                        {% elif isUpdate %}
+                        {% else %}
 
-                            <div class="row">
-                                <div class="col-lg-12">
+                            {% if isUpdate %}
 
-                                    <div class="jumbotron">
+                                <div class="row">
+                                    <div class="col-lg-12">
 
+                                        <div class="jumbotron">
 
-                                        <p class="large text-danger"><i
-                                                class="fas fa-exclamation-circle pb-4"></i>&nbsp;
-                                            Invalid Loan<br>Please re-open meeting</p>
+                                            <p class="pb-3 small"><i class="fas fa-users-cog fa-fw"></i>&nbsp;Initial
+                                                Validation</p>
+                                            <p class="text-danger"><i
+                                                    class="far fa-times-circle fa-lg btn-outline-danger"></i>&nbsp;Ineligible
+                                            <p>
+                                            <p class="pl-4 text-danger small"> {{ status.responseText }}</p>
+
+                                        </div>
+
                                     </div>
                                 </div>
-                            </div>
+                            {% endif %}
 
 
 
@@ -393,31 +425,21 @@
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="clientModalLabel1">Email and mail client?</h5>
+                        <h5 class="modal-title" id="clientModalLabel1">Physically mail client?</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        {% if obj.summarySentRef %}
-                            <p>This client has already been sent a Loan Summary document via mail. If you need to mail
-                                another physical document please contact IT to reset. </p>
-                        {% else %}
-                            <p>You are about to send the client a Loan Summary document via physical mail.</p>
-                        {% endif %}
+
+                        <p>Warning: you are about to send a Loan Summary by MAIL. Physical mail. Are you sure?</p>
+
                         <br>
                     </div>
                     <div class="modal-footer">
-                        {% if not obj.summarySentRef %}
-                            <a href="{% url 'case:caseMailLoanSummary' uid=obj.caseUID pk=0 %}">
-                                <div class=" btn btn-primary">Send Mail and Email</div>
-                            </a>&nbsp;&nbsp;&nbsp;&nbsp;
-
-
-                            <a href="{% url 'case:caseMailLoanSummary' uid=obj.caseUID pk=1 %}">
-                                <div class=" btn btn-warning ">Send Mail Only</div>
-                            </a>&nbsp;&nbsp;&nbsp;&nbsp;
-                        {% endif %}
+                        <a href="{% url 'case:caseMailLoanSummary' uid=obj.caseUID %}">
+                            <div class=" btn btn-primary">Yes, mail the client</div>
+                        </a>&nbsp;&nbsp;&nbsp;&nbsp;
 
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
 
@@ -437,13 +459,38 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>You are about to send the client an updated Loan Summary document via email (only) - are you
+                        <p>You are about to email the client a Loan Summary document - are you
                             sure
                             ?</p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <a href="{% url 'case:caseEmailLoanSummary' uid=obj.caseUID %}">
+                        <a href="{% url 'case:caseEmailLoanSummary' uid=obj.caseUID pk=0 %}">
+                            <div class=" btn btn-primary">Yes, send document</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="clientModal3" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel3"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="clientModalLabel3">Email client?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>You are about to email the client an updated Loan Summary document - are you
+                            sure
+                            ?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <a href="{% url 'case:caseEmailLoanSummary' uid=obj.caseUID pk=1 %}">
                             <div class=" btn btn-primary">Yes, send document</div>
                         </a>
                     </div>
@@ -494,6 +541,14 @@
             })
         });
 
+        // Prevent form submission on enter
+        $('form input').keydown(function (e) {
+            if (e.keyCode == 13) {
+                e.preventDefault();
+                $(':focus').blur();
+                return false;
+            }
+        });
 
 
     </script>

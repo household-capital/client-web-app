@@ -1,7 +1,7 @@
 {% load static %}
 {% load site_tags %}
 
-<nav class="navbar navbar-light navbar-expand-lg navbar-fixed-top">
+<nav class="navbar navbar-light navbar-expand-lg navbar-fixed-top pb-4 pt-3">
     <div class="container">
         <div class="navbar-header">
 
@@ -27,15 +27,13 @@
             <ul class="nav navbar-nav pl-3 pt-2">
                 {% if not hideNavbar %}
 
-
-
                     <li>
                         <a href="{% url 'servicing:loanList' %}"><i class="far fa-fw fa-house-user"></i> Servicing
                             {% if request.session.servicingQueue|intVal > 0 %}
                                 <span class="badge btn-success align-text-top">{{ request.session.servicingQueue }}</span>{% endif %}
                         </a>
                         <br>
-                        <a href="{% url 'enquiry:enquiryCall' %}"><i class="fas fa-headset fa-fw"></i> Phonecall
+                        <a href="{% url 'enquiry:enquiryCall' %}"><i class="fas fa-headset fa-fw"></i> Phone Call
                         </a>
 
                     </li>

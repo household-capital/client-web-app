@@ -37,7 +37,7 @@
                 <p class="print-text"> {% if preferredName_2 %}{{ preferredName_2 }}{% else %}{{ firstname_2 }}{% endif %}&nbsp;{{ surname_2 }}</p>
             {% endif %}
             <p class="print-text"> {{ streetAddress }}</p>
-            <p class="print-text"> {{ suburb }} {{ state }} {{ postcode|stringformat:"d" }}</p>
+            <p class="print-text"> {{ suburb }} {{ stateEnum }} {{ postcode|stringformat:"d" }}</p>
 
             <br><br>
             <p class="print-text">{% now 'j F Y' %}</p>
@@ -56,7 +56,7 @@
     <div class="row ">
         <div class="col-sm-11 text-left">
 
-            <p class="print-text">Thank you for using our online application to explore how a Household Income Loan might be able to assist in meeting your
+            <p class="print-text">Thank you for using our online application to explore how a Household Loan might be able to assist in meeting your
                 retirement funding objectives.</p>
             <br>
             <p class="print_subtitle pb-2"> Confirming that this loan is right for you</p>
