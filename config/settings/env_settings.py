@@ -32,6 +32,7 @@ ALLOWED_HOSTS = [os.getenv("ALLOWED_HOSTS_1"),
                  os.getenv("ALLOWED_HOSTS_4"), '*'] # '*'
 
 
+
 SITE_URL = os.getenv("SITE_URL")
 
 #Email Settings
@@ -54,6 +55,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = True
 if ENV_PATH: 
     DEBUG = boolStr(os.getenv("BOOL_DEBUG"))
+
 
 
 # DATABASE
@@ -80,14 +82,6 @@ if os.getenv('STORAGE') == "AWS":
             'PORT': os.environ['RDS_PORT'],
         }
     }
-      
-
-    # CELERY_RESULT_BACKEND_DB = ''.join(['postgresql+psycopg2://',
-    #                                     os.getenv("AWS_DATABASE_USER"),
-    #                                     ":",
-    #                                     os.getenv("AWS_DATABASE_PASSWORD"),
-    #                                     os.getenv("AWS_HOST"),
-    #                                     os.getenv("AWS_DATABASE_NAME")])
     CELERY_RESULT_BACKEND_DB = ''.join(['postgresql+psycopg2://',
                                         'test',
                                         ":",
