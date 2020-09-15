@@ -12,7 +12,7 @@ def boolStr(str):
         return False
 
 def intNone(str):
-    if str == None:
+    if str == None or str == 'XXXXXXXX':
         return 0
     else:
         return int(str)
@@ -23,7 +23,8 @@ load_dotenv()
 ALLOWED_HOSTS = [os.getenv("ALLOWED_HOSTS_1"),
                  os.getenv("ALLOWED_HOSTS_2"),
                  os.getenv("ALLOWED_HOSTS_3"),
-                 os.getenv("ALLOWED_HOSTS_4")]
+                 os.getenv("ALLOWED_HOSTS_4")] # '*'
+
 
 SITE_URL = os.getenv("SITE_URL")
 
@@ -44,7 +45,7 @@ ADMINS=[(os.getenv("ADMIN_NAME"),os.getenv("ADMIN_EMAIL"))]
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = boolStr(os.getenv("BOOL_DEBUG"))
+DEBUG = True#boolStr(os.getenv("BOOL_DEBUG"))
 
 
 # DATABASE
@@ -61,6 +62,14 @@ if os.getenv('DATABASE_LOCATION') == "AWS":
             'PORT': os.getenv("AWS_PORT"),
         }
     }
+      # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #     'NAME': os.environ['RDS_DATABASE'],
+    #     'USER':  'test', #get_setting('Username'),
+    #     'PASSWORD': 'Passw0rd123', #get_setting('Password'),
+    #     'HOST': os.environ['RDS_HOSTNAME'],
+    #     'PORT': os.environ['RDS_PORT'],
+    # }
 
     CELERY_RESULT_BACKEND_DB = ''.join(['postgresql+psycopg2://',
                                         os.getenv("AWS_DATABASE_USER"),
