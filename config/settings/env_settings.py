@@ -12,7 +12,7 @@ def boolStr(str):
         return False
 
 def intNone(str):
-    if str == None:
+    if str == None or str == 'XXXXXXXX':
         return 0
     else:
         return int(str)
@@ -23,7 +23,7 @@ load_dotenv()
 ALLOWED_HOSTS = [os.getenv("ALLOWED_HOSTS_1"),
                  os.getenv("ALLOWED_HOSTS_2"),
                  os.getenv("ALLOWED_HOSTS_3"),
-                 os.getenv("ALLOWED_HOSTS_4")]
+                 os.getenv("ALLOWED_HOSTS_4"), '*']
 
 SITE_URL = os.getenv("SITE_URL")
 
@@ -44,7 +44,7 @@ ADMINS=[(os.getenv("ADMIN_NAME"),os.getenv("ADMIN_EMAIL"))]
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = boolStr(os.getenv("BOOL_DEBUG"))
+DEBUG = True#boolStr(os.getenv("BOOL_DEBUG"))
 
 
 # DATABASE
