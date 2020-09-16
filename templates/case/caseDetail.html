@@ -123,6 +123,15 @@
                                             &nbsp;<i class="far fa-calendar-alt fa-fw"></i>&nbsp;&nbsp;Book Other
                                         </a>
 
+                                        {% if status.data.postcode == 'Refer' %}
+                                            <div class="dropdown-divider"></div>
+
+                                            <a class="dropdown-item"
+                                               href="{% url 'case:caseReview' uid=obj.caseUID %}">
+                                                &nbsp;<i class="fas fa-fw fa-map-marked-alt"></i>&nbsp;&nbsp;Refer
+                                                Postcode Review &nbsp;
+                                            </a>
+                                        {% endif %}
 
                                         {% if obj.appType == appTypesEnum.VARIATION.value %}
                                             <div class="dropdown-divider"></div>
@@ -130,19 +139,11 @@
                                                href="{% url 'case:caseVariation' uid=obj.caseUID %}">
                                                 &nbsp;<i class="fas fa-edit fa-fw"></i>&nbsp;&nbsp;Variation
                                             </a>
-                                        {% elif obj.productType == productTypesEnum.LUMP_SUM.value %}
+                                        {% else %}
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item" href="{% url 'client2:meeting' uid=obj.caseUID %}">
                                                 &nbsp;<i class="fas fa-users fa-fw"></i>&nbsp;&nbsp;Meeting
                                             </a>
-                                        {% endif %}
-
-                                        {% if obj.appType == appTypesEnum.VARIATION.value %}
-                                            <div class="dropdown-divider"></div>
-
-                                        <a class="dropdown-item" href="{% url 'case:caseVariation' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-edit fa-fw"></i>&nbsp;&nbsp;Purposes
-                                        </a>
                                         {% endif %}
 
                                     {% endif %}
@@ -243,6 +244,11 @@
 
                                     <div class="jumbotron">
 
+                                        {% if obj.appType == appTypesEnum.VARIATION.value %}
+                                            <p class="badge badge-danger">
+                                                Variation</p>
+                                        {% endif %}
+
                                         {% if obj.productType == productTypesEnum.INCOME.value %}
                                             <p class="badge badge-info">
                                                 Income</p>
@@ -283,14 +289,21 @@
 
                                         {% endif %}
 
-                                        {% if status.data.postcode == 'Refer' %}
-
-                                            <p class="text-warning pt-2"><i
-                                                    class="fas fa-fw fa-exclamation-triangle"></i>&nbsp;Refer
-                                                Postcode
+                                        {% if obj.isReferPostcode %}
+                                            {% if obj.referPostcodeStatus == True %}
+                                                <p class="badge badge-success">Refer postcode approved</p>
+                                            {% elif obj.referPostcodeStatus == False %}
+                                                <p class="badge badge-danger">Refer postcode declined</p>
+                                            {% else %}
+                                                <p class="badge badge-warning">Postcode review requested</p>
+                                            {% endif %}
+                                            <br>
+                                        {% elif status.data.postcode == 'Refer' %}
+                                            <p class="text-warning"><i class="fas fa-fw fa-exclamation-triangle"></i>&nbsp;Refer
+                                                Postcode - get full address
                                             </p>
-
                                         {% endif %}
+
 
                                         <p class="small pt-4"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
                                         <p class="small">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
@@ -341,44 +354,51 @@
                             <div class="jumbotron">
                                 <p class="small pb-1"><i class="far fa-file-pdf"></i>&nbsp;&nbsp;Documents</p>
                                 {% if obj.summaryDocument %}
-                                    <p><a href="/media/customerReports/{{ obj.summaryDocument.file|filename }}">Loan
+                                    <p><a href="{{ obj.summaryDocument.url }}">Loan
                                         Summary</a>
                                     </p>{% endif %}
                                 {% if obj.applicationDocument %}
-                                    <p><a href="/media/customerReports/{{ obj.applicationDocument.file|filename }}">Application
+                                    <p><a href="{{ obj.applicationDocument.url }}">Application
                                         Summary</a></p>{% endif %}
                                 {% if obj.responsibleDocument %}
-                                    <p><a href="/media/customerReports/{{ obj.responsibleDocument.file|filename }}">Case
+                                    <p><a href="{{ obj.responsibleDocument.url}}">Case
                                         Summary</a></p>{% endif %}
                                 {% if obj.dataCSV %}
-                                    <p><a href="/media/customerReports/{{ obj.dataCSV.file|filename }}">Document
+                                    <p><a href="{{ obj.dataCSV.url}}">Document
                                         Data File</a></p>{% endif %}
                                 {% if obj.enquiryDocument %}
-                                    <p><a href="/media/customerReports/{{ obj.enquiryDocument.file|filename }}">Enquiry
+                                    <p><a href="{{ obj.enquiryDocument.url }}">Enquiry
                                         Document </a></p>
                                 {% endif %}
                                 {% if obj.valuationDocument %}
-                                    <p><a href="/media/customerDocuments/{{ obj.valuationDocument.file|filename }}">Auto
+                                    <p><a href="{{ obj.valuationDocument.url }}">Auto
                                         Val
                                         Document </a></p>
                                 {% endif %}
                                 {% if obj.titleDocument %}
-                                    <p><a href="/media/customerDocuments/{{ obj.titleDocument.file|filename }}">Title
+                                    <p><a href="{{ obj.titleDocument.url }}">Title
                                         Search </a></p>
                                 {% endif %}
                                 {% if obj.solicitorInstruction %}
-                                    <p><a href="/media/customerReports/{{ obj.solicitorInstruction.file|filename }}">Solicitors
+                                    <p><a href="{{ obj.solicitorInstruction.url }}">Solicitors
                                         Instruction </a></p>
                                 {% endif %}
                                 {% if obj.valuerInstruction %}
-                                    <p><a href="/media/customerReports/{{ obj.valuerInstruction.file|filename }}">Valuer
+                                    <p><a href="{{ obj.valuerInstruction.url }}">Valuer
                                         Instruction </a></p>
                                 {% endif %}
                                 {% if obj.lixiFile %}
-                                    <p><a href="/media/customerReports/{{ obj.lixiFile.file|filename }}">Lixi File </a>
+                                    <p><a href="{{ obj.lixiFile.url }}">Lixi File </a>
                                     </p>
                                 {% endif %}
-
+                                <br>
+                                {% if obj.appUID %}
+                                    <p class="small"><i class="fas fa-file-upload"></i>&nbsp;Documents Uploaded</p>
+                                    {% for doc in docList %}
+                                        <p><a href="{{ doc.document.url }}">
+                                            {{ doc.enumDocumentType }}</a></p>
+                                    {% endfor %}
+                                {% endif %}
 
                             </div>
 
@@ -397,6 +417,13 @@
                                                     class="far fa-times-circle fa-lg btn-outline-danger"></i>&nbsp;Ineligible
                                             <p>
                                             <p class="pl-4 text-danger small"> {{ status.responseText }}</p>
+                                            {% if status.responseText != "Invalid Postcode" %}
+                                                <p class="pl-4 small
+                                                    {% if status.data.postcode == "Valid" %}text-success
+                                                    {% elif status.data.postcode == "Invalid" %}text-danger
+                                                    {% elif status.data.postcode == "Refer" %}text-warning
+                                                    {% endif %}">{{ status.data.postcode }} postcode</p>
+                                            {% endif %}
 
                                         </div>
 

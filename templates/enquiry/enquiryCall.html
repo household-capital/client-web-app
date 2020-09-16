@@ -51,7 +51,7 @@
 
         <div  class="row pt-2">
             <div class="col-lg-4 text-left">
-                <p id="existAlert" class="alert alert-warning" style="display:none"><i class="fas fa-info-circle"></i>&nbsp;&nbsp;Enquiry exists for this phone number</p>
+                <p id="existAlert" class="alert alert-warning" style="display:none"><a id="existLink"><i class="fas fa-external-link-alt"></i>&nbsp;&nbsp;Enquiry exists for this phone number</a></p>
             </div>
             <div class="col-lg-4 text-left">
                 <p id="postcodeAlert" class="alert alert-warning" style="display:none"><i class="fas fa-info-circle"></i>&nbsp;&nbsp;Ineligible postcode</p>
@@ -349,6 +349,7 @@
                 data: frm.serialize(),
                 success: function (data) {
                     if(data['success']['phoneNumberExists']==true) {
+                        $('#existLink').attr("href", data['success']['existingUrl']);
                         $('#existAlert').show();
                     }
                     else {

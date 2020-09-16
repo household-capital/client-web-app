@@ -4,18 +4,104 @@ import math
 
 # Django Imports
 from django.forms import model_to_dict
+from django.utils import timezone
 
 # Local Imports
-from apps.lib.site_Enums import roleEnum, dwellingTypesEnum, \
-    caseStagesEnum, clientSexEnum, clientTypesEnum, \
-    loanTypesEnum, channelTypesEnum, stateTypesEnum, \
-    salutationEnum, maritalEnum, appTypesEnum, purposeIntentionEnum, purposeCategoryEnum
+from apps.lib.site_Enums import *
 
 from apps.servicing.models import FacilityRoles, FacilityProperty, FacilityPropertyVal
 from apps.case.models import LoanPurposes, Loan
+from apps.enquiry.models import Enquiry
 
 
 # INTERNAL MAPPING
+
+def mapEnquiryToLead(enqUID):
+    # Build SF REST API payload
+
+    SF_LEAD_MAPPING = {'phoneNumber': 'Phone',
+                       'email': 'Email',
+                       'age_1': 'Age_of_1st_Applicant__c',
+                       'age_2': 'Age_of_2nd_Applicant__c',
+                       'dwellingType': 'Dwelling_Type__c',
+                       'valuation': 'Estimated_Home_Value__c',
+                       'streetAddress': 'Street',
+                       'suburb': 'City',
+                       'postcode': 'PostalCode',
+                       'isTopUp': 'IsTopUp__c',
+                       'isRefi': 'IsRefi__c',
+                       'isLive': 'IsLive__c',
+                       'isGive': 'IsGive__c',
+                       'isCare': 'IsCare__c',
+                       'calcTopUp': 'CalcTopUp__c',
+                       'calcRefi': 'CalcRefi__c',
+                       'calcLive': 'CalcLive__c',
+                       'calcGive': 'CalcGive__c',
+                       'calcCare': 'CalcCare__c',
+                       'calcTotal': 'CalcTotal__c',
+                       'enquiryNotes': 'External_Notes__c',
+                       'payIntAmount': 'payIntAmount__c',
+                       'payIntPeriod': 'payIntPeriod__c',
+                       'status': 'HCC_Loan_Eligible__c',
+                       'maxLoanAmount': 'Maximum_Loan__c',
+                       'maxLVR': 'Maximum_LVR__c',
+                       'errorText': 'Ineligibility_Reason__c',
+                       'referrerID': 'Referrer_ID__c',
+                       'doNotMarket': 'DoNotMarket__c',
+                       'isCalendly': 'isCalendly__c',
+                       }
+
+    BooleanList = ['isTopUp', 'isRefi', 'isLive', 'isGive', 'isCare', 'doNotMarket']
+
+    qs = Enquiry.objects.queryset_byUID(enqUID)
+    enquiry = qs.get()
+
+    payload = {}
+    enquiryDict = enquiry.__dict__
+
+    for app_field, sf_field in SF_LEAD_MAPPING.items():
+        payload[sf_field] = enquiryDict[app_field]
+        # Ensure Boolean fields are not null
+        if app_field in BooleanList and not enquiryDict[app_field]:
+            payload[sf_field] = False
+
+    # Ensure name fields populated
+    if not enquiryDict['name']:
+        payload['Lastname'] = 'Unknown'
+    elif " " in enquiryDict['name']:
+        payload['Firstname'], payload['Lastname'] = enquiryDict['name'].split(" ", 1)
+    else:
+        payload['Lastname'] = enquiryDict['name']
+
+    payload['External_ID__c'] = str(enquiryDict['enqUID'])
+    payload['OwnerID'] = enquiry.user.profile.salesforceID
+    payload['Loan_Type__c'] = enquiry.enumLoanType()
+    payload['Dwelling_Type__c'] = enquiry.enumDwellingType()
+    payload['LeadSource'] = enquiry.enumReferrerType()
+    payload['Marketing_Source__c'] = enquiry.enumMarketingSource()
+    payload['State'] = sfStateEnum(enquiry.state)
+    payload['Status__c'] = enquiry.enumEnquiryStage()
+
+
+    # Map / create other fields
+    if enquiry.referralUser:
+        payload['Referral_UserID__c'] = enquiry.referralUser.last_name
+    if enquiry.followUp:
+        payload['Last_External_Followup_Date__c'] = enquiry.followUp.strftime("%Y-%m-%d")
+
+    if enquiry.followUpDate:
+        payload['Scheduled_Followup_Date_External__c'] = enquiry.followUpDate.strftime("%Y-%m-%d")
+    payload['Scheduled_Followup_Notes__c'] = enquiry.followUpNotes
+
+    if enquiry.closeDate:
+        payload['Park_Lead__c'] = True
+    else:
+        payload['Park_Lead__c'] = False
+
+    payload['Reason_for_Parking_Lead__c'] = enquiry.enumCloseReason()
+
+    return payload
+
 
 def mapFacilityToCase(facilityObj):
     # Reverse map from facility to case - for Loan Variation Creation
@@ -58,7 +144,8 @@ def mapFacilityToCase(facilityObj):
         'titleRequest' : True,
 
         'refCaseUID': facilityObj.originalCaseUID,
-        'sfLeadID': "NO LEAD"
+        'sfLeadID': "NO LEAD",
+        'meetingDate': timezone.now()
     }
 
     if roleDict['number'] == 2:
@@ -95,7 +182,6 @@ def get_role_dict(roleQs):
 
 def mapCaseToOpportunity(caseObj, lossObj):
 
-
     payload = {
         # Core case data
         'sfOpportunityId': caseObj.sfOpportunityID,
@@ -105,6 +191,7 @@ def mapCaseToOpportunity(caseObj, lossObj):
         'adviser': caseObj.adviser,
         'loanType': caseObj.enumLoanType(),
         'salesChannel': caseObj.enumChannelType(),
+        "channelDetail": caseObj.enumChannelDetailType(),
         'closeReason': caseObj.lossdata.enumCloseReason(),
         'followUpNotes': caseObj.lossdata.followUpNotes,
         'doNotMarket': caseObj.lossdata.doNotMarket,
@@ -131,6 +218,8 @@ def mapCaseToOpportunity(caseObj, lossObj):
         'dwellingType': caseObj.enumDwellingType(),
         'meetingDate': caseObj.meetingDate,
         'enquiryCreateDate': caseObj.enquiryCreateDate,
+        'isReferPostcode' : caseObj.isReferPostcode,
+        'referPostcodeStatus': caseObj.enumReferPostcodeStatus(),
 
         # Meeting Data
         'maxLVR': caseObj.loan.maxLVR,
@@ -156,6 +245,7 @@ def mapCaseToOpportunity(caseObj, lossObj):
         'interestPayAmount': caseObj.loan.interestPayAmount,
         'interestPayPeriod': caseObj.loan.interestPayPeriod,
         'detailedTitle': caseObj.loan.detailedTitle,
+        'isLowLVR': caseObj.loan.isLowLVR,
 
         # Model Setting Data
         'inflationRate': caseObj.modelsetting.inflationRate,
@@ -194,6 +284,16 @@ def mapCaseToOpportunity(caseObj, lossObj):
 
         })
 
+    # ProductType
+    productMap = {
+        productTypesEnum.CONTINGENCY_20K.value: 'Contingency 20K',
+        productTypesEnum.INCOME.value: 'Home Income Loan',
+        productTypesEnum.LUMP_SUM.value: 'Household Loan',
+        productTypesEnum.COMBINATION.value: 'Household Loan',
+    }
+
+    payload['productType'] = productMap[caseObj.productType]
+
     # Purposes
 
     loanObj = Loan.objects.queryset_byUID(str(caseObj.caseUID)).get()
@@ -202,24 +302,25 @@ def mapCaseToOpportunity(caseObj, lossObj):
     purposeQs = LoanPurposes.objects.filter(loan = loanObj)
 
     for purpose in purposeQs:
-        if purpose.amount != 0:
+        if (purpose.amount != 0) or ((purpose.amount == 0) and (purpose.variationAmount != 0)):
+
             purposes.append(
-                {'purposeUID': str(purpose.purposeUID),
-                 'category': purpose.enumCategoryPretty,
-                 'intention': purpose.enumIntentionPretty,
-                 'amount': purpose.amount,
-                 'active': purpose.active,
-                 'drawdownAmount': purpose.drawdownAmount,
-                 'drawdownFrequency': purpose.enumDrawdownFrequency.lower() if purpose.enumDrawdownFrequency else None,
-                 'drawdownStartDate': purpose.drawdownStartDate.strftime("%Y-%m-%d") if purpose.drawdownStartDate else None,
-                 'drawdownEndDate': purpose.drawdownEndDate.strftime("%Y-%m-%d") if purpose.drawdownEndDate else None,
-                 'contractDrawdowns': purpose.contractDrawdowns,
-                 'planDrawdowns': purpose.planDrawdowns,
-                 'planAmount': purpose.planAmount,
-                 'description': purpose.description,
-                 'notes': purpose.notes
-                 }
-        )
+                    {'purposeUID': str(purpose.purposeUID),
+                     'category': purpose.enumCategoryPretty,
+                     'intention': purpose.enumIntentionPretty,
+                     'amount': purpose.amount,
+                     'active': purpose.active,
+                     'drawdownAmount': purpose.drawdownAmount,
+                     'drawdownFrequency': purpose.enumDrawdownFrequency.lower() if purpose.enumDrawdownFrequency else None,
+                     'drawdownStartDate': purpose.drawdownStartDate.strftime("%Y-%m-%d") if purpose.drawdownStartDate else None,
+                     'drawdownEndDate': purpose.drawdownEndDate.strftime("%Y-%m-%d") if purpose.drawdownEndDate else None,
+                     'contractDrawdowns': purpose.contractDrawdowns,
+                     'planDrawdowns': purpose.planDrawdowns,
+                     'planAmount': purpose.planAmount,
+                     'description': purpose.description,
+                     'notes': purpose.notes,
+                     'variationAmount': purpose.variationAmount}
+            )
 
     payload['purposes'] = purposes
 
@@ -273,7 +374,7 @@ def serialisePurposes(loanObj, enum=False):
         'topUpContingencyAmount': __getItem('TOP_UP', 'CONTINGENCY', 'amount', 0),
         'refinanceAmount': __getItem('REFINANCE', 'MORTGAGE', 'amount', 0),
         'renovateAmount': __getItem('LIVE', 'RENOVATIONS', 'amount', 0),
-        'travelAmount': __getItem('LIVE', 'TRANSPORT', 'amount', 0),
+        'travelAmount': __getItem('LIVE', 'TRANSPORT_AND_TRAVEL', 'amount', 0),
         'giveAmount': __getItem('GIVE', 'GIVE_TO_FAMILY', 'amount', 0),
         'careAmount': __getItem('CARE', 'LUMP_SUM', 'amount', 0),
 
@@ -297,7 +398,7 @@ def serialisePurposes(loanObj, enum=False):
         'topUpDescription': __getItem('TOP_UP', 'INVESTMENT', 'description', ""),
         'topUpContingencyDescription': __getItem('TOP_UP', 'CONTINGENCY', 'description', ""),
         'renovateDescription': __getItem('LIVE', 'RENOVATIONS', 'description', ""),
-        'travelDescription': __getItem('LIVE', 'TRANSPORT', 'description', ""),
+        'travelDescription': __getItem('LIVE', 'TRANSPORT_AND_TRAVEL', 'description', ""),
         'careDescription': __getItem('CARE', 'LUMP_SUM', 'description', ""),
         'careDrawdownDescription': __getItem('CARE', 'REGULAR_DRAWDOWN', 'description', ""),
         'giveDescription': __getItem('GIVE', 'GIVE_TO_FAMILY', 'description', ""),
@@ -365,9 +466,9 @@ def mapLoanToFacility(caseObj, loanDict):
         'totalLoanAmount': round(loanDict['Total_Loan_Amount__c'],0),
         'totalEstablishmentFee': round(loanDict['Total_Establishment_Fee__c'],0),
         'establishmentFeeRate': loanDict['Establishment_Fee_Percent__c'] / 100,
-        # 'totalPlanPurposeAmount': loanObj.totalPlanAmount,
-        # 'totalPlanAmount': loanObj.totalPlanAmount,
-        # 'totalPlanEstablishmentFee': loanObj.planEstablishmentFee,
+        'totalPlanPurposeAmount': round(loanDict['Total_Plan_Purpose_Amount__c'],0),
+        'totalPlanAmount': round(loanDict['TotalPlanAmount__c'],0),
+        'totalPlanEstablishmentFee': round(loanDict['TotalPlanEstablishmentFee__c'],0),
         'bankAccountNumber': loanDict['Account_Number__c'],
         'bsbNumber': loanDict['BSB__c'],
         'meetingDate': caseObj.meetingDate,  # Temporary
@@ -476,13 +577,35 @@ def mapValuationsToFacility(propertyRef, propertyObj):
 def mapPurposesToFacility(loan, purpose):
     # SF Purposes to Facility Purposes
 
+
+    sfCategoryMap = {'Care':'CARE',
+                     'Give': 'GIVE',
+                     'Live': 'LIVE',
+                     'Refinance': 'REFINANCE',
+                     'Top Up': 'TOP_UP'
+                     }
+
+    sfIntentionMap = {
+                    'Investment':'INVESTMENT',
+                    'Contingency':'CONTINGENCY',
+                    'Regular Drawdown':'REGULAR_DRAWDOWN',
+                    'Give to Family':'GIVE_TO_FAMILY',
+                    'Renovations':'RENOVATIONS',
+                    'Transport, Travel, and Other':'TRANSPORT_AND_TRAVEL',
+                    'Transport': 'TRANSPORT_AND_TRAVEL',
+                    'Transport and Travel': 'TRANSPORT_AND_TRAVEL',
+                    'Lump Sum':'LUMP_SUM',
+                    'Mortgage':'MORTGAGE'
+    }
+
+
     payload = {'facility': loan,
                'sfPurposeID': purpose['Id'],
-               'category': purpose['Category__c'],
-               'intention': purpose['Intention__c'],
+               'category': purposeCategoryEnum[sfCategoryMap[purpose['Category__c']]].value,
+               'intention': purposeIntentionEnum[sfIntentionMap[purpose['Intention__c']]].value,
                'amount': chkVal(purpose['Amount__c']),
                'drawdownAmount': chkVal(purpose['Drawdown_Amount__c']),
-               'drawdownFrequency': purpose['Drawdown_Frequency__c'],
+               'drawdownFrequency': incomeFrequencyEnum[purpose['Drawdown_Frequency__c'].upper()].value if purpose['Drawdown_Frequency__c'] else None ,
                'drawdownStartDate': None,  ###
                'drawdownEndDate': None,  ###
                'planAmount': chkVal(purpose['Plan_Amount__c']),
@@ -490,6 +613,10 @@ def mapPurposesToFacility(loan, purpose):
                'topUpBuffer': purpose['TopUp_Buffer__c'],
                'description': purpose['Description__c'],
                'notes': purpose['Notes__c'],
+               'contractDrawdowns': chkVal(purpose['Contract_Drawdowns__c']),
+               'planDrawdowns': chkVal(purpose['Plan_Drawdowns__c']),
+               'active': purpose['Active__c'],
+
                }
 
     return payload
@@ -502,3 +629,23 @@ def chkVal(arg):
         return None
     else:
         return arg
+
+
+
+def sfStateEnum(state):
+    """Enumerate SF longform State"""
+    if state == None:
+        return None
+
+    stateMap = {
+        stateTypesEnum.NSW.value: "New South Wales",
+        stateTypesEnum.VIC.value: "Victoria",
+        stateTypesEnum.ACT.value: "Australian Capital Territory",
+        stateTypesEnum.QLD.value: "Queensland",
+        stateTypesEnum.SA.value: "South Australia",
+        stateTypesEnum.WA.value: "Western Australia",
+        stateTypesEnum.TAS.value: "Tasmania",
+        stateTypesEnum.NT.value: "Northern Territory"
+    }
+
+    return stateMap[state]

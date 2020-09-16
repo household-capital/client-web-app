@@ -13,11 +13,12 @@ from crispy_forms.bootstrap import InlineRadios
 
 # Local Imports
 from apps.lib.site_Enums import incomeFrequencyEnum, clientTypesEnum
-
+from apps.lib.site_Utilities import checkMobileNumber
 from .models import Application, ApplicationPurposes, ApplicationDocuments
 
 
 def validate_string_int(value):
+    """Validates whether a string can be converted to integer"""
     val = value.replace('$', "").replace(',', '')
     try:
         val = int(val)
@@ -28,6 +29,8 @@ def validate_string_int(value):
 
 
 def parseCurrencyToInt(str):
+    """Converts string to an integer (or zero)"""
+
     val = str.replace('$', "").replace(',', '')
     try:
         val = int(val)
@@ -37,6 +40,8 @@ def parseCurrencyToInt(str):
 
 
 class InitiateForm(forms.ModelForm):
+    """Login credentials form"""
+
     class Meta:
         model = Application
         fields = ['surname_1', 'firstname_1', 'email', 'mobile']
@@ -52,7 +57,7 @@ class InitiateForm(forms.ModelForm):
     helper.field_class = 'col-lg-12'
     helper.form_class = 'form-horizontal'
     helper.form_show_labels = False
-    helper.form_show_errors = False
+    helper.form_show_errors = True
     helper.layout = Layout(
         Div(
             Div(
@@ -67,15 +72,22 @@ class InitiateForm(forms.ModelForm):
 
                 css_class='col-lg-10'),
             css_class="row ")
-
     )
+
+    def clean_mobile(self):
+        if checkMobileNumber(self.cleaned_data['mobile']):
+            return self.cleaned_data['mobile']
+        else:
+            raise ValidationError("Please enter valid mobile number")
 
 
 class TwoFactorForm(forms.Form):
+    """SMS 2FA Pin Form"""
+
     pin = forms.IntegerField(required=True)
 
     helper = FormHelper()
-    helper.form_id =" clientForm"
+    helper.form_id = " clientForm"
     helper.form_method = 'POST'
     helper.field_class = 'col-lg-12'
     helper.form_class = 'form-horizontal'
@@ -97,44 +109,9 @@ class TwoFactorForm(forms.Form):
         return self.cleaned_data['pin']
 
 
-class PrimaryBorrowerForm(forms.ModelForm):
-    class Meta:
-        model = Application
-        fields = ['surname_1', 'firstname_1', 'email', 'mobile']
-
-    surname_1 = forms.CharField(max_length=60, required=True)
-    firstname_1 = forms.CharField(max_length=60, required=True)
-    email = forms.CharField(max_length=60, required=True)
-    mobile = forms.CharField(max_length=60, required=False)
-
-    helper = FormHelper()
-    helper.form_method = 'POST'
-    helper.field_class = 'col-lg-12'
-    helper.form_class = 'form-horizontal'
-    helper.form_show_labels = False
-    helper.form_show_errors = False
-    helper.layout = Layout(
-        Div(
-            Div(
-                Div(Div(HTML("Firstname*"), css_class='form-label'),
-                    Div(Field('firstname_1'))),
-                Div(Div(HTML("Surname*"), css_class='form-label'),
-                    Div(Field('surname_1'))),
-                Div(Div(HTML("Your Email*"), css_class='form-label'),
-                    Div(Field('email'))),
-                Div(Div(HTML("Your Mobile"), css_class='form-label'),
-                    Div(Field('mobile'))),
-
-                Div(Div(Submit('submit', 'Start', css_class='btn btn-warning')), css_class='text-right'),
-                Div(HTML("<br>")),
-
-                css_class='col-lg-10'),
-            css_class="row ")
-
-    )
-
-
 class ObjectivesForm(forms.ModelForm):
+    """Borrower screening/objectives form"""
+
     class Meta:
         model = Application
         fields = ['choiceProduct', 'choiceMortgage', 'choiceOtherNeeds', 'choiceOwnership', 'choiceOccupants']
@@ -148,8 +125,8 @@ class ObjectivesForm(forms.ModelForm):
     choiceOccupants = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(), required=True)
 
 
-
 class ApplicantForm(forms.ModelForm):
+    """Primary borrower and security property details"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -242,6 +219,7 @@ class ApplicantForm(forms.ModelForm):
 
 
 class ApplicantTwoForm(forms.ModelForm):
+    """Second applicant personal details"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -299,6 +277,8 @@ class ApplicantTwoForm(forms.ModelForm):
 
 
 class LoanObjectivesForm(forms.ModelForm):
+    """Income Product - loan objectives"""
+
     class Meta:
         model = ApplicationPurposes
         fields = ['drawdownAmount', 'drawdownFrequency', 'planPeriod']
@@ -339,6 +319,8 @@ class LoanObjectivesForm(forms.ModelForm):
 
 
 class AssetsForm(forms.ModelForm):
+    """Application information - assets and liabilities"""
+
     class Meta:
         model = Application
         fields = ['assetSaving', 'assetVehicles', 'assetOther', 'liabLoans',
@@ -398,6 +380,8 @@ class AssetsForm(forms.ModelForm):
 
 
 class IncomeForm(forms.ModelForm):
+    """Application information - income and expenses"""
+
     class Meta:
         model = Application
         fields = ['incomePension', 'incomePensionFreq',
@@ -561,6 +545,8 @@ class IncomeForm(forms.ModelForm):
 
 
 class HomeExpensesForm(forms.ModelForm):
+    """Application information - low lvr - expenses"""
+
     class Meta:
         model = Application
         fields = ['expenseHomeIns', 'expenseHomeInsFreq',
@@ -586,21 +572,21 @@ class HomeExpensesForm(forms.ModelForm):
     helper.form_show_errors = True
     helper.layout = Layout(
         Div(Div(
-                Row(
-                    Column(
-                        Div(Div(HTML("Home insurance"), css_class='form-label'),
-                            Div(Field('expenseHomeIns', css_class='text-right'))), css_class='col-6'),
-                    Column(
-                        Div(Div(HTML("&nbsp;"), css_class='form-label'),
-                            Div(Field('expenseHomeInsFreq', css_class='form-label'))), css_class='col-4')),
-                Row(
-                    Column(
-                        Div(Div(HTML("Rates / body corporate fees"), css_class='form-label'),
-                            Div(Field('expenseRates', css_class='text-right'))), css_class='col-6'),
-                    Column(
-                        Div(Div(HTML("&nbsp;"), css_class='form-label'),
-                            Div(Field('expenseRatesFreq', css_class='form-label'))), css_class='col-4')),
-                css_class='col-lg-6 pb-4'),
+            Row(
+                Column(
+                    Div(Div(HTML("Home insurance"), css_class='form-label'),
+                        Div(Field('expenseHomeIns', css_class='text-right'))), css_class='col-6'),
+                Column(
+                    Div(Div(HTML("&nbsp;"), css_class='form-label'),
+                        Div(Field('expenseHomeInsFreq', css_class='form-label'))), css_class='col-4')),
+            Row(
+                Column(
+                    Div(Div(HTML("Rates / body corporate fees"), css_class='form-label'),
+                        Div(Field('expenseRates', css_class='text-right'))), css_class='col-6'),
+                Column(
+                    Div(Div(HTML("&nbsp;"), css_class='form-label'),
+                        Div(Field('expenseRatesFreq', css_class='form-label'))), css_class='col-4')),
+            css_class='col-lg-6 pb-4'),
             css_class='row')
     )
 
@@ -613,14 +599,16 @@ class HomeExpensesForm(forms.ModelForm):
 
 
 class ConsentsForm(forms.ModelForm):
+    """Borrower consents"""
+
     class Meta:
         model = Application
         fields = ['consentPrivacy', 'consentElectronic']
 
     consentPrivacy = forms.BooleanField(required=True,
-                                       label='I consent to the use and disclosure of my personal information and credit-related information')
+                                        label='I consent to the use and disclosure of my personal information and credit-related information')
     consentElectronic = forms.BooleanField(required=True,
-                                          label='I consent to receiving notices and other documents electronically')
+                                           label='I consent to receiving notices and other documents electronically')
 
     helper = FormHelper()
     helper.form_id = 'clientForm'
@@ -632,6 +620,7 @@ class ConsentsForm(forms.ModelForm):
 
 
 class BankForm(forms.ModelForm):
+    """Bank details"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -664,6 +653,7 @@ class BankForm(forms.ModelForm):
 
 
 class SigningForm(forms.ModelForm):
+    """Application electronic signing"""
 
     def __init__(self, *args, **kwargs):
 
@@ -686,17 +676,17 @@ class SigningForm(forms.ModelForm):
             self.fields['signingName_2'].required = True
 
             self.helper.layout = Layout(
-                    Div(
-                        Div(Div(HTML(customerName_1 + " *"), css_class='form-label'),
-                            Div(Field('signingName_1')),
+                Div(
+                    Div(Div(HTML(customerName_1 + " *"), css_class='form-label'),
+                        Div(Field('signingName_1')),
 
-                            Div(HTML("Signing Pin*"), css_class='form-label pt-4'),
-                            Div(Field('pin')),
+                        Div(HTML("Signing Pin*"), css_class='form-label pt-4'),
+                        Div(Field('pin')),
 
-                            css_class="col-md-5"),
-                        Div(Div(HTML(customerName_2 + " *"), css_class='form-label'),
-                            Div(Field('signingName_2')),
-                            css_class="col-md-5"),
+                        css_class="col-md-5"),
+                    Div(Div(HTML(customerName_2 + " *"), css_class='form-label'),
+                        Div(Field('signingName_2')),
+                        css_class="col-md-5"),
                     css_class="row")
             )
 
@@ -733,6 +723,7 @@ class SigningForm(forms.ModelForm):
 
 
 class DocumentForm(forms.ModelForm):
+    """Send documents form"""
 
     class Meta:
         model = ApplicationDocuments
@@ -754,5 +745,231 @@ class DocumentForm(forms.ModelForm):
                     Div(Field('documentType'))),
                 Div(Div(HTML("Document"), css_class='form-label'),
                     Div(Field('document'))),
-        )
-    ))
+            )
+        ))
+
+
+class ApplicationDetailForm(forms.ModelForm):
+    """Render data only - no submit"""
+
+    class Meta:
+        model = Application
+        fields = ['appStatus', 'productType', 'email', 'mobile',
+                  'surname_1', 'firstname_1', 'birthdate_1', 'sex_1',
+                  'clientType2', 'surname_2', 'firstname_2', 'birthdate_2', 'sex_2',
+                  'streetAddress', 'suburb', 'postcode', 'state', 'valuation', 'dwellingType',
+                  'purposeAmount', 'planPurposeAmount', 'establishmentFee', 'planEstablishmentFee',
+                  'assetSaving', 'assetVehicles', 'assetOther', 'liabLoans',
+                   'liabCards', 'liabOther', 'limitCards',
+                  'totalLoanAmount', 'totalPlanAmount',
+                  'incomePension', 'incomePensionFreq',
+                  'incomeSavings', 'incomeSavingsFreq',
+                  'incomeOther', 'incomeOtherFreq',
+                  'expenseHomeIns', 'expenseHomeInsFreq',
+                  'expenseRates', 'expenseRatesFreq',
+                  'expenseGroceries', 'expenseGroceriesFreq',
+                  'expenseUtilities', 'expenseUtilitiesFreq',
+                  'expenseMedical', 'expenseMedicalFreq',
+                  'expenseTransport', 'expenseTransportFreq',
+                  'expenseRepay', 'expenseRepayFreq',
+                  'expenseOther', 'expenseOtherFreq',
+                  'totalAnnualIncome', 'totalAnnualExpenses'
+                  ]
+
+    # Form Layout
+    helper = FormHelper()
+    helper.form_method = 'POST'
+    helper.form_class = 'form-horizontal col-lg-12'
+    helper.field_class = 'col-lg-12'
+    helper.form_show_labels = False
+    helper.form_show_errors = True
+    helper.layout = Layout(
+        Div(
+            Div(HTML("<i class='far fa-address-card'></i>&nbsp;&nbsp;Application Status"), css_class='form-header'),
+            Div(
+                Div(
+                    Div(HTML("Product Type"), css_class='form-label'),
+                    Div(Field('productType')), css_class="col-lg-6"),
+                Div(
+                    Div(HTML("Application Status"), css_class='form-label'),
+                    Div(Field('appStatus')), css_class="col-lg-6"),
+                css_class="row"),
+
+            Div(
+                Div(Div(HTML("<i class='far fa-address-card'></i>&nbsp;&nbsp;Contact Details"),
+                        css_class='form-header'),
+                    Div(Div(HTML("Client Phone Number"), css_class='form-label'),
+                        Div(Field('mobile'))),
+                    Div(Div(HTML("Client Email"), css_class='form-label'),
+                        Div(Field('email'))),
+                    HTML("<i class='fas fa-user'></i>&nbsp;&nbsp;<small>Borrower 1</small>"),
+                    Div(Div(HTML("Firstname*"), css_class='form-label'),
+                        Div(Field('firstname_1'))),
+                    Div(Div(HTML("Surname*"), css_class='form-label'),
+                        Div(Field('surname_1'))),
+                    Row(
+                        Column(Div(Div(HTML("Birthdate*"), css_class='form-label'),
+                                   Div(Field('birthdate_1'))), css_class='col-6'),
+                        Column(Div(Div(HTML("Gender"), css_class='form-label pt-1'),
+                                   Div(Field('sex_1'))), css_class='col-6')),
+                    HTML("<i class='far fa-user'></i>&nbsp;&nbsp;<small>Borrower 2</small>"),
+                    Div(Div(HTML("Firstname*"), css_class='form-label'),
+                        Div(Field('firstname_2'))),
+                    Div(Div(HTML("Surname*"), css_class='form-label'),
+                        Div(Field('surname_2'))),
+                    Row(
+                        Column(Div(Div(HTML("Birthdate*"), css_class='form-label'),
+                                   Div(Field('birthdate_2'))), css_class='col-6'),
+                        Column(Div(Div(HTML("Gender"), css_class='form-label pt-1'),
+                                   Div(Field('sex_2'))), css_class='col-6')),
+                    Div(Div(HTML("Borrower Role*"), css_class='form-label'),
+                        Div(Field('clientType2'))),
+
+                    Div(HTML("<i class='fas fa-home'></i>&nbsp;&nbsp;Property"), css_class='form-header pt-2'),
+                    Div(Div(HTML("Dwelling Type*"), css_class='form-label'),
+                        Div(Field('dwellingType'))),
+                    Div(Div(HTML("Street Address*"), css_class='form-label'),
+                        Div(Field('streetAddress'))),
+                    Div(Div(HTML("Suburb*"), css_class='form-label'),
+                        Div(Field('suburb'))),
+                    Row(
+                        Column(Div(Div(HTML("State*"), css_class='form-label'),
+                                   Div(Field('state'))), css_class='col-6'),
+                        Column(Div(Div(HTML("Postcode"), css_class='form-label'),
+                                   Div(Field('postcode'))), css_class='col-6')),
+                    Div(Div(HTML("Valuation*"), css_class='form-label'),
+                        Div(Field('valuation'))),
+                    css_class="col-lg-6"),
+
+                Div(
+                    Div(Div(HTML("<i class='fas fa-user-edit'></i>&nbsp;&nbsp;Application Details"),
+                            css_class='form-header'),
+                        Row(
+                            Column(Div(Div(HTML("Purpose"), css_class='form-label'),
+                                       Div(Field('purposeAmount', css_class="text-right"))), css_class='col-6'),
+                            Column(Div(Div(HTML("Plan Purpose"), css_class='form-label '),
+                                       Div(Field('planPurposeAmount', css_class="text-right"))), css_class='col-6')),
+                        Row(
+                            Column(Div(Div(HTML("Est Fee"), css_class='form-label'),
+                                       Div(Field('establishmentFee', css_class="text-right"))), css_class='col-6'),
+                            Column(Div(Div(HTML("Plan Est Fee"), css_class='form-label '),
+                                       Div(Field('planEstablishmentFee', css_class="text-right"))), css_class='col-6')),
+
+                        Row(
+                            Column(Div(Div(HTML("Total Loan"), css_class='form-label'),
+                                       Div(Field('totalLoanAmount', css_class="text-right"))), css_class='col-6'),
+                            Column(Div(Div(HTML("Total Plan"), css_class='form-label '),
+                                       Div(Field('totalPlanAmount', css_class="text-right"))), css_class='col-6')),
+
+                        Div(HTML("<p class='pb-2'><i class='fas fa-user-plus'></i><b>&nbsp;&nbsp;Assets</b></p>")),
+                        Div(Div(HTML("Savings/Investments*"), css_class='form-label'),
+                            Div(Field('assetSaving', css_class='text-right'))),
+                        Div(Div(HTML("Motor Vehicles*"), css_class='form-label'),
+                            Div(Field('assetVehicles', css_class='text-right'))),
+                        Div(Div(HTML("Other*"), css_class='form-label'),
+                            Div(Field('assetOther', css_class='text-right'))),
+
+                        Div(HTML(
+                            "<p class='pb-2'><i class='fas fa-user-minus'></i><b>&nbsp;&nbsp;Liabilities</b></p>")),
+                        Div(Div(HTML("Home Loans*"), css_class='form-label'),
+                            Div(Field('liabLoans', css_class='text-right'))),
+                        Div(Div(HTML("Credit Cards*"), css_class='form-label'),
+                            Div(Field('liabCards', css_class='text-right'))),
+                        Div(Div(HTML("Other*"), css_class='form-label'),
+                            Div(Field('liabOther', css_class='text-right'))),
+                        Div(Div(HTML("Total Credit Card <b>Limits</b>*"), css_class='form-label'),
+                            Div(Field('limitCards', css_class='text-right'))),
+
+                        Row(
+                            Column(
+                                Div(HTML(
+                                    "<p class='pb-2'><i class='fas fa-user-plus'></i><b>&nbsp;&nbsp;Income</b></p>"))
+                                , css_class='col-6')),
+                        Row(
+                            Column(
+                                Div(Div(HTML("Pension Income"), css_class='form-label'),
+                                    Div(Field('incomePension', css_class='text-right'))), css_class='col-7'),
+                            Column(
+                                Div(Div(HTML("&nbsp;"), css_class='form-label'),
+                                    Div(Field('incomePensionFreq', css_class='form-label')),
+                                    ), css_class='col-5')),
+                        Row(
+                            Column(
+                                Div(Div(HTML("Super / Savings Income"), css_class='form-label'),
+                                    Div(Field('incomeSavings', css_class='text-right'))), css_class='col-7'),
+                            Column(
+                                Div(Div(HTML("&nbsp;"), css_class='form-label'),
+                                    Div(Field('incomeSavingsFreq', css_class='form-label'))), css_class='col-5')),
+                        Row(
+                            Column(
+                                Div(Div(HTML("Other Income"), css_class='form-label'),
+                                    Div(Field('incomeOther', css_class='text-right '))), css_class='col-7'),
+                            Column(
+                                Div(Div(HTML("&nbsp;"), css_class='form-label'),
+                                    Div(Field('incomeOtherFreq', css_class='form-label'))), css_class='col-5')),
+                        Row(
+                            Column(
+                                Div(HTML(
+                                    "<p class='pb-2'><i class='fas fa-user-minus'></i><b>&nbsp;&nbsp;Expenses</b></p>"))
+                                , css_class='col-6')),
+                        Row(
+                            Column(
+                                Div(Div(HTML("Home insurance"), css_class='form-label'),
+                                    Div(Field('expenseHomeIns', css_class='text-right'))), css_class='col-7'),
+                            Column(
+                                Div(Div(HTML("&nbsp;"), css_class='form-label'),
+                                    Div(Field('expenseHomeInsFreq', css_class='form-label'))), css_class='col-5')),
+                        Row(
+                            Column(
+                                Div(Div(HTML("Rates/body corporate fees etc"), css_class='form-label'),
+                                    Div(Field('expenseRates', css_class='text-right'))), css_class='col-7'),
+                            Column(
+                                Div(Div(HTML("&nbsp;"), css_class='form-label'),
+                                    Div(Field('expenseRatesFreq', css_class='form-label'))), css_class='col-5')),
+                        Row(
+                            Column(
+                                Div(Div(HTML("Groceries and food"), css_class='form-label'),
+                                    Div(Field('expenseGroceries', css_class='text-right'))), css_class='col-7'),
+                            Column(
+                                Div(Div(HTML("&nbsp;"), css_class='form-label'),
+                                    Div(Field('expenseGroceriesFreq', css_class='form-label'))), css_class='col-5')),
+                        Row(
+                            Column(
+                                Div(Div(HTML("Utilities / regular bills"), css_class='form-label'),
+                                    Div(Field('expenseUtilities', css_class='text-right'))), css_class='col-7'),
+                            Column(
+                                Div(Div(HTML("&nbsp;"), css_class='form-label'),
+                                    Div(Field('expenseUtilitiesFreq', css_class='form-label'))), css_class='col-5')),
+                        Row(
+                            Column(
+                                Div(Div(HTML("Medical and health"), css_class='form-label'),
+                                    Div(Field('expenseMedical', css_class='text-right'))), css_class='col-7'),
+                            Column(
+                                Div(Div(HTML("&nbsp;"), css_class='form-label'),
+                                    Div(Field('expenseMedicalFreq', css_class='form-label'))), css_class='col-5')),
+                        Row(
+                            Column(
+                                Div(Div(HTML("Transport"), css_class='form-label'),
+                                    Div(Field('expenseTransport', css_class='text-right'))), css_class='col-7'),
+                            Column(
+                                Div(Div(HTML("&nbsp;"), css_class='form-label'),
+                                    Div(Field('expenseTransportFreq', css_class='form-label'))), css_class='col-5')),
+                        Row(
+                            Column(
+                                Div(Div(HTML("Loan repayments"), css_class='form-label'),
+                                    Div(Field('expenseRepay', css_class='text-right'))), css_class='col-7'),
+                            Column(
+                                Div(Div(HTML("&nbsp;"), css_class='form-label'),
+                                    Div(Field('expenseRepayFreq', css_class='form-label'))), css_class='col-5')),
+                        Row(
+                            Column(
+                                Div(Div(HTML("Other living expenses"), css_class='form-label'),
+                                    Div(Field('expenseOther', css_class='text-right'))), css_class='col-7'),
+                            Column(
+                                Div(Div(HTML("&nbsp;"), css_class='form-label'),
+                                    Div(Field('expenseOtherFreq', css_class='form-label'))), css_class='col-5')),
+
+                        ), css_class="col-lg-6"),
+
+                css_class="row")
+        ))

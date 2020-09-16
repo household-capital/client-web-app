@@ -20,26 +20,24 @@
 {% block message_display %}
 
     <div class="container">
-
         {% if messages %}
-            <div id='messages' class="row justify-content-md-center">
+            <div id='messages' class="row justify-content-md-center pt-3">
                 <div class="col-6 text-center">
-                    <br>
                     {% for message in messages %}
-                        <p{% if message.tags == 'error' %}
-                            class="alert alert-warning">{{ message }}</p>{% endif %}
-
-                        <p{% if message.tags == 'success' %}
-                            class="alert alert-success">{{ message }}</p>{% endif %}
+                        <div class="pb-1">
+                            <p{% if message.tags == 'error' %} class="alert alert-danger"{% endif %}
+                                    {% if message.tags == 'warning' %} class="alert alert-warning"{% endif %}
+                                    {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                    {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                                {{ message }}</p>
+                        </div>
                     {% endfor %}
                 </div>
             </div>
+
         {% endif %}
-
-        <div class="row">
-
-        </div>
     </div>
+
 
 {% endblock %}
 
@@ -63,19 +61,8 @@
                         </div>
                     </div>
 
-                {% elif obj.status == False %}
-                    <div id="messages" class="row pt-2">
-                        <div class="col-lg-6 text-left">
-                            <div class="alert alert-primary" role="alert">
-                                <p><i class="fas fa-info-circle"></i>&nbsp;&nbsp;
-                                    Privacy statement
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
                 {% elif obj.sfLeadID is null %}
-                    <div id="messages" class="row pt-2">
+                    <div class="row pt-2">
                         <div class="col-lg-6 text-left">
                             <div class="alert alert-primary" role="alert">
                                 <p><i class="fas fa-info-circle"></i>&nbsp;&nbsp;
@@ -133,6 +120,14 @@
                                 &nbsp;<i class="fas fa-fw fa-hand-point-right"></i>&nbsp;&nbsp;Assign Ownership
                             </a>
 
+                            {% if status.data.postcode == 'Refer' %}
+                                <div class="dropdown-divider"></div>
+
+                                <a class="dropdown-item" href="{% url 'enquiry:enqReview' uid=obj.enqUID %}">
+                                    &nbsp;<i class="fas fa-fw fa-map-marked-alt"></i>&nbsp;&nbsp;Refer Postcode Review
+                                    &nbsp;
+                                </a>
+                            {% endif %}
 
                             <div class="dropdown-divider"></div>
 
@@ -148,17 +143,12 @@
                                 </a>
 
 
-                                <a class="dropdown-item pb-3"
+                                <a class="dropdown-item"
                                    href="{% url 'enquiry:enqCreateSummary' uid=obj.enqUID %}">
                                     &nbsp;<i class="far fa-file-pdf fa-fw"></i>&nbsp;&nbsp;Create Client Summary
                                     &nbsp;&nbsp;
                                 </a>
 
-
-                                <a class="dropdown-item" href="{% url 'enquiry:enqEligibility' uid=obj.enqUID %}">
-                                    &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email yourself a Summary
-                                    &nbsp;&nbsp;
-                                </a>
 
                                 {% if obj.referralUser %}
 
@@ -183,18 +173,16 @@
                             <a class="dropdown-item" href="{% url 'enquiry:enqConvert' uid=obj.enqUID %}">
                                 &nbsp;<i class="far fa-folder-open"></i>&nbsp;&nbsp;Convert to Case
                             </a>
-
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="{% url 'enquiry:enqMarkFollowUp' uid=obj.enqUID %}">
-                                &nbsp;<i class="far fa-calendar-check fa-fw"></i>&nbsp;&nbsp;Close/Add Follow-Up
-                                &nbsp;&nbsp;
-                            </a>
-
                         </div>
                     </div>
 
                     {% if status.status == 'Ok' %}
                         <div class="jumbotron">
+
+                            {% if obj.closeDate %}
+                                <span class="badge badge-danger">Enquiry Closed</span>
+                            {% endif %}
+
                             {% if obj.productType == productTypesEnum.INCOME.value %}
                                 <p class="badge badge-info">
                                     Income</p>
@@ -217,13 +205,25 @@
                                     Opportunity
                                 </p>
                             {% else %}
-                                <p class="text-warning"><i class="fas fa-fw fa-exclamation-triangle"></i>&nbsp;Refer
-                                    Postcode - get full address
-                                </p>
+                                {% if obj.isReferPostcode %}
+                                    {% if obj.referPostcodeStatus == True %}
+                                        <p class="badge badge-success">Refer postcode approved</p>
+                                    {% elif obj.referPostcodeStatus == False %}
+                                        <p class="badge badge-danger">Refer postcode declined</p>
+                                    {% else %}
+                                        <p class="badge badge-warning">Postcode review requested</p>
+                                    {% endif %}
+                                    <br>
+                                {% else %}
+                                    <p class="text-warning"><i class="fas fa-fw fa-exclamation-triangle"></i>&nbsp;Refer
+                                        Postcode - get full address
+                                    </p>
+                                {% endif %}
                             {% endif %}
 
                             {% if requirementError %}
-                                <p class="text-danger pt-2"><i class="fas fa-lg fa-exclamation-circle"></i>&nbsp;{{ requirementError  }}
+                                <p class="text-danger pt-2"><i
+                                        class="fas fa-lg fa-exclamation-circle"></i>&nbsp;{{ requirementError }}
                                 </p>
                             {% endif %}
 
@@ -234,7 +234,8 @@
                             <p class="small">Max Loan is: ${{ status.data.maxLoan|intcomma }} (incl
                                 establishment
                                 fee)</p>
-                            <p class="small">Max Monthly Income is: ${{ status.data.maxDrawdownMonthly|intcomma }} (incl est fee)</p>
+                            <p class="small">Max Monthly Income is: ${{ status.data.maxDrawdownMonthly|intcomma }} (incl
+                                est fee)</p>
                             <p class="small">{% if status.data.maxLoan > status.data.maxTopUp %}Max for
                                 Super
                                 Top Up
@@ -253,12 +254,18 @@
                                 ${{ status.data.maxTravel|intcomma }}</p>
 
                             <br>
+                            <p class="small pb-1"><i class="far fa-file-pdf"></i>&nbsp;&nbsp;Documents</p>
                             {% if obj.summaryDocument %}
-                                <p class="small"><i class="far fa-file-pdf"></i>&nbsp;Documents</p>
                                 <p class="small"><a
-                                        href="/media/enquiryReports/{{ obj.summaryDocument.file|filename }}">Customer
+                                        href="{{ obj.summaryDocument.url }}">Customer
                                     Summary</a>
                                 </p>
+                            {% endif %}
+
+                            {% if obj.valuationDocument %}
+                                <p class="small"><a href="{{ obj.valuationDocument.url }}">Auto
+                                    Val
+                                    Document </a></p>
                             {% endif %}
                         </div>
 
@@ -268,11 +275,26 @@
 
                         <div class="jumbotron">
 
+                            {% if obj.closeDate %}
+                                <span class="badge badge-danger">Enquiry Closed</span>
+                                <p class="pb-2"></p>
+                            {% endif %}
+
                             <p class="pb-3 small"><i class="fas fa-users-cog fa-fw"></i>&nbsp;Initial Validation</p>
                             <p class="text-danger"><i class="far fa-times-circle fa-lg btn-outline-danger"></i>&nbsp;Ineligible
-                            <p>
+                                <br>
+
                             <p class="pl-4 text-danger small"> {{ status.responseText }}</p>
 
+                            {% if status.responseText != "Invalid Postcode" %}
+                                {% if status.data.postcode %}
+                                    <p class="pl-4 small
+                                {% if status.data.postcode == "Valid" %}text-success
+                                {% elif status.data.postcode == "Invalid" %}text-danger
+                                {% elif status.data.postcode == "Refer" %}text-warning
+                                {% endif %}">{{ status.data.postcode }} postcode</p>
+                                {% endif %}
+                            {% endif %}
                         </div>
 
                     {% endif %}
@@ -303,7 +325,6 @@
                         </div>
                         <div class="modal-body">
                             <p>You are about to send the client a summary document via email - are you sure ?</p><br>
-                            <p>Note: the new summary requires an estimated funding requirement to be saved</p>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -433,8 +454,10 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>You can specify amounts to be used in the projections that are contained within the Customer Summary.  These will ordinarily be filled in, if the customer has used a calculator. </p>
-                    <br><p>This can
+                    <p>You can specify amounts to be used in the projections that are contained within the Customer
+                        Summary. These will ordinarily be filled in, if the customer has used a calculator. </p>
+                    <br>
+                    <p>This can
                         be:</p>
                     <ul>
                         <li>a lump sum amount (total $ amount); and/or</li>
@@ -443,7 +466,8 @@
                     <p><b>Note:</b> these amounts INCLUDE the establishment fee</p>
                     <br>
                     <p>If you leave these blank, the projection will use the maximum or default amounts</p><br>
-                    <p>The <b>product type</b> determines which of these is used and also changes the summary document slightly:</p>
+                    <p>The <b>product type</b> determines which of these is used and also changes the summary document
+                        slightly:</p>
                     <ul>
                         <li>lump sum - just the lump sum amount</li>
                         <li>income - just the income amount</li>

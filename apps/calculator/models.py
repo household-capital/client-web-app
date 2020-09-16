@@ -32,42 +32,6 @@ class WebManager(models.Manager):
     def queueCount(self):
         return WebCalculator.objects.filter(email__isnull=False, actioned=0).count()
 
-    def __timeSeriesQry(self, qs, length, deDupe=False):
-        #utility function appended to base time series query
-        tz = get_current_timezone()
-        qryDate=datetime.now(tz)-timedelta(days=length)
-
-        return qs.filter(timestamp__gte=qryDate).annotate(date=Cast(TruncDay('timestamp', tzinfo=tz), DateField())) \
-                   .values_list('date') \
-                   .annotate(interactions=Count('postcode',distinct=deDupe)) \
-                   .values_list('date', 'interactions').order_by('-date')
-
-    def timeSeries(self, seriesType, length, search=None):
-        tz = get_current_timezone()
-
-        if seriesType == 'Interactions':
-            return self.__timeSeriesQry(WebCalculator.objects.all(),length, True)
-
-        if seriesType == 'Email':
-            return self.__timeSeriesQry(WebCalculator.objects.filter(email__isnull=False),length)
-
-        if seriesType == 'InteractionsByState':
-            return self.__timeSeriesQry(WebCalculator.objects.filter(postcode__startswith=search),length, True)
-
-        if seriesType == 'InteractionsBySource' and search == True:
-            return self.__timeSeriesQry(WebCalculator.objects.filter(referrer__icontains='calculator'), length, True)
-
-        if seriesType == 'InteractionsBySource' and search == False:
-            return self.__timeSeriesQry(WebCalculator.objects.exclude(referrer__icontains='calculator'), length, True)
-
-        if seriesType == 'EmailBySource' and search == True:
-            return self.__timeSeriesQry(WebCalculator.objects.filter(referrer__icontains='calculator').filter(
-                email__isnull=False), length)
-
-        if seriesType == 'EmailBySource' and search == False:
-            return self.__timeSeriesQry(WebCalculator.objects.filter(email__isnull=False).exclude(
-                referrer__icontains='calculator'), length)
-
 
 class WebCalculator(models.Model):
     dwellingTypes = (
@@ -105,6 +69,7 @@ class WebCalculator(models.Model):
     # Client Data
     name = models.CharField(max_length=30, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
+    phoneNumber = models.CharField(max_length=15, blank=True, null=True)
     loanType = models.BooleanField(default=True, blank=False, null=False)
     age_1 = models.IntegerField(blank=False, null=False)
     age_2 = models.IntegerField(blank=True, null=True)
@@ -140,6 +105,7 @@ class WebCalculator(models.Model):
     actionedBy=models.CharField(max_length=40,blank= True,null=True)
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+    sourceID = models.CharField(max_length=36, null=True, blank=True)
 
     # Other
     calcTopUp = models.IntegerField(blank=True, null=True) #deprecated
@@ -163,6 +129,9 @@ class WebCalculator(models.Model):
     def enumDwellingType(self):
         return dict(self.dwellingTypes)[self.dwellingType]
 
+    def enumProductType(self):
+        return dict(self.productTypes)[self.productType]
+
 
 # WebContact
 
@@ -182,11 +151,14 @@ class WebContact(models.Model):
     name=models.CharField(max_length=50,null=False, blank=False)
     email=models.EmailField(null=True,blank=True)
     phone=models.CharField(max_length=15,null=True,blank=True)
+    age_1 = models.IntegerField(blank=True, null=True)
+    postcode = models.IntegerField(blank=True, null=True)
     message=models.CharField(max_length=1000,null=False,blank=False)
     actioned = models.IntegerField(default=0, blank=True, null=True)
     actionNotes=models.CharField(max_length=1000,null=True,blank=True)
     actionedBy=models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
     actionDate=models.DateField(blank=True, null=True)
+    sourceID = models.CharField(max_length=36, null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
 

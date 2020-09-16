@@ -3,7 +3,7 @@ from django.contrib import admin
 
 #Local Application Imports
 from .models import Facility, FacilityTransactions, FacilityRoles, FacilityProperty, FacilityPropertyVal, FacilityPurposes, \
-    FacilityEvents, FacilityEnquiry, FacilityAdditional
+    FacilityEvents, FacilityEnquiry, FacilityAdditional, FacilityAnnual
 
 
 class FacilityTransactionsAdmin(admin.ModelAdmin):
@@ -43,3 +43,4 @@ admin.site.register(FacilityPurposes,FacilityPurposesAdmin)
 admin.site.register(FacilityEvents,FacilityEventsAdmin)
 admin.site.register(FacilityEnquiry,FacilityEnquiryAdmin)
 admin.site.register(FacilityAdditional,FacilityAdditionalAdmin)
+admin.site.register(FacilityAnnual,FacilityEnquiryAdmin)

@@ -67,18 +67,20 @@ class ragTypesEnum(Enum):
 
 @accessInTemplate
 class channelTypesEnum(Enum):
-    IND_FINANCIAL_ADVISERS=0
-    INST_FINANCIAL_ADVISERS=1
-    SUPER_FINANCIAL_ADVISERS=2
-    AGED_CARE_ADVISERS=3
-    AGED_CARE_PROVIDERS_CONSULTANTS=4
-    ACCOUNTANTS=5
-    CENTRELINK_ADVISERS=6
-    BROKERS=7
-    BANK_REFERRAL=8
-    BANK_REFI=9
-    SUPER_MEMBERS_DIRECT=10
     DIRECT_ACQUISITION=11
+    PARTNER = 12
+    BROKER=7
+    ADVISER = 13
+    IND_FINANCIAL_ADVISERS = 0  # Deprecated
+    INST_FINANCIAL_ADVISERS = 1  # Deprecated
+    SUPER_FINANCIAL_ADVISERS = 2  # Deprecated
+    AGED_CARE_ADVISERS = 3  # Deprecated
+    AGED_CARE_PROVIDERS_CONSULTANTS = 4  # Deprecated
+    ACCOUNTANTS = 5  # Deprecated
+    CENTRELINK_ADVISERS = 6  # Deprecated
+    BANK_REFERRAL = 8  # Deprecated
+    BANK_REFI = 9  # Deprecated
+    SUPER_MEMBERS_DIRECT = 10  # Deprecated
 
 @accessInTemplate
 class directTypesEnum(Enum):
@@ -86,7 +88,10 @@ class directTypesEnum(Enum):
     EMAIL = 1
     WEB_CALCULATOR = 2
     WEB_ENQUIRY = 3
-    REFERRAL=4
+    BROKER=4
+    PARTNER = 5
+    SOCIAL = 6
+    ADVISER = 7
     OTHER=100
 
 
@@ -99,11 +104,17 @@ class marketingTypesEnum(Enum):
     ADVISER = 5
     COMPETITOR = 6
     DIRECT_MAIL = 7
+    WEB_SEARCH = 11
+    DIRECT_EMAIL = 12
     FACEBOOK = 8
     LINKEDIN = 9
     YOUR_LIFE_CHOICES = 10
-    WEB_SEARCH = 11
-    DIRECT_EMAIL = 12
+    STARTS_AT_60 = 13
+    CARE_ABOUT = 14
+    BROKER_SPECIALIST = 15
+    BROKER_REFERRAL = 16
+    FINANCIAL_ADVISER = 17
+    AGED_CARE_ADVISER = 18
     OTHER = 100
 
 
@@ -127,6 +138,24 @@ class incomeFrequencyEnum(Enum):
     ANNUALLY = 5
 
 @accessInTemplate
+class enquiryStagesEnum(Enum):
+    GENERAL_INFORMATION = 1
+    BROCHURE_SENT = 2
+    SUMMARY_SENT = 3
+    DISCOVERY_MEETING = 4
+    LOAN_INTERVIEW = 5
+    LIVE_TRANSFER = 6
+    DUPLICATE = 7
+    FUTURE_CALL = 8
+    DID_NOT_QUALIFY = 9
+    NOT_PROCEEDING = 10
+    FOLLOW_UP_NO_ANSWER = 11
+    FOLLOW_UP_VOICEMAIL = 12
+    INITIAL_NO_ANSWER = 13
+    NVN_EMAIL_SENT = 14
+    MORE_TIME_TO_THINK = 15
+
+@accessInTemplate
 class closeReasonEnum(Enum):
     AGE_RESTRICTION=1
     POSTCODE_RESTRICTION = 2
@@ -141,7 +170,11 @@ class closeReasonEnum(Enum):
     COMPETITOR=11
     NO_CLIENT_ACTION=13
     CALL_ONLY = 14
+    ANTI_REVERSE_MORTGAGE = 15
+    FEES = 15
+    DUPLICATE = 16
     OTHER = 12
+
 
 @accessInTemplate
 class salutationEnum(Enum):
@@ -158,6 +191,7 @@ class maritalEnum(Enum):
     DIVORCED = 3
     WIDOWED = 4
     DEFACTO = 5
+    SEPARATED = 6
 
 @accessInTemplate
 class clientTypesEnum(Enum):
@@ -213,7 +247,7 @@ class purposeIntentionEnum(Enum):
     REGULAR_DRAWDOWN = 3
     GIVE_TO_FAMILY = 4
     RENOVATIONS = 5
-    TRANSPORT = 6
+    TRANSPORT_AND_TRAVEL = 6
     LUMP_SUM = 7
     MORTGAGE  = 8
 
@@ -224,15 +258,7 @@ class appStatusEnum(Enum):
     EXPIRED = 2
     SUBMITTED = 3
     CONTACT = 4
-
-@accessInTemplate
-class reasonCodeEnum(Enum):
-    NEW_BASIC_INFO = 1
-    NEW_SPECIFIC_NEED = 2
-    EXT_SALES_REP = 3
-    WRONG_NUMBER = 4
-    NUISANCE = 5
-    OTHER = 100
+    CLOSED = 5
 
 @accessInTemplate
 class documentTypesEnum(Enum):

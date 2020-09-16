@@ -70,15 +70,15 @@
                 <div class="row align-items-center justify-content-center ">
                     <div class="col-lg-6">
 
-                        <p class="secondary_title pb-2">Applicant{% if obj.choiceOccupants %}s{% endif %}</p>
+                        <p class="secondary_title pb-2">Applicant{% if obj.clientType2 is not none %}s{% endif %}</p>
                         <div class="row align-items-center justify-content-center pl-3 pt-2">
-                            <div class="col-lg-6 ">
+                            <div class="col-lg-5 ">
                                 <p class="print-text">Applicant</p>
                                 <p class="print-text">Date of Birth</p>
                                 <p class="print-text">Role</p>
 
                             </div>
-                            <div class="col-lg-6 ">
+                            <div class="col-lg-7 ">
                                 <p class="print-text">{{ obj.enumSalutation.0 }} {{ obj.firstname_1 }} {{ obj.surname_1 }}</p>
                                 <p class="print-text">{{ obj.birthdate_1 }}</p>
                                 <p class="print-text">Borrower</p>
@@ -87,16 +87,16 @@
                     </div>
 
                     <div class="col-lg-6">
-                        {% if obj.choiceOccupants %}
-                            <button class="btn btn-light"></button>
+                        {% if obj.clientType2 is not none%}
+                            <p class="secondary_title pb-2">&nbsp;</p>
                             <div class="row align-items-center justify-content-center pl-1 pt-2">
-                                <div class="col-lg-6 ">
+                                <div class="col-lg-5 ">
                                     <p class="print-text">Applicant</p>
                                     <p class="print-text">Date of Birth</p>
                                     <p class="print-text">Role</p>
 
                                 </div>
-                                <div class="col-lg-6 ">
+                                <div class="col-lg-7 ">
                                     <p class="print-text">{{ obj.enumSalutation.1 }} {{ obj.firstname_2 }} {{ obj.surname_2 }}</p>
                                     <p class="print-text">{{ obj.birthdate_2 }}</p>
                                     <p class="print-text">{{ obj.enumClientType }}</p>
@@ -112,11 +112,11 @@
                 <br>
 
                 <div class="row align-items-center justify-content-center pt-2">
-                    <div class="col-lg-6">
+                    <div class="col-lg-9">
 
                         <p class="secondary_title pb-2">Property</p>
                         <div class="row align-items-center justify-content-center pl-3 pt-2">
-                            <div class="col-lg-6 ">
+                            <div class="col-lg-4 ">
                                 <p class="print-text">Street address</p>
                                 <p class="print-text">Suburb</p>
                                 <p class="print-text">State</p>
@@ -125,7 +125,7 @@
                                 <p class="print-text">Estimated valuation</p>
 
                             </div>
-                            <div class="col-lg-6 ">
+                            <div class="col-lg-8 ">
                                 <p class="print-text">{{ obj.streetAddress }}</p>
                                 <p class="print-text">{{ obj.suburb }}</p>
                                 <p class="print-text">{{ obj.enumStateType }}</p>
@@ -135,7 +135,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-6 "></div>
+                    <div class="col-lg-3 "></div>
                 </div>
 
                 <br>
@@ -187,7 +187,7 @@
                     </div>
 
                     <div class="col-lg-8 pt-2">
-                        <p class="print-text">Is there a second borrower? Or is there an other occupant that you intend
+                        <p class="print-text">Is there a second borrower (e.g., a spouse)? Or is there another occupant that you intend
                             to
                             allow to live in your home?</p>
                     </div>

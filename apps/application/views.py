@@ -6,44 +6,217 @@ import uuid
 
 # Django Imports
 from django.conf import settings
-
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.contrib import messages
 from django.core import signing
+from django.db.models import Q
 from django.forms.models import model_to_dict
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
-from django.views.generic import FormView, TemplateView, View, UpdateView, CreateView
+from django.views.generic import FormView, TemplateView, View, UpdateView, CreateView, ListView
 
 # Third Party Imports
-from rest_framework.generics import ListAPIView, UpdateAPIView, CreateAPIView
+from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from config.celery import app
 
 # Local Application Imports
 from apps.lib.api_BurstSMS import apiBurst
-from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.hhc_LoanProjection import LoanProjection
-from apps.lib.site_Enums import directTypesEnum, appStatusEnum, loanTypesEnum, incomeFrequencyEnum, \
-    purposeIntentionEnum, purposeCategoryEnum, clientTypesEnum, stateTypesEnum, channelTypesEnum, \
-    caseStagesEnum, appTypesEnum, productTypesEnum
+from apps.lib.site_Enums import *
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Utilities import sendTemplateEmail, raiseAdminError, populateDrawdownPurpose, \
-    getProjectionResults, validateApplicationGetContext, populateDrawdownPurpose, getFileFieldMimeType
+from apps.lib.site_Utilities import raiseAdminError, getProjectionResults, \
+    validateApplicationGetContext, populateDrawdownPurpose, getFileFieldMimeType, \
+    createCaseModelSettings, HouseholdLoginRequiredMixin, updateNavQueue
 
 from apps.accounts.models import SessionLog
 from apps.case.models import Case, LoanPurposes, Loan, LoanApplication
 from apps.enquiry.models import Enquiry
 from .forms import InitiateForm, TwoFactorForm, ObjectivesForm, ApplicantForm, ApplicantTwoForm, \
-    LoanObjectivesForm, AssetsForm, IncomeForm, ConsentsForm, BankForm, SigningForm,\
-    DocumentForm, HomeExpensesForm
+    LoanObjectivesForm, AssetsForm, IncomeForm, ConsentsForm, BankForm, SigningForm, \
+    DocumentForm, HomeExpensesForm, ApplicationDetailForm
 
 from .serialisers import IncomeApplicationSeraliser
 from .models import Application, ApplicationPurposes, ApplicationDocuments
 
+
+## Authenticated Views ##
+
+# Application List View
+class ApplicationListView(HouseholdLoginRequiredMixin, ListView):
+    paginate_by = 8
+    template_name = 'application/appList.html'
+    context_object_name = 'object_list'
+    model = Application
+
+    def get_queryset(self, **kwargs):
+        # overrides queryset to filter search parameter
+
+        queryset = super(ApplicationListView, self).get_queryset().exclude(appStatus=appStatusEnum.CREATED.value)
+
+        if self.request.GET.get('search'):
+            search = self.request.GET.get('search')
+            queryset = super(ApplicationListView, self).get_queryset()
+            queryset = queryset.filter(
+                Q(firstname_1__icontains=search) |
+                Q(surname_1__icontains=search) |
+                Q(email__icontains=search) |
+                Q(mobile__icontains=search) |
+                Q(postcode__icontains=search)
+            )
+
+        if self.request.GET.get('filter') == "Closed":
+            queryset = queryset.filter(
+                Q(appStatus=appStatusEnum.CLOSED.value))
+
+        elif self.request.GET.get('filter') == "Submitted":
+            queryset = queryset.filter(
+                Q(appStatus=appStatusEnum.SUBMITTED.value))
+
+        elif self.request.GET.get('filter') == "InProgress":
+            queryset = queryset.filter(
+                Q(appStatus=appStatusEnum.IN_PROGRESS.value))
+
+        elif self.request.GET.get('filter') == "Contact":
+            queryset = queryset.filter(
+                Q(appStatus=appStatusEnum.CONTACT.value))
+
+        queryset = queryset.order_by('-updated')[:160]
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(ApplicationListView, self).get_context_data(**kwargs)
+        context['title'] = 'Online Applications'
+
+        if self.request.GET.get('search'):
+            context['search'] = self.request.GET.get('search')
+        else:
+            context['search'] = ""
+
+        # Update Nav Queues
+        updateNavQueue(self.request)
+
+        return context
+
+
+class ApplicationDetailView(HouseholdLoginRequiredMixin, UpdateView):
+    template_name = "application/appDetail.html"
+    form_class = ApplicationDetailForm
+    model = Application
+
+    def get_object(self, queryset=None):
+        appUID = str(self.kwargs['uid'])
+        queryset = Application.objects.queryset_byUID(str(appUID))
+        obj = queryset.get()
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(ApplicationDetailView, self).get_context_data(**kwargs)
+        context['title'] = 'Application'
+
+        obj = self.get_object()
+        context['obj'] = obj
+
+        context['docList'] = ApplicationDocuments.objects.filter(application=obj)
+
+        messages.info(self.request, "Application data cannot be edited")
+
+        return context
+
+
+class NewLink(HouseholdLoginRequiredMixin, View):
+    """Send new resume link to customer"""
+
+    def get(self, request, *args, **kwargs):
+        appUID = str(self.kwargs['uid'])
+        messages.success(request, "New Application Link emailed")
+        app.send_task('Email_App_Link', kwargs={'appUID': appUID})
+
+        return HttpResponseRedirect(reverse_lazy('application:appDetail', kwargs={'uid': appUID}))
+
+
+class SendSummary(HouseholdLoginRequiredMixin, View):
+    """Resend Loan Summary to customer"""
+
+    def get(self, request, *args, **kwargs):
+        appUID = str(self.kwargs['uid'])
+        messages.success(request, "Loan Summary emailed")
+        app.send_task('Email_App_Summary', kwargs={'appUID': appUID})
+
+        return HttpResponseRedirect(reverse_lazy('application:appDetail', kwargs={'uid': appUID}))
+
+
+class SendNextSteps(HouseholdLoginRequiredMixin, View):
+    """Resend Next Steps email to customer"""
+
+    def get(self, request, *args, **kwargs):
+        appUID = str(self.kwargs['uid'])
+        messages.success(request, "Next Steps emailed")
+
+        caseUID = str(Case.objects.filter(appUID=appUID).get().caseUID)
+
+        app.send_task('Email_Next_Steps', kwargs={'appUID': appUID, 'caseUID': caseUID})
+
+        return HttpResponseRedirect(reverse_lazy('application:appDetail', kwargs={'uid': appUID}))
+
+
+class MarkClosedView(HouseholdLoginRequiredMixin, View):
+    """Resend Next Steps email to customer"""
+
+    def get(self, request, *args, **kwargs):
+        appUID = str(self.kwargs['uid'])
+        messages.success(request, "Application closed")
+
+        obj = Application.objects.filter(appUID=appUID).get()
+        obj.appStatus = appStatusEnum.CLOSED.value
+        obj.save()
+
+        return HttpResponseRedirect(reverse_lazy('application:appDetail', kwargs={'uid': appUID}))
+
+class ConvertEnquiry(HouseholdLoginRequiredMixin, View):
+    """Close Application and Convert to Enquiry"""
+
+    def get(self, request, *args, **kwargs):
+        appUID = str(self.kwargs['uid'])
+
+        obj = Application.objects.queryset_byUID(appUID).get()
+
+        if obj.productType == productTypesEnum.INCOME.value:
+            message = "[# Income Product Application journey #] \n\r"
+
+        if obj.productType == productTypesEnum.CONTINGENCY_20K.value:
+            message = "[# Contingency 20K Product Application journey #] \n\r"
+
+        # Create an enquiry item
+        message = "Enquiry created from Online Application journey"
+
+        enqObj = Enquiry.objects.create(
+            name=obj.firstname_1 + " " + obj.surname_1,
+            email=obj.email,
+            phoneNumber=obj.mobile,
+            enquiryNotes=message,
+            streetAddress = obj.streetAddress,
+            suburb = obj.suburb,
+            state = obj.state,
+            postcode=obj.postcode,
+            loanType=obj.loanType,
+            age_1=obj.age_1,
+            age_2=obj.age_2,
+            dwellingType=obj.dwellingType,
+            valuation=obj.valuation,
+            referrer=directTypesEnum.WEB_ENQUIRY.value,
+            productType = obj.productType
+        )
+
+        obj.appStatus = appStatusEnum.CLOSED.value
+        obj.save(update_fields=['appStatus'])
+
+        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': str(enqObj.enqUID)}))
 
 
 ## VIEWS ARE EXTERNALLY EXPOSED OR SESSION VERIFIED ##
@@ -51,18 +224,17 @@ from .models import Application, ApplicationPurposes, ApplicationDocuments
 
 # Mixins
 class SessionIdOnlyMixin(object):
-    # Ensures any attempt to access without UID set is redirect to error view
+    """Ensure any attempt to access without UID set is redirect to error view"""
 
     def dispatch(self, request, *args, **kwargs):
         if 'appUID' not in request.session:
-            #request.session['appUID'] = str(Application.objects.first().appUID)  # ~ REMOVE USED FOR TESTING
             return HttpResponseRedirect(reverse_lazy('application:sessionError'))
 
         return super(SessionIdOnlyMixin, self).dispatch(request, *args, **kwargs)
 
 
 class SessionRequiredMixin(object):
-    # Ensures any attempt to access without UID set is redirect to error view
+    """Ensure any attempt to access without UID set is redirect to error view"""
 
     def dispatch(self, request, *args, **kwargs):
         if 'appUID' not in request.session:
@@ -76,7 +248,7 @@ class SessionRequiredMixin(object):
 
 # Helper
 class ApplicationHelper(object):
-    # Common get_object override
+    """Helper class to extend and override generic class based views"""
 
     def get_object(self, queryset=None):
         return Application.objects.filter(appUID=uuid.UUID(self.request.session['appUID'])).get()
@@ -103,8 +275,11 @@ class ApplicationHelper(object):
         return purpose
 
     def get_bound_data(self):
-        # returns form data dictionary. Enables manipulation of data in case where from invalid
-        # as data returned as a string. Used when manually rendering forms
+        """
+        Returns form data dictionary.
+            * Enables manipulation of data in case where from invalid as data returned as a string.
+            * Used when manually rendering forms
+        """
 
         form = self.get_form()
         boundData = {}
@@ -117,7 +292,7 @@ class ApplicationHelper(object):
         return boundData
 
     def set_initial_income_purpose(self):
-        # Set defaults if purpose is blank
+        """Set defaults if purpose is blank"""
         obj = Application.objects.filter(appUID=uuid.UUID(self.request.session['appUID'])).get()
         purp_obj = self.get_purpose_object()
 
@@ -133,10 +308,14 @@ class ApplicationHelper(object):
         purp_obj.save()
 
     def validateGetContext(self):
-        # Updates application calculated amounts and returns dictionary with serialised purposes
+        """
+        Updates application calculated amounts and returns dictionary with serialised purposes
+        Wraps a site_Utilities function
+        """
         return validateApplicationGetContext(self.request.session['appUID'])
 
     def get_projection_object(self):
+        """Return appropriately instantiated LoanProjection object"""
 
         combinedDict = self.validateGetContext()
         # Prepare dictionary for projection
@@ -153,6 +332,11 @@ class ApplicationHelper(object):
         return loanProj
 
     def get_projection_results(self, scenarioList):
+        """
+        Returns required projection results as specified in scenarioList
+        Wraps a site_Utilities function
+        """
+
         context = self.validateGetContext()
         context.update(ECONOMIC)
         context['totalInterestRate'] = ECONOMIC['interestRate'] + ECONOMIC['lendingMargin']
@@ -166,9 +350,9 @@ class ApplicationHelper(object):
 
 
 class ValidateMixin(object):
-    #Mixin to assist with validating signed payload
-    def validate(self, request, signed_payload, max_age, *args, **kwargs):
+    """Utilities to assist with validating signed payload"""
 
+    def validate(self, request, signed_payload, max_age, *args, **kwargs):
         try:
             payload = signing.loads(signed_payload, max_age=max_age)
 
@@ -178,7 +362,6 @@ class ValidateMixin(object):
                 description="Application session",
                 referenceUID=uuid.UUID(payload['appUID'])
             )
-
             return {'status': 'Ok', 'data': payload}
 
         except signing.SignatureExpired:
@@ -194,27 +377,26 @@ class ValidateMixin(object):
                     'data': {'url': reverse_lazy('application:validationError')}}
 
 
-
 ## UNAUTHENTICATED VIEWS
 
 # API VIEWS
 
 class CreateApplication(CreateAPIView):
-    # Creates an application and returns a start URL
+    """Creates an application and returns a start URL to the requester"""
     serializer_class = IncomeApplicationSeraliser
 
     def create(self, request, *args, **kwargs):
-
+    
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid()
+        isValid = serializer.is_valid()
+        write_applog("ERROR", 'INFO', 'create', "Source Data: "+ json.dumps(request.data))
 
-        if serializer.errors:
-            write_applog("ERROR", 'CreateApplication', 'create', json.dumps(serializer.errors))
-            raiseAdminError('Application Create Error', json.dumps(serializer.errors))
-            return Response({'responseText': 'Application create error'},
+        if not isValid:
+            write_applog("ERROR", 'CreateApplication', 'create', "Error List: "+ json.dumps(serializer.errors))
+            raiseAdminError('Application Create Error', "Error List: "+json.dumps(serializer.errors))
+            return Response({'responseText': 'Application create error', 'errorList' : serializer.errors},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             headers={'content-type': 'application/json'})
-
         else:
             obj = self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
@@ -236,7 +418,7 @@ class CreateApplication(CreateAPIView):
 # Error Views
 
 class SessionErrorView(TemplateView):
-    '''Error page for session errors'''
+    """Error page for session errors"""
     template_name = 'application/interface/session/session_error.html'
 
     def get_context_data(self, **kwargs):
@@ -246,17 +428,20 @@ class SessionErrorView(TemplateView):
 
 
 class ValidationErrorView(TemplateView):
-    '''Error page for validation errors'''
+    """Error page for validation errors"""
     template_name = 'application/interface/session/validation_error.html'
 
     def get_context_data(self, **kwargs):
         context = super(ValidationErrorView, self).get_context_data(**kwargs)
         context['title'] = 'Validation Error'
+        context['app_uuid'] = self.request.session['appUID']
         return context
 
 
 # Validation Process Views
 class ValidateReturn(ValidateMixin, View):
+    """ Validates a request and redirects based on the payload 'action'
+    """
 
     def get(self, request, *args, **kwargs):
         signed_payload = kwargs['signed_pk']
@@ -290,7 +475,7 @@ class ValidateReturn(ValidateMixin, View):
 
 
 class ValidateStart(ValidateMixin, View):
-    # Validates a start URL received from website
+    """Validates a start URL received from website"""
     def get(self, request, *args, **kwargs):
         signed_payload = kwargs['signed_pk']
         max_age = 60 * 2
@@ -306,15 +491,17 @@ class ValidateStart(ValidateMixin, View):
 ## SESSION VALIDATED VIEWS (ID ONLY)
 
 class StartApplicationView(SessionIdOnlyMixin, ApplicationHelper, UpdateView):
-    # Initiates Application
+    """Initiates Application"""
     template_name = 'application/interface/session/apply.html'
     model = Application
     form_class = InitiateForm
     success_url = reverse_lazy('application:consents')
+    slug = 'application/start'
 
     def get_context_data(self, **kwargs):
         context = super(StartApplicationView, self).get_context_data(**kwargs)
         context['title'] = 'Online Application'
+        context['app_uuid'] = self.request.session['appUID']
 
         context['menuBarItems'] = {"data": [
             {"button": True,
@@ -322,6 +509,8 @@ class StartApplicationView(SessionIdOnlyMixin, ApplicationHelper, UpdateView):
              "btn_class": 'btn-hhcBlue',
              "btn_id": 'btn_submit'}
         ]}
+
+        context['slug'] = self.slug
         return context
 
     def form_valid(self, form):
@@ -331,25 +520,19 @@ class StartApplicationView(SessionIdOnlyMixin, ApplicationHelper, UpdateView):
 
         self.request.session['pin'] = True
 
-        payload = {'appUID': str(obj.appUID),
-                   'action': 'Application'}
-
-        signed_payload = signing.dumps(payload)
-        signedURL = settings.SITE_URL + str(
-            reverse_lazy('application:validateReturn', kwargs={'signed_pk': signed_payload}))
-
-        app.send_task('Email_App_Link', kwargs={'appUID': str(obj.appUID), 'signedURL': signedURL})
+        app.send_task('Email_App_Link', kwargs={'appUID': str(obj.appUID)})
         messages.success(self.request, "Application link emailed to you")
 
         return super(StartApplicationView, self).form_valid(form)
 
 
 class ResumeApplicationView(SessionIdOnlyMixin, FormView):
-    # Resume Application
+    """Resume Application"""
     template_name = 'application/interface/session/resume.html'
     form_class = TwoFactorForm
     success_url = reverse_lazy('application:consents')
     model = Application
+    slug = 'application/resume'
 
     def get(self, request, *args, **kwargs):
         obj = self.get_object()
@@ -364,11 +547,13 @@ class ResumeApplicationView(SessionIdOnlyMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super(ResumeApplicationView, self).get_context_data(**kwargs)
         context['title'] = 'Resume Application'
+        context['app_uuid'] = self.request.session['appUID']
         context['obj'] = self.get_object()
         context['menuBarItems'] = {"data": [
             {"button": True,
              "text": "Next",
              }]}
+        context['slug'] = self.slug
 
         return context
 
@@ -387,7 +572,7 @@ class ResumeApplicationView(SessionIdOnlyMixin, FormView):
 
 
 class GeneratePin(SessionIdOnlyMixin, View):
-
+    """ Generate pin using Burst API"""
     def get(self, request, *args, **kwargs):
         obj = self.get_object()
         obj.pin = random.randint(1000, 9999)
@@ -415,6 +600,7 @@ class ConsentsView(SessionRequiredMixin, ApplicationHelper, UpdateView):
     template_name = 'application/interface/about/consents.html'
     form_class = ConsentsForm
     success_url = reverse_lazy('application:introduction')
+    slug = 'application/consents'
 
     def get(self, request, *args, **kwargs):
         obj = self.get_object()
@@ -426,6 +612,7 @@ class ConsentsView(SessionRequiredMixin, ApplicationHelper, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(ConsentsView, self).get_context_data(**kwargs)
         context['title'] = 'Consents'
+        context['app_uuid'] = self.request.session['appUID']
         obj = self.get_object()
         context['obj'] = obj
 
@@ -434,12 +621,16 @@ class ConsentsView(SessionRequiredMixin, ApplicationHelper, UpdateView):
              "text": "Next",
              }]}
 
+        context['slug'] = self.slug
+
         return context
 
 
 class EligibilityView(SessionRequiredMixin, ApplicationHelper, UpdateView):
     model = Application
     form_class = ObjectivesForm
+    slug = 'application/eligibility'
+    template_name=''
 
     def get(self, request, *arg, **kwargs):
         productType = self.get_product_type()
@@ -454,6 +645,7 @@ class EligibilityView(SessionRequiredMixin, ApplicationHelper, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(EligibilityView, self).get_context_data(**kwargs)
         context['title'] = 'About you'
+        context['app_uuid'] = self.request.session['appUID']
         context['secondary_title'] = 'Eligibility'
         obj = self.get_object()
         context['obj'] = obj
@@ -462,6 +654,8 @@ class EligibilityView(SessionRequiredMixin, ApplicationHelper, UpdateView):
             {"button": True,
              "text": "Next",
              }]}
+
+        context['slug'] = self.slug
 
         context['formData'] = self.get_bound_data()
 
@@ -488,7 +682,7 @@ class EligibilityView(SessionRequiredMixin, ApplicationHelper, UpdateView):
 
         if (obj.choiceOccupants == False):
             obj.loanType = loanTypesEnum.SINGLE_BORROWER.value
-            obj.clientType2=None
+            obj.clientType2 = None
             obj.age_2 = None
             obj.firstname_2 = None
             obj.surname_2 = None
@@ -502,10 +696,12 @@ class EligibilityView(SessionRequiredMixin, ApplicationHelper, UpdateView):
 
 class MultiplePurposesView(SessionRequiredMixin, ApplicationHelper, TemplateView):
     template_name = 'application/interface/exit/exit_multiple.html'
+    slug = 'application/exit/multiple'
 
     def get_context_data(self, **kwargs):
         context = super(MultiplePurposesView, self).get_context_data(**kwargs)
         context['title'] = 'Introduction'
+        context['app_uuid'] = self.request.session['appUID']
 
         context['menuBarItems'] = {"data": [
             {"button": False,
@@ -520,9 +716,12 @@ class MultiplePurposesView(SessionRequiredMixin, ApplicationHelper, TemplateView
              "btn_id": 'btn_submit'},
         ]}
 
+        context['slug'] = self.slug
+
         productType = self.get_product_type()
         if productType == productTypesEnum.INCOME.value:
-            context['purpose'] = 'This application is to create a plan to draw down home equity, in regular instalments, to enhance retirement income.'
+            context[
+                'purpose'] = 'This application is to create a plan to draw down home equity, in regular instalments, to enhance retirement income.'
 
         if productType == productTypesEnum.CONTINGENCY_20K.value:
             context['purpose'] = 'This application is to draw $20,000 from your home equity using a Household Loan.'
@@ -532,10 +731,12 @@ class MultiplePurposesView(SessionRequiredMixin, ApplicationHelper, TemplateView
 
 class ExitProductView(SessionRequiredMixin, ApplicationHelper, TemplateView):
     template_name = 'application/interface/exit/exit_product.html'
+    slug = 'application/exit/product'
 
     def get_context_data(self, **kwargs):
         context = super(ExitProductView, self).get_context_data(**kwargs)
         context['title'] = 'Introduction'
+        context['app_uuid'] = self.request.session['appUID']
 
         context['menuBarItems'] = {"data": [
             {"button": False,
@@ -550,9 +751,12 @@ class ExitProductView(SessionRequiredMixin, ApplicationHelper, TemplateView):
              "btn_id": 'btn_submit'},
         ]}
 
+        context['slug'] = self.slug
+
         productType = self.get_product_type()
         if productType == productTypesEnum.INCOME.value:
-            context['purpose'] = 'This application is to create a plan to draw down home equity, in regular instalments, to enhance retirement income.'
+            context[
+                'purpose'] = 'This application is to create a plan to draw down home equity, in regular instalments, to enhance retirement income.'
 
         if productType == productTypesEnum.CONTINGENCY_20K.value:
             context['purpose'] = 'This application is to draw $20,000 from your home equity using a Household Loan.'
@@ -562,10 +766,12 @@ class ExitProductView(SessionRequiredMixin, ApplicationHelper, TemplateView):
 
 class MortgageView(SessionRequiredMixin, ApplicationHelper, TemplateView):
     template_name = 'application/interface/exit/exit_mortgage.html'
+    slug = 'application/exit/mortgage'
 
     def get_context_data(self, **kwargs):
         context = super(MortgageView, self).get_context_data(**kwargs)
         context['title'] = 'Introduction'
+        context['app_uuid'] = self.request.session['appUID']
 
         context['menuBarItems'] = {"data": [
             {"button": False,
@@ -579,15 +785,19 @@ class MortgageView(SessionRequiredMixin, ApplicationHelper, TemplateView):
              "btn_class": 'btn-hhcBlue',
              "btn_id": 'btn_submit'},
         ]}
+
+        context['slug'] = self.slug
         return context
 
 
 class SystemError(SessionRequiredMixin, ApplicationHelper, TemplateView):
     template_name = 'application/interface/exit/exit_error.html'
+    slug = 'application/exit/error'
 
     def get_context_data(self, **kwargs):
         context = super(SystemError, self).get_context_data(**kwargs)
         context['title'] = 'We are sorry...'
+        context['app_uuid'] = self.request.session['appUID']
 
         context['menuBarItems'] = {"data": [
             {"button": False,
@@ -596,10 +806,16 @@ class SystemError(SessionRequiredMixin, ApplicationHelper, TemplateView):
              "btn_class": 'btn-hhcBlue',
              "btn_id": 'btn_submit'},
         ]}
+
+        context['slug'] = self.slug
         return context
 
+
 class ContactView(SessionRequiredMixin, ApplicationHelper, TemplateView):
+    """Creates an Enquiry object"""
+
     template_name = 'application/interface/exit/exit_contact.html'
+    slug = 'application/exit/contact'
 
     def get_context_data(self, **kwargs):
         context = super(ContactView, self).get_context_data(**kwargs)
@@ -608,7 +824,7 @@ class ContactView(SessionRequiredMixin, ApplicationHelper, TemplateView):
         obj = self.get_object()
 
         productType = self.get_product_type()
-        message=""
+        message = ""
         if productType == productTypesEnum.INCOME.value:
             message = "[# Income Product Application journey #] \n\r"
 
@@ -618,20 +834,23 @@ class ContactView(SessionRequiredMixin, ApplicationHelper, TemplateView):
         # Create a contact queue item
         message += "Client indicated that they had other funding requirements or an existing mortgage. \n\r"
         message += "Please contact to understand objectives and arrange a meeting with a Credit Representative. \n\r"
-        message += ", ".join(filter(None, [obj.streetAddress, obj.suburb, obj.state, str(obj.postcode)]))
 
         enqObj = Enquiry.objects.create(
             name=obj.firstname_1 + " " + obj.surname_1,
             email=obj.email,
             phoneNumber=obj.mobile,
             enquiryNotes=message,
+            streetAddress=obj.streetAddress,
+            suburb=obj.suburb,
+            state=obj.state,
             postcode=obj.postcode,
             loanType=obj.loanType,
             age_1=obj.age_1,
             age_2=obj.age_2,
             dwellingType=obj.dwellingType,
             valuation=obj.valuation,
-            referrer=directTypesEnum.WEB_ENQUIRY.value
+            referrer=directTypesEnum.WEB_ENQUIRY.value,
+            productType = obj.productType
         )
 
         obj.appStatus = appStatusEnum.CONTACT.value
@@ -639,41 +858,48 @@ class ContactView(SessionRequiredMixin, ApplicationHelper, TemplateView):
         self.request.session.flush()
         messages.info(self.request, "Application session ended")
 
+        context['slug'] = self.slug
+
         return context
 
 
 class ExitView(TemplateView):
     template_name = 'application/interface/exit/exit_exit.html'
+    slug = 'application/exit/exit'
 
     def get_context_data(self, **kwargs):
         context = super(ExitView, self).get_context_data(**kwargs)
         context['title'] = 'Thank you'
-
         self.request.session.flush()
         messages.info(self.request, "Application session ended")
 
+        context['slug'] = self.slug
         return context
 
 
 class SubmittedView(TemplateView):
     template_name = 'application/interface/exit/exit_submitted.html'
+    slug = 'application/exit/submitted'
 
     def get_context_data(self, **kwargs):
         context = super(SubmittedView, self).get_context_data(**kwargs)
         context['title'] = 'Thank you'
-
         self.request.session.flush()
         messages.info(self.request, "Application submitted")
+
+        context['slug'] = self.slug
 
         return context
 
 
 class OwnershipView(SessionRequiredMixin, TemplateView):
     template_name = 'application/interface/exit/exit_ownership.html'
+    slug = 'application/exit/ownership'
 
     def get_context_data(self, **kwargs):
         context = super(OwnershipView, self).get_context_data(**kwargs)
         context['title'] = 'Introduction'
+        context['app_uuid'] = self.request.session['appUID']
 
         context['menuBarItems'] = {"data": [
             {"button": False,
@@ -687,15 +913,19 @@ class OwnershipView(SessionRequiredMixin, TemplateView):
              "btn_class": 'btn-hhcBlue',
              "btn_id": 'btn_submit'},
         ]}
+
+        context['slug'] = self.slug
         return context
 
 
 class AgeView(SessionRequiredMixin, TemplateView):
     template_name = 'application/interface/exit/exit_age.html'
+    slug = 'application/exit/age'
 
     def get_context_data(self, **kwargs):
         context = super(AgeView, self).get_context_data(**kwargs)
         context['title'] = 'About you'
+        context['app_uuid'] = self.request.session['appUID']
 
         context['menuBarItems'] = {"data": [
             {"button": False,
@@ -711,15 +941,19 @@ class AgeView(SessionRequiredMixin, TemplateView):
         ]}
 
         context['minAge'] = LOAN_LIMITS['minSingleAge']
+
+        context['slug'] = self.slug
         return context
 
 
 class MinimumView(SessionRequiredMixin, TemplateView):
     template_name = 'application/interface/exit/exit_minimum.html'
+    slug = 'application/exit/minimum'
 
     def get_context_data(self, **kwargs):
         context = super(MinimumView, self).get_context_data(**kwargs)
         context['title'] = 'About you'
+        context['app_uuid'] = self.request.session['appUID']
 
         context['menuBarItems'] = {"data": [
             {"button": False,
@@ -735,15 +969,18 @@ class MinimumView(SessionRequiredMixin, TemplateView):
         ]}
 
         context['minIncomeDrawdown'] = LOAN_LIMITS['minIncomeDrawdown']
+        context['slug'] = self.slug
         return context
 
 
 class MaximumView(SessionRequiredMixin, TemplateView):
     template_name = 'application/interface/exit/exit_maximum.html'
+    slug = 'application/exit/maximum'
 
     def get_context_data(self, **kwargs):
         context = super(MaximumView, self).get_context_data(**kwargs)
         context['title'] = 'About you'
+        context['app_uuid'] = self.request.session['appUID']
 
         context['menuBarItems'] = {"data": [
             {"button": False,
@@ -757,17 +994,20 @@ class MaximumView(SessionRequiredMixin, TemplateView):
              "btn_class": 'btn-hhcBlue',
              "btn_id": 'btn_submit'},
         ]}
-
+        context['slug'] = self.slug
         return context
+
 
 class Applicant1View(SessionRequiredMixin, ApplicationHelper, UpdateView):
     template_name = 'application/interface/about/applicant.html'
     form_class = ApplicantForm
+    slug = 'application/about/applicant'
     success_url = reverse_lazy('application:product')
 
     def get_context_data(self, **kwargs):
         context = super(Applicant1View, self).get_context_data(**kwargs)
         context['title'] = 'About you'
+        context['app_uuid'] = self.request.session['appUID']
         context['subtitle'] = 'Your details'
         context['navbarStage'] = 1
         context['menuBarItems'] = {"data": [
@@ -782,7 +1022,7 @@ class Applicant1View(SessionRequiredMixin, ApplicationHelper, UpdateView):
              "btn_class": 'btn-hhcBlue',
              "btn_id": 'btn_submit'},
         ]}
-
+        context['slug'] = self.slug
         return context
 
     def form_valid(self, form):
@@ -802,11 +1042,13 @@ class Applicant1View(SessionRequiredMixin, ApplicationHelper, UpdateView):
 class Applicant2View(SessionRequiredMixin, ApplicationHelper, UpdateView):
     template_name = 'application/interface/about/applicant_second.html'
     form_class = ApplicantTwoForm
+    slug = 'application/about/applicant2'
     success_url = reverse_lazy('application:product')
 
     def get_context_data(self, **kwargs):
         context = super(Applicant2View, self).get_context_data(**kwargs)
         context['title'] = 'About you'
+        context['app_uuid'] = self.request.session['appUID']
         context['subtitle'] = 'Please complete '
         context['navbarStage'] = 1
         context['menuBarItems'] = {"data": [
@@ -821,6 +1063,7 @@ class Applicant2View(SessionRequiredMixin, ApplicationHelper, UpdateView):
              "btn_class": 'btn-hhcBlue',
              "btn_id": 'btn_submit'},
         ]}
+        context['slug'] = self.slug
         return context
 
     def form_valid(self, form):
@@ -841,6 +1084,7 @@ class Applicant2View(SessionRequiredMixin, ApplicationHelper, UpdateView):
 
 
 class ProductView(SessionRequiredMixin, ApplicationHelper, TemplateView):
+    slug = 'application/objectives/product'
     template_name = ''
 
     def get(self, request, *args, **kwargs):
@@ -854,13 +1098,14 @@ class ProductView(SessionRequiredMixin, ApplicationHelper, TemplateView):
         else:
             raiseAdminError("Application Error", "Unhandled product type -" + obj.surname_1)
             write_applog("INFO", 'application', 'ProductView',
-                             "Unhandled product type -" + obj.surname_1)
+                         "Unhandled product type -" + obj.surname_1)
             return HttpResponseRedirect(reverse_lazy('application:systemError'))
 
-        #Validate Loan
-        srcDict=obj.__dict__
+        # Validate Loan
+        srcDict = obj.__dict__
         if obj.productType == productTypesEnum.CONTINGENCY_20K.value:
-            srcDict['topUpAmount'] = 20000 * (1 - (LOAN_LIMITS['establishmentFee']/(1+LOAN_LIMITS['establishmentFee'])))
+            srcDict['topUpAmount'] = 20000 * (
+                        1 - (LOAN_LIMITS['establishmentFee'] / (1 + LOAN_LIMITS['establishmentFee'])))
         loanObj = LoanValidator(srcDict)
         loanStatus = loanObj.getStatus()['data']
 
@@ -875,9 +1120,10 @@ class ProductView(SessionRequiredMixin, ApplicationHelper, TemplateView):
                 return HttpResponseRedirect(reverse_lazy('application:maximum'))
 
             else:
-                raiseAdminError("Application Error", "Loan validation errors -" + obj.surname_1+ "-" + json.dumps(loanStatus))
+                raiseAdminError("Application Error",
+                                "Loan validation errors -" + obj.surname_1 + "-" + json.dumps(loanStatus))
                 write_applog("INFO", 'application', 'ProductView',
-                             "Loan validation errors -" + obj.surname_1+ "-" + json.dumps(loanStatus))
+                             "Loan validation errors -" + obj.surname_1 + "-" + json.dumps(loanStatus))
                 return HttpResponseRedirect(reverse_lazy('application:systemError'))
 
         # Update Application
@@ -897,6 +1143,7 @@ class ProductView(SessionRequiredMixin, ApplicationHelper, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ProductView, self).get_context_data(**kwargs)
         context['title'] = 'Your objectives '
+        context['app_uuid'] = self.request.session['appUID']
         context['navbarStage'] = 2
         context['menuBarItems'] = {"data": [
             {"button": False,
@@ -911,17 +1158,22 @@ class ProductView(SessionRequiredMixin, ApplicationHelper, TemplateView):
              "btn_id": 'btn_submit'},
         ]}
 
+        context['slug'] = self.slug
+
         # Get Loan Data
         obj = self.get_object()
         loanObj = LoanValidator(obj.__dict__)
         context['obj'] = obj
         context.update(loanObj.getStatus()['data'])
-        context['maxIncomeAmount'] = int(round(context['maxDrawdownMonthly']/ (1+LOAN_LIMITS['establishmentFee']),-1))
+        context['maxIncomeAmount'] = int(
+            round(context['maxDrawdownMonthly'] / (1 + LOAN_LIMITS['establishmentFee']), -1))
 
         if obj.productType == productTypesEnum.CONTINGENCY_20K.value:
-            context["transfer_img"] = settings.STATIC_URL + "img/icons/transfer_%s_icon.png" % context['actualLVRPercentile']
+            context["transfer_img"] = staticfiles_storage.url("img/icons/transfer_%s_icon.png" % context[
+                'actualLVRPercentile'])
         else:
-            context["transfer_img"] = settings.STATIC_URL + "img/icons/transfer_%s_icon.png" % context['maxLVRPercentile']
+            context["transfer_img"] = staticfiles_storage.url("img/icons/transfer_%s_icon.png" % context[
+                'maxLVRPercentile'])
 
         if obj.productType == productTypesEnum.INCOME.value:
             context['subtitle'] = 'How does a Home Income Loan work?'
@@ -932,17 +1184,18 @@ class ProductView(SessionRequiredMixin, ApplicationHelper, TemplateView):
 
 
 class ObjectivesView(SessionRequiredMixin, ApplicationHelper, UpdateView):
-    #This page is always called but only renders fot the income product. It is used to create the purpose
-    #object of the application
+    # This page is always called but only renders fot the income product. It is used to create the purpose
+    # object of the application
 
     template_name = 'application/interface/objectives/objectives.html'
     form_class = LoanObjectivesForm
+    slug = 'application/objectives/income'
     success_url = reverse_lazy("application:projections")
 
     def get(self, request, *args, **kwargs):
         if self.get_product_type() != productTypesEnum.INCOME.value:
             purpObj = self.get_purpose_object()
-            purpObj.amount = 20000 * (1- (LOAN_LIMITS['establishmentFee']/(1+LOAN_LIMITS['establishmentFee'])))
+            purpObj.amount = 20000 * (1 - (LOAN_LIMITS['establishmentFee'] / (1 + LOAN_LIMITS['establishmentFee'])))
             purpObj.save()
 
             # Update application fields
@@ -950,7 +1203,7 @@ class ObjectivesView(SessionRequiredMixin, ApplicationHelper, UpdateView):
 
             return HttpResponseRedirect(reverse_lazy('application:projections'))
         else:
-            return super(ObjectivesView,self).get(request, *args, **kwargs)
+            return super(ObjectivesView, self).get(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         # Object in this class is the purposeObject
@@ -960,6 +1213,7 @@ class ObjectivesView(SessionRequiredMixin, ApplicationHelper, UpdateView):
         context = super().get_context_data(**kwargs)
 
         context['title'] = 'Your objectives '
+        context['app_uuid'] = self.request.session['appUID']
         context['subtitle'] = 'I would like to receive...'
         context['navbarStage'] = 2
         context['menuBarItems'] = {"data": [
@@ -975,9 +1229,11 @@ class ObjectivesView(SessionRequiredMixin, ApplicationHelper, UpdateView):
              "btn_id": 'btn_submit'},
         ]}
 
+        context['slug'] = self.slug
+
         # Loan Projection
         loanProj = self.get_projection_object()
-        proj_data = loanProj.getFutureIncomeEquityArray(increment=50, netOfFee=True)['data'] #net of fees
+        proj_data = loanProj.getFutureIncomeEquityArray(increment=50, netOfFee=True)['data']  # net of fees
 
         context['totalInterestRate'] = ECONOMIC['interestRate'] + ECONOMIC['lendingMargin']
         context['housePriceInflation'] = ECONOMIC['housePriceInflation']
@@ -985,8 +1241,8 @@ class ObjectivesView(SessionRequiredMixin, ApplicationHelper, UpdateView):
         context['sliderData'] = json.dumps(proj_data['dataArray'])
         context['futHomeValue'] = proj_data['futHomeValue']
         context['sliderPoints'] = proj_data['intervals']
-        context['imgPath'] = settings.STATIC_URL + 'img/icons/block_equity_0_icon.png'
-        context['transferImagePath'] = settings.STATIC_URL + 'img/icons/transfer_0_icon.png'
+        context['imgPath'] = staticfiles_storage.url('img/icons/block_equity_0_icon.png')
+        context['transferImagePath'] = staticfiles_storage.url('img/icons/transfer_0_icon.png')
 
         context['ajaxURL'] = reverse_lazy('application:sliderUpdate')
 
@@ -1035,6 +1291,7 @@ class SliderUpdate(SessionRequiredMixin, ApplicationHelper, UpdateView):
 
 class ProjectionsView(SessionRequiredMixin, ApplicationHelper, TemplateView):
     success_url = reverse_lazy('application:sendLoanSummary')
+    slug = 'application/objectives/projections'
 
     def get(self, request, *args, **kwargs):
 
@@ -1056,6 +1313,7 @@ class ProjectionsView(SessionRequiredMixin, ApplicationHelper, TemplateView):
         context = super().get_context_data(**kwargs)
 
         context['title'] = 'Your projections '
+        context['app_uuid'] = self.request.session['appUID']
         context['subtitle'] = 'Home equity over time'
 
         # Check whether to re-send Loan Summary
@@ -1093,6 +1351,8 @@ class ProjectionsView(SessionRequiredMixin, ApplicationHelper, TemplateView):
              "btn_id": 'btn_submit'},
         ]}
 
+        context['slug'] = self.slug
+
         context['totalInterestRate'] = ECONOMIC['interestRate'] + ECONOMIC['lendingMargin']
         context['housePriceInflation'] = ECONOMIC['housePriceInflation']
         context['establishmentFeeRate'] = LOAN_LIMITS['establishmentFee']
@@ -1114,13 +1374,13 @@ class PdfApplication(ApplicationHelper, TemplateView):
 
     def get(self, request, *args, **kwargs):
         self.request.session['appUID'] = str(kwargs['uid'])
-        obj=self.get_object()
+        obj = self.get_object()
         if obj.isLowLVR:
             self.template_name = 'application/documents/applicationSummaryLowLVR.html'
         else:
             self.template_name = 'application/documents/applicationSummary.html'
 
-        return super(PdfApplication,self).get(request, *args, **kwargs)
+        return super(PdfApplication, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1159,7 +1419,7 @@ class PdfLoanSummary(ApplicationHelper, TemplateView):
         context['housePriceInflation'] = ECONOMIC['housePriceInflation']
         context['establishmentFeeRate'] = LOAN_LIMITS['establishmentFee']
         context['productTypesEnum'] = productTypesEnum
-
+        context['app_uuid'] = self.request.session['appUID']
         if self.get_product_type() == productTypesEnum.INCOME.value:
             context['title'] = 'HOUSEHOLD INCOME LOAN SUMMARY'
         else:
@@ -1168,14 +1428,13 @@ class PdfLoanSummary(ApplicationHelper, TemplateView):
         obj = self.get_object()
         context.update(obj.__dict__)
         context.update(self.get_purpose_object().__dict__)
-        context['stateEnum'] = obj.enumStateType()
+        context['stateEnum'] = obj.enumStateType
 
         resultsDict = self.get_projection_results(['baseScenario', 'pointScenario', 'stressScenario'])
         context.update(resultsDict)
 
         # end session
         self.request.session.flush()
-
 
         return context
 
@@ -1195,6 +1454,8 @@ class SendLoanSummary(SessionRequiredMixin, ApplicationHelper, View):
 class AssetsView(SessionRequiredMixin, ApplicationHelper, UpdateView):
     form_class = AssetsForm
     model = Application
+    slug = 'application/assets'
+
     success_url = reverse_lazy('application:income')
     template_name = 'application/interface/application/assets.html'
 
@@ -1202,6 +1463,7 @@ class AssetsView(SessionRequiredMixin, ApplicationHelper, UpdateView):
         context = super().get_context_data(**kwargs)
 
         context['title'] = 'Application'
+        context['app_uuid'] = self.request.session['appUID']
         context['subtitle'] = 'Financial Information'
         context['navbarStage'] = 3
         context['menuBarItems'] = {"data": [
@@ -1217,26 +1479,31 @@ class AssetsView(SessionRequiredMixin, ApplicationHelper, UpdateView):
              "btn_id": 'btn_submit'},
         ]}
 
+        context['slug'] = self.slug
+
         return context
 
 
 class IncomeView(SessionRequiredMixin, ApplicationHelper, UpdateView):
     form_class = IncomeForm
     model = Application
+    slug = 'application/income'
+
     template_name = 'application/interface/application/income.html'
     success_url = reverse_lazy('application:bank')
 
     def get(self, request, *args, **kwargs):
-        obj=self.get_object()
+        obj = self.get_object()
         if obj.isLowLVR:
             return HttpResponseRedirect(reverse_lazy('application:homeExpenses'))
         else:
-            return super(IncomeView,self).get(request, *args, **kwargs)
+            return super(IncomeView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         context['title'] = 'Application'
+        context['app_uuid'] = self.request.session['appUID']
         context['subtitle'] = 'Income and expenses'
         context['navbarStage'] = 3
         context['menuBarItems'] = {"float": True,
@@ -1252,6 +1519,8 @@ class IncomeView(SessionRequiredMixin, ApplicationHelper, UpdateView):
                                         "btn_class": 'btn-hhcBlue',
                                         "btn_id": 'btn_submit'},
                                    ]}
+
+        context['slug'] = self.slug
 
         context['ajaxURL'] = reverse_lazy('application:incomeBackground')
 
@@ -1275,6 +1544,8 @@ class IncomeView(SessionRequiredMixin, ApplicationHelper, UpdateView):
 class HomeExpensesView(SessionRequiredMixin, ApplicationHelper, UpdateView):
     form_class = HomeExpensesForm
     model = Application
+    slug = 'application/home_expenses'
+
     template_name = 'application/interface/application/homeExpenses.html'
     success_url = reverse_lazy('application:bank')
 
@@ -1282,6 +1553,7 @@ class HomeExpensesView(SessionRequiredMixin, ApplicationHelper, UpdateView):
         context = super().get_context_data(**kwargs)
 
         context['title'] = 'Application'
+        context['app_uuid'] = self.request.session['appUID']
         context['subtitle'] = 'Home expenses'
         context['navbarStage'] = 3
         context['menuBarItems'] = {"float": False,
@@ -1298,17 +1570,22 @@ class HomeExpensesView(SessionRequiredMixin, ApplicationHelper, UpdateView):
                                         "btn_id": 'btn_submit'},
                                    ]}
 
+        context['slug'] = self.slug
+
         return context
 
 
 class BankView(SessionRequiredMixin, ApplicationHelper, UpdateView):
     template_name = 'application/interface/application/bank_details.html'
     form_class = BankForm
+    slug = 'application/bank'
+
     success_url = reverse_lazy('application:declarations')
 
     def get_context_data(self, **kwargs):
         context = super(BankView, self).get_context_data(**kwargs)
         context['title'] = 'Application'
+        context['app_uuid'] = self.request.session['appUID']
         context['subtitle'] = 'Bank details'
         obj = self.get_object()
         context['obj'] = obj
@@ -1323,17 +1600,21 @@ class BankView(SessionRequiredMixin, ApplicationHelper, UpdateView):
              "text": "Next",
              }]}
 
+        context['slug'] = self.slug
+
         return context
 
 
 class DeclarationsView(SessionRequiredMixin, ApplicationHelper, UpdateView):
     template_name = 'application/interface/application/declarations.html'
     form_class = SigningForm
+    slug = 'application/declarations'
     success_url = reverse_lazy('application:nextSteps')
 
     def get_context_data(self, **kwargs):
         context = super(DeclarationsView, self).get_context_data(**kwargs)
         context['title'] = 'Application'
+        context['app_uuid'] = self.request.session['appUID']
         context['subtitle'] = 'Declarations'
         obj = self.get_object()
         context['obj'] = obj
@@ -1348,6 +1629,8 @@ class DeclarationsView(SessionRequiredMixin, ApplicationHelper, UpdateView):
                 {"button": True,
                  "text": "Next",
                  }]}
+
+        context['slug'] = self.slug
 
         return context
 
@@ -1385,11 +1668,13 @@ class DeclarationsView(SessionRequiredMixin, ApplicationHelper, UpdateView):
 
 class NextStepsView(SessionRequiredMixin, ApplicationHelper, TemplateView):
     template_name = 'application/interface/application/nextSteps.html'
+    slug = 'application/next_steps'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         context['title'] = 'Thank you - application received'
+        context['app_uuid'] = self.request.session['appUID']
         context['subtitle'] = 'Next steps'
         context['navbarStage'] = 4
         context['menuBarItems'] = {"data": [
@@ -1401,27 +1686,32 @@ class NextStepsView(SessionRequiredMixin, ApplicationHelper, TemplateView):
              "btn_id": 'btn_submit'},
         ]}
 
+        context['slug'] = self.slug
+
         if self.get_product_type() == productTypesEnum.INCOME.value:
-            context['paymentText'] = 'Once the documentation is complete and the mortgage registered, we begin making your regular home income payments direct to your bank account'
+            context[
+                'paymentText'] = 'Once the documentation is complete and the mortgage registered, we begin making your regular home income payments direct to your bank account'
         else:
-            context['paymentText'] = 'Once the documentation is complete and the mortgage registered, we will deposit funds into your bank account'
+            context[
+                'paymentText'] = 'Once the documentation is complete and the mortgage registered, we will deposit funds into your bank account'
 
-
-        #Create Case
+        # Create Case
         caseUID = createCase(str(self.request.session['appUID']))
 
-        #Send Next Steps Email
-        app.send_task('Email_Next_Steps', kwargs={'appUID': str(self.request.session['appUID']), 'caseUID':caseUID})
-
+        # Send Next Steps Email
+        app.send_task('Email_Next_Steps', kwargs={'appUID': str(self.request.session['appUID']), 'caseUID': caseUID})
 
         # end session
         self.request.session.flush()
 
         return context
 
+
 class DocumentsView(SessionIdOnlyMixin, CreateView):
     # Resume Application
     template_name = 'application/interface/upload/documents.html'
+    slug = 'application/document'
+
     form_class = DocumentForm
     model = ApplicationDocuments
 
@@ -1431,10 +1721,10 @@ class DocumentsView(SessionIdOnlyMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(DocumentsView, self).get_context_data(**kwargs)
         context['title'] = 'Application documents'
+        context['app_uuid'] = self.request.session['appUID']
         context['subtitle'] = 'Upload documents'
         appObj = Application.objects.queryset_byUID(self.request.session['appUID']).get()
         context['obj'] = appObj
-
 
         context['menuBarItems'] = {"data": [
             {"button": False,
@@ -1448,6 +1738,8 @@ class DocumentsView(SessionIdOnlyMixin, CreateView):
              "btn_class": 'btn-hhcBlue',
              "btn_id": 'btn_submit'},
         ]}
+
+        context['slug'] = self.slug
 
         return context
 
@@ -1473,28 +1765,28 @@ class DocumentsView(SessionIdOnlyMixin, CreateView):
         return HttpResponseRedirect(self.request.path_info)
 
 
-
 def createCase(appUID):
-
     appObj = Application.objects.filter(appUID=uuid.UUID(appUID)).get()
 
     caseMapFields = ['productType', 'email', 'loanType', 'salutation_1',
-                     'surname_1', 'firstname_1' ,'birthdate_1', 'age_1', 'sex_1' , # - Borrower 1
+                     'surname_1', 'firstname_1', 'birthdate_1', 'age_1', 'sex_1',  # - Borrower 1
                      'surname_2', 'firstname_2', 'birthdate_2', 'age_2', 'sex_2', 'clientType2',  # - Borrower 2
-                     'suburb', 'postcode', 'state', 'valuation', 'dwellingType', # Property Data
+                     'suburb', 'postcode', 'state', 'valuation', 'dwellingType',  # Property Data
                      'summarySentDate']
 
     # CREATE CASE
     casePayload = {
-        'caseStage' : caseStagesEnum.DISCOVERY.value,
-        'appType' : appTypesEnum.NEW_APPLICATION.value,
-        'caseDescription' : appObj.surname_1 + " - " + str(appObj.postcode),
-        'caseNotes' : '[# ONLINE APPLICATION #]',
-        'phoneNumber' : appObj.mobile,
-        'clientType1' : clientTypesEnum.BORROWER.value,
-        'street' : appObj.streetAddress,
-        'salesChannel' : channelTypesEnum.DIRECT_ACQUISITION.value,
-        'adviser': 'Online Application'
+        'appUID': appObj.appUID,
+        'caseStage': caseStagesEnum.DISCOVERY.value,
+        'appType': appTypesEnum.NEW_APPLICATION.value,
+        'caseDescription': appObj.surname_1 + " - " + str(appObj.postcode),
+        'caseNotes': '[# ONLINE APPLICATION #]',
+        'phoneNumber': appObj.mobile,
+        'clientType1': clientTypesEnum.BORROWER.value,
+        'street': appObj.streetAddress,
+        'salesChannel': channelTypesEnum.DIRECT_ACQUISITION.value,
+        'adviser': 'Online Application',
+        'meetingDate': appObj.signingDate
     }
 
     for field in caseMapFields:
@@ -1502,17 +1794,18 @@ def createCase(appUID):
 
     caseObj = Case.objects.create(**casePayload)
 
-    #Copy Loan Summary Reference
-    caseObj.summaryDocument = appObj.summaryDocument.path
+    # Copy Loan Summary Reference
+    caseObj.summaryDocument = appObj.summaryDocument.name
     caseObj.save()
 
     # CREATE CASE LOAN
 
-    loanMapFields = ['maxLVR', 'actualLVR', 'isLowLVR', 'purposeAmount','establishmentFee', 'totalLoanAmount','planPurposeAmount',
+    loanMapFields = ['maxLVR', 'actualLVR', 'isLowLVR', 'purposeAmount', 'establishmentFee', 'totalLoanAmount',
+                     'planPurposeAmount',
                      'planEstablishmentFee', 'totalPlanAmount', 'consentPrivacy', 'consentElectronic']
 
-    loanPayload={
-        'detailedTitle' : False,
+    loanPayload = {
+        'detailedTitle': False,
     }
 
     for field in loanMapFields:
@@ -1521,7 +1814,6 @@ def createCase(appUID):
     loanQs = Loan.objects.filter(case=caseObj)
     loanQs.update(**loanPayload)
     loanObj = loanQs.get()
-
 
     # CREATE LOAN PURPOSE
     purposePayload = model_to_dict(ApplicationPurposes.objects.filter(application=appObj).get())
@@ -1532,27 +1824,33 @@ def createCase(appUID):
 
     purpObj = LoanPurposes.objects.create(**purposePayload)
 
-
     # CREATE LOAN APPLICATION
 
-    applicationMapFields = ['appUID', 'assetSaving', 'assetVehicles','assetOther','liabLoans','liabCards','liabOther','limitCards',
-                            'totalAnnualIncome','incomePension','incomePensionFreq','incomeSavings','incomeSavingsFreq',
-                            'incomeOther','incomeOtherFreq',
-                            'totalAnnualExpenses','expenseHomeIns','expenseHomeInsFreq',
-                            'expenseRates','expenseRatesFreq','expenseGroceries','expenseGroceriesFreq','expenseUtilities',
-                            'expenseUtilitiesFreq','expenseMedical','expenseMedicalFreq','expenseTransport','expenseTransportFreq',
-                            'expenseRepay','expenseRepayFreq','expenseOther','expenseOtherFreq',
-                            'choiceProduct','choiceOtherNeeds','choiceMortgage','choiceOwnership','choiceOccupants',
-                            'bankBsbNumber','bankAccountName','bankAccountNumber',
-                            'signingName_1','signingName_2','signingDate','ip_address','user_agent' ]
+    applicationMapFields = ['appUID', 'assetSaving', 'assetVehicles', 'assetOther', 'liabLoans', 'liabCards',
+                            'liabOther', 'limitCards',
+                            'totalAnnualIncome', 'incomePension', 'incomePensionFreq', 'incomeSavings',
+                            'incomeSavingsFreq',
+                            'incomeOther', 'incomeOtherFreq',
+                            'totalAnnualExpenses', 'expenseHomeIns', 'expenseHomeInsFreq',
+                            'expenseRates', 'expenseRatesFreq', 'expenseGroceries', 'expenseGroceriesFreq',
+                            'expenseUtilities',
+                            'expenseUtilitiesFreq', 'expenseMedical', 'expenseMedicalFreq', 'expenseTransport',
+                            'expenseTransportFreq',
+                            'expenseRepay', 'expenseRepayFreq', 'expenseOther', 'expenseOtherFreq',
+                            'choiceProduct', 'choiceOtherNeeds', 'choiceMortgage', 'choiceOwnership', 'choiceOccupants',
+                            'bankBsbNumber', 'bankAccountName', 'bankAccountNumber',
+                            'signingName_1', 'signingName_2', 'signingDate', 'ip_address', 'user_agent']
 
-    applicationPayload = {'loan':loanObj}
+    applicationPayload = {'loan': loanObj}
 
     for field in applicationMapFields:
         applicationPayload[field] = getattr(appObj, field)
 
     appObj = LoanApplication.objects.create(**applicationPayload)
 
-    return str(caseObj.caseUID)
+    # CREATE CASE SETTINGS
 
+    createCaseModelSettings(str(caseObj.caseUID))
+
+    return str(caseObj.caseUID)
 

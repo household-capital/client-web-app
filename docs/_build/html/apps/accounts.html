@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Application" href="application.html" />
     <link rel="prev" title="Welcome to clientApp’s documentation!" href="../index.html" /> 
 </head>
 
@@ -82,6 +83,7 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Accounts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="application.html">Application</a></li>
 </ul>
 
             
@@ -212,6 +214,26 @@
 
 </div></blockquote>
 <p><strong>Tasks</strong></p>
+<blockquote>
+<div><span class="target" id="module-0"></span><dl class="py class">
+<dt id="id0">
+<em class="property">class </em><code class="sig-prename descclassname">apps.accounts.forms.</code><code class="sig-name descname">myLoginForm</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override login form using Crispy form</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="id1">
+<em class="property">class </em><code class="sig-prename descclassname">apps.accounts.forms.</code><code class="sig-name descname">myPasswordResetConfirmForm</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override new password form using Crispy form</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="id2">
+<em class="property">class </em><code class="sig-prename descclassname">apps.accounts.forms.</code><code class="sig-name descname">myPasswordResetForm</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override password reset form using Crispy form</p>
+</dd></dl>
+
+</div></blockquote>
 <p><strong>Views</strong></p>
 <blockquote>
 <div><span class="target" id="module-apps.accounts.views"></span><dl class="py class">
@@ -221,7 +243,7 @@
 <dl class="py attribute">
 <dt id="apps.accounts.views.myLoginView.form_class">
 <code class="sig-name descname">form_class</code><a class="headerlink" href="#apps.accounts.views.myLoginView.form_class" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <a class="reference internal" href="#apps.accounts.forms.myLoginForm" title="apps.accounts.forms.myLoginForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.accounts.forms.myLoginForm</span></code></a></p>
+<dd><p>alias of <a class="reference internal" href="#id0" title="apps.accounts.forms.myLoginForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.accounts.forms.myLoginForm</span></code></a></p>
 </dd></dl>
 
 <dl class="py method">
@@ -251,7 +273,7 @@
 <dl class="py attribute">
 <dt id="apps.accounts.views.myPasswordResetConfirmView.form_class">
 <code class="sig-name descname">form_class</code><a class="headerlink" href="#apps.accounts.views.myPasswordResetConfirmView.form_class" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <a class="reference internal" href="#apps.accounts.forms.myPasswordResetConfirmForm" title="apps.accounts.forms.myPasswordResetConfirmForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.accounts.forms.myPasswordResetConfirmForm</span></code></a></p>
+<dd><p>alias of <a class="reference internal" href="#id1" title="apps.accounts.forms.myPasswordResetConfirmForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.accounts.forms.myPasswordResetConfirmForm</span></code></a></p>
 </dd></dl>
 
 </dd></dl>
@@ -269,7 +291,7 @@
 <dl class="py attribute">
 <dt id="apps.accounts.views.myPasswordResetView.form_class">
 <code class="sig-name descname">form_class</code><a class="headerlink" href="#apps.accounts.views.myPasswordResetView.form_class" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <a class="reference internal" href="#apps.accounts.forms.myPasswordResetForm" title="apps.accounts.forms.myPasswordResetForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.accounts.forms.myPasswordResetForm</span></code></a></p>
+<dd><p>alias of <a class="reference internal" href="#id2" title="apps.accounts.forms.myPasswordResetForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.accounts.forms.myPasswordResetForm</span></code></a></p>
 </dd></dl>
 
 </dd></dl>
@@ -284,6 +306,8 @@
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="application.html" class="btn btn-neutral float-right" title="Application" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="../index.html" class="btn btn-neutral float-left" title="Welcome to clientApp’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

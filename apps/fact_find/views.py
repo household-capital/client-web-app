@@ -152,8 +152,7 @@ class GeneratePdf(View):
         obj = Case.objects.filter(caseUID=self.kwargs.get('uid')).get()
 
         sourceUrl = 'https://householdcapital.app/factfind/pdfCaseSummary/' + self.request.session['caseUID']
-        targetFileName = settings.MEDIA_ROOT + "/customerReports/CaseSummary-" + self.request.session['caseUID'][
-                                                                             -12:] + "-" + dateStr + ".pdf"
+        targetFileName = "customerReports/CaseSummary-" + self.request.session['caseUID'][-12:] + "-" + dateStr + ".pdf"
         pdf = pdfGenerator(caseUID)
         created, text = pdf.createPdfFromUrl(sourceUrl, 'CaseSummary.pdf', targetFileName)
 
@@ -163,13 +162,10 @@ class GeneratePdf(View):
 
         try:
             # SAVE TO DATABASE
-            localfile = open(targetFileName, 'rb')
 
             qsCase = Case.objects.queryset_byUID(self.request.session['caseUID'])
-            qsCase.update(responsibleDocument=File(localfile), )
+            qsCase.update(responsibleDocument=targetFileName)
 
-            pdf_contents = localfile.read()
-            localfile.close()
 
         except:
             write_applog("ERROR", 'GeneratePdf', 'get',

@@ -11,6 +11,7 @@ Welcome to clientApp's documentation!
    :caption: Contents:
 
    apps/accounts
+   apps/application
 
 
 

@@ -1,12 +1,15 @@
 # Python Imports
+import datetime
 import json
 import base64
 import math
+from datetime import timedelta
 
 # Django Imports
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.utils import timezone
+from django.db.models import Q, F
 
 # Third-party Imports
 from config.celery import app
@@ -16,11 +19,14 @@ from apps.lib.api_AMAL import apiAMAL
 from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Utilities import raiseTaskAdminError
-from apps.lib.site_DataMapping import mapLoanToFacility, mapRolesToFacility, mapPropertyToFacility, mapPurposesToFacility, \
+from apps.lib.site_Enums import facilityStatusEnum
+from apps.lib.site_DataMapping import mapLoanToFacility, mapRolesToFacility, mapPropertyToFacility, \
+    mapPurposesToFacility, \
     mapValuationsToFacility, mapTransToFacility
 
 from apps.case.models import Case
-from .models import Facility, FacilityTransactions, FacilityRoles, FacilityProperty, FacilityPropertyVal, FacilityPurposes, FacilityEvents
+from .models import Facility, FacilityTransactions, FacilityRoles, FacilityProperty, FacilityPropertyVal, \
+    FacilityPurposes, FacilityEvents
 
 
 # SERVICING TASKS
@@ -74,29 +80,30 @@ def fundedData(*arg, **kwargs):
                             facility=loan
                         )
 
-                        if created:
-                            payload= mapTransToFacility(loan, transaction)
-                            #Update object
+                        if created or (transaction['balance'] != transObj.balance):
+                            payload = mapTransToFacility(loan, transaction)
+                            # Update object
                             for attr, value in payload.items():
                                 setattr(transObj, attr, value)
                             transObj.save()
 
                     else:
-                        #Ghosted transactions include reversals so attempt to remove existing transactions
-                        qs=FacilityTransactions.objects.filter(facility=loan, tranRef=transaction['tranRef'])
+                        # Ghosted transactions include reversals so attempt to remove existing transactions
+                        qs = FacilityTransactions.objects.filter(facility=loan, tranRef=transaction['tranRef'])
 
                         if qs.exists():
                             # A reversal
                             qs.delete()
 
-                            #Test notification of reversal
-                            text = "A reversal has occurred for " + str(loan.sfLoanName) + "  |  " + str(transaction['tranRef'])
+                            # Test notification of reversal
+                            text = "A reversal has occurred for " + str(loan.sfLoanName) + "  |  " + str(
+                                transaction['tranRef'])
                             from_email = settings.DEFAULT_FROM_EMAIL
                             subject = "AMAL Reversal - Servicing Notification"
                             to = [settings.ADMINS[0][1],
                                   'sue.moorhen@householdcapital.com',
                                   'jay.sewell@householdcapital.com']
-                            msg = EmailMultiAlternatives(subject, text , from_email, to)
+                            msg = EmailMultiAlternatives(subject, text, from_email, to)
                             msg.send()
 
                         else:
@@ -109,18 +116,17 @@ def fundedData(*arg, **kwargs):
             if not loan.maxDrawdownDate and loan.settlementDate:
                 loan.maxDrawdownDate = loan.settlementDate + timezone.timedelta(days=365)
 
-            #Check approved amounts agree
+            # Check approved amounts agree
             if abs(loan.totalLoanAmount - loan.approvedAmount) > 1:
                 loan.amalReconciliation = False
             else:
                 loan.amalReconciliation = True
 
-            #Check for limit breaches
+            # Check for limit breaches
             if (loan.advancedAmount - loan.approvedAmount) > 1:
                 loan.amalBreach = True
             else:
                 loan.amalBreach = False
-
 
             loan.save()
 
@@ -154,7 +160,7 @@ def sfSynch():
 
         caseObj = Case.objects.filter(sfOpportunityID=sfOpportunityId).get()
 
-        #Currently using LoanObj and Case to build Facility
+        # Currently using LoanObj and Case to build Facility
         payload = mapLoanToFacility(caseObj, loan)
 
         if qsFacility.filter(sfID__exact=loan['Id']):
@@ -170,13 +176,12 @@ def sfSynch():
 def sfDetailSynch():
     '''Updates related Facility objects with Salesforce Loan Object Information'''
 
-    #Get Querysets
+    # Get Querysets
     qsFacility = Facility.objects.all()
     qsFacilityRoles = FacilityRoles.objects.all()
     qsFacilityProperty = FacilityProperty.objects.all()
     qsValuations = FacilityPropertyVal.objects.all()
     qsPurposes = FacilityPurposes.objects.all()
-
 
     # Get SF Table Data
     sfAPI = apiSalesforce()
@@ -205,9 +210,10 @@ def sfDetailSynch():
                     try:
                         FacilityRoles.objects.create(**payload)
                     except:
-                        write_applog("ERROR", 'Servicing', 'Tasks-sfDetailSynch', 'Could not create role -' + json.dumps(loan.sfLoanName))
+                        payload.pop('facility')
+                        write_applog("ERROR", 'Servicing', 'Tasks-sfDetailSynch',
+                                     'Could not create role -' + json.dumps(payload))
                         raiseTaskAdminError('Servicing: Could not create Facility Role', loan.sfLoanName)
-
 
         # PROPERTIES
 
@@ -221,7 +227,7 @@ def sfDetailSynch():
 
             for index2, propertyObj in propertyObjTable.iterrows():
 
-                payload = mapPropertyToFacility(loan,propertyObj)
+                payload = mapPropertyToFacility(loan, propertyObj)
 
                 if qsFacilityProperty.filter(sfPropertyID__exact=propertyObj['Id']):
                     payload.pop('sfPropertyID')
@@ -263,19 +269,26 @@ def sfDetailSynch():
                                  'Could not create purpose -' + loan.sfLoanName)
                     raiseTaskAdminError('Servicing: Could not create Facility Purpose', loan.sfLoanName)
 
+        # OTHER ITEMS
+
+        # Populate nextAnnualService date (if required)
+        if (not loan.nextAnnualService) and (loan.settlementDate is not None):
+            loan.nextAnnualService = loan.settlementDate + timedelta(days=365)
+        loan.save()
+
         # EVENTS (TEMP)
         try:
             qs = FacilityEvents.objects.filter(facility=loan).get()
         except FacilityEvents.DoesNotExist:
             if loan.settlementDate:
-                FacilityEvents.objects.create(facility=loan, eventType=1, eventDate=loan.settlementDate, eventNotes="Facility established. Initial loan drawdown.")
+                FacilityEvents.objects.create(facility=loan, eventType=1, eventDate=loan.settlementDate,
+                                              eventNotes="Facility established. Initial loan drawdown.")
         except FacilityEvents.MultipleObjectsReturned:
             pass
 
 
 @app.task(name="SF_AMAL_Synch")
 def sfAMALData():
-
     sfAPI = apiSalesforce()
     statusResult = sfAPI.openAPI(True)
 
@@ -284,10 +297,81 @@ def sfAMALData():
     for loan in qsFacilities:
         sfAPI.updateLoanData(loan.sfID, {
             "Loan_Settlement_Date__c": loan.settlementDate.strftime("%Y-%m-%d") if loan.settlementDate else None,
-            "MaxDrawdownDate__c" : loan.maxDrawdownDate.strftime("%Y-%m-%d") if loan.maxDrawdownDate else None,
+            "MaxDrawdownDate__c": loan.maxDrawdownDate.strftime("%Y-%m-%d") if loan.maxDrawdownDate else None,
             "Loan_Maturity_Date__c": loan.dischargeDate.strftime("%Y-%m-%d") if loan.dischargeDate else None,
             "Advanced_Amount__c": loan.advancedAmount,
             "Current_Loan_Balance__c": loan.currentBalance
         })
 
     return "SF Updated Successfully"
+
+
+@app.task(name="SF_Create_Task")
+def sfCreateTask(payload):
+    sfAPI = apiSalesforce()
+    statusResult = sfAPI.openAPI(True)
+
+    if statusResult['status'] != 'Ok':
+        raiseTaskAdminError("Servicing Task not created",
+                            "{0} task was not created for {1}".format(payload['Subject'],payload['Description']))
+        write_applog("ERROR", 'Servicing', 'sfCreateTask',
+                     "Task not created -" + payload['Subject'] + " " + json.dumps(statusResult['responseText']))
+        return "Task failed - could not open SF API"
+
+    result = sfAPI.createTask(**payload)
+    if result['status'] != 'Ok':
+        raiseTaskAdminError("Servicing Task not created",
+                            "{0} task was not created for {1}".format(payload['Subject'],payload['Description']))
+        write_applog("ERROR", 'Servicing', 'sfCreateTask',
+                     "Task not created -" + payload['Subject'] + " " + json.dumps(result['responseText']))
+        return "Task failed - could not create task"
+
+    return "SF Additional Drawdown Task Created Successfully"
+
+
+@app.task(name="Annual_Review_Notification")
+def sfAnnualReviewNotification():
+    write_applog("INFO", 'Servicing', 'sfAnnualReviewNotification',
+                 "Starting Annual Review SF notifications")
+
+    futureDate = timezone.now() + timedelta(weeks=6)
+    queryset = Facility.objects.filter(nextAnnualService__lte=futureDate,
+                                       settlementDate__isnull=False,
+                                       status=facilityStatusEnum.ACTIVE.value,
+                                       annualServiceNotification=False) \
+        .annotate(availableAmount=F('approvedAmount') - F('advancedAmount')) \
+        .annotate(planAddition=F('totalPlanAmount') - F('totalLoanAmount')) \
+        .order_by('nextAnnualService')
+
+    for obj in queryset:
+
+        #Create SF Task
+        write_applog("INFO", 'Servicing', 'sfAnnualReviewNotification',
+                     "Creating task for {0}".format(obj.sfLoanName if obj.sfLoanName else ""))
+
+        description = "Please complete an Annual Review for " + obj.sfLoanName
+        description += '\r\nWhich is due on {0}'.format(obj.nextAnnualService.strftime("%d-%m-%Y"))
+
+        if obj.availableAmount > 0:
+            description += '\r\n\r\nPlease note there are available funds under this facility (extension required?)'
+
+        if obj.planAddition > 0:
+            description += '\r\n\r\nPlease note there are plan amounts under this facility (variation required?)'
+
+
+        payload = {'OwnerId' : obj.owner.profile.salesforceID,
+                   'ActivityDate' : obj.nextAnnualService.strftime("%Y-%m-%d"),
+                   'Subject' : 'Annual Review',
+                   'Description' : description,
+                   'Priority': 'Normal',
+                   'WhatId' : obj.sfID,
+                   }
+
+        result = sfCreateTask(payload)
+        obj.annualServiceNotification = True
+        obj.save()
+
+    write_applog("INFO", 'Servicing', 'sfAnnualReviewNotification',
+                     "Completed Annual Review SF notifications")
+
+    return "Task completed successfully"

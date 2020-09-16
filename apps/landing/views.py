@@ -51,25 +51,17 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
         context['title'] = 'Dashboard'
 
         # Time Series Data
-        tsData = json.dumps(list(WebCalculator.objects.timeSeries('Interactions', 90)), default=self.dateParse)
-        context['chartInteractionData'] = tsData
+        #tsData = json.dumps(list(WebCalculator.objects.timeSeries('Interactions', 90)), default=self.dateParse)
+        #context['chartInteractionData'] = tsData
 
-        tsData = json.dumps(list(WebCalculator.objects.timeSeries('Email', 90)), default=self.dateParse)
+        tsData = json.dumps(list(Enquiry.objects.timeSeries('Calculator', 90)), default=self.dateParse)
         context['chartEmailData'] = tsData
 
         tsData = json.dumps(list(Enquiry.objects.timeSeries('Phone', 90)), default=self.dateParse)
         context['chartPhoneData'] = tsData
 
-        # Enquiry
-        context['openEnquiries'] = Enquiry.objects.openEnquiries().count()
-
-        # Open Case
-        qsOpenCases = Case.objects.openCases()
-        context['openCases'] = qsOpenCases.count()
-        context['openDiscovery'] = qsOpenCases.filter(caseStage=caseStagesEnum.DISCOVERY.value).count()
-        context['openMeetingHeld'] = qsOpenCases.filter(caseStage=caseStagesEnum.MEETING_HELD.value).count()
-        context['openApplication'] = qsOpenCases.filter(caseStage=caseStagesEnum.APPLICATION.value).count()
-        context['openDocumentation'] = qsOpenCases.filter(caseStage=caseStagesEnum.DOCUMENTATION.value).count()
+        tsData = json.dumps(list(Enquiry.objects.timeSeries('Web', 90)), default=self.dateParse)
+        context['chartWebData'] = tsData
 
         # Totals
         qsEnqs = Enquiry.objects.all().exclude(closeReason=closeReasonEnum.CALL_ONLY.value)
@@ -78,20 +70,20 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
         context['emailEnquiries'] = qsEnqs.filter(referrer=directTypesEnum.EMAIL.value).count() + \
                                     qsEnqs.filter(referrer=directTypesEnum.WEB_ENQUIRY.value).count()
         context['phoneEnquiries'] = qsEnqs.filter(referrer=directTypesEnum.PHONE.value).count()
-        context['referralEnquiries'] = qsEnqs.filter(referrer=directTypesEnum.REFERRAL.value).count()
 
         qsCases = Case.objects.all()
         context['totalCases'] = qsCases.count()
         context['meetings'] = qsCases.filter(meetingDate__isnull=False).count()
-        context['applications'] = qsCases.filter(titleDocument__isnull=False).exclude(titleDocument="").count()
 
         # Funded Data
         qsFunded = Facility.objects.filter(currentBalance__gt=0, dischargeDate__isnull=True)
         if qsFunded:
+            context['portfolioPlan'] = int(qsFunded.aggregate(Sum('totalPlanAmount'))['totalPlanAmount__sum'])
             context['portfolioLimit'] = int(qsFunded.aggregate(Sum('approvedAmount'))['approvedAmount__sum'])
             context['portfolioBalance'] = int(qsFunded.aggregate(Sum('currentBalance'))['currentBalance__sum'])
             context['portfolioFunded'] = int(qsFunded.aggregate(Sum('advancedAmount'))['advancedAmount__sum'])
         else:
+            context['portfolioPlan'] = 0
             context['portfolioLimit'] = 0
             context['portfolioBalance'] = 0
             context['portfolioFunded'] = 0
@@ -129,7 +121,7 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
         context['dateRange'] = dateRange
 
         # - get enquiry data and build table
-        dataQs = qsEnqs.exclude(referrer=directTypesEnum.REFERRAL.value) \
+        dataQs = qsEnqs \
             .annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
             .values_list('date') \
             .annotate(leads=Count('enqUID')) \
@@ -138,33 +130,17 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
         context['directData'] = self.__createTableData(dataQs, 'referrer', 'leads')
         context['directTypesEnum'] = directTypesEnum
 
-        # - get case data and build table
-        qsCases = Case.objects.all()
-        dataQs = qsCases.exclude(salesChannel=channelTypesEnum.DIRECT_ACQUISITION.value) \
-            .annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
-            .values_list('date') \
-            .annotate(cases=Count('caseUID')) \
-            .values('salesChannel', 'date', 'cases').order_by('date')
-
-        context['referralData'] = self.__createTableData(dataQs, 'salesChannel', 'cases')
-        context['channelTypesEnum'] = channelTypesEnum
-
         # - get interaction data and build table
-        qsInteractions = WebCalculator.objects.all()
-        dataQs = qsInteractions \
-            .annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
-            .values_list('date') \
-            .annotate(interactions=Count('calcUID')) \
-            .annotate(type=Value('interactions', output_field=CharField())) \
-            .values('type', 'date', 'interactions').order_by('date')
+        #qsInteractions = WebCalculator.objects.all()
+        #dataQs = qsInteractions \
+        #    .annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
+        #    .values_list('date') \
+        #    .annotate(interactions=Count('calcUID')) \
+        #    .annotate(type=Value('interactions', output_field=CharField())) \
+        #    .values('type', 'date', 'interactions').order_by('date')
 
-        context['interactionData'] = self.__createTableData(dataQs, 'type', 'interactions')
+        #context['interactionData'] = self.__createTableData(dataQs, 'type', 'interactions')
 
-        # tableTsData = []
-        # for key, item in context['interactionData'].items():
-        #    tableTsData.append([datetime.datetime.strptime(key, "%b-%y").strftime('%Y-%m-%d'), item['interactions']])
-
-        # context['chartInteraction'] = tableTsData[-12:]
 
         tableTsPhoneData = []
         tableTsCalcData = []
@@ -185,10 +161,6 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
             if column in context['directData']:
                 enq = context['directData'][column]
                 for item, value in enq.items():
-                    total += value
-            if column in context['referralData']:
-                case = context['referralData'][column]
-                for item, value in case.items():
                     total += value
             tableData[column] = total
             tableTsData.append([datetime.datetime.strptime(column, "%b-%y").strftime('%Y-%m-%d'), total])
@@ -270,7 +242,7 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
                                                    output_field=FloatField())) \
             .values('date', 'proportion').order_by('date')
 
-        context['chartMeetingConversion'] = json.dumps(self.__createTimeSeries(dataQs, 'proportion')[-12:],
+        context['chartMeetingConversion'] = json.dumps(self.__createTimeSeries(dataQs, 'proportion')[-12:-3],
                                                        default=self.dateParse)
 
         # - get enquiry conversion
@@ -289,16 +261,16 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
                                                        default=self.dateParse)
 
         # - get interaction conversion
-        qsMeetings = WebCalculator.objects.all()
-        dataQs = qsMeetings \
-            .annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
-            .values_list('date') \
-            .annotate(proportion=ExpressionWrapper(Value(100.0) * Count('email') / Count('calcUID'),
-                                                   output_field=FloatField())) \
-            .values('date', 'proportion').order_by('date')
+        #qsMeetings = WebCalculator.objects.all()
+        #dataQs = qsMeetings \
+        #    .annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
+        #    .values_list('date') \
+        #    .annotate(proportion=ExpressionWrapper(Value(100.0) * Count('email') / Count('calcUID'),
+        #                                           output_field=FloatField())) \
+        #    .values('date', 'proportion').order_by('date')
 
-        context['chartCalculatorConversion'] = json.dumps(self.__createTimeSeries(dataQs, 'proportion')[-12:],
-                                                          default=self.dateParse)
+        #context['chartCalculatorConversion'] = json.dumps(self.__createTimeSeries(dataQs, 'proportion')[-12:],
+        #                                                  default=self.dateParse)
 
         return context
 
@@ -367,12 +339,12 @@ class Weekly(HouseholdLoginRequiredMixin, TemplateView):
             .order_by()
 
         # - get interaction data
-        qsInts = WebCalculator.objects.all() \
-            .annotate(
-            date=Concat(ExtractYear('timestamp'), Value('-W'), ExtractWeek('timestamp'), output_field=CharField())) \
-            .values('date') \
-            .annotate(interactions=Count('calcUID')) \
-            .order_by()
+        #qsInts = WebCalculator.objects.all() \
+        #    .annotate(
+        #    date=Concat(ExtractYear('timestamp'), Value('-W'), ExtractWeek('timestamp'), output_field=CharField())) \
+        #    .values('date') \
+        #    .annotate(interactions=Count('calcUID')) \
+        #    .order_by()
 
         # - get enquiry data
         qsEnqs = Enquiry.objects.all() \
@@ -416,7 +388,6 @@ class Weekly(HouseholdLoginRequiredMixin, TemplateView):
             settlements = self.get_data_item('settlements', item['date'], dataSettle)
             cases = self.get_data_item('cases', item['date'], qsCases)
             enquiries = self.get_data_item('enquiries', item['date'], qsEnqs)
-            interactions = self.get_data_item('interactions', item['date'], qsInts)
 
             output.append({'date': item['date'],
                            'meetings': meetings,
@@ -424,7 +395,6 @@ class Weekly(HouseholdLoginRequiredMixin, TemplateView):
                            'settlements': settlements,
                            'enquiries': enquiries,
                            'cases': cases,
-                           'interactions': interactions
                            })
 
         context['object_list'] = output

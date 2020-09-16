@@ -17,7 +17,7 @@
 <br>
 <p>{{ obj.owner.first_name }}&nbsp;{{ obj.user.owner }}</p>
 <br>
-<img src="{{ absolute_media_url }}{{ obj.owner.profile.picture }}" width="100px">
+<img src="{{ obj.owner.profile.picture.url }}" width="100px">
 
 
 {% endblock %}

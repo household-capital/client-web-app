@@ -16,8 +16,10 @@ from config.celery import app
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_DataMapping import mapFacilityToCase
 from apps.lib.api_Salesforce import apiSalesforce
-from apps.lib.site_Enums import roleEnum, caseStagesEnum, loanTypesEnum, appTypesEnum, clientTypesEnum, channelTypesEnum
-from apps.case.models import Case, Loan, ModelSetting, LoanPurposes
+from apps.lib.site_Enums import purposeIntentionEnum, purposeCategoryEnum
+from apps.lib.site_Utilities import createCaseModelSettings
+from apps.servicing.models import FacilityPurposes
+from apps.case.models import Case, Loan, LoanPurposes, ModelSetting
 
 
 
@@ -32,14 +34,19 @@ def createLoanVariation(facilityObj):
     except:
         return {'status': "Error", 'responseText':'Could not create variation'}
 
+    # 2. Create Case Loan Object
 
-    ## TEMPORARY MIXED APPROACH UNTIL SF OBJECTS UPDATED ##
+    orgLoanDict={}
 
-    orgCaseUID = str(facilityObj.originalCaseUID)
+    orgLoanDict['purposeAmount'] = facilityObj.totalPurposeAmount
+    orgLoanDict['establishmentFee'] = facilityObj.totalEstablishmentFee
+    orgLoanDict['totalLoanAmount'] = facilityObj.totalLoanAmount
 
-    # 2. Case Loan Object
-    orgLoanObj = Loan.objects.queryset_byUID(orgCaseUID).get()
-    orgLoanDict = model_to_dict(orgLoanObj, exclude=['case', 'localLoanID'])
+    # Plan Amounts
+    orgLoanDict['planPurposeAmount']  = facilityObj.totalPlanPurposeAmount
+    orgLoanDict['planEstablishmentFee'] = facilityObj.totalPlanEstablishmentFee
+    orgLoanDict['totalPlanAmount'] = facilityObj.totalPlanAmount
+
 
     orgLoanDict['accruedInterest'] = int(max(facilityObj.currentBalance - facilityObj.advancedAmount, 0))
     orgLoanDict['orgTotalLoanAmount'] = facilityObj.totalLoanAmount
@@ -50,19 +57,23 @@ def createLoanVariation(facilityObj):
     newLoanObj = Loan.objects.filter(case=newCaseObj).get()
 
     # 3. Case ModelSetting Object
-    orgSettingsObj = ModelSetting.objects.queryset_byUID(orgCaseUID).get()
-    orgSettingsDict = model_to_dict(orgSettingsObj, exclude=['case', 'id'])
+    settingsDict={}
+    settingsDict['establishmentFeeRate'] = facilityObj.establishmentFeeRate
 
-    ModelSetting.objects.filter(case=newCaseObj).update(**orgSettingsDict)
+    createCaseModelSettings(str(newCaseObj.caseUID))
+    ModelSetting.objects.filter(case=newCaseObj).update(**settingsDict)
 
     #4. Create Purposes
-    orgPurposesQs = LoanPurposes.objects.filter(loan=orgLoanObj)
+    orgPurposesQs = FacilityPurposes.objects.filter(facility=facilityObj)
     for purpose in orgPurposesQs:
-        orgPurposeDict = model_to_dict(purpose, exclude=['loan', 'purposeID', 'purposeUID'])
+        orgPurposeDict = model_to_dict(purpose, exclude=['facility', 'sfPurposeID', 'id'])
         orgPurposeDict['loan'] = newLoanObj
+        orgPurposeDict['originalAmount'] = orgPurposeDict['amount']
+        orgPurposeDict['category'] = purpose.category
+        orgPurposeDict['intention'] = purpose.intention
         LoanPurposes.objects.create(**orgPurposeDict)
 
     # 5. Create SF Opportunity
-    app.send_task('SF_Create_Variation', kwargs={'newCaseUID': str(newCaseObj.caseUID), 'orgCaseUID': orgCaseUID })
+    app.send_task('SF_Create_Variation', kwargs={'newCaseUID': str(newCaseObj.caseUID), 'orgCaseUID': facilityObj.originalCaseUID })
 
     return {'status':'Ok', 'data':{'caseUID':str(newCaseObj.caseUID)}}

@@ -37,6 +37,7 @@ from apps.lib.site_Enums import loanTypesEnum, incomeFrequencyEnum
 from apps.lib.site_Globals import APP_SETTINGS
 from apps.lib.site_Globals import LOAN_LIMITS
 
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 class LoanProjection():
     """Calculates projected loan, home value, home equity values"""
@@ -438,7 +439,7 @@ class LoanProjection():
             return {'status': 'Error', 'responseText': 'Projections not calculated'}
 
         figuresList = self.getResultsList(keyName)['data']
-        imageList = [imageURL.replace('{0}', str(int(self.__myround(figuresList[i], 5)))) for i in range(4)]
+        imageList = [staticfiles_storage.url(imageURL.replace('{0}', str(int(self.__myround(figuresList[i], 5))))) for i in range(4)]
 
         return {'status': 'Ok', 'data': imageList}
 

@@ -5,11 +5,11 @@ from django import forms
 # Third-party Imports
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, Div, Fieldset, Button, HTML
-from crispy_forms.bootstrap import PrependedText
+from crispy_forms.bootstrap import PrependedText, InlineRadios
 
 # Local Application Imports
 from apps.lib.site_Enums import dwellingTypesEnum, loanTypesEnum
-from .models import FacilityEnquiry, FacilityRoles, FacilityAdditional
+from .models import FacilityEnquiry, FacilityRoles, FacilityAdditional, FacilityAnnual
 
 
 class FacilityEnquiryForm(forms.ModelForm):
@@ -78,7 +78,7 @@ class FacilityBorrowerForm(forms.Form):
         super(FacilityBorrowerForm, self).__init__(*args, **kwargs)
 
         if facility_instance:
-            self.fields['identifiedEnquirer'] = forms.ModelChoiceField(queryset=FacilityRoles.objects.filter(facility=facility_instance))
+            self.fields['identifiedContact'] = forms.ModelChoiceField(queryset=FacilityRoles.objects.filter(facility=facility_instance))
 
 
     contactEmail=forms.EmailField(required=False)
@@ -94,12 +94,14 @@ class FacilityBorrowerForm(forms.Form):
     helper.layout = Layout(
         Div(
             Div(
-                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;<small>Enquiry Details</small>")),
-                Div(Div(HTML("Identified Enquirer"), css_class='form-label'),
-                    Div(Field('identifiedEnquirer'))),
+                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;<small>Contact Details</small>")),
+                Div(Div(HTML("Contact"), css_class='form-label'),
+                    Div(Field('identifiedContact'))),
                 Div(Div(HTML("Contact Email"), css_class='form-label'),
                     Div(Field('contactEmail'))),
-                Div(Submit('submit', 'Select', css_class='btn btn-outline-secondary')),
+                Div(Submit('sendLink', 'Send link to client', css_class='btn btn-warning'),
+                Submit('complete', 'Complete myself ', css_class='btn btn-outline-secondary')),
+
                 css_class='col-lg-6'),
             css_class="row"))
 
@@ -187,3 +189,144 @@ class FacilityAdditionalConfirm(forms.ModelForm):
 
             )
 
+class AnnualHouseholdForm(forms.ModelForm):
+
+    class Meta:
+        model = FacilityAnnual
+        fields = ['choiceHouseholdConfirm', 'choiceHouseholdPersons', 'householdNotes']
+
+        widgets = {'householdNotes': forms.Textarea(attrs={'rows': 5, 'cols': 50})}
+
+
+    id = 'clientForm'
+    booleanChoices = {(True, 'Yes'), (False, 'No')}
+    choiceHouseholdConfirm = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(), required=True)
+    choiceHouseholdPersons = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(), required=True)
+
+    helper = FormHelper()
+    helper.form_id = 'clientForm'
+    helper.form_method = 'POST'
+    helper.form_show_labels = False
+    helper.form_show_errors = True
+
+
+class AnnualHomeForm(forms.ModelForm):
+
+    class Meta:
+        model = FacilityAnnual
+        fields = ['choiceInsuranceConfirm', 'choiceRatesConfirm', 'choiceRepairsConfirm', 'homeNotes']
+
+        widgets = {'homeNotes': forms.Textarea(attrs={'rows': 5, 'cols': 50})}
+
+
+    id = 'clientForm'
+    booleanChoices = {(True, 'Yes'), (False, 'No')}
+    choiceInsuranceConfirm = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(), required=True)
+    choiceRatesConfirm = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(), required=True)
+    choiceRepairsConfirm = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(), required=True)
+
+    helper = FormHelper()
+    helper.form_id = 'clientForm'
+    helper.form_method = 'POST'
+    helper.form_show_labels = False
+    helper.form_show_errors = True
+
+
+class AnnualNeedsForm(forms.ModelForm):
+
+    class Meta:
+        model = FacilityAnnual
+        fields = ['choiceUndrawnConfirm', 'choiceRegularConfirm', 'choiceCallbackConfirm', 'needNotes']
+
+        widgets = {'needNotes': forms.Textarea(attrs={'rows': 5, 'cols': 50})}
+
+
+    id = 'clientForm'
+    booleanChoices = {(True, 'Yes'), (False, 'No')}
+    choiceUndrawnConfirm = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(), required=False)
+    choiceRegularConfirm = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(), required=False)
+    choiceCallbackConfirm = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(), required=True)
+
+    helper = FormHelper()
+    helper.form_id = 'clientForm'
+    helper.form_method = 'POST'
+    helper.form_show_labels = False
+    helper.form_show_errors = True
+
+
+class AnnualReviewForm(forms.ModelForm):
+    class Meta:
+        model = FacilityAnnual
+        fields = ['choiceUndrawnConfirm', 'choiceRegularConfirm', 'choiceCallbackConfirm', 'needNotes',
+                  'choiceInsuranceConfirm', 'choiceRatesConfirm', 'choiceRepairsConfirm', 'homeNotes',
+                  'choiceHouseholdConfirm', 'choiceHouseholdPersons', 'householdNotes',
+                  'submitted', 'completed','reviewNotes']
+
+        widgets = {'needNotes': forms.Textarea(attrs={'rows': 5, 'cols': 50}),
+                   'homeNotes': forms.Textarea(attrs={'rows': 5, 'cols': 50}),
+                   'householdNotes': forms.Textarea(attrs={'rows': 5, 'cols': 50}),
+                   'reviewNotes': forms.Textarea(attrs={'rows': 5, 'cols': 50})
+                   }
+
+    booleanChoices = {(True, 'Yes'), (False, 'No')}
+    choiceUndrawnConfirm = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(), label='', required=False)
+    choiceRegularConfirm = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(), label='',required=False)
+    choiceCallbackConfirm = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(),label='', required=True)
+    choiceInsuranceConfirm = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(), label='',required=True)
+    choiceRatesConfirm = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(), label='',required=True)
+    choiceRepairsConfirm = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(), label='', required=True)
+    choiceHouseholdConfirm = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(),label='', required=True)
+    choiceHouseholdPersons = forms.ChoiceField(choices=booleanChoices, widget=forms.RadioSelect(),  label='', required=True)
+
+    helper = FormHelper()
+    helper.form_id = 'clientForm'
+    helper.form_method = 'POST'
+    helper.form_show_labels = False
+    helper.form_show_errors = True
+    helper.layout = Layout(
+        Div(
+            Div(
+                Div(HTML("<i class='fas fa-house-user'></i>&nbsp;&nbsp;Household")),
+                Div(Div(HTML("Household information correct?"), css_class='form-label'),
+                    Div(InlineRadios('choiceHouseholdConfirm'))),
+                Div(Div(HTML("Does anyone else now reside in the home?"), css_class='form-label'),
+                    Div(InlineRadios('choiceHouseholdPersons'))),
+                Div(Div(HTML("Household notes"), css_class='form-label'),
+                    Div(Field('householdNotes'))),
+
+                Div(HTML("<i class='fas fa-house-day fa-fw'></i>&nbsp;&nbsp;Home")),
+                Div(Div(HTML("Is your home still insured?"), css_class='form-label'),
+                    Div(InlineRadios('choiceInsuranceConfirm'))),
+                Div(Div(HTML("Have you council rates been paid during the year?"), css_class='form-label'),
+                    Div(InlineRadios('choiceRatesConfirm'))),
+                Div(Div(HTML("Are there any pressing home repairs?"), css_class='form-label'),
+                    Div(InlineRadios('choiceRepairsConfirm'))),
+                Div(Div(HTML("Home notes"), css_class='form-label'),
+                    Div(Field('homeNotes'))),
+
+                Div(HTML("<i class='fas fa-file-contract'></i>&nbsp;&nbsp;Household Loan")),
+                Div(Div(HTML("Extend drawdown by 12 months?"), css_class='form-label'),
+                    Div(InlineRadios('choiceUndrawnConfirm'))),
+                Div(Div(HTML("Receive the same regular drawdown amount?"), css_class='form-label'),
+                    Div(InlineRadios('choiceRegularConfirm'))),
+
+                Div(HTML("<i class='fas fa-phone'></i>&nbsp;&nbsp;Future needs")),
+                Div(Div(HTML("Call to discuss current or future needs??"), css_class='form-label'),
+                    Div(InlineRadios('choiceCallbackConfirm'))),
+                Div(Div(HTML("Needs notes"), css_class='form-label'),
+                    Div(Field('needNotes'))),
+
+                Div(Div(HTML("Submitted"), css_class='form-label'),
+                    Div(Field('submitted'))),
+
+                css_class='col-lg-6'),
+            Div(
+                Div(HTML("<i class='fas fa-pencil-alt'></i>&nbsp;&nbsp;Review")),
+                Div(Div(HTML("Review notes"), css_class='form-label'),
+                    Div(Field('reviewNotes'))),
+                Div(Div(HTML("Mark this review as completed"), css_class='form-label'),
+                    Div(Field('completed'))),
+
+                Div(Submit('submit', 'Update', css_class='btn btn-outline-secondary')),
+                css_class='col-lg-6'),
+            css_class="row"))

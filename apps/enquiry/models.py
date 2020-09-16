@@ -47,6 +47,12 @@ class EnquiryManager(models.Manager):
         if seriesType == 'Phone':
             return self.__timeSeriesQry(Enquiry.objects.filter(referrer=directTypesEnum.PHONE.value),length)
 
+        if seriesType == 'Calculator':
+            return self.__timeSeriesQry(Enquiry.objects.filter(referrer=directTypesEnum.WEB_CALCULATOR.value),length)
+
+        if seriesType == 'Web':
+            return self.__timeSeriesQry(Enquiry.objects.filter(referrer=directTypesEnum.WEB_ENQUIRY.value),length)
+
 
 class Enquiry(models.Model):
 
@@ -70,35 +76,34 @@ class Enquiry(models.Model):
         (directTypesEnum.PHONE.value,'Phone'),
         (directTypesEnum.EMAIL.value, 'Email'),
         (directTypesEnum.WEB_ENQUIRY.value,'Web'),
-        (directTypesEnum.REFERRAL.value, 'Referral'),
+        (directTypesEnum.SOCIAL.value, 'Social'),
+        (directTypesEnum.WEB_CALCULATOR.value, 'Calculator'),
+        (directTypesEnum.PARTNER.value, 'Partner'),
+        (directTypesEnum.BROKER.value, 'Broker'),
+        (directTypesEnum.ADVISER.value, 'Adviser'),
         (directTypesEnum.OTHER.value,'Other'),
-        (directTypesEnum.WEB_CALCULATOR.value, 'Calculator')
     )
 
+
     closeReasons=(
+        (closeReasonEnum.DUPLICATE.value, 'Duplicate'),
         (closeReasonEnum.AGE_RESTRICTION.value, 'Age Restriction'),
         (closeReasonEnum.POSTCODE_RESTRICTION.value, 'Postcode Restriction'),
         (closeReasonEnum.MINIMUM_LOAN_AMOUNT.value, 'Below minimum loan amount'),
-        (closeReasonEnum.CREDIT.value, 'Credit History'),
-        (closeReasonEnum.MORTGAGE.value, 'Mortgage too Large'),
+        (closeReasonEnum.MORTGAGE.value, 'Refinance too Large'),
         (closeReasonEnum.SHORT_TERM.value, 'Short-term / Bridging Requirement'),
         (closeReasonEnum.TENANTS.value, 'Tenants in common'),
         (closeReasonEnum.UNSUITABLE_PROPERTY.value, 'Unsuitable Property'),
         (closeReasonEnum.UNSUITABLE_PURPOSE.value, 'Unsuitable Purpose'),
         (closeReasonEnum.ALTERNATIVE_SOLUTION.value, 'Client Pursuing Alternative'),
         (closeReasonEnum.COMPETITOR.value, 'Client went to Competitor'),
-        (closeReasonEnum.NO_CLIENT_ACTION.value, 'No further action by client'),
         (closeReasonEnum.CALL_ONLY.value, 'Call only'),
+        (closeReasonEnum.NO_CLIENT_ACTION.value, 'No further action by client'),
+        (closeReasonEnum.ANTI_REVERSE_MORTGAGE.value, "Does not like Reverse Mortgages"),
+        (closeReasonEnum.CALL_ONLY.value, 'Fees too high'),
         (closeReasonEnum.OTHER.value , 'Other')
     )
 
-    reasonTypes = (
-        (reasonCodeEnum.NEW_BASIC_INFO.value, 'New - Basic information'),
-        (reasonCodeEnum.NEW_SPECIFIC_NEED.value, 'New - Specific need'),
-        (reasonCodeEnum.WRONG_NUMBER.value, 'Wrong number'),
-        (reasonCodeEnum.NUISANCE.value, 'Nuisance call'),
-        (reasonCodeEnum.OTHER.value, 'Other'),
-    )
     marketingTypes = (
         (marketingTypesEnum.WEB_SEARCH.value, "Web search"),
         (marketingTypesEnum.TV_ADVERT.value, "TV Advert"),
@@ -111,7 +116,32 @@ class Enquiry(models.Model):
         (marketingTypesEnum.FACEBOOK.value, "Facebook"),
         (marketingTypesEnum.LINKEDIN.value, "LinkedIn"),
         (marketingTypesEnum.YOUR_LIFE_CHOICES.value, "Your Life Choices"),
+        (marketingTypesEnum.STARTS_AT_60.value, "Starts at 60"),
+        (marketingTypesEnum.CARE_ABOUT.value, "Care About"),
+        (marketingTypesEnum.BROKER_REFERRAL.value, "Broker Referral"),
+        (marketingTypesEnum.BROKER_SPECIALIST.value, "Broker Specialist"),
+        (marketingTypesEnum.FINANCIAL_ADVISER.value, "Financial Adviser"),
+        (marketingTypesEnum.AGED_CARE_ADVISER.value, "Age Care Adviser"),
         (marketingTypesEnum.OTHER.value, "Other"),
+    )
+
+
+    enquiryStageTypes = (
+        (enquiryStagesEnum.GENERAL_INFORMATION.value, "General Information"),
+        (enquiryStagesEnum.BROCHURE_SENT.value, "Brochure Sent"),
+        (enquiryStagesEnum.SUMMARY_SENT.value, "Customer Summary Sent"),
+        (enquiryStagesEnum.DISCOVERY_MEETING.value, "Discovery Meeting"),
+        (enquiryStagesEnum.LOAN_INTERVIEW.value, "Loan Interview"),
+        (enquiryStagesEnum.LIVE_TRANSFER.value, "Live Transfer"),
+        (enquiryStagesEnum.DUPLICATE.value, "Duplicate"),
+        (enquiryStagesEnum.FUTURE_CALL.value, "Future Call"),
+        (enquiryStagesEnum.MORE_TIME_TO_THINK.value, "More time to think"),
+        (enquiryStagesEnum.DID_NOT_QUALIFY.value, "Did not Qualify"),
+        (enquiryStagesEnum.NOT_PROCEEDING.value, "Not Proceeding"),
+        (enquiryStagesEnum.FOLLOW_UP_NO_ANSWER.value, "Follow-up: No Answer"),
+        (enquiryStagesEnum.FOLLOW_UP_VOICEMAIL.value,"Follow-up: Voicemail"),
+        (enquiryStagesEnum.INITIAL_NO_ANSWER.value, "Initial: No Answer"),
+        (enquiryStagesEnum.NVN_EMAIL_SENT.value, "NVN: Email Sent"),
 
     )
 
@@ -133,10 +163,9 @@ class Enquiry(models.Model):
     referrerID=models.CharField(max_length=200,blank= True,null=True)
     referralUser=models.ForeignKey(settings.AUTH_USER_MODEL, related_name='referralUser', null=True, blank=True, on_delete=models.SET_NULL)
     sfLeadID = models.CharField(max_length=20, null=True, blank=True)
-    callReason = models.IntegerField(blank=True, null=True, choices=reasonTypes)
     marketingSource = models.IntegerField(blank=True, null=True, choices=marketingTypes )
 
-    #Client Data
+    # Client Data
     email=models.EmailField(blank=True, null=True)
     phoneNumber = models.CharField(max_length=15, blank=True, null=True)
     enquiryNotes = models.TextField(null=True, blank=True)
@@ -155,6 +184,10 @@ class Enquiry(models.Model):
     state = models.IntegerField(choices=stateTypes, null=True, blank=True)
     postcode=models.IntegerField(blank=True, null=True)
     valuation=models.IntegerField(blank=True, null=True)
+    isReferPostcode = models.BooleanField(blank=True, null=True)
+    referPostcodeStatus = models.BooleanField(blank=True, null=True)
+    mortgageDebt = models.IntegerField(null=True, blank=True)
+    valuationDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='enquiryReports')
 
     # ~ Purpose Data
     isRefi=models.BooleanField(default=False, blank=True, null=True)
@@ -172,7 +205,7 @@ class Enquiry(models.Model):
     maxDrawdownMonthly = models.IntegerField(blank=True, null=True)
     maxLVR = models.FloatField(blank=True, null=True)
     errorText = models.CharField(max_length=40, blank=True, null=True)
-    summaryDocument = models.FileField(null=True, blank=True)
+    summaryDocument = models.FileField(null=True, blank=True, upload_to='enquiryReports')
 
     #Workflow
     actioned=models.IntegerField(default=0,blank=True, null=True)
@@ -184,6 +217,7 @@ class Enquiry(models.Model):
     followUpDate=models.DateField(blank=True, null=True)
     followUpNotes = models.TextField(blank=True, null=True)
     doNotMarket = models.BooleanField(default=False)
+    enquiryStage = models.IntegerField(blank=True, null=True, choices=enquiryStageTypes)
 
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
@@ -234,6 +268,9 @@ class Enquiry(models.Model):
         if self.marketingSource is not None:
             return dict(self.marketingTypes)[self.marketingSource]
 
+    def enumEnquiryStage(self):
+        if self.enquiryStage is not None:
+            return dict(self.enquiryStageTypes)[self.enquiryStage]
 
     def __str__(self):
         return smart_text(self.email)

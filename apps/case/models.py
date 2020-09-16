@@ -11,10 +11,7 @@ from django.utils import timezone
 from django.urls import reverse_lazy
 
 #Local Application Imports
-from apps.lib.site_Enums import caseStagesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,\
-    pensionTypesEnum, loanTypesEnum, ragTypesEnum, channelTypesEnum, stateTypesEnum, incomeFrequencyEnum, \
-    closeReasonEnum, salutationEnum, maritalEnum, appTypesEnum, purposeCategoryEnum, purposeIntentionEnum, \
-    investmentTypesEnum, productTypesEnum
+from apps.lib.site_Enums import *
 
 from apps.accounts.models import Referer
 
@@ -110,19 +107,33 @@ class Case(models.Model):
     )
 
     channelTypes=(
-        (channelTypesEnum.IND_FINANCIAL_ADVISERS.value, "Independent Financial Advisers"),
-        (channelTypesEnum.INST_FINANCIAL_ADVISERS.value, "Institutional Financial Advisers"),
-        (channelTypesEnum.SUPER_FINANCIAL_ADVISERS.value, "Super Financial Advisers"),
-        (channelTypesEnum.AGED_CARE_ADVISERS.value, "Aged Care Advisers"),
-        (channelTypesEnum.AGED_CARE_PROVIDERS_CONSULTANTS.value, "Aged Care Provider/Consultants"),
-        (channelTypesEnum.ACCOUNTANTS.value, "Accountants"),
-        (channelTypesEnum.CENTRELINK_ADVISERS.value, "Centrelink Advisers"),
-        (channelTypesEnum.BROKERS.value, "Brokers"),
-        (channelTypesEnum.BANK_REFERRAL.value, "Bank Referral"),
-        (channelTypesEnum.BANK_REFI.value, "Refinance"),
-        (channelTypesEnum.SUPER_MEMBERS_DIRECT.value, "Super Direct"),
-        (channelTypesEnum.DIRECT_ACQUISITION.value, "Direct Acquisition")
+        (channelTypesEnum.DIRECT_ACQUISITION.value, "Direct Acquisition"),
+        (channelTypesEnum.PARTNER.value, "Partner"),
+        (channelTypesEnum.BROKER.value, "Broker"),
+        (channelTypesEnum.ADVISER.value, "Adviser")
     )
+
+    channelDetailTypes=(
+        (marketingTypesEnum.WEB_SEARCH.value, "Web search"),
+        (marketingTypesEnum.TV_ADVERT.value, "TV Advert"),
+        (marketingTypesEnum.TV_ADVERTORIAL.value, "TV Advertorial"),
+        (marketingTypesEnum.RADIO.value, "Radio"),
+        (marketingTypesEnum.WORD_OF_MOUTH.value, "Word of mouth"),
+        (marketingTypesEnum.COMPETITOR.value, "Competitor"),
+        (marketingTypesEnum.DIRECT_MAIL.value, "Direct mail"),
+        (marketingTypesEnum.DIRECT_EMAIL.value, "Direct Email"),
+        (marketingTypesEnum.FACEBOOK.value, "Facebook"),
+        (marketingTypesEnum.LINKEDIN.value, "LinkedIn"),
+        (marketingTypesEnum.YOUR_LIFE_CHOICES.value, "Your Life Choices"),
+        (marketingTypesEnum.STARTS_AT_60.value, "Starts at 60"),
+        (marketingTypesEnum.CARE_ABOUT.value, "Care About"),
+        (marketingTypesEnum.BROKER_REFERRAL.value, "Broker Referral"),
+        (marketingTypesEnum.BROKER_SPECIALIST.value, "Broker Specialist"),
+        (marketingTypesEnum.FINANCIAL_ADVISER.value, "Financial Adviser"),
+        (marketingTypesEnum.AGED_CARE_ADVISER.value, "Age Care Adviser"),
+        (marketingTypesEnum.OTHER.value, "Other"),
+    )
+
 
     stateTypes=(
         (stateTypesEnum.NSW.value, "NSW"),
@@ -149,7 +160,8 @@ class Case(models.Model):
         (maritalEnum.MARRIED.value, "Married"),
         (maritalEnum.DIVORCED.value, "Divorced"),
         (maritalEnum.WIDOWED.value, "Widowed"),
-        (maritalEnum.DEFACTO.value, "Defacto"),
+        (maritalEnum.DEFACTO.value, "De Facto"),
+        (maritalEnum.SEPARATED.value, "Separated"),
     )
 
     productTypes = (
@@ -165,6 +177,8 @@ class Case(models.Model):
     # - Variation References
     refCaseUID = models.UUIDField(null=True, blank=True)
     refFacilityUID  = models.UUIDField(null=True, blank=True)
+    # - Application References
+    appUID = models.UUIDField(null=True, blank=True)
 
     # Case Summary Data
     caseStage = models.IntegerField(choices=caseStages)
@@ -219,23 +233,26 @@ class Case(models.Model):
     valuation = models.IntegerField(null=True, blank=True)
     dwellingType = models.IntegerField(choices=dwellingTypes, null=True, blank=True)
     propertyImage = models.ImageField(null=True, blank=True, upload_to='customerImages')
+    isReferPostcode = models.BooleanField(blank=True, null=True)
+    referPostcodeStatus = models.BooleanField(blank=True, null=True)
 
     # Customer Document Data
     meetingDate = models.DateTimeField(blank=True, null=True)
     isZoomMeeting = models.BooleanField(default=False, null=True, blank=True)
-    summaryDocument = models.FileField(max_length=150,null=True, blank=True)
+    summaryDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='customerReports')
     summarySentDate = models.DateTimeField(blank=True, null=True)
     summarySentRef = models.CharField(max_length=30, null=True, blank=True)
-    responsibleDocument= models.FileField(max_length=150,null=True, blank=True)
+    responsibleDocument= models.FileField(max_length=150,null=True, blank=True, upload_to='customerReports')
     enquiryDocument = models.FileField(max_length=150,null=True, blank=True)
     valuationDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='customerDocuments')
     titleDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='customerDocuments') # deprecated
     titleRequest = models.BooleanField(null=True, blank=True)
     lixiFile= models.FileField(max_length=150, null=True, blank=True)
-    applicationDocument = models.FileField(max_length=150, null=True, blank=True)
+    applicationDocument = models.FileField(max_length=150, null=True, blank=True, upload_to='customerReports')
 
     # Referral / Channel Data
     salesChannel = models.IntegerField(choices=channelTypes,null=True, blank=True)
+    channelDetail = models.IntegerField(choices=channelDetailTypes, null=True, blank=True)
     adviser = models.CharField(max_length=60, null=True, blank=True)
     referralCompany = models.ForeignKey(Referer ,null=True, blank=True, on_delete=models.SET_NULL)
     referralRepNo = models.CharField(max_length=60, null=True, blank=True)
@@ -279,6 +296,9 @@ class Case(models.Model):
     def enumDwellingType(self):
         return dict(self.dwellingTypes)[self.dwellingType]
 
+    def enumProductType(self):
+        return dict(self.productTypes)[self.productType]
+
     def enumSex(self):
         if self.clientType2 == None:
             return [dict(self.clientSex)[self.sex_1],None]
@@ -294,6 +314,10 @@ class Case(models.Model):
     def enumChannelType(self):
         if self.salesChannel is not None:
             return dict(self.channelTypes)[self.salesChannel]
+
+    def enumChannelDetailType(self):
+        if self.channelDetail is not None:
+            return dict(self.channelDetailTypes)[self.channelDetail]
 
     def enumPensionType(self):
         if self.pensionType is not None:
@@ -313,6 +337,13 @@ class Case(models.Model):
             return [dict(self.salutationTypes)[self.salutation_1],None]
         else:
             return [dict(self.salutationTypes)[self.salutation_1],dict(self.salutationTypes)[self.salutation_2]]
+
+    def enumReferPostcodeStatus(self):
+        if self.referPostcodeStatus != None:
+            if self.referPostcodeStatus:
+                return 'Approved'
+            else:
+                return 'Rejected'
 
     def get_absolute_url(self):
         return reverse_lazy("case:caseDetail", kwargs={"uid": self.caseUID})
@@ -446,7 +477,7 @@ class LoanPurposes(models.Model):
         (purposeIntentionEnum.REGULAR_DRAWDOWN.value, "REGULAR_DRAWDOWN"),
         (purposeIntentionEnum.GIVE_TO_FAMILY.value, "GIVE_TO_FAMILY"),
         (purposeIntentionEnum.RENOVATIONS.value, "RENOVATIONS"),
-        (purposeIntentionEnum.TRANSPORT.value, "TRANSPORT"),
+        (purposeIntentionEnum.TRANSPORT_AND_TRAVEL.value, "TRANSPORT_AND_TRAVEL"),
         (purposeIntentionEnum.LUMP_SUM.value, "LUMP_SUM"),
         (purposeIntentionEnum.MORTGAGE.value, "MORTGAGE")
     }
@@ -458,7 +489,7 @@ class LoanPurposes(models.Model):
     category = models.IntegerField(choices=categoryTypes)
     intention = models.IntegerField(choices=intentionTypes)
     amount = models.IntegerField(default=0,blank=True, null=True)
-
+    originalAmount = models.IntegerField(default=0,blank=True, null=True)
     drawdownAmount = models.IntegerField(default=0,blank=True, null=True)
     drawdownFrequency = models.IntegerField(choices=drawdownFrequencyTypes, blank=True, null=True)
     drawdownStartDate = models.DateTimeField(blank=True, null=True)
@@ -470,7 +501,7 @@ class LoanPurposes(models.Model):
 
     planPeriod = models.IntegerField(default=0, blank=True, null=True)  # used for simple input
 
-    description = models.CharField(max_length=60, null=True, blank=True)
+    description = models.TextField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
 
     topUpBuffer = models.BooleanField(default = False) #deprecated
@@ -478,6 +509,10 @@ class LoanPurposes(models.Model):
 
     class Meta:
         verbose_name_plural = "Case Loan Purposes"
+
+    @property
+    def variationAmount(self):
+        return self.amount - self.originalAmount
 
     @property
     def enumCategory(self):
@@ -504,7 +539,7 @@ class LoanPurposes(models.Model):
 
     @property
     def enumIntentionPretty(self):
-        return dict(self.intentionTypes)[self.intention].replace("_"," ").lower().title().replace(" To ", " to ")
+        return dict(self.intentionTypes)[self.intention].replace("_"," ").lower().title().replace(" To ", " to ").replace(" And ", " and ")
 
 
 class LoanApplication(models.Model):

@@ -3,8 +3,8 @@ from datetime import datetime
 
 # Django Imports
 from django.conf import settings
-from django.core.files import File
-
+from django.core.files.storage import default_storage
+from django.urls import reverse
 
 # Third-party Imports
 from config.celery import app
@@ -14,19 +14,19 @@ from apps.lib.site_Logging import write_applog
 
 from apps.case.models import Case
 
-
 # TASKS
 @app.task(name="Create_Loan_Summary")
 def createLoanSummary(caseUID):
+
     qsCase = Case.objects.queryset_byUID(caseUID)
     qsCase.update(summaryDocument=None)
 
     dateStr = datetime.now().strftime('%Y-%m-%d-%H:%M:%S%z')
 
-    sourceUrl = 'https://householdcapital.app/client2/pdfLoanSummary/' + caseUID
-    componentFileName = settings.MEDIA_ROOT + "/customerReports/Component-" + caseUID[-12:] + ".pdf"
-    componentURL = 'https://householdcapital.app/media/' + "/customerReports/Component-" + caseUID[-12:] + ".pdf"
-    targetFileName = settings.MEDIA_ROOT + "/customerReports/Summary-" + caseUID[-12:] + "-" + dateStr + ".pdf"
+    sourceUrl = "https://householdcapital.app" + reverse('client2:pdfLoanSummary', kwargs={'uid': caseUID})
+    componentFileName = "customerReports/Component-" + caseUID[-12:] + ".pdf"
+    componentURL = default_storage.url("customerReports/Component-" + caseUID[-12:] + ".pdf")
+    targetFileName = "customerReports/Summary-" + caseUID[-12:] + "-" + dateStr + ".pdf"
 
     pdf = pdfGenerator(caseUID)
     created, text = pdf.createPdfFromUrl(sourceUrl, 'HouseholdSummary.pdf', componentFileName)
@@ -48,9 +48,8 @@ def createLoanSummary(caseUID):
 
     try:
         # SAVE TO DATABASE
-        localfile = open(targetFileName, 'rb')
 
-        qsCase.update(summaryDocument=File(localfile))
+        qsCase.update(summaryDocument=targetFileName)
 
         return "Loan Summary generated"
 

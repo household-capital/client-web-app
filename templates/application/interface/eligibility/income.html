@@ -53,7 +53,7 @@
                             <div class=" btn-group-toggle" data-toggle="buttons">
                                 <label class="btn btn-square-choice-hhcLightBlue
                                     {% if formData.choiceProduct == True %} active {% endif %}">
-                                    <input type="radio" name="choiceProduct" value="True"
+                                    <input type="radio" name="choiceProduct" value="True" required
                                            id="id_choiceProduct_0" autocomplete="off"
                                             {% if formData.choiceProduct == True %} checked {% endif %}>
                                     Yes
@@ -66,7 +66,7 @@
                                             {% if formData.choiceProduct == False %} checked {% endif %}>
                                     &nbsp;No&nbsp;
                                 </label>
-                                <span class="pl-2"><button type="button" class=" btn btn-sm infoBtn" data-toggle="modal"
+                                <span class="pl-2"><button id='info-income' type="button" class=" btn btn-sm infoBtn track-link" data-toggle="modal"
                                                            data-target="#incomeModal">
                                     <i class="fas fa-info"></i></button></span>
                                 {{ form.choiceProduct.error }}
@@ -93,7 +93,7 @@
                             <div class=" btn-group-toggle" data-toggle="buttons">
                                 <label class="btn btn-square-choice-hhcLightBlue
                                     {% if formData.choiceOtherNeeds == True %} active {% endif %}">
-                                    <input type="radio" name="choiceOtherNeeds" value="True"
+                                    <input type="radio" name="choiceOtherNeeds" value="True" required
                                            id="id_choiceOtherNeeds_0" autocomplete="off"
                                             {% if formData.choiceOtherNeeds == True %} checked {% endif %}>
                                     Yes
@@ -106,7 +106,7 @@
                                             {% if formData.choiceOtherNeeds == False %} checked {% endif %}>
                                     &nbsp;No&nbsp;
                                 </label>
-                                <span class="pl-2"><button type="button" class="btn btn-sm infoBtn" data-toggle="modal"
+                                <span class="pl-2"><button id='info-purposes' type="button" class="btn btn-sm infoBtn track-link" data-toggle="modal"
                                                            data-target="#otherPurposesModal">
                                     <i class="fas fa-info"></i></button></span>
                             </div>
@@ -121,14 +121,14 @@
                             <p>{% if form.choiceOwnership.errors %}<span class="text-danger">
                                 <i class="fas fa-question-circle"></i>{% endif %}
                                 </span>
-                                Do you own you your home and are you on the title?
+                                Do you own your home and are you on the title?
                             </p>
                         </div>
                         <div class="col-sm-5 text-center ">
                             <div class=" btn-group-toggle" data-toggle="buttons">
                                 <label class="btn btn-square-choice-hhcLightBlue
                                     {% if formData.choiceOwnership == True %} active {% endif %}">
-                                    <input type="radio" name="choiceOwnership" value="True"
+                                    <input type="radio" name="choiceOwnership" value="True" required
                                            id="id_choiceOwnership_0" autocomplete="off"
                                             {% if formData.choiceOwnership == True %} checked {% endif %}>
                                     Yes
@@ -141,7 +141,7 @@
                                             {% if formData.choiceOwnership == False %} checked {% endif %}>
                                     &nbsp;No&nbsp;
                                 </label>
-                                <span class="pl-2"><button type="button" class="btn btn-sm infoBtn" data-toggle="modal"
+                                <span class="pl-2"><button id='info-ownership' type="button" class="btn btn-sm infoBtn track-link" data-toggle="modal"
                                                            data-target="#ownershipModal">
                                     <i class="fas fa-info"></i></button></span>
                             </div>
@@ -163,7 +163,7 @@
                             <div class=" btn-group-toggle" data-toggle="buttons">
                                 <label class="btn btn-square-choice-hhcLightBlue
                                     {% if formData.choiceMortgage == True %} active {% endif %}">
-                                    <input type="radio" name="choiceMortgage" value="True"
+                                    <input type="radio" name="choiceMortgage" value="True" required
                                            id="id_choiceMortgage_0" autocomplete="off"
                                             {% if formData.choiceMortgage == True %} checked {% endif %}>
                                     Yes
@@ -176,7 +176,7 @@
                                             {% if formData.choiceMortgage == False %} checked {% endif %}>
                                     &nbsp;No&nbsp;
                                 </label>
-                                <span class="pl-2"><button type="button" class="btn btn-sm infoBtn" data-toggle="modal"
+                                <span class="pl-2"><button id ='info-mortgage' type="button" class="btn btn-sm infoBtn track-link" data-toggle="modal"
                                                            data-target="#mortgageModal">
                                     <i class="fas fa-info"></i></button></span>
                             </div>
@@ -191,7 +191,7 @@
                             <p>{% if form.loanType.errors %}<span class="text-danger">
                                 <i class="fas fa-question-circle"></i>{% endif %}
                                 </span>
-                                Is there a second borrower? Or is there another occupant that you intend to allow to
+                                Is there a second borrower (e.g., a spouse)? Or is there another occupant that you intend to allow to
                                 live in your home?
                             </p>
                         </div>
@@ -199,7 +199,7 @@
                             <div class=" btn-group-toggle" data-toggle="buttons">
                                 <label class="btn btn-square-choice-hhcLightBlue
                                     {% if formData.choiceOccupants == True %} active {% endif %}">
-                                    <input type="radio" name="choiceOccupants" value="True"
+                                    <input type="radio" name="choiceOccupants" value="True" required
                                            id="id_loanType_0" autocomplete="off"
                                             {% if formData.choiceOccupants == True %} checked {% endif %}>
                                     Yes
@@ -212,7 +212,7 @@
                                             {% if formData.choiceOccupants == False %} checked {% endif %}>
                                     &nbsp;No&nbsp;
                                 </label>
-                                <span class="pl-2"><button type="button" class="btn btn-sm infoBtn" data-toggle="modal"
+                                <span class="pl-2"><button id = 'info-loanType' type="button" class="btn btn-sm infoBtn track-link" data-toggle="modal"
                                                            data-target="#loanTypeModal">
                                     <i class="fas fa-info"></i></button></span>
                             </div>

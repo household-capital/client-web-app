@@ -3,6 +3,8 @@ import magic
 # Django Imports
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib.staticfiles.storage import staticfiles_storage
+from django.core.files.storage import default_storage
 from django.core.mail import EmailMultiAlternatives
 from django.http import HttpResponseRedirect
 from django.template.loader import get_template
@@ -11,7 +13,7 @@ from django.urls import reverse_lazy
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.hhc_LoanProjection import LoanProjection
 from apps.lib.site_DataMapping import serialisePurposes
-from apps.lib.site_Enums import loanTypesEnum, dwellingTypesEnum, appTypesEnum, productTypesEnum, incomeFrequencyEnum
+from apps.lib.site_Enums import loanTypesEnum, dwellingTypesEnum, appTypesEnum, productTypesEnum, incomeFrequencyEnum, stateTypesEnum
 from apps.lib.site_Globals import ECONOMIC, APP_SETTINGS, LOAN_LIMITS
 from apps.lib.site_Logging import write_applog
 
@@ -120,17 +122,25 @@ def sendTemplateEmail(template_name, email_context, subject, from_email, to, cc=
     #Attached files (if present) - list of tuples (filename, file location)
     if attachments:
         for attachment in attachments:
-            msg = attachFile(msg,attachment[0],attachment[1])
-
+            if len(attachment) == 3:
+               msg = attachFile(msg, attachment[0], attachment[1], attachment[2])
+            else:
+               msg = attachFile(msg,attachment[0],attachment[1])
     try:
         msg.send()
         return True
     except:
         return False
 
-def attachFile(msg, filename, fileLocation):
+def attachFile(msg, filename, fileLocation, isStatic=False):
 
-    localfile = open(fileLocation, 'rb')
+    if isStatic:
+        # is a static file
+        localfile = staticfiles_storage.open(fileLocation, 'rb')
+    else:
+        #is a media file
+        localfile = default_storage.open(fileLocation, 'rb')
+
     fileContents = localfile.read()
     mimeType = magic.from_buffer(fileContents,mime=True)
     msg.attach(filename, fileContents, mimeType)
@@ -153,6 +163,18 @@ def getFileFieldMimeType(fieldObj):
 
 def ensureList(sourceItem):
     return [sourceItem] if type(sourceItem) is str else sourceItem
+
+
+def createCaseModelSettings(caseUID):
+    # Instantiate model settings if required
+    qs = ModelSetting.objects.queryset_byUID(caseUID)
+    obj = qs.get()
+    if not obj.housePriceInflation:
+        economicSettings = ECONOMIC.copy()
+        economicSettings.pop('defaultMargin')
+        economicSettings['establishmentFeeRate'] = LOAN_LIMITS['establishmentFee']
+        qs.update(**economicSettings)
+    return
 
 
 def validateLoanGetContext(caseUID):
@@ -272,17 +294,19 @@ def getProjectionResults(sourceDict, scenarioList, img_url = None):
     # Loan Projections - calls the Loan Projection class to provide required projection scenarios
 
     if img_url == None:
-        img_url = 'img/icons/equity_{0}_icon.png'
+        img_url = 'img/icons/block_equity_{0}_icon.png'
 
 
     loanProj = LoanProjection()
     result = loanProj.create(sourceDict)
     if result['status'] == "Error":
         write_applog("ERROR", 'site_utilities', 'getProjectionResults', result['responseText'])
+        return
 
     result = loanProj.calcProjections()
     if result['status'] == "Error":
         write_applog("ERROR", 'site_utilities', 'getProjectionResults', result['responseText'])
+        return
 
     context = {}
 
@@ -298,8 +322,8 @@ def getProjectionResults(sourceDict, scenarioList, img_url = None):
         context['pointLoanValue1'] = int(round(results['BOPLoanValue'], 0))
         context['pointHomeEquity1'] = int(round(results['BOPHomeEquity'], 0))
         context['pointHomeEquityPC1'] = int(round(results['BOPHomeEquityPC'], 0))
-        context['pointImage1'] = settings.STATIC_URL + 'img/icons/result_{0}_icon.png'.format(
-            results['HomeEquityPercentile'])
+        context['pointImage1'] = staticfiles_storage.url('img/icons/result_{0}_icon.png'.format(
+            results['HomeEquityPercentile']))
 
         results = loanProj.getPeriodResults(period2)
         context['pointYears2'] = period2
@@ -308,8 +332,8 @@ def getProjectionResults(sourceDict, scenarioList, img_url = None):
         context['pointLoanValue2'] = int(round(results['BOPLoanValue'], 0))
         context['pointHomeEquity2'] = int(round(results['BOPHomeEquity'], 0))
         context['pointHomeEquityPC2'] = int(round(results['BOPHomeEquityPC'], 0))
-        context['pointImage2'] = settings.STATIC_URL + 'img/icons/result_{0}_icon.png'.format(
-            results['HomeEquityPercentile'])
+        context['pointImage2'] = staticfiles_storage.url('img/icons/result_{0}_icon.png'.format(
+            results['HomeEquityPercentile']))
 
     if 'baseScenario' in scenarioList:
 
@@ -320,14 +344,14 @@ def getProjectionResults(sourceDict, scenarioList, img_url = None):
         context['resultsHomeEquity'] = loanProj.getResultsList('BOPHomeEquity')['data']
         context['resultsHomeEquityPC'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
         context['resultsHomeImages'] = \
-            loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + img_url)['data']
+            loanProj.getImageList('BOPHomeEquityPC', img_url)['data']
         context['resultsHouseValue'] = loanProj.getResultsList('BOPHouseValue', imageSize=110, imageMethod='lin')[
             'data']
 
         context['totalInterestRate'] = sourceDict['interestRate'] + sourceDict['lendingMargin']
         context['comparisonRate'] = context['totalInterestRate'] + sourceDict['comparisonRateIncrement']
         context['loanTypesEnum'] = loanTypesEnum
-        context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
+        context['absolute_media_url'] = settings.MEDIA_URL
 
         if 'firstname_1' not in sourceDict:
             if sourceDict['loanType'] == loanTypesEnum.JOINT_BORROWER.value:
@@ -374,7 +398,7 @@ def getProjectionResults(sourceDict, scenarioList, img_url = None):
             context['resultsTotalIncome'] = loanProj.getResultsList('TotalIncome', imageSize=150, imageMethod='lin')[
                 'data']
             context['resultsIncomeImages'] = \
-                loanProj.getImageList('PensionIncomePC', settings.STATIC_URL + 'img/icons/income_{0}_icon.png')['data']
+                loanProj.getImageList('PensionIncomePC', 'img/icons/income_{0}_icon.png')['data']
 
             if topUpDrawdown:
                 context["totalDrawdownAmount"] = topUpDrawdown.amount
@@ -399,7 +423,7 @@ def getProjectionResults(sourceDict, scenarioList, img_url = None):
         context['resultsHomeEquity2'] = loanProj.getResultsList('BOPHomeEquity')['data']
         context['resultsHomeEquityPC2'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
         context['resultsHomeImages2'] = \
-            loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + img_url)['data']
+            loanProj.getImageList('BOPHomeEquityPC', img_url)['data']
         context['resultsHouseValue2'] = loanProj.getResultsList('BOPHouseValue', imageSize=110, imageMethod='lin')[
             'data']
         context['cumLumpSum2'] = loanProj.getResultsList('CumLumpSum')['data']
@@ -417,7 +441,7 @@ def getProjectionResults(sourceDict, scenarioList, img_url = None):
         context['resultsHomeEquity3'] = loanProj.getResultsList('BOPHomeEquity')['data']
         context['resultsHomeEquityPC3'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
         context['resultsHomeImages3'] = \
-            loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + img_url)['data']
+            loanProj.getImageList('BOPHomeEquityPC', img_url)['data']
         context['resultsHouseValue3'] = loanProj.getResultsList('BOPHouseValue', imageSize=110, imageMethod='lin')[
             'data']
         context['cumLumpSum3'] = loanProj.getResultsList('CumLumpSum')['data']
@@ -434,7 +458,7 @@ def getProjectionResults(sourceDict, scenarioList, img_url = None):
         context['resultsHomeEquity4'] = loanProj.getResultsList('BOPHomeEquity')['data']
         context['resultsHomeEquityPC4'] = loanProj.getResultsList('BOPHomeEquityPC')['data']
         context['resultsHomeImages4'] = \
-            loanProj.getImageList('BOPHomeEquityPC', settings.STATIC_URL + img_url)['data']
+            loanProj.getImageList('BOPHomeEquityPC', img_url)['data']
         context['resultsHouseValue4'] = loanProj.getResultsList('BOPHouseValue', imageSize=110, imageMethod='lin')[
             'data']
         context['cumLumpSum4'] = loanProj.getResultsList('CumLumpSum')['data']
@@ -459,9 +483,7 @@ def validateEnquiry(enqUID):
 
     #Validate loan to get limit amounts
     loanObj = LoanValidator(context)
-    loanStatus = loanObj.getStatus()['data']
-
-    return loanStatus
+    return loanObj.getStatus()
 
 def getEnquiryProjections(enqUID):
     # Wrapper for getProjectionResults
@@ -478,8 +500,8 @@ def getEnquiryProjections(enqUID):
     loanStatus = loanObj.getStatus()['data']
     context.update(loanStatus)
 
-    context["transfer_img"] = settings.STATIC_URL + "img/icons/transfer_" + str(
-        context['maxLVRPercentile']) + "_icon.png"
+    context["transfer_img"] = staticfiles_storage.url("img/icons/transfer_" + str(
+        context['maxLVRPercentile']) + "_icon.png")
 
     context['loanTypesEnum'] = loanTypesEnum
     context['dwellingTypesEnum'] = dwellingTypesEnum
@@ -518,7 +540,7 @@ def enquiryProductContext(enqObj):
     elif enqObj.productType == productTypesEnum.INCOME.value:
 
         if enqObj.calcIncome == None or enqObj.calcIncome == 0:
-            topUpIncomeAmount = context['maxDrawdownMonthly']
+            topUpIncomeAmount = enqObj.maxDrawdownMonthly
         else:
             topUpIncomeAmount = enqObj.calcIncome
 
@@ -593,8 +615,29 @@ def populateDrawdownPurpose(purposeObj):
 
     return purposeObj
 
-
 def cleanPhoneNumber(phone):
-    return phone.replace(" ", "").replace("(", "").replace(")", "").replace("+61", "0").replace("-", "")
+    if phone:
+        number = phone.replace(" ", "").replace("(", "").replace(")", "").replace("+61", "0").replace("-", "")
+        number = remove_prefix(number,"61")
+        if number[0:1] != "0":
+            return "0"+number
+        else:
+            return number
+
+def remove_prefix(text, prefix):
+    if text.startswith(prefix):
+         text = text.replace(prefix, "", 1)
+    return text
+
+def checkMobileNumber(number):
+    result = cleanPhoneNumber(number)
+    if len(result) != 10:
+        return False
+    if result[0:2] == "04":
+        return True
+    else:
+        result = False
 
 
+def chkNone(arg):
+    return arg if arg else ''

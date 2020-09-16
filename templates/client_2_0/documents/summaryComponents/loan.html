@@ -63,7 +63,7 @@
 
             <div class="row align-items-center ">
                 <div class="col-md-2 text-center pt-2 pb-2 ">
-                    <img class="{% if not purposes.LIVE.RENOVATIONS.amount and not purposes.LIVE.TRANSPORT.amount %}greyscale{% endif %}"
+                    <img class="{% if not purposes.LIVE.RENOVATIONS.amount and not purposes.LIVE.TRANSPORT_AND_TRAVEL.amount %}greyscale{% endif %}"
                          src="{% static 'img/icons/live_icon.png' %}" width="80px">
                     <p class="pl-2 pt-1 print-text"><b>Live</b></p>
                 </div>
@@ -71,16 +71,16 @@
                     {% if purposes.LIVE.RENOVATIONS.amount %}
                         <p class="print-text pb-2">Renovate: {{ purposes.LIVE.RENOVATIONS.description }}
                         </p>{% endif %}
-                    {% if purposes.LIVE.TRANSPORT.amount %}
+                    {% if purposes.LIVE.TRANSPORT_AND_TRAVEL.amount %}
                         <p class="print-text">Transport:
-                            {{ purposes.LIVE.TRANSPORT.description }}
+                            {{ purposes.LIVE.TRANSPORT_AND_TRAVEL.description }}
                         </p>{% endif %}
                 </div>
                 <div class="col-md-2 text-right"><p class="larger">
                     {% if purposes.LIVE.RENOVATIONS.amount %}
                         <p class="print-text pb-2">$ {{ purposes.LIVE.RENOVATIONS.amount }}</p>{% endif %}
-                    {% if purposes.LIVE.TRANSPORT.amount  %}
-                        <p class="print-text">$ {{ purposes.LIVE.TRANSPORT.amount }} </p>{% endif %}
+                    {% if purposes.LIVE.TRANSPORT_AND_TRAVEL.amount  %}
+                        <p class="print-text">$ {{ purposes.LIVE.TRANSPORT_AND_TRAVEL.amount }} </p>{% endif %}
 
                 </div>
             </div>

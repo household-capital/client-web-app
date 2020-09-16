@@ -4,15 +4,17 @@ from datetime import datetime, timedelta
 
 # Django Imports
 from django.db import models
+from django.urls import reverse_lazy
 from django.utils.encoding import smart_text
-
 
 # Local Imports
 from apps.lib.site_Enums import appStatusEnum, salutationEnum, maritalEnum, clientSexEnum, dwellingTypesEnum, \
     productTypesEnum, incomeFrequencyEnum, purposeCategoryEnum, purposeIntentionEnum, loanTypesEnum, \
     clientTypesEnum, documentTypesEnum, stateTypesEnum
 
+
 class ApplicationManager(models.Manager):
+    """Model manager for Application and related (Foreign Key) objects"""
     def queryset_byUID(self,uidString):
        if self.model.__name__=='Application':
             searchCase=Application.objects.get(appUID=uuid.UUID(uidString)).appUID
@@ -26,14 +28,19 @@ class ApplicationManager(models.Manager):
 
 
 class Application(models.Model):
-    #Model for Income Application
+    """
+    Model for Online Applications
+        * similar to Case object fields (combining Case Loan fields)
+        * related purpose objects (similar to Case)
+    """
 
     appStatusTypes=(
         (appStatusEnum.CREATED.value, "Created"),
         (appStatusEnum.IN_PROGRESS.value, "In-Progress"),
         (appStatusEnum.EXPIRED.value, "Expired"),
         (appStatusEnum.SUBMITTED.value, "Submitted"),
-        (appStatusEnum.CONTACT.value, "Contact")
+        (appStatusEnum.CONTACT.value, "Contact"),
+        (appStatusEnum.CLOSED.value, "Closed"),
     )
 
     clientSex=(
@@ -90,9 +97,7 @@ class Application(models.Model):
     )
 
     productTypes = (
-        (productTypesEnum.LUMP_SUM.value, "Lump Sum"),
         (productTypesEnum.INCOME.value, "Income"),
-        (productTypesEnum.COMBINATION.value, "Combination"),
         (productTypesEnum.CONTINGENCY_20K.value, "Contingency 20K"),
     )
 
@@ -116,7 +121,7 @@ class Application(models.Model):
     name = models.CharField(max_length=30, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     mobile = models.CharField(max_length=20, null=True, blank=True)
-    loanType = models.BooleanField(default=True, choices=loanTypes)
+    loanType = models.IntegerField(default=1, choices=loanTypes)
     age_1 = models.IntegerField(blank=True, null=True)
     age_2 = models.IntegerField(blank=True, null=True)
     dwellingType = models.IntegerField(default=True, choices=dwellingTypes)
@@ -162,8 +167,8 @@ class Application(models.Model):
     planPurposeAmount =models.IntegerField(default=0)
     planEstablishmentFee=models.IntegerField(default=0)
     totalPlanAmount=models.IntegerField(default=0)
-    summaryDocument = models.FileField(max_length=150,null=True, blank=True)
-    applicationDocument = models.FileField(max_length=150,null=True, blank=True)
+    summaryDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='customerReports' )
+    applicationDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='customerReports')
 
     #Application Financial Fields
     assetSaving = models.IntegerField(default=0)
@@ -218,6 +223,7 @@ class Application(models.Model):
     signingDate = models.DateTimeField(blank=True, null=True)
     ip_address =  models.CharField(max_length=60, null=True, blank=True)
     user_agent = models.CharField(max_length=200, null=True, blank=True)
+    followUpEmail = models.DateTimeField(null=True, blank=True)
 
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
@@ -235,6 +241,7 @@ class Application(models.Model):
         return smart_text(self.email)
 
     def get_purposes(self):
+        """Returns a dictionary of related Application Purposes"""
         dict={}
         qs = ApplicationPurposes.objects.filter(application = self)
         for purpose in qs:
@@ -245,26 +252,13 @@ class Application(models.Model):
         return dict
 
     def purpose(self, category, intention):
+        """Returns a related Application Purpose object"""
         qs = ApplicationPurposes.objects.filter(application=self)
         for purpose in qs:
             if purpose.enumCategory == category and purpose.enumIntention == intention:
                 return purpose
 
-    def enumClientType(self):
-        if self.clientType2 != None:
-            return dict(self.clientTypes)[self.clientType2]
-
-    def enumSalutation(self):
-        if self.clientType2 == None:
-            return [dict(self.salutationTypes)[self.salutation_1],None]
-        else:
-            return [dict(self.salutationTypes)[self.salutation_1],dict(self.salutationTypes)[self.salutation_2]]
-
-    def enumDwellingType(self):
-        return dict(self.dwellingTypes)[self.dwellingType]
-
     def enumFreq(self, field):
-
         frequencyTypes = (
             (incomeFrequencyEnum.WEEKLY.value, "Weekly"),
             (incomeFrequencyEnum.FORTNIGHTLY.value, "Fortnightly"),
@@ -274,13 +268,44 @@ class Application(models.Model):
 
         return dict(frequencyTypes)[getattr(self,field)].lower()
 
+    @property
+    def get_absolute_url(self):
+        return reverse_lazy("application:appDetail", kwargs={"uid":self.appUID})
+
+    @property
+    def enumClientType(self):
+        if self.clientType2 != None:
+            return dict(self.clientTypes)[self.clientType2]
+
+    @property
+    def enumSalutation(self):
+        if self.clientType2 == None:
+            return [dict(self.salutationTypes)[self.salutation_1],None]
+        else:
+            return [dict(self.salutationTypes)[self.salutation_1],dict(self.salutationTypes)[self.salutation_2]]
+
+    @property
+    def enumDwellingType(self):
+        return dict(self.dwellingTypes)[self.dwellingType]
+
+    @property
     def enumStateType(self):
         if self.state is not None:
             return dict(self.stateTypes)[self.state]
 
+    @property
+    def enumAppStatus(self):
+        if self.appStatus is not None:
+            return dict(self.appStatusTypes)[self.appStatus]
+
+    @property
+    def enumProductType(self):
+        if self.productType is not None:
+            return dict(self.productTypes)[self.productType]
 
 
 class ApplicationPurposes(models.Model):
+    """Application Purposes - similar to Case Purposes"""
 
     drawdownFrequencyTypes=(
         (incomeFrequencyEnum.FORTNIGHTLY.value, 'Fortnightly'),
@@ -300,7 +325,7 @@ class ApplicationPurposes(models.Model):
         (purposeIntentionEnum.REGULAR_DRAWDOWN.value, "REGULAR_DRAWDOWN"),
         (purposeIntentionEnum.GIVE_TO_FAMILY.value, "GIVE_TO_FAMILY"),
         (purposeIntentionEnum.RENOVATIONS.value, "RENOVATIONS"),
-        (purposeIntentionEnum.TRANSPORT.value, "TRANSPORT"),
+        (purposeIntentionEnum.TRANSPORT_AND_TRAVEL.value, "TRANSPORT_AND_TRAVEL"),
         (purposeIntentionEnum.LUMP_SUM.value, "LUMP_SUM"),
         (purposeIntentionEnum.MORTGAGE.value, "MORTGAGE")
     }
@@ -346,11 +371,13 @@ class ApplicationPurposes(models.Model):
 
 
 class ApplicationDocuments(models.Model):
+    """Application documents loaded byy customers"""
+
 
     documentTypes= (
         (documentTypesEnum.RATES.value,'Rates Notice'),
-        (documentTypesEnum.INSURANCE.value,'Certificate of Insurance'),
-        (documentTypesEnum.STRATA_LEVIES.value, 'Stata Levies'),
+        (documentTypesEnum.INSURANCE.value,'Insurance Certificate'),
+        (documentTypesEnum.STRATA_LEVIES.value, 'Strata Levies'),
         (documentTypesEnum.OTHER.value,'Other')
     )
 

@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 
 # Environment Variables are saved as strings!
 def boolStr(str):
@@ -16,7 +17,13 @@ def intNone(str):
     else:
         return int(str)
 
-ALLOWED_HOSTS = [os.getenv("ALLOWED_HOSTS_1"),os.getenv("ALLOWED_HOSTS_2"),os.getenv("ALLOWED_HOSTS_3"),os.getenv("ALLOWED_HOSTS_4")]
+# Load Environment variables
+load_dotenv()
+
+ALLOWED_HOSTS = [os.getenv("ALLOWED_HOSTS_1"),
+                 os.getenv("ALLOWED_HOSTS_2"),
+                 os.getenv("ALLOWED_HOSTS_3"),
+                 os.getenv("ALLOWED_HOSTS_4")]
 
 SITE_URL = os.getenv("SITE_URL")
 
@@ -39,30 +46,88 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = boolStr(os.getenv("BOOL_DEBUG"))
 
-# Database
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.getenv("DATABASE_NAME"),
-        'USER': os.getenv("DATABASE_USER"),
-        'PASSWORD': os.getenv("DATABASE_PASSWORD"),
-        'HOST': 'localhost',
-        'PORT': '',
+# DATABASE
+
+if os.getenv('DATABASE_LOCATION') == "AWS":
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.getenv("AWS_DATABASE_NAME"),
+            'USER': os.getenv("AWS_DATABASE_USER"),
+            'PASSWORD': os.getenv("AWS_DATABASE_PASSWORD"),
+            'HOST': os.getenv("AWS_HOST"),
+            'PORT': os.getenv("AWS_PORT"),
+        }
     }
-}
 
-CELERY_RESULT_BACKEND_DB = ''.join(['postgresql+psycopg2://',
-                                   os.getenv("DATABASE_USER"),
-                                   ":",
-                                   os.getenv("DATABASE_PASSWORD"),
-                                   "@localhost/",
-                                   os.getenv("DATABASE_NAME")])
+    CELERY_RESULT_BACKEND_DB = ''.join(['postgresql+psycopg2://',
+                                        os.getenv("AWS_DATABASE_USER"),
+                                        ":",
+                                        os.getenv("AWS_DATABASE_PASSWORD"),
+                                        os.getenv("AWS_HOST"),
+                                        os.getenv("AWS_DATABASE_NAME")])
+else:
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': os.getenv("DATABASE_NAME"),
+            'USER': os.getenv("DATABASE_USER"),
+            'PASSWORD': os.getenv("DATABASE_PASSWORD"),
+            'HOST': 'localhost',
+            'PORT': '',
+        }
+    }
+
+    CELERY_RESULT_BACKEND_DB = ''.join(['postgresql+psycopg2://',
+                                       os.getenv("DATABASE_USER"),
+                                       ":",
+                                       os.getenv("DATABASE_PASSWORD"),
+                                       "@localhost/",
+                                       os.getenv("DATABASE_NAME")])
+
+
+# STORAGE
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+if os.getenv('STORAGE') == "AWS":
+
+    #Digital Ocean Storage Settings
+    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')
+    AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400',}
+    AWS_STATIC_LOCATION = 'static'
+    AWS_MEDIA_LOCATION = 'media'
+    AWS_DEFAULT_ACL = None
+
+    #Django Storages
+    STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/uncollected'),]
+    STATIC_URL = '%s/%s/' % (AWS_S3_ENDPOINT_URL, AWS_STATIC_LOCATION)
+    MEDIA_URL = '%s/%s/' % (AWS_S3_ENDPOINT_URL, AWS_MEDIA_LOCATION)
+    STATICFILES_STORAGE = 'config.settings.ext_storage.StaticStorage'    # Static Root
+    DEFAULT_FILE_STORAGE = 'config.settings.ext_storage.MediaStorage'   # Media Root
+
+    FILE_UPLOAD_PERMISSIONS = 0o644
+
+else:
+
+    # LOCAL storage
+    # https://docs.djangoproject.com/en/1.11/howto/static-files/
+    STATIC_URL = SITE_URL + '/static/'
+    MEDIA_URL = SITE_URL + '/media/'
+    STATIC_ROOT = BASE_DIR + '/static/collected'
+    MEDIA_ROOT = BASE_DIR + '/static/media'
+    STATICFILES_DIRS = (BASE_DIR + '/static/uncollected',)
+    FILE_UPLOAD_PERMISSIONS = 0o644
+
 
 # SESSION EXPIRY TIME: in seconds
 SESSION_COOKIE_AGE = 172800
-
-
 
 # HTTPS Browser Protection - only use if https access only
 SECURE_HSTS_SECONDS = intNone(os.getenv('INT_SECURE_HSTS_SECONDS'))
@@ -73,7 +138,6 @@ SECURE_SSL_REDIRECT=boolStr(os.getenv('BOOL_SECURE_SSL_REDIRECT'))
 SESSION_COOKIE_SECURE=boolStr(os.getenv('BOOL_SESSION_COOKIE_SECURE'))
 CSRF_COOKIE_SECURE=boolStr(os.getenv('BOOL_CSRF_COOKIE_SECURE'))
 SECURE_HSTS_PRELOAD=boolStr(os.getenv('BOOL_SECURE_HSTS_PRELOAD'))
-
 
 
 

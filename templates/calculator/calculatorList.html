@@ -57,7 +57,7 @@
                 <tr>
                     <th scope="col" class="text-center">Action</th>
                     <th>Name</th>
-                    <th class="d-none d-sm-table-cell">Borrower</th>
+                    <th class="d-none d-sm-table-cell">Product</th>
                     <th class="d-none d-sm-table-cell">Age</th>
                     <th>Postcode</th>
                     <th class="d-none d-sm-table-cell">Dwelling</th>
@@ -80,8 +80,7 @@
                                 </a>
                         </td>
                         <td>{{ obj.name }}</td>
-                        <td class="d-none d-sm-table-cell">{% if obj.loanType == 1 %}Couple{% else %}
-                            Single{% endif %}</td>
+                        <td class="d-none d-sm-table-cell">{{ obj.enumProductType }}</td>
                         <td class="d-none d-sm-table-cell">{{ obj.age_1 }} &nbsp;{{ obj.age_2|intBlank }}</td>
                         <td>{{ obj.postcode|intBlank }}</td>
                         <td class="d-none d-sm-table-cell">{% if obj.dwellingType == 0 %}House{% else %}

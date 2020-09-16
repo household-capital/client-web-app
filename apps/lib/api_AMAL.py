@@ -3,9 +3,10 @@ import json
 import os
 import requests
 
+from django.core.files.storage import default_storage
+
 #Application Imports
 from apps.lib.site_Logging import write_applog
-
 
 class apiAMAL():
 
@@ -56,7 +57,7 @@ class apiAMAL():
     def sendLixiFile(self,filename):
 
         headers=dict(Accept="application/json",ContentType="application/xml; charset=UTF-8",AccessToken=self.token)
-        files = {'document': open(filename,'rb')}
+        files = {'document': default_storage.open(filename,'rb')}
 
         response = requests.post(self.api_path+self.api_url_lixi, files=files,headers=headers)
 
@@ -78,7 +79,7 @@ class apiAMAL():
 
         headers=dict(Accept="application/json",ContentType="application/xml; charset=UTF-8",AccessToken=self.token,
                      fileTypeDescription="Test")
-        files = {'document': open(filename,'rb')}
+        files = {'document': default_storage.open(filename,'rb')}
         data={"descriptiveName":"TestDescriptive"}
 
         response = requests.post(self.api_path+self.api_url_schema, files=files,headers=headers, data=data)
@@ -131,7 +132,10 @@ class apiAMAL():
         approved = self.__getBalanceValue(ARN, 'approved', headers)
 
         #Calc LVR
-        currentLVR = principal / totalValuation
+        if principal and totalValuation:
+            currentLVR = principal / totalValuation
+        else:
+            currentLVR = 0
 
         #Get Dates
         response = requests.get(self.api_path + self.api_url_dates.format(ARN), headers=headers)

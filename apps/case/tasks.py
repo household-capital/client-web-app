@@ -3,6 +3,7 @@ import json
 import base64
 
 # Django Imports
+from django.core.files.storage import default_storage
 from django.conf import settings
 from django.utils import timezone
 
@@ -23,7 +24,7 @@ from apps.lib.hhc_LoanValidator import LoanValidator
 
 
 from .models import Case, LossData, Loan, ModelSetting
-from apps.enquiry.models import Enquiry
+from apps.application.models import ApplicationDocuments
 
 
 # CASE TASKS
@@ -355,7 +356,7 @@ def emailLoanSummary(caseUID, template_name):
 
     email_context['obj'] = caseObj
     email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-    email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
+    email_context['absolute_media_url'] = settings.MEDIA_URL
 
     attachFilename = "HouseholdLoanSummary.pdf"
     bcc = caseObj.owner.email
@@ -685,11 +686,12 @@ def updateSFDocs(caseUID, sfAPI):
                      "Responsible Lending Summary": caseObj.responsibleDocument,
                      "Enquiry Document": caseObj.enquiryDocument,
                      "Loan Summary": caseObj.summaryDocument,
+                     "Application Received": caseObj.applicationDocument,
                      }
 
     for docName, docObj in DOCUMENT_LIST.items():
         if docObj:
-            with open(docObj.path, "rb") as f:
+            with default_storage.open(docObj.name, "rb") as f:
                 body = base64.b64encode(f.read()).decode('ascii')
 
             data = {
@@ -702,24 +704,29 @@ def updateSFDocs(caseUID, sfAPI):
             if result['status'] != 'Ok':
                 write_applog("ERROR", 'Case', 'updateSFdocs',
                              "Document Synch - " + docName + "-" + json.dumps(result['responseText']))
-                return {'status': 'Error',
-                        "responseText": "Document Synch - " + docName + "-" + json.dumps(result['responseText'])}
+                raiseTaskAdminError("Document synch error", "Document Synch - " + docName + "-" + json.dumps(result['responseText']))
+
+    # Check for online Application Documents
+    if caseObj.appUID:
+        qs = ApplicationDocuments.objects.filter(application__appUID=caseObj.appUID)
+        for doc in qs:
+            with default_storage.open(doc.document.name, "rb") as f:
+                body = base64.b64encode(f.read()).decode('ascii')
+
+            docType, ext = doc.mimeType.split("/",1)
+
+            data = {
+                'opptyId': caseObj.sfOpportunityID,
+                'documentTitle': doc.enumDocumentType,
+                'base64BinaryStream': body,
+                'extension': ext}
+
+            result = sfAPI.apexCall(doc_end_point, doc_end_point_method, data=data)
+            if result['status'] != 'Ok':
+                write_applog("ERROR", 'Case', 'updateSFdocs',
+                             "Document Synch - " + doc.enumDocumentType + "-" + json.dumps(result['responseText']))
+                raiseTaskAdminError("Document synch error", "Document Synch - " + doc.enumDocumentType + "-" + json.dumps(result['responseText']))
 
     return {'status': 'Ok', "responseText": "Salesforce Doc Synch!"}
 
 
-
-@app.task(name="UpdateLeadSource")
-def updateLeadSource():
-    qs = Case.objects.all()
-    cntr=0
-
-    sfAPI = apiSalesforce()
-    result = sfAPI.openAPI(True)
-
-    for enquiry in qs:
-        if (enquiry.sfLeadID) and (enquiry.isZoomMeeting):
-            sfAPI.updateLead(enquiry.sfLeadID, {'isZoom__c': enquiry.isZoomMeeting})
-            cntr +=1
-
-    return str(cntr)+ " items updated"

@@ -8,15 +8,19 @@
     <div class="container">
 
         {% if messages %}
-            <div class="row justify-content-md-center">
-                <div class="col-6 text-center">
-                    <br>
-                    {% for message in messages %}
-                        <p{% if message.tags == 'error' %}
-                            class="alert alert-warning"{% endif %}>{{ message }}</p>
-                    {% endfor %}
-                </div>
+            <div id='messages' class="row justify-content-md-center pt-3">
+            <div class="col-6 text-center">
+                {% for message in messages %}
+                    <div class="pb-1">
+                        <p{% if message.tags == 'error' %} class="alert alert-danger"{% endif %}
+                                {% if message.tags == 'warning' %} class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    </div>
+                {% endfor %}
             </div>
+        </div>
         {% endif %}
 
         <div class="row">
@@ -34,15 +38,15 @@
         <div class="row">
             <div class="col-lg-9 pb-3">
                 <br>
-                <div class="secondary_title">Uh oh - an error has occurred</div>
+                <div class="secondary_title">Uh oh - this session has expired</div>
                 <br>
 
                 <p>This may have happened because you have submitted your request already, the session timed out or
                     because there is a problem setting a session cookie. </p>
                 <br>
-                <p>To try again, please use your unique link that we sent to to you via email.</p>
+                <p>To try again, please use the link that we sent to to you via email.</p>
                 <br>
-                <p>If this error persists, please contact us at customers@householdcapital.com or call us on 1300 622
+                <p>If this problem persists, please contact us at customers@householdcapital.com or call us on 1300 622
                     100.</p>
                 <br>
                 <p>The Household Capital Team</p>

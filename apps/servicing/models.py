@@ -10,9 +10,7 @@ from django.utils.encoding import smart_text
 from django.utils import timezone
 from django.urls import reverse_lazy
 
-from apps.lib.site_Enums import caseStagesEnum, clientSexEnum, clientTypesEnum, dwellingTypesEnum ,\
-    pensionTypesEnum, loanTypesEnum, ragTypesEnum, channelTypesEnum, stateTypesEnum, incomeFrequencyEnum, \
-    closeReasonEnum, salutationEnum, maritalEnum, appTypesEnum, roleEnum, authTypesEnum, facilityStatusEnum
+from apps.lib.site_Enums import *
 
 
 
@@ -38,7 +36,7 @@ class FacilityManager(models.Manager):
             searchCase=Facility.objects.get(facilityUID=uuid.UUID(uidString)).facilityUID
             return super(FacilityManager,self).filter(facilityUID=searchCase)
        else:
-           searchCase = Facility.objects.get(caseUID=uuid.UUID(uidString))
+           searchCase = Facility.objects.get(facilityUID=uuid.UUID(uidString))
            return super(FacilityManager, self).filter(facility=searchCase)
 
 class Facility(models.Model):
@@ -87,7 +85,8 @@ class Facility(models.Model):
     relationshipNotes = models.TextField(blank=True, null=True)
     bsbNumber = models.CharField(max_length=20, null=True, blank=True)
     bankAccountNumber = models.CharField(max_length=20, null=True, blank=True)
-    lastAnnualService = models.DateTimeField(blank=True, null=True)
+    nextAnnualService = models.DateField(blank=True, null=True)
+    annualServiceNotification = models.BooleanField(default=False)
 
     amalReconciliation = models.BooleanField(default=False)
     amalBreach = models.BooleanField(default=False)
@@ -111,6 +110,16 @@ class Facility(models.Model):
 
     def enumStatus(self):
         return dict(self.facilityStatus)[self.status]
+
+    def annualReviewStatus(self):
+        obj = FacilityAnnual.objects.filter(facility=self, reviewDate=self.nextAnnualService).first()
+
+        if not obj:
+            return ''
+        elif obj.submitted:
+            return 'Submitted'
+        else:
+            return 'Sent'
 
 
 class FacilityTransactions(models.Model):
@@ -202,32 +211,38 @@ class FacilityRoles(models.Model):
     mobile = models.CharField(max_length=20, null=True, blank=True)
     phone = models.CharField(max_length=20, null=True, blank=True)
     email = models.CharField(max_length=50, null=True, blank=True)
-    street  = models.CharField(max_length=60, null=True, blank=True)
+    street  = models.CharField(max_length=100, null=True, blank=True)
     suburb  = models.CharField(max_length=30, null=True, blank=True)
     state  = models.IntegerField(choices=stateTypes, null=True, blank=True)
     postcode = models.CharField(max_length=4, null=True, blank=True)
     roleNotes = models.TextField(blank=True, null=True)
 
+    @property
     def enumRole(self):
         if self.role is not None:
             return dict(self.roleTypes)[self.role]
 
+    @property
     def enumSalutation(self):
         if self.salutation is not None:
             return dict(self.salutationTypes)[self.salutation]
 
+    @property
     def enumGender(self):
         if self.gender is not None:
             return dict(self.clientSex)[self.gender]
 
+    @property
     def enumMaritalStatus(self):
         if self.maritalStatus is not None:
             return dict(self.maritalTypes)[self.maritalStatus]
 
+    @property
     def enumState(self):
         if self.state is not None:
             return dict(stateTypes)[self.state]
 
+    @property
     def enumAuthorisation(self):
         if self.isAuthorised is not None:
             return dict(self.authorisationTypes)[self.isAuthorised]
@@ -237,10 +252,12 @@ class FacilityRoles(models.Model):
         ordering = ('role',)
 
     def __str__(self):
-        return smart_text(self.firstName + " "+self.lastName+ " - "+ self.enumRole())
+        nameStr = ' '.join(filter(None, (self.firstName, self.lastName)))
+        return ' - '.join(filter(None, (nameStr, self.enumRole)))
 
     def __unicode__(self):
-        return smart_text(self.firstName + " "+self.lastName+ " - "+ self.enumRole())
+        nameStr = ' '.join(filter(None, (self.firstName, self.lastName)))
+        return ' - '.join(filter(None, (nameStr, self.enumRole)))
 
 
 class FacilityProperty(models.Model):
@@ -298,13 +315,37 @@ class FacilityPropertyVal(models.Model):
 
 
 class FacilityPurposes(models.Model):
+
+    drawdownFrequencyTypes=(
+        (incomeFrequencyEnum.FORTNIGHTLY.value, 'Fortnightly'),
+        (incomeFrequencyEnum.MONTHLY.value, 'Monthly'))
+
+
+    categoryTypes = {
+        (purposeCategoryEnum.TOP_UP.value, "Top Up"),
+        (purposeCategoryEnum.REFINANCE.value, "Refinance"),
+        (purposeCategoryEnum.LIVE.value, "Live"),
+        (purposeCategoryEnum.GIVE.value, "Give"),
+        (purposeCategoryEnum.CARE.value, "Care")
+    }
+
+    intentionTypes = {
+        (purposeIntentionEnum.INVESTMENT.value, "Investment"),
+        (purposeIntentionEnum.CONTINGENCY.value, "Contingency"),
+        (purposeIntentionEnum.REGULAR_DRAWDOWN.value, "Regular Drawdown"),
+        (purposeIntentionEnum.GIVE_TO_FAMILY.value, "Give to Family"),
+        (purposeIntentionEnum.RENOVATIONS.value, "Renovations"),
+        (purposeIntentionEnum.TRANSPORT_AND_TRAVEL.value, "Transport and Travel"),
+        (purposeIntentionEnum.LUMP_SUM.value, "Lump Sum"),
+        (purposeIntentionEnum.MORTGAGE.value, "Mortgage")
+    }
     facility = models.ForeignKey(Facility, on_delete=models.CASCADE)
     sfPurposeID = models.CharField(max_length=20, null=False, blank=False, unique=True)
-    category = models.CharField(max_length=20, blank=False, null=False)
-    intention = models.CharField(max_length=30, blank=False, null=False)
+    category = models.IntegerField(choices=categoryTypes)
+    intention = models.IntegerField(choices=intentionTypes)
     amount = models.FloatField(default=0,blank=True, null=True)
     drawdownAmount = models.FloatField(default=0,blank=True, null=True)
-    drawdownFrequency = models.CharField(max_length=20, blank=True, null=True)
+    drawdownFrequency = models.IntegerField(choices=drawdownFrequencyTypes, blank=True, null=True)
     drawdownStartDate = models.DateTimeField(blank=True, null=True)
     drawdownEndDate = models.DateTimeField(blank=True, null=True)
     planAmount = models.FloatField(default=0,blank=True, null=True)
@@ -312,9 +353,21 @@ class FacilityPurposes(models.Model):
     topUpBuffer = models.BooleanField(default = False)
     description = models.TextField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
+    active = models.BooleanField(default=True)
+    contractDrawdowns = models.IntegerField(default = 0, blank=True, null=True)
+    planDrawdowns = models.IntegerField(default = 0, blank=True, null=True)
+
 
     class Meta:
         verbose_name_plural = "Facility Purposes"
+
+    @property
+    def enumCategory(self):
+        return dict(self.categoryTypes)[self.category]
+
+    @property
+    def enumIntention(self):
+        return dict(self.intentionTypes)[self.intention]
 
 
 class FacilityEvents(models.Model):
@@ -380,16 +433,58 @@ class FacilityAdditional(models.Model):
     amountEstablishmentFee = models.FloatField(default=0, null=True, blank=True)
     amountTotal = models.FloatField(default=0, null=True, blank=True)
     establishmentFeeRate = models.FloatField(default=0, null=True, blank=True)
-    identifiedRequester = models.ForeignKey(FacilityRoles, on_delete=models.CASCADE, blank=True, null=True)
-    requestedEmail = models.EmailField(null=True,blank=True)
+    identifiedContact = models.ForeignKey(FacilityRoles, on_delete=models.CASCADE, blank=True, null=True)
+    contactEmail = models.EmailField(null=True,blank=True)
     requestedIP = models.CharField(max_length=45, null=True, blank=True)
     requestedDate = models.DateTimeField(null=True,blank=True)
     choicePurposes = models.BooleanField(default=False)
     choiceNoMaterialChange = models.BooleanField(default=False)
     submitted = models.BooleanField(default=False)
+    completedBy = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
 
     class Meta:
         verbose_name_plural = "Facility Additional Drawdown"
 
+
+
+class FacilityAnnual(models.Model):
+    facility = models.ForeignKey(Facility, on_delete=models.CASCADE)
+    annualUID = models.UUIDField(default=uuid.uuid4, editable=False)
+    reviewDate = models.DateField(null=False, blank=False)
+    identifiedContact = models.ForeignKey(FacilityRoles, on_delete=models.CASCADE, blank=True, null=True)
+    contactEmail = models.EmailField(null=True, blank=True)
+    responseIP = models.CharField(max_length=45, null=True, blank=True)
+    responseDate = models.DateTimeField(null=True, blank=True)
+
+    #Customer Fields
+    choiceHouseholdConfirm = models.BooleanField(blank=True, null=True)
+    choiceHouseholdPersons = models.BooleanField(blank=True, null=True)
+    householdNotes = models.TextField(blank=True, null=True)
+    choiceInsuranceConfirm = models.BooleanField(blank=True, null=True)
+    choiceRatesConfirm = models.BooleanField(blank=True, null=True)
+    choiceRepairsConfirm = models.BooleanField(blank=True, null=True)
+    homeNotes = models.TextField(blank=True, null=True)
+    choiceUndrawnConfirm = models.BooleanField(blank=True, null=True)
+    choiceRegularConfirm = models.BooleanField(blank=True, null=True)
+    choiceCallbackConfirm = models.BooleanField(blank=True, null=True)
+    needNotes = models.TextField(blank=True, null=True)
+
+    completedBy = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    reviewNotes = models.TextField(blank=True, null=True)
+    completed = models.BooleanField(default=False)
+
+    submitted = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
+    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Facility Annual Review"
+
+
+    objects=FacilityManager()
+
+    def get_absolute_url(self):
+        return reverse_lazy("servicing:loanDetailAnnual", kwargs={"uid": self.annualUID})

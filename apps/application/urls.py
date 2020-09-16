@@ -12,11 +12,17 @@ app_name = 'application'
 
 urlpatterns = [
     # AUTHENTICATED VIEWS
-
+    path('applicationList', views.ApplicationListView.as_view(), name='appList'),
+    path('applicationDetail/<uuid:uid>', views.ApplicationDetailView.as_view(), name='appDetail'),
+    path('newLink/<uuid:uid>', views.NewLink.as_view(), name='newLink'),
+    path('sendSummary/<uuid:uid>', views.SendSummary.as_view(), name='sendSummary'),
+    path('sendNextSteps/<uuid:uid>', views.SendNextSteps.as_view(), name='sendNextSteps'),
+    path('markClosed/<uuid:uid>', views.MarkClosedView.as_view(), name='markClosed'),
+    path('convertEnquiry/<uuid:uid>', views.ConvertEnquiry.as_view(), name='convertEnquiry'),
 
     # UNAUTHENTICATED VIEWS
 
-    #Document print views
+    #Document pdf views
     path('pdfLoanSummary/<uuid:uid>', views.PdfLoanSummary.as_view(), name='pdfLoanSummary'),
     path('pdfApplication/<uuid:uid>', views.PdfApplication.as_view(), name='pdfApplication'),
 

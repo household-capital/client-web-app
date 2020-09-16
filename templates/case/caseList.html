@@ -144,11 +144,6 @@
 
                                         </a>
                                     {% endif %}
-                                    <a href="{% url 'case:caseCreate' %}">
-                                        <div class="btn btn-outline-secondary" data-toggle="tooltip"
-                                             data-placement="top"
-                                             title="Open new case"><i class="fas fa-plus fa-fw"></i></div>
-                                    </a>
 
                                 </div>
 
@@ -171,8 +166,8 @@
                         </th>
                         <th scope="col"><a href="?order=owner&search={{ search }}">
                             {% if order == 'owner' %}<i class="fas fa-sort-down"></i>{% endif %}&nbsp;Owner</a></th>
-                        <th scope="col"><a href="?order=adviser&search={{ search }}">
-                            {% if order == 'adviser' %}<i class="fas fa-sort-down"></i>{% endif %}&nbsp;Adviser</a></th>
+                        <th scope="col"><a href="?order=salesChannel&search={{ search }}">
+                            {% if order == 'salesChannel' %}<i class="fas fa-sort-down"></i>{% endif %}&nbsp;Channel</a></th>
                         <th scope="col" class="d-none d-sm-table-cell"><a href="?order=-updated&search={{ search }}">
                             {% if order == '-updated' %}<i class="fas fa-sort-down"></i>{% endif %}&nbsp;Last
                             Updated</a></th>
@@ -190,14 +185,14 @@
                             <td class="d-none d-sm-table-cell">
                                 <a href="{{ obj.get_absolute_url }}">
                                     {{ obj.enumCaseStage }}&nbsp; </a></td>
-                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.caseDescription }}</a></td>
+                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.caseDescription|truncatechars:30 }}</a></td>
                             <td><a href="{{ obj.get_absolute_url }}">
                                 {% if obj.owner %}
                                     {{ obj.owner }}
                                 {% elif obj.referralCompany %}
                                     <button class="btn btn-info btn-sm" data-toggle="tooltip"
                                             data-placement="top"
-                                            title="Assign case to you">{{ obj.referralCompany.companyName }}
+                                            title="Assign case to you">{{ obj.referralCompany.companyName | truncatechars:30 }}
                                     </button>
                                 {% else %}
                                     <button class="btn btn-warning btn-sm" data-toggle="tooltip"
@@ -209,7 +204,7 @@
 
 
                             </a></td>
-                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.adviser }}</a></td>
+                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.enumChannelType }}</a></td>
                             <td class="d-none d-sm-table-cell"><a
                                     href="{{ obj.get_absolute_url }}">{{ obj.updated|timesince|upto }} ago</a></td>
                             <td class="d-none d-sm-table-cell" data-toggle="tooltip" data-placement="top" title="Zoom">

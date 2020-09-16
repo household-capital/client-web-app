@@ -1,21 +1,23 @@
 # Python Imports
-from datetime import datetime
 from datetime import timedelta
 import os
 import json
+
+# Third-party Imports
+from config.celery import app
 
 # Django Imports
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import get_template
+from django.db.models import Q
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils import dateparse
 from django.utils import timezone
+
 
 from django.views.generic import View,  ListView
 from django.views.decorators.csrf import csrf_exempt
@@ -24,9 +26,10 @@ from django.views.decorators.csrf import csrf_exempt
 # Local Application Imports
 from apps.lib.site_Logging import write_applog
 from apps.lib.api_Zoom import apiZoom
-from apps.lib.site_Utilities import sendTemplateEmail, raiseAdminError
+from apps.lib.site_Utilities import sendTemplateEmail, raiseAdminError, cleanPhoneNumber
 from apps.case.models import Case
 from apps.enquiry.models import Enquiry
+from apps.lib.site_Enums import enquiryStagesEnum
 from .models import Calendly
 
 
@@ -67,7 +70,7 @@ class CalendlyWebhook(View):
         time_zone = data['payload']["invitee"]["timezone"]
         customer_name = data["payload"]["invitee"]["name"]
         customer_email = data["payload"]["invitee"]["email"]
-        customer_phone = phoneNumber = self.getPhoneNumber(data)
+        customer_phone = self.getPhoneNumber(data)
 
         #Look up user (from email)
         try:
@@ -90,19 +93,20 @@ class CalendlyWebhook(View):
                 obj.customerEmail = customer_email
                 obj.customerPhone = customer_phone
 
-                enqObj = Enquiry.objects.filter(email=customer_email).order_by("-timestamp").first()
+                enqObj = Enquiry.objects.filter(Q(email__iexact=customer_email) |
+                                                Q(phoneNumber__iexact=customer_phone)).order_by("-timestamp").first()
                 if enqObj:
                     obj.enqUID = enqObj.enqUID
 
                 obj.save(update_fields=['user', 'meetingName', 'startTime', 'timeZone','customerName','customerEmail',
                                         'customerPhone','enqUID'])
 
+                # Update enquiry object and Synch with SF
+                if enqObj:
+                    self.updateEnquiry(enqObj, meeting_name, customer_phone)
+                    app.send_task('Update_SF_Lead', kwargs={'enqUID': str(enqObj.enqUID)})
 
                 write_applog("INFO", 'Calendly', 'post', "Discovery Call Created:" + customer_email )
-
-                #Update enquiry object
-                if enqObj:
-                    self.updateEnquiry(enqObj, meeting_name, phoneNumber)
 
             elif 'canceled' in hook_event:
                 qs = Calendly.objects.filter(calendlyID=calendlyID)
@@ -135,6 +139,10 @@ class CalendlyWebhook(View):
 
                 obj.save(update_fields=['user', 'meetingName', 'startTime', 'timeZone','customerName','customerEmail',
                                         'customerPhone','caseUID', 'isZoomLive'])
+
+                # Synch with SF
+                if caseObj:
+                    app.send_task('Update_SF_Case_Lead', kwargs={'caseUID': str(caseObj.caseUID)})
 
                 write_applog("INFO", 'Calendly', 'post', "Loan Interview Created:" + customer_email )
 
@@ -238,17 +246,19 @@ class CalendlyWebhook(View):
 
             obj.isCalendly = True
 
+            obj.enquiryStage = enquiryStagesEnum.DISCOVERY_MEETING.value
+
             if phoneNumber and not obj.phoneNumber:
                 obj.phoneNumber = phoneNumber
 
-            obj.save(update_fields=['enquiryNotes', 'isCalendly', 'phoneNumber'])
+            obj.save(update_fields=['enquiryNotes', 'isCalendly', 'phoneNumber', 'enquiryStage'])
 
 
     def getPhoneNumber(self, data):
         phoneNumber = None
         try:
             if 'phone number' in data['payload']['questions_and_answers'][0]['question']:
-                phoneNumber = data['payload']['questions_and_answers'][0]['answer']
+                phoneNumber = cleanPhoneNumber(data['payload']['questions_and_answers'][0]['answer'][:16])
         except:
             pass
 

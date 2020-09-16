@@ -5,10 +5,12 @@ from django.contrib import admin
 from .models import Application, ApplicationPurposes, ApplicationDocuments
 
 class ApplicationAdmin(admin.ModelAdmin):
+    """Admin view settings"""
     list_display = ('surname_1', 'email', 'appStatus', 'timestamp', 'appUID')
     ordering = ('-timestamp',)
 
 class ApplicationDocAdmin(admin.ModelAdmin):
+    """Admin view settings"""
     list_display = ('application', 'documentType', 'timestamp')
 
 

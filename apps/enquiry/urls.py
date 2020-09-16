@@ -20,6 +20,9 @@ urlpatterns = [
     path('enquiryAssign/<uuid:uid>', views.EnquiryAssignView.as_view(), name='enqAssign'),
     path('enquiryCloseFollowUp/<uuid:uid>',views.EnquiryCloseFollowUp.as_view(),name='enqMarkFollowUp'),
     path('enquiryDelete/<uuid:uid>', views.EnquiryDeleteView.as_view(), name='enqDelete'),
+    path('enquiryRefer/<uuid:uid>', views.EnquiryReferView.as_view(), name='enqReview'),
+    path('enquiryPartnerUpload', views.EnquiryPartnerUpload.as_view(), name='enqPartnerUpload'),
+    path('enquiryPartnerList', views.EnquiryPartnerList.as_view(), name='enqPartnerList'),
 
     # Ajax Views
     path('addressComplete', views.AddressComplete.as_view(), name='addressComplete'),

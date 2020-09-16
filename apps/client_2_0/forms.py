@@ -359,6 +359,8 @@ class drawdownPurposeForm(forms.ModelForm):
         ),
     widget=forms.Select)
 
+    description = forms.CharField(widget=widgets.TextInput())
+
     drawdownFrequency = forms.ChoiceField(
         choices=(
             (incomeFrequencyEnum.FORTNIGHTLY.value, "Fortnightly"),

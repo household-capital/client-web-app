@@ -1,13 +1,12 @@
 #Python Imports
 import time
 import json
-import logging
-import os
+
 
 #Django Imports
-from django.conf import settings
+
+from django.core.files.storage import default_storage
 from django.core.files.temp import NamedTemporaryFile
-from django.core import files
 
 #Third-party Imports
 
@@ -27,7 +26,7 @@ class CloudBridge():
                      'SCHEMA_FILENAME':"/apps/lib/lixi/LixiSchema/LIXI-ACC-0.0.3".replace(".", "_") + '.xsd',
                      'ORIGINATOR_MARGIN': ECONOMIC['lendingMargin'],
                      'ns_map_':{"xsi": 'http://www/w3/org/2001/XMLSchema-instance'},
-                     'FILEPATH':(settings.MEDIA_ROOT+'/customerReports/'),
+                     'FILEPATH':('customerReports/'),
                      'AMAL_DOCUMENTS':["Application Form", "Loan Contract", "Valuation Report"]
                      }
 
@@ -76,9 +75,6 @@ class CloudBridge():
 
 
     def createLixi(self):
-
-        AMAL_LoanId=""
-        identifier=""
 
         #Generate Lixi File
         try:
@@ -167,7 +163,9 @@ class CloudBridge():
     def generateLixiFile(self):
 
         loanDict={}
-        filename=filename = self.filePath + str(self.opportunityId) + ".xml"
+
+        localfile = NamedTemporaryFile(delete=False)
+        # a temporary file is used during xml construction
 
         self.__logging("Generating Lixi File for "+str(self.opportunityId))
 
@@ -177,6 +175,7 @@ class CloudBridge():
         self.__logging("Step 2 - Enriching and enumerating the Loan Dictionary")
         objEnrich = EnrichEnum(loanDict)
         result=objEnrich.enrich()
+
         if result['status']!="Ok":
             self.__logging(result['responseText'])
             return {'status': 'Error'}
@@ -196,7 +195,11 @@ class CloudBridge():
         timestamp = time.strftime("%Y%m%d%H%M%S")
 
         self.__logging(" -  Creating XML Structure")
-        lixiFile = LixiXMLGenerator(self.LIXI_SETTINGS, 'Yes', "HHC-" + str(timestamp), "HHC-" + loanDict['Opp.Id'], commentStr, filename)
+        lixiFile = LixiXMLGenerator(self.LIXI_SETTINGS, 'Yes',
+                                    "HHC-" + str(timestamp),
+                                    "HHC-" + loanDict['Opp.Id'],
+                                    commentStr,
+                                    localfile)
 
         self.__logging(" -  Populating Elements")
         result=lixiFile.populateElements(loanDict)
@@ -211,15 +214,22 @@ class CloudBridge():
             self.__logging(result['responseText'])
             return {'status':'Error'}
 
+        # Save localfile to targetFile storage
+        localfile.flush()
+        targetFileName = self.filePath + str(self.opportunityId) + ".xml"
+        default_storage.delete(targetFileName)
+        default_storage.save(targetFileName, localfile)
+        localfile.close()
+
         self.__logging("Step 4 - Validating XML File against Schema")
-        isValid = lixiFile.ValidateXML(filename, self.schemaFilename)
+        isValid = lixiFile.ValidateXML(targetFileName, self.schemaFilename)
         if isValid['status']=='Error':
             self.__logging(isValid['responseText'])
             return {'status':'Error'}
 
         self.__logging("File Generated and Validated")
 
-        return {'status':'Ok','data':filename}
+        return {'status':'Ok','data':targetFileName}
 
     def sendToAMAL(self, filename, sendFiles):
 

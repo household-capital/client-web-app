@@ -85,7 +85,6 @@
 
 <!-- Page 2 -->
 <div class="page">
-
     <div class="print-container">
 
         <div class="row pt-3 ">
@@ -116,10 +115,10 @@
         <br>
 
         {% include 'client_2_0/documents/summaryComponents/loan.html' %}
-
-        <p style="page-break-before: always"></p>
     </div>
 </div>
+
+<div style="page-break-after: always"></div>
 
 
 {% if topUpProjections %}
@@ -136,18 +135,17 @@
 
             {% include 'client_2_0/documents/summaryComponents/income.html' %}
 
-        <p style="page-break-before: always"></p>
         </div>
     </div>
+    <div style="page-break-after: always"></div>
 {% endif %}
 
 
 <!-- Page -->
 <div class="page">
     <div class="print-container">
-
         <div class="row pt-3 ">
-            <div class="col-sm-12  text-left">
+            <div class="col-sm-12 text-left">
                 <br>
                 <img src="{% static 'img/document/HC_Logo_Flat.png' %}" width="200px">
             </div>
@@ -156,10 +154,9 @@
 
         {% include 'client_2_0/documents/summaryComponents/projections.html' %}
 
-
     </div>
-    <p style="page-break-before: always"></p>
 </div>
+<div style="page-break-after: always"></div>
 
 
 <div class="page">
@@ -175,8 +172,8 @@
 
         {% include 'client_2_0/documents/summaryComponents/scenarios.html' %}
     </div>
-    <p style="page-break-before: always"></p>
 </div>
+<div style="page-break-after: always"></div>
 
 
 <div class="page">
@@ -193,9 +190,8 @@
         {% include 'client_2_0/documents/summaryComponents/final.html' %}
     </div>
 
-    <p style="page-break-before: always"></p>
 </div>
-
+<div style="page-break-after: always"></div>
 
 <div class="page">
     <div class="print-container">

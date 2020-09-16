@@ -170,11 +170,10 @@
                     <tr>
                         <th scope="col" class="d-none d-sm-table-cell">&nbsp;Category</th>
                         <th scope="col" class="d-none d-sm-table-cell">&nbsp;Intention</th>
-                        <th scope="col" class="d-none d-sm-table-cell text-right">&nbsp;Contract Amount</th>
+                        <th scope="col" class="d-none d-sm-table-cell text-right">&nbsp;Original Amount</th>
+                        <th scope="col" class="d-none d-sm-table-cell text-right">&nbsp;New Amount</th>
+                        <th scope="col" class="d-none d-sm-table-cell text-right">&nbsp;Variation Amount</th>
                         <th scope="col" class="d-none d-sm-table-cell text-right">&nbsp;Plan Amount</th>
-                        <th scope="col" class="d-none d-sm-table-cell text-right">&nbsp;Regular Amount</th>
-                        <th scope="col" class="d-none d-sm-table-cell text-right">&nbsp;Frequency</th>
-                        <th scope="col" class="d-none d-sm-table-cell text-right">&nbsp;Periods</th>
                         <th scope="col" class="d-none d-sm-table-cell">&nbsp;Active</th>
 
                     </thead>
@@ -183,12 +182,10 @@
                         <tr>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.enumCategoryPretty }}</a></td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.enumIntentionPretty }}</a></td>
+                            <td class="text-right"><a href="{{ obj.get_absolute_url }}">${{ obj.originalAmount }}</a></td>
                             <td class="text-right"><a href="{{ obj.get_absolute_url }}">${{ obj.amount }}</a></td>
+                            <td class="text-right"><a href="{{ obj.get_absolute_url }}">${{ obj.variationAmount }}</a></td>
                             <td class="text-right">{% if obj.drawdownAmount %}${{ obj.planAmount }}{% endif %}</td>
-                            <td class="text-right">{% if obj.drawdownAmount %}${{ obj.drawdownAmount }}{% endif %}</td>
-                            <td class="text-right">
-                                {% if obj.drawdownAmount %}{{ obj.enumDrawdownFrequency }}{% endif %}</td>
-                            <td class="text-right">{% if obj.drawdownAmount %}{{ obj.planDrawdowns }}{% endif %}</td>
                             <td class="text-center">{% if obj.drawdownAmount %}{% if obj.active %}
                                 <i class="far fa-check-circle"></i>
                             {% else %}<i class="far fa-times-circle"></i>{% endif %}{% endif %}</td>

@@ -1,9 +1,6 @@
 # Python Imports
-import json
-import base64
 
 # Django Imports
-from django.conf import settings
 from django.contrib.sessions.models import Session
 
 # Third-party Imports
@@ -18,4 +15,5 @@ def clearSessionData():
     write_applog("INFO", 'Accounts', 'Tasks-clearSessionData', "Clearing all session data")
     Session.objects.all().delete()
     return "Finished - Successfully"
+
 

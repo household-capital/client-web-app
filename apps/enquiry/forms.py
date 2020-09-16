@@ -3,13 +3,13 @@ from django import forms
 from django.contrib.auth.models import User
 from django.forms import ValidationError
 
-
 # Third-party Imports
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, Div, HTML, Row, Column
 
 # Local Application Imports
-from apps.lib.site_Enums import loanTypesEnum
+from apps.lib.site_Enums import loanTypesEnum, marketingTypesEnum
+from apps.lib.site_Utilities import cleanPhoneNumber
 from .models import Enquiry
 
 
@@ -19,9 +19,9 @@ class EnquiryForm(forms.ModelForm):
     class Meta:
         model = Enquiry
         fields = ['loanType', 'name', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
-                  'streetAddress', 'suburb', 'state',
-                  'referrer', 'email', 'phoneNumber', 'enquiryNotes', 'referrerID',
-                  'marketingSource', 'callReason']
+                  'streetAddress', 'suburb', 'state', 'mortgageDebt',
+                  'referrer', 'email', 'phoneNumber', 'enquiryNotes',
+                  'marketingSource']
 
         widgets = {
             'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
@@ -31,12 +31,12 @@ class EnquiryForm(forms.ModelForm):
     helper.form_method = 'POST'
     helper.field_class = 'col-lg-12'
     helper.form_class = 'form-horizontal'
-    helper.form_show_labels = False  # Hide default error messages
-    helper.form_show_errors = False
+    helper.form_show_labels = False
+    helper.form_show_errors = True
     helper.layout = Layout(
         Div(
             Div(
-                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Client Details"),css_class='form-header'),
+                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Client Details"), css_class='form-header'),
                 Div(
                     Div(HTML("Client Name"), css_class='form-label'),
                     Div(Field('name'))),
@@ -53,14 +53,8 @@ class EnquiryForm(forms.ModelForm):
                     Div(HTML("Enquiry Source"), css_class='form-label'),
                     Div(Field('referrer'))),
                 Div(
-                    Div(HTML("Referral Source"), css_class='form-label'),
-                    Div(Field('referrerID'))),
-                Div(
                     Div(HTML("How did you hear about us?"), css_class='form-label'),
                     Div(Field('marketingSource'))),
-                Div(
-                    Div(HTML("Reason for call"), css_class='form-label'),
-                    Div(Field('callReason'))),
 
                 css_class='col-lg-6'),
 
@@ -73,104 +67,6 @@ class EnquiryForm(forms.ModelForm):
                     Div(Field('loanType'))),
                 Div(
                     Div(HTML("Age Borrower 1*"), css_class='form-label'),
-                    Div(Field('age_1'))),
-                Div(
-                    Div(HTML("Age Borrower 2"), css_class='form-label'),
-                    Div(Field('age_2'))),
-
-                Row(
-                    Column(Div(HTML("<i class='fas fa-home'> </i>&nbsp;&nbsp;Property")),css_class='col-6'),
-                    Column(Div(Div(HTML("<button id='lookup_dialogue' type='button' class='btn btn-sm btn-light'><i class='fas fa-search'></i> Find</button> ")), css_class='text-right'), css_class='col-6')),
-                Div(Div(HTML("Street Address"), css_class='form-label'),
-                    Div(Field('streetAddress'))),
-                Div(Div(HTML("Suburb"), css_class='form-label'),
-                    Div(Field('suburb'))),
-                Row(
-                    Column(Div(Div(HTML("State"), css_class='form-label'),
-                               Div(Field('state'))), css_class='col-6'),
-                    Column(Div(Div(HTML("Postcode*"), css_class='form-label'),
-                               Div(Field('postcode'))), css_class='col-6')),
-                Div(Div(HTML("Dwelling Type*"), css_class='form-label'),
-                    Div(Field('dwellingType'))),
-
-                Div(Div(HTML("Valuation*"), css_class='form-label'),
-                    Div(Field('valuation'))),
-                Div(css_class="row"),
-
-
-                css_class='col-lg-6'),
-
-            css_class="row ")
-    )
-
-
-    def clean(self):
-        if self.cleaned_data['loanType'] == loanTypesEnum.SINGLE_BORROWER.value and self.cleaned_data['age_2']:
-            raise ValidationError("Please check - is this a single or Joint Loan? ")
-
-        if self.cleaned_data['loanType'] == loanTypesEnum.JOINT_BORROWER.value and not self.cleaned_data['age_2']:
-            raise ValidationError("Please add second borrower age ")
-
-        return self.cleaned_data
-
-
-class EnquiryDetailForm(forms.ModelForm):
-    class Meta:
-        model = Enquiry
-        fields = ['loanType', 'name', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
-                  'streetAddress', 'suburb', 'state',
-                  'referrer', 'email', 'phoneNumber', 'enquiryNotes', 'referrerID', 'calcLumpSum', 'calcIncome',
-                  'marketingSource', 'callReason', 'productType']
-
-        widgets = {
-            'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
-        }
-
-    helper = FormHelper()
-    helper.form_method = 'POST'
-    helper.field_class = 'col-lg-12'
-    helper.form_class = 'form-horizontal'
-    helper.form_show_labels = False
-    helper.form_show_errors = False
-    helper.layout = Layout(
-        Div(
-            Div(
-                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Client Details"),css_class='form-header'),
-                Div(
-                    Div(HTML("Client Name"), css_class='form-label'),
-                    Div(Field('name' ))),
-                Div(
-                    Div(HTML("Client Phone Number"), css_class='form-label'),
-                    Div(Field('phoneNumber'))),
-                Div(
-                    Div(HTML("Client Email"), css_class='form-label'),
-                    Div(Field('email'))),
-                Div(
-                    Div(HTML("Enquiry Notes"), css_class='form-label'),
-                    Div(Field('enquiryNotes'))),
-                Div(
-                    Div(HTML("How did you hear about us?"), css_class='form-label'),
-                    Div(Field('marketingSource'))),
-                Div(
-                    Div(HTML("Reason for call"), css_class='form-label'),
-                    Div(Field('callReason'))),
-                Div(
-                    Div(HTML("Enquiry Source"), css_class='form-label'),
-                    Div(Field('referrer'))),
-                Div(
-                    Div(HTML("Referral Source"), css_class='form-label'),
-                    Div(Field('referrerID'))),
-                css_class='col-lg-6'),
-
-            Div(
-
-                Div(Div(Submit('submit', 'Update', css_class='btn btn-outline-secondary')), css_class='text-right pt-4'),
-                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Borrower(s)"), css_class='form-header pt-2'),
-                Div(
-                    Div(HTML("Single or Joint Borrowers"), css_class='form-label'),
-                    Div(Field('loanType'))),
-                Div(
-                    Div(HTML("Age Borrower 1"), css_class='form-label'),
                     Div(Field('age_1'))),
                 Div(
                     Div(HTML("Age Borrower 2"), css_class='form-label'),
@@ -195,8 +91,137 @@ class EnquiryDetailForm(forms.ModelForm):
 
                 Div(Div(HTML("Valuation*"), css_class='form-label'),
                     Div(Field('valuation'))),
+
+                Div(Div(HTML("Existing Mortgage Debt"), css_class='form-label'),
+                    Div(Field('mortgageDebt'))),
+
+                Div(css_class="row"),
+
+                css_class='col-lg-6'),
+
+            css_class="row ")
+    )
+
+    def clean(self):
+        if self.cleaned_data['loanType'] == loanTypesEnum.SINGLE_BORROWER.value and self.cleaned_data['age_2']:
+            raise ValidationError("Please check - is this a single or Joint Loan? ")
+
+        if self.cleaned_data['loanType'] == loanTypesEnum.JOINT_BORROWER.value and not self.cleaned_data['age_2']:
+            raise ValidationError("Please add second borrower age ")
+
+        return self.cleaned_data
+
+    def clean_name(self):
+        if self.cleaned_data['name']:
+            return self.cleaned_data['name'].title()
+
+    def clean_phoneNumber(self):
+        if self.cleaned_data['phoneNumber']:
+            number = cleanPhoneNumber(self.cleaned_data['phoneNumber'])
+            if len(number) > 10:
+                raise ValidationError("Invalid phone number")
+            else:
+                return number
+
+
+class EnquiryDetailForm(forms.ModelForm):
+    class Meta:
+        model = Enquiry
+
+        fields = ['loanType', 'name', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
+                  'streetAddress', 'suburb', 'state', 'mortgageDebt',
+                  'referrer', 'email', 'phoneNumber', 'enquiryNotes', 'calcLumpSum', 'calcIncome',
+                  'marketingSource', 'productType', 'enquiryStage', 'valuationDocument']
+
+        widgets = {
+            'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
+        }
+
+        valuationDocument = forms.FileField(required=False, widget=forms.FileInput)
+
+    helper = FormHelper()
+    helper.form_method = 'POST'
+    helper.field_class = 'col-lg-12'
+    helper.form_class = 'form-horizontal'
+    helper.form_show_labels = False
+    helper.form_show_errors = True
+    helper.layout = Layout(
+        Div(
+            Div(
+                Div(
+                    Div(HTML("Enquiry Status"), css_class='form-label'),
+                    Div(Field('enquiryStage'))),
+
+                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Client Details"), css_class='form-header'),
+                Div(
+                    Div(HTML("Client Name"), css_class='form-label'),
+                    Div(Field('name'))),
+                Div(
+                    Div(HTML("Client Phone Number"), css_class='form-label'),
+                    Div(Field('phoneNumber'))),
+                Div(
+                    Div(HTML("Client Email"), css_class='form-label'),
+                    Div(Field('email'))),
+                Div(
+                    Div(HTML("Enquiry Notes"), css_class='form-label'),
+                    Div(Field('enquiryNotes'))),
+
+                Div(
+                    Div(HTML("Enquiry Source"), css_class='form-label'),
+                    Div(Field('referrer'))),
+
+                Div(
+                    Div(HTML("Source Detail"), css_class='form-label'),
+                    Div(Field('marketingSource'))),
+
+
+                css_class='col-lg-6'),
+
+            Div(
+                Div(Div(Submit('submit', 'Update', css_class='btn btn-outline-secondary')),
+                    css_class='text-right pt-4'),
+
+                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Borrower(s)"), css_class='form-header pt-2'),
+                Div(
+                    Div(HTML("Single or Joint Borrowers"), css_class='form-label'),
+                    Div(Field('loanType'))),
+                Div(
+                    Div(HTML("Age Borrower 1"), css_class='form-label'),
+                    Div(Field('age_1'))),
+                Div(
+                    Div(HTML("Age Borrower 2"), css_class='form-label'),
+                    Div(Field('age_2'))),
+
+                Row(
+                    Column(Div(HTML("<i class='fas fa-home'> </i>&nbsp;&nbsp;Property")), css_class='col-6'),
+                    Column(Div(Div(HTML(
+                        "<button id='lookup_dialogue' type='button' class='btn btn-sm btn-light'><i class='fas fa-search'></i> Find</button> ")),
+                        css_class='text-right'), css_class='col-6')),
+                Div(Div(HTML("Street Address"), css_class='form-label'),
+                    Div(Field('streetAddress'))),
+                Div(Div(HTML("Suburb"), css_class='form-label'),
+                    Div(Field('suburb'))),
+                Row(
+                    Column(Div(Div(HTML("State"), css_class='form-label'),
+                               Div(Field('state'))), css_class='col-6'),
+                    Column(Div(Div(HTML("Postcode*"), css_class='form-label'),
+                               Div(Field('postcode'))), css_class='col-6')),
+                Div(Div(HTML("Dwelling Type*"), css_class='form-label'),
+                    Div(Field('dwellingType'))),
+
+                Div(Div(HTML("Valuation*"), css_class='form-label'),
+                    Div(Field('valuation'))),
+
+                Div(Div(HTML("Existing Mortgage Debt"), css_class='form-label'),
+                    Div(Field('mortgageDebt'))),
+
+                Div(HTML("<p class='small pt-2'><i class='far fa-file-pdf'></i>&nbsp;&nbsp;</i>Auto Valuation</p>"),
+                    Field('valuationDocument')),
+
                 Div(HTML("<br>")),
-                Div(HTML("<i class='fas fa-search-dollar'></i>&nbsp;&nbsp;Requirements <span>&nbsp;<button type='button' class='btn btn-sm infoBtn' data-toggle='modal' data-target='#productModal'><i class='fas fa-info'></i></button></span></p>"),
+
+                Div(HTML(
+                    "<i class='fas fa-search-dollar'></i>&nbsp;&nbsp;Requirements <span>&nbsp;<button type='button' class='btn btn-sm infoBtn' data-toggle='modal' data-target='#productModal'><i class='fas fa-info'></i></button></span></p>"),
                     css_class='form-header'),
                 Div(
                     Div(HTML("Funding Amount (lump sum)"), css_class='form-label'),
@@ -223,12 +248,23 @@ class EnquiryDetailForm(forms.ModelForm):
 
         return self.cleaned_data
 
+    def clean_name(self):
+        if self.cleaned_data['name']:
+            return self.cleaned_data['name'].title()
+
+    def clean_phoneNumber(self):
+        if self.cleaned_data['phoneNumber']:
+            number = cleanPhoneNumber(self.cleaned_data['phoneNumber'])
+            if len(number) > 10:
+                raise ValidationError("Invalid phone number")
+            else:
+                return number
 
 
 class EnquiryCallForm(forms.ModelForm):
     class Meta:
         model = Enquiry
-        fields = ['name', 'postcode', 'phoneNumber', 'marketingSource', 'callReason', 'enquiryNotes']
+        fields = ['name', 'postcode', 'phoneNumber', 'marketingSource', 'enquiryNotes']
 
         widgets = {
             'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
@@ -240,14 +276,14 @@ class EnquiryCallForm(forms.ModelForm):
     helper.field_class = 'col-lg-12'
     helper.form_class = 'form-horizontal'
     helper.form_show_labels = False
-    helper.form_show_errors = False
+    helper.form_show_errors = True
     helper.layout = Layout(
         Div(
             Div(
-                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Client Details"),css_class='form-header'),
+                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Client Details"), css_class='form-header'),
                 Div(
                     Div(HTML("Client Name"), css_class='form-label'),
-                    Div(Field('name' ))),
+                    Div(Field('name'))),
                 Div(
                     Div(HTML("Phone Number"), css_class='form-label'),
                     Div(Field('phoneNumber'))),
@@ -264,9 +300,6 @@ class EnquiryCallForm(forms.ModelForm):
                 Div(
                     Div(HTML("Postcode"), css_class='form-label'),
                     Div(Field('postcode'))),
-                Div(
-                    Div(HTML("Reason for call"), css_class='form-label'),
-                    Div(Field('callReason'))),
 
                 Div(css_class="row"),
                 Div(Div(Submit('close', 'End call', css_class='btn btn-outline-secondary'),
@@ -282,14 +315,20 @@ class EnquiryCallForm(forms.ModelForm):
         if 'close' in self.data:
             if not self.cleaned_data['marketingSource']:
                 raise ValidationError('Please select a marketing source')
-            if not self.cleaned_data['callReason']:
-                raise ValidationError('Please select a call reason')
 
         return self.cleaned_data
 
+    def clean_name(self):
+        if self.cleaned_data['name']:
+            return self.cleaned_data['name'].title()
 
-
-
+    def clean_phoneNumber(self):
+        if self.cleaned_data['phoneNumber']:
+            number = cleanPhoneNumber(self.cleaned_data['phoneNumber'])
+            if len(number) > 10:
+                raise ValidationError("Invalid phone number")
+            else:
+                return number
 
 class EnquiryCloseForm(forms.ModelForm):
     # Form Data
@@ -317,7 +356,7 @@ class EnquiryCloseForm(forms.ModelForm):
     helper.layout = Layout(
         Div(
             Div(
-                HTML("<i class='fas fa-user-times'></i>&nbsp;&nbsp;<small>Close Notes</small>"),
+                HTML("<i class='fas fa-user-times'></i>&nbsp;&nbsp;<small>Close Enquiry</small>"),
                 Div(
                     Div(
                         Div(Div(HTML("Close Reason"), css_class='form-label'),
@@ -336,7 +375,7 @@ class EnquiryCloseForm(forms.ModelForm):
                 css_class="col-lg-6"),
 
             Div(
-                HTML("<i class='fas fa-user-tag'></i>&nbsp;&nbsp;<small>Follow-up Required</small>"),
+                HTML("<i class='fas fa-user-tag'></i>&nbsp;&nbsp;<small>Create Follow-up</small>"),
                 Div(
                     Div(Div(HTML("Follow-up Date"), css_class='form-label'),
                         Div(Field('followUpDate'))),
@@ -349,8 +388,8 @@ class EnquiryCloseForm(forms.ModelForm):
 
         Div((Div(Div(Submit('submit', 'Update', css_class='btn btn-warning')), css_class='text-right')
 
-        ))
-        )
+             ))
+    )
 
 
 class EnquiryAssignForm(forms.ModelForm):
@@ -371,10 +410,10 @@ class EnquiryAssignForm(forms.ModelForm):
     helper.layout = Layout(
         Div(
             Div(
-                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Assign enquiry"),css_class='form-header'),
+                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Assign enquiry"), css_class='form-header'),
                 Div(
                     Div(HTML("Credit Representative"), css_class='form-label'),
-                    Div(Field('user' ))),
+                    Div(Field('user'))),
                 Div(Div(Submit('submit', 'Assign', css_class='btn btn-outline-secondary')), css_class='text-right'),
                 Div(HTML("<br>")),
 
@@ -396,3 +435,35 @@ class AddressForm(forms.Form):
     helper.form_class = 'form-horizontal'
     helper.form_show_labels = False
     helper.form_show_errors = False
+
+
+class PartnerForm(forms.Form):
+    """Upload partner file form"""
+
+    partnerTypes = (
+        (marketingTypesEnum.YOUR_LIFE_CHOICES.value, "Your Life Choices"),
+        (marketingTypesEnum.STARTS_AT_60.value, "Starts at 60"),
+        (marketingTypesEnum.CARE_ABOUT.value, "Care About"),
+        (marketingTypesEnum.FACEBOOK.value, "Facebook")
+
+    )
+
+    partner = forms.ChoiceField(choices=partnerTypes, required=True)
+    uploadFile = forms.FileField(required=True, widget=forms.FileInput)
+
+    helper = FormHelper()
+    helper.form_id = 'clientForm'
+    helper.form_method = 'POST'
+    helper.field_class = 'col-lg-12'
+    helper.form_class = 'form-horizontal'
+    helper.form_show_labels = False
+    helper.form_show_errors = True
+    helper.layout = Layout(
+        Div(
+            Div(
+                Div(Div(HTML("Partner*"), css_class='form-label'),
+                    Div(Field('partner'))),
+                Div(Div(HTML("Upload File"), css_class='form-label'),
+                    Div(Field('uploadFile'))),
+            )
+        ))

@@ -4,11 +4,11 @@ import json
 # Django Imports
 from django.conf import settings
 from django.contrib import messages
-from django.core.files import File
 from django.http import HttpResponseRedirect
 from django.utils import timezone
 from django.views.generic import UpdateView,  ListView, TemplateView, View
 from django.urls import reverse_lazy
+
 
 
 # Third-party Imports
@@ -16,7 +16,7 @@ from config.celery import app
 
 
 # Local Application Imports
-from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum
+from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum, enquiryStagesEnum
 from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
@@ -78,8 +78,9 @@ class CalcCreateEnquiry(HouseholdLoginRequiredMixin, UpdateView):
         # Create enquiry using WebCalculator Data
         # Remove certain items from the dictionary
         referrer = calcDict['referrer']
+        referrerID = calcDict['sourceID']
 
-        popList = ['calcUID', 'actionedBy', 'id', 'referrer', 'updated', 'timestamp', 'actioned', 'application']
+        popList = ['calcUID', 'actionedBy', 'id', 'sourceID', 'referrer', 'updated', 'timestamp', 'actioned', 'application']
         for item in popList:
             calcDict.pop(item)
 
@@ -91,8 +92,7 @@ class CalcCreateEnquiry(HouseholdLoginRequiredMixin, UpdateView):
 
             # PRODUCE PDF REPORT
             sourceUrl = 'https://householdcapital.app/enquiry/enquirySummaryPdf/' + str(enq_obj.enqUID)
-            targetFileName = settings.MEDIA_ROOT + "/enquiryReports/Enquiry-" + str(enq_obj.enqUID)[
-                                                                                -12:] + ".pdf"
+            targetFileName = "enquiryReports/Enquiry-" + str(enq_obj.enqUID)[-12:] + ".pdf"
 
             pdf = pdfGenerator(calcUID)
             created, text = pdf.createPdfFromUrl(sourceUrl, 'CalculatorSummary.pdf', targetFileName)
@@ -107,12 +107,10 @@ class CalcCreateEnquiry(HouseholdLoginRequiredMixin, UpdateView):
 
             try:
                 # SAVE TO DATABASE (Enquiry Model)
-                localfile = open(targetFileName, 'rb')
 
-                qsCase = Enquiry.objects.queryset_byUID(str(enq_obj.enqUID))
-                qsCase.update(summaryDocument=File(localfile), )
+                qsEnq = Enquiry.objects.queryset_byUID(str(enq_obj.enqUID))
+                qsEnq.update(summaryDocument=targetFileName, enquiryStage = enquiryStagesEnum.SUMMARY_SENT.value )
 
-                pdf_contents = localfile.read()
             except:
                 write_applog("ERROR", 'calcCreateEnquiry', 'get',
                              "Failed to save Calc Summary in Database: " + str(enq_obj.enqUID))
@@ -136,9 +134,6 @@ class CalcCreateEnquiry(HouseholdLoginRequiredMixin, UpdateView):
             email_context['compRate'] = email_context['loanRate'] + ECONOMIC['comparisonRateIncrement']
 
             email_context['user'] = request.user
-            email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-            email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
-
             subject, from_email, to, bcc = "Household Capital: Your Personal Summary", \
                                            self.request.user.email, \
                                            obj.email, \

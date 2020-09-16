@@ -45,13 +45,14 @@ LOAN_LIMITS = {
 
 ECONOMIC = {'inflationRate': float(2.50),
             'housePriceInflation': float(3.00),
-            'interestRate': float(0.75),
-            'lendingMargin': float(4.40),
+            'interestRate': float(0.25),
+            'lendingMargin': float(4.90),
             'comparisonRateIncrement': float(0.06),
             'defaultMargin': float(2.00),
             }
 
 APP_SETTINGS = {'minProjectionYears': 15,
+                'incomeProjectionYears': 10,
                 'intRateStress': 2,
                 'hpiHighStressLevel': 0,
                 'hpiLowStressLevel': 1.5,

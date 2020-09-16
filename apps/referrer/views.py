@@ -186,7 +186,7 @@ class CaseDetailView(ReferrerLoginRequiredMixin, UpdateView):
         if obj.birthdate_2 != None:
             obj.age_2 = int((datetime.date.today() - obj.birthdate_2).days / 365.25)
 
-        obj.salesChannel = channelTypesEnum.BROKERS.value
+        obj.salesChannel = channelTypesEnum.BROKER.value
         obj.referralCompany = self.request.user.profile.referrer
 
         obj.save()
@@ -228,7 +228,7 @@ class CaseCreateView(ReferrerLoginRequiredMixin, CreateView):
         obj.caseStage = caseStagesEnum.DISCOVERY.value
         obj.user = self.request.user
         obj.referralCompany = self.request.user.profile.referrer
-        obj.salesChannel = channelTypesEnum.BROKERS.value
+        obj.salesChannel = channelTypesEnum.BROKER.value
 
         obj.save()
         messages.success(self.request, "Case Created")

@@ -1,0 +1,1107 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Application &mdash; hhc_app 2.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Accounts" href="accounts.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> hhc_app
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="accounts.html">Accounts</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Application</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hhc_app</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Application</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/apps/application.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-apps.application.apps">
+<span id="application"></span><h1>Application<a class="headerlink" href="#module-apps.application.apps" title="Permalink to this headline">¶</a></h1>
+<dl class="simple">
+<dt><strong>Purpose</strong></dt><dd><ul class="simple">
+<li><p>online customer journey and application form process</p></li>
+</ul>
+</dd>
+<dt><strong>Approach</strong></dt><dd><ul class="simple">
+<li><p>entry point from website calculator</p></li>
+<li><p>api creates application object and returns encoded url for the website redirect</p></li>
+<li><p>application journey commenced on redirect</p></li>
+<li><p>uses SMS 2FA to resume and sign application</p></li>
+</ul>
+</dd>
+<dt><strong>Key journey components</strong></dt><dd><ul class="simple">
+<li><p>login details (resume application link sent)</p></li>
+<li><p>personal details</p></li>
+<li><p>product details</p></li>
+<li><p>projections (emails Loan Summary)</p></li>
+<li><p>application information</p></li>
+<li><p>declarations and signing (sms pin)</p></li>
+<li><p>next steps email</p></li>
+<li><p>document loading functionality</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Current journeys are <strong>Income</strong> and <strong>Contingency 20K</strong> only</p>
+<p>The two journeys share some many views, but some of the steps are omitted.  The navigation is currently hard-coded in the view logic.
+There is a differential journey and next-steps for applications that are calculated to be <code class="docutils literal notranslate"><span class="pre">low-lvr</span></code></p>
+</div>
+<dl class="py class">
+<dt id="apps.application.apps.ApplicationConfig">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.apps.</code><code class="sig-name descname">ApplicationConfig</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">app_name</span></em>, <em class="sig-param"><span class="n">app_module</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.apps.ApplicationConfig" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p><strong>Models</strong></p>
+<blockquote>
+<div><span class="target" id="module-apps.application.models"></span><dl class="py class">
+<dt id="apps.application.models.Application">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.models.</code><code class="sig-name descname">Application</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.models.Application" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Model for Online Applications</dt><dd><ul class="simple">
+<li><p>similar to Case object fields (combining Case Loan fields)</p></li>
+<li><p>related purpose objects (similar to Case)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="apps.application.models.Application.get_purposes">
+<code class="sig-name descname">get_purposes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.models.Application.get_purposes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary of related Application Purposes</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.models.Application.purpose">
+<code class="sig-name descname">purpose</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">category</span></em>, <em class="sig-param"><span class="n">intention</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.models.Application.purpose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a related Application Purpose object</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.models.ApplicationDocuments">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.models.</code><code class="sig-name descname">ApplicationDocuments</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.models.ApplicationDocuments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Application documents loaded byy customers</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.models.ApplicationManager">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.models.</code><code class="sig-name descname">ApplicationManager</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.models.ApplicationManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model manager for Application and related (Foreign Key) objects</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.models.ApplicationPurposes">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.models.</code><code class="sig-name descname">ApplicationPurposes</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.models.ApplicationPurposes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Application Purposes - similar to Case Purposes</p>
+</dd></dl>
+
+</div></blockquote>
+<p><strong>Forms</strong></p>
+<blockquote>
+<div><span class="target" id="module-apps.application.forms"></span><dl class="py class">
+<dt id="apps.application.forms.ApplicantForm">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">ApplicantForm</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.forms.ApplicantForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Primary borrower and security property details</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.forms.ApplicantTwoForm">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">ApplicantTwoForm</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.forms.ApplicantTwoForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Second applicant personal details</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.forms.AssetsForm">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">AssetsForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.forms.AssetsForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Application information - assets and liabilities</p>
+<dl class="py method">
+<dt id="apps.application.forms.AssetsForm.clean">
+<code class="sig-name descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.forms.AssetsForm.clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook for doing any extra form-wide cleaning after Field.clean() has been
+called on every field. Any ValidationError raised by this method will
+not be associated with a particular field; it will have a special-case
+association with the field named ‘__all__’.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.forms.BankForm">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">BankForm</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.forms.BankForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bank details</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.forms.ConsentsForm">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">ConsentsForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.forms.ConsentsForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Borrower consents</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.forms.DocumentForm">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">DocumentForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.forms.DocumentForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send documents form</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.forms.HomeExpensesForm">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">HomeExpensesForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.forms.HomeExpensesForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Application information - low lvr - expenses</p>
+<dl class="py method">
+<dt id="apps.application.forms.HomeExpensesForm.clean">
+<code class="sig-name descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.forms.HomeExpensesForm.clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook for doing any extra form-wide cleaning after Field.clean() has been
+called on every field. Any ValidationError raised by this method will
+not be associated with a particular field; it will have a special-case
+association with the field named ‘__all__’.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.forms.IncomeForm">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">IncomeForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.forms.IncomeForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Application information - income and expenses</p>
+<dl class="py method">
+<dt id="apps.application.forms.IncomeForm.clean">
+<code class="sig-name descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.forms.IncomeForm.clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook for doing any extra form-wide cleaning after Field.clean() has been
+called on every field. Any ValidationError raised by this method will
+not be associated with a particular field; it will have a special-case
+association with the field named ‘__all__’.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.forms.InitiateForm">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">InitiateForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.forms.InitiateForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Login credentials form</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.forms.LoanObjectivesForm">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">LoanObjectivesForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.forms.LoanObjectivesForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Income Product - loan objectives</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.forms.ObjectivesForm">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">ObjectivesForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.forms.ObjectivesForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Borrower screening/objectives form</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.forms.SigningForm">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">SigningForm</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.forms.SigningForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Application electronic signing</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.forms.TwoFactorForm">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">TwoFactorForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">field_order=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.forms.TwoFactorForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>SMS 2FA Pin Form</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="apps.application.forms.parseCurrencyToInt">
+<code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">parseCurrencyToInt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.forms.parseCurrencyToInt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts string to an integer (or zero)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="apps.application.forms.validate_string_int">
+<code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">validate_string_int</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.forms.validate_string_int" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates whether a string can be converted to integer</p>
+</dd></dl>
+
+</div></blockquote>
+<p><strong>Tasks</strong></p>
+<blockquote>
+<div><span class="target" id="module-0"></span><dl class="py class">
+<dt id="id0">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">ApplicantForm</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Primary borrower and security property details</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="id1">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">ApplicantTwoForm</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Second applicant personal details</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="id2">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">AssetsForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Application information - assets and liabilities</p>
+<dl class="py method">
+<dt id="id3">
+<code class="sig-name descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook for doing any extra form-wide cleaning after Field.clean() has been
+called on every field. Any ValidationError raised by this method will
+not be associated with a particular field; it will have a special-case
+association with the field named ‘__all__’.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="id4">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">BankForm</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#id4" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bank details</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="id5">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">ConsentsForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="headerlink" href="#id5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Borrower consents</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="id6">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">DocumentForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="headerlink" href="#id6" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send documents form</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="id7">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">HomeExpensesForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="headerlink" href="#id7" title="Permalink to this definition">¶</a></dt>
+<dd><p>Application information - low lvr - expenses</p>
+<dl class="py method">
+<dt id="id8">
+<code class="sig-name descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id8" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook for doing any extra form-wide cleaning after Field.clean() has been
+called on every field. Any ValidationError raised by this method will
+not be associated with a particular field; it will have a special-case
+association with the field named ‘__all__’.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="id9">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">IncomeForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="headerlink" href="#id9" title="Permalink to this definition">¶</a></dt>
+<dd><p>Application information - income and expenses</p>
+<dl class="py method">
+<dt id="id10">
+<code class="sig-name descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#id10" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook for doing any extra form-wide cleaning after Field.clean() has been
+called on every field. Any ValidationError raised by this method will
+not be associated with a particular field; it will have a special-case
+association with the field named ‘__all__’.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="id11">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">InitiateForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="headerlink" href="#id11" title="Permalink to this definition">¶</a></dt>
+<dd><p>Login credentials form</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="id12">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">LoanObjectivesForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="headerlink" href="#id12" title="Permalink to this definition">¶</a></dt>
+<dd><p>Income Product - loan objectives</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="id13">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">ObjectivesForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">instance=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="headerlink" href="#id13" title="Permalink to this definition">¶</a></dt>
+<dd><p>Borrower screening/objectives form</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="id14">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">SigningForm</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#id14" title="Permalink to this definition">¶</a></dt>
+<dd><p>Application electronic signing</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="id15">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">TwoFactorForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">field_order=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="headerlink" href="#id15" title="Permalink to this definition">¶</a></dt>
+<dd><p>SMS 2FA Pin Form</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="id16">
+<code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">parseCurrencyToInt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#id16" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts string to an integer (or zero)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="id17">
+<code class="sig-prename descclassname">apps.application.forms.</code><code class="sig-name descname">validate_string_int</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#id17" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates whether a string can be converted to integer</p>
+</dd></dl>
+
+</div></blockquote>
+<p><strong>Views</strong></p>
+<blockquote>
+<div><span class="target" id="module-apps.application.views"></span><dl class="py class">
+<dt id="apps.application.views.AgeView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">AgeView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.AgeView" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.Applicant1View">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">Applicant1View</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.Applicant1View" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt id="apps.application.views.Applicant1View.form_class">
+<code class="sig-name descname">form_class</code><a class="headerlink" href="#apps.application.views.Applicant1View.form_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#id0" title="apps.application.forms.ApplicantForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.forms.ApplicantForm</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.Applicant1View.form_valid">
+<code class="sig-name descname">form_valid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">form</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.Applicant1View.form_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the form is valid, save the associated model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.Applicant1View.get_context_data">
+<code class="sig-name descname">get_context_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.Applicant1View.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert the form into the context dict.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.Applicant2View">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">Applicant2View</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.Applicant2View" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt id="apps.application.views.Applicant2View.form_class">
+<code class="sig-name descname">form_class</code><a class="headerlink" href="#apps.application.views.Applicant2View.form_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#id1" title="apps.application.forms.ApplicantTwoForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.forms.ApplicantTwoForm</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.Applicant2View.form_valid">
+<code class="sig-name descname">form_valid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">form</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.Applicant2View.form_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the form is valid, save the associated model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.Applicant2View.get_context_data">
+<code class="sig-name descname">get_context_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.Applicant2View.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert the form into the context dict.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.ApplicationHelper">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">ApplicationHelper</code><a class="headerlink" href="#apps.application.views.ApplicationHelper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper class to extend and override generic class based views</p>
+<dl class="py method">
+<dt id="apps.application.views.ApplicationHelper.get_bound_data">
+<code class="sig-name descname">get_bound_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ApplicationHelper.get_bound_data" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Returns form data dictionary.</dt><dd><ul class="simple">
+<li><p>Enables manipulation of data in case where from invalid as data returned as a string.</p></li>
+<li><p>Used when manually rendering forms</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.ApplicationHelper.get_projection_object">
+<code class="sig-name descname">get_projection_object</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ApplicationHelper.get_projection_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return appropriately instantiated LoanProjection object</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.ApplicationHelper.get_projection_results">
+<code class="sig-name descname">get_projection_results</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">scenarioList</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ApplicationHelper.get_projection_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns required projection results as specified in scenarioList
+Wraps a site_Utilities function</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.ApplicationHelper.set_initial_income_purpose">
+<code class="sig-name descname">set_initial_income_purpose</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ApplicationHelper.set_initial_income_purpose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set defaults if purpose is blank</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.ApplicationHelper.validateGetContext">
+<code class="sig-name descname">validateGetContext</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ApplicationHelper.validateGetContext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates application calculated amounts and returns dictionary with serialised purposes
+Wraps a site_Utilities function</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.AssetsView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">AssetsView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.AssetsView" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt id="apps.application.views.AssetsView.form_class">
+<code class="sig-name descname">form_class</code><a class="headerlink" href="#apps.application.views.AssetsView.form_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#id2" title="apps.application.forms.AssetsForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.forms.AssetsForm</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.AssetsView.get_context_data">
+<code class="sig-name descname">get_context_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.AssetsView.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert the form into the context dict.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="apps.application.views.AssetsView.model">
+<code class="sig-name descname">model</code><a class="headerlink" href="#apps.application.views.AssetsView.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#apps.application.models.Application" title="apps.application.models.Application"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.models.Application</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.BankView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">BankView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.BankView" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt id="apps.application.views.BankView.form_class">
+<code class="sig-name descname">form_class</code><a class="headerlink" href="#apps.application.views.BankView.form_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#id4" title="apps.application.forms.BankForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.forms.BankForm</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.BankView.get_context_data">
+<code class="sig-name descname">get_context_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.BankView.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert the form into the context dict.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.ConsentsView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">ConsentsView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ConsentsView" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt id="apps.application.views.ConsentsView.form_class">
+<code class="sig-name descname">form_class</code><a class="headerlink" href="#apps.application.views.ConsentsView.form_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#id5" title="apps.application.forms.ConsentsForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.forms.ConsentsForm</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.ConsentsView.get">
+<code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">request</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ConsentsView.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle GET requests: instantiate a blank version of the form.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.ConsentsView.get_context_data">
+<code class="sig-name descname">get_context_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ConsentsView.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert the form into the context dict.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.ContactView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">ContactView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ContactView" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.CreateApplication">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">CreateApplication</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.CreateApplication" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt id="apps.application.views.CreateApplication.serializer_class">
+<code class="sig-name descname">serializer_class</code><a class="headerlink" href="#apps.application.views.CreateApplication.serializer_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.serialisers.IncomeApplicationSeraliser</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.DeclarationsView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">DeclarationsView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.DeclarationsView" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt id="apps.application.views.DeclarationsView.form_class">
+<code class="sig-name descname">form_class</code><a class="headerlink" href="#apps.application.views.DeclarationsView.form_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#id14" title="apps.application.forms.SigningForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.forms.SigningForm</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.DeclarationsView.form_valid">
+<code class="sig-name descname">form_valid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">form</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.DeclarationsView.form_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the form is valid, save the associated model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.DeclarationsView.get_context_data">
+<code class="sig-name descname">get_context_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.DeclarationsView.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert the form into the context dict.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.DeclarationsView.get_form_kwargs">
+<code class="sig-name descname">get_form_kwargs</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.DeclarationsView.get_form_kwargs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the keyword arguments for instantiating the form.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.DocumentsView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">DocumentsView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.DocumentsView" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt id="apps.application.views.DocumentsView.form_class">
+<code class="sig-name descname">form_class</code><a class="headerlink" href="#apps.application.views.DocumentsView.form_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#id6" title="apps.application.forms.DocumentForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.forms.DocumentForm</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.DocumentsView.form_valid">
+<code class="sig-name descname">form_valid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">form</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.DocumentsView.form_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the form is valid, save the associated model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.DocumentsView.get_context_data">
+<code class="sig-name descname">get_context_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.DocumentsView.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert the form into the context dict.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="apps.application.views.DocumentsView.model">
+<code class="sig-name descname">model</code><a class="headerlink" href="#apps.application.views.DocumentsView.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#apps.application.models.ApplicationDocuments" title="apps.application.models.ApplicationDocuments"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.models.ApplicationDocuments</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.EligibilityView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">EligibilityView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.EligibilityView" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt id="apps.application.views.EligibilityView.form_class">
+<code class="sig-name descname">form_class</code><a class="headerlink" href="#apps.application.views.EligibilityView.form_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#id13" title="apps.application.forms.ObjectivesForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.forms.ObjectivesForm</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.EligibilityView.form_valid">
+<code class="sig-name descname">form_valid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">form</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.EligibilityView.form_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the form is valid, save the associated model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.EligibilityView.get">
+<code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">request</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">arg</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.EligibilityView.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle GET requests: instantiate a blank version of the form.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.EligibilityView.get_context_data">
+<code class="sig-name descname">get_context_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.EligibilityView.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert the form into the context dict.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="apps.application.views.EligibilityView.model">
+<code class="sig-name descname">model</code><a class="headerlink" href="#apps.application.views.EligibilityView.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#apps.application.models.Application" title="apps.application.models.Application"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.models.Application</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.ExitProductView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">ExitProductView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ExitProductView" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.ExitView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">ExitView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ExitView" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.GeneratePin">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">GeneratePin</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.GeneratePin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.HomeExpensesView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">HomeExpensesView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.HomeExpensesView" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt id="apps.application.views.HomeExpensesView.form_class">
+<code class="sig-name descname">form_class</code><a class="headerlink" href="#apps.application.views.HomeExpensesView.form_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#id7" title="apps.application.forms.HomeExpensesForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.forms.HomeExpensesForm</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.HomeExpensesView.get_context_data">
+<code class="sig-name descname">get_context_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.HomeExpensesView.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert the form into the context dict.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="apps.application.views.HomeExpensesView.model">
+<code class="sig-name descname">model</code><a class="headerlink" href="#apps.application.views.HomeExpensesView.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#apps.application.models.Application" title="apps.application.models.Application"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.models.Application</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.IncomeView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">IncomeView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.IncomeView" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt id="apps.application.views.IncomeView.form_class">
+<code class="sig-name descname">form_class</code><a class="headerlink" href="#apps.application.views.IncomeView.form_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#id9" title="apps.application.forms.IncomeForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.forms.IncomeForm</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.IncomeView.form_invalid">
+<code class="sig-name descname">form_invalid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">form</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.IncomeView.form_invalid" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the form is invalid, render the invalid form.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.IncomeView.form_valid">
+<code class="sig-name descname">form_valid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">form</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.IncomeView.form_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the form is valid, save the associated model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.IncomeView.get">
+<code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">request</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.IncomeView.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle GET requests: instantiate a blank version of the form.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.IncomeView.get_context_data">
+<code class="sig-name descname">get_context_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.IncomeView.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert the form into the context dict.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="apps.application.views.IncomeView.model">
+<code class="sig-name descname">model</code><a class="headerlink" href="#apps.application.views.IncomeView.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#apps.application.models.Application" title="apps.application.models.Application"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.models.Application</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.MaximumView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">MaximumView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.MaximumView" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.MinimumView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">MinimumView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.MinimumView" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.MortgageView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">MortgageView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.MortgageView" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.MultiplePurposesView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">MultiplePurposesView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.MultiplePurposesView" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.NextStepsView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">NextStepsView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.NextStepsView" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.ObjectivesView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">ObjectivesView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ObjectivesView" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt id="apps.application.views.ObjectivesView.form_class">
+<code class="sig-name descname">form_class</code><a class="headerlink" href="#apps.application.views.ObjectivesView.form_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#id12" title="apps.application.forms.LoanObjectivesForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.forms.LoanObjectivesForm</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.ObjectivesView.form_valid">
+<code class="sig-name descname">form_valid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">form</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ObjectivesView.form_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the form is valid, save the associated model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.ObjectivesView.get">
+<code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">request</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ObjectivesView.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle GET requests: instantiate a blank version of the form.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.ObjectivesView.get_context_data">
+<code class="sig-name descname">get_context_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ObjectivesView.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert the form into the context dict.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.ObjectivesView.get_object">
+<code class="sig-name descname">get_object</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">queryset</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ObjectivesView.get_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the object the view is displaying.</p>
+<p>Require <cite>self.queryset</cite> and a <cite>pk</cite> or <cite>slug</cite> argument in the URLconf.
+Subclasses can override this to return any object.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.OwnershipView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">OwnershipView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.OwnershipView" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.PdfApplication">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">PdfApplication</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.PdfApplication" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.PdfLoanSummary">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">PdfLoanSummary</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.PdfLoanSummary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.ProductView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">ProductView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ProductView" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.ProjectionsView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">ProjectionsView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ProjectionsView" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.ResumeApplicationView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">ResumeApplicationView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ResumeApplicationView" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt id="apps.application.views.ResumeApplicationView.form_class">
+<code class="sig-name descname">form_class</code><a class="headerlink" href="#apps.application.views.ResumeApplicationView.form_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#id15" title="apps.application.forms.TwoFactorForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.forms.TwoFactorForm</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.ResumeApplicationView.form_valid">
+<code class="sig-name descname">form_valid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">form</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ResumeApplicationView.form_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the form is valid, redirect to the supplied URL.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.ResumeApplicationView.get">
+<code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">request</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ResumeApplicationView.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle GET requests: instantiate a blank version of the form.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.ResumeApplicationView.get_context_data">
+<code class="sig-name descname">get_context_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ResumeApplicationView.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert the form into the context dict.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="apps.application.views.ResumeApplicationView.model">
+<code class="sig-name descname">model</code><a class="headerlink" href="#apps.application.views.ResumeApplicationView.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#apps.application.models.Application" title="apps.application.models.Application"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.models.Application</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.SendLoanSummary">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">SendLoanSummary</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.SendLoanSummary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.SessionErrorView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">SessionErrorView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.SessionErrorView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error page for session errors</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.SessionIdOnlyMixin">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">SessionIdOnlyMixin</code><a class="headerlink" href="#apps.application.views.SessionIdOnlyMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensure any attempt to access without UID set is redirect to error view</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.SessionRequiredMixin">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">SessionRequiredMixin</code><a class="headerlink" href="#apps.application.views.SessionRequiredMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensure any attempt to access without UID set is redirect to error view</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.SliderUpdate">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">SliderUpdate</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.SliderUpdate" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt id="apps.application.views.SliderUpdate.form_class">
+<code class="sig-name descname">form_class</code><a class="headerlink" href="#apps.application.views.SliderUpdate.form_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#id12" title="apps.application.forms.LoanObjectivesForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.forms.LoanObjectivesForm</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.SliderUpdate.form_invalid">
+<code class="sig-name descname">form_invalid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">form</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.SliderUpdate.form_invalid" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the form is invalid, render the invalid form.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.SliderUpdate.form_valid">
+<code class="sig-name descname">form_valid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">form</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.SliderUpdate.form_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the form is valid, save the associated model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.SliderUpdate.get_object">
+<code class="sig-name descname">get_object</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">queryset</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.SliderUpdate.get_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the object the view is displaying.</p>
+<p>Require <cite>self.queryset</cite> and a <cite>pk</cite> or <cite>slug</cite> argument in the URLconf.
+Subclasses can override this to return any object.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.StartApplicationView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">StartApplicationView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.StartApplicationView" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py attribute">
+<dt id="apps.application.views.StartApplicationView.form_class">
+<code class="sig-name descname">form_class</code><a class="headerlink" href="#apps.application.views.StartApplicationView.form_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#id11" title="apps.application.forms.InitiateForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.forms.InitiateForm</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.StartApplicationView.form_valid">
+<code class="sig-name descname">form_valid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">form</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.StartApplicationView.form_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the form is valid, save the associated model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="apps.application.views.StartApplicationView.get_context_data">
+<code class="sig-name descname">get_context_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.StartApplicationView.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert the form into the context dict.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="apps.application.views.StartApplicationView.model">
+<code class="sig-name descname">model</code><a class="headerlink" href="#apps.application.views.StartApplicationView.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#apps.application.models.Application" title="apps.application.models.Application"><code class="xref py py-class docutils literal notranslate"><span class="pre">apps.application.models.Application</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.SubmittedView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">SubmittedView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.SubmittedView" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.SystemError">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">SystemError</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.SystemError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.ValidateMixin">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">ValidateMixin</code><a class="headerlink" href="#apps.application.views.ValidateMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utilities to assist with validating signed payload</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.ValidateReturn">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">ValidateReturn</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ValidateReturn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.ValidateStart">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">ValidateStart</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ValidateStart" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="apps.application.views.ValidationErrorView">
+<em class="property">class </em><code class="sig-prename descclassname">apps.application.views.</code><code class="sig-name descname">ValidationErrorView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#apps.application.views.ValidationErrorView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error page for validation errors</p>
+</dd></dl>
+
+</div></blockquote>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="accounts.html" class="btn btn-neutral float-left" title="Accounts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Paul Murray
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

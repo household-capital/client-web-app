@@ -242,12 +242,13 @@ class EnrichEnum:
     # UTILITY FUNCTIONS
 
     def __firstCap(self, inputString):
-        newString = ''
-        wordList = inputString.split()
-        for word in wordList:
-            newWord = word.lower()
-            newString += newWord.capitalize() + ' '
-        return newString.rstrip()
+        if inputString:
+            newString = ''
+            wordList = inputString.split()
+            for word in wordList:
+                newWord = word.lower()
+                newString += newWord.capitalize() + ' '
+            return newString.rstrip()
 
     def __enumState(self, strState):
         if len(strState) < 4:

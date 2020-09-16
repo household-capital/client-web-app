@@ -1,4 +1,3 @@
-@import url(https://fonts.googleapis.com/css?family=Cookie);
 
 /* PAGE */
 
@@ -27,6 +26,7 @@ body {
     src: url('../fonts/MercuryDisplay-Semibold.otf') format("truetype"),
     local('MercuryDisplay');
 }
+
 
 /* ELEMENTS */
 
@@ -438,14 +438,22 @@ input[type='radio']:checked:after {
     width: 15px;
     height: 15px;
     border-radius: 15px;
-    top: -2px;
-    left: -1px;
+    top: -2.5px;
+    left: -.5px;
     position: relative;
     background-color: #5183A1;
     content: '';
     display: inline-block;
     visibility: visible;
     border: 2px solid white;
+}
+
+
+input[type='radio']:after {
+
+    content: '';
+    display: inline-block;
+
 }
 
 
@@ -747,7 +755,6 @@ a.btn-hhcGold {
 
 .hero::after {
     content: "";
-    background-image: url("/static/img/hhc/HC-Hero.6.jpg");
     opacity: 0.3;
     top: 0;
     left: 0;
@@ -762,7 +769,8 @@ a.btn-hhcGold {
     -moz-background-size: cover;
     -webkit-background-size: cover;
     background-size: cover;;
-}
+    }
+
 
 .login_form {
     background-color: white;

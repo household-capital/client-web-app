@@ -60,7 +60,7 @@ class apiSalesforce():
                            "Select Id, Total_Household_Loan_Amount__c, Total_Plan_Amount__c, Establishment_Fee_Percent__c from Opportunity where Lead_Record_Type__c = 'Household' and StageName in ('Meeting Held', 'Application Sent', 'Build Case', 'Assess')",
 
                       'LoanObjectList':
-                           "Select Id, Status__c, Name, LoanNumber__c, Total_Loan_Amount__c, Total_Limits__c, Total_Establishment_Fee__c, Establishment_Fee_Percent__c, Mortgage_Number__c, Account_Number__c, BSB__c from Loan__c where Status__c != \'Inactive\'",
+                           "Select Id, Status__c, Name, LoanNumber__c, Total_Loan_Amount__c, Total_Limits__c, Total_Establishment_Fee__c, Establishment_Fee_Percent__c, Total_Plan_Purpose_Amount__c, TotalPlanAmount__c, TotalPlanEstablishmentFee__c, Mortgage_Number__c, Account_Number__c, BSB__c from Loan__c where Status__c != \'Inactive\'",
 
                       'LoanLinkList':
                             "select Loan__c, Opportunity__c from LoanOpportunityLink__c order by CreatedDate",
@@ -84,7 +84,7 @@ class apiSalesforce():
                             "Select Id, Name, Loan__c, Property__c from LoanPropertyLink__c",
 
                       'LoanObjectPurposes':
-                            "select Id, Category__c, Amount__c, Description__c, Drawdown_Amount__c, Drawdown_Frequency__c, Intention__c, Loan__c, Name, Notes__c, Plan_Amount__c, Plan_Period__c, TopUp_Buffer__c from Loan_Limit__c"
+                            "select Id, Category__c, Amount__c, Description__c, Drawdown_Amount__c, Drawdown_Frequency__c, Intention__c, Loan__c, Name, Notes__c, Plan_Amount__c, Plan_Period__c, TopUp_Buffer__c, Contract_Drawdowns__c, Plan_Drawdowns__c, Active__c from Loan_Limit__c"
                       }
 
 
@@ -100,13 +100,15 @@ class apiSalesforce():
             if production == True:
                 self.sf = Salesforce(username=os.getenv("SALESFORCE_USERNAME" + ENV_STR),
                                      password=os.getenv("SALESFORCE_PASSWORD" + ENV_STR),
-                                     security_token=os.getenv("SALESFORCE_TOKEN" + ENV_STR))
+                                     security_token=os.getenv("SALESFORCE_TOKEN" + ENV_STR),
+                                     version='48.0')
             else:
 
                 self.sf = Salesforce(username=os.getenv("SALESFORCE_USERNAME" + ENV_STR),
                                      password=os.getenv("SALESFORCE_PASSWORD" + ENV_STR),
                                      security_token=os.getenv("SALESFORCE_TOKEN" + ENV_STR),
-                                     domain="test")
+                                     domain="test",
+                                     version='48.0')
 
             write_applog("INFO", 'apiSalesforce', 'openAPI', "Salesforce API Opened")
             return {'status':"Ok"}
@@ -210,6 +212,26 @@ class apiSalesforce():
         except:
             return {'status':'Error','responseText':'Unknown' }
 
+    def updateOpportunity(self,opportunityID,oppDict):
+        try:
+            result=self.sf.Opportunity.update(opportunityID,oppDict)
+            return {'status':'Ok','data':result}
+
+        except SalesforceMalformedRequest as err:
+            return {'status':'Error', 'responseText':err.content[0]}
+        except:
+            return {'status':'Error','responseText':'Unknown' }
+
+    def getLead(self, leadID):
+        try:
+            result = self.sf.Lead.get(leadID)
+            return {'status': 'Ok', 'data': result}
+
+        except SalesforceMalformedRequest as err:
+            return {'status': 'Error', 'responseText': err.content[0]}
+
+        except:
+            return {'status': 'Error', 'responseText': 'Unknown'}
 
     def updateLoanID(self, oppID, AMAL_loanId):
         '''Update LoanID on Opportunity and Loan Object'''
@@ -250,6 +272,28 @@ class apiSalesforce():
             return {'status': 'Error', 'responseText': err.content[0]}
         except:
             return {'status': 'Error', 'responseText': 'Unknown'}
+
+    def createTask(self, OwnerId, ActivityDate, Subject, Priority = 'Normal', Status='Open', Description=None, WhatId=None, WhoId=None):
+
+        payload={
+            'OwnerId': OwnerId,
+            'ActivityDate': ActivityDate,
+            'Subject': Subject,
+            'Priority': Priority,
+            'Status': Status,
+            'Description': Description,
+            'WhatId': WhatId,
+            'WhoId': WhoId,
+        }
+
+        try:
+            result = self.sf.Task.create(payload)
+            return {'status': 'Ok', 'data': result}
+
+        except SalesforceMalformedRequest as err:
+            return {'status': 'Error', 'responseText': err.content[0]}
+        except SalesforceGeneralError as err:
+            return {'status': 'Error', 'responseText': err.content[0]}
 
 
     # SF Opportunity Extract

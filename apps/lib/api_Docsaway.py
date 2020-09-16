@@ -4,6 +4,9 @@ import json
 import requests
 import base64
 
+from django.core.files.storage import default_storage
+
+
 
 class apiDocsAway():
 
@@ -40,7 +43,7 @@ class apiDocsAway():
         headers = {
             'content-type': "application/json"}
 
-        file = open(src_filepath,'rb')
+        file = default_storage.open(src_filepath,'rb')
         fileContents = file.read()
         fileEncode = base64.b64encode(fileContents)
         fileStr = str(fileEncode, "utf-8")

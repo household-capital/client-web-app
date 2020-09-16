@@ -1,14 +1,11 @@
 # Python Imports
 
 import json
-from math import log
-from datetime import datetime
+
 
 # Django Imports
-from django.conf import settings
-from django.contrib.auth import logout
 from django.contrib import messages
-from django.core.files import File
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse
 from django.urls import reverse_lazy, reverse
@@ -33,7 +30,7 @@ from apps.lib.site_DataMapping import serialisePurposes
 from apps.lib.site_Globals import ECONOMIC, APP_SETTINGS, LOAN_LIMITS
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, validateLoanGetContext, getProjectionResults,\
-    updateNavQueue, firstNameSplit, populateDrawdownPurpose
+    updateNavQueue, firstNameSplit, populateDrawdownPurpose, createCaseModelSettings
 
 from .forms import ClientDetailsForm, SettingsForm, IntroChkBoxForm, lumpSumPurposeForm, drawdownPurposeForm, \
     DetailedChkBoxForm,  protectedEquityForm, interestPaymentForm
@@ -52,7 +49,6 @@ class SessionRequiredMixin(object):
 
 # // UTILITIES
 
-
 class ContextHelper():
     # Most of the views require the same validation and context information
 
@@ -67,10 +63,8 @@ class ContextHelper():
         context['pensionTypesEnum'] = pensionTypesEnum
         context['loanTypesEnum'] = loanTypesEnum
 
-        context["transfer_img"] = settings.STATIC_URL + "img/icons/transfer_" + str(
-            context['maxLVRPercentile']) + "_icon.png"
-
-
+        context["transfer_img"] = staticfiles_storage.url("img/icons/transfer_" + str(
+            context['maxLVRPercentile']) + "_icon.png")
 
         return context
 
@@ -102,14 +96,8 @@ class LandingView(HouseholdLoginRequiredMixin, ContextHelper, TemplateView):
 
         write_applog("INFO", 'LandingView', 'get', "Meeting commenced by " + str(request.user) + " for -" + caseUID)
 
-        # Instantiate model settings if required
-        qs = ModelSetting.objects.queryset_byUID(caseUID)
-        obj = qs.get()
-        if not obj.housePriceInflation:
-            economicSettings = ECONOMIC.copy()
-            economicSettings.pop('defaultMargin')
-            economicSettings['establishmentFeeRate'] = LOAN_LIMITS['establishmentFee']
-            qs.update(**economicSettings)
+        # Esnure model settings populated
+        createCaseModelSettings(caseUID)
 
         return super(LandingView, self).get(self, request, *args, **kwargs)
 
@@ -258,7 +246,6 @@ class IntroductionView1(HouseholdLoginRequiredMixin, SessionRequiredMixin, Conte
 
         # Page uses post_id (slug) to expose images using same view
         context['post_id'] = kwargs.get("post_id")
-        context['imgPath'] = settings.STATIC_URL + 'img/'
         if context['post_id'] == 4:
             context['menuBarItems'] = {"data": [
                 {"button": False,
@@ -286,7 +273,6 @@ class IntroductionView2(HouseholdLoginRequiredMixin, SessionRequiredMixin, Conte
         context = super(IntroductionView2, self).get_context_data(**kwargs)
         context['title'] = 'Introduction'
         context['titleUrl'] = reverse_lazy('client2:navigation')
-        context['imgPath'] = settings.STATIC_URL + 'img/'
 
         # use object to retrieve image
         queryset = Case.objects.queryset_byUID(self.request.session['caseUID'])
@@ -342,8 +328,8 @@ class IntroductionView3(HouseholdLoginRequiredMixin, SessionRequiredMixin, Conte
             context['sliderData'] = json.dumps(proj_data['dataArray'])
             context['futHomeValue'] = proj_data['futHomeValue']
             context['sliderPoints'] = proj_data['intervals']
-            context['imgPath'] = settings.STATIC_URL + 'img/icons/block_equity_0_icon.png'
-            context['transferImagePath'] = settings.STATIC_URL + 'img/icons/transfer_0_icon.png'
+            context['imgPath'] = staticfiles_storage.url('img/icons/block_equity_0_icon.png')
+            context['transferImagePath'] = staticfiles_storage.url('img/icons/transfer_0_icon.png')
 
         return context
 
@@ -563,7 +549,7 @@ class Live2(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, Up
     success_url = reverse_lazy('client2:navigation')
     form_class = lumpSumPurposeForm
     category = purposeCategoryEnum.LIVE.value
-    intention = purposeIntentionEnum.TRANSPORT.value
+    intention = purposeIntentionEnum.TRANSPORT_AND_TRAVEL.value
 
     def get_context_data(self, **kwargs):
         # Update and add to context
@@ -696,7 +682,6 @@ class Options1(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper,
         context = super(Options1, self).get_context_data(**kwargs)
         context['title'] = 'Reserved Equity'
         context['titleUrl'] = reverse_lazy('client2:navigation')
-        context["img_path"] = settings.STATIC_URL + "img/"
 
         context['menuBarItems'] = {"data": [
             {"button": False,
@@ -730,7 +715,6 @@ class Options2(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper,
         context = super(Options2, self).get_context_data(**kwargs)
         context['title'] = 'Interest Payment'
         context['titleUrl'] = reverse_lazy('client2:navigation')
-        context["img_path"] = settings.STATIC_URL + "img/"
 
         context['menuBarItems'] = {"data": [
             {"button": False,

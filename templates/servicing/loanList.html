@@ -60,22 +60,30 @@
 
                             <div class="row form-group justify-content-center">
 
-                                <label class="d-none d-sm-table-cell" for="search" class="col-form-label"><i
-                                        class="fas fa-search fa-lg"></i></label>
-
                                 <div class="col-lg-5 pb-3">
-                                    <input class='form-control' type='text' name='search' placeholder='Search loans'
-                                           value='{{ request.GET.search }}'/>
+                                    <p class="small">&nbsp;</p>
+                                    <div class="form-group row">
+
+                                        <label for="search" class="col-sm-1 col-form-label"><i
+                                                class="fas fa-search fa-lg"></i></label>
+                                        <div class="col-sm-11">
+                                            <input class='form-control' type='text' name='search'
+                                                   placeholder='Search loans'
+                                                   value='{{ request.GET.search }}'/>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div class="col-lg-5 text-left">
+                                <div class="col-lg-2 text-center">
+                                    <p class="small text-muted">Enquiries</p>
+
                                     <a href="{% url 'servicing:loanEnquiryList' %}">
                                         <div class="btn btn-outline-secondary" data-toggle="tooltip"
                                              data-placement="top"
                                              title="Open Loan Enquiries"><i class="fas fa-user-clock"></i>
                                             {% if enquiryItems > 0 %}
-                                                    <span class="badge btn-success align-text-top">{{ enquiryItems }}</span>
-                                                {% endif %}
+                                                <span class="badge btn-success align-text-top">{{ enquiryItems }}</span>
+                                            {% endif %}
                                         </div>
                                     </a>
 
@@ -85,13 +93,32 @@
                                              title="Recent Loan Enquiries"><i class="fas fa-user-tag fa-fw"></i>
                                         </div>
                                     </a>
+                                </div>
+
+                                <div class="col-lg-1 text-center">
+                                    <p class="small text-muted">Events</p>
 
                                     <a href="{% url 'servicing:loanEventList' %}">
                                         <div class="btn btn-outline-secondary" data-toggle="tooltip"
                                              data-placement="top"
-                                             title="Recent Loan Events"><i class="far fa-calendar-plus fa-fw"></i>
+                                             title="Recent Loan Events"><i class="far fa-house-flood fa-fw"></i>
                                         </div>
                                     </a>
+                                </div>
+
+                                <div class="col-lg-1 text-center">
+                                    <p class="small text-muted">Annual</p>
+
+                                    <a href="{% url 'servicing:loanAnnualList' %}">
+                                        <div class="btn btn-outline-secondary" data-toggle="tooltip"
+                                             data-placement="top"
+                                             title="Recent Loan Events"><i class="far fa-calendar-alt fa-fw"></i>
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="col-lg-3 text-center">
+                                    <p class="small text-muted">Reconciliation</p>
 
                                     {% if request.GET.filter == 'Reconciliation' %}
                                         <a href="?filter=">
@@ -161,7 +188,14 @@
                         <tr>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.sfLoanName }}</a></td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.owner }}</a></td>
-                            <td><a href="{{ obj.get_absolute_url }}">{{ obj.settlementDate | date:'d M Y'}}</a></td>
+
+                            <td><a href="{{ obj.get_absolute_url }}">
+                                {% if obj.settlementDate %}{{ obj.settlementDate | date:'d M Y'}}
+                                {% else %}
+                                <span><badge class="badge badge-info">Not Settled</badge></span>
+                                {% endif %}
+                            </a></td>
+
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.enumStatus }}</a></td>
                             <td>{% if obj.availableAmount > 1000 %}<i class="fas fa-wallet fa-fw"></i>{% endif %}</td>
                             <td>{% if obj.planAddition > 1000 %}<i class="fas fa-repeat-alt"></i>{% endif %}</td>

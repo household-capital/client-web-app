@@ -101,6 +101,9 @@ class LoanValidator():
         if self.initStatus == False:
             response['status'] = "Error"
             response['responseText'] = 'Insufficient data'
+            if self.initDict['postcode']:
+                data['postcode'] = self.checkPostcode(str(self.initDict['postcode']))
+                response['data'] = data
             return response
 
         # Check Valid Postcode

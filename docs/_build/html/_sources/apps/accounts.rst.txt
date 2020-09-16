@@ -22,8 +22,9 @@ Accounts
 
 **Tasks**
 
-    .. autodecorator:: apps.accounts.tasks
-
+    .. automodule:: apps.accounts.forms
+        :members:
+        :exclude-members: DoesNotExist, MultipleObjectsReturned
 
 **Views**
 

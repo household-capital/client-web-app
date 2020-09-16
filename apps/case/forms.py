@@ -38,7 +38,7 @@ class CaseDetailsForm(forms.ModelForm):
                   'salutation_2', 'middlename_2', 'maritalStatus_2',
                   'street', 'suburb', 'postcode', 'valuation', 'dwellingType', 'propertyImage', 'mortgageDebt',
                   'superFund', 'valuationDocument', 'state', 'investmentLabel',
-                  'superAmount', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email', 'productType']
+                  'superAmount', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email', 'productType', 'channelDetail']
         widgets = {
             'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
         }
@@ -143,10 +143,11 @@ class CaseDetailsForm(forms.ModelForm):
                     css_class="col-lg-6"),
 
                 Div(Div(HTML("&nbsp;"), css_class='form-header'),
+                    Div(Div(HTML("Specific Broker / Adviser"), css_class='form-label'),
+                        Div(Field('referralCompany'))),
                     Div(Div(HTML("Introducer or Advisor"), css_class='form-label'),
                         Div(Field('adviser'))),
-                    Div(Div(HTML("Referrer"), css_class='form-label'),
-                            Div(Field('referralCompany'))),
+
                     Div(HTML("<i class='fas fa-home'></i>&nbsp;&nbsp;Property"), css_class='form-header pt-2'),
                     Div(Div(HTML("Dwelling Type*"), css_class='form-label'),
                         Div(Field('dwellingType'))),
@@ -180,6 +181,10 @@ class CaseDetailsForm(forms.ModelForm):
                     Div(HTML("<i class='fas fa-barcode'></i>&nbsp;&nbsp;Product Type"), css_class='form-header'),
                     Div(Div(HTML("Product Type"), css_class='form-label'),
                         Div(Field('productType'))),
+
+                    Div(HTML("<i class='fas fa-filter'></i>&nbsp;&nbsp;Channel Detail"), css_class='form-header'),
+                    Div(Div(HTML("Channel Detail"), css_class='form-label'),
+                        Div(Field('channelDetail'))),
 
                     Div(HTML("<p class='small pt-2'><i class='fa fa-camera fa-fw'>&nbsp;&nbsp;</i>Property Image</p>"),
                         Field('propertyImage')),
@@ -508,7 +513,7 @@ class purposeAddForm(forms.ModelForm):
             (purposeCategoryEnum.TOP_UP.value, purposeIntentionEnum.CONTINGENCY.value),
             (purposeCategoryEnum.REFINANCE.value, purposeIntentionEnum.MORTGAGE.value),
             (purposeCategoryEnum.LIVE.value, purposeIntentionEnum.RENOVATIONS.value),
-            (purposeCategoryEnum.LIVE.value, purposeIntentionEnum.TRANSPORT.value),
+            (purposeCategoryEnum.LIVE.value, purposeIntentionEnum.TRANSPORT_AND_TRAVEL.value),
             (purposeCategoryEnum.GIVE.value, purposeIntentionEnum.GIVE_TO_FAMILY.value),
             (purposeCategoryEnum.CARE.value, purposeIntentionEnum.LUMP_SUM.value),
             (purposeCategoryEnum.CARE.value, purposeIntentionEnum.REGULAR_DRAWDOWN.value),

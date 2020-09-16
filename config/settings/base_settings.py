@@ -11,14 +11,11 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
-from dotenv import load_dotenv
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 TEMPLATE_PATH=BASE_DIR+'/templates/'
-
-# Load Environment variables
-load_dotenv()
 
 # Project Settings
 ROOT_URLCONF = 'config.urls'
@@ -40,6 +37,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_celery_beat',
     'django_celery_results',
+    'storages',
+    'corsheaders',
     # my apps
     'apps.accounts',
     'apps.application',
@@ -57,6 +56,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -83,14 +83,6 @@ TEMPLATES = [
     },
 ]
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.11/howto/static-files/
-STATIC_URL = '/static/'
-MEDIA_URL = '/media/'
-STATIC_ROOT = BASE_DIR + '/static/collected'
-MEDIA_ROOT = BASE_DIR + '/static/media'
-STATICFILES_DIRS = (BASE_DIR + '/static/uncollected',)
-FILE_UPLOAD_PERMISSIONS = 0o644
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
@@ -156,6 +148,13 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_ENABLE_UTC = False
 
+CORS_ALLOWED_ORIGINS = [
+    "https://householdcapital.app",
+    "https://www.householdcapital.app",
+    "https://householdcapital.com.au",
+    "https://www.householdcapital.com.au",
+]
+
 # Default URLS
-LOGIN_URL = LOGIN_URL = '/accounts/login/'
+LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/landing/'

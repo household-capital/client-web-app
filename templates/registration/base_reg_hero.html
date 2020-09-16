@@ -17,6 +17,12 @@
   </head>
 
 <body>
+
+<style> .hero::after {
+    background-image: url({% static 'img/hhc/HC-Hero.6.jpg' %});
+    }
+</style>
+
 {% include 'registration/base_reg_navbar.html' %}
 
 {% block jumbotron %}{% endblock %}
@@ -28,8 +34,9 @@
     {% block pagination %}{% endblock %}
 
     <!-- Javascript -->
-    {% block javascript %}{% endblock %}
     {% include 'site/base.js.html' %}
+    {% block javascript %}{% endblock %}
+
 </body>
 </html>
 
