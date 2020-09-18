@@ -53,3 +53,8 @@ django_celery_results
 jwt
 ipdb
 redis[celery]
+
+django-storages
+django-cors-headers
+djangorestframework-simplejwt
+python-magic
