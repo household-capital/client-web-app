@@ -9,6 +9,7 @@ from apps.lib.site_Logging import write_applog
 
 
 class apiBurst():
+    """Burst SMS API wrapper"""
 
     api_path = 'https://api.transmitsms.com/'
     api_url_balance = 'get-balance.json'

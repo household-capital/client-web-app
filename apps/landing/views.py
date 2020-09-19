@@ -51,8 +51,6 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
         context['title'] = 'Dashboard'
 
         # Time Series Data
-        #tsData = json.dumps(list(WebCalculator.objects.timeSeries('Interactions', 90)), default=self.dateParse)
-        #context['chartInteractionData'] = tsData
 
         tsData = json.dumps(list(Enquiry.objects.timeSeries('Calculator', 90)), default=self.dateParse)
         context['chartEmailData'] = tsData
@@ -129,18 +127,6 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
 
         context['directData'] = self.__createTableData(dataQs, 'referrer', 'leads')
         context['directTypesEnum'] = directTypesEnum
-
-        # - get interaction data and build table
-        #qsInteractions = WebCalculator.objects.all()
-        #dataQs = qsInteractions \
-        #    .annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
-        #    .values_list('date') \
-        #    .annotate(interactions=Count('calcUID')) \
-        #    .annotate(type=Value('interactions', output_field=CharField())) \
-        #    .values('type', 'date', 'interactions').order_by('date')
-
-        #context['interactionData'] = self.__createTableData(dataQs, 'type', 'interactions')
-
 
         tableTsPhoneData = []
         tableTsCalcData = []
@@ -260,18 +246,6 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
         context['chartEnquiryConversion'] = json.dumps(self.__createTimeSeries(dataQs, 'proportion')[-12:],
                                                        default=self.dateParse)
 
-        # - get interaction conversion
-        #qsMeetings = WebCalculator.objects.all()
-        #dataQs = qsMeetings \
-        #    .annotate(date=Cast(TruncMonth('timestamp', tzinfo=tz), DateField())) \
-        #    .values_list('date') \
-        #    .annotate(proportion=ExpressionWrapper(Value(100.0) * Count('email') / Count('calcUID'),
-        #                                           output_field=FloatField())) \
-        #    .values('date', 'proportion').order_by('date')
-
-        #context['chartCalculatorConversion'] = json.dumps(self.__createTimeSeries(dataQs, 'proportion')[-12:],
-        #                                                  default=self.dateParse)
-
         return context
 
     def __deDupe(self, qs):
@@ -337,14 +311,6 @@ class Weekly(HouseholdLoginRequiredMixin, TemplateView):
             .values('date') \
             .annotate(cases=Count('caseUID')) \
             .order_by()
-
-        # - get interaction data
-        #qsInts = WebCalculator.objects.all() \
-        #    .annotate(
-        #    date=Concat(ExtractYear('timestamp'), Value('-W'), ExtractWeek('timestamp'), output_field=CharField())) \
-        #    .values('date') \
-        #    .annotate(interactions=Count('calcUID')) \
-        #    .order_by()
 
         # - get enquiry data
         qsEnqs = Enquiry.objects.all() \
@@ -476,9 +442,3 @@ class EnquiryExtract(HouseholdLoginRequiredMixin, View):
 
             writer.writerow(row)
         return response
-
-
-
-
-
-

@@ -176,7 +176,13 @@ class CalendlyWebhook(View):
 
                     if caseObj:
                         caseObj.isZoomMeeting = True
-                        caseObj.save(update_fields=['isZoomMeeting'])
+
+                        if caseObj.caseNotes:
+                            caseObj.caseNotes += "\r\n" + "[# Calendly - " + meeting_name + " #]"
+                        else:
+                            caseObj.caseNotes = "[# Calendly - " + meeting_name + " #]"
+
+                        caseObj.save(update_fields=['isZoomMeeting', 'caseNotes'])
 
                     write_applog("INFO", 'Calendly', 'post', "Loan Interview Zoom Created: " + customer_email)
 

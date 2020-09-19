@@ -8,6 +8,7 @@ from apps.lib.site_Logging import write_applog
 
 
 class apiMappify():
+    """Mappify address lookup/validation API wrapper"""
 
     mappifyUrlGeo= 'https://mappify.io/api/rpc/address/geocode/'
     mappifyUrlPost= 'https://mappify.io/api/rpc/address/autocomplete/'

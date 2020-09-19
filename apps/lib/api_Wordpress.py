@@ -8,6 +8,7 @@ from apps.lib.site_Logging import write_applog
 
 
 class apiWordpress():
+    """HHC Wordpress Website API Wrapper"""
 
     api_url_calculator = 'api/calculators/'
     api_url_contact = '/api/leadsys/'

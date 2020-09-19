@@ -942,78 +942,11 @@ class pdfLoanSummary(ContextHelper,TemplateView):
                                                                'pointScenario', 'stressScenario' ])
         context.update(projectionContext)
 
-        return context
-
-
-class PdfRespLending(TemplateView):
-    # This page is not designed to be viewed - it is to be called by the pdf generator
-    # It requires a UID to be passed to it
-
-    template_name = "client_2_0/documents/respLending.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(PdfRespLending, self).get_context_data(**kwargs)
-
-        if 'uid' in kwargs:
-            caseUID = str(kwargs['uid'])
-
-            # get dictionaries from model
-            clientDict = Case.objects.dictionary_byUID(caseUID)
-            loanDict = Loan.objects.dictionary_byUID(caseUID)
-            context.update(clientDict)
-            context.update(loanDict)
-            context['caseUID'] = caseUID
-            context['loanTypesEnum'] = loanTypesEnum
 
         return context
 
 
-class PdfPrivacy(TemplateView):
-    # This page is not designed to be viewed - it is to be called by the pdf generator
-    # It requires a UID to be passed to it
 
-    template_name = "client_2_0/documents/privacy.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(PdfPrivacy, self).get_context_data(**kwargs)
-
-        if 'uid' in kwargs:
-            caseUID = str(kwargs['uid'])
-
-            # get dictionaries from model
-            clientDict = Case.objects.dictionary_byUID(caseUID)
-            loanDict = Loan.objects.dictionary_byUID(caseUID)
-
-            context.update(clientDict)
-            context.update(loanDict)
-            context['caseUID'] = caseUID
-            context['loanTypesEnum'] = loanTypesEnum
-
-        return context
-
-
-class PdfElectronic(TemplateView):
-    # This page is not designed to be viewed - it is to be called by the pdf generator
-    # It requires a UID to be passed to it
-
-    template_name = "client_2_0/documents/electronic.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(PdfElectronic, self).get_context_data(**kwargs)
-
-        if 'uid' in kwargs:
-            caseUID = str(kwargs['uid'])
-
-            # get dictionaries from model
-            clientDict = Case.objects.dictionary_byUID(caseUID)
-            loanDict = Loan.objects.dictionary_byUID(caseUID)
-
-            context.update(clientDict)
-            context.update(loanDict)
-            context['caseUID'] = caseUID
-            context['loanTypesEnum'] = loanTypesEnum
-
-        return context
 
 
 

@@ -5,6 +5,7 @@ import uuid
 # Django Imports
 from django.conf import settings
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.core.files.storage import default_storage
 from django.core import signing
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -71,9 +72,9 @@ def EmailLoanSummaryTask(appUID):
 
     dateStr = datetime.now().strftime('%Y-%m-%d-%H:%M:%S%z')
 
-    sourceUrl = reverse('application:pdfLoanSummary', kwargs={'uid': appUID})
+    sourceUrl = "https://householdcapital.app" + reverse('application:pdfLoanSummary', kwargs={'uid': appUID})
     componentFileName = "customerReports/Component-" + appUID[-12:] + ".pdf"
-    componentURL = settings.MEDIA_URL  + "customerReports/Component-" + appUID[-12:] + ".pdf"
+    componentURL = default_storage.url(componentFileName)
     targetFileName = "customerReports/Summary-" + appUID[-12:] + "-" + dateStr + ".pdf"
 
     #Generate Summary File
@@ -193,7 +194,7 @@ def next_steps_email(appUID, caseUID):
 
     # 3. Generate Application Summary
     attachments = []
-    sourceUrl = reverse('application:pdfApplication', kwargs={'uid': appUID})
+    sourceUrl = settings.SITE_URL + reverse('application:pdfApplication', kwargs={'uid': appUID})
     targetFileName = "customerReports/ApplicationSummary-" + appUID + ".pdf"
 
     pdf = pdfGenerator(appUID)
@@ -206,7 +207,7 @@ def next_steps_email(appUID, caseUID):
     qsApp.update(applicationDocument=targetFileName)
     appObj = qsApp.get()
 
-    attachments.append(('ApplicationSummary.pdf', appObj.applicationDocument.path))
+    attachments.append(('ApplicationSummary.pdf', appObj.applicationDocument.name))
 
     # Save document to Case
     qsCase = Case.objects.queryset_byUID(caseUID)
@@ -282,8 +283,7 @@ def FollowUpEmail(appUID):
 
     subject, from_email, to = "Household Capital: Application Follow-up", "info@householdcapital.com", appObj.email
 
-    sentEmail = sendTemplateEmail(template_name, email_context, subject, from_email, to,
-                                  bcc='paul.murray@householdcapital.com' )
+    sentEmail = sendTemplateEmail(template_name, email_context, subject, from_email, to)
 
     if sentEmail:
         appObj.followUpEmail = timezone.now()

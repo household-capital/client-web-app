@@ -4,6 +4,7 @@ from enum import Enum
 # Enum class is callable and the templating system will try and call it
 # This decorator sets a property to prevent the call, ensuring the
 # classes enumerate properly
+
 def accessInTemplate(cls):
     cls.do_not_call_in_templates = True
     return cls

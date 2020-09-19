@@ -13,7 +13,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template.loader import get_template
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import ListView, UpdateView, CreateView, TemplateView, View, FormView
 
@@ -220,13 +220,12 @@ class CaseDetailView(HouseholdLoginRequiredMixin, UpdateView):
                 context['calendlyMainUrl'] = self.object.owner.profile.calendlyUrl[
                                              :len(self.object.owner.profile.calendlyUrl) - 24]  # Refactor
 
-        #Application Documents
+        # Application Documents
         if caseObj.appUID:
             try:
                 context['docList'] = ApplicationDocuments.objects.filter(application__appUID=caseObj.appUID)
             except ApplicationDocuments.DoesNotExist:
                 pass
-
 
         return context
 
@@ -239,7 +238,7 @@ class CaseDetailView(HouseholdLoginRequiredMixin, UpdateView):
 
         # Don't allow later stages to be updated in the GUI
         if initialcaseStage not in [caseStagesEnum.DISCOVERY.value, caseStagesEnum.MEETING_HELD.value,
-        caseStagesEnum.APPLICATION.value,caseStagesEnum.CLOSED.value ]:
+                                    caseStagesEnum.APPLICATION.value, caseStagesEnum.CLOSED.value]:
             messages.error(self.request, "You can no longer update this Case ")
             return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': self.kwargs.get('uid')}))
 
@@ -261,32 +260,37 @@ class CaseDetailView(HouseholdLoginRequiredMixin, UpdateView):
         obj.save()
 
         # Renames and moves the image file if present
-        if obj.propertyImage:
+        if 'propertyImage' in self.request.FILES:
             path, filename = obj.propertyImage.name.split("/")
             ext = pathlib.Path(obj.propertyImage.name).suffix
             newFilename = path + "/property-" + str(obj.enqUID)[-12:] + ext
 
             try:
-                movable_file = default_storage.open(obj.propertyImage.name)
-                actualFilename=default_storage.save(newFilename, movable_file)
-                default_storage.delete(obj.propertyImage.name)
+                originalFilename = obj.propertyImage.name
+                movable_file = default_storage.open(originalFilename)
+                actualFilename = default_storage.save(newFilename, movable_file)
                 obj.propertyImage = actualFilename
                 obj.save(update_fields=['propertyImage'])
+                movable_file.close()
+                default_storage.delete(originalFilename)
+
             except:
                 pass
 
         # Renames and moves the autoVal file if present
-        if obj.valuationDocument:
+        if 'valuationDocument' in self.request.FILES:
             path, filename = obj.valuationDocument.name.split("/")
             ext = pathlib.Path(obj.valuationDocument.name).suffix
             newFilename = path + "/autoVal-" + str(obj.enqUID)[-12:] + ext
 
             try:
-                movable_file = default_storage.open(obj.valuationDocument.name)
-                actualFilename=default_storage.save(newFilename, movable_file)
-                default_storage.delete(obj.valuationDocument.name)
+                originalFilename = obj.valuationDocument.name
+                movable_file = default_storage.open(originalFilename)
+                actualFilename = default_storage.save(newFilename, movable_file)
                 obj.valuationDocument = actualFilename
                 obj.save(update_fields=['valuationDocument'])
+                movable_file.close()
+                default_storage.delete(originalFilename)
             except:
                 pass
 
@@ -311,7 +315,6 @@ class CaseDetailView(HouseholdLoginRequiredMixin, UpdateView):
         return super(CaseDetailView, self).form_valid(form)
 
     def salesforceSynch(self, caseObj):
-
         if caseObj.caseStage == caseStagesEnum.MEETING_HELD.value and caseObj.sfOpportunityID is None:
             # Background task to update SF and synch
             app.send_task('SF_Lead_Convert', kwargs={'caseUID': str(caseObj.caseUID)})
@@ -331,7 +334,6 @@ class CaseDetailView(HouseholdLoginRequiredMixin, UpdateView):
         return
 
     def checkFields(self, caseObj):
-
         requiredFields = ['loanType', 'clientType1', 'salutation_1', 'maritalStatus_1', 'surname_1',
                           'firstname_1', 'birthdate_1', 'sex_1', 'street', 'suburb', 'state',
                           'valuation', 'dwellingType']
@@ -436,7 +438,7 @@ class CaseReferView(HouseholdLoginRequiredMixin, View):
             write_applog("ERROR", 'Case', 'CaseReferView', result['responseText'])
         else:
             messages.success(request, "Refer postcode review requested")
-            #save Enquiry Field
+            # save Enquiry Field
             caseObj.isReferPostcode = True
             caseObj.save()
 
@@ -1061,7 +1063,9 @@ class CreateLoanVariationSummary(HouseholdLoginRequiredMixin, View):
         dateStr = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S%z')
         caseUID = str(self.kwargs['uid'])
 
-        sourceUrl = 'https://householdcapital.app/case/pdfLoanVariationSummary/' + caseUID
+        sourceUrl = settings.SITE_URL + reverse('case:pdfLoanVariationSummary',
+                                                             kwargs={'uid': caseUID})
+
         targetFileName = "customerReports/VariationSummary-" + caseUID[-12:] + "-" + dateStr + ".pdf"
 
         pdf = pdfGenerator(caseUID)
@@ -1084,4 +1088,3 @@ class CreateLoanVariationSummary(HouseholdLoginRequiredMixin, View):
             messages.error(self.request, "Could not save Loan Variation Summary")
 
         return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseUID}))
-

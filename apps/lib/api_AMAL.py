@@ -9,6 +9,7 @@ from django.core.files.storage import default_storage
 from apps.lib.site_Logging import write_applog
 
 class apiAMAL():
+    """AMAL RestAPI wrapper"""
 
     api_url_session = '/api/session'
     api_url_lixi = '/api/lixiapplications'

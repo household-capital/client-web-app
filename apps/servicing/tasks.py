@@ -33,7 +33,7 @@ from .models import Facility, FacilityTransactions, FacilityRoles, FacilityPrope
 
 @app.task(name="AMAL_Funded_Data")
 def fundedData(*arg, **kwargs):
-    ''' Task to updated funded information from AMALs XChange API'''
+    """Task to updated funded information from AMALs XChange API"""
 
     if "Transactions" in kwargs:
         Transactions = kwargs["Transactions"]
@@ -137,7 +137,7 @@ def fundedData(*arg, **kwargs):
 
 @app.task(name="Servicing_Synch")
 def sfSynch():
-    '''Updates Facility with Salesforce Loan Object Information'''
+    """Updates Facility with Salesforce Loan Object Information"""
 
     qsFacility = Facility.objects.all()
 
@@ -174,7 +174,7 @@ def sfSynch():
 
 @app.task(name="Servicing_Detail_Synch")
 def sfDetailSynch():
-    '''Updates related Facility objects with Salesforce Loan Object Information'''
+    """Updates related Facility objects with Salesforce Loan Object Information"""
 
     # Get Querysets
     qsFacility = Facility.objects.all()

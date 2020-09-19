@@ -9,6 +9,7 @@ from django.core.files.storage import default_storage
 
 
 class apiDocsAway():
+    """Docsaway Mailhouse API wrapper"""
 
     apiAccountUrl = "https://www.docsaway.com/app/api/rest/account.json"
     apiSendMailUrl = "https://www.docsaway.com/app/api/rest/mail.json"

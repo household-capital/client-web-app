@@ -17,7 +17,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.db.models import Q
 from django.template.loader import get_template
 from django.utils import timezone
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, UpdateView, ListView, TemplateView, View, FormView
 
 # Third-party Imports
@@ -320,17 +320,19 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, UpdateView):
             obj.save()
 
         # Renames and moves the autoVal file if present
-        if obj.valuationDocument:
+        if 'valuationDocument' in self.request.FILES:
             path, filename = obj.valuationDocument.name.split("/")
             ext = pathlib.Path(obj.valuationDocument.name).suffix
             newFilename = path + "/autoVal-" + str(obj.enqUID)[-12:] + ext
 
             try:
-                movable_file = default_storage.open(obj.valuationDocument.name)
+                originalFilename = obj.valuationDocument.name
+                movable_file = default_storage.open(originalFilename)
                 actualFilename = default_storage.save(newFilename, movable_file)
-                default_storage.delete(obj.valuationDocument.name)
                 obj.valuationDocument = actualFilename
                 obj.save(update_fields=['valuationDocument'])
+                movable_file.close()
+                default_storage.delete(originalFilename)
             except:
                 pass
 
@@ -496,7 +498,9 @@ class SendEnquirySummary(HouseholdLoginRequiredMixin, UpdateView):
         enqDict = Enquiry.objects.dictionary_byUID(enqUID)
 
         # PRODUCE PDF REPORT
-        sourceUrl = 'https://householdcapital.app/enquiry/enquirySummaryPdf/' + enqUID
+        sourceUrl = settings.SITE_URL + reverse('enquiry:enqSummaryPdf',
+                                                kwargs={'uid': enqUID})
+
         targetFileName = "enquiryReports/Enquiry-" + enqUID[-12:] + ".pdf"
 
         pdf = pdfGenerator(enqUID)
@@ -562,7 +566,9 @@ class CreateEnquirySummary(HouseholdLoginRequiredMixin, UpdateView):
         enqDict = Enquiry.objects.dictionary_byUID(enqUID)
 
         # PRODUCE PDF REPORT
-        sourceUrl = 'https://householdcapital.app/enquiry/enquirySummaryPdf/' + enqUID
+        sourceUrl = settings.SITE_URL + reverse('enquiry:enqSummaryPdf',
+                                                kwargs={'uid': enqUID})
+
         targetFileName = "enquiryReports/Enquiry-" + enqUID[-12:] + ".pdf"
 
         pdf = pdfGenerator(enqUID)
@@ -755,13 +761,14 @@ class EnquiryConvert(HouseholdLoginRequiredMixin, View):
 
                 movable_file = default_storage.open(old_file)
                 default_storage.save(new_file, movable_file)
-                default_storage.delete(old_file)
-
                 getattr(case_obj, caseField).name = new_file
                 case_obj.save()
+                movable_file.close()
+                default_storage.delete(old_file)
 
             except:
                 messages.error(self.request, "Not all documents moved from Enquiry")
+
         return
 
 
@@ -946,7 +953,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                     }
 
                     self.updateCreateEnquiry(email, phoneNumber, payload,
-                                             enquiryString, marketingTypesEnum.STARTS_AT_60.value)
+                                             enquiryString, marketingTypesEnum.STARTS_AT_60.value, False)
 
             messages.success(self.request, "Success - enquiries imported")
 
@@ -983,7 +990,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                     }
 
                     self.updateCreateEnquiry(email, phoneNumber, payload,
-                                             enquiryString, marketingTypesEnum.CARE_ABOUT.value)
+                                             enquiryString, marketingTypesEnum.CARE_ABOUT.value, False)
 
             messages.success(self.request, "Success - enquiries imported")
 
@@ -1028,7 +1035,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                     }
 
                     self.updateCreateEnquiry(email, phoneNumber, payload,
-                                             enquiryString, marketingTypesEnum.YOUR_LIFE_CHOICES.value)
+                                             enquiryString, marketingTypesEnum.YOUR_LIFE_CHOICES.value, False)
 
             messages.success(self.request, "Success - enquiries imported")
 

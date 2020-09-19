@@ -19,6 +19,7 @@ from apps.lib.site_Logging import write_applog
 
 
 class pdfGenerator():
+    """API2PDF API Wrapper - HTML to PDF Conversion"""
 
     def __init__(self, pdfID):
         self.a2p_client = Api2Pdf(os.getenv('API2PDF_KEY'))

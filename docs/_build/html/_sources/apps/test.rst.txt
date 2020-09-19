@@ -1,6 +1,0 @@
-Models
-======
-.. automodule:: apps.accounts.models
-    :members:
-    :exclude-members: DoesNotExist, MultipleObjectsReturned
-

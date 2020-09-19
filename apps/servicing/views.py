@@ -41,7 +41,7 @@ from .forms import FacilityEnquiryForm, FacilityAdditionalRequest, FacilityBorro
 
 
 class SessionRequiredMixin(object):
-    # Ensures any attempt to access without UID set is redirect to error view
+    """Ensures any attempt to access without UID set is redirect to error view"""
     def dispatch(self, request, *args, **kwargs):
         if ('additionalUID' not in request.session) and ('annualUID' not in request.session):
             return HttpResponseRedirect(reverse_lazy('servicing:sessionError'))
@@ -72,7 +72,6 @@ class AnnualReviewHelper(object):
             if boundData[name] == "False":
                 boundData[name] = False
         return boundData
-
 
 # List View
 class LoanListView(HouseholdLoginRequiredMixin, ListView):
@@ -130,7 +129,7 @@ class LoanListView(HouseholdLoginRequiredMixin, ListView):
 
 
 class LoanEventList(HouseholdLoginRequiredMixin, ListView):
-    # List view of recent loan events
+    """List view of recent loan events """
     paginate_by = 8
     template_name = 'servicing/loanEventList.html'
     context_object_name = 'object_list'
@@ -158,9 +157,7 @@ class LoanEventList(HouseholdLoginRequiredMixin, ListView):
 
         return context
 
-
 class LoanAnnualList(HouseholdLoginRequiredMixin, ListView):
-    # List view of recent loan events
     paginate_by = 8
     template_name = 'servicing/loanAnnualList.html'
     context_object_name = 'object_list'

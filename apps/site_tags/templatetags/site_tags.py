@@ -5,7 +5,6 @@ import os
 from django import template
 
 
-
 # CUSTOM TEMPLATE TAGS
 
 def modelMethod(obj, method_name, *args):

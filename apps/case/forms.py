@@ -90,7 +90,7 @@ class CaseDetailsForm(forms.ModelForm):
                     Div(Div(HTML("Client Email"), css_class='form-label'),
                         Div(Field('email'))),
                     Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Borrower(s)"), css_class='form-header pt-2'),
-                    Div(Div(HTML("Single or Joint Borrowers (Nominated Occupant)"), css_class='form-label'),
+                    Div(Div(HTML("Single or Joint Calculation (inc: Nominated Occupant)"), css_class='form-label'),
                         Div(Field('loanType'))),
                     HTML("<i class='fas fa-user'></i>&nbsp;&nbsp;<small>Borrower 1</small>"),
                     Row(

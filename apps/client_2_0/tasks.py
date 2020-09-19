@@ -25,7 +25,7 @@ def createLoanSummary(caseUID):
 
     sourceUrl = "https://householdcapital.app" + reverse('client2:pdfLoanSummary', kwargs={'uid': caseUID})
     componentFileName = "customerReports/Component-" + caseUID[-12:] + ".pdf"
-    componentURL = default_storage.url("customerReports/Component-" + caseUID[-12:] + ".pdf")
+    componentURL = default_storage.url(componentFileName)
     targetFileName = "customerReports/Summary-" + caseUID[-12:] + "-" + dateStr + ".pdf"
 
     pdf = pdfGenerator(caseUID)

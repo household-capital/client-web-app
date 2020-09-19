@@ -17,7 +17,7 @@ from apps.enquiry.models import Enquiry
 # INTERNAL MAPPING
 
 def mapEnquiryToLead(enqUID):
-    # Build SF REST API payload
+    """Build SF REST API payload: Enquiry -> SF Lead"""
 
     SF_LEAD_MAPPING = {'phoneNumber': 'Phone',
                        'email': 'Email',
@@ -104,7 +104,9 @@ def mapEnquiryToLead(enqUID):
 
 
 def mapFacilityToCase(facilityObj):
-    # Reverse map from facility to case - for Loan Variation Creation
+    """Reverse map from Facility to Case - for Loan Variation Creation
+    This should be replaced with query direct from Salesforce when Serciving is complete
+    """
 
     # Source objects
     roleQs = FacilityRoles.objects.filter(facility=facilityObj)
@@ -181,6 +183,7 @@ def get_role_dict(roleQs):
 # CLIENT APP TO SF MAPPING
 
 def mapCaseToOpportunity(caseObj, lossObj):
+    """CASE ->  Opportunity Map"""
 
     payload = {
         # Core case data
@@ -344,8 +347,6 @@ def mapCaseToOpportunity(caseObj, lossObj):
         else:
             payload[field] = None
 
-
-
     # Super Fund
     if caseObj.superFund:
         payload['superFund'] = caseObj.superFund.fundName
@@ -359,7 +360,7 @@ def mapCaseToOpportunity(caseObj, lossObj):
 # SERIALISE PURPOSES 
 
 def serialisePurposes(loanObj, enum=False):
-    # Create purpose dictionary (retro fit data from new purpose objects)
+    """Create purpose dictionary (retro fit data from new purpose objects)"""
 
     def __getItem(category, intention, attr, default=None):
         try:
@@ -428,6 +429,8 @@ def serialisePurposes(loanObj, enum=False):
 # FACILITY: AMAL LOAN OBJECT MAPPING
 
 def mapTransToFacility(loan, transaction):
+    """AMAL Transaction map"""
+
     payload = {
         'facility': loan,
         'description': transaction['description'],
@@ -446,7 +449,8 @@ def mapTransToFacility(loan, transaction):
 # SF LOAN OBJECT MAPPING
 
 def mapLoanToFacility(caseObj, loanDict):
-    # Map SF Loan Object to Facility (includes temporary workarounds)
+    """Map SF Loan Object to Facility (includes temporary workarounds)
+    This should be removed when Servicing established in Salesforce"""
 
     facilityStatus = {"Inactive": 0, "Active": 1, "Repaid": 2, "Suspended": 3}
 
@@ -514,7 +518,7 @@ def mapRolesToFacility(loan, contact, role):
                }
 
     if contact['Marital_Status__c']:
-        payload['maritalStatus'] = maritalEnum[contact['Marital_Status__c'].upper()].value
+        payload['maritalStatus'] = maritalEnum[contact['Marital_Status__c'].upper().replace(" ","")].value
 
     if contact['Salutation']:
         payload['salutation'] = salutationEnum[contact['Salutation'].replace('.', '').upper()].value

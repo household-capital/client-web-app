@@ -280,10 +280,9 @@ def integrityCheck():
                                      }
                     email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
 
-                    subject, from_email, to, cc = "Salesforce - ClientApp Integrity Check", \
+                    subject, from_email, to = "Salesforce - ClientApp Integrity Check", \
                                                   'noreply@householdcapital.app', \
-                                                  [obj.owner.email], \
-                                                  'paul.murray@householdcapital.com'
+                                                  [obj.owner.email]
 
                     emailSent = sendTemplateEmail(email_template, email_context, subject, from_email, to, cc)
 
@@ -633,6 +632,7 @@ def convertSFLead(caseUID, sfAPI):
     caseObj = Case.objects.queryset_byUID(caseUID).get()
 
     if not caseObj.sfLeadID:
+
         write_applog("ERROR", 'Case', 'convertSFLead', 'Case has no SF LeadID')
         return {'status': 'Error', 'responseText': 'Case has no SF LeadID'}
 

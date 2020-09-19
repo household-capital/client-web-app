@@ -19,6 +19,20 @@ from apps.lib.site_Globals import ECONOMIC
 
 
 class CloudBridge():
+    """
+    This was one of the earliest Household apps and has continually changed as data was migrated to
+    Salesforce. Originally, substantial blending, enumeration and validation was required.
+    Accordingly, this app needs to be complely refactored.
+
+    The general approach is to:
+    1. source opportunity data (now almost exclusively from SF);
+    2. generate an XML file;
+    3. validate it against the relevant schema;
+    4. submit to AMAL via API for validation; and
+    5. submit to AMAL
+
+    There are two permissible schemas - CAL AND ACC.  Testing on AAC has not been completed.
+    """
 
     LIXI_SETTINGS = {'LIXI_VERSION_CAL': '2.6.17',
                      'LIXI_VERSION':'0.0.3',

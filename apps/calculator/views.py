@@ -6,25 +6,20 @@ from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.utils import timezone
-from django.views.generic import UpdateView,  ListView, TemplateView, View
-from django.urls import reverse_lazy
-
-
+from django.views.generic import UpdateView,  ListView, View
+from django.urls import reverse_lazy, reverse
 
 # Third-party Imports
 from config.celery import app
 
-
 # Local Application Imports
-from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum, enquiryStagesEnum
+from apps.lib.site_Enums import directTypesEnum, enquiryStagesEnum
 from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, getEnquiryProjections, updateNavQueue
-from apps.lib.hhc_LoanValidator import LoanValidator
-from apps.lib.hhc_LoanProjection import LoanProjection
-from apps.enquiry.models import Enquiry
 
+from apps.enquiry.models import Enquiry
 from .models import WebCalculator, WebContact
 from .forms import WebContactDetail
 
@@ -56,8 +51,8 @@ class CalcListView(HouseholdLoginRequiredMixin, ListView):
         return context
 
 class CalcCreateEnquiry(HouseholdLoginRequiredMixin, UpdateView):
-    # This view does not render it creates and enquiry, sends an email, updates the calculator
-    # and redirects to the Enquiry ListView
+    """ This view does not render it creates and enquiry, sends an email, updates the calculator
+    and redirects to the Enquiry ListView"""
     context_object_name = 'object_list'
     model = WebCalculator
     template_name = 'calculator/email/email_cover_calculator.html'
@@ -91,7 +86,7 @@ class CalcCreateEnquiry(HouseholdLoginRequiredMixin, UpdateView):
         if enq_obj.status:
 
             # PRODUCE PDF REPORT
-            sourceUrl = 'https://householdcapital.app/enquiry/enquirySummaryPdf/' + str(enq_obj.enqUID)
+            sourceUrl = settings.SITE_URL + reverse('enquiry:enqSummaryPdf', kwargs={'uid': str(enq_obj.enqUID)})
             targetFileName = "enquiryReports/Enquiry-" + str(enq_obj.enqUID)[-12:] + ".pdf"
 
             pdf = pdfGenerator(calcUID)
@@ -100,14 +95,13 @@ class CalcCreateEnquiry(HouseholdLoginRequiredMixin, UpdateView):
             if not created:
                 messages.error(self.request, "Enquiry created - but email not sent")
 
-                obj.actioned = 1  # Actioned=1, Spam=-1
+                obj.actioned = 1
                 obj.save(update_fields=['actioned'])
 
                 return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
 
             try:
                 # SAVE TO DATABASE (Enquiry Model)
-
                 qsEnq = Enquiry.objects.queryset_byUID(str(enq_obj.enqUID))
                 qsEnq.update(summaryDocument=targetFileName, enquiryStage = enquiryStagesEnum.SUMMARY_SENT.value )
 
@@ -152,7 +146,7 @@ class CalcCreateEnquiry(HouseholdLoginRequiredMixin, UpdateView):
         else:
             messages.error(self.request, "Age or Postcode Restriction - please respond to customer")
 
-        obj.actioned = 1  # Actioned=1, Spam=-1
+        obj.actioned = 1
         obj.save(update_fields=['actioned'])
 
         app.send_task('Create_SF_Lead', kwargs={'enqUID': str(enq_obj.enqUID)})

@@ -15,6 +15,8 @@ from pandas import DataFrame
 from simple_salesforce import Salesforce, SalesforceMalformedRequest, SalesforceGeneralError
 
 class apiSalesforce():
+    """Simple-Salesforce Wrapper"""
+
 
     qryDefinitions = {'OpportunityRef':
                           "Select ConvertedOpportunityId from Lead where Id=\'{0}\'",
