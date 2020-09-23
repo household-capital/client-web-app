@@ -284,7 +284,7 @@ def integrityCheck():
                                                   'noreply@householdcapital.app', \
                                                   [obj.owner.email]
 
-                    emailSent = sendTemplateEmail(email_template, email_context, subject, from_email, to, cc)
+                    emailSent = sendTemplateEmail(email_template, email_context, subject, from_email, to)
 
     return "Success - Integrity Check Complete"
 
@@ -363,7 +363,7 @@ def emailLoanSummary(caseUID, template_name):
     subject, from_email, to = "Household Loan Summary Report", caseObj.owner.email, caseObj.email
     text_content = "Text Message"
 
-    attachments = [(attachFilename, caseObj.summaryDocument.path)]
+    attachments = [(attachFilename, caseObj.summaryDocument.name)]
 
     result = sendTemplateEmail(template_name, email_context, subject, from_email, to,
                                cc=None, bcc=bcc, attachments=attachments)
@@ -691,20 +691,28 @@ def updateSFDocs(caseUID, sfAPI):
 
     for docName, docObj in DOCUMENT_LIST.items():
         if docObj:
-            with default_storage.open(docObj.name, "rb") as f:
-                body = base64.b64encode(f.read()).decode('ascii')
+            try:
+                with default_storage.open(docObj.name, "rb") as f:
+                    body = base64.b64encode(f.read()).decode('ascii')
 
-            data = {
-                'opptyId': caseObj.sfOpportunityID,
-                'documentTitle': docName,
-                'base64BinaryStream': body,
-                'extension': 'pdf'}
+                data = {
+                    'opptyId': caseObj.sfOpportunityID,
+                    'documentTitle': docName,
+                    'base64BinaryStream': body,
+                    'extension': 'pdf'}
 
-            result = sfAPI.apexCall(doc_end_point, doc_end_point_method, data=data)
-            if result['status'] != 'Ok':
+                result = sfAPI.apexCall(doc_end_point, doc_end_point_method, data=data)
+
+                if result['status'] != 'Ok':
+                    write_applog("ERROR", 'Case', 'updateSFdocs',
+                                 "Document Synch - " + docName + "-" + json.dumps(result['responseText']))
+                    raiseTaskAdminError("Document synch error",
+                                        "Document Synch - " + docName + "-" + json.dumps(result['responseText']))
+
+            except FileNotFoundError:
                 write_applog("ERROR", 'Case', 'updateSFdocs',
-                             "Document Synch - " + docName + "-" + json.dumps(result['responseText']))
-                raiseTaskAdminError("Document synch error", "Document Synch - " + docName + "-" + json.dumps(result['responseText']))
+                             "Document Synch - " + docName + "- file does not exist")
+
 
     # Check for online Application Documents
     if caseObj.appUID:

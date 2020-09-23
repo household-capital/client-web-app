@@ -818,7 +818,7 @@ class EnquiryAssignView(HouseholdLoginRequiredMixin, UpdateView):
         enq_obj = form.save(commit=False)
         if preObj.user:
             enq_obj.enquiryNotes += '\r\n[# Enquiry assigned from ' + preObj.user.username + ' #]'
-        elif preObj.referrer == directTypesEnum.REFERRAL.value:
+        elif preObj.BROKER == directTypesEnum.REFERRAL.value:
             enq_obj.enquiryNotes += '\r\n[# Enquiry assigned from ' + preObj.referralUser.profile.referrer.companyName + ' #]'
 
         enq_obj.save()

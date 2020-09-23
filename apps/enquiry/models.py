@@ -44,14 +44,9 @@ class EnquiryManager(models.Manager):
 
     def timeSeries(self, seriesType, length, search=None):
 
-        if seriesType == 'Phone':
-            return self.__timeSeriesQry(Enquiry.objects.filter(referrer=directTypesEnum.PHONE.value),length)
+        result = self.__timeSeriesQry(Enquiry.objects.filter(referrer=seriesType), length)
 
-        if seriesType == 'Calculator':
-            return self.__timeSeriesQry(Enquiry.objects.filter(referrer=directTypesEnum.WEB_CALCULATOR.value),length)
-
-        if seriesType == 'Web':
-            return self.__timeSeriesQry(Enquiry.objects.filter(referrer=directTypesEnum.WEB_ENQUIRY.value),length)
+        return result if result else {}
 
 
 class Enquiry(models.Model):

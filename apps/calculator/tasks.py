@@ -54,8 +54,12 @@ def getWordpressData():
             for item in popList:
                 srcData.pop(item)
 
+            # convert empty strings to null
+            for key, value in srcData.items():
+                if value == "":
+                    srcData[key] = None
+
             srcData['name'] = srcData['name'].title() if srcData['name'] else None
-            print(srcData)
 
             write_applog("INFO", 'API', 'Tasks-getWordpressData', "Item data: " + json.dumps(srcData))
 

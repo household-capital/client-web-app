@@ -352,6 +352,7 @@
         var chartEnquiry = {{ chartEnquiry | safe }};
         var chartCalcMthData = {{ chartCalcMthData | safe }};
         var chartPhoneMthData = {{ chartPhoneMthData | safe }};
+        var chartPartnerMthData = {{ chartPartnerData | safe }};
         var chartMeetingConversion = {{ chartMeetingConversion | safe }};
         var chartEnquiryConversion = {{ chartEnquiryConversion | safe }};
 
@@ -369,6 +370,7 @@
         var minDays = createTimeSeries(chartMinDays);
         var enquiryData = createTimeSeries(chartEnquiry);
         var calcMthData = createTimeSeries(chartCalcMthData);
+        var partnerMthData = createTimeSeries(chartPartnerMthData);
         var phoneMthData = createTimeSeries(chartPhoneMthData);
         var meetingConversionData = createTimeSeries(chartMeetingConversion);
         var enquiryConversionData = createTimeSeries(chartEnquiryConversion);
@@ -411,7 +413,8 @@
                         fill: false,
                         borderWidth: 1,
 
-                    }]
+                    }
+                    ]
             },
             options: {
                 responsive: true,
@@ -605,6 +608,12 @@
                         label: "Phone Enquiries",
                         data: phoneMthData,
                         borderColor: "#86b3b5",
+                    },
+                     {
+                        label: "Partner Enquiries",
+                        data: partnerMthData,
+                        borderColor: "#A3310C",
+                        borderWidth: 1,
                     },
 
                 ]

@@ -83,7 +83,7 @@ class EnquiryView(ReferrerLoginRequiredMixin, UpdateView):
         chkOpp = loanObj.validateLoan()
 
         obj.referralUser = self.request.user
-        obj.referrer = directTypesEnum.REFERRAL.value
+        obj.referrer = directTypesEnum.BROKER.value
         obj.referrerID = self.request.user.profile.referrer.companyName + " - " + \
                          self.request.user.first_name + \
                          " " + self.request.user.last_name

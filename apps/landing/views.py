@@ -52,13 +52,13 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
 
         # Time Series Data
 
-        tsData = json.dumps(list(Enquiry.objects.timeSeries('Calculator', 90)), default=self.dateParse)
+        tsData = json.dumps(list(Enquiry.objects.timeSeries(directTypesEnum.WEB_CALCULATOR.value, 90)), default=self.dateParse)
         context['chartEmailData'] = tsData
 
-        tsData = json.dumps(list(Enquiry.objects.timeSeries('Phone', 90)), default=self.dateParse)
+        tsData = json.dumps(list(Enquiry.objects.timeSeries(directTypesEnum.PHONE.value, 90)), default=self.dateParse)
         context['chartPhoneData'] = tsData
 
-        tsData = json.dumps(list(Enquiry.objects.timeSeries('Web', 90)), default=self.dateParse)
+        tsData = json.dumps(list(Enquiry.objects.timeSeries(directTypesEnum.WEB_ENQUIRY.value, 90)), default=self.dateParse)
         context['chartWebData'] = tsData
 
         # Totals
@@ -130,14 +130,18 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
 
         tableTsPhoneData = []
         tableTsCalcData = []
+        tableTsPartnerData =[]
         for key, item in context['directData'].items():
             tableTsPhoneData.append([datetime.datetime.strptime(key, "%b-%y").strftime('%Y-%m-%d'),
                                      self.__getItem(item, directTypesEnum.PHONE.value, 0)])
             tableTsCalcData.append([datetime.datetime.strptime(key, "%b-%y").strftime('%Y-%m-%d'),
                                     self.__getItem(item, directTypesEnum.WEB_CALCULATOR.value, 0)])
+            tableTsPartnerData.append([datetime.datetime.strptime(key, "%b-%y").strftime('%Y-%m-%d'),
+                                    self.__getItem(item, directTypesEnum.PARTNER.value, 0)])
 
         context['chartCalcMthData'] = tableTsCalcData[-12:]
         context['chartPhoneMthData'] = tableTsPhoneData[-12:]
+        context['chartPartnerData'] = tableTsPartnerData[-12:]
 
         # - generate totals
         tableData = {}
