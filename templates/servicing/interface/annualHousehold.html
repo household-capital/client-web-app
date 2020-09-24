@@ -1,0 +1,189 @@
+{% extends 'servicing/base/base_srv.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div id='messages' class="row justify-content-md-center pt-3">
+            <div class="col-6 text-center">
+                {% for message in messages %}
+                    <div class="pb-1">
+                        <p{% if message.tags == 'error' %} class="alert alert-danger"{% endif %}
+                                {% if message.tags == 'warning' %} class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12 title">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-lg-9">
+                <br><br>
+                <p class="pb-3">Hello {{ obj.identifiedContact.firstName }}</p>
+
+                <p>Thank you from completing this review online</p>
+            </div>
+        </div>
+
+        <div class="row pt-4">
+            <div class="col-lg-5">
+
+                <p class="larger"><i class="fas fa-house-user fa-fw pb-3"></i><b> Your household</b></p>
+
+                <p>Our records indicate the following members of your household:</p><br>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <table class="table table-hover table-sm">
+                            <thead>
+                            <tr class="cal_background_warm">
+                                <th scope="col">&nbsp;Name</th>
+                                <th scope="col">&nbsp;Loan Role</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            {% for role in roleList %}
+
+                                <tr>
+                                    <td class="pl-2">{{ role.firstName }} {{ role.lastName }}</td>
+                                    <td class="pl-2"> {% if 'Borrower' in role.enumRole %}
+                                        Borrower{% else %}{{ role.enumRole }}{% endif %}</td>
+
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-1"></div>
+
+            <div class="col-lg-5 pt-3 pb-3">
+                <form id="{{ form.id }}" method="post">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+                    <div class="d-block d-sm-none">
+                        <hr>
+                    </div>
+                    <div class="row justify-content-left pt-3">
+                        <div class="col-sm-7 text-left align-self-center pb-2">
+                            <p>{% if form.choiceHouseholdConfirm.errors %}<span class="text-danger">
+                                <i class="fas fa-question-circle"></i>{% endif %}
+                                </span>
+                                Is this correct?
+
+                            </p>
+                        </div>
+                        <div class="col-sm-5 text-center ">
+                            <div class=" btn-group-toggle" data-toggle="buttons">
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceHouseholdConfirm == True %} active {% endif %}">
+                                    <input type="radio" name="choiceHouseholdConfirm" value="True" required
+                                           id="id_choiceHouseholdConfirm_0" autocomplete="off"
+                                            {% if formData.choiceHouseholdConfirm == True %} checked {% endif %}>
+                                    Yes
+                                </label>
+                                <span class="pr-3"></span>
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceHouseholdConfirm == False %} active {% endif %}">
+                                    <input type="radio" name="choiceHouseholdConfirm" value="False"
+                                           id="id_choiceHouseholdConfirm_1" autocomplete="off"
+                                            {% if formData.choiceHouseholdConfirm == False %} checked {% endif %}>
+                                    &nbsp;No&nbsp;
+                                </label>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-block d-sm-none">
+                        <hr>
+                    </div>
+
+                    <div class="row justify-content-left pt-3">
+                        <div class="col-sm-7 text-left align-self-center pb-2">
+                            <p>{% if form.choiceHouseholdPersons.errors %}<span class="text-danger">
+                                <i class="fas fa-question-circle"></i>{% endif %}
+                                </span>
+                                Does anyone else now reside in the home?
+
+                            </p>
+                        </div>
+                        <div class="col-sm-5 text-center ">
+                            <div class=" btn-group-toggle" data-toggle="buttons">
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceHouseholdPersons == True %} active {% endif %}">
+                                    <input type="radio" name="choiceHouseholdPersons" value="True" required
+                                           id="id_choiceHouseholdPersons_0" autocomplete="off"
+                                            {% if formData.choiceHouseholdPersons == True %} checked {% endif %}>
+                                    Yes
+                                </label>
+                                <span class="pr-3"></span>
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceHouseholdPersons == False %} active {% endif %}">
+                                    <input type="radio" name="choiceHouseholdPersons" value="False"
+                                           id="id_choiceHouseholdPersons_1" autocomplete="off"
+                                            {% if formData.choiceHouseholdPersons == False %} checked {% endif %}>
+                                    &nbsp;No&nbsp;
+                                </label>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-block d-sm-none">
+                        <hr>
+                    </div>
+
+                    <div class="row justify-content-left pt-3">
+                        <div class="col-sm-12 text-left align-self-center pb-2">
+
+                            <p class="pb-1">Please comment (as required)</p>
+
+                            {{ form.householdNotes|as_crispy_field }}
+                        </div>
+                    </div>
+
+                    <br>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}
+
+

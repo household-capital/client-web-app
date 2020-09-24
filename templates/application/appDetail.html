@@ -1,0 +1,286 @@
+{% extends 'site/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12 title">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div id='messages' class="row justify-content-md-center">
+                <div class="col-6 text-center">
+                    <br>
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning">{{ message }}</p>{% endif %}
+
+                        <p{% if message.tags == 'success' %}
+                            class="alert alert-success">{{ message }}</p>{% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+    <br>
+
+    <div class="row pt-2 pb-5">
+        <div class="col-lg-8 text-left">
+
+
+            {% crispy form %}
+
+        </div>
+
+        <div class="col-lg-4 pt-4">
+            <div class="btn-group pb-3">
+                <button type="button" class="btn btn-outline-secondary dropdown-toggle"
+                        data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false" id="btnEnquiryActions">
+                    App Actions
+                </button>
+                <div class="dropdown-menu">
+
+                    <a class="dropdown-item" data-toggle="modal" href="#newLinkModal">
+                        &nbsp;<i class="fas fa-fw fa-link"></i>&nbsp;&nbsp;Send new app link &nbsp;</a>
+
+                    <div class="dropdown-divider"></div>
+
+                    <a class="dropdown-item" data-toggle="modal" href="#sendSummaryModal">
+                        &nbsp;<i class="far fa-fw fa-file-pdf"></i>&nbsp;&nbsp;Resend Loan Summary &nbsp;</a>
+
+                    <div class="dropdown-divider"></div>
+
+                    <a class="dropdown-item" data-toggle="modal" href="#nextStepsModal">
+                        &nbsp;<i class="fas fa-fw fa-shoe-prints"></i>&nbsp;&nbsp;Resend Next Steps Email &nbsp;</a>
+
+                    <div class="dropdown-divider"></div>
+
+                     <a class="dropdown-item" data-toggle="modal" href="#convertEnquiryModal">
+                        &nbsp;<i class="fal fa-fw fa-wand-magic"></i>&nbsp;&nbsp;Convert to enquiry&nbsp;&nbsp;&nbsp;</a>
+
+                    <div class="dropdown-divider"></div>
+
+                    <a class="dropdown-item" href="{% url 'application:markClosed' uid=obj.appUID %}">
+                        &nbsp;<i class="far fa-fw fa-window-close"></i>&nbsp;&nbsp;Mark as closed&nbsp;&nbsp;&nbsp;</a>
+                </div>
+
+            </div>
+
+            <div class="jumbotron">
+
+                {% if obj.isLowLVR %}
+                    <div class="pb-2 ">
+                        <p class="badge badge-warning">
+                            Low LVR</p>
+                    </div>
+                {% endif %}
+
+                <p class="small pt-2"><i class="fas fa-search"></i>&nbsp;Calculated data </p>
+                <p class="small">Max LVR is: {{ obj.maxLVR }}%</p>
+                <p class="small">Max Loan Amount is: ${{ obj.maxLoanAmount }}</p>
+                <p class="small">Max Monthly Drawdown is: ${{ obj.maxDrawdownMonthly }}</p>
+                <br>
+                <p class="small"><i class="far fa-file-pdf"></i>&nbsp;Documents Provided</p>
+                {% if obj.summaryDocument %}
+                    <p><a href="/media/customerReports/{{ obj.summaryDocument.file|filename }}">Loan
+                        Summary</a>
+                    </p>{% endif %}
+                <br>
+
+                <p class="small"><i class="far fa-paper-plane"></i>&nbsp;Contact</p>
+                <p class="small">Created:&nbsp;&nbsp;&nbsp;&nbsp; {{ obj.timestamp|date }}</p>
+                <p class="small">Updated: &nbsp;&nbsp;&nbsp;{{ obj.updated|date }}</p>
+                <br>
+                <p class="small"><i class="fas fa-file-upload"></i>&nbsp;Documents Uploaded</p>
+                {% for doc in docList %}
+                    <p><a href="/media/customerDocuments/{{ doc.document.file|filename }}">
+                        {{ doc.enumDocumentType }}</a></p>
+                {% endfor %}
+
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modals -->
+    <div class="modal fade" id="newLinkModal" tabindex="-1" role="dialog" aria-labelledby="newLinkModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newLinkModalLabel">Send new application link?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <p>You are about to send a new application link to the customer. You would normally only do this
+                        if: </p>
+                    <ul>
+                        <li>the customer didn't receive the initial link;</li>
+                        <li>the customer has lost the initial link; or</li>
+                        <li>the link has expired</li>
+                    </ul>
+
+                    <p><b>NOTE:</b> this link will not work if the application has been submitted</p><br>
+
+                    <p>Are you sure?</p>
+                </div>
+                <div class="modal-footer">
+                    <a href="{% url 'application:newLink' uid=obj.appUID %}">
+                        <div class=" btn btn-primary">Yes, send new link</div>
+                    </a>&nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="sendSummaryModal" tabindex="-1" role="dialog" aria-labelledby="sendSummaryModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="sendSummaryModalLabel">Resend Loan Summary?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <p>You are about to resend the Loan Summary to the customer. </p><br>
+                    <p>You would normally only do this
+                        if: </p>
+                    <ul>
+                        <li>the customer didn't receive the initial email; or</li>
+                        <li>a back-end change has been made to the customer data (e.g., incorrect email)</li>
+                    </ul>
+
+                    <p>Are you sure?</p>
+                </div>
+                <div class="modal-footer">
+                    <a href="{% url 'application:sendSummary' uid=obj.appUID %}">
+                        <div class=" btn btn-primary">Yes, resend Loan Summary</div>
+                    </a>&nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="nextStepsModal" tabindex="-1" role="dialog" aria-labelledby="nextStepsModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="nextStepsModalLabel">Resend next steps email?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <p>You are about to resend the next-steps email to the client (including Application Summary). </p>
+                    <br>
+                    <p>You would normally only do this
+                        if: </p>
+                    <ul>
+                        <li>the customer didn't receive the initial email; or</li>
+                        <li>a back-end change has been made to the customer data (e.g., incorrect email)</li>
+                    </ul>
+
+                    <p>Are you sure?</p>
+                </div>
+                <div class="modal-footer">
+                    <a href="{% url 'application:sendNextSteps' uid=obj.appUID %}">
+                        <div class=" btn btn-primary">Yes, send next steps email</div>
+                    </a>&nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="convertEnquiryModal" tabindex="-1" role="dialog" aria-labelledby="convertEnquiryModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="convertEnquiryModalLabel">Convert to enquiry?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <p>You are about to close this application and create an enquiry</p>
+                    <br>
+                    <p>Are you sure?</p>
+                </div>
+                <div class="modal-footer">
+                    <a href="{% url 'application:convertEnquiry' uid=obj.appUID %}">
+                        <div class=" btn btn-primary">Yes, convert to enquiry</div>
+                    </a>&nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block javascript %}
+    <script>
+
+        // Prevent form submission on enter
+        $('form input').keydown(function (e) {
+            if (e.keyCode == 13) {
+                e.preventDefault();
+                $(':focus').blur();
+                return false;
+            }
+        });
+
+
+    </script>
+
+{% endblock %}
+

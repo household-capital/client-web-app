@@ -1,0 +1,20 @@
+<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="progress" x1="0" y1="1" x2="0" y2="0">
+      <stop id="stop1" offset="0.65" stop-color="rgb(81,132,161)"/>
+      <stop id="stop2" offset="0.65" stop-color="rgba(253,182,0,1)"/>
+      <stop id="stop3" offset="0.75" stop-color="rgba(253,182,0,1)"/>
+      <stop id="stop4" offset="0.75" stop-color="rgba(253,182,0,.5)"/>
+      <stop id="stop5" offset="1" stop-color="rgba(253,182,0,.5)"/>
+    </linearGradient>
+  </defs>
+    
+ <g>
+  <title>background</title>
+  <rect fill="none" id="canvas_background" height="100" width="100" y="-1" x="-1"/>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <path id="svg_1" fill="url(#progress)" stroke-dashoffset="1" d="m87.20779,43.8l-12.81602,-9.9l0,-16.9l-13.14675,0l0,6.7l-11.24502,-8.7l-37.20779,28.8l8.51645,0l-0.08268,41.2l28.77403,0l28.77403,0l-0.08268,-41.2l8.51645,0z"/>
+ </g>
+</svg>

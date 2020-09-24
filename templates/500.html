@@ -1,23 +1,70 @@
-{% extends 'site/base.html' %}
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+    <!-- The above 2 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="{% static 'img/favicon/favicon.png' %}"/>
 
-{% block content %}
+    {% include 'site/base.css.html' %}
 
+    <title>HouseholdCapital.app</title>
+</head>
 
+<body>
+
+<nav class="navbar navbar-light navbar-expand-lg navbar-fixed-top">
     <div class="container">
 
-    <br>
-    <h1>500 Error</h1>
-    <br>
-    Ooops. Well that's embarrassing. There is a problem with the website.
+        <div class="navbar-header">
 
-    This has been logged.  We will get the tech geeks to try turning something off and on again.
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar"
+                    aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
 
-    Please contact us at info@householdcapital.com and we can correct this.
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
 
-    Regards
+            </button>
 
-    The Household Capital Team
+            <a class="navbar-brand pt-1" href="{% url 'landing:landing' %}">
+                <img src="{% static 'img/hhc/HC_Logo_Flat.png' %}" height="40">
+            </a>
+
+        </div>
+
     </div>
+</nav>
 
-{% endblock %}
+
+<div class="container">
+
+    <br>
+    <h1><i class="fas fa-bug"></i> 500 Error</h1>
+    <br>
+    <p>Ooops. Well that's embarrassing. There is a problem with the website. </p>
+    <p>This has been logged.  We will get the tech geeks to try turning something off and on again.</p>
+    <br>
+    <p>Please contact us at info@householdcapital.com if this persists.</p>
+    <br>
+    <p>Regards</p>
+    <br>
+    <p>The Household Capital Team</p>
+
+</div>
+
+{% include 'site/base.js.html' %}
+{% block javascript %}{% endblock %}
+
+</body>
+</html>
+
+
+

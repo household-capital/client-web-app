@@ -23,7 +23,7 @@ class Calendly(models.Model):
     calendlyID = models.CharField(max_length=16, blank=False, null=False)
     startTime = models.DateTimeField(blank=True, null=True)
     timeZone = models.CharField(max_length=50, blank=True, null=True)
-    zoomID = models.CharField(max_length=9, blank=True, null=True)
+    zoomID = models.CharField(max_length=11, blank=True, null=True)
     customerName = models.CharField(max_length=50, blank=True, null=True)
     customerEmail = models.EmailField(null=True, blank=True)
     customerPhone = models.CharField(max_length=16, blank=True, null=True)

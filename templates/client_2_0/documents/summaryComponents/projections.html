@@ -3,17 +3,14 @@
 
 
 <!-- Include -->
-
-<br>
 <div class="row">
-    <div class="col-lg-12 "><br>
+    <div class="col-lg-12"><br>
         <p class="secondary_title">Your Projections</p>
     </div>
     <br>
 </div>
 
 <div>
-
     <div class="row">
         <div class="col-lg-12 ">
             <br>
@@ -54,22 +51,22 @@
                                     <br>
                                     <p class="small">Your home equity will be</p>
                                     <p class="xx-large">{{ pointHomeEquityPC1 }}%</p>
-                                    <p class="small">of home value</p>
+                                    <p class="small">of your home value</p>
 
                                 </div>
                             </div>
 
 
                             <div class="row">
-                                <div class="col-lg-6 ">
+                                <div class="col-lg-8 ">
                                     <p class="small">
-                                        Home value: <br>
-                                        <i class="fas fa-square hhcGoldFont"></i>&nbsp;Loan balance:<br>
+                                        Projected home value: <br>
+                                        <i class="fas fa-square hhcGoldFont"></i>&nbsp;Loan balance (what you owe):<br>
                                         <i class="fas fa-square hhcLightBlue"></i>&nbsp;Home equity:
                                     </p>
                                 </div>
 
-                                <div class="col-lg-6 ">
+                                <div class="col-lg-4 ">
                                     <p class="small">
                                         $ {{ pointHouseValue1 }} <br>
                                         $ {{ pointLoanValue1 }} <br>
@@ -98,22 +95,22 @@
                                     <br>
                                     <p class="small">Your home equity will be</p>
                                     <p class="xx-large">{{ pointHomeEquityPC2 }}%</p>
-                                    <p class="small">of home value</p>
+                                    <p class="small">of your home value</p>
 
                                 </div>
                             </div>
 
 
                             <div class="row">
-                                <div class="col-lg-6 ">
+                                <div class="col-lg-8 ">
                                     <p class="small">
-                                        Home value: <br>
-                                        <i class="fas fa-square hhcGoldFont"></i>&nbsp;Loan balance:<br>
+                                        Projected home value: <br>
+                                        <i class="fas fa-square hhcGoldFont"></i>&nbsp;Loan balance (what you owe):<br>
                                         <i class="fas fa-square hhcLightBlue"></i>&nbsp;Home equity:
                                     </p>
                                 </div>
 
-                                <div class="col-lg-6 ">
+                                <div class="col-lg-4 ">
                                     <p class="small">
                                         $ {{ pointHouseValue2 }} <br>
                                         $ {{ pointLoanValue2 }} <br>
@@ -132,69 +129,105 @@
         </div>
     </div>
 
+    <br>
+    <div class="row justify-content-center">
 
-    <div class="row ">
+        <div class="col-lg-5 ">
+            <p class="print-text-bold">Property value</p>
+            <div class="row">
+                <div class="col-lg-8">
+                    <p>Current value</p>
+                    <p>Assumed increase in value</p>
+                </div>
+                <div class="col-lg-4">
+                    <p>${{ valuation |intcomma }}</p>
+                    <p>{{ housePriceInflation }}% pa</p>
+                </div>
 
-        <div class="col-lg-12 "><br>
-            <p class="larger HHCLightBlue-Printed pb-3">Key assumptions</p>
-            <li class="print-text">An initial house price of ${{ valuation |intcomma }}</li>
-            <li class="print-text">Loan interest rate of {{ totalInterestRate }}% pa
-            <li class="print-text">Annual increase in home value of {{ housePriceInflation }}% pa</li>
-
-
-            {% if topUpDrawdownAmount or  careDrawdownAmount %}
-                <li class="print-text">The total Loan Amount (drawn in the first 12 months) is
-                    ${{ totalLoanAmount |intcomma }}</li>
-                <li class="print-text">The total Plan Amount is ${{ totalPlanAmount |intcomma }}. Projections
-                    include
-                    drawdown plan amounts
-                </li>
-            {% else %}
-                <li class="print-text">The total Loan Amount is ${{ totalLoanAmount |intcomma }}</li>
-            {% endif %}
+            </div>
         </div>
-    </div>
+        <div class="col-lg-5 ">
+            <p class="print-text-bold">The cost of your loan</p>
+            <div class="row">
+                <div class="col-lg-8">
+                    <p>Interest rate</p>
+                    <p>Establishment fee</p>
+                    <p>Ongoing fee</p>
+                </div>
+                <div class="col-lg-4">
+                    <p>{{ totalInterestRate }}% pa</p>
+                    <p>${{ establishmentFee |intcomma }}</p>
+                    <p>$0</p>
+                </div>
 
-    <div class="row ">
-
-        <div class="col-lg-12 "><br>
-            <p class="larger HHCLightBlue-Printed pb-3">Explanatory notes</p>
-
-            <p class=" larger"><b>Home Value</b></p>
-            <p class="print-text pb-3">Your home value is updated each year using the specified growth rate.
-                The calculations assume a constant growth rate (although in reality this rate will rise and
-                fall).</p>
-
-
-            <p class="larger"><b>Interest Rate</b></p>
-            <p class="print-text pb-3">Interest rates are assumed to remain constant over the life of the loan. This
-                loan has a variable rate of interest and should be expected to fluctuate over time. Interest is
-                calculated daily and accrued monthly. </p>
-
-
-            <p class="larger"><b>Loan balance</b></p>
-            <p class="print-text pb-3">The outstanding loan balance is calculated each month by adding any planned
-                loan
-                drawdowns,
-                interest charges and any fees to the outstanding
-                loan balance from the previous month. These projections assume that no repayments are made during
-                the
-                life of the loan. </p>
-
-
-            <p class="larger "><b>Home Equity </b></p>
-            <p class="print-text">Your home equity is calculated by subtracting the outstanding loan from the value
-                of
-                your
-                home. This is the value you might expect to receive if you sold your home, after repaying the loan.
-                The home equity percentage is calculated by dividing your Home Equity by your Home Value.</p>
-
+            </div>
         </div>
-    </div>
 
+    </div>
 </div>
 
+<div class="row justify-content-center">
+
+    <div class="col-lg-10 pt-2 ">
+        <p class="print-text-bold">Loan amount(s)</p>
+        {% if totalPlanAmount == totalLoanAmount %}
+            <p>The total Loan Amount is
+                ${{ totalLoanAmount |intcomma }}, including establishment fee of ${{ establishmentFee }}</p>
+            <br>
+        {% else %}
+            <p>The total Loan Amount (drawn in the first 12 months) is
+                ${{ totalLoanAmount |intcomma }}, including establishment fee of ${{ establishmentFee }}</p>
+            <p>The total Plan Amount is ${{ totalPlanAmount |intcomma }}, including
+            establishment fee of ${{ planEstablishmentFee }}
+        {% endif %}
+    </div>
+</div>
+
+<div class="row ">
+
+    <div class="col-lg-12 "><br>
+        <p class="larger HHCLightBlue-Printed pb-3">Explanatory notes</p>
+
+        <p class="print-text-bold">What is a reverse mortgage?</p>
+        <p class="print-text pb-3">A loan made using the equity in your home as security. Periodic interest
+            payments on the loan are not required and are added to the loan balance. You will need to repay the loan
+            when you stop living in your home.</p>
+
+        <p class=" larger"><b>Home Value</b></p>
+        <p class="print-text pb-3">Your projected home value is based on the specified growth rate.
+            The calculations assume a constant growth rate (although in reality this rate will rise and
+            fall).</p>
+
+        <p class="larger"><b>Interest Rate</b></p>
+        <p class="print-text pb-3">Interest rates are assumed to remain constant over the life of the loan. This
+            loan has a variable rate of interest and should be expected to fluctuate over time. Interest is
+            calculated daily and accrued monthly. </p>
+
+        <p class="larger"><b>Loan Balance</b></p>
+        <p class="print-text pb-3">The outstanding loan balance is calculated each month by adding any planned
+            loan
+            drawdowns,
+            interest charges and any fees to the outstanding
+            loan balance from the previous month. These projections assume that no repayments are made during
+            the
+            life of the loan. </p>
+
+
+        <p class="larger "><b>Home Equity </b></p>
+        <p class="print-text">Your home equity is the value
+            of
+            your
+            home less the outstanding balance of the loan.
+            This is the value you might expect to receive if you were to sell your home, after repaying the loan.
+            The home equity percentage is calculated by dividing your Home Equity by your Home Value.</p>
+
+    </div>
+</div>
+
+
+<!-- Page -->
 <p style="page-break-before: always"></p>
+
 <div>
 
     <div class="row pt-3 ">

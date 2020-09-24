@@ -4,6 +4,7 @@ from enum import Enum
 # Enum class is callable and the templating system will try and call it
 # This decorator sets a property to prevent the call, ensuring the
 # classes enumerate properly
+
 def accessInTemplate(cls):
     cls.do_not_call_in_templates = True
     return cls
@@ -25,13 +26,6 @@ class caseStagesEnum(Enum):
     FUNDED = 6
 
 @accessInTemplate
-class clientTypesEnum(Enum):
-    BORROWER= 0
-    NOMINATED_OCCUPANT= 1
-    POWER_OF_ATTORNEY= 2
-    PERMITTED_COHABITANT = 3
-
-@accessInTemplate
 class clientSexEnum(Enum):
     FEMALE=0
     MALE=1
@@ -41,6 +35,20 @@ class pensionTypesEnum(Enum):
     FULL_PENSION =0
     PARTIAL_PENSION =1
     NO_PENSION =2
+
+@accessInTemplate
+class investmentTypesEnum(Enum):
+    SUPER = 0
+    SHARES =1
+    PROPERTY = 2
+    COMBINED = 3
+
+@accessInTemplate
+class productTypesEnum(Enum):
+    LUMP_SUM = 0
+    INCOME = 1
+    COMBINATION = 2
+    CONTINGENCY_20K = 3
 
 @accessInTemplate
 class loanTypesEnum(Enum):
@@ -60,18 +68,20 @@ class ragTypesEnum(Enum):
 
 @accessInTemplate
 class channelTypesEnum(Enum):
-    IND_FINANCIAL_ADVISERS=0
-    INST_FINANCIAL_ADVISERS=1
-    SUPER_FINANCIAL_ADVISERS=2
-    AGED_CARE_ADVISERS=3
-    AGED_CARE_PROVIDERS_CONSULTANTS=4
-    ACCOUNTANTS=5
-    CENTRELINK_ADVISERS=6
-    BROKERS=7
-    BANK_REFERRAL=8
-    BANK_REFI=9
-    SUPER_MEMBERS_DIRECT=10
     DIRECT_ACQUISITION=11
+    PARTNER = 12
+    BROKER=7
+    ADVISER = 13
+    IND_FINANCIAL_ADVISERS = 0  # Deprecated
+    INST_FINANCIAL_ADVISERS = 1  # Deprecated
+    SUPER_FINANCIAL_ADVISERS = 2  # Deprecated
+    AGED_CARE_ADVISERS = 3  # Deprecated
+    AGED_CARE_PROVIDERS_CONSULTANTS = 4  # Deprecated
+    ACCOUNTANTS = 5  # Deprecated
+    CENTRELINK_ADVISERS = 6  # Deprecated
+    BANK_REFERRAL = 8  # Deprecated
+    BANK_REFI = 9  # Deprecated
+    SUPER_MEMBERS_DIRECT = 10  # Deprecated
 
 @accessInTemplate
 class directTypesEnum(Enum):
@@ -79,8 +89,35 @@ class directTypesEnum(Enum):
     EMAIL = 1
     WEB_CALCULATOR = 2
     WEB_ENQUIRY = 3
-    REFERRAL=4
+    BROKER=4
+    PARTNER = 5
+    SOCIAL = 6
+    ADVISER = 7
     OTHER=100
+
+
+@accessInTemplate
+class marketingTypesEnum(Enum):
+    TV_ADVERT = 1
+    TV_ADVERTORIAL = 2
+    RADIO = 3
+    WORD_OF_MOUTH = 4
+    ADVISER = 5
+    COMPETITOR = 6
+    DIRECT_MAIL = 7
+    WEB_SEARCH = 11
+    DIRECT_EMAIL = 12
+    FACEBOOK = 8
+    LINKEDIN = 9
+    YOUR_LIFE_CHOICES = 10
+    STARTS_AT_60 = 13
+    CARE_ABOUT = 14
+    BROKER_SPECIALIST = 15
+    BROKER_REFERRAL = 16
+    FINANCIAL_ADVISER = 17
+    AGED_CARE_ADVISER = 18
+    OTHER = 100
+
 
 @accessInTemplate
 class stateTypesEnum(Enum):
@@ -97,6 +134,27 @@ class stateTypesEnum(Enum):
 class incomeFrequencyEnum(Enum):
     FORTNIGHTLY = 1
     MONTHLY = 2
+    WEEKLY = 3
+    QUARTERLY = 4
+    ANNUALLY = 5
+
+@accessInTemplate
+class enquiryStagesEnum(Enum):
+    GENERAL_INFORMATION = 1
+    BROCHURE_SENT = 2
+    SUMMARY_SENT = 3
+    DISCOVERY_MEETING = 4
+    LOAN_INTERVIEW = 5
+    LIVE_TRANSFER = 6
+    DUPLICATE = 7
+    FUTURE_CALL = 8
+    DID_NOT_QUALIFY = 9
+    NOT_PROCEEDING = 10
+    FOLLOW_UP_NO_ANSWER = 11
+    FOLLOW_UP_VOICEMAIL = 12
+    INITIAL_NO_ANSWER = 13
+    NVN_EMAIL_SENT = 14
+    MORE_TIME_TO_THINK = 15
 
 @accessInTemplate
 class closeReasonEnum(Enum):
@@ -112,7 +170,12 @@ class closeReasonEnum(Enum):
     ALTERNATIVE_SOLUTION=10
     COMPETITOR=11
     NO_CLIENT_ACTION=13
+    CALL_ONLY = 14
+    ANTI_REVERSE_MORTGAGE = 15
+    FEES = 15
+    DUPLICATE = 16
     OTHER = 12
+
 
 @accessInTemplate
 class salutationEnum(Enum):
@@ -129,6 +192,14 @@ class maritalEnum(Enum):
     DIVORCED = 3
     WIDOWED = 4
     DEFACTO = 5
+    SEPARATED = 6
+
+@accessInTemplate
+class clientTypesEnum(Enum):
+    BORROWER= 0
+    NOMINATED_OCCUPANT= 1
+    POWER_OF_ATTORNEY= 2
+    PERMITTED_COHABITANT = 3
 
 @accessInTemplate
 class roleEnum(Enum):
@@ -145,6 +216,7 @@ class roleEnum(Enum):
     LOAN_WRITER = 10
     VALUER = 11
     EXECUTOR = 12
+    SOLICITOR = 13
 
 
 @accessInTemplate
@@ -161,6 +233,40 @@ class facilityStatusEnum(Enum):
     REPAID = 2
     SUSPENDED = 3
 
+@accessInTemplate
+class purposeCategoryEnum(Enum):
+    TOP_UP = 1
+    REFINANCE = 2
+    LIVE = 3
+    GIVE = 4
+    CARE = 5
+
+@accessInTemplate
+class purposeIntentionEnum(Enum):
+    INVESTMENT = 1
+    CONTINGENCY = 2
+    REGULAR_DRAWDOWN = 3
+    GIVE_TO_FAMILY = 4
+    RENOVATIONS = 5
+    TRANSPORT_AND_TRAVEL = 6
+    LUMP_SUM = 7
+    MORTGAGE  = 8
+
+@accessInTemplate
+class appStatusEnum(Enum):
+    CREATED = 0
+    IN_PROGRESS = 1
+    EXPIRED = 2
+    SUBMITTED = 3
+    CONTACT = 4
+    CLOSED = 5
+
+@accessInTemplate
+class documentTypesEnum(Enum):
+    RATES=1
+    INSURANCE=2
+    STRATA_LEVIES = 3
+    OTHER = 100
 
 
 
@@ -179,5 +285,7 @@ class closeReasonTypes(Enum):
     COMPETITOR=11
     NO_CLIENT_ACTION=13
     OTHER = 12
+
+
     
     

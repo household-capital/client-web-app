@@ -76,7 +76,7 @@
                                                            height="100px">
                             </div>
 
-                            <p >{{ obj.superFund.fundName }}</p>
+                            <p >{% if obj.superFund.fundName %}{{ obj.superFund.fundName }}{% else %}{{ obj.enumInvestmentLabel }}{% endif %}</p>
                             <br><p>Balance</p>
                             <p class="pt-1">${{ superAmount|intcomma }}</p>
                         {% else %}
@@ -84,7 +84,7 @@
                                                                                                          src="{% static 'img/icons/nestEgg_icon.png' %}"
                                                                                                          width="100px"></a>
                             </div>
-                            <p>Superannuation</p>
+                            <p>{{ obj.enumInvestmentLabel }}</p>
                         {% endif %}
                     </div>
 

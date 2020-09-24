@@ -1,4 +1,4 @@
-{% extends 'case/loanSummary/email_template.html' %}
+{% extends 'case/email/loanSummary/email_template.html' %}
 {% load humanize %}
 {% load static %}
 
@@ -15,9 +15,9 @@
 <br>
 <p>Kind regards</p>
 <br>
-<p>{{ obj.user.first_name }}&nbsp;{{ obj.user.last_name }}</p>
+<p>{{ obj.owner.first_name }}&nbsp;{{ obj.user.owner }}</p>
 <br>
-<img src="{{ absolute_media_url }}{{ obj.user.profile.picture }}" width="100px">
+<img src="{{ obj.owner.profile.picture.url }}" width="100px">
 
 
 {% endblock %}

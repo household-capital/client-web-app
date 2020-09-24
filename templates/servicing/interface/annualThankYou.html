@@ -1,0 +1,55 @@
+{% extends 'servicing/base/base_srv.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <<div id='messages' class="row justify-content-md-center pt-3">
+            <div class="col-6 text-center">
+                {% for message in messages %}
+                    <div class="pb-1">
+                        <p{% if message.tags == 'error' %} class="alert alert-danger"{% endif %}
+                                {% if message.tags == 'warning' %} class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container">
+
+    <div class="row">
+        <div class="col-lg-9 pb-3">
+            <br><br>
+            <p class="larger pb-2"><i class="far fa-check-circle fa-fw"></i><b> Completed</b></p>
+            <p class="pt-2">We will follow up anything highlighted in the review with you shortly.</p>
+            <br>
+            <p>Otherwise, please feel free to call us on 1300 622 100 or email us at customers@householdcapital.com</p>
+            <br>
+            <p>The Household Capital Team</p>
+        </div>
+    </div>
+    <br><br><br><br><br><br>
+</div>
+
+{% endblock %}
+
+

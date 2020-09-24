@@ -8,6 +8,8 @@
     <p class="pb-2"><b>Requirements and objectives</b></p>
     <p> {{ factObj.requirementsNotes }} </p>
 
+    <p style="page-break-before: always"></p>
+
     {% if topUpAmount != 0 or topUpContingencyAmount != 0 or topUpDrawdownAmount != 0 %}
         <p class="small pt-4 pb-2"><b>Purpose: Top-up</b></p>
         <p> {{ factObj.topUpNotes }} </p>

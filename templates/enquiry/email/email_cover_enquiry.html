@@ -19,7 +19,7 @@
     <p>{{ user.email }}</p>
 {% endif %}
 <br>
-<img src="{{ absolute_media_url }}{{ user.profile.picture }}" width="100px">
+<img src="{{ user.profile.picture.url }}" width="100px">
 
 
 {% endblock %}

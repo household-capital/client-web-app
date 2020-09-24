@@ -14,13 +14,15 @@
     <link rel="icon" href="{% static 'img/favicon/favicon.png' %}"/>
 
     <!-- CSS -->
-    {% include 'application/base/base_app.css.html' %}
+    {% include 'site/base.css.html' %}
 
     <title>HouseholdCapital.app</title>
 
 </head>
 
 <body>
+    <!-- Analytics -->
+    {% include 'application/base/base_app.analytics.html' %}{# Global analytics #}
 
     <!-- Navbar -->
     {% include 'application/base/base_app.navbar.html' %}
@@ -35,8 +37,13 @@
     <!-- Individual Page Content -->
     {% block content %}{% endblock %}
 
+    <!-- Menu Bar -->
+    {% include 'application/base/base_app.menubar.html' %}
+
     <!-- Javascript -->
+    {% include 'site/base.js.html' %}
     {% include 'application/base/base_app.js.html' %}
+
     {% block javascript %}{% endblock %}
 
 </body>

@@ -14,7 +14,7 @@
     <link rel="icon" href="{% static 'img/favicon/favicon.png' %}"/>
 
     <!-- CSS -->
-    {% include 'client_2_0/base/base_client.css.html' %}
+    {% include 'site/base.css.html' %}
 
     <title>HouseholdCapital.app</title>
 
@@ -25,11 +25,6 @@
     <!-- Navbar -->
     {% include 'client_2_0/base/base_client.navbar.html' %}
 
-    <!-- Menubar can be hidden -->
-    {% if not hideMenu %}
-        {% include 'client_2_0/base/base_client.menubar.html' %}
-    {% endif %}
-
     <!-- Header Jumbotron -->
     {% include 'client_2_0/base/base_client.header.html' %}
 
@@ -39,8 +34,15 @@
     <!-- Individual Page Content -->
     {% block content %}{% endblock %}
 
+        <!-- Menubar can be hidden -->
+    {% if not hideMenu %}
+        {% include 'client_2_0/base/base_client.menubar.html' %}
+    {% endif %}
+
     <!-- Javascript -->
+    {% include 'site/base.js.html' %}
     {% include 'client_2_0/base/base_client.js.html' %}
+
     {% block javascript %}{% endblock %}
 
 </body>

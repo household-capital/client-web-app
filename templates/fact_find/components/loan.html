@@ -28,9 +28,8 @@
 
                 {% if topUpDrawdownAmount != 0 %}
                     <p class="small pb-2">Draw-down plan:
-                        ${{ topUpIncomeAmount }} {{ loanObj.enumDrawdownFrequency }}
+                        ${{ topUpIncomeAmount }} {{ enumTopUpFrequency }}
                         for {{ topUpPeriod }} years [12 month amount]
-                        {% if topUpBuffer != 0 %}(with 'rainy day'){% endif %}
                     </p>
                 {% endif %}
             </div>
@@ -75,7 +74,7 @@
                     <p class="small pb-2">Renovate: {{ renovateDescription }}
                     </p>{% endif %}
                 {% if travelAmount != 0 %}
-                    <p class="">Transport:
+                    <p class="small">Transport:
                         {{ travelDescription }}
                     </p>{% endif %}
             </div>
@@ -120,7 +119,7 @@
                 {% endif %}
 
                 {% if careDrawdownAmount %}
-                    <p class="small pb-2">Draw-down plan: ${{ careRegularAmount }} {{ loanObj.enumCareFrequency }}
+                    <p class="small pb-2">Draw-down plan: ${{ careRegularAmount }} {{ enumCareFrequency }}
                         for {{ carePeriod }} years [12 month amount]
                         {% if careDrawdownDescription %}: {{ careDrawdownDescription }}{% endif %}</p>
                 {% endif %}

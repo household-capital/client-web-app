@@ -7,14 +7,13 @@ import pathlib
 
 # Django Imports
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.files.storage import default_storage
 from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q
-from django.forms import model_to_dict
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.template.loader import get_template
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import ListView, UpdateView, CreateView, TemplateView, View, FormView
 
@@ -23,18 +22,24 @@ from config.celery import app
 
 # Local Application Imports
 from apps.calculator.models import WebCalculator
-from apps.lib.hhc_LoanValidator import LoanValidator
-from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, appTypesEnum
+from apps.enquiry.models import Enquiry
+from apps.lib.api_BurstSMS import apiBurst
+from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.api_Salesforce import apiSalesforce
-from apps.lib.site_Globals import LOAN_LIMITS
+from apps.lib.hhc_LoanValidator import LoanValidator
+from apps.lib.site_DataMapping import serialisePurposes
+from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, appTypesEnum, purposeCategoryEnum, \
+    purposeIntentionEnum, incomeFrequencyEnum, productTypesEnum, clientTypesEnum
+from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Logging import write_applog
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
-from apps.lib.site_Utilities import updateNavQueue
-from apps.lib.api_Docsaway import apiDocsAway
-from apps.enquiry.models import Enquiry
-from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignForm
-from .models import Case, LossData, Loan, ModelSetting
+from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, validateLoanGetContext, \
+    updateNavQueue, getProjectionResults, cleanPhoneNumber, sendTemplateEmail
 
+from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignForm, \
+    lumpSumPurposeForm, drawdownPurposeForm, purposeAddForm, smsForm
+from .models import Case, LossData, Loan, ModelSetting, LoanPurposes
+from apps.application.models import ApplicationDocuments
 
 
 # // UTILITIES
@@ -44,11 +49,11 @@ class SFHelper():
     def getSFids(self, sfAPI, caseObj):
         # Get SF information from generated leads
 
-        oppID=None
-        loanID=None
+        oppID = None
+        loanID = None
         # get related OpportunityID from Lead
         resultsTable = sfAPI.execSOQLQuery('OpportunityRef', caseObj.sfLeadID)
-        if resultsTable['status']=="Ok":
+        if resultsTable['status'] == "Ok":
             oppID = resultsTable['data'].iloc[0]["ConvertedOpportunityId"]
         if oppID == None:
             return False, "Opportunity"
@@ -70,25 +75,10 @@ class SFHelper():
 
 # //MIXINS
 
-class LoginRequiredMixin():
-    # Ensures views will not render unless logged in, redirects to login page
-    @classmethod
-    def as_view(cls, **kwargs):
-        view = super(LoginRequiredMixin, cls).as_view(**kwargs)
-        return login_required(view)
-
-    # Ensures views will not render unless Household employee, redirects to Landing
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.profile.isHousehold:
-            return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
-        else:
-            return HttpResponseRedirect(reverse_lazy('landing:landing'))
-
-
 # //CLASS BASED VIEWS
 
 # Case List View
-class CaseListView(LoginRequiredMixin, ListView):
+class CaseListView(HouseholdLoginRequiredMixin, ListView):
     paginate_by = 8
     template_name = 'case/caseList.html'
     context_object_name = 'object_list'
@@ -103,10 +93,12 @@ class CaseListView(LoginRequiredMixin, ListView):
             queryset = queryset.filter(
                 Q(caseDescription__icontains=search) |
                 Q(adviser__icontains=search) |
-                Q(user__first_name__icontains=search) |
-                Q(user__last_name__icontains=search) |
+                Q(email__icontains=search) |
+                Q(phoneNumber__icontains=search) |
+                Q(owner__last_name__icontains=search) |
                 Q(caseNotes__icontains=search) |
                 Q(street__icontains=search) |
+                Q(postcode__icontains=search) |
                 Q(surname_1__icontains=search) |
                 Q(sfLoanID__icontains=search)
             )
@@ -120,10 +112,6 @@ class CaseListView(LoginRequiredMixin, ListView):
             queryset = queryset.filter(
                 Q(caseStage=caseStagesEnum.DOCUMENTATION.value))
 
-        elif self.request.GET.get('filter') == "Funded":
-            queryset = queryset.filter(
-                Q(caseStage=caseStagesEnum.FUNDED.value))
-
         elif self.request.GET.get('filter') == "Apply":
             queryset = queryset.filter(
                 Q(caseStage=caseStagesEnum.APPLICATION.value))
@@ -133,12 +121,11 @@ class CaseListView(LoginRequiredMixin, ListView):
                 Q(caseStage=caseStagesEnum.MEETING_HELD.value))
 
         elif self.request.GET.get('filter') == "Me":
-            queryset = queryset.filter(user=self.request.user)
+            queryset = queryset.filter(owner=self.request.user)
 
         elif not self.request.GET.get('search'):
             queryset = queryset.filter(
                 Q(caseStage=caseStagesEnum.DISCOVERY.value))
-
 
         # ...and orderby.....
         if self.request.GET.get('order') == None or self.request.GET.get('order') == "":
@@ -148,6 +135,11 @@ class CaseListView(LoginRequiredMixin, ListView):
 
         queryset = queryset.order_by(*orderBy)[:160]
 
+        # Temporary hidden filter
+        if self.request.GET.get('filter') == "Funded":
+            queryset = super(CaseListView, self).get_queryset().filter(
+                Q(caseStage=caseStagesEnum.FUNDED.value)).exclude(appType=appTypesEnum.VARIATION.value).order_by(
+                'surname_1')
 
         return queryset
 
@@ -177,7 +169,7 @@ class CaseListView(LoginRequiredMixin, ListView):
 
 
 # Case Detail View (UpdateView)
-class CaseDetailView(LoginRequiredMixin, UpdateView):
+class CaseDetailView(HouseholdLoginRequiredMixin, UpdateView):
     template_name = 'case/caseDetail.html'
     model = Case
     form_class = CaseDetailsForm
@@ -195,21 +187,45 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
         context['isUpdate'] = True
         context['caseStagesEnum'] = caseStagesEnum
         context['appTypesEnum'] = appTypesEnum
+        context['productTypesEnum'] = productTypesEnum
 
         clientDict = {}
-        clientObj = self.object
-        clientDict = clientObj.__dict__
+        caseObj = self.object
+
+        # Revalidate Loan
+        caseLoanObj = Loan.objects.filter(case=self.object).get()
+        context['isLowLVR'] = caseLoanObj.isLowLVR
+
+        # Basic Validation only
+        clientDict = caseObj.__dict__
         loanObj = LoanValidator(clientDict)
         context['status'] = loanObj.validateLoan()
 
-        paramStr = "?name="+(clientObj.firstname_1 if clientObj.firstname_1 else '') + " " +\
-                   (clientObj.surname_1 if clientObj.surname_1 else '') + "&email=" + \
-                   (clientObj.email if clientObj.email else '')
+        if (context['status']['status'] == 'Ok') and (caseLoanObj.totalLoanAmount != 0):
+            # Undertake full validation
+            context['status'].update(validateLoanGetContext(str(caseObj.caseUID)))
+            if context['status']['errors']:
+                messages.error(self.request, "Loan validation error")
 
-        if self.object.user.profile.calendlyInterviewUrl:
-            context['calendlyUrl'] = self.object.user.profile.calendlyInterviewUrl + paramStr
-        else:
-            context['calendlyUrl']=""
+        # Calendly
+        context['calendlyUrl'] = ""
+
+        paramStr = "?name=" + (caseObj.firstname_1 if caseObj.firstname_1 else '') + " " + \
+                   (caseObj.surname_1 if caseObj.surname_1 else '') + "&email=" + \
+                   (caseObj.email if caseObj.email else '')
+
+        if self.object.owner:
+            if self.object.owner.profile.calendlyInterviewUrl:
+                context['calendlyUrl'] = self.object.owner.profile.calendlyInterviewUrl + paramStr
+                context['calendlyMainUrl'] = self.object.owner.profile.calendlyUrl[
+                                             :len(self.object.owner.profile.calendlyUrl) - 24]  # Refactor
+
+        # Application Documents
+        if caseObj.appUID:
+            try:
+                context['docList'] = ApplicationDocuments.objects.filter(application__appUID=caseObj.appUID)
+            except ApplicationDocuments.DoesNotExist:
+                pass
 
         return context
 
@@ -221,57 +237,84 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
         loan_obj = Loan.objects.queryset_byUID(str(self.kwargs['uid'])).get()
 
         # Don't allow later stages to be updated in the GUI
-        if initialcaseStage != caseStagesEnum.DISCOVERY.value and initialcaseStage != caseStagesEnum.MEETING_HELD.value \
-                and initialcaseStage != caseStagesEnum.APPLICATION.value:
+        if initialcaseStage not in [caseStagesEnum.DISCOVERY.value, caseStagesEnum.MEETING_HELD.value,
+                                    caseStagesEnum.APPLICATION.value, caseStagesEnum.CLOSED.value]:
             messages.error(self.request, "You can no longer update this Case ")
             return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': self.kwargs.get('uid')}))
 
         obj = form.save(commit=False)
 
-        #Prior Nullable field
+        # Prior Nullable field
         if not obj.pensionAmount:
-            obj.pensionAmount=0
+            obj.pensionAmount = 0
 
-        # Update age if birthdate present and user
+        if obj.phoneNumber:
+            obj.phoneNumber = cleanPhoneNumber(form.cleaned_data['phoneNumber'])
+
+        # Update age if birthdate present and owner
         if obj.birthdate_1 != None:
             obj.age_1 = int((datetime.date.today() - obj.birthdate_1).days / 365.25)
         if obj.birthdate_2 != None:
             obj.age_2 = int((datetime.date.today() - obj.birthdate_2).days / 365.25)
 
-        print(obj.caseStage)
         obj.save()
 
         # Renames and moves the image file if present
-        if obj.propertyImage:
+        if 'propertyImage' in self.request.FILES:
             path, filename = obj.propertyImage.name.split("/")
             ext = pathlib.Path(obj.propertyImage.name).suffix
+            newFilename = path + "/property-" + str(obj.enqUID)[-12:] + ext
 
-            newFilename = settings.MEDIA_ROOT + "/" + path + "/" + str(obj.caseUID) + "." + ext
-            os.rename(settings.MEDIA_ROOT + "/" + obj.propertyImage.name,
-                      newFilename)
-            obj.propertyImage = path + "/" + str(obj.caseUID) + "." + ext
-            obj.save(update_fields=['propertyImage'])
+            try:
+                originalFilename = obj.propertyImage.name
+                movable_file = default_storage.open(originalFilename)
+                actualFilename = default_storage.save(newFilename, movable_file)
+                obj.propertyImage = actualFilename
+                obj.save(update_fields=['propertyImage'])
+                movable_file.close()
+                default_storage.delete(originalFilename)
 
-        if obj.caseStage == caseStagesEnum.MEETING_HELD.value:
-            # Order Title Documents
-            self.orderTitleDocuments(obj, loan_obj)
+            except:
+                pass
+
+        # Renames and moves the autoVal file if present
+        if 'valuationDocument' in self.request.FILES:
+            path, filename = obj.valuationDocument.name.split("/")
+            ext = pathlib.Path(obj.valuationDocument.name).suffix
+            newFilename = path + "/autoVal-" + str(obj.enqUID)[-12:] + ext
+
+            try:
+                originalFilename = obj.valuationDocument.name
+                movable_file = default_storage.open(originalFilename)
+                actualFilename = default_storage.save(newFilename, movable_file)
+                obj.valuationDocument = actualFilename
+                obj.save(update_fields=['valuationDocument'])
+                movable_file.close()
+                default_storage.delete(originalFilename)
+            except:
+                pass
+
+        # Check Loan Type
+        if obj.clientType2 != None:
+            if (
+                    obj.clientType2 == clientTypesEnum.BORROWER.value or obj.clientType2 == clientTypesEnum.NOMINATED_OCCUPANT.value) and (
+                    obj.loanType == loanTypesEnum.SINGLE_BORROWER.value):
+                messages.error(self.request, "Warning: Loan Type should be Joint, not Single")
 
         # Case Field Validation
         isValid = self.checkFields(obj)
 
         if not isValid:
-            messages.info(self.request, "Saved - but not synched. Case will be synched when all required fields are completed")
+            messages.info(self.request,
+                          "Saved - but not synched. Case will be synched when all required fields are completed")
         else:
-
             # Salesforce Synch
             self.salesforceSynch(obj)
-
             messages.success(self.request, "Case has been updated")
 
         return super(CaseDetailView, self).form_valid(form)
 
     def salesforceSynch(self, caseObj):
-
         if caseObj.caseStage == caseStagesEnum.MEETING_HELD.value and caseObj.sfOpportunityID is None:
             # Background task to update SF and synch
             app.send_task('SF_Lead_Convert', kwargs={'caseUID': str(caseObj.caseUID)})
@@ -284,52 +327,26 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
             app.send_task('Update_SF_Case_Lead', kwargs={'caseUID': str(caseObj.caseUID)})
 
         else:
-            #Synch with Salesforce
+            # Synch with Salesforce
             app.send_task('SF_Opp_Synch', kwargs={'caseUID': str(caseObj.caseUID)})
             app.send_task('SF_Doc_Synch', kwargs={'caseUID': str(caseObj.caseUID)})
 
         return
 
-    def orderTitleDocuments(self, caseObj, loanObj):
-        if not caseObj.titleDocument and not caseObj.titleRequest and caseObj.sfLeadID:
-            title_email = 'credit@householdcapital.com'
-            cc_email = 'lendingservices@householdcapital.com'
-            email_template = 'case/email/caseTitleEmail.html'
-            email_context = {}
-            email_context['caseObj'] = caseObj
-            email_context['detailedTitle'] = loanObj.detailedTitle
-            html = get_template(email_template)
-            html_content = html.render(email_context)
-
-            subject, from_email, to, bcc = \
-                "Title Request - " + str(caseObj.caseDescription), \
-                caseObj.user.email, \
-                [title_email, cc_email], \
-                None
-
-            msg = EmailMultiAlternatives(subject, "Title Request", from_email, to, bcc)
-            msg.attach_alternative(html_content, "text/html")
-            msg.send()
-            messages.success(self.request, "Title documents requested")
-            caseObj.titleRequest = True
-            caseObj.save(update_fields=['titleRequest'])
-        return
-
     def checkFields(self, caseObj):
+        requiredFields = ['loanType', 'clientType1', 'salutation_1', 'maritalStatus_1', 'surname_1',
+                          'firstname_1', 'birthdate_1', 'sex_1', 'street', 'suburb', 'state',
+                          'valuation', 'dwellingType']
 
-        requiredFields = ['loanType', 'clientType1','salutation_1','maritalStatus_1','surname_1',
-                          'firstname_1','birthdate_1','sex_1','street','suburb','state',
-                          'valuation','dwellingType']
-
-        additionalFields = ['clientType2','salutation_2','maritalStatus_2','surname_2',
-                          'firstname_2','birthdate_2','sex_2']
+        additionalFields = ['clientType2', 'salutation_2', 'maritalStatus_2', 'surname_2',
+                            'firstname_2', 'birthdate_2', 'sex_2']
 
         caseDict = caseObj.__dict__
 
         if caseObj.loanType == None:
             return False
 
-        if caseObj.loanType == loanTypesEnum.JOINT_BORROWER.value:
+        if caseObj.clientType2 != None:
             requiredFields += additionalFields
 
         for field in requiredFields:
@@ -340,7 +357,7 @@ class CaseDetailView(LoginRequiredMixin, UpdateView):
 
 
 # Case Create View (Create View)
-class CaseCreateView(LoginRequiredMixin, CreateView):
+class CaseCreateView(HouseholdLoginRequiredMixin, CreateView):
     template_name = 'case/caseDetail.html'
     model = Case
     form_class = CaseDetailsForm
@@ -365,21 +382,24 @@ class CaseCreateView(LoginRequiredMixin, CreateView):
         if obj.birthdate_2 != None:
             obj.age_2 = datetime.date.today().year - obj.birthdate_2.year
 
+        if obj.phoneNumber:
+            obj.phoneNumber = cleanPhoneNumber(form.cleaned_data['phoneNumber'])
+
         # Set fields manually
         obj.caseStage = caseStagesEnum.DISCOVERY.value
-        obj.user = self.request.user
+        obj.owner = self.request.user
 
         obj.save()
         messages.success(self.request, "Case Created")
 
-        #Background task to update SF
-        app.send_task('Create_SF_Case_Lead', kwargs={'caseUID':str(obj.caseUID)})
+        # Background task to update SF
+        app.send_task('Create_SF_Case_Lead', kwargs={'caseUID': str(obj.caseUID)})
 
         return super(CaseCreateView, self).form_valid(form)
 
 
 # Case Delete View (Delete View)
-class CaseDeleteView(LoginRequiredMixin, View):
+class CaseDeleteView(HouseholdLoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         if "uid" in kwargs:
@@ -389,8 +409,44 @@ class CaseDeleteView(LoginRequiredMixin, View):
         return HttpResponseRedirect(reverse_lazy('case:caseList'))
 
 
+# Refer Postcode Request
+class CaseReferView(HouseholdLoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+
+        caseUID = str(self.kwargs['uid'])
+        sfAPI = apiSalesforce()
+        result = sfAPI.openAPI(True)
+        if result['status'] != "Ok":
+            write_applog("ERROR", 'Case', 'CaseReferView', result['responseText'])
+            messages.error(request, "Could not update Salesforce")
+            return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseUID}))
+
+        # Get object
+        qs = Case.objects.queryset_byUID(caseUID)
+        caseObj = qs.get()
+
+        if not caseObj.sfLeadID:
+            messages.error(request, "There is no Salesforce Lead for this case")
+            return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseUID}))
+
+        payload = {"IsReferPostCode__c": True}
+        result = sfAPI.updateLead(caseObj.sfLeadID, payload)
+
+        if result['status'] != 'Ok':
+            messages.error(request, "Could not set status in Salesforce")
+            write_applog("ERROR", 'Case', 'CaseReferView', result['responseText'])
+        else:
+            messages.success(request, "Refer postcode review requested")
+            # save Enquiry Field
+            caseObj.isReferPostcode = True
+            caseObj.save()
+
+        return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseUID}))
+
+
 # Case Close View (Update View)
-class CaseCloseView(LoginRequiredMixin, UpdateView):
+class CaseCloseView(HouseholdLoginRequiredMixin, UpdateView):
     model = LossData
     template_name = 'case/caseLoss.html'
     form_class = LossDetailsForm
@@ -410,7 +466,7 @@ class CaseCloseView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         obj = form.save(commit=False)
         if form.cleaned_data['closeReason']:
-            obj.closeDate=timezone.now()
+            obj.closeDate = timezone.now()
         obj.save()
 
         caseObj = Case.objects.filter(caseUID=str(self.kwargs.get('uid'))).get()
@@ -420,7 +476,7 @@ class CaseCloseView(LoginRequiredMixin, UpdateView):
         messages.success(self.request, "Case closed or marked as followed-up")
 
         try:
-            caseObj=Case.objects.filter(caseUID=str(self.kwargs.get('uid'))).get()
+            caseObj = Case.objects.filter(caseUID=str(self.kwargs.get('uid'))).get()
             if caseObj.sfOpportunityID:
                 messages.info(self.request, "Please close Opportunity in Salesforce also")
         except Case.DoesNotExist:
@@ -430,15 +486,17 @@ class CaseCloseView(LoginRequiredMixin, UpdateView):
         app.send_task('Update_SF_Case_Lead', kwargs={'caseUID': str(obj.case.caseUID)})
         return super(CaseCloseView, self).form_valid(form)
 
-class CaseUncloseView(LoginRequiredMixin, View):
+
+class CaseUncloseView(HouseholdLoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        obj= Case.objects.filter(caseUID=kwargs['uid']).get()
+        obj = Case.objects.filter(caseUID=kwargs['uid']).get()
         obj.caseStage = caseStagesEnum.DISCOVERY.value
         obj.save(update_fields=['caseStage'])
         messages.success(self.request, "Case restored")
         return HttpResponseRedirect(reverse_lazy('case:caseList'))
 
-class CaseAnalysisView(LoginRequiredMixin, TemplateView):
+
+class CaseAnalysisView(HouseholdLoginRequiredMixin, TemplateView):
     context_object_name = 'object_list'
     model = WebCalculator
     template_name = 'case/caseAnalysis.html'
@@ -449,61 +507,37 @@ class CaseAnalysisView(LoginRequiredMixin, TemplateView):
         return context
 
 
-
 # Loan Summary Email
-class CaseEmailLoanSummary(LoginRequiredMixin, TemplateView):
-    template_name = 'case/email/loanSummary/update-email.html'
+class CaseEmailLoanSummary(HouseholdLoginRequiredMixin, TemplateView):
+    template_name = None
     model = Case
 
     def get(self, request, *args, **kwargs):
-        email_context = {}
+
         caseUID = str(kwargs['uid'])
+        action = int(kwargs['pk'])
+
+        if action == 0:
+            self.template_name = 'case/email/loanSummary/email.html'
+        else:
+            self.template_name = 'case/email/loanSummary/update-email.html'
 
         caseObj = Case.objects.queryset_byUID(caseUID).get()
 
-        email_context['obj'] = caseObj
-        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-        email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
+        # Background task to email
+        app.send_task('Email_Loan_Summary',
+                      kwargs={'caseUID': str(caseObj.caseUID), 'template_name': self.template_name})
 
-        attachFilename = "HouseholdLoanSummary.pdf"
-        bcc = caseObj.user.email
-
-        subject, from_email, to = "Household Loan Summary Report", caseObj.user.email, caseObj.email
-        text_content = "Text Message"
-
-        localfile = open(caseObj.summaryDocument.name, 'rb')
-        pdfContents = localfile.read()
-
-        try:
-            html = get_template(self.template_name)
-            html_content = html.render(email_context)
-            msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [bcc])
-            msg.attach_alternative(html_content, "text/html")
-            msg.attach(attachFilename, pdfContents, 'application/pdf')
-            msg.send()
-            messages.success(self.request, "Loan Summary emailed to client")
-            caseObj.summarySentDate = timezone.now()
-            caseObj.save(update_fields=['summarySentDate'])
-            return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
-
-        except:
-            write_applog("ERROR", 'CaseEmailLoanSummary', 'get',
-                         "Failed to email Loan Summary Report:" + caseUID)
-            messages.error(self.request, "Loan Summary could not be emailed")
-            return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
+        messages.success(self.request, "Loan Summary emailed to client")
+        return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
 
-
-
-class CaseMailLoanSummary(LoginRequiredMixin, TemplateView):
-    '''Email and Physically Mail Loan Summary'''
-    template_name = 'case/email/loanSummary/email.html'
-    model = Case
+class CaseMailLoanSummary(HouseholdLoginRequiredMixin, TemplateView):
+    '''Physically Mail Loan Summary'''
 
     def get(self, request, *args, **kwargs):
         email_context = {}
         caseUID = str(kwargs['uid'])
-        action = int(kwargs['pk'])
 
         caseObj = Case.objects.queryset_byUID(caseUID).get()
 
@@ -511,87 +545,24 @@ class CaseMailLoanSummary(LoginRequiredMixin, TemplateView):
             messages.info(self.request, "Loan Summary has already been sent")
             return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
-
-        #Email if present
-        if caseObj.email and action != 1:
-            email_context['obj'] = caseObj
-            email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-            email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
-
-            attachFilename = "HouseholdLoanSummary.pdf"
-            bcc = caseObj.user.email
-
-            subject, from_email, to = "Household Loan Summary Report", caseObj.user.email, caseObj.email
-            text_content = "Text Message"
-
-            localfile = open(caseObj.summaryDocument.name, 'rb')
-            pdfContents = localfile.read()
-
-            try:
-                html = get_template(self.template_name)
-                html_content = html.render(email_context)
-                msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [bcc])
-                msg.attach_alternative(html_content, "text/html")
-                msg.attach(attachFilename, pdfContents, 'application/pdf')
-                msg.send()
-                caseObj.summarySentDate = timezone.now()
-                caseObj.save(update_fields=['summarySentDate'])
-                messages.success(self.request, "Loan Summary emailed to client")
-
-            except:
-                write_applog("ERROR", 'CaseEmailLoanSummary', 'get',
-                             "Failed to email Loan Summary Report:" + caseUID)
-                messages.error(self.request, "Loan Summary could not be emailed")
-                return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
-
-        else:
-            messages.info(self.request, "No email address - not emailed")
-
-
         ## Mail via docsaway
-        docs = apiDocsAway()
-        result = docs.sendPdfByMail(caseObj.summaryDocument.name,
-                                    caseObj.enumSalutation()[0]+" "+caseObj.firstname_1+" "+ caseObj.surname_1,
-                                    caseObj.street,
-                                    caseObj.suburb,
-                                    caseObj.state,
-                                    caseObj.postcode
-                                    )
+        app.send_task('Mail_Loan_Summary',
+                      kwargs={'caseUID': str(caseObj.caseUID)})
 
-        if result['status'] != "Ok":
-            messages.error(self.request, "Loan Summary could not be mailed")
-            write_applog("ERROR", 'CaseMailLoanSummary', 'get',
-                         "Failed to mail Loan Summary Report:" + caseUID + " - " + result['responseText'] )
-        else:
-            resultDict = json.loads(result['data'])
-
-            #Check for other send errors
-            if resultDict["APIErrorNumber"] != 0 or resultDict["transaction"]["approved"] != 'y':
-                write_applog("ERROR", 'CaseMailLoanSummary', 'get',
-                             "Failed to mail Loan Summary Report:" + caseUID + " - " + result['data'])
-
-            else:
-                #Record the send reference
-                caseObj.summarySentRef = resultDict["transaction"]["reference"]
-                caseObj.save(update_fields=['summarySentRef'])
-
-                messages.success(self.request, "Loan Summary mailed to client")
-
-                write_applog("INFO", 'CaseMmailLoanSummary', 'get',
-                             "Mailed Loan Summary Report:" + caseUID + " - " + result['data'])
+        messages.success(self.request, "Loan Summary mailed to client")
 
         return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
 
-class CaseOwnView(LoginRequiredMixin, View):
+class CaseOwnView(HouseholdLoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
 
         caseUID = str(kwargs['uid'])
         caseObj = Case.objects.queryset_byUID(caseUID).get()
 
         if self.request.user.profile.isCreditRep == True:
-            caseObj.user = self.request.user
-            caseObj.save(update_fields=['user'])
+            caseObj.owner = self.request.user
+            caseObj.save(update_fields=['owner'])
             messages.success(self.request, "Ownership Changed")
 
         else:
@@ -600,9 +571,9 @@ class CaseOwnView(LoginRequiredMixin, View):
         return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
 
-class CaseAssignView(LoginRequiredMixin, UpdateView):
+class CaseAssignView(HouseholdLoginRequiredMixin, UpdateView):
     template_name = 'case/caseDetail.html'
-    email_template_name='case/email/assignEmail.html'
+    email_template_name = 'case/email/assignEmail.html'
     form_class = CaseAssignForm
     model = Enquiry
 
@@ -623,14 +594,15 @@ class CaseAssignView(LoginRequiredMixin, UpdateView):
         preObj = queryset = Case.objects.queryset_byUID(str(self.kwargs['uid'])).get()
 
         caseObj = form.save(commit=False)
-        caseObj.caseNotes += '\r\n[# Case assigned from ' + preObj.user.username + ' #]'
+        caseObj.caseNotes += '\r\n[# Case assigned from ' + preObj.owner.username + ' #]'
         caseObj.save()
 
         # Email recipient
-        subject, from_email, to = "Case Assigned to You", "noreply@householdcapital.app", caseObj.user.email
+        subject, from_email, to = "Case Assigned to You", "noreply@householdcapital.app", caseObj.owner.email
         text_content = "Text Message"
-        email_context={}
+        email_context = {}
         email_context['obj'] = caseObj
+        email_context['base_url'] = settings.SITE_URL
 
         try:
             html = get_template(self.email_template_name)
@@ -641,12 +613,11 @@ class CaseAssignView(LoginRequiredMixin, UpdateView):
         except:
             pass
 
-        messages.success(self.request, "Case assigned to " + caseObj.user.username )
+        messages.success(self.request, "Case assigned to " + caseObj.owner.username)
         return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
 
-
-class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
+class CaseDataExtract(HouseholdLoginRequiredMixin, SFHelper, FormView):
     # This view creates a data file (.csv) for use in creating the on-boarding pack
     # The data is sourced from Salesforce
     # This is a temporary solution only
@@ -687,17 +658,19 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
                 return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
             # generate dictionary from Salesforce
-            loanDict = sfAPI.caseMailLoanSummary(caseObj.sfOpportunityID)['data']
+            loanDict = sfAPI.getOpportunityExtract(caseObj.sfOpportunityID)['data']
 
             # enrich SOQL based dictionary
             # parse purposes from SF and enrich SOQL dictionary
 
             appLoanList = ['topUpAmount', 'refinanceAmount', 'giveAmount', 'renovateAmount',
                            'travelAmount', 'careAmount', 'giveDescription', 'renovateDescription', 'travelDescription',
-                           'careDescription', 'annualPensionIncome', 'topUpIncomeAmount', 'topUpFrequency', 'topUpPeriod',
-                           'topUpBuffer','careRegularAmount','careFrequency','carePeriod','topUpContingencyAmount',
-                           'topUpContingencyDescription','topUpDrawdownAmount','careDrawdownAmount','careDrawdownDescription',
-                           'futureEquityAmount','topUpPlanAmount','carePlanAmount','planEstablishmentFee',
+                           'careDescription', 'annualPensionIncome', 'topUpIncomeAmount', 'topUpFrequency',
+                           'topUpPeriod',
+                           'topUpBuffer', 'careRegularAmount', 'careFrequency', 'carePeriod', 'topUpContingencyAmount',
+                           'topUpContingencyDescription', 'topUpDrawdownAmount', 'careDrawdownAmount',
+                           'careDrawdownDescription',
+                           'futureEquityAmount', 'topUpPlanAmount', 'carePlanAmount', 'planEstablishmentFee',
                            'establishmentFee']
 
             for fieldName in appLoanList:
@@ -739,22 +712,24 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
 
             # enrich using app data
             appLoanDict = Loan.objects.dictionary_byUID(str(self.kwargs['uid']))
-            appLoanobj=Loan.objects.queryset_byUID(str(self.kwargs['uid'])).get()
+            appLoanobj = Loan.objects.queryset_byUID(str(self.kwargs['uid'])).get()
             appCaseObj = Case.objects.queryset_byUID(str(self.kwargs['uid'])).get()
 
             # Data Enrichment / Purposes - Change Purposes back
 
-            purposeMap=['topUpAmount','refinanceAmount','giveAmount','renovateAmount','travelAmount','careAmount','giveDescription',
-                        'renovateDescription','travelDescription','careDescription','topUpDescription','topUpIncomeAmount',
-                        'topUpPeriod','topUpBuffer','careRegularAmount',
-                        'carePeriod','topUpContingencyAmount','topUpContingencyDescription','topUpDrawdownAmount',
-                        'careDrawdownAmount','careDrawdownDescription',
-                        'topUpPlanAmount','carePlanAmount']
+            purposeMap = ['topUpAmount', 'refinanceAmount', 'giveAmount', 'renovateAmount', 'travelAmount',
+                          'careAmount', 'giveDescription',
+                          'renovateDescription', 'travelDescription', 'careDescription', 'topUpDescription',
+                          'topUpIncomeAmount',
+                          'topUpPeriod', 'topUpBuffer', 'careRegularAmount',
+                          'carePeriod', 'topUpContingencyAmount', 'topUpContingencyDescription', 'topUpDrawdownAmount',
+                          'careDrawdownAmount', 'careDrawdownDescription',
+                          'topUpPlanAmount', 'carePlanAmount']
 
             for purpose in purposeMap:
-                loanDict['app_'+purpose]=appLoanDict[purpose]
+                loanDict['app_' + purpose] = appLoanDict[purpose]
 
-            loanDict['app_topUpFrequency']=appLoanobj.enumDrawdownFrequency()
+            loanDict['app_topUpFrequency'] = appLoanobj.enumDrawdownFrequency()
             loanDict['app_careFrequency'] = appLoanobj.enumCareFrequency()
 
             if appCaseObj.superFund:
@@ -767,22 +742,22 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
 
             loanDict['app_annualPensionIncome'] = int(appCaseObj.pensionAmount) * 26
 
-            loanDict['app_futureEquityAmount']=max(int(loanDict['app_MaxLoanAmount'])-int(loanDict['Loan.Total_Plan_Amount__c']),0)
+            loanDict['app_futureEquityAmount'] = max(
+                int(loanDict['app_MaxLoanAmount']) - int(loanDict['Loan.Total_Plan_Amount__c']), 0)
 
-            loanDict['Loan.Default_Rate__c']=loanDict['Loan.Interest_Rate__c']+2
-
+            loanDict['Loan.Default_Rate__c'] = loanDict['Loan.Interest_Rate__c'] + 2
 
             # synch check
-            if abs((appLoanDict['totalLoanAmount']-loanDict['Loan.Total_Household_Loan_Amount__c'])) > 1:
-                if loanDict['Opp.Establishment_Fee_Percent__c'] != str(LOAN_LIMITS['establishmentFee']*100):
+            if abs((appLoanDict['totalLoanAmount'] - loanDict['Loan.Total_Household_Loan_Amount__c'])) > 1:
+                if loanDict['Opp.Establishment_Fee_Percent__c'] != str(LOAN_LIMITS['establishmentFee'] * 100):
                     messages.warning(self.request, "Warning: Non standard establishment fee")
                 else:
                     messages.warning(self.request, "Warning: ClientApp and SF have different data")
 
             # write to csv file and save
-            targetFile = settings.MEDIA_ROOT + "/customerReports/data-" + str(caseObj.caseUID)[-12:] + ".csv"
+            targetFile = "customerReports/data-" + str(caseObj.caseUID)[-12:] + ".csv"
 
-            with open(targetFile, 'w') as f:
+            with default_storage.open(targetFile, 'w') as f:
                 for key in loanDict.keys():
                     f.write("%s," % key)
                 f.write("EOL\n")
@@ -803,7 +778,7 @@ class CaseDataExtract(LoginRequiredMixin, SFHelper, FormView):
             return HttpResponseRedirect(reverse_lazy('case:caseData', kwargs={'uid': str(caseObj.caseUID)}))
 
 
-class CloudbridgeView(LoginRequiredMixin, TemplateView):
+class CloudbridgeView(HouseholdLoginRequiredMixin, TemplateView):
     template_name = 'case/caseCloudbridge.html'
 
     def get(self, request, *args, **kwargs):
@@ -822,12 +797,12 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
             return context
 
         if caseObj.lixiFile:
-            context['isLixiFile']=True
+            context['isLixiFile'] = True
 
-        logStr=""
+        logStr = ""
         if self.request.GET.get('action') == 'generate':
 
-            #Generate and Save File Only
+            # Generate and Save File Only
             CB = CloudBridge(caseObj.sfOpportunityID, False, True, True)
             result = CB.openAPIs()
 
@@ -836,8 +811,8 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
                 messages.error(self.request, logStr)
                 return context
 
-            #Cursory data check
-            result= CB.checkSFData()
+            # Cursory data check
+            result = CB.checkSFData()
             if result['status'] != "Ok":
                 messages.error(self.request, 'SF Data Error: ' + result['responseText'])
                 return context
@@ -848,13 +823,12 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
                 context['log'] = result['log']
                 return context
 
-            caseObj.lixiFile=result['data']['filename']
+            caseObj.lixiFile = result['data']['filename']
             caseObj.save(update_fields=["lixiFile"])
             context['isLixiFile'] = True
 
             messages.success(self.request, "Successfully generated and validated")
             context['log'] = result['log']
-
 
         if self.request.GET.get('action') == 'development':
 
@@ -881,7 +855,6 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
             context['log'] = result['log']
             messages.success(self.request, "Successfully sent to AMAL Development")
 
-
         if self.request.GET.get('action') == 'production':
 
             # Send Generated File to AMAL Production
@@ -904,11 +877,11 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
                 context['log'] = result['log']
                 return context
 
-            #Save AMAL submission data
-            caseObj.amalIdentifier=result['data']['identifier']
+            # Save AMAL submission data
+            caseObj.amalIdentifier = result['data']['identifier']
             caseObj.amalLoanID = result['data']['AMAL_LoanId']
             caseObj.caseStage = caseStagesEnum.FUNDED.value
-            caseObj.save(update_fields=['amalLoanID','amalIdentifier','caseStage'])
+            caseObj.save(update_fields=['amalLoanID', 'amalIdentifier', 'caseStage'])
 
             context['log'] = result['log']
             messages.success(self.request, "Successfully sent to AMAL Production. Documents being sent in background")
@@ -918,51 +891,200 @@ class CloudbridgeView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class CaseVariation(LoginRequiredMixin, TemplateView):
-    template_name = 'case/caseCloudbridge.html'
+# Variation Views
+
+class ContextHelper():
+    # Most of the views require the same validation and context information (uses site utility)
+
+    def validate_and_get_context(self):
+
+        if 'uid' in self.kwargs:
+            caseUID = str(self.kwargs['uid'])
+        else:
+            obj = self.get_object()
+            caseUID = str(obj.loan.case.caseUID)
+
+        context = validateLoanGetContext(caseUID)
+
+        return context
+
+
+class CaseVariation(HouseholdLoginRequiredMixin, ContextHelper, ListView):
+    paginate_by = 10
+    template_name = 'case/variationList.html'
+    context_object_name = 'object_list'
+    model = LoanPurposes
+
+    def get_queryset(self, **kwargs):
+        caseUID = str(self.kwargs['uid'])
+        loanObj = Loan.objects.queryset_byUID(caseUID).get()
+        queryset = LoanPurposes.objects.filter(loan=loanObj)
+        queryset = queryset.order_by('category')
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        self.extra_context = self.validate_and_get_context()
+
+        context = super(CaseVariation, self).get_context_data(**kwargs)
+
+        context['title'] = 'Loan Variation'
+
+        context['caseObj'] = Case.objects.queryset_byUID(str(self.kwargs['uid'])).get()
+        context['loanObj'] = Loan.objects.queryset_byUID(str(self.kwargs['uid'])).get()
+
+        return context
+
+
+class CaseVariationLumpSum(HouseholdLoginRequiredMixin, ContextHelper, UpdateView):
+    template_name = "case/variationDetail.html"
+    form_class = lumpSumPurposeForm
+
+    def get_object(self, queryset=None):
+        obj = LoanPurposes.objects.filter(purposeUID=self.kwargs['purposeUID']).get()
+        return obj
+
+    def get_context_data(self, **kwargs):
+        # Update and add dictionaries to context
+        self.extra_context = self.validate_and_get_context()
+
+        context = super(CaseVariationLumpSum, self).get_context_data(**kwargs)
+        context['title'] = 'Change purpose amount'
+
+        obj = self.get_object()
+        context['obj'] = obj
+
+        return context
+
+    def form_valid(self, form):
+        obj = form.save()
+        caseUID = str(obj.loan.case.caseUID)
+
+        return HttpResponseRedirect(reverse_lazy('case:caseVariation', kwargs={'uid': caseUID}))
+
+
+class CaseVariationDrawdown(HouseholdLoginRequiredMixin, ContextHelper, UpdateView):
+    template_name = "case/variationDetail.html"
+    form_class = drawdownPurposeForm
+
+    def get_object(self, queryset=None):
+        obj = LoanPurposes.objects.filter(purposeUID=self.kwargs['purposeUID']).get()
+        return obj
+
+    def get_context_data(self, **kwargs):
+        # Update and add dictionaries to context
+        self.extra_context = self.validate_and_get_context()
+
+        context = super(CaseVariationDrawdown, self).get_context_data(**kwargs)
+        context['title'] = 'Change purpose amount'
+
+        obj = self.get_object()
+        context['obj'] = obj
+
+        return context
+
+    def form_valid(self, form):
+        obj = form.save()
+
+        # Update Amounts
+        if obj.drawdownFrequency == incomeFrequencyEnum.FORTNIGHTLY.value:
+            freqMultiple = 26
+        else:
+            freqMultiple = 12
+
+        obj.planAmount = obj.drawdownAmount * obj.planDrawdowns
+        obj.amount = obj.drawdownAmount * obj.contractDrawdowns
+
+        # if not active plan amount = contract amount
+        if not obj.active:
+            obj.planAmount = obj.drawdownAmount * obj.contractDrawdowns
+
+        obj.save()
+
+        return HttpResponseRedirect(
+            reverse_lazy('case:caseVariationDrawdown', kwargs={'purposeUID': str(obj.purposeUID)}))
+
+
+class CaseVariationAdd(HouseholdLoginRequiredMixin, ContextHelper, CreateView):
+    template_name = "case/variationAdd.html"
+    form_class = purposeAddForm
+    model = LoanPurposes
+
+    def form_valid(self, form):
+        category = form.cleaned_data['category']
+        intention = form.cleaned_data['intention']
+
+        loan = Loan.objects.filter(case__caseUID=str(self.kwargs['uid'])).get()
+        try:
+            obj = LoanPurposes.objects.filter(loan=loan, category=category, intention=intention, active=True).get()
+            messages.error(self.request, "Purpose already exists")
+            return self.form_invalid(form)
+        except:
+            pass
+        obj = form.save(commit=False)
+        obj.loan = loan
+        obj.save()
+        return HttpResponseRedirect(reverse_lazy('case:caseVariation', kwargs={'uid': str(self.kwargs['uid'])}))
+
+    def get_context_data(self, **kwargs):
+        context = super(CaseVariationAdd, self).get_context_data(**kwargs)
+
+        context['title'] = 'Create new purpose'
+
+        return context
+
+
+class PdfLoanVariationSummary(ContextHelper, TemplateView):
+    # This page is not designed to be viewed - it is to be called by the pdf generator
+    # It requires a UID to be passed to it
+
+    template_name = "case/documents/loanVariation.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(PdfLoanVariationSummary, self).get_context_data(**kwargs)
+
+        caseUID = str(kwargs['uid'])
+
+        # Validate the loan and generate combined context
+        context = validateLoanGetContext(caseUID)
+
+        # Get projection results (site utility using Loan Projection)
+        projectionContext = getProjectionResults(context, ['baseScenario', 'intPayScenario',
+                                                           'pointScenario', 'stressScenario'])
+        context.update(projectionContext)
+
+        return context
+
+
+class CreateLoanVariationSummary(HouseholdLoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
+
+        dateStr = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S%z')
         caseUID = str(self.kwargs['uid'])
-        baseObj = Case.objects.queryset_byUID(caseUID).get()
 
-        # 1. Case Object
-        baseDict = model_to_dict(baseObj, exclude=['caseID', 'caseUID','meetingDate','summaryDocument','summarySentDate','summarySentRef',
-                                                   'responsibleDocument', 'user', 'superFund',
-                                                   'enquiryDocument','valuationDocument',
-                                                   'meetingDate', 'summaryDocument',
-                                                   'titleDocument', 'lixiFile', 'sfOpportunityID', 'sfLoanID', 'amalIdentifier',
-                                                   'amalLoanID', 'isZoomMeeting', 'timestamp', 'updated'])
+        sourceUrl = settings.SITE_URL + reverse('case:pdfLoanVariationSummary',
+                                                             kwargs={'uid': caseUID})
 
+        targetFileName = "customerReports/VariationSummary-" + caseUID[-12:] + "-" + dateStr + ".pdf"
 
-        # Overwrite fields
-        baseDict['caseStage'] = caseStagesEnum.DISCOVERY.value
-        baseDict['refCaseUID'] = self.kwargs['uid']
-        baseDict['appType'] = appTypesEnum.VARIATION.value
-        baseDict['caseDescription'] += "- Variation"
-        baseDict['sfLeadID'] = "N/A"
-        baseDict['user'] = baseObj.user
-        baseDict['superFund'] = baseObj.superFund
+        pdf = pdfGenerator(caseUID)
+        created, text = pdf.createPdfFromUrl(sourceUrl, 'HHC-LoanVariationSummary.pdf', targetFileName)
+
+        if not created:
+            write_applog("ERROR", 'PdfProduction', 'get',
+                         "Failed to generate pdf: " + caseUID)
+            messages.error(self.request, "Could not generate Loan Variation Summary")
 
         try:
-            newCaseObj = Case.objects.create(**baseDict)
+            # SAVE TO DATABASE
+            qsCase = Case.objects.queryset_byUID(caseUID)
+            qsCase.update(summaryDocument=targetFileName)
+            messages.success(self.request, "Loan Variation Summary generated")
+
         except:
-            messages.error(self.request, "Could not create variation")
-            return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseUID}))
+            write_applog("ERROR", 'PdfProduction', 'get',
+                         "Failed to save Summary Report in Database: " + caseUID)
+            messages.error(self.request, "Could not save Loan Variation Summary")
 
-        # 2. Case Loan Object
-        baseLoanObj = Loan.objects.queryset_byUID(caseUID).get()
-        baseLoanDict = model_to_dict(baseLoanObj, exclude=['case', 'localLoanID' ])
-        baseLoanDict['case'] = newCaseObj
-
-        Loan.objects.queryset_byUID(str(newCaseObj.caseUID)).update(**baseLoanDict)
-
-        # 3. Case ModelSetting Object
-        baseSettingsObj = ModelSetting.objects.queryset_byUID(caseUID).get()
-        baseSettingsDict = model_to_dict(baseSettingsObj, exclude=['case', 'id'])
-        baseSettingsDict['case'] = newCaseObj
-
-        ModelSetting.objects.queryset_byUID(str(newCaseObj.caseUID)).update(**baseSettingsDict)
-
-        messages.success(self.request, "This is a variation of the original loan")
-        messages.success(self.request, "Update the meeting based on additional amounts")
-        return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': str(newCaseObj.caseUID)}))
+        return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseUID}))

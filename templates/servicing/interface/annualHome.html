@@ -1,0 +1,188 @@
+{% extends 'servicing/base/base_srv.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div id='messages' class="row justify-content-md-center pt-3">
+            <div class="col-6 text-center">
+                {% for message in messages %}
+                    <div class="pb-1">
+                        <p{% if message.tags == 'error' %} class="alert alert-danger"{% endif %}
+                                {% if message.tags == 'warning' %} class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12 title">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <form id="{{ form.id }}" method="post">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+
+            <div class="row pt-4">
+                <div class="col-lg-6">
+                    <br>
+                    <p class="larger"><i class="fas fa-house-day fa-fw pb-3"></i><b> Your home</b></p>
+
+                    <div class="row justify-content-left pt-3">
+                        <div class="col-sm-7 text-left align-self-center pb-2">
+                            <p>{% if form.choiceInsuranceConfirm.errors %}<span class="text-danger">
+                                <i class="fas fa-question-circle"></i>{% endif %}
+                                </span>
+                                Is your home still insured?
+                            </p>
+                        </div>
+                        <div class="col-sm-5 text-center ">
+                            <div class=" btn-group-toggle" data-toggle="buttons">
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceInsuranceConfirm == True %} active {% endif %}">
+                                    <input type="radio" name="choiceInsuranceConfirm" value="True" required
+                                           id="id_choiceInsuranceConfirm_0" autocomplete="off"
+                                            {% if formData.choiceInsuranceConfirm == True %} checked {% endif %}>
+                                    Yes
+                                </label>
+                                <span class="pr-3"></span>
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceInsuranceConfirm == False %} active {% endif %}">
+                                    <input type="radio" name="choiceInsuranceConfirm" value="False"
+                                           id="id_choiceInsuranceConfirm_1" autocomplete="off"
+                                            {% if formData.choiceInsuranceConfirm == False %} checked {% endif %}>
+                                    &nbsp;No&nbsp;
+                                </label>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-block d-sm-none">
+                        <hr>
+                    </div>
+
+                    <div class="row justify-content-left pt-3">
+                        <div class="col-sm-7 text-left align-self-center pb-2">
+                            <p>{% if form.choiceRatesConfirm.errors %}<span class="text-danger">
+                                <i class="fas fa-question-circle"></i>{% endif %}
+                                </span>
+                                Have your council rates been paid during the year?
+
+                            </p>
+                        </div>
+                        <div class="col-sm-5 text-center ">
+                            <div class=" btn-group-toggle" data-toggle="buttons">
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceRatesConfirm == True %} active {% endif %}">
+                                    <input type="radio" name="choiceRatesConfirm" value="True" required
+                                           id="id_choiceRatesConfirm_0" autocomplete="off"
+                                            {% if formData.choiceRatesConfirm == True %} checked {% endif %}>
+                                    Yes
+                                </label>
+                                <span class="pr-3"></span>
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceRatesConfirm == False %} active {% endif %}">
+                                    <input type="radio" name="choiceRatesConfirm" value="False"
+                                           id="id_choiceRatesConfirm_1" autocomplete="off"
+                                            {% if formData.choiceRatesConfirm == False %} checked {% endif %}>
+                                    &nbsp;No&nbsp;
+                                </label>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-block d-sm-none">
+                        <hr>
+                    </div>
+
+                    <div class="row justify-content-left pt-3">
+                        <div class="col-sm-7 text-left align-self-center pb-2">
+                            <p>{% if form.choiceRepairsConfirm.errors %}<span class="text-danger">
+                                <i class="fas fa-question-circle"></i>{% endif %}
+                                </span>
+                                Are there any pressing home repairs that are required to ensure that you can still
+                                remain in the home?
+
+                            </p>
+                        </div>
+                        <div class="col-sm-5 text-center ">
+                            <div class=" btn-group-toggle" data-toggle="buttons">
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceRepairsConfirm == True %} active {% endif %}">
+                                    <input type="radio" name="choiceRepairsConfirm" value="True" required
+                                           id="id_choiceRepairsConfirm_0" autocomplete="off"
+                                            {% if formData.choiceRepairsConfirm == True %} checked {% endif %}>
+                                    Yes
+                                </label>
+                                <span class="pr-3"></span>
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceRepairsConfirm == False %} active {% endif %}">
+                                    <input type="radio" name="choiceRepairsConfirm" value="False"
+                                           id="id_choiceRepairsConfirm_1" autocomplete="off"
+                                            {% if formData.choiceRepairsConfirm == False %} checked {% endif %}>
+                                    &nbsp;No&nbsp;
+                                </label>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-block d-sm-none">
+                        <hr>
+                    </div>
+
+                </div>
+
+                <div class="col-lg-5">
+
+                    <div class="row justify-content-left pt-3">
+                        <div class="col-sm-12 text-left align-self-center pb-2">
+                            <div class="d-none d-sm-block">
+                                <br><br>
+                            </div>
+
+                            <p class="pb-1">Please comment (as required)</p>
+
+                            {{ form.homeNotes|as_crispy_field }}
+                        </div>
+                    </div>
+
+                    <br>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+
+{% endblock %}
+
+

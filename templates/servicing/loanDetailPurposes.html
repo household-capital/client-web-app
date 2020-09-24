@@ -116,7 +116,7 @@
                                             type="button" data-toggle="collapse"
                                             data-target="#collapse{{ forloop.counter }}"
                                             aria-expanded="true" aria-controls="collapse">
-                                        {{ purpose.category }} - {{ purpose.intention }}
+                                        {{ purpose.enumCategory }} - {{ purpose.enumIntention }}
                                     </button>
                                     <button class="btn btn-sm btn-secondary"
                                             type="button" data-toggle="collapse"
@@ -124,7 +124,7 @@
                                             aria-expanded="true" aria-controls="collapse">
                                         ${{ purpose.amount|intVal|intcomma }}
                                     </button>
-                                    {% if 'Draw-down' in purpose.intention %}
+                                    {% if 'Drawdown' in purpose.enumIntention %}
                                         <button class="btn btn-sm btn-info"
                                                 type="button" data-toggle="collapse"
                                                 data-target="#collapse{{ forloop.counter }}"
@@ -148,7 +148,7 @@
 
                                         </div>
 
-                                        {% if 'Draw-down' in purpose.intention %}
+                                        {% if 'Drawdown' in purpose.intention %}
                                             <div class="col-lg-3">
                                                 <p><i class="fas fa-repeat-alt"></i><b> Drawdown Details</b></p>
                                                 <p>Drawdown Amount: ${{ purpose.drawdownAmount|intVal|intcomma }}</p>

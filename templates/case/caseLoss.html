@@ -7,7 +7,7 @@
 
     <div class="container">
         {% if messages %}
-            <div class="row justify-content-md-center pt-3">
+            <div id='messages' class="row justify-content-md-center pt-3">
                 <div class="col-6 text-center">
                     {% for message in messages %}
                         <p{% if message.tags == 'error' %} class="alert alert-warning"{% endif %}

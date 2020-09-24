@@ -16,7 +16,7 @@
             <br>
 
             {% if messages %}
-            <div class="row">
+            <div class="row pb-1">
                 <div class="col-12">
                     {% for message in messages %}
                     <p{% if message.tags == 'success' %} class="alert alert-success"{% endif %}>{{ message }}</p>
@@ -38,11 +38,16 @@
             Please log-in
               <br>  <br>
 
+
             {% crispy form %}
+            <!--<h3 class="text-info">Site Currently Unavailable - be back Sunday 5pm</h3> -->
+
 
             <br>
             <small>
             <a href="{% url 'accounts:password_reset' %}">Forgotten Password ?</a><br><br>
+
+
             <a>If you experience any technical difficulties with this site please contact info@householdcapital.com</a>
 
             </small>
@@ -53,5 +58,24 @@
 </div>
 
 
+{% endblock %}
 
+
+{% block javascript %}
+    <script>
+
+
+        function hideAlerts() {
+            $(".alert").fadeOut();
+        }
+
+        $(document).ready(function () {
+
+            // Alerts
+            setTimeout(hideAlerts, 5000)
+
+
+        });
+
+    </script>
 {% endblock %}

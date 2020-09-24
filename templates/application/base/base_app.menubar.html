@@ -1,0 +1,62 @@
+{% load static %}
+
+<nav class="{% if menuBarItems.float %}menu-bar-float{% else %}menu-bar-fixed{% endif %}">
+
+    <div class="row justify-content-center d-flex align-items-center menu-bar-thin-row">
+        <div class="col-lg-10">
+            <div class="row justify-content-center">
+                {% if menuBarItems %}
+                    {% for item in menuBarItems.data %}
+                        <div class="col-4 col-md-2 text-center">
+                            {% if item.button %}
+                                {% if item.modal %}
+                                    <div>
+                                        <button id="{{ item.btn_id }}" type="button" data-toggle="modal"
+                                                data-target="{{ item.target }}"
+                                                class=" btn
+
+                                                        {% if item.btn_class %}{{ item.btn_class }}{% else %} btn-hhcBlue{% endif %}">
+                                            &nbsp;&nbsp;{{ item.text }}&nbsp;&nbsp;
+                                        </button>
+
+                                    </div>
+                                {% else %}
+                                    <div>
+                                        <button id="{{ item.btn_id }}" type="submit" value='Submit' form="clientForm"
+                                                class="btn
+
+                                          {% if item.btn_class %}{{ item.btn_class }}{% else %} btn-hhcBlue{% endif %}">
+                                            &nbsp;&nbsp;{{ item.text }}&nbsp;&nbsp;
+                                        </button>
+
+                                    </div>
+                                {% endif %}
+
+                            {% else %}
+                                <div>
+                                    <a href="{{ item.href }}">
+                                        <div id="{{ item.btn_id }}"
+                                             class="btn
+
+
+
+
+                                                     {% if item.btn_class %}{{ item.btn_class }}{% else %}btn-hhcBlue{% endif %}">
+                                            &nbsp;&nbsp;{{ item.text }}&nbsp;&nbsp;
+                                        </div>
+                                    </a><br>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                    {% endfor %}
+                {% endif %}
+
+
+            </div>
+        </div>
+
+    </div>
+
+</nav>
+

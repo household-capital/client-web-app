@@ -1,4 +1,4 @@
-{% extends 'enquiry/email/email_template.html' %}
+{% extends 'calculator/email/email_calc_template.html' %}
 {% load humanize %}
 {% load static %}
 
@@ -24,7 +24,7 @@
     <p>{{ user.profile.mobile}}</p>
     <p>{{ user.email }}</p>
     <br>
-    <img src="{{ absolute_media_url }}{{ user.profile.picture }}" width="100px">
+    <img src="{{ user.profile.picture.url }}" width="100px">
 
     <br><br>
     <small>Applications for credit are subject to eligibility and lending criteria.

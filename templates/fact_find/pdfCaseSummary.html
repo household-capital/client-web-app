@@ -16,7 +16,7 @@
     <meta name="author" content="">
 
     <!-- CSS -->
-    {% include 'client_2_0/base/base_client.css.html' %}
+    {% include 'site/base.css.html' %}
 
     <title>Household Client Summary</title>
 </head>
@@ -91,6 +91,7 @@
             </div>
         </div>
     </div>
+
     <p style="page-break-before: always"></p>
 </div>
 
@@ -100,12 +101,18 @@
         <div class="row pt-1">
             <div class="col-sm-12">
                 {% include 'fact_find/document/additional.html' %}
+
+            </div>
+            <div class="col-sm-12">
+                <br><br>
+                <hr>
+
             </div>
 
             <div class="col-sm-12">
-                <br><br>
-                {{ clientObj.user.first_name }} {{ clientObj.user.last_name }}
-                {{ factObj.updated }}
+                <p class="small-blue pb-2">Prepared by</p>
+                <p>{{ clientObj.owner.first_name }} {{ clientObj.owner.last_name }}
+                    {{ factObj.updated }}</p>
             </div>
 
         </div>

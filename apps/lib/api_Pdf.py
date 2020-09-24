@@ -5,8 +5,11 @@ import os
 
 # Django Imports
 from django.conf import settings
+from django.core.files.storage import default_storage
+from django.core.files.temp import NamedTemporaryFile
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
+
 
 # Third-party Imports
 from api2pdf import Api2Pdf
@@ -16,6 +19,7 @@ from apps.lib.site_Logging import write_applog
 
 
 class pdfGenerator():
+    """API2PDF API Wrapper - HTML to PDF Conversion"""
 
     def __init__(self, pdfID):
         self.a2p_client = Api2Pdf(os.getenv('API2PDF_KEY'))
@@ -33,6 +37,8 @@ class pdfGenerator():
             options = {'preferCSSPageSize': True, 'marginBottom': 0, 'marginLeft': 0, 'marginRight': 0, 'marginTop': 0,
                        'paperWidth': 8.27, 'paperHeight': 11.69}
 
+            write_applog("INFO", 'pdfGenerator', 'createPdf', "Api2Pdf submitted: " + self.pdfID)
+
             api_response = self.a2p_client.HeadlessChrome.convert_from_url(sourceUrl,
                                                                            file_name=pdfDescription,
                                                                            **options)
@@ -43,41 +49,39 @@ class pdfGenerator():
                 write_applog("ERROR", 'pdfGenerator', 'createPdf', "Api2Pdf failure: " + self.pdfID + "-"
                              + str(api_response))
 
-                return {'False', "API Returned Error"}
+                return {False, "API Returned Error"}
 
         except:
             write_applog("ERROR", 'pdfGenerator', 'createPdf', "Presumed timeout error: " + self.pdfID)
 
-            return {'False', "API Error"}
+            return {False, "API Error"}
 
         self.pdfUrl = api_response.result['pdf']
 
         responseObj = requests.get(self.pdfUrl, verify=False, stream=True)
         responseObj.raw.decode_content = True
 
+        default_storage.delete(targetFileName)
+        self.savePdf(targetFileName,responseObj)
+
+        write_applog("INFO", 'pdfGenerator', 'createPdf', "Summary Report Saved: " + self.pdfID)
+        localfile = default_storage.open(targetFileName, 'rb')
+        self.pdfContents = localfile.read()
+
         try:
-            with open(targetFileName, 'wb') as fileWriter:
-                for chunk in responseObj.iter_content(chunk_size=128):
-                    fileWriter.write(chunk)
-                fileWriter.close()
-                write_applog("INFO", 'pdfGenerator', 'createPdf', "Summary Report Saved: " + self.pdfID)
-
-            localfile = open(targetFileName, 'rb')
-            self.pdfContents = localfile.read()
-
+            pass
         except:
             write_applog("ERROR", 'pdfGenerator', 'createPdf',
                          "Failed to save Summary Report: " + self.pdfID)
 
-            return {'False', "Could not save"}
+            return {False, "Could not save"}
 
-        return {'True', "File saved"}
+        return {True, "File saved"}
 
-
-    def mergePdfs(self,urlList, pdfDescription, targetFileName):
+    def mergePdfs(self, urlList, pdfDescription, targetFileName):
 
         try:
-            api_response = self.a2p_client.merge(list_of_urls=urlList, inline_pdf=False, file_name= pdfDescription)
+            api_response = self.a2p_client.merge(list_of_urls=urlList, inline_pdf=False, file_name=pdfDescription)
 
             if api_response.result['success']:
                 write_applog("INFO", 'pdfGenerator', 'mergePdfs', "Api2Pdf success: " + self.pdfID)
@@ -98,14 +102,12 @@ class pdfGenerator():
         responseObj = requests.get(self.pdfUrl, verify=False, stream=True)
         responseObj.raw.decode_content = True
 
+        default_storage.delete(targetFileName)
         try:
-            with open(targetFileName, 'wb') as fileWriter:
-                for chunk in responseObj.iter_content(chunk_size=128):
-                    fileWriter.write(chunk)
-                fileWriter.close()
-                write_applog("INFO", 'pdfGenerator', 'mergePdfs', "Merged PDF Saved: " + self.pdfID)
+            self.savePdf(targetFileName, responseObj)
+            write_applog("INFO", 'pdfGenerator', 'mergePdfs', "Merged PDF Saved: " + self.pdfID)
 
-            localfile = open(targetFileName, 'rb')
+            localfile = default_storage.open(targetFileName, 'rb')
             self.pdfContents = localfile.read()
 
         except:
@@ -115,7 +117,6 @@ class pdfGenerator():
             return {'False', "Could not save"}
 
         return {'True', "File saved"}
-
 
     def emailPdf(self, template_name, email_context, subject, from_email, to, bcc, text_content, attachFilename):
         '''Email PDF using provided template and context'''
@@ -129,10 +130,22 @@ class pdfGenerator():
             return True
         except:
             write_applog("ERROR", 'pdfGenerator', 'emailPdf',
-                "Failed to email Summary Report:" + self.pdfID)
+                         "Failed to email Summary Report:" + self.pdfID)
             return False
 
     def getContent(self):
         return self.pdfContents
 
+    def savePdf(self, targetFileName, responseObj):
+        """Creates file locally before saving to default_storage"""
 
+        localFile = NamedTemporaryFile(delete=True)
+
+        for chunk in responseObj.iter_content(chunk_size=128):
+            localFile.write(chunk)
+            localFile.flush()
+
+        default_storage.save(targetFileName, localFile)
+
+        localFile.close()
+        return

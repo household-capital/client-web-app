@@ -1,0 +1,399 @@
+{% extends 'site/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12 title">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div id='messages' class="row justify-content-md-center">
+                <div class="col-6 text-center">
+                    <br>
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning">{{ message }}</p>{% endif %}
+
+                        <p{% if message.tags == 'success' %}
+                            class="alert alert-success">{{ message }}</p>{% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+        <br>
+
+        <div  class="row pt-2">
+            <div class="col-lg-4 text-left">
+                <p id="existAlert" class="alert alert-warning" style="display:none"><a id="existLink"><i class="fas fa-external-link-alt"></i>&nbsp;&nbsp;Enquiry exists for this phone number</a></p>
+            </div>
+            <div class="col-lg-4 text-left">
+                <p id="postcodeAlert" class="alert alert-warning" style="display:none"><i class="fas fa-info-circle"></i>&nbsp;&nbsp;Ineligible postcode</p>
+            </div>
+        </div>
+
+        <div class="row justify-content-left pt-3">
+            <div class="col-6">
+                {% for key, value in form.errors.items %}{% if key == '__all__' %}{{ value }}
+                {% endif %}{% endfor %}
+            </div>
+        </div>
+
+        <div class="row pt-2">
+            <div class="col-lg-8 text-left">
+
+
+                {% crispy form %}
+
+            </div>
+
+            <div class="col-lg-4 pt-4">
+                {% if isUpdate %}
+                    <div class="btn-group pb-3">
+                        <button type="button" class="btn btn-outline-secondary dropdown-toggle"
+                                data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false" id="btnEnquiryActions">
+                            Enquiry Actions
+                        </button>
+                        <div class="dropdown-menu">
+
+                            <a class="dropdown-item pb-3"
+                               href="{% url 'enquiry:enquiryOwn' uid=obj.enqUID %}">
+                                &nbsp;<i class="fas fa-crown"></i>&nbsp;&nbsp;Take Ownership
+                            </a>
+
+                            <a class="dropdown-item"
+                               href="{% url 'enquiry:enqAssign' uid=obj.enqUID %}">
+                                &nbsp;<i class="fas fa-fw fa-hand-point-right"></i>&nbsp;&nbsp;Assign Ownership
+                            </a>
+
+
+                            <div class="dropdown-divider"></div>
+
+                            <a class="dropdown-item" data-toggle="modal" href="#deleteModal">
+                                &nbsp;<i class="far fa-trash-alt fa-fw"></i>&nbsp;&nbsp;Delete Enquiry
+                            </a>
+
+                            {% if status.status == 'Ok' %}
+                                <div class="dropdown-divider"></div>
+
+                                <a class="dropdown-item pb-3" data-toggle="modal" href="#clientModal">
+                                    &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Client Summary&nbsp;&nbsp;
+                                </a>
+
+
+                                <a class="dropdown-item pb-3"
+                                   href="{% url 'enquiry:enqCreateSummary' uid=obj.enqUID %}">
+                                    &nbsp;<i class="far fa-file-pdf fa-fw"></i>&nbsp;&nbsp;Create Client Summary
+                                    &nbsp;&nbsp;
+                                </a>
+
+
+                                <a class="dropdown-item" href="{% url 'enquiry:enqEligibility' uid=obj.enqUID %}">
+                                    &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email yourself a Summary
+                                    &nbsp;&nbsp;
+                                </a>
+
+                                {% if obj.referralUser %}
+
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" data-toggle="modal" href="#referrerModal">
+                                        &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Referral
+                                        Introduction
+                                        &nbsp;&nbsp;
+                                    </a>
+                                {% endif %}
+
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{{ calendlyUrl }}" target="_blank">
+                                    &nbsp;<i class="fas fa-headset fa-fw"></i>&nbsp;&nbsp;Book Discovery
+                                </a>
+
+                            {% endif %}
+
+
+                            <div class="dropdown-divider"></div>
+
+                            <a class="dropdown-item" href="{% url 'enquiry:enqConvert' uid=obj.enqUID %}">
+                                &nbsp;<i class="far fa-folder-open"></i>&nbsp;&nbsp;Convert to Case
+                            </a>
+
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{% url 'enquiry:enqMarkFollowUp' uid=obj.enqUID %}">
+                                &nbsp;<i class="far fa-calendar-check fa-fw"></i>&nbsp;&nbsp;Close/Add Follow-Up
+                                &nbsp;&nbsp;
+                            </a>
+
+                        </div>
+                    </div>
+
+                    {% if status.status == 'Ok' %}
+                        <div class="jumbotron">
+                            <p class="small"><i class="fas fa-users-cog fa-fw"></i>&nbsp;Initial Validation</p>
+                            <br>
+                            <p><i class="far fa-check-circle fa-lg btn-outline-success"></i>&nbsp;Eligible Opportunity
+                            </p>
+                            {% if status.data.postcode != 'Valid' %}
+                                <br>
+                                <p class="pl-4"><i class="fas fa-tractor fa-lg btn-outline-warning"></i>&nbsp;Refer
+                                    Postcode
+                                </p>
+                                <p class="small pl-4 pb-3">Get full address</p>
+                            {% endif %}
+
+                            <p class="large pl-4">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
+                            <br>
+                            <p class="small"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
+                            <p class="small">Max Loan is: ${{ status.data.maxLoan|intcomma }} (incl
+                                establishment
+                                fee)</p>
+                            <p class="small">{% if status.data.maxLoan > status.data.maxTopUp %}Max for
+                                Super
+                                Top Up
+                                is: ${{ status.data.maxTopUp|intcomma }}</p>{% endif %}
+                            <p class="small">{% if status.data.maxLoan > status.data.maxCare %}Max for
+                                Age
+                                Care
+                                is:
+                                ${{ status.data.maxCare|intcomma }}</p>{% endif %}
+                            <p class="small">Max for Refinance is: ${{ status.data.maxRefi|intcomma }}</p>
+                            <p class="small">{% if status.data.maxLoan > status.data.maxReno %}Max for
+                                Renovations
+                                is: ${{ status.data.maxReno|intcomma }}</p>{% endif %}
+                            <p class="small">Max for Giving is: ${{ status.data.maxGive|intcomma }}</p>
+                            <p class="small">Max for Transport and Travel is:
+                                ${{ status.data.maxTravel|intcomma }}</p>
+
+                            <br>
+                            {% if obj.summaryDocument %}
+                                <p class="small"><i class="far fa-file-pdf"></i>&nbsp;Documents</p>
+                                <p class="small"><a
+                                        href="/media/enquiryReports/{{ obj.summaryDocument.file|filename }}">Enquiry
+                                    Document</a>
+                                </p>
+                            {% endif %}
+                        </div>
+
+                    {% endif %}
+
+                    {% if status.status == 'Error' %}
+
+                        <div class="jumbotron">
+
+                            <p class="small"><i class="fas fa-users-cog fa-fw"></i>&nbsp;Initial Validation</p>
+                            <br>
+                            <p><i class="far fa-times-circle fa-lg btn-outline-danger"></i>&nbsp;Ineligible
+                                - {{ status.responseText }}</p>
+
+                        </div>
+
+                    {% endif %}
+
+                    <div class="jumbotron">
+
+                        <p class="small"><i class="far fa-paper-plane"></i>&nbsp;Contact</p>
+                        <p class="small">Created:&nbsp;&nbsp;&nbsp;&nbsp; {{ obj.timestamp|date }}</p>
+                        <p class="small">Updated: &nbsp;&nbsp;&nbsp;{{ obj.updated|date }}</p>
+                        <p class="small">Follow Up:&nbsp;&nbsp;{{ obj.followUp|date }}</p>
+
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if status.status == 'Ok' %}
+            <!-- Modal -->
+            <div class="modal fade" id="clientModal" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="clientModalLabel">Email client?</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>You are about to send the client a summary document via email - are you sure ?</p><br>
+                            <p>Note: the new summary requires an estimated funding requirement to be saved</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <a href="{% url 'enquiry:enqSendDetails' uid=obj.enqUID %}">
+                                <div class=" btn btn-primary">Yes, send summary</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        {% endif %}
+
+        {% if isUpdate %}
+            <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel">Delete Enquiry?</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>You are about to delete this enquiry - are you sure ?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <a href="{% url 'enquiry:enqDelete' uid=obj.enqUID %}">
+                                <div class=" btn btn-primary">Yes, delete</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="modal fade" id="referrerModal" tabindex="-1" role="dialog" aria-labelledby="referrerModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="referrerModalLabel">Email client?</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>You are about to send an introduction email to a referred client- are you sure ?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <a href="{% url 'referrer:enqEmail' uid=obj.enqUID %}">
+                                <div class=" btn btn-primary">Yes, send introduction</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="privacyModal" tabindex="-1" role="dialog" aria-labelledby="privacyModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="privacyModalLabel">Privacy statement</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Just before we start, I need to let you know that I am going to collect personal information from
+                    you.
+                    <br><br>
+                    How we collect, hold and use your personal and credit-related information is set out in our Privacy
+                    Policy, which is available on our website.
+                    <br><br>
+                    Is this ok?
+                    </button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Agree</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block javascript %}
+    <script>
+
+        function backgroundPost() {
+            var frm = $('#clientForm');
+            return $.ajax({
+                url: window.location.href,
+                type: "post",
+                data: frm.serialize(),
+                success: function (data) {
+                    if(data['success']['phoneNumberExists']==true) {
+                        $('#existLink').attr("href", data['success']['existingUrl']);
+                        $('#existAlert').show();
+                    }
+                    else {
+                        $('#existAlert').hide();
+                    }
+                    if(data['success']['postcodeStatus']=='Invalid') {
+                        $('#postcodeAlert').show();
+                    }
+                    else {
+                        $('#postcodeAlert').hide();
+                    }
+
+                }
+            });
+            }
+
+           //Initialisation
+        $(document).ready(function () {
+
+
+           $('#id_phoneNumber').change(function() {
+               if ($(this).val().length > 9) {
+                   backgroundPost()
+               }
+           });
+
+            $('#id_postcode').change(function() {
+               if ($(this).val().length > 3) {
+                   backgroundPost()
+               }
+           });
+
+           // Prevent form submission on enter
+        $('form input').keydown(function (e) {
+            if (e.keyCode == 13) {
+                 e.preventDefault();
+                 $(':focus').blur();
+                return false;
+            }
+        });
+        })
+
+
+    </script>
+
+{% endblock %}
+

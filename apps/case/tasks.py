@@ -3,30 +3,38 @@ import json
 import base64
 
 # Django Imports
+from django.core.files.storage import default_storage
 from django.conf import settings
+from django.utils import timezone
 
 # Third-party Imports
 from config.celery import app
 
 # Local Application Imports
 from apps.lib.api_AMAL import apiAMAL
+from apps.lib.api_Docsaway import apiDocsAway
 from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
-from apps.lib.site_Enums import caseStagesEnum
+from apps.lib.site_Enums import caseStagesEnum, channelTypesEnum
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Utilities import taskError, sendTemplateEmail
+from apps.lib.site_Utilities import raiseTaskAdminError, sendTemplateEmail
+from apps.lib.site_DataMapping import mapCaseToOpportunity
+from apps.lib.site_Globals import ECONOMIC
+from apps.lib.hhc_LoanValidator import LoanValidator
 
 
 from .models import Case, LossData, Loan, ModelSetting
+from apps.application.models import ApplicationDocuments
+
 
 # CASE TASKS
 
 @app.task(name="Create_SF_Case_Lead")
 def createSFLeadCaseTask(caseUID):
     '''Task wrapper to create(or retrieve) a SF Lead'''
-    write_applog("Info", 'Case', 'Tasks-createSFLead', "Creating lead for:"+str(caseUID))
-    result=createSFLeadCase(caseUID)
-    if result['status']=="Ok":
+    write_applog("Info", 'Case', 'Tasks-createSFLead', "Creating lead for:" + str(caseUID))
+    result = createSFLeadCase(caseUID)
+    if result['status'] == "Ok":
         write_applog("INFO", 'Case', 'Tasks-createSFLead', "Finished - Successfully")
         return "Finished - Successfully"
     else:
@@ -37,15 +45,14 @@ def createSFLeadCaseTask(caseUID):
 @app.task(name="Update_SF_Case_Lead")
 def updateSFLeadTask(caseUID):
     # Task wrapper to update a SF Lead
-    write_applog("Info", 'Case', 'Tasks-updateSFLead', "Updating lead for:"+str(caseUID))
-    result=updateSFLead(caseUID)
-    if result['status']=="Ok":
+    write_applog("INFO", 'Case', 'Tasks-updateSFLead', "Updating lead for:" + str(caseUID))
+    result = updateSFLead(caseUID)
+    if result['status'] == "Ok":
         write_applog("INFO", 'Case', 'Tasks-updateSFLead', "Finished - Successfully")
         return "Finished - Successfully"
     else:
         write_applog("INFO", 'Case', 'Tasks-updateSFLead', "Finished - Unsuccessfully")
         return "Finished - Unsuccessfully"
-    return
 
 
 @app.task(name="Catchall_SF_Case_Lead")
@@ -56,12 +63,12 @@ def catchallSFLeadTask():
     sfAPI = apiSalesforce()
     result = sfAPI.openAPI(True)
     if result['status'] != "Ok":
-        write_applog("Error", 'Case', 'Tasks-createSFLead', result['responseText'])
+        write_applog("ERROR", 'Case', 'Tasks-createSFLead', result['responseText'])
         return "Error - could not open Salesforce"
 
     qs = Case.objects.filter(sfLeadID__isnull=True, lossdata__closeDate__isnull=True)
     for case in qs:
-        createSFLeadCase(str(case.caseUID),sfAPI)
+        createSFLeadCase(str(case.caseUID), sfAPI)
     write_applog("INFO", 'Case', 'Tasks-catchallSFLead', "Completed")
     return "Finished - Unsuccessfully"
 
@@ -73,26 +80,26 @@ def sfLeadConvert(caseUID):
     # Get object
     qs = Case.objects.queryset_byUID(caseUID)
     case = qs.get()
-    description=case.caseDescription
+    description = case.caseDescription
 
-    taskErr=taskError()
     write_applog("INFO", 'Case', 'Tasks-SF_Lead_Convert', "Starting")
 
     sfAPI = apiSalesforce()
     result = sfAPI.openAPI(True)
     if result['status'] != "Ok":
-        write_applog("Error", 'Case', 'Tasks-SF_Lead_Convert', result['responseText'])
-        taskErr.raiseAdminError('Tasks-SF_Lead_Convert',"Error - could not open Salesforce :"+result['responseText'])
+        write_applog("ERROR", 'Case', 'Tasks-SF_Lead_Convert', result['responseText'])
+        raiseTaskAdminError('Tasks-SF_Lead_Convert', "Error - could not open Salesforce :" + result['responseText'])
         return "Error - could not open Salesforce"
 
-    result=convertSFLead(caseUID, sfAPI)
+    result = convertSFLead(caseUID, sfAPI)
 
     if result['status'] != "Ok":
-        write_applog("Error", 'Case', 'Tasks-SF_Lead_Convert', result['responseText'])
-        taskErr.raiseAdminError('Tasks-SF_Lead_Convert',"Error - could not convert lead :"+ description+"-"+result['responseText'])
-        return "Error - "+ description+"-"+result['responseText']
+        write_applog("ERROR", 'Case', 'Tasks-SF_Lead_Convert', result['responseText'])
+        raiseTaskAdminError('Tasks-SF_Lead_Convert',
+                            "Error - could not convert lead :" + description + "-" + result['responseText'])
+        return "Error - " + description + "-" + result['responseText']
     else:
-        write_applog("INFO", 'Case', 'Tasks-SF_Lead_Convert',  description+"-"+"Lead Converted")
+        write_applog("INFO", 'Case', 'Tasks-SF_Lead_Convert', description + "-" + "Lead Converted")
         sfOppSynch(caseUID)
         sfDocSynch(caseUID)
         return "Lead converted and synchd!"
@@ -105,26 +112,26 @@ def sfOppSynch(caseUID):
     # Get object
     qs = Case.objects.queryset_byUID(caseUID)
     case = qs.get()
-    description=case.caseDescription
+    description = case.caseDescription
 
-    taskErr = taskError()
     write_applog("INFO", 'Case', 'Tasks-SF_Opp_Synch', "Starting")
 
     sfAPI = apiSalesforce()
     result = sfAPI.openAPI(True)
     if result['status'] != "Ok":
-        write_applog("Error", 'Case', 'Tasks-SF_Opp_Synch', result['responseText'])
-        taskErr.raiseAdminError('Tasks-SF_Opp_Synch',"Error - could not open Salesforce :"+result['responseText'])
+        write_applog("ERROR", 'Case', 'Tasks-SF_Opp_Synch', result['responseText'])
+        raiseTaskAdminError('Tasks-SF_Opp_Synch', "Error - could not open Salesforce :" + result['responseText'])
         return "Error - could not open Salesforce"
 
-    result=updateSFOpp(caseUID, sfAPI)
+    result = updateSFOpp(caseUID, sfAPI)
 
     if result['status'] != "Ok":
-        write_applog("Error", 'Case', 'Tasks-SF_Opp_Synch', description+"-"+result['responseText'])
-        taskErr.raiseAdminError('Tasks-SF_Opp_Synch', "Error - could not synch Opp :" + description+"-"+ result['responseText'])
-        return "Error - "+result['responseText']
+        write_applog("ERROR", 'Case', 'Tasks-SF_Opp_Synch', description + "-" + result['responseText'])
+        raiseTaskAdminError('Tasks-SF_Opp_Synch',
+                            "Error - could not synch Opp :" + description + "-" + result['responseText'])
+        return "Error - " + result['responseText']
     else:
-        write_applog("INFO", 'Case', 'Tasks-SF_Opp_Synch', description+"-"+"Opp Synched!")
+        write_applog("INFO", 'Case', 'Tasks-SF_Opp_Synch', description + "-" + "Opp Synched!")
         return "Success - Opp Synched!"
 
 
@@ -135,26 +142,26 @@ def sfDocSynch(caseUID):
     # Get object
     qs = Case.objects.queryset_byUID(caseUID)
     case = qs.get()
-    description=case.caseDescription
+    description = case.caseDescription
 
-    taskErr = taskError()
     write_applog("INFO", 'Case', 'Tasks-SF_Doc_Synch', "Starting")
 
     sfAPI = apiSalesforce()
     result = sfAPI.openAPI(True)
     if result['status'] != "Ok":
-        write_applog("Error", 'Case', 'Tasks-SF_Doc_Synch', result['responseText'])
-        taskErr.raiseAdminError('Tasks-SF_Doc_Synch',"Error - could not open Salesforce :"+result['responseText'])
+        write_applog("ERROR", 'Case', 'Tasks-SF_Doc_Synch', result['responseText'])
+        raiseTaskAdminError('Tasks-SF_Doc_Synch', "Error - could not open Salesforce :" + result['responseText'])
         return "Error - could not open Salesforce"
 
-    result=updateSFDocs(caseUID, sfAPI)
+    result = updateSFDocs(caseUID, sfAPI)
 
     if result['status'] != "Ok":
-        write_applog("Error", 'Case', 'Tasks-SF_Doc_Synch', description+"-"+result['responseText'])
-        taskErr.raiseAdminError('Tasks-SF_Doc_Synch', "Error - could not synch Opp :" + description+"-"+ result['responseText'])
-        return "Error - "+result['responseText']
+        write_applog("ERROR", 'Case', 'Tasks-SF_Doc_Synch', description + "-" + result['responseText'])
+        raiseTaskAdminError('Tasks-SF_Doc_Synch',
+                            "Error - could not synch Opp :" + description + "-" + result['responseText'])
+        return "Error - " + result['responseText']
     else:
-        write_applog("INFO", 'Case', 'Tasks-SF_Doc_Synch', description+"-"+"Docs Synched!")
+        write_applog("INFO", 'Case', 'Tasks-SF_Doc_Synch', description + "-" + "Docs Synched!")
         return "Success - Docs Synched!"
 
 
@@ -169,36 +176,16 @@ def amalDocs(caseUID):
 
     result = CB.openAPIs()
     if result['status'] == "Error":
-        return "Error - " + caseObj.caseDescription+ "-" +result['responseText']
+        return "Error - " + caseObj.caseDescription + "-" + result['responseText']
 
     if not caseObj.amalIdentifier:
-        return "Error - " + caseObj.caseDescription+ "- no AMAL application ID"
+        return "Error - " + caseObj.caseDescription + "- no AMAL application ID"
 
     result = CB.sendDocumentsToAMAL(caseObj.amalIdentifier)
     if result['status'] == "Error":
-        return "Error - " + caseObj.caseDescription+ "- "+result['responseText']
+        return "Error - " + caseObj.caseDescription + "- " + result['responseText']
     else:
         return "Success - Documents sent to AMAL"
-
-
-@app.task(name='PaymentReminders')
-def paymentReminder():
-    '''Simple email reminder using celery - temporary solution only'''
-    email_template='case/schedule/email_reminder.html'
-    email_context={}
-    email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-    subject, from_email, to, cc = "Periodic Payment Reminder - Payment Day Tomorrow", \
-                              'noreply@householdcapital.com', \
-                              ['david.cash@householdcapital.com', 'liam.murphy@householdcapital.com'], \
-                              'paul.murray@householdcapital.com'
-
-    emailSent = sendTemplateEmail(email_template,email_context, subject, from_email, to, cc  )
-    if emailSent:
-        write_applog("INFO", 'paymentReminder', 'task', "Reminder email sent")
-        return "Success - reminder email sent"
-    else:
-        write_applog("ERROR", 'paymentReminder', 'task', "Reminder email could not be sent")
-        return "Error - reminder email could not be sent"
 
 
 @app.task(name='SF_Stage_Synch')
@@ -206,32 +193,32 @@ def stageSynch():
     '''Reverse synch SF -> clientApp'''
 
     stageMapping = {
-            "Meeting Held": caseStagesEnum.MEETING_HELD.value,
-            "Application Sent": caseStagesEnum.APPLICATION.value,
-            "Approval": caseStagesEnum.APPLICATION.value,
-            "Assess": caseStagesEnum.APPLICATION.value,
-            "Build Case": caseStagesEnum.APPLICATION.value,
-            "Certification": caseStagesEnum.DOCUMENTATION.value,
-            "Documentation": caseStagesEnum.DOCUMENTATION.value,
-            "Settlement": caseStagesEnum.DOCUMENTATION.value,
-            "Settlement Booked": caseStagesEnum.DOCUMENTATION.value,
-            "Pre-Settlement": caseStagesEnum.DOCUMENTATION.value,
-            "Post-Settlement Review": caseStagesEnum.FUNDED.value,
-            "Loan Approved": caseStagesEnum.FUNDED.value,
-            "Parked": caseStagesEnum.CLOSED.value,
-            "Loan Application Withdrawn": caseStagesEnum.CLOSED.value,
-            "Loan Declined": caseStagesEnum.CLOSED.value,
+        "Meeting Held": caseStagesEnum.MEETING_HELD.value,
+        "Application Sent": caseStagesEnum.APPLICATION.value,
+        "Approval": caseStagesEnum.APPLICATION.value,
+        "Assess": caseStagesEnum.APPLICATION.value,
+        "Build Case": caseStagesEnum.APPLICATION.value,
+        "Certification": caseStagesEnum.DOCUMENTATION.value,
+        "Documentation": caseStagesEnum.DOCUMENTATION.value,
+        "Settlement": caseStagesEnum.DOCUMENTATION.value,
+        "Settlement Booked": caseStagesEnum.DOCUMENTATION.value,
+        "Pre-Settlement": caseStagesEnum.DOCUMENTATION.value,
+        "Post-Settlement Review": caseStagesEnum.FUNDED.value,
+        "Loan Approved": caseStagesEnum.FUNDED.value,
+        "Parked": caseStagesEnum.CLOSED.value,
+        "Loan Application Withdrawn": caseStagesEnum.CLOSED.value,
+        "Loan Declined": caseStagesEnum.CLOSED.value,
     }
 
-    #Get stage list from SF
+    # Get stage list from SF
     sfAPI = apiSalesforce()
     result = sfAPI.openAPI(True)
-    output= sfAPI.getStageList()
+    output = sfAPI.getStageList()
 
     if output['status'] == "Ok":
         dataFrame = output['data']
 
-        #Loop through SF list and update stage of CaseObjects
+        # Loop through SF list and update stage of CaseObjects
         for index, row in dataFrame.iterrows():
             try:
                 obj = Case.objects.filter(sfOpportunityID=row['Id']).get()
@@ -242,8 +229,8 @@ def stageSynch():
                 if obj.caseStage != caseStagesEnum.FUNDED.value and row['StageName'] in stageMapping:
                     obj.caseStage = stageMapping[row['StageName']]
                     obj.save(update_fields=['caseStage'])
-
     write_applog("INFO", 'stageSynch', 'task', "SF Stages Synched")
+
     return "Success - SF Stages Synched"
 
 
@@ -251,15 +238,15 @@ def stageSynch():
 def integrityCheck():
     '''Compare Amounts between Salesforce and ClientApp'''
 
-    #Get stage list from SF
+    # Get stage list from SF
     sfAPI = apiSalesforce()
     result = sfAPI.openAPI(True)
-    output= sfAPI.getAmountCheckList()
+    output = sfAPI.getAmountCheckList()
 
     if output['status'] == "Ok":
         dataFrame = output['data']
 
-        #Loop through SF list and update stage of CaseObjects
+        # Loop through SF list and update stage of CaseObjects
         for index, row in dataFrame.iterrows():
             try:
                 obj = Case.objects.filter(sfOpportunityID=row['Id']).get()
@@ -269,86 +256,218 @@ def integrityCheck():
                 obj = None
 
             if obj:
-                errorFlag=False
+                errorFlag = False
 
-                if abs(loanObj.totalLoanAmount - row['Total_Household_Loan_Amount__c'])>1:
-                    errorFlag=True
+                if abs(loanObj.totalLoanAmount - row['Total_Household_Loan_Amount__c']) > 1:
+                    errorFlag = True
 
                 if abs(loanObj.totalPlanAmount - row['Total_Plan_Amount__c']) > 1:
-                    errorFlag=True
+                    errorFlag = True
 
                 if modelObj.establishmentFeeRate:
-                    if abs(modelObj.establishmentFeeRate - row['Establishment_Fee_Percent__c']/100) > 0.0001:
-                        errorFlag=True
+                    if abs(modelObj.establishmentFeeRate - row['Establishment_Fee_Percent__c'] / 100) > 0.0001:
+                        errorFlag = True
 
-                if errorFlag==True:
-                    write_applog("INFO", 'integrityCheck', 'task', "Difference on "+obj.caseDescription)
+                if errorFlag == True:
+                    write_applog("INFO", 'integrityCheck', 'task', "Difference on " + obj.caseDescription)
                     email_template = 'case/email/clientAppEmails/email.html'
-                    email_context = {"obj":obj,
-                                     "loanObj":loanObj,
-                                     'establishmentFeeRate':modelObj.establishmentFeeRate*100,
-                                     'Total_Household_Loan_Amount__c':row['Total_Household_Loan_Amount__c'],
-                                     'Total_Plan_Amount__c':row['Total_Plan_Amount__c'],
+                    email_context = {"obj": obj,
+                                     "loanObj": loanObj,
+                                     'establishmentFeeRate': modelObj.establishmentFeeRate * 100,
+                                     'Total_Household_Loan_Amount__c': row['Total_Household_Loan_Amount__c'],
+                                     'Total_Plan_Amount__c': row['Total_Plan_Amount__c'],
                                      'Establishment_Fee_Percent__c': row['Establishment_Fee_Percent__c']
                                      }
                     email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
 
-                    subject, from_email, to, cc = "Salesforce - ClientApp Integrity Check", \
+                    subject, from_email, to = "Salesforce - ClientApp Integrity Check", \
                                                   'noreply@householdcapital.app', \
-                                                  [obj.user.email], \
-                                                  'paul.murray@householdcapital.com'
+                                                  [obj.owner.email]
 
-                    emailSent = sendTemplateEmail(email_template, email_context, subject, from_email, to, cc)
-
+                    emailSent = sendTemplateEmail(email_template, email_context, subject, from_email, to)
 
     return "Success - Integrity Check Complete"
+
+
+@app.task(name='SF_Limit_Check')
+def limitCheck():
+    '''Check limits on SF Opportunities'''
+
+    # Get stage list from SF
+    sfAPI = apiSalesforce()
+    result = sfAPI.openAPI(True)
+    output = sfAPI.getAmountCheckList()
+
+    if output['status'] == "Ok":
+        dataFrame = output['data']
+
+        # Loop through SF list and update stage of CaseObjects
+        for index, row in dataFrame.iterrows():
+
+            srcDict = sfAPI.getOpportunityExtract(row['Id'])
+            srcDict.update(ECONOMIC)
+
+            loanObj = LoanValidator(srcDict)
+            loanStatus = loanObj.getStatus()['data']
+            print(loanStatus)
+
+    return "Success - Limit Check Complete"
+
+
+@app.task(name='SF_Create_Variation')
+def sfCreateVariation(newCaseUID, orgCaseUID):
+    end_point = 'CreateLoanVariation/v1/'
+    end_point_method = 'POST'
+
+    orgSfOpportunityID = Case.objects.queryset_byUID(orgCaseUID).get().sfOpportunityID
+
+    payload = {"opportunityId": orgSfOpportunityID}
+
+    sfAPI = apiSalesforce()
+    result = sfAPI.openAPI(True)
+
+    result = sfAPI.apexCall(end_point, end_point_method, data=payload)
+
+    if result['status'] != 'Ok':
+        write_applog("ERROR", 'Case', 'task-sfCreateVariation',
+                     'Could not create variation - ' + json.dumps(result['responseText']))
+        return "Variation could not be created"
+
+    else:
+        newCaseObj = Case.objects.queryset_byUID(newCaseUID).get()
+
+        # Save response data
+        newCaseObj.sfOpportunityID = result['responseText']['opportunityid']
+        newCaseObj.sfLoanID = result['responseText']['loanNumber']
+        newCaseObj.save()
+
+        write_applog("INFO", 'Case', 'task-sfCreateVariation',
+                     'New variation created - ' + str(result['responseText']['loanNumber']))
+
+        return "Variation successfully created!"
+
+
+@app.task(name='Email_Loan_Summary')
+def emailLoanSummary(caseUID, template_name):
+
+    email_context = {}
+    caseObj = Case.objects.queryset_byUID(caseUID).get()
+
+    email_context['obj'] = caseObj
+    email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+    email_context['absolute_media_url'] = settings.MEDIA_URL
+
+    attachFilename = "HouseholdLoanSummary.pdf"
+    bcc = caseObj.owner.email
+
+    subject, from_email, to = "Household Loan Summary Report", caseObj.owner.email, caseObj.email
+    text_content = "Text Message"
+
+    attachments = [(attachFilename, caseObj.summaryDocument.name)]
+
+    result = sendTemplateEmail(template_name, email_context, subject, from_email, to,
+                               cc=None, bcc=bcc, attachments=attachments)
+
+    if result:
+        caseObj.summarySentDate = timezone.now()
+        caseObj.save(update_fields=['summarySentDate'])
+        write_applog("INFO", 'Case-Task', 'emailLoanSummary',
+                     "Loan summary emailed:" + caseUID)
+        return "Task Completed Successfully"
+
+    else:
+        write_applog("ERROR", 'Case-Task', 'emailLoanSummary',
+                     "Failed to email Loan Summary Report:" + caseUID)
+        raiseTaskAdminError("Email Loan Summary Failed", "Failed to email Loan Summary Report " + caseObj.caseDescription)
+        return "Task Failed)"
+
+
+@app.task(name='Mail_Loan_Summary')
+def mailLoanSummary(caseUID):
+
+    caseObj = Case.objects.queryset_byUID(caseUID).get()
+
+    docs = apiDocsAway()
+
+    result = docs.sendPdfByMail(caseObj.summaryDocument.name,
+                                caseObj.enumSalutation()[0] + " " + caseObj.firstname_1 + " " + caseObj.surname_1,
+                                caseObj.street,
+                                caseObj.suburb,
+                                caseObj.state,
+                                caseObj.postcode
+                                )
+
+    if result['status'] != "Ok":
+        write_applog("ERROR", 'Case-Tasks', 'mailLoanSummary',
+                     "Failed to mail Loan Summary Report:" + caseUID + " - " + result['responseText'])
+        raiseTaskAdminError("Failed to mail Loan Summary Report",
+                            "Failed to mail Loan Summary Report:" + caseObj.surname_1 + " - " + result['responseText'] )
+    else:
+        resultDict = json.loads(result['data'])
+
+        # Check for other send errors
+        if resultDict["APIErrorNumber"] != 0 or resultDict["transaction"]["approved"] != 'y':
+            write_applog("ERROR", 'Case-Tasks', 'mailLoanSummary',
+                         "Failed to mail Loan Summary Report:" + caseUID + " - " + result['responseText'])
+            raiseTaskAdminError("Failed to mail Loan Summary Report",
+                                "Failed to mail Loan Summary Report:" + caseObj.surname_1 + " - " + result[
+                                    'responseText'])
+        else:
+            # Record the send reference
+            caseObj.summarySentRef = resultDict["transaction"]["reference"]
+            caseObj.save(update_fields=['summarySentRef'])
+
+            write_applog("INFO", 'Case-Tasks', 'mailLoanSummary',
+                         "Mailed Loan Summary Report:" + caseUID + " - " + result['data'])
 
 
 # UTILITIES
 
 SF_LEAD_CASE_MAPPING = {'phoneNumber': 'Phone',
-                       'email': 'Email',
-                       'age_1': 'Age_of_1st_Applicant__c',
-                       'age_2': 'Age_of_2nd_Applicant__c',
-                       'dwellingType': 'Dwelling_Type__c',
-                       'valuation': 'Estimated_Home_Value__c',
-                       'postcode': 'PostalCode',
-                       'caseNotes': 'External_Notes__c',
-                       'firstname_1':'Firstname',
-                       'surname_1':'Lastname',
-                       }
+                        'email': 'Email',
+                        'age_1': 'Age_of_1st_Applicant__c',
+                        'age_2': 'Age_of_2nd_Applicant__c',
+                        'dwellingType': 'Dwelling_Type__c',
+                        'valuation': 'Estimated_Home_Value__c',
+                        'postcode': 'PostalCode',
+                        'caseNotes': 'External_Notes__c',
+                        'firstname_1': 'Firstname',
+                        'surname_1': 'Lastname',
+                        'isZoomMeeting': 'isZoom__c'
+                        }
+
 
 def createSFLeadCase(caseUID, sfAPIInstance=None):
     '''Creates a SF Lead from a case using the SF Rest API.
     If a duplicate exists - the function retrieves the SF Lead ID using a SOQL query on email or phone'''
 
-    #Get object
+    # Get object
     qs = Case.objects.queryset_byUID(caseUID)
     case = qs.get()
     if case.sfLeadID:
-        return {"status": "Error", "responseText":"SF Lead ID already exists"}
+        return {"status": "Error", "responseText": "SF Lead ID already exists"}
 
     # Open SF API
     if sfAPIInstance:
-        sfAPI=sfAPIInstance
+        sfAPI = sfAPIInstance
     else:
         sfAPI = apiSalesforce()
         result = sfAPI.openAPI(True)
         if result['status'] != "Ok":
-            write_applog("Error", 'Case', 'Tasks-createSFLead', result['responseText'])
-            return {"status":"Error"}
+            write_applog("ERROR", 'Case', 'Tasks-createSFLead', result['responseText'])
+            return {"status": "Error"}
 
     # Check for an email or phoneNumber as well as a user
-    if (case.email or case.phoneNumber) and case.user:
+    if (case.email or case.phoneNumber) and case.owner:
         # Check for Household email address
         if case.email:
             if 'householdcapital.com' in case.email:
                 # Don't create LeadID
-                write_applog("Info", 'Case', 'Tasks-createSFLead', "Internal email re:" + str(case.email))
-                return {"status":"Error","responseText":"HouseholdCapital email address"}
+                write_applog("INFO", 'Case', 'Tasks-createSFLead', "Internal email re:" + str(case.email))
+                return {"status": "Error", "responseText": "HouseholdCapital email address"}
 
-        payload=__buildLeadCasePayload(case)
-        payload['CreatedDate'] = case.timestamp.strftime("%Y-%m-%d")
+        payload = __buildLeadCasePayload(case)
+        payload['CreatedDate'] = case.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         if case.surname_1:
             write_applog("INFO", 'Case', 'Tasks-createSFLead', case.surname_1)
@@ -362,9 +481,9 @@ def createSFLeadCase(caseUID, sfAPIInstance=None):
 
         if result['status'] == "Ok":
             case.sfLeadID = result['data']['id']
-            write_applog("INFO", 'Case', 'Tasks-createSFLead', "Created ID"+str(case.sfLeadID))
+            write_applog("INFO", 'Case', 'Tasks-createSFLead', "Created ID" + str(case.sfLeadID))
             case.save(update_fields=['sfLeadID'])
-            return {"status":"Ok"}
+            return {"status": "Ok"}
 
         else:
 
@@ -378,7 +497,7 @@ def createSFLeadCase(caseUID, sfAPIInstance=None):
                         result = sfAPI.qryToDict('LeadByEmail', case.email, 'result')
                         if len(result['data']) == 0:
                             write_applog("INFO", 'Case', 'Tasks-createSFLead', 'No SF ID returned')
-                            return {"status": "Error","responseText":"No SF ID returned"}
+                            return {"status": "Error", "responseText": "No SF ID returned"}
                         else:
                             if int(result['data']['result.PostalCode']) == int(case.postcode):
                                 # match on postcode too
@@ -389,14 +508,14 @@ def createSFLeadCase(caseUID, sfAPIInstance=None):
                                 return {"status": "Ok"}
                             else:
                                 write_applog("INFO", 'Case', 'Tasks-createSFLead', 'Postcode mismatch')
-                                return {"status": "Error", "responseText":"Postcode mismatch"}
+                                return {"status": "Error", "responseText": "Postcode mismatch"}
 
                     elif case.phoneNumber:
                         # Search for phone number in Leads
                         result = sfAPI.qryToDict('LeadByPhone', case.phoneNumber, 'result')
                         if len(result['data']) == 0:
                             write_applog("INFO", 'Case', 'Tasks-createSFLead', 'No SF ID returned')
-                            return {"status": "Error", "responseText":"No SF ID returned"}
+                            return {"status": "Error", "responseText": "No SF ID returned"}
                         else:
                             if __checkInt(result['data']['result.PostalCode']) == __checkInt(case.postcode):
                                 # match on postcode too
@@ -408,18 +527,18 @@ def createSFLeadCase(caseUID, sfAPIInstance=None):
 
                             else:
                                 write_applog("INFO", 'Case', 'Tasks-createSFLead', 'Postcode mismatch')
-                                return {"status": "Error", "responseText":"Postcode mismatch"}
+                                return {"status": "Error", "responseText": "Postcode mismatch"}
                 else:
                     write_applog("INFO", 'Case', 'Tasks-createSFLead', result['responseText']['message'])
                     return {"status": "Error", "responseText": result['responseText']['message']}
 
             else:
                 write_applog("INFO", 'Case', 'Tasks-createSFLead', 'Unknown SF error')
-                return {"status":"Error", "responseText":"Unknown SF error"}
+                return {"status": "Error", "responseText": "Unknown SF error"}
 
     else:
         write_applog("INFO", 'Case', 'Tasks-createSFLead', 'No email or phone number')
-        return {"status": "Error", "responseText":"No email or phone number"}
+        return {"status": "Error", "responseText": "No email or phone number"}
 
 
 def updateSFLead(caseUID):
@@ -429,7 +548,7 @@ def updateSFLead(caseUID):
     sfAPI = apiSalesforce()
     result = sfAPI.openAPI(True)
     if result['status'] != "Ok":
-        write_applog("Error", 'Case', 'Tasks-updateSFLead', result['responseText'])
+        write_applog("ERROR", 'Case', 'Tasks-updateSFLead', result['responseText'])
         return {"status": "Error"}
 
     # Get object
@@ -437,9 +556,9 @@ def updateSFLead(caseUID):
     caseObj = qs.get()
 
     if not caseObj.sfLeadID:
-        result=createSFLeadCase(caseUID)
-        if result['status']!="Ok":
-            write_applog("Error", 'Case', 'Tasks-updateSFLead', "No SF ID for: "+ str(caseUID))
+        result = createSFLeadCase(caseUID)
+        if result['status'] != "Ok":
+            write_applog("ERROR", 'Case', 'Tasks-updateSFLead', "No SF ID for: " + str(caseUID))
             return {"status": "Error"}
         else:
             # Update object
@@ -447,21 +566,21 @@ def updateSFLead(caseUID):
             caseObj = qs.get()
 
     # Update SF Lead
-    payload=__buildLeadCasePayload(caseObj)
+    payload = __buildLeadCasePayload(caseObj)
     result = sfAPI.updateLead(str(caseObj.sfLeadID), payload)
 
     if result['status'] == "Ok":
-        return {'status':'Ok'}
+        return {'status': 'Ok'}
     else:
-        write_applog("Error", 'Case', 'Tasks-updateSFLead', result['status'])
-        return {'status':'Error'}
+        write_applog("ERROR", 'Case', 'Tasks-updateSFLead', result['status'])
+        return {'status': 'Error'}
 
 
 def __buildLeadCasePayload(case):
     '''Build SF REST API payload using Case field mapping'''
 
     payload = {}
-    caseDict=case.__dict__
+    caseDict = case.__dict__
 
     for app_field, sf_field in SF_LEAD_CASE_MAPPING.items():
         payload[sf_field] = caseDict[app_field]
@@ -469,31 +588,33 @@ def __buildLeadCasePayload(case):
     # Ensure name fields populated
 
     if not payload['Lastname']:
-        payload['Lastname']="Unknown"
+        payload['Lastname'] = "Unknown"
 
     payload['External_ID__c'] = str(caseDict['caseUID'])
-    payload['OwnerID'] = case.user.profile.salesforceID
+    payload['OwnerID'] = case.owner.profile.salesforceID
     payload['Loan_Type__c'] = case.enumLoanType()
     payload['Dwelling_Type__c'] = case.enumDwellingType()
+    payload['Date_Case_Created__c'] = case.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     # Map / create other fields
     if case.lossdata.followUpDate:
         payload['Scheduled_Followup_Date_External__c'] = case.lossdata.followUpDate.strftime("%Y-%m-%d")
-    payload['Scheduled_Followup_Notes__c']=case.lossdata.followUpNotes
+    payload['Scheduled_Followup_Notes__c'] = case.lossdata.followUpNotes
 
     if case.lossdata.closeDate:
-        payload['Park_Lead__c']=True
+        payload['Park_Lead__c'] = True
     else:
         payload['Park_Lead__c'] = False
 
     payload['Reason_for_Parking_Lead__c'] = case.lossdata.enumCloseReason()
 
     if case.lossdata.doNotMarket:
-        payload['DoNotMarket__c']=True
+        payload['DoNotMarket__c'] = True
 
-    payload['Sales_Channel__c']=case.enumChannelType()
+    payload['Sales_Channel__c'] = case.enumChannelType()
 
     return payload
+
 
 def __checkInt(val):
     if val:
@@ -505,211 +626,115 @@ def __checkInt(val):
 def convertSFLead(caseUID, sfAPI):
     '''convert lead using APEX end-point'''
 
-    end_point='leadconvert/v1/'
-    end_point_method='POST'
+    end_point = 'leadconvert/v1/'
+    end_point_method = 'POST'
 
     caseObj = Case.objects.queryset_byUID(caseUID).get()
 
     if not caseObj.sfLeadID:
-        write_applog("Error", 'Case', 'convertSFLead', 'Case has no SF LeadID')
-        return {'status': 'Error', 'responseText':'Case has no SF LeadID'}
+
+        write_applog("ERROR", 'Case', 'convertSFLead', 'Case has no SF LeadID')
+        return {'status': 'Error', 'responseText': 'Case has no SF LeadID'}
 
     # Convert Lead [Post Meeting]
     if not caseObj.sfOpportunityID:
 
         payload = {"leadId": caseObj.sfLeadID,
-                   "ownerId": caseObj.user.profile.salesforceID}
+                   "ownerId": caseObj.owner.profile.salesforceID}
 
         result = sfAPI.apexCall(end_point, end_point_method, data=payload)
 
         if result['status'] != 'Ok':
-            write_applog("Error", 'Case', 'convertSFLead', 'Lead conversion error - '+ result['responseText'])
+            write_applog("ERROR", 'Case', 'convertSFLead', 'Lead conversion error - ' + result['responseText'])
             return {'status': 'Error', 'responseText': result['responseText']}
 
-        #Save response data
+        # Save response data
         caseObj.sfOpportunityID = result['responseText']['opportunityId']
         caseObj.sfLoanID = result['responseText']['loanNumber']
         caseObj.save(update_fields=['sfOpportunityID', 'sfLoanID'])
 
-    return {'status':'Ok', 'responseText':caseObj.sfOpportunityID}
+    return {'status': 'Ok', 'responseText': caseObj.sfOpportunityID}
 
 
 def updateSFOpp(caseUID, sfAPI):
-
-    end_point='caseopptysync/v1/'
-    end_point_method='POST'
+    end_point = 'caseopptysync/v1/'
+    end_point_method = 'POST'
 
     caseObj = Case.objects.queryset_byUID(caseUID).get()
     lossObj = LossData.objects.queryset_byUID(caseUID).get()
 
     # Update Opportunity [Application]
-    sfOpprtunityFields = {
-        # Core case data
-        'sfOpportunityId': caseObj.sfOpportunityID,
-        'caseUID': str(caseObj.caseUID),
-        'caseDescription': caseObj.caseDescription,
-        'user': caseObj.user.profile.salesforceID,
-        'adviser': caseObj.adviser,
-        'loanType': caseObj.enumLoanType(),
-        'salesChannel': caseObj.enumChannelType(),
-        'closeReason': caseObj.lossdata.enumCloseReason(),
-        'followUpNotes': caseObj.lossdata.followUpNotes,
-        'doNotMarket': caseObj.lossdata.doNotMarket,
-        'mortgageDebt': caseObj.mortgageDebt,
-        'superAmount': caseObj.superAmount,
-        'pensionType': caseObj.enumPensionType(),
-        'pensionAmount': caseObj.pensionAmount,
-        'clientType1': caseObj.enumClientType()[0],
-        'salutation_1':caseObj.enumSalutation()[0] ,
-        'surname_1': caseObj.surname_1,
-        'firstname_1': caseObj.firstname_1,
-        'preferredName_1': caseObj.preferredName_1,
-        'middlename_1':caseObj.middlename_1,
-        'age_1': caseObj.age_1,
-        'sex_1': caseObj.enumSex()[0],
-        'maritalStatus_1':caseObj.enumMaritalStatus()[0],
-        'phoneNumber': caseObj.phoneNumber,
-        'email': caseObj.email,
-        'clientType2': caseObj.enumClientType()[1],
-        'salutation_2': caseObj.enumSalutation()[1],
-        'surname_2': caseObj.surname_2,
-        'firstname_2': caseObj.firstname_2,
-        'preferredName_2': caseObj.preferredName_2,
-        'middlename_2': caseObj.middlename_2,
-        'age_2': caseObj.age_2,
-        'sex_2': caseObj.enumSex()[1],
-        'maritalStatus_2': caseObj.enumMaritalStatus()[1],
-        'street': caseObj.street,
-        'suburb': caseObj.suburb,
-        'postcode': caseObj.postcode,
-        'state': caseObj.enumStateType(),
-        'valuation': caseObj.valuation,
-        'dwellingType': caseObj.enumDwellingType(),
 
-        #Meeting Data
-        'maxLVR': caseObj.loan.maxLVR,
-        'actualLVR': caseObj.loan.actualLVR,
-        'establishmentFee': caseObj.loan.establishmentFee,
-        'totalLoanAmount': caseObj.loan.totalLoanAmount,
-        'annualPensionIncome': caseObj.loan.annualPensionIncome,
-        'choiceRetireAtHome': caseObj.loan.choiceRetireAtHome,
-        'choiceAvoidDownsizing': caseObj.loan.choiceAvoidDownsizing,
-        'choiceAccessFunds': caseObj.loan.choiceAccessFunds,
-        'choiceTopUp': caseObj.loan.choiceTopUp,
-        'choiceRefinance': caseObj.loan.choiceRefinance,
-        'choiceGive': caseObj.loan.choiceGive,
-        'choiceReserve': caseObj.loan.choiceReserve,
-        'choiceLive': caseObj.loan.choiceLive,
-        'choiceCare': caseObj.loan.choiceCare,
-        'choiceFuture': caseObj.loan.choiceFuture,
-        'choiceCenterlink': caseObj.loan.choiceCenterlink,
-        'choiceVariable': caseObj.loan.choiceVariable,
-        'consentPrivacy': caseObj.loan.consentPrivacy,
-        'consentElectronic': caseObj.loan.consentElectronic,
-        'protectedEquity': caseObj.loan.protectedEquity,
-        'interestPayAmount': caseObj.loan.interestPayAmount,
-        'interestPayPeriod': caseObj.loan.interestPayPeriod,
-        'topUpAmount': caseObj.loan.topUpAmount,
-        'topUpDrawdownAmount': caseObj.loan.topUpDrawdownAmount,
-        'topUpIncomeAmount': caseObj.loan.topUpIncomeAmount,
-        'topUpFrequency': caseObj.loan.enumDrawdownFrequency(),
-        'topUpPeriod': caseObj.loan.topUpPeriod,
-        'topUpBuffer': caseObj.loan.topUpBuffer,
-        'topUpContingencyAmount': caseObj.loan.topUpContingencyAmount,
-        'refinanceAmount': caseObj.loan.refinanceAmount,
-        'renovateAmount': caseObj.loan.renovateAmount,
-        'travelAmount': caseObj.loan.travelAmount,
-        'giveAmount': caseObj.loan.giveAmount,
-        'careAmount': caseObj.loan.careAmount,
-        'careDrawdownAmount': caseObj.loan.careDrawdownAmount,
-        'careRegularAmount': caseObj.loan.careRegularAmount,
-        'careFrequency': caseObj.loan.enumCareFrequency(),
-        'carePeriod': caseObj.loan.carePeriod,
-        'topUpDescription': caseObj.loan.topUpDescription,
-        'topUpContingencyDescription': caseObj.loan.topUpContingencyDescription,
-        'renovateDescription': caseObj.loan.renovateDescription,
-        'travelDescription': caseObj.loan.travelDescription,
-        'careDescription': caseObj.loan.careDescription,
-        'careDrawdownDescription': caseObj.loan.careDrawdownDescription,
-        'giveDescription': caseObj.loan.giveDescription,
-        'detailedTitle' : caseObj.loan.detailedTitle,
+    payload = mapCaseToOpportunity(caseObj, lossObj)
 
-        # Model Setting Data
-        'inflationRate': caseObj.modelsetting.inflationRate,
-        'housePriceInflation': caseObj.modelsetting.housePriceInflation,
-        'interestRate': caseObj.modelsetting.interestRate,
-        'lendingMargin': caseObj.modelsetting.lendingMargin,
-        'comparisonRateIncrement': caseObj.modelsetting.comparisonRateIncrement,
-        'establishmentFeeRate': caseObj.modelsetting.establishmentFeeRate,
-
-        # Notes/ Fact Find Fields
-        'caseNotes': caseObj.caseNotes,
-        'backgroundNotes': caseObj.factfind.backgroundNotes,
-        'requirementsNotes': caseObj.factfind.requirementsNotes,
-        'topUpNotes': caseObj.factfind.topUpNotes,
-        'refiNotes': caseObj.factfind.refiNotes,
-        'liveNotes': caseObj.factfind.liveNotes,
-        'giveNotes': caseObj.factfind.giveNotes,
-        'careNotes': caseObj.factfind.careNotes,
-        'futureNotes': caseObj.factfind.futureNotes,
-        'clientNotes': caseObj.factfind.clientNotes,
-    }
-
-    SF_DATE_FIELDS = ['timestamp', 'updated', 'birthdate_1', 'birthdate_2', 'meetingDate', 'closeDate', 'followUpDate']
-
-    objDict = caseObj.__dict__
-    objDict.update(lossObj.__dict__)
-
-    for field in SF_DATE_FIELDS:
-        if objDict[field]:
-            sfOpprtunityFields[field] = objDict[field].strftime("%Y-%m-%d")
-        else:
-            sfOpprtunityFields[field] = None
-
-    if caseObj.superFund:
-        sfOpprtunityFields['superFund'] = caseObj.superFund.fundName
-    else:
-        sfOpprtunityFields['superFund'] = ""
-
-    payload = sfOpprtunityFields
-
-    #Call endpoint
+    # Call endpoint
     result = sfAPI.apexCall(end_point, end_point_method, data=payload)
     if result['status'] != 'Ok':
-        write_applog("Error", 'Case', 'updateSFOpp', "Opportunity Synch -"+json.dumps(result['responseText']))
-        return {'status':'Error', 'responseText':caseObj.caseDescription + " - " + json.dumps(result['responseText'])}
+        write_applog("ERROR", 'Case', 'updateSFOpp', "Opportunity Synch -" + json.dumps(result['responseText']))
+        return {'status': 'Error', 'responseText': caseObj.caseDescription + " - " + json.dumps(result['responseText'])}
 
     return {'status': 'Ok', "responseText": "Salesforce Synch!"}
 
 
 def updateSFDocs(caseUID, sfAPI):
-
-    doc_end_point='docuploader/v1/'
-    doc_end_point_method='POST'
+    doc_end_point = 'docuploader/v1/'
+    doc_end_point_method = 'POST'
 
     caseObj = Case.objects.queryset_byUID(caseUID).get()
 
     DOCUMENT_LIST = {"Automated Valuation": caseObj.valuationDocument,
-                     "Title Search": caseObj.titleDocument,
                      "Responsible Lending Summary": caseObj.responsibleDocument,
                      "Enquiry Document": caseObj.enquiryDocument,
                      "Loan Summary": caseObj.summaryDocument,
-                    }
+                     "Application Received": caseObj.applicationDocument,
+                     }
 
     for docName, docObj in DOCUMENT_LIST.items():
         if docObj:
-            with open(docObj.path, "rb") as f:
+            try:
+                with default_storage.open(docObj.name, "rb") as f:
+                    body = base64.b64encode(f.read()).decode('ascii')
+
+                data = {
+                    'opptyId': caseObj.sfOpportunityID,
+                    'documentTitle': docName,
+                    'base64BinaryStream': body,
+                    'extension': 'pdf'}
+
+                result = sfAPI.apexCall(doc_end_point, doc_end_point_method, data=data)
+
+                if result['status'] != 'Ok':
+                    write_applog("ERROR", 'Case', 'updateSFdocs',
+                                 "Document Synch - " + docName + "-" + json.dumps(result['responseText']))
+                    raiseTaskAdminError("Document synch error",
+                                        "Document Synch - " + docName + "-" + json.dumps(result['responseText']))
+
+            except FileNotFoundError:
+                write_applog("ERROR", 'Case', 'updateSFdocs',
+                             "Document Synch - " + docName + "- file does not exist")
+
+
+    # Check for online Application Documents
+    if caseObj.appUID:
+        qs = ApplicationDocuments.objects.filter(application__appUID=caseObj.appUID)
+        for doc in qs:
+            with default_storage.open(doc.document.name, "rb") as f:
                 body = base64.b64encode(f.read()).decode('ascii')
+
+            docType, ext = doc.mimeType.split("/",1)
 
             data = {
                 'opptyId': caseObj.sfOpportunityID,
-                'documentTitle': docName,
+                'documentTitle': doc.enumDocumentType,
                 'base64BinaryStream': body,
-                'extension': 'pdf'}
+                'extension': ext}
 
             result = sfAPI.apexCall(doc_end_point, doc_end_point_method, data=data)
             if result['status'] != 'Ok':
-                write_applog("Error", 'Case', 'updateSFdocs', "Document Synch - " + docName + "-" + json.dumps(result['responseText']))
-                return {'status':'Error', "responseText":"Document Synch - " + docName + "-" + json.dumps(result['responseText'])}
+                write_applog("ERROR", 'Case', 'updateSFdocs',
+                             "Document Synch - " + doc.enumDocumentType + "-" + json.dumps(result['responseText']))
+                raiseTaskAdminError("Document synch error", "Document Synch - " + doc.enumDocumentType + "-" + json.dumps(result['responseText']))
 
     return {'status': 'Ok', "responseText": "Salesforce Doc Synch!"}
+
+

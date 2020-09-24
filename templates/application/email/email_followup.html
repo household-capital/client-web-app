@@ -1,0 +1,20 @@
+{% extends 'application/email/email_template.html' %}
+{% load humanize %}
+{% load static %}
+
+
+{% block email_content %}
+
+    <p>Hello {{ obj.firstname_1|title }}</p>
+    <br>
+    <p>You recently used one of our calculators and commenced an online application journey. We noticed that you didn't complete this application.</p>
+    <br>
+    <p>If you have any questions or would like to speak with one of our retirement specialists, please don't hesitate to contact us on 1300 622 100</p>
+    <br>
+    <p>You can also schedule an obligation-free, 15 minute 'discovery call' at a time that best suits you using this link: {{ calendlyUrl }}</p>
+    <br>
+    <p>Kind regards</p>
+    <br>
+    <p>The Household Capital Team</p>
+{% endblock %}
+

@@ -14,7 +14,11 @@
     <meta name="author" content="">
 
     <!-- CSS -->
-    {% include 'client_2_0/base/base_client.css.html' %}
+    {% include 'site/base.css.html' %}
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css"
+          integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
+
 
     <title>Household Client Summary</title>
 </head>
@@ -22,7 +26,7 @@
 <body>
 
 <!-- Cover Letter -->
-<div class="page ml-4">
+<div class="page">
     <div class="print-container">
 
         {% include 'client_2_0/documents/summaryComponents/cover.html' %}
@@ -61,7 +65,7 @@
         <br>
         <div class="row  justify-content-center">
             <div class="col-sm-12  text-center">
-                <p class="xx-large">HOUSEHOLD LOAN SUMMARY</p>
+                <p class="xx-large text-white">HOUSEHOLD LOAN SUMMARY</p>
             </div>
         </div>
 
@@ -81,7 +85,6 @@
 
 <!-- Page 2 -->
 <div class="page">
-
     <div class="print-container">
 
         <div class="row pt-3 ">
@@ -94,8 +97,9 @@
 
         <div class="row ">
             <div class="col-lg-12 "><br>
-                 <p class="print-text">This document summarises key information discussed during our meeting and provides
-                    you with more detailed projections. These projections are important and are designed to help you determine
+                <p class="print-text">This document summarises key information discussed during our meeting and provides
+                    you with more detailed projections. These projections are important and are designed to help you
+                    determine
                     whether a Household Loan is appropriate for you.</p>
                 <br>
                 <p class="secondary_title">Your profile</p>
@@ -111,10 +115,10 @@
         <br>
 
         {% include 'client_2_0/documents/summaryComponents/loan.html' %}
-
-        <p style="page-break-before: always"></p>
     </div>
 </div>
+
+<div style="page-break-after: always"></div>
 
 
 {% if topUpProjections %}
@@ -131,19 +135,17 @@
 
             {% include 'client_2_0/documents/summaryComponents/income.html' %}
 
-
         </div>
-        <p style="page-break-before: always"></p>
     </div>
+    <div style="page-break-after: always"></div>
 {% endif %}
 
 
 <!-- Page -->
 <div class="page">
     <div class="print-container">
-
         <div class="row pt-3 ">
-            <div class="col-sm-12  text-left">
+            <div class="col-sm-12 text-left">
                 <br>
                 <img src="{% static 'img/document/HC_Logo_Flat.png' %}" width="200px">
             </div>
@@ -152,10 +154,9 @@
 
         {% include 'client_2_0/documents/summaryComponents/projections.html' %}
 
-
     </div>
-    <p style="page-break-before: always"></p>
 </div>
+<div style="page-break-after: always"></div>
 
 
 <div class="page">
@@ -168,10 +169,11 @@
             </div>
 
         </div>
+
         {% include 'client_2_0/documents/summaryComponents/scenarios.html' %}
     </div>
-    <p style="page-break-before: always"></p>
 </div>
+<div style="page-break-after: always"></div>
 
 
 <div class="page">
@@ -184,12 +186,12 @@
             </div>
 
         </div>
+
         {% include 'client_2_0/documents/summaryComponents/final.html' %}
     </div>
-    <p style="page-break-before: always"></p>
+
 </div>
-
-
+<div style="page-break-after: always"></div>
 
 <div class="page">
     <div class="print-container">

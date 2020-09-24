@@ -1,16 +1,52 @@
 {% load static %}
 
-    <div class="jumbotron">
-        <div class="container">
+<div class="jumbotron">
+    <div class="container">
 
-            <div class="row justify-content-end">
+        <div class="row align-items-end no-gutters">
 
-                <div class="col-lg-2"><img src="{% static 'img/hhc/HC_Logo_Flat.png' %}" width="125px"></div>
-            </div>
+            <div class="col-lg-7"><a href="{{ titleUrl }}">
+                <div class="col-lg-12 title pb-3">{{ title }}</div>
+            </a></div>
 
-            <div class="row">
+            <div class="col-lg-5">
+                {% if navbarStage %}
+                    <div class="row justify-content-end">
 
-                <a href="{{ titleUrl }}"><div class="col-lg-12 title">{{ title }}</div></a>
+                        <div class="col-3 text-center hhc-progress"><p class="small hhc-progress-text">
+                            {% if navbarStage < 2 %}<i class="fa-progress far fa-dot-circle fa-lg"></i>{% endif %}
+                            {% if navbarStage > 1 %}
+                                <i class="text-success fa-progress fas fa-lg fa-check-circle"></i>{% endif %}
+                            <br>About you</p></div>
+
+                        <div class="col-3 text-center hhc-progress"><p
+                                class="hhc-progress-text small {% if navbarStage < 2 %}text-secondary{% endif %}">
+                            {% if navbarStage < 2 %}
+                                <i class="fa-progress text-secondary far fa-circle fa-lg"></i>{% endif %}
+                            {% if navbarStage == 2 %}<i class="fa-progress far fa-dot-circle fa-lg"></i>{% endif %}
+                            {% if navbarStage > 2 %}
+                                <i class="fa-progress text-success fas fa-lg fa-check-circle"></i>{% endif %}
+                            <br>Objectives</p></div>
+
+                        <div class="col-3 text-center hhc-progress"><p
+                                class="hhc-progress-text small {% if navbarStage < 3 %}text-secondary{% endif %}">
+                            {% if navbarStage < 3 %}
+                                <i class="fa-progress text-secondary far fa-circle fa-lg"></i>{% endif %}
+                            {% if navbarStage == 3 %}<i class="fa-progress far fa-dot-circle fa-lg"></i>{% endif %}
+                            {% if navbarStage > 3 %}
+                                <i class="fa-progress text-success fas fa-lg fa-check-circle"></i>{% endif %}
+                            <br>Application</p></div>
+
+                        <div class="col-3 text-center"><p
+                                class="hhc-progress-text small {% if navbarStage < 4 %}text-secondary{% endif %}">
+                            {% if navbarStage < 4 %}
+                                <i class="fa-progress text-secondary far fa-circle fa-lg"></i>{% endif %}
+                            {% if navbarStage > 3 %}
+                                <i class="fa-progress text-success fas fa-lg fa-check-circle"></i>{% endif %}
+                            <br>Complete</p></div>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
+</div>

@@ -32,9 +32,9 @@
             <div class="col-lg-3 text-left">
                 <p class="small"><b>Property</b></p>
                 <p> {{ street }}</p>
-                <p> {{ suburb }} {{ clientObj.enumStateType }} {{ clientObj.postcode|stringformat:"d" }} </p>
+                <p> {{ suburb }} {{ enumState }} {{ postcode|stringformat:"d" }} </p>
 
-                <p>${{ clientObj.valuation }} </p>
+                <p>${{ valuation }} </p>
 
             </div>
 
@@ -54,9 +54,9 @@
 
         <div class="row">
             <div class="col-lg-3 text-left">
-                <p class="small">ID: &nbsp; {{ clientObj.sfLoanID }}</p>
-                <p class="small">Credit Rep: &nbsp; {{ clientObj.user }}</p>
-                <p class="small">Channel: {{ clientObj.enumChannelType }}
+                <p class="small">ID: &nbsp; {{ sfLoanID }}</p>
+                <p class="small">Credit Rep: &nbsp; {{ owner }}</p>
+                <p class="small">Channel: {{ enumChannelType }}
             </div>
 
             <div class="col-lg-3 text-left">

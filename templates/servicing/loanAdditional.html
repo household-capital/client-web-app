@@ -52,7 +52,9 @@
             </div>
         </div>
         <br>
-        <p><b>Note:</b>You are about to send an additional drawdown link to the selected client.</p>
+        <p><b>Note:</b>You are about to send an 'additional drawdown' link to the selected client.<br>Unless you choose to complete yourself.</p>
+
+    <br><br><br><br>
 
 
     </div>
@@ -71,14 +73,14 @@
         var dataLookup = {{ dataLookup|safe}};
 
         $(document).ready(function () {
-            $("#id_identifiedEnquirer").change(function () {
+            $("#id_identifiedContact").change(function () {
                 var lookup = $(this).find(":selected").text();
                 if (lookup == '---------') {
                     $("#id_contactEmail").val("");
                     $("#id_contactPhone").val("");
                 } else {
-                    var email = dataLookup.find(item => item.enquirer === lookup).email;
-                    var phone = dataLookup.find(item => item.enquirer === lookup).phone;
+                    var email = dataLookup.find(item => item.contact === lookup).email;
+                    var phone = dataLookup.find(item => item.contact === lookup).phone;
                     $("#id_contactEmail").val(email);
                     $("#id_contactPhone").val(phone);
                     console.log(email)

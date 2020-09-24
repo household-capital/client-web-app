@@ -1,0 +1,123 @@
+{% load static %}
+{% load humanize %}
+
+<!doctype html>
+
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Other tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- CSS -->
+   {% include 'site/base.css.html' %}
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css"
+          integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
+
+
+    <title>Household Client Summary</title>
+</head>
+
+<body>
+
+<!-- Cover Letter -->
+<div class="page">
+    <div class="print-container">
+
+        {% include 'case/documents/summaryComponents/cover.html' %}
+
+    </div>
+    <p style="page-break-before: always">
+</div>
+
+
+<div class="page HHCBlueBackground-Printed">
+
+    <div class="print-container">
+
+        <div class="row ">
+            <div class="col-sm-12  text-center">
+                <br><br>
+                <img src="{% static 'img/document/HC_Logo_Craken.png' %}" width="160px">
+            </div>
+
+        </div>
+        <br>
+        <div class="row  justify-content-center">
+            <div class="col-sm-10  text-center">
+                <div class="title-inverse">Live Well <br>At Home</div>
+            </div>
+        </div>
+        <br><br>
+        <div class="row print-edge-row">
+            <div class="col-sm-12 text-center print-edge-col">
+
+                <img src="{% static 'img/document/FrontPage.png' %}" width="100%" height="auto">
+
+            </div>
+        </div>
+
+        <br>
+        <div class="row  justify-content-center">
+            <div class="col-sm-12  text-center">
+                <p class="xx-large text-white">HOUSEHOLD LOAN VARIATION SUMMARY</p>
+            </div>
+        </div>
+
+        <br>
+        <div class="row ">
+            <div class="col-sm-12 text-right  ">
+                <br><br>
+                <img src="{% static 'img/document/HC_Logo_Inv_Colour.png' %}" width="200px">
+            </div>
+            <br>
+        </div>
+        <br>
+    </div>
+    <p style="page-break-before: always">
+</div>
+
+<!-- Page -->
+<div class="page">
+    <div class="print-container">
+
+        <div class="row pt-3 ">
+            <div class="col-sm-12  text-left">
+                <br>
+                <img src="{% static 'img/document/HC_Logo_Flat.png' %}" width="200px">
+            </div>
+
+        </div>
+
+        {% include 'case/documents/summaryComponents/projections.html' %}
+
+
+    </div>
+    <p style="page-break-before: always"></p>
+</div>
+
+
+<div class="page">
+    <div class="print-container">
+
+        <div class="row pt-3 ">
+            <div class="col-sm-12  text-left">
+                <br>
+                <img src="{% static 'img/document/HC_Logo_Flat.png' %}" width="200px">
+            </div>
+
+        </div>
+        {% include 'case/documents/summaryComponents/scenarios.html' %}
+    </div>
+    <p style="page-break-before: always"></p>
+</div>
+
+
+
+</body>
+</html>
