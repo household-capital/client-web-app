@@ -434,7 +434,6 @@ class ValidationErrorView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ValidationErrorView, self).get_context_data(**kwargs)
         context['title'] = 'Validation Error'
-        context['app_uuid'] = self.request.session['appUID']
         return context
 
 
