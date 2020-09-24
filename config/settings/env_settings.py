@@ -144,6 +144,7 @@ else:
     
     STATIC_URL = '/static/collected/' #'/static/'
     MEDIA_URL = '/media/'
+
     STATIC_ROOT = BASE_DIR + '/static/collected'
     MEDIA_ROOT = BASE_DIR + '/static/media'
     STATICFILES_DIRS = (BASE_DIR + '/static/uncollected',)
