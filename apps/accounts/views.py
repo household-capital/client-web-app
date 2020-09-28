@@ -54,4 +54,3 @@ class myPasswordResetCompleteView(PasswordResetCompleteView):
         return redirect('accounts:login')
 
 
-

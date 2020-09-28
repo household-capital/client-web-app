@@ -408,10 +408,9 @@ def mailLoanSummary(caseUID):
         # Check for other send errors
         if resultDict["APIErrorNumber"] != 0 or resultDict["transaction"]["approved"] != 'y':
             write_applog("ERROR", 'Case-Tasks', 'mailLoanSummary',
-                         "Failed to mail Loan Summary Report:" + caseUID + " - " + result['responseText'])
+                         "Failed to mail Loan Summary Report:" + caseObj.surname_1 + " | "+ caseUID)
             raiseTaskAdminError("Failed to mail Loan Summary Report",
-                                "Failed to mail Loan Summary Report:" + caseObj.surname_1 + " - " + result[
-                                    'responseText'])
+                                "Failed to mail Loan Summary Report:" + caseObj.surname_1)
         else:
             # Record the send reference
             caseObj.summarySentRef = resultDict["transaction"]["reference"]

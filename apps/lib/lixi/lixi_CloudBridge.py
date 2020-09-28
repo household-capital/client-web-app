@@ -231,7 +231,12 @@ class CloudBridge():
         # Save localfile to targetFile storage
         localfile.flush()
         targetFileName = self.filePath + str(self.opportunityId) + ".xml"
-        default_storage.delete(targetFileName)
+
+        try:
+            default_storage.delete(targetFileName)
+        except FileNotFoundError:
+            pass
+
         default_storage.save(targetFileName, localfile)
         localfile.close()
 
