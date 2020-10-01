@@ -26,100 +26,127 @@
 <div class="page">
 
     <div class="print-container pt-5">
-        <div class="badge-light">
+        <div class="container">
 
-            <div class="row pt-2 pl-3">
-                <div class="col-9">
 
-                    <h4>Case Summary / Responsible Lending Enquiries </h4>
-                    <p>{{ surname_1 }}, {{ street }}, {{ suburb }}</p>
+            <div class="row badge-light pt-2">
+                <div class="col-lg-9">
+
+                    <h4 class="pl-3">Case Summary / Responsible Lending Enquiries </h4>
+                    <p class="pl-3">{{ surname_1 }}, {{ street }}, {{ suburb }}</p>
                     <br>
 
                 </div>
 
-                <div class="col-3 pr-4">
+                <div class="col-lg-3 pr-4">
                     <img align="right" width="180px" src="{% static 'img/hhc/HC_Logo_Flat.png' %}">
                 </div>
             </div>
+
+
+            <div class="pl-3 ">
+
+                <div class="row pt-1">
+                    <div class="col-sm-12">
+                        <br>
+
+                        {% include 'fact_find/components/profile.html' %}
+                    </div>
+                </div>
+
+
+                <div class="row pt-1">
+                    <div class="col-sm-12">
+
+                        {% include 'fact_find/components/loan.html' %}
+                    </div>
+                </div>
+
+                <div class="row pt-1">
+                    <div class="col-sm-12">
+
+                        {% include 'fact_find/components/projections.html' %}
+                    </div>
+                </div>
+
+                <div class="row pt-1">
+                    <div class="col-sm-11">
+
+                        {% include 'fact_find/document/background.html' %}
+                    </div>
+                </div>
+
+
+            </div>
+
         </div>
-
-        <div class="ml-3 ">
-
-            <div class="row pt-1">
-                <div class="col-sm-12">
-                    <br>
-
-                    {% include 'fact_find/components/profile.html' %}
-                </div>
-            </div>
-
-
-            <div class="row pt-1">
-                <div class="col-sm-12">
-
-                    {% include 'fact_find/components/loan.html' %}
-                </div>
-            </div>
-
-            <div class="row pt-1">
-                <div class="col-sm-12">
-
-                    {% include 'fact_find/components/projections.html' %}
-                </div>
-            </div>
-
-            <div class="row pt-1">
-                <div class="col-sm-12">
-
-                    {% include 'fact_find/document/background.html' %}
-                </div>
-            </div>
-
-
-        </div>
-
     </div>
-    <p style="page-break-before: always"></p>
 </div>
 
 
 <div class="page">
-    <div class="print-container ml-3 pt-5">
-        <div class="row pt-1">
-            <div class="col-sm-12">
-                {% include 'fact_find/document/requirements.html' %}
+    <div class="print-container pt-5">
+        <div class="container">
+            <div class="row pt-1">
+                <div class="col-sm-11">
+
+                    <div class="pl-3">
+                        <p class="pb-2"><b>Requirements and objectives</b></p>
+                        <p> {{ factObj.requirementsNotes }} </p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
     <p style="page-break-before: always"></p>
 </div>
 
-
 <div class="page">
-    <div class="print-container ml-3 pt-5">
-        <div class="row pt-1">
-            <div class="col-sm-12">
-                {% include 'fact_find/document/additional.html' %}
+    <div class="print-container pt-5">
+        <div class="container">
+            <div class="row pt-1">
+                <div class="col-sm-11">
 
-            </div>
-            <div class="col-sm-12">
-                <br><br>
-                <hr>
+                    <div class="pl-3">
 
+                        {% include 'fact_find/document/requirements.html' %}
+                    </div>
+                </div>
             </div>
 
-            <div class="col-sm-12">
-                <p class="small-blue pb-2">Prepared by</p>
-                <p>{{ clientObj.owner.first_name }} {{ clientObj.owner.last_name }}
-                    {{ factObj.updated }}</p>
-            </div>
 
         </div>
     </div>
-
-
     <p style="page-break-before: always"></p>
+</div>
+
+<div class="page">
+    <div class="print-container pt-5">
+        <div class="container">
+            <div class="row pt-1">
+                <div class="col-sm-11">
+                    {% include 'fact_find/document/additional.html' %}
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <br><br>
+                    <hr>
+
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <p class="small-blue pb-2">Prepared by</p>
+                    <p>{{ clientObj.owner.first_name }} {{ clientObj.owner.last_name }}
+                        {{ factObj.updated }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 

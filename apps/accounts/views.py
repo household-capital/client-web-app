@@ -53,4 +53,3 @@ class myPasswordResetCompleteView(PasswordResetCompleteView):
         messages.success(request, "Your password has been set - you may now log in")
         return redirect('accounts:login')
 
-
