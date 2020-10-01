@@ -69,6 +69,16 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
   }
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
+    name = "AWS_BUCKET_ENDPOINT"
+    value = "https://${aws_s3_bucket.bucket.bucket_domain_name}"
+  }
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name = "STORAGE"
+    value = "AWS"
+  }
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
     name = "ENV"
     value = var.environment
   }

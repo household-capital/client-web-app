@@ -23,7 +23,7 @@ load_dotenv()
 ALLOWED_HOSTS = [os.getenv("ALLOWED_HOSTS_1"),
                  os.getenv("ALLOWED_HOSTS_2"),
                  os.getenv("ALLOWED_HOSTS_3"),
-                 os.getenv("ALLOWED_HOSTS_4")] # '*'
+                 os.getenv("ALLOWED_HOSTS_4"), '*'] # '*'
 
 
 SITE_URL = os.getenv("SITE_URL")
@@ -104,11 +104,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 if os.getenv('STORAGE') == "AWS":
 
     #Digital Ocean Storage Settings
-    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-    AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
-    AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')
-    AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
+    # AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+    # AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+    
+    #AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+
+    AWS_STORAGE_BUCKET_NAME = os.getenv('S3_BUCKET')
+
+    AWS_S3_REGION_NAME = 'ap-southeast-2' #os.getenv('AWS_S3_REGION_NAME')
+    # AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400',}
     AWS_STATIC_LOCATION = 'static'
     AWS_MEDIA_LOCATION = 'media'
@@ -125,22 +129,23 @@ if os.getenv('STORAGE') == "AWS":
 
 else:
     
-    # STATIC_URL = '/static/collected/' #'/static/'
-    # MEDIA_URL = '/media/'
-    # STATIC_ROOT = BASE_DIR + '/static/collected'
-    # MEDIA_ROOT = BASE_DIR + '/static/media'
-    # STATICFILES_DIRS = (BASE_DIR + '/static/uncollected',)
-    # FILE_UPLOAD_PERMISSIONS = 0o644
-
-
-    # LOCAL storage
-    # https://docs.djangoproject.com/en/1.11/howto/static-files/
-    STATIC_URL = SITE_URL + '/static/'
-    MEDIA_URL = SITE_URL + '/media/'
+    STATIC_URL = '/static/collected/' #'/static/'
+    MEDIA_URL = '/media/'
     STATIC_ROOT = BASE_DIR + '/static/collected'
     MEDIA_ROOT = BASE_DIR + '/static/media'
     STATICFILES_DIRS = (BASE_DIR + '/static/uncollected',)
     FILE_UPLOAD_PERMISSIONS = 0o644
+
+
+    # LOCAL storage
+    # https://docs.djangoproject.com/en/1.11/howto/static-files/
+    
+    # STATIC_URL = SITE_URL + '/static/'
+    # MEDIA_URL = SITE_URL + '/media/'
+    # STATIC_ROOT = BASE_DIR + '/static/collected'
+    # MEDIA_ROOT = BASE_DIR + '/static/media'
+    # STATICFILES_DIRS = (BASE_DIR + '/static/uncollected',)
+    # FILE_UPLOAD_PERMISSIONS = 0o644
 
 
 # SESSION EXPIRY TIME: in seconds
