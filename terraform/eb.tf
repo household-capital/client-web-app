@@ -1,3 +1,23 @@
+
+
+#########################################################
+#                                                       #
+#                     ROUTE53 Record                    #
+#                                                       #
+#########################################################
+
+resource "aws_route53_record" "www" {
+  name    = var.web_domain
+  zone_id = data.aws_route53_zone.route53zone.zone_id
+  type    = "A"
+  alias {
+    name    = "${aws_elastic_beanstalk_environment.hhc_client_app.cname}"
+    zone_id = "${data.aws_elastic_beanstalk_hosted_zone.current.id}"
+    evaluate_target_health = true 
+  }
+}
+
+
 #########################################################
 #                                                       #
 #                         BUCKET                        #
@@ -6,6 +26,12 @@
 resource "aws_s3_bucket" "bucket" {
     bucket = "hhc-client-app-${var.environment}"
     force_destroy = var.nuke_s3
+}
+
+resource "aws_s3_bucket" "bucket_static" {
+    bucket = "hhc-client-app-static-${var.environment}"
+    force_destroy = var.nuke_s3
+    acl    = "public-read"
 }
 
 resource "aws_s3_bucket_object" "deployment_package" {
@@ -59,6 +85,11 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
   }
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
+    name = "S3_BUCKET_STATIC"
+    value = "${aws_s3_bucket.bucket_static.bucket}"
+  }
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
     name = "RDS_HOSTNAME"
     value = "${aws_db_instance.rds_env_instance.address}"
   }
@@ -66,11 +97,6 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
     namespace = "aws:elasticbeanstalk:application:environment"
     name = "RDS_PORT"
     value = "${aws_db_instance.rds_env_instance.port}"
-  }
-  setting {
-    namespace = "aws:elasticbeanstalk:application:environment"
-    name = "AWS_BUCKET_ENDPOINT"
-    value = "https://${aws_s3_bucket.bucket.bucket_domain_name}"
   }
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
@@ -118,6 +144,21 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
     value = 600
   }
 
+  setting {
+    namespace = "aws:elb:listener:443"
+    name = "SSLCertificateId"
+    value = data.aws_acm_certificate.ssl_cert.arn
+  }
+  setting {
+    namespace = "aws:elb:listener:443"
+    name = "ListenerProtocol"
+    value = "HTTPS"
+  }
+  setting {
+    namespace = "aws:elb:listener:443"
+    name = "InstancePort"
+    value = 80
+  }
 }
 # current terraform support for eb env and eb versions cannot be linked using any resources available
 # only possible through the aws cli.

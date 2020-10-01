@@ -46,3 +46,13 @@ variable "profile" {
   description = "AWS Acc to use to deploy"
   default = "devel"
 }
+
+variable "web_domain" {
+  type = string
+  description = "Webdomain"
+}
+
+variable "route53_name" {
+  type = string
+  description = "Route53 Hosted Zone Name"
+}

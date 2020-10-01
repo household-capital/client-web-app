@@ -27,7 +27,7 @@ django-crispy-forms==1.7.2
 django-filter==2.1.0
 django-modelcluster==4.4
 django-registration==3.0
-django-storages==1.10
+django-storages==1.10.1
 django-taggit==0.24.0
 django-timezone-field==3.0
 django-treebeard==4.3

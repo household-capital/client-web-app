@@ -50,33 +50,42 @@ DEBUG = True#boolStr(os.getenv("BOOL_DEBUG"))
 
 # DATABASE
 
-if os.getenv('DATABASE_LOCATION') == "AWS":
+if os.getenv('STORAGE') == "AWS":
 
+    # DATABASES = {
+    #     'default': {
+    #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #         'NAME': os.getenv("AWS_DATABASE_NAME"),
+    #         'USER': os.getenv("AWS_DATABASE_USER"),
+    #         'PASSWORD': os.getenv("AWS_DATABASE_PASSWORD"),
+    #         'HOST': os.getenv("AWS_HOST"),
+    #         'PORT': os.getenv("AWS_PORT"),
+    #     }
+    # }
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': os.getenv("AWS_DATABASE_NAME"),
-            'USER': os.getenv("AWS_DATABASE_USER"),
-            'PASSWORD': os.getenv("AWS_DATABASE_PASSWORD"),
-            'HOST': os.getenv("AWS_HOST"),
-            'PORT': os.getenv("AWS_PORT"),
+            'NAME': os.environ['RDS_DATABASE'],
+            'USER':  'test', #get_setting('Username'),
+            'PASSWORD': 'Passw0rd123', #get_setting('Password'),
+            'HOST': os.environ['RDS_HOSTNAME'],
+            'PORT': os.environ['RDS_PORT'],
         }
     }
-      # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #     'NAME': os.environ['RDS_DATABASE'],
-    #     'USER':  'test', #get_setting('Username'),
-    #     'PASSWORD': 'Passw0rd123', #get_setting('Password'),
-    #     'HOST': os.environ['RDS_HOSTNAME'],
-    #     'PORT': os.environ['RDS_PORT'],
-    # }
+      
 
+    # CELERY_RESULT_BACKEND_DB = ''.join(['postgresql+psycopg2://',
+    #                                     os.getenv("AWS_DATABASE_USER"),
+    #                                     ":",
+    #                                     os.getenv("AWS_DATABASE_PASSWORD"),
+    #                                     os.getenv("AWS_HOST"),
+    #                                     os.getenv("AWS_DATABASE_NAME")])
     CELERY_RESULT_BACKEND_DB = ''.join(['postgresql+psycopg2://',
-                                        os.getenv("AWS_DATABASE_USER"),
+                                        'test',
                                         ":",
-                                        os.getenv("AWS_DATABASE_PASSWORD"),
-                                        os.getenv("AWS_HOST"),
-                                        os.getenv("AWS_DATABASE_NAME")])
+                                        'Passw0rd123',
+                                        os.environ['RDS_HOSTNAME'],
+                                        os.environ['RDS_DATABASE']])
 else:
 
     DATABASES = {
@@ -109,19 +118,21 @@ if os.getenv('STORAGE') == "AWS":
     
     #AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 
-    AWS_STORAGE_BUCKET_NAME = os.getenv('S3_BUCKET')
+    AWS_STORAGE_BUCKET_NAME = os.getenv('S3_BUCKET_STATIC')
 
     AWS_S3_REGION_NAME = 'ap-southeast-2' #os.getenv('AWS_S3_REGION_NAME')
     # AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400',}
     AWS_STATIC_LOCATION = 'static'
     AWS_MEDIA_LOCATION = 'media'
+    
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3-{AWS_S3_REGION_NAME}.amazonaws.com'
     AWS_DEFAULT_ACL = None
-
+    
     #Django Storages
     STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/uncollected'),]
-    STATIC_URL = '%s/%s/' % (AWS_S3_ENDPOINT_URL, AWS_STATIC_LOCATION)
-    MEDIA_URL = '%s/%s/' % (AWS_S3_ENDPOINT_URL, AWS_MEDIA_LOCATION)
+    STATIC_URL = '%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_STATIC_LOCATION)
+    MEDIA_URL = '%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_MEDIA_LOCATION)
     STATICFILES_STORAGE = 'config.settings.ext_storage.StaticStorage'    # Static Root
     DEFAULT_FILE_STORAGE = 'config.settings.ext_storage.MediaStorage'   # Media Root
 

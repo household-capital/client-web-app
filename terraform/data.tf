@@ -64,3 +64,14 @@ data "aws_subnet_ids" "restricted" {
     Network = "Restricted"
   }
 }
+
+data "aws_elastic_beanstalk_hosted_zone" "current" {}
+
+data "aws_route53_zone" "route53zone" {
+  name         = var.route53_name
+}
+
+data "aws_acm_certificate" "ssl_cert" {
+  domain   = "*.${var.route53_name}"
+  statuses = ["ISSUED"]
+}
