@@ -122,7 +122,6 @@ if os.getenv('STORAGE') == "AWS":
 
     AWS_STORAGE_BUCKET_NAME = os.getenv('S3_BUCKET_STATIC')
 
-
     AWS_S3_REGION_NAME = 'ap-southeast-2' #os.getenv('AWS_S3_REGION_NAME')
     # AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400',}
