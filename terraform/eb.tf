@@ -32,6 +32,14 @@ resource "aws_s3_bucket" "bucket_static" {
     bucket = "hhc-client-app-static-${var.environment}"
     force_destroy = var.nuke_s3
     acl    = "public-read"
+    cors_rule {
+        allowed_headers = ["Authorization"]
+        allowed_methods = ["GET", "HEAD"]
+        allowed_origins = [
+          "https://${var.web_domain}.${var.route53_name}*" # annoyingly aws bucket name is passed to env so cant directly use record_name53 attribute here
+        ]
+        max_age_seconds = 3000
+  }
 }
 
 resource "aws_s3_bucket_object" "deployment_package" {
