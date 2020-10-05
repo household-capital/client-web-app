@@ -264,10 +264,12 @@ class CalendlyWebhook(View):
         phoneNumber = None
         try:
             if 'phone number' in data['payload']['questions_and_answers'][0]['question']:
-                phoneNumber = cleanPhoneNumber(data['payload']['questions_and_answers'][0]['answer'][:16])
+                answer = data['payload']['questions_and_answers'][0]['answer']
+                # strip characters and trim response (shouldn't be required, but in case Calendly field not correctly defined as phone)
+                answer_digits = ''.join([c for c in answer if c in '0123456789'])
+                phoneNumber = cleanPhoneNumber(answer_digits[:15])
         except:
             pass
-
         return phoneNumber
 
 
