@@ -1023,13 +1023,13 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "postcode": row[6],
                         "email": email,
                         "phoneNumber": phoneNumber,
-                        "valuation": self.cleanValuation(row[9]),
+                        "valuation": self.cleanValuation(row[9]) if row[9] else None,
                         "age_1": None,
                         "marketingSource": marketingTypesEnum.YOUR_LIFE_CHOICES.value,
                         "referrer": directTypesEnum.PARTNER.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "user": self.request.user,
-                        "state": stateTypesEnum[row[10]].value,
+                        "state": stateTypesEnum[row[10]].value if row[10] else None ,
                         'dwellingType': dwellingTypesEnum.APARTMENT.value if row[8] == "Strata Property" else dwellingTypesEnum.HOUSE.value,
                         "enquiryStage": enquiryStagesEnum.GENERAL_INFORMATION.value if row[4] == "Closed Lost" else enquiryStagesEnum.FOLLOW_UP_NO_ANSWER.value
                     }
