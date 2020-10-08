@@ -167,6 +167,19 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
     name = "InstancePort"
     value = 80
   }
+
+  # single instance 
+  setting {
+    namespace = "aws:autoscaling:asg"
+    name = "MinSize"
+    value = 1
+  }
+  setting {
+    namespace = "aws:autoscaling:asg"
+    name = "MaxSize"
+    value = 1
+  }
+
 }
 # current terraform support for eb env and eb versions cannot be linked using any resources available
 # only possible through the aws cli.
