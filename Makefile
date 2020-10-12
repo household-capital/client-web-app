@@ -87,7 +87,7 @@ redis-server:
 # CELERY
 
 celery: 
-	$(VENV)celery -A config worker 
+	$(VENV)celery -A config worker -l debug --beat --scheduler django_celery_beat.schedulers:DatabaseScheduler --loglevel=info
 
 # ZIP 
 

@@ -375,3 +375,12 @@ def sfAnnualReviewNotification():
                      "Completed Annual Review SF notifications")
 
     return "Task completed successfully"
+
+@app.task(name="testbeat")
+def test_beat():
+    write_applog(
+        "INFO",
+        'test',
+        'testing beat',
+        'here'
+    )
