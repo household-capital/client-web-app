@@ -57,7 +57,6 @@ if ENV_PATH:
     DEBUG = boolStr(os.getenv("BOOL_DEBUG"))
 
 
-
 # DATABASE
 
 if os.getenv('STORAGE') == "AWS":
