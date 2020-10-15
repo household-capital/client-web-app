@@ -71,9 +71,10 @@ def getWordpressData():
                 item_saved = False
                 web_obj = WebCalculator.objects.create(**srcData)
                 item_saved = True
-            except:
+            except BaseException as e:
                 write_applog("ERROR", 'Api', 'Tasks-getWordpressData', "Could not save calculator entry")
-                raise raiseTaskAdminError("Could not save calculator entry", json.dumps(srcData))
+                raiseTaskAdminError("Could not save calculator entry", json.dumps(srcData))
+                raise e
 
             if item_saved:
                 # Mark items as retrieved on Wordpress
@@ -81,7 +82,8 @@ def getWordpressData():
 
                 if result['status'] != 'Ok':
                     write_applog("ERROR", 'Api', 'Tasks-getWordpressData', "Could not mark retrieved")
-                    raise raiseTaskAdminError("Could not mark calculator entry retrieved", json.dumps(srcData))
+                    raiseTaskAdminError("Could not mark calculator entry retrieved", json.dumps(srcData))
+                    raise Exception('Could not mark calculator entry retrieved')
 
     # Retrieve contact data
     wp = apiWordpress()

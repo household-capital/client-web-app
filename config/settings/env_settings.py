@@ -1,4 +1,6 @@
 import os
+
+from os.path import join, dirname
 from dotenv import load_dotenv
 
 # Environment Variables are saved as strings!
@@ -18,8 +20,12 @@ def intNone(str):
         return int(str)
 
 # Load Environment variables
-load_dotenv()
+ENV_PATH = None
 
+if os.environ.get('ENV'): 
+    ENV_PATH = join(dirname(__file__), 'environment', '{}.env'.format(os.environ.get('ENV')))
+
+load_dotenv(ENV_PATH)
 ALLOWED_HOSTS = [os.getenv("ALLOWED_HOSTS_1"),
                  os.getenv("ALLOWED_HOSTS_2"),
                  os.getenv("ALLOWED_HOSTS_3"),
@@ -45,7 +51,9 @@ ADMINS=[(os.getenv("ADMIN_NAME"),os.getenv("ADMIN_EMAIL"))]
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True#boolStr(os.getenv("BOOL_DEBUG"))
+DEBUG = True
+if ENV_PATH: 
+    DEBUG = boolStr(os.getenv("BOOL_DEBUG"))
 
 
 # DATABASE

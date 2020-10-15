@@ -8,7 +8,7 @@ resource "aws_db_instance" "rds_env_instance" {
   allocated_storage      = 20
   storage_type           = "gp2"
   engine                 = "postgres"
-  engine_version         = "11.5"
+  engine_version         = "11.8"
   instance_class         = "db.t3.small"
   storage_encrypted      = true
   name                   = "clientapp${var.environment}"
