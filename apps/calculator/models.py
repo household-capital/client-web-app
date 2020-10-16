@@ -49,6 +49,7 @@ class WebCalculator(models.Model):
         (productTypesEnum.INCOME.value, "Income"),
         (productTypesEnum.COMBINATION.value, "Combination"),
         (productTypesEnum.CONTINGENCY_20K.value, "Contingency 20K"),
+        (productTypesEnum.REFINANCE.value, "Refinance"),
     )
 
     stateTypes=(
@@ -75,6 +76,8 @@ class WebCalculator(models.Model):
     age_2 = models.IntegerField(blank=True, null=True)
     dwellingType = models.BooleanField(default=True, blank=False, null=False)
     valuation = models.IntegerField(blank=False, null=False)
+    mortgageDebt = models.IntegerField(blank=True, null=True)
+    mortgageRepayment = models.IntegerField(blank=True, null=True)
 
     # Address Data
     streetAddress = models.CharField(max_length=80, blank=True, null=True)

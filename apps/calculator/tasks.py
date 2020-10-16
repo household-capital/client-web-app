@@ -34,7 +34,9 @@ def getWordpressData():
 
             mapList = {'age1': 'age_1',
                        'age2': 'age_2',
-                       'maxDrawdown': 'maxDrawdownAmount'}
+                       'maxDrawdown': 'maxDrawdownAmount',
+                       'mortgage': 'mortgageDebt',
+                       'repayment': 'mortgageRepayment'}
 
             popList = ['id', 'retrieved', 'retrievedDate', 'timestamp', 'uuid', 'phone']
 
