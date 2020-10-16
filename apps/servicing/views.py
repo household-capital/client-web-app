@@ -16,7 +16,7 @@ from config.celery import app
 from django.conf import settings
 from django.contrib import messages
 from django.core import signing
-from django.db.models import Q, F
+from django.db.models import Q, F, ExpressionWrapper, DurationField
 
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse_lazy
@@ -203,6 +203,53 @@ class LoanAnnualList(HouseholdLoginRequiredMixin, ListView):
 
         if self.request.GET.get('order') == None or self.request.GET.get('order') == "":
             context['order'] = 'nextAnnualService'
+        else:
+            context['order'] = self.request.GET.get('order')
+
+        return context
+
+class LoanAnnualCompletedList(HouseholdLoginRequiredMixin, ListView):
+    paginate_by = 8
+    template_name = 'servicing/loanAnnualListCompleted.html'
+    context_object_name = 'object_list'
+    model = Facility
+
+    def get_queryset(self, **kwargs):
+        # overrides queryset to filter search parameter
+        queryset = FacilityAnnual.objects.filter(submitted=True)  \
+            .annotate(availableAmount=F('facility__approvedAmount') - F('facility__advancedAmount')) \
+            .annotate(planAddition=F('facility__totalPlanAmount') - F('facility__totalLoanAmount'))
+
+        if self.request.GET.get('search'):
+            search = self.request.GET.get('search')
+            queryset = queryset.filter(
+                Q(sfLoanName__icontains=search) |
+                Q(sfLoanID__icontains=search) |
+                Q(amalID__contains=search)
+            )
+
+        # ...orderby.....
+        if self.request.GET.get('order') == None or self.request.GET.get('order') == "":
+            orderBy = ['-reviewDate']
+        else:
+            orderBy = [self.request.GET.get('order'), '-reviewDate']
+
+        queryset = queryset.order_by(*orderBy)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(LoanAnnualCompletedList, self).get_context_data(**kwargs)
+        context['title'] = 'Completed Annual Reviews'
+
+        if self.request.GET.get('search'):
+            context['search'] = self.request.GET.get('search')
+        else:
+            context['search'] = ""
+
+
+        if self.request.GET.get('order') == None or self.request.GET.get('order') == "":
+            context['order'] = '-reviewDate'
         else:
             context['order'] = self.request.GET.get('order')
 

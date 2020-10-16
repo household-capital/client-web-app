@@ -21,6 +21,7 @@ urlpatterns = [
      path('loanEnquiry/<uuid:uid>', views.LoanEnquiry.as_view(), name='loanEnquiry'),
      path('loanEvents', views.LoanEventList.as_view(), name='loanEventList'),
      path('loanAnnual', views.LoanAnnualList.as_view(), name='loanAnnualList'),
+     path('loanAnnualCompleted', views.LoanAnnualCompletedList.as_view(), name='loanAnnualCompletedList'),
      path('loanAdditionalLink/<uuid:uid>', views.LoanAdditionalLink.as_view(), name='loanAdditionalLink'),
      path('loanCreateVariation/<uuid:uid>', views.LoanCreateVariation.as_view(), name='loanCreateVariation'),
      path('loanAnnualLink/<uuid:uid>', views.LoanAnnualLink.as_view(), name='loanAnnualLink'),
