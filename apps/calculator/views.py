@@ -79,6 +79,10 @@ class CalcCreateEnquiry(HouseholdLoginRequiredMixin, UpdateView):
         for item in popList:
             calcDict.pop(item)
 
+        calcDict['name'] = calcDict['name'][:29]
+        calcDict['streetAddress'] = calcDict['streetAddress'][:79]
+        calcDict['suburb'] = calcDict['suburb'][:39]
+
         enq_obj = Enquiry.objects.create(user=user, referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer,
                                          **calcDict)
         enq_obj.save()
