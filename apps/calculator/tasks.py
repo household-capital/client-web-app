@@ -158,8 +158,6 @@ def getWordpressData():
 
                 write_applog("INFO", 'API', 'Tasks-getWordpressData', "Item data: " + json.dumps(srcData))
 
-                web_obj = Enquiry.objects.create(**srcData)
-
                 # Create and save new Enquiry object
                 try:
                     item_saved = False
