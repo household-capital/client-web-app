@@ -25,3 +25,5 @@ fundImages/
 
 postgres/
 
+# TERRAFORM 
+*.terraform/
