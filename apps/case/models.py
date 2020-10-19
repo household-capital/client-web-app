@@ -169,6 +169,7 @@ class Case(models.Model):
         (productTypesEnum.INCOME.value, "Income"),
         (productTypesEnum.COMBINATION.value, "Combination"),
         (productTypesEnum.CONTINGENCY_20K.value, "Contingency 20K"),
+        (productTypesEnum.REFINANCE.value, "Refinance"),
     )
 
     # ClientApp Identifiers

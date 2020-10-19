@@ -49,6 +49,7 @@ class productTypesEnum(Enum):
     INCOME = 1
     COMBINATION = 2
     CONTINGENCY_20K = 3
+    REFINANCE = 4
 
 @accessInTemplate
 class loanTypesEnum(Enum):

@@ -423,6 +423,17 @@ def enquiryProductContext(enqObj):
         context['totalLoanAmount'] = int(round(topUpAmount, 0))
         context['totalPlanAmount'] = int(round(topUpAmount, 0))
 
+    elif enqObj.productType == productTypesEnum.REFINANCE.value:
+        # Override the loan amount to maximum if not provided
+        if enqObj.calcLumpSum == None or enqObj.calcLumpSum == 0:
+            topUpAmount = enqObj.mortgageDebt if enqObj.mortgageDebt else LOAN_LIMITS['minLoanSize']
+        else:
+            topUpAmount = enqObj.calcLumpSum
+
+        context['topUpAmount'] = int(round(topUpAmount, 0))
+        context['totalLoanAmount'] = int(round(topUpAmount * (1 + LOAN_LIMITS['establishmentFee']), 0))
+        context['totalPlanAmount'] = int(round(topUpAmount * (1 + LOAN_LIMITS['establishmentFee']), 0))
+
     elif enqObj.productType == productTypesEnum.INCOME.value:
 
         if enqObj.calcIncome == None or enqObj.calcIncome == 0:

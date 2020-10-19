@@ -293,6 +293,7 @@ def mapCaseToOpportunity(caseObj, lossObj):
         productTypesEnum.INCOME.value: 'Home Income Loan',
         productTypesEnum.LUMP_SUM.value: 'Household Loan',
         productTypesEnum.COMBINATION.value: 'Household Loan',
+        productTypesEnum.REFINANCE.value: 'Household Loan',
     }
 
     payload['productType'] = productMap[caseObj.productType]

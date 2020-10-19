@@ -861,6 +861,9 @@ class EnqSummaryPdfView(TemplateView):
         elif obj.productType == productTypesEnum.COMBINATION.value:
             self.template_name = 'enquiry/document/calculator_combination_summary.html'
 
+        elif obj.productType == productTypesEnum.REFINANCE.value:
+            self.template_name = 'enquiry/document/calculator_refinance_summary.html'
+
         else:
             self.template_name = 'enquiry/document/calculator_summary.html'
 

@@ -56,6 +56,8 @@ class Enquiry(models.Model):
         (productTypesEnum.INCOME.value, "Income"),
         (productTypesEnum.COMBINATION.value, "Combination"),
         (productTypesEnum.CONTINGENCY_20K.value, "Contingency 20K"),
+        (productTypesEnum.REFINANCE.value, "Refinance"),
+
     )
 
     loanTypes = (
@@ -182,6 +184,7 @@ class Enquiry(models.Model):
     isReferPostcode = models.BooleanField(blank=True, null=True)
     referPostcodeStatus = models.BooleanField(blank=True, null=True)
     mortgageDebt = models.IntegerField(null=True, blank=True)
+    mortgageRepayment = models.IntegerField(blank=True, null=True)
     valuationDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='enquiryReports')
 
     # ~ Purpose Data
