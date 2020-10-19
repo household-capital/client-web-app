@@ -49,6 +49,8 @@ def mapEnquiryToLead(enqUID):
                        'referrerID': 'Referrer_ID__c',
                        'doNotMarket': 'DoNotMarket__c',
                        'isCalendly': 'isCalendly__c',
+                       'mortgageDebt': 'Mortgage_Debt__c',
+                       'mortgageRepayment': 'Mortgage_Repayment__c',
                        }
 
     BooleanList = ['isTopUp', 'isRefi', 'isLive', 'isGive', 'isCare', 'doNotMarket']
