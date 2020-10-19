@@ -49,8 +49,9 @@ def getWordpressData():
 
             # map fields
             for key, value in mapList.items():
-                srcData[value] = srcData[key]
-                srcData.pop(key)
+                if key in srcData:
+                    srcData[value] = srcData[key]
+                    srcData.pop(key)
 
             # remove redundant fields
             for item in popList:
