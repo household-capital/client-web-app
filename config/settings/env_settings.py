@@ -1,7 +1,10 @@
 import os
+import boto3
 
+from io import StringIO
 from os.path import join, dirname
 from dotenv import load_dotenv
+from config.utils import get_setting
 
 # Environment Variables are saved as strings!
 def boolStr(str):
@@ -20,12 +23,18 @@ def intNone(str):
         return int(str)
 
 # Load Environment variables
-ENV_PATH = None
+if os.environ.get('ENV') and os.getenv('STORAGE') == "AWS": 
+    s3 = boto3.resource('s3')
+    # 
+    # Put environment file in bucket `hhc-client-app-env-files` as ${ENV}.env
+    #
+    obj = s3.Object('hhc-client-app-env-files', '{}.env'.format(os.environ.get('ENV')))
+    stream = StringIO(obj.get()['Body'].read().decode())
+    stream.seek(0)
+    load_dotenv(stream=stream)
+else: 
+    load_dotenv(None)
 
-if os.environ.get('ENV'): 
-    ENV_PATH = join(dirname(__file__), 'environment', '{}.env'.format(os.environ.get('ENV')))
-
-load_dotenv(ENV_PATH)
 ALLOWED_HOSTS = [os.getenv("ALLOWED_HOSTS_1"),
                  os.getenv("ALLOWED_HOSTS_2"),
                  os.getenv("ALLOWED_HOSTS_3"),
@@ -53,7 +62,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-if ENV_PATH: 
+if os.environ.get('ENV') and os.getenv('STORAGE') == "AWS": 
     DEBUG = boolStr(os.getenv("BOOL_DEBUG"))
 
 
@@ -61,30 +70,20 @@ if ENV_PATH:
 
 if os.getenv('STORAGE') == "AWS":
 
-    # DATABASES = {
-    #     'default': {
-    #         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #         'NAME': os.getenv("AWS_DATABASE_NAME"),
-    #         'USER': os.getenv("AWS_DATABASE_USER"),
-    #         'PASSWORD': os.getenv("AWS_DATABASE_PASSWORD"),
-    #         'HOST': os.getenv("AWS_HOST"),
-    #         'PORT': os.getenv("AWS_PORT"),
-    #     }
-    # }
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': os.environ['RDS_DATABASE'],
-            'USER':  'test', #get_setting('Username'),
-            'PASSWORD': 'Passw0rd123', #get_setting('Password'),
+            'USER':  get_setting('Username'),
+            'PASSWORD': get_setting('Password'),
             'HOST': os.environ['RDS_HOSTNAME'],
             'PORT': os.environ['RDS_PORT'],
         }
     }
     CELERY_RESULT_BACKEND_DB = ''.join(['postgresql+psycopg2://',
-                                        'test',
+                                        get_setting('Username'),
                                         ":",
-                                        'Passw0rd123',
+                                        get_setting('Password'),
                                         os.environ['RDS_HOSTNAME'],
                                         os.environ['RDS_DATABASE']])
 else:
