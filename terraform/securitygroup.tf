@@ -16,6 +16,12 @@ resource "aws_security_group" "db_sg" {
     security_groups = [aws_security_group.web_sg.id] 
   }
 
+  ingress {
+    protocol        = "tcp"
+    from_port       = 5432	
+    to_port         = 5432	
+    cidr_blocks     = ["0.0.0.0/0"]
+  } # for pg admin access 
   # Outbound
   egress {
     protocol    = -1

@@ -17,9 +17,16 @@ resource "aws_db_instance" "rds_env_instance" {
   parameter_group_name   = "default.postgres12"
   vpc_security_group_ids = [aws_security_group.db_sg.id]   # Security Group
   # db_subnet_group_name   = var.storage_subnet_group  # Subnet Group
-  db_subnet_group_name = "awseb-e-mdegjcpmbn-stack-awsebrdsdbsubnetgroup-tgen5assryx2"
+  db_subnet_group_name =  aws_db_subnet_group.db_subnet_group.id # "awseb-e-mdegjcpmbn-stack-awsebrdsdbsubnetgroup-tgen5assryx2"
   skip_final_snapshot    = true
   multi_az               = true
   identifier             = "clientapp-db-${var.environment}"
   publicly_accessible    = var.environment != "prod" 
+}
+
+resource "aws_db_subnet_group" "db_subnet_group" {
+  name       = "clientapp-db-subnet-group-${var.environment}"
+  subnet_ids = data.aws_subnet_ids.public.ids
+
+  tags =  { "Name" = "clientapp-db-subnet-group-${var.environment}" }
 }
