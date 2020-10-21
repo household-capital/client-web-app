@@ -878,7 +878,7 @@ class LoanAnnualLink(HouseholdLoginRequiredMixin, FormView):
         email_context = {}
         email_context['firstName'] = obj.identifiedContact.firstName
         email_context['signedURL'] = signedURL
-        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+        email_context['absolute_url'] = urljoin(settings.SITE_URL, settings.STATIC_URL)
         subject, from_email, to = "HHC: Annual check-in", \
                                   'noreply@householdcapital.com', \
                                   obj.contactEmail

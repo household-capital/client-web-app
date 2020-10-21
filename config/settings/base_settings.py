@@ -156,14 +156,6 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_ENABLE_UTC = False
 
-CORS_ALLOWED_ORIGINS = [
-    "https://householdcapital.app",
-    "https://www.householdcapital.app",
-    "https://householdcapital.com.au",
-    "https://www.householdcapital.com.au",
-    os.getenv("SITE_URL")
-]
-
 # Default URLS
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/landing/'

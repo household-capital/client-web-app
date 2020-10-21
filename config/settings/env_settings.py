@@ -60,6 +60,17 @@ ADMINS=[(os.getenv("ADMIN_NAME"),os.getenv("ADMIN_EMAIL"))]
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
 
+
+CORS_ALLOWED_ORIGINS = [
+    "https://householdcapital.app",
+    "https://www.householdcapital.app",
+    "https://householdcapital.com.au",
+    "https://www.householdcapital.com.au",
+]
+
+if os.getenv("SITE_URL") is not None: 
+    CORS_ALLOWED_ORIGINS = CORS_ALLOWED_ORIGINS + [os.getenv("SITE_URL")]
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 if os.environ.get('ENV') and os.getenv('STORAGE') == "AWS": 
