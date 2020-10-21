@@ -1,5 +1,5 @@
 #Python imports
-import uuid
+import uuid, os
 from datetime import datetime, timedelta
 
 #Django Imports
@@ -14,6 +14,7 @@ from django.urls import reverse_lazy
 from apps.lib.site_Enums import *
 
 from apps.accounts.models import Referer
+from urllib.parse import urljoin
 
 
 class FundDetail(models.Model):
@@ -354,7 +355,10 @@ class Case(models.Model):
 
     def get_SF_url(self):
         if self.sfOpportunityID:
-            return "https://householdcapital.lightning.force.com/lightning/r/Opportunity/{0}/view".format(self.sfOpportunityID)
+            return urljoin(
+                os.getenv('SALESFORCE_BASE_URL'),
+                "lightning/r/Opportunity/{0}/view".format(self.sfOpportunityID)
+            )
 
 
 # Pre-save function to extend Case
