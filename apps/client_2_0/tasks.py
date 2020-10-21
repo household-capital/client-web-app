@@ -13,6 +13,7 @@ from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.site_Logging import write_applog
 
 from apps.case.models import Case
+from urllib.parse import urljoin
 
 # TASKS
 @app.task(name="Create_Loan_Summary")
@@ -23,7 +24,10 @@ def createLoanSummary(caseUID):
 
     dateStr = datetime.now().strftime('%Y-%m-%d-%H:%M:%S%z')
 
-    sourceUrl = "https://householdcapital.app" + reverse('client2:pdfLoanSummary', kwargs={'uid': caseUID})
+    sourceUrl = urljoin(
+        settings.SITE_URL,
+        reverse('client2:pdfLoanSummary', kwargs={'uid': caseUID})
+    )
     componentFileName = "customerReports/Component-" + caseUID[-12:] + ".pdf"
     componentURL = default_storage.url(componentFileName)
     targetFileName = "customerReports/Summary-" + caseUID[-12:] + "-" + dateStr + ".pdf"
@@ -36,8 +40,10 @@ def createLoanSummary(caseUID):
         return 'Task Failed'
 
     # Merge Additional Components
-    urlList = [componentURL,
-               'https://householdcapital.app/static/img/document/LoanSummaryAdditional.pdf']
+    urlList = [
+        componentURL,
+        '{}static/img/document/LoanSummaryAdditional.pdf'.format(settings.SITE_URL)
+    ]
 
     created, text = pdf.mergePdfs(urlList=urlList, pdfDescription="HHC-LoanSummary.pdf",
                                   targetFileName=targetFileName)

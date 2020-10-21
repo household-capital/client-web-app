@@ -161,6 +161,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://www.householdcapital.app",
     "https://householdcapital.com.au",
     "https://www.householdcapital.com.au",
+    os.getenv("SITE_URL")
 ]
 
 # Default URLS

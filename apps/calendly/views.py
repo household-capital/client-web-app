@@ -31,7 +31,7 @@ from apps.case.models import Case
 from apps.enquiry.models import Enquiry
 from apps.lib.site_Enums import enquiryStagesEnum
 from .models import Calendly
-
+from urllib.parse import urljoin
 
 # UNAUTHENTICATED VIEWS
 
@@ -198,7 +198,10 @@ class CalendlyWebhook(View):
                                    'meeting_id': str(obj.zoomID),
                                    'start_time':start_time_pretty}
 
-                    email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+                    email_context['absolute_url'] = urljoin(
+                        settings.SITE_URL,
+                        settings.STATIC_URL
+                    ) 
 
                     emailSent = sendTemplateEmail(template_name, email_context,subject, from_email, to, cc)
 

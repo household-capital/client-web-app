@@ -37,7 +37,7 @@ from .forms import EnquiryForm, EnquiryDetailForm, EnquiryCloseForm, EnquiryAssi
 from .models import Enquiry
 from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, getEnquiryProjections, updateNavQueue, \
     cleanPhoneNumber, validateEnquiry
-
+from urllib.parse import urljoin
 
 # AUTHENTICATED VIEWS
 
@@ -498,8 +498,10 @@ class SendEnquirySummary(HouseholdLoginRequiredMixin, UpdateView):
         enqDict = Enquiry.objects.dictionary_byUID(enqUID)
 
         # PRODUCE PDF REPORT
-        sourceUrl = settings.SITE_URL + reverse('enquiry:enqSummaryPdf',
-                                                kwargs={'uid': enqUID})
+        sourceUrl = urljoin(
+            settings.SITE_URL,
+            reverse('enquiry:enqSummaryPdf', kwargs={'uid': enqUID})
+        )
 
         targetFileName = "enquiryReports/Enquiry-" + enqUID[-12:] + ".pdf"
 
@@ -566,8 +568,10 @@ class CreateEnquirySummary(HouseholdLoginRequiredMixin, UpdateView):
         enqDict = Enquiry.objects.dictionary_byUID(enqUID)
 
         # PRODUCE PDF REPORT
-        sourceUrl = settings.SITE_URL + reverse('enquiry:enqSummaryPdf',
-                                                kwargs={'uid': enqUID})
+        sourceUrl = urljoin(
+            settings.SITE_URL,
+            reverse('enquiry:enqSummaryPdf', kwargs={'uid': enqUID})
+        )
 
         targetFileName = "enquiryReports/Enquiry-" + enqUID[-12:] + ".pdf"
 

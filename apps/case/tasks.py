@@ -25,7 +25,7 @@ from apps.lib.hhc_LoanValidator import LoanValidator
 
 from .models import Case, LossData, Loan, ModelSetting
 from apps.application.models import ApplicationDocuments
-
+from urllib.parse import urljoin
 
 # CASE TASKS
 
@@ -278,7 +278,7 @@ def integrityCheck():
                                      'Total_Plan_Amount__c': row['Total_Plan_Amount__c'],
                                      'Establishment_Fee_Percent__c': row['Establishment_Fee_Percent__c']
                                      }
-                    email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+                    email_context['absolute_url'] = urljoin(settings.SITE_URL, settings.STATIC_URL) 
 
                     subject, from_email, to = "Salesforce - ClientApp Integrity Check", \
                                                   'noreply@householdcapital.app', \
@@ -354,7 +354,7 @@ def emailLoanSummary(caseUID, template_name):
     caseObj = Case.objects.queryset_byUID(caseUID).get()
 
     email_context['obj'] = caseObj
-    email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+    email_context['absolute_url'] = urljoin(settings.SITE_URL, settings.STATIC_URL)
     email_context['absolute_media_url'] = settings.MEDIA_URL
 
     attachFilename = "HouseholdLoanSummary.pdf"
