@@ -28,7 +28,7 @@ if os.environ.get('ENV') and os.getenv('STORAGE') == "AWS":
     # 
     # Put environment file in bucket `hhc-client-app-env-files` as ${ENV}.env
     #
-    obj = s3.Object('hhc-client-app-env-files-{}'.format(os.getenv('AWS_PROFILE')), '{}.env'.format(os.environ.get('ENV')))
+    obj = s3.Object('hhc-client-app-env-files-{}'.format(os.getenv('AWS_DEPLOY_PROFILE')), '{}.env'.format(os.environ.get('ENV')))
     stream = StringIO(obj.get()['Body'].read().decode())
     stream.seek(0)
     load_dotenv(stream=stream)
@@ -38,8 +38,7 @@ else:
 ALLOWED_HOSTS = [os.getenv("ALLOWED_HOSTS_1"),
                  os.getenv("ALLOWED_HOSTS_2"),
                  os.getenv("ALLOWED_HOSTS_3"),
-                 os.getenv("ALLOWED_HOSTS_4"), '*'] # '*'
-
+                 os.getenv("ALLOWED_HOSTS_4")]
 
 
 SITE_URL = os.getenv("SITE_URL")

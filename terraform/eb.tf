@@ -56,7 +56,7 @@ resource "aws_s3_bucket_object" "deployment_package" {
 resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
   name                = "${var.environment}-HHC-client-app"
   application         = data.aws_elastic_beanstalk_application.hhc_client_app.name
-  solution_stack_name = "64bit Amazon Linux 2018.03 v2.9.14 running Python 3.6"
+  solution_stack_name = "64bit Amazon Linux 2018.03 v2.9.15 running Python 3.6"
 
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
@@ -115,6 +115,11 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
     namespace = "aws:elasticbeanstalk:application:environment"
     name = "ENV"
     value = var.environment
+  }
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name = "AWS_DEPLOY_PROFILE"
+    value = var.profile
   }
   setting {
     namespace = "aws:ec2:vpc"
