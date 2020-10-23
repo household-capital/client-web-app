@@ -42,6 +42,35 @@ resource "aws_s3_bucket" "bucket_static" {
   }
 }
 
+resource "aws_s3_bucket_policy" "s3_bucket_policy_static_media" {
+  bucket = aws_s3_bucket.bucket_static.bucket
+
+  policy = <<POLICY
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "s3:*",
+            "Resource": [
+                "arn:aws:s3:::${aws_s3_bucket.bucket_static.bucket}/media/*",
+                "arn:aws:s3:::${aws_s3_bucket.bucket_static.bucket}/static/*"
+            ],
+            "Principal":"*",
+            "Condition": {
+                "StringLike": {
+                    "aws:Referer": [
+                        "https://${var.web_domain}.${var.route53_name}*",
+                        "https://www.${var.web_domain}.${var.route53_name}*"
+                    ]
+                }
+            }
+        }
+    ]
+}
+POLICY
+}
+
 resource "aws_s3_bucket_object" "deployment_package" {
   bucket = aws_s3_bucket.bucket.id
   key    = "package/package-${timestamp()}.zip"

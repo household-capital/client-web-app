@@ -6,6 +6,8 @@ from os.path import join, dirname
 from dotenv import load_dotenv
 from config.utils import get_setting
 
+import requests 
+
 # Environment Variables are saved as strings!
 def boolStr(str):
     strTrue=["1","True","true","TRUE"]
@@ -29,6 +31,10 @@ ALLOWED_HOSTS = [os.getenv("ALLOWED_HOSTS_1"),
 
 
 SITE_URL = os.getenv("SITE_URL")
+
+if SITE_URL is not None: 
+    ip = requests.get('http://ipinfo.io/json').json()['ip']
+    ALLOWED_HOSTS += [ip]
 
 #Email Settings
 EMAIL_HOST = os.getenv("EMAIL_HOST")
