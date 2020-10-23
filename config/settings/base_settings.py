@@ -10,7 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
-import os
+import os, boto3
+from dotenv import load_dotenv
+from io import StringIO
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -22,6 +24,18 @@ ROOT_URLCONF = 'config.urls'
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # Application definition
+# Load Environment variables
+if os.environ.get('ENV') and os.getenv('STORAGE') == "AWS": 
+    s3 = boto3.resource('s3')
+    # 
+    # Put environment file in bucket `hhc-client-app-env-files` as ${ENV}.env
+    #
+    obj = s3.Object('hhc-client-app-env-files-{}'.format(os.getenv('AWS_DEPLOY_PROFILE')), '{}.env'.format(os.environ.get('ENV')))
+    stream = StringIO(obj.get()['Body'].read().decode())
+    stream.seek(0)
+    load_dotenv(stream=stream)
+else: 
+    load_dotenv(None)
 
 INSTALLED_APPS = [
     # django apps
@@ -77,6 +91,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'config.context_processors.export_env'
             ],
         },
     },
