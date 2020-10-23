@@ -32,6 +32,12 @@ ALLOWED_HOSTS = [os.getenv("ALLOWED_HOSTS_1"),
 
 SITE_URL = os.getenv("SITE_URL")
 
+if ENV == 'prod': 
+    ALLOWED_HOSTS += [
+        '.householdcapital.app', 
+        '.householdcapital.com.au'
+    ]
+
 if SITE_URL is not None: 
     ip = requests.get('http://ipinfo.io/json').json()['ip']
     ALLOWED_HOSTS += [ip]

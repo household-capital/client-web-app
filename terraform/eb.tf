@@ -61,7 +61,9 @@ resource "aws_s3_bucket_policy" "s3_bucket_policy_static_media" {
                 "StringLike": {
                     "aws:Referer": [
                         "https://${var.web_domain}.${var.route53_name}*",
-                        "https://www.${var.web_domain}.${var.route53_name}*"
+                        "https://www.${var.web_domain}.${var.route53_name}*",
+                        "https://www.householdcapital.app*",
+                        "https://householdcapital.app*",
                     ]
                 }
             }
