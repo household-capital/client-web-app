@@ -3,6 +3,9 @@ VENV = vp/bin/
 PYTHON = $(VENV)python
 
 ENV ?= dev
+
+AWS_PROFILE ?= devel
+
 BACKEND_FILE ?= backends/$(ENV).hcl
 CONFIG_FILE ?= env-vars/$(ENV).tfvars
 
@@ -125,3 +128,9 @@ destroy_hard:
 	cd terraform && echo "yes" | terraform destroy -var-file=$(CONFIG_FILE)
 
 apply-deploy: create-zip apply
+
+# provide AWS_PROFILE TO MAKE SNAPSHOT 
+rds-snapshot: 
+	sh rds_snapshot.sh $(ENV) $(AWS_PROFILE)
+
+apply-deploy-with-snapshot: rds-snapshot apply-deploy
