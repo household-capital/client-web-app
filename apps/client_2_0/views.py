@@ -6,6 +6,7 @@ import json
 # Django Imports
 from django.contrib import messages
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.core.files.storage import default_storage
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse
 from django.urls import reverse_lazy, reverse
@@ -911,14 +912,15 @@ class FinalPDFView(HouseholdLoginRequiredMixin, SessionRequiredMixin, View):
 
         obj = Case.objects.queryset_byUID(self.request.session['caseUID']).get()
 
-        pdf_contents = obj.summaryDocument.read()
+        pdfFile = default_storage.open(obj.summaryDocument.name)
+        pdf_contents = pdfFile.read()
+        pdfFile.close()
 
         ## RENDER FILE TO HTTP RESPONSE
         response = HttpResponse(pdf_contents, content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="HHC-LoanSummary.pdf"'
 
         return response
-
 
 # REPORT VIEWS
 
