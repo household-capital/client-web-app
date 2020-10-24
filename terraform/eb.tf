@@ -36,7 +36,9 @@ resource "aws_s3_bucket" "bucket_static" {
         allowed_headers = ["Authorization"]
         allowed_methods = ["GET", "HEAD"]
         allowed_origins = [
-          "https://${var.web_domain}.${var.route53_name}*" # annoyingly aws bucket name is passed to env so cant directly use record_name53 attribute here
+          "https://${var.web_domain}.${var.route53_name}*", # annoyingly aws bucket name is passed to env so cant directly use record_name53 attribute here
+          "https://www.householdcapital.app*",
+          "https://householdcapital.app*"
         ]
         max_age_seconds = 3000
   }
@@ -63,7 +65,7 @@ resource "aws_s3_bucket_policy" "s3_bucket_policy_static_media" {
                         "https://${var.web_domain}.${var.route53_name}*",
                         "https://www.${var.web_domain}.${var.route53_name}*",
                         "https://www.householdcapital.app*",
-                        "https://householdcapital.app*",
+                        "https://householdcapital.app*"
                     ]
                 }
             }

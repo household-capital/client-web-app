@@ -32,7 +32,7 @@ ALLOWED_HOSTS = [os.getenv("ALLOWED_HOSTS_1"),
 
 SITE_URL = os.getenv("SITE_URL")
 
-if ENV == 'prod': 
+if os.environ.get('ENV') == 'prod': 
     ALLOWED_HOSTS += [
         '.householdcapital.app', 
         '.householdcapital.com.au'
