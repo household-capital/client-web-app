@@ -69,6 +69,13 @@ resource "aws_s3_bucket_policy" "s3_bucket_policy_static_media" {
                     ]
                 }
             }
+        },
+         {
+            "Sid": "PublicReadGetObject",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::${aws_s3_bucket.bucket_static.bucket}/media/profileImages/*"
         }
     ]
 }
