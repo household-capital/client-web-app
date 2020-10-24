@@ -117,14 +117,6 @@ class EnquiryEmail(ReferrerLoginRequiredMixin, TemplateView):
         enqObj = Enquiry.objects.queryset_byUID(enqID).get()
 
         email_context['obj'] = enqObj
-        email_context['absolute_url'] = urljoin(
-            settings.SITE_URL,
-            settings.STATIC_URL
-        )
-        email_context['absolute_media_url'] = urljoin(
-            settings.SITE_URL,
-            settings.MEDIA_URL
-        )
 
         if not enqObj.user:
             messages.error(self.request, "This enquiry is not assigned to a user. Please take ownership")

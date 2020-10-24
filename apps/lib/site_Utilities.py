@@ -239,7 +239,6 @@ def getProjectionResults(sourceDict, scenarioList, img_url=None):
         context['comparisonRate'] = context['totalInterestRate'] + sourceDict['comparisonRateIncrement']
         context['loanTypesEnum'] = loanTypesEnum
         context['clientTypesEnum'] = clientTypesEnum
-        context['absolute_media_url'] = settings.MEDIA_URL
 
         if 'firstname_1' not in sourceDict:
             if sourceDict['loanType'] == loanTypesEnum.JOINT_BORROWER.value:
