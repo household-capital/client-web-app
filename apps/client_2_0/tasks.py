@@ -37,7 +37,7 @@ def createLoanSummary(caseUID):
 
     # Merge Additional Components
     urlList = [componentURL,
-               'https://householdcapital.app/static/img/document/LoanSummaryAdditional.pdf']
+               settings.STATIC_URL +'img/document/LoanSummaryAdditional.pdf']
 
     created, text = pdf.mergePdfs(urlList=urlList, pdfDescription="HHC-LoanSummary.pdf",
                                   targetFileName=targetFileName)
