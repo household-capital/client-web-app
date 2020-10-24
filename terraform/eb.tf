@@ -53,9 +53,8 @@ resource "aws_s3_bucket_policy" "s3_bucket_policy_static_media" {
     "Statement": [
         {
             "Effect": "Allow",
-            "Action": "s3:*",
+            "Action": "s3:GetObject",
             "Resource": [
-                "arn:aws:s3:::${aws_s3_bucket.bucket_static.bucket}/media/*",
                 "arn:aws:s3:::${aws_s3_bucket.bucket_static.bucket}/static/*"
             ],
             "Principal":"*",
