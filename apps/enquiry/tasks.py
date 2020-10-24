@@ -165,8 +165,6 @@ def FollowUpEmail(enqUID):
     email_context['customerFirstName'] = customerFirstName
 
     email_context['obj'] = enqObj
-    email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-    email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
 
     if not enqObj.user:
         write_applog("ERROR", 'Enquiry', 'Tasks-FollowUpEmail', "No associated user")

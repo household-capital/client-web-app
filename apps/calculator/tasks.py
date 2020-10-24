@@ -38,7 +38,7 @@ def getWordpressData():
                        'mortgage': 'mortgageDebt',
                        'repayment': 'mortgageRepayment'}
 
-            popList = ['id', 'retrieved', 'retrievedDate', 'timestamp', 'uuid', 'phone']
+            popList = ['id', 'retrieved', 'retrievedDate', 'timestamp', 'uuid', 'phone', 'contactDetails']
 
             sourceUID = item['uuid']
 
@@ -55,7 +55,8 @@ def getWordpressData():
 
             # remove redundant fields
             for item in popList:
-                srcData.pop(item)
+                if item in srcData:
+                    srcData.pop(item)
 
             # convert empty strings to null
             for key, value in srcData.items():
