@@ -11,14 +11,10 @@ LOGGING = {
         'file-django': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            # 'class': 'logging.FileHandler',
-            # 'filename': DEPLOYED_LOGGING+'/django.log',
         },
         'file-app': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            # 'class': 'logging.FileHandler',
-            # 'filename': DEPLOYED_LOGGING + '/app.log',
         },
 
         'mail_admins': {
@@ -26,8 +22,6 @@ LOGGING = {
             'class': 'django.utils.log.AdminEmailHandler',
             'include_html': True,
         }
-
-
     },
     'loggers': {
         'django': {
@@ -43,3 +37,38 @@ LOGGING = {
 
     },
 }
+
+if os.getenv('ENV'): 
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'file-django': {
+                'class': 'logging.FileHandler',
+                'filename': "/opt/python/log/django.log",
+            },
+            'file-app': {
+                'class': 'logging.FileHandler',
+                'filename': '/opt/python/log/app.log',
+            },
+
+            'mail_admins': {
+                'level': 'ERROR',
+                'class': 'django.utils.log.AdminEmailHandler',
+                'include_html': True,
+            }
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['file-django','mail_admins'],
+                'level': 'INFO',
+                'propagate': True,
+            },
+            'myApps': {
+                'handlers': ['file-app'],
+                'level': 'INFO',
+                'propagate': True,
+            },
+
+        },
+    }
