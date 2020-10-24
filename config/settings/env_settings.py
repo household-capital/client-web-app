@@ -140,8 +140,8 @@ if os.getenv('STORAGE') == "AWS":
     
     #Django Storages
     STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/uncollected'),]
-    STATIC_URL = '%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_STATIC_LOCATION)
-    MEDIA_URL = '%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_MEDIA_LOCATION)
+    STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_STATIC_LOCATION)
+    MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_MEDIA_LOCATION)
     STATICFILES_STORAGE = 'config.settings.ext_storage.StaticStorage'    # Static Root
     DEFAULT_FILE_STORAGE = 'config.settings.ext_storage.MediaStorage'   # Media Root
 

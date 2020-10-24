@@ -42,7 +42,10 @@ def createLoanSummary(caseUID):
     # Merge Additional Components
     urlList = [
         componentURL,
-        '{}static/img/document/LoanSummaryAdditional.pdf'.format(settings.SITE_URL)
+        urljoin(
+            settings.STATIC_URL, 
+            'img/document/LoanSummaryAdditional.pdf'
+        )
     ]
 
     created, text = pdf.mergePdfs(urlList=urlList, pdfDescription="HHC-LoanSummary.pdf",
