@@ -354,8 +354,6 @@ def emailLoanSummary(caseUID, template_name):
     caseObj = Case.objects.queryset_byUID(caseUID).get()
 
     email_context['obj'] = caseObj
-    email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-    email_context['absolute_media_url'] = settings.MEDIA_URL
 
     attachFilename = "HouseholdLoanSummary.pdf"
     bcc = caseObj.owner.email
