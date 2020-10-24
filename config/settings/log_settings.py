@@ -3,20 +3,22 @@
 
 from .base_settings import BASE_DIR
 LOG_ROOT = BASE_DIR + '/logs'
-
+DEPLOYED_LOGGING =  LOG_ROOT #"/opt/python/log"
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
         'file-django': {
             'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': LOG_ROOT+'/django.log',
+            'class': 'logging.StreamHandler',
+            # 'class': 'logging.FileHandler',
+            # 'filename': DEPLOYED_LOGGING+'/django.log',
         },
         'file-app': {
             'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': LOG_ROOT + '/app.log',
+            'class': 'logging.StreamHandler',
+            # 'class': 'logging.FileHandler',
+            # 'filename': DEPLOYED_LOGGING + '/app.log',
         },
 
         'mail_admins': {

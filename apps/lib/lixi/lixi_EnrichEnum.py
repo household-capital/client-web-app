@@ -193,7 +193,7 @@ class EnrichEnum:
 
             # Remoteness
             self.__logging("Enumerating Remoteness")
-            self.reader = csv.reader(open(settings.BASE_DIR + self.REMOTENESS_FILE, 'r'))
+            self.reader = csv.reader(open(settings.BASE_DIR + self.REMOTENESS_FILE, 'r', encoding='utf-8'))
             self.remoteDict = dict(self.reader)
             self.loanDict["Prop.Remoteness"] = self.remoteDict[self.loanDict["Prop.Postcode__c"]]
 

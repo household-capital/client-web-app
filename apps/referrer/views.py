@@ -28,7 +28,7 @@ from apps.lib.site_Utilities import ReferrerLoginRequiredMixin
 from .forms import EnquiryForm, CaseDetailsForm
 from apps.enquiry.models import Enquiry
 from apps.case.models import Case
-
+from urllib.parse import urljoin
 
 
 # Referrer Views

@@ -40,7 +40,7 @@ from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignF
     lumpSumPurposeForm, drawdownPurposeForm, purposeAddForm, smsForm
 from .models import Case, LossData, Loan, ModelSetting, LoanPurposes
 from apps.application.models import ApplicationDocuments
-
+from urllib.parse import urljoin
 
 # // UTILITIES
 
@@ -1063,8 +1063,11 @@ class CreateLoanVariationSummary(HouseholdLoginRequiredMixin, View):
         dateStr = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S%z')
         caseUID = str(self.kwargs['uid'])
 
-        sourceUrl = settings.SITE_URL + reverse('case:pdfLoanVariationSummary',
-                                                             kwargs={'uid': caseUID})
+        sourceUrl = urljoin(
+            settings.SITE_URL, 
+            reverse('case:pdfLoanVariationSummary', kwargs={'uid': caseUID})
+        )
+        
 
         targetFileName = "customerReports/VariationSummary-" + caseUID[-12:] + "-" + dateStr + ".pdf"
 
