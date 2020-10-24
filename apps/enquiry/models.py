@@ -1,5 +1,5 @@
 #Python Imports
-import uuid
+import uuid, os
 from datetime import datetime, timedelta
 
 #Django Imports
@@ -12,6 +12,7 @@ from django.utils.timezone import get_current_timezone
 from django.utils.encoding import smart_text
 from django.urls import reverse_lazy
 
+from urllib.parse import urljoin
 #Local Imports
 from apps.lib.site_Enums import *
 
@@ -239,7 +240,10 @@ class Enquiry(models.Model):
 
     def get_SF_url(self):
         if self.sfLeadID:
-            return "https://householdcapital.lightning.force.com/lightning/r/Lead/{0}/view".format(self.sfLeadID)
+            return urljoin(
+                os.getenv('SALESFORCE_BASE_URL'),
+                "lightning/r/Lead/{0}/view".format(self.sfLeadID)
+            )
 
 
     def enumReferrerType(self):

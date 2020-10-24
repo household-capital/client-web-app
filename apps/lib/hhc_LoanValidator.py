@@ -107,7 +107,7 @@ class LoanValidator():
             return response
 
         # Check Valid Postcode
-        reader = csv.reader(open(settings.BASE_DIR + self.POSTCODE_FILE, 'r'))
+        reader = csv.reader(open(settings.BASE_DIR + self.POSTCODE_FILE, 'r', encoding='utf-8'))
         pcodeDict = {}
 
         for row in reader:
@@ -304,7 +304,7 @@ class LoanValidator():
 
     def checkPostcode(self,postcode):
         # Check Valid Postcode
-        reader = csv.reader(open(settings.BASE_DIR + self.POSTCODE_FILE, 'r'))
+        reader = csv.reader(open(settings.BASE_DIR + self.POSTCODE_FILE, 'r', encoding='utf-8'))
         pcodeDict = {}
 
         for row in reader:

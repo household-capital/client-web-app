@@ -100,10 +100,13 @@ class apiSalesforce():
         try:
             # Open API connection to SF and retrive session token (handled by simple-salesforce)
             if production == True:
+                extra_kwargs = {}
+                if os.environ.get('ENV') != 'prod': 
+                    extra_kwargs['domain'] = "test"
                 self.sf = Salesforce(username=os.getenv("SALESFORCE_USERNAME" + ENV_STR),
                                      password=os.getenv("SALESFORCE_PASSWORD" + ENV_STR),
                                      security_token=os.getenv("SALESFORCE_TOKEN" + ENV_STR),
-                                     version='48.0')
+                                     version='48.0', **extra_kwargs)
             else:
 
                 self.sf = Salesforce(username=os.getenv("SALESFORCE_USERNAME" + ENV_STR),

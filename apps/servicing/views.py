@@ -38,7 +38,7 @@ from .models import Facility, FacilityTransactions, FacilityRoles, FacilityPrope
 
 from .forms import FacilityEnquiryForm, FacilityAdditionalRequest, FacilityBorrowerForm, \
     FacilityAdditionalConfirm, AnnualHouseholdForm, AnnualHomeForm, AnnualNeedsForm, AnnualReviewForm
-
+from urllib.parse import urljoin
 
 class SessionRequiredMixin(object):
     """Ensures any attempt to access without UID set is redirect to error view"""
@@ -742,8 +742,10 @@ class LoanAdditionalLink(HouseholdLoginRequiredMixin, FormView):
                        'additionalUID': str(obj.additionalUID)}
 
             signed_payload = signing.dumps(payload)
-            signedURL = settings.SITE_URL + str(
-                reverse_lazy('servicing:servicingValidate', kwargs={'signed_pk': signed_payload}))
+            signedURL = urljoin(
+                settings.SITE_URL,
+                str(reverse_lazy('servicing:servicingValidate', kwargs={'signed_pk': signed_payload}))
+            )
 
             messages.warning(self.request,"Completed on behalf of client")
 
@@ -753,14 +755,20 @@ class LoanAdditionalLink(HouseholdLoginRequiredMixin, FormView):
     def email_link(self, obj, payload):
         # Use signing to generate signed URL parameter
         signed_payload = signing.dumps(payload)
-        signedURL = settings.SITE_URL + str(
-            reverse_lazy('servicing:servicingValidate', kwargs={'signed_pk': signed_payload}))
+        signedURL = urljoin(
+            settings.SITE_URL,
+            str(reverse_lazy('servicing:servicingValidate', kwargs={'signed_pk': signed_payload}))
+        ) 
 
         email_template = 'servicing/email/email_additional_link.html'
         email_context = {}
         email_context['firstName'] = obj.identifiedContact.firstName
         email_context['signedURL'] = signedURL
-        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+        email_context['absolute_url'] = urljoin(
+            settings.SITE_URL,
+            settings.STATIC_URL
+        )
+        
         subject, from_email, to = "HHC: Additional drawdown request link", \
                                   'noreply@householdcapital.com', \
                                   obj.contactEmail
@@ -848,8 +856,10 @@ class LoanAnnualLink(HouseholdLoginRequiredMixin, FormView):
                        'annualUID': str(obj.annualUID)}
 
             signed_payload = signing.dumps(payload)
-            signedURL = settings.SITE_URL + str(
-                reverse_lazy('servicing:servicingValidate', kwargs={'signed_pk': signed_payload}))
+            signedURL = urljoin(
+                settings.SITE_URL,
+                str(reverse_lazy('servicing:servicingValidate', kwargs={'signed_pk': signed_payload}))
+            )
 
             messages.warning(self.request,"Completed on behalf of client")
 
@@ -859,14 +869,16 @@ class LoanAnnualLink(HouseholdLoginRequiredMixin, FormView):
     def email_link(self, obj, payload):
         # Use signing to generate signed URL parameter
         signed_payload = signing.dumps(payload)
-        signedURL = settings.SITE_URL + str(
-            reverse_lazy('servicing:servicingValidate', kwargs={'signed_pk': signed_payload}))
+        signedURL = urljoin(
+            settings.SITE_URL,
+            str(reverse_lazy('servicing:servicingValidate', kwargs={'signed_pk': signed_payload}))
+        )  
 
         email_template = 'servicing/email/email_annual_link.html'
         email_context = {}
         email_context['firstName'] = obj.identifiedContact.firstName
         email_context['signedURL'] = signedURL
-        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+        email_context['absolute_url'] = urljoin(settings.SITE_URL, settings.STATIC_URL)
         subject, from_email, to = "HHC: Annual check-in", \
                                   'noreply@householdcapital.com', \
                                   obj.contactEmail
