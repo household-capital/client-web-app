@@ -22,7 +22,7 @@ from apps.calculator.models import WebCalculator, WebContact
 from apps.case.models import Case, LossData, Loan, ModelSetting, LoanPurposes
 from apps.enquiry.models import Enquiry
 from apps.servicing.models import FacilityEnquiry, Facility
-
+from urllib.parse import urljoin
 
 
 # CLASSES
@@ -390,7 +390,10 @@ def getEnquiryProjections(enqUID):
 
     context['loanTypesEnum'] = loanTypesEnum
     context['dwellingTypesEnum'] = dwellingTypesEnum
-    context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+    context['absolute_url'] = urljoin(
+        settings.SITE_URL,
+        settings.STATIC_URL
+    )
 
     # Set initial values (given this is an under-specified enquiry)
     context.update(enquiryProductContext(obj))

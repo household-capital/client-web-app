@@ -28,7 +28,7 @@ from apps.lib.site_Utilities import ReferrerLoginRequiredMixin
 from .forms import EnquiryForm, CaseDetailsForm
 from apps.enquiry.models import Enquiry
 from apps.case.models import Case
-
+from urllib.parse import urljoin
 
 
 # Referrer Views
@@ -117,8 +117,14 @@ class EnquiryEmail(ReferrerLoginRequiredMixin, TemplateView):
         enqObj = Enquiry.objects.queryset_byUID(enqID).get()
 
         email_context['obj'] = enqObj
-        email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
-        email_context['absolute_media_url'] = settings.SITE_URL + settings.MEDIA_URL
+        email_context['absolute_url'] = urljoin(
+            settings.SITE_URL,
+            settings.STATIC_URL
+        )
+        email_context['absolute_media_url'] = urljoin(
+            settings.SITE_URL,
+            settings.MEDIA_URL
+        )
 
         if not enqObj.user:
             messages.error(self.request, "This enquiry is not assigned to a user. Please take ownership")

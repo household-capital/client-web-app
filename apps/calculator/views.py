@@ -22,7 +22,7 @@ from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, getEnquiryProje
 from apps.enquiry.models import Enquiry
 from .models import WebCalculator, WebContact
 from .forms import WebContactDetail
-
+from urllib.parse import urljoin
 
 # AUTHENTICATED VIEWS EXPOSED VIEWS
 
@@ -90,7 +90,10 @@ class CalcCreateEnquiry(HouseholdLoginRequiredMixin, UpdateView):
         if enq_obj.status:
 
             # PRODUCE PDF REPORT
-            sourceUrl = settings.SITE_URL + reverse('enquiry:enqSummaryPdf', kwargs={'uid': str(enq_obj.enqUID)})
+            sourceUrl = urljoin(
+                settings.SITE_URL,
+                reverse('enquiry:enqSummaryPdf', kwargs={'uid': str(enq_obj.enqUID)})
+            )
             targetFileName = "enquiryReports/Enquiry-" + str(enq_obj.enqUID)[-12:] + ".pdf"
 
             pdf = pdfGenerator(calcUID)

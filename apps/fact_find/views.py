@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import FormView, TemplateView, View, UpdateView
+from django.conf import settings
 
 # Third-party Imports
 from config.celery import app
@@ -19,7 +20,7 @@ from apps.lib.api_Pdf import pdfGenerator
 
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, validateLoanGetContext, getProjectionResults
-
+from urllib.parse import urljoin
 
 # Utilities
 class ContextHelper():
@@ -133,7 +134,10 @@ class GeneratePdf(View):
         caseUID = str(self.kwargs['uid'])
         obj = Case.objects.filter(caseUID=caseUID).get()
 
-        sourceUrl = "https://householdcapital.app" + reverse('fact_find:pdfSummary', kwargs={'uid': caseUID})
+        sourceUrl = urljoin(
+            settings.SITE_URL,
+            reverse('fact_find:pdfSummary', kwargs={'uid': caseUID})
+        )
         targetFileName = "customerReports/CaseSummary-" + caseUID[-12:] + "-" + dateStr + ".pdf"
         pdf = pdfGenerator(caseUID)
         created, text = pdf.createPdfFromUrl(sourceUrl, 'CaseSummary.pdf', targetFileName)

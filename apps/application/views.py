@@ -21,6 +21,7 @@ from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from config.celery import app
+from urllib.parse import urljoin
 
 # Local Application Imports
 from apps.lib.api_BurstSMS import apiBurst
@@ -405,8 +406,10 @@ class CreateApplication(CreateAPIView):
                        'action': 'Application'}
 
             signed_payload = signing.dumps(payload)
-            signedURL = settings.SITE_URL + str(reverse_lazy('application:validateStart',
-                                                             kwargs={'signed_pk': signed_payload}))
+            signedURL = urljoin(
+                settings.SITE_URL,
+                str(reverse_lazy('application:validateStart', kwargs={'signed_pk': signed_payload}))
+            )
             data = {'applicationURL': signedURL}
 
             return Response(data, status=status.HTTP_201_CREATED, headers=headers)

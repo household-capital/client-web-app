@@ -1,5 +1,12 @@
 import os
+import boto3
+
+from io import StringIO
+from os.path import join, dirname
 from dotenv import load_dotenv
+from config.utils import get_setting
+
+import requests 
 
 # Environment Variables are saved as strings!
 def boolStr(str):
@@ -12,20 +19,28 @@ def boolStr(str):
         return False
 
 def intNone(str):
-    if str == None:
+    if str == None or str == 'XXXXXXXX':
         return 0
     else:
         return int(str)
-
-# Load Environment variables
-load_dotenv()
 
 ALLOWED_HOSTS = [os.getenv("ALLOWED_HOSTS_1"),
                  os.getenv("ALLOWED_HOSTS_2"),
                  os.getenv("ALLOWED_HOSTS_3"),
                  os.getenv("ALLOWED_HOSTS_4")]
 
+
 SITE_URL = os.getenv("SITE_URL")
+
+if os.environ.get('ENV') == 'prod': 
+    ALLOWED_HOSTS += [
+        '.householdcapital.app', 
+        '.householdcapital.com.au'
+    ]
+
+if SITE_URL is not None: 
+    ip = requests.get('http://ipinfo.io/json').json()['ip']
+    ALLOWED_HOSTS += [ip]
 
 #Email Settings
 EMAIL_HOST = os.getenv("EMAIL_HOST")
@@ -43,31 +58,43 @@ ADMINS=[(os.getenv("ADMIN_NAME"),os.getenv("ADMIN_EMAIL"))]
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
 
+
+CORS_ALLOWED_ORIGINS = [
+    "https://householdcapital.app",
+    "https://www.householdcapital.app",
+    "https://householdcapital.com.au",
+    "https://www.householdcapital.com.au",
+]
+
+if os.getenv("SITE_URL") is not None: 
+    CORS_ALLOWED_ORIGINS = CORS_ALLOWED_ORIGINS + [os.getenv("SITE_URL")]
+
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = boolStr(os.getenv("BOOL_DEBUG"))
+DEBUG = True
+if os.environ.get('ENV') and os.getenv('STORAGE') == "AWS": 
+    DEBUG = boolStr(os.getenv("BOOL_DEBUG"))
 
 
 # DATABASE
 
-if os.getenv('DATABASE_LOCATION') == "AWS":
+if os.getenv('STORAGE') == "AWS":
 
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': os.getenv("AWS_DATABASE_NAME"),
-            'USER': os.getenv("AWS_DATABASE_USER"),
-            'PASSWORD': os.getenv("AWS_DATABASE_PASSWORD"),
-            'HOST': os.getenv("AWS_HOST"),
-            'PORT': os.getenv("AWS_PORT"),
+            'NAME': os.environ['RDS_DATABASE'],
+            'USER':  get_setting('Username'),
+            'PASSWORD': get_setting('Password'),
+            'HOST': os.environ['RDS_HOSTNAME'],
+            'PORT': os.environ['RDS_PORT'],
         }
     }
-
     CELERY_RESULT_BACKEND_DB = ''.join(['postgresql+psycopg2://',
-                                        os.getenv("AWS_DATABASE_USER"),
+                                        get_setting('Username'),
                                         ":",
-                                        os.getenv("AWS_DATABASE_PASSWORD"),
-                                        os.getenv("AWS_HOST"),
-                                        os.getenv("AWS_DATABASE_NAME")])
+                                        get_setting('Password'),
+                                        os.environ['RDS_HOSTNAME'],
+                                        os.environ['RDS_DATABASE']])
 else:
 
     DATABASES = {
@@ -95,35 +122,50 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 if os.getenv('STORAGE') == "AWS":
 
     #Digital Ocean Storage Settings
-    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-    AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
-    AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')
-    AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
+    # AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+    # AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+    
+    #AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+
+    AWS_STORAGE_BUCKET_NAME = os.getenv('S3_BUCKET_STATIC')
+
+    AWS_S3_REGION_NAME = 'ap-southeast-2' #os.getenv('AWS_S3_REGION_NAME')
+    # AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400',}
     AWS_STATIC_LOCATION = 'static'
     AWS_MEDIA_LOCATION = 'media'
+    
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3-{AWS_S3_REGION_NAME}.amazonaws.com'
     AWS_DEFAULT_ACL = None
-
+    
     #Django Storages
     STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/uncollected'),]
-    STATIC_URL = '%s/%s/' % (AWS_S3_ENDPOINT_URL, AWS_STATIC_LOCATION)
-    MEDIA_URL = '%s/%s/' % (AWS_S3_ENDPOINT_URL, AWS_MEDIA_LOCATION)
+    STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_STATIC_LOCATION)
+    MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_MEDIA_LOCATION)
     STATICFILES_STORAGE = 'config.settings.ext_storage.StaticStorage'    # Static Root
     DEFAULT_FILE_STORAGE = 'config.settings.ext_storage.MediaStorage'   # Media Root
 
     FILE_UPLOAD_PERMISSIONS = 0o644
 
 else:
-
-    # LOCAL storage
-    # https://docs.djangoproject.com/en/1.11/howto/static-files/
-    STATIC_URL = SITE_URL + '/static/'
-    MEDIA_URL = SITE_URL + '/media/'
+    
+    STATIC_URL = '/static/collected/' #'/static/'
+    MEDIA_URL = '/media/'
     STATIC_ROOT = BASE_DIR + '/static/collected'
     MEDIA_ROOT = BASE_DIR + '/static/media'
     STATICFILES_DIRS = (BASE_DIR + '/static/uncollected',)
     FILE_UPLOAD_PERMISSIONS = 0o644
+
+
+    # LOCAL storage
+    # https://docs.djangoproject.com/en/1.11/howto/static-files/
+    
+    # STATIC_URL = SITE_URL + '/static/'
+    # MEDIA_URL = SITE_URL + '/media/'
+    # STATIC_ROOT = BASE_DIR + '/static/collected'
+    # MEDIA_ROOT = BASE_DIR + '/static/media'
+    # STATICFILES_DIRS = (BASE_DIR + '/static/uncollected',)
+    # FILE_UPLOAD_PERMISSIONS = 0o644
 
 
 # SESSION EXPIRY TIME: in seconds

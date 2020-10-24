@@ -23,6 +23,7 @@ from apps.lib.site_Enums import loanTypesEnum, appStatusEnum
 from .models import Application, ApplicationDocuments
 from apps.case.models import Case
 
+from urllib.parse import urljoin
 
 # CASE TASKS
 
@@ -34,8 +35,10 @@ def emailAppLink(appUID):
                'action': 'Application'}
 
     signed_payload = signing.dumps(payload)
-    signedURL = settings.SITE_URL + str(
-        reverse_lazy('application:validateReturn', kwargs={'signed_pk': signed_payload}))
+    signedURL = urljoin(
+        settings.SITE_URL, 
+        str(reverse_lazy('application:validateReturn', kwargs={'signed_pk': signed_payload}))
+    )
 
     obj = Application.objects.filter(appUID=uuid.UUID(appUID)).get()
     email_template = 'application/email/email_application_link.html'
@@ -72,7 +75,11 @@ def EmailLoanSummaryTask(appUID):
 
     dateStr = datetime.now().strftime('%Y-%m-%d-%H:%M:%S%z')
 
-    sourceUrl = "https://householdcapital.app" + reverse('application:pdfLoanSummary', kwargs={'uid': appUID})
+    sourceUrl = urljoin(
+        settings.SITE_URL,
+        reverse('application:pdfLoanSummary', kwargs={'uid': appUID})
+    )
+    
     componentFileName = "customerReports/Component-" + appUID[-12:] + ".pdf"
     componentURL = default_storage.url(componentFileName)
     targetFileName = "customerReports/Summary-" + appUID[-12:] + "-" + dateStr + ".pdf"
@@ -176,16 +183,20 @@ def next_steps_email(appUID, caseUID):
                'action': 'Documents'}
 
     signed_payload = signing.dumps(payload)
-    signedURL = settings.SITE_URL + str(reverse_lazy('application:validateReturn',
-                                                     kwargs={'signed_pk': signed_payload}))
+    signedURL = urljoin(
+        settings.SITE_URL,
+        str(reverse_lazy('application:validateReturn',kwargs={'signed_pk': signed_payload}))
+    )
 
     # 2. Generate signed URL for Bankstatements
     payload = {'appUID': appUID,
                'action': 'Bankstatements'}
 
     signed_payload_bs = signing.dumps(payload)
-    signedURLBS = settings.SITE_URL + str(reverse_lazy('application:validateReturn',
-                                                       kwargs={'signed_pk': signed_payload_bs}))
+    signedURLBS = urljoin(
+        settings.SITE_URL,
+        str(reverse_lazy('application:validateReturn', kwargs={'signed_pk': signed_payload_bs}))
+    )
 
     email_context = {}
     email_context['obj'] = appObj
@@ -194,7 +205,10 @@ def next_steps_email(appUID, caseUID):
 
     # 3. Generate Application Summary
     attachments = []
-    sourceUrl = settings.SITE_URL + reverse('application:pdfApplication', kwargs={'uid': appUID})
+    sourceUrl = urljoin(
+        settings.SITE_URL,
+        reverse('application:pdfApplication', kwargs={'uid': appUID})
+    ) 
     targetFileName = "customerReports/ApplicationSummary-" + appUID + ".pdf"
 
     pdf = pdfGenerator(appUID)
