@@ -1,6 +1,6 @@
 
 # Logging Set-up
-
+import os 
 from .base_settings import BASE_DIR
 LOG_ROOT = BASE_DIR + '/logs'
 DEPLOYED_LOGGING =  LOG_ROOT #"/opt/python/log"
