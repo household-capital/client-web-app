@@ -3,6 +3,7 @@ from datetime import datetime
 
 # Django Imports
 from django.conf import settings
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.files.storage import default_storage
 from django.urls import reverse
 
@@ -36,8 +37,9 @@ def createLoanSummary(caseUID):
         return 'Task Failed'
 
     # Merge Additional Components
-    urlList = [componentURL,
-               settings.STATIC_URL +'img/document/LoanSummaryAdditional.pdf']
+    staticFileURL = staticfiles_storage.url('img/document/LoanSummaryAdditional.pdf')
+
+    urlList = [componentURL, staticFileURL]
 
     created, text = pdf.mergePdfs(urlList=urlList, pdfDescription="HHC-LoanSummary.pdf",
                                   targetFileName=targetFileName)
