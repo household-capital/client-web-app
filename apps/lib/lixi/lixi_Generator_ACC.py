@@ -365,7 +365,7 @@ class LixiXMLGenerator:
                 schema_to_check = schema_file.read()
 
             # open and read xml file
-            with default_storage.open(xmlFilename, 'r',  encoding='utf-8') as xml_file:
+            with default_storage.open(xmlFilename, 'r') as xml_file:
                 xml_to_check = xml_file.read()
 
             xmlschema_doc = ElementTree.parse(StringIO(schema_to_check))
