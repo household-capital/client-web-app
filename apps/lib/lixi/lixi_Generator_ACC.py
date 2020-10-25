@@ -388,6 +388,7 @@ class LixiXMLGenerator:
             return {'status': "Error", 'responseText': self.outputLog}
 
         except:
+            logging.exception("# Unknown XML Error")
             self.__logging("# Unknown XML Error")
             return {'status': "Error", 'responseText': self.outputLog}
 
