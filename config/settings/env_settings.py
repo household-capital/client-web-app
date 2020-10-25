@@ -5,6 +5,7 @@ from io import StringIO
 from os.path import join, dirname
 from dotenv import load_dotenv
 from config.utils import get_setting
+from urllib.parse import urljoin
 
 import requests 
 
@@ -129,19 +130,19 @@ if os.getenv('STORAGE') == "AWS":
 
     AWS_STORAGE_BUCKET_NAME = os.getenv('S3_BUCKET_STATIC')
 
-    AWS_S3_REGION_NAME = 'ap-southeast-2' #os.getenv('AWS_S3_REGION_NAME')
-    # AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
+    AWS_S3_REGION_NAME = 'ap-southeast-2' 
     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400',}
     AWS_STATIC_LOCATION = 'static'
     AWS_MEDIA_LOCATION = 'media'
     
-    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3-{AWS_S3_REGION_NAME}.amazonaws.com'
+    #AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3-{AWS_S3_REGION_NAME}.amazonaws.com'
+    AWS_S3_ENDPOINT_URL = 'https://s3-ap-southeast-2.amazonaws.com/' # f'https://{AWS_STORAGE_BUCKET_NAME}.s3-{AWS_S3_REGION_NAME}.amazonaws.com'
     AWS_DEFAULT_ACL = None
-    
+    # AWS_S3_ENDPOINT_URL
     #Django Storages
     STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/uncollected'),]
-    STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_STATIC_LOCATION)
-    MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_MEDIA_LOCATION)
+    STATIC_URL = urljoin(AWS_S3_ENDPOINT_URL, AWS_STATIC_LOCATION)+'/' #'%s/%s/' % (AWS_S3_ENDPOINT_URL, AWS_STATIC_LOCATION)
+    MEDIA_URL = urljoin(AWS_S3_ENDPOINT_URL, AWS_MEDIA_LOCATION)+'/' #'%s/%s/' % (AWS_S3_ENDPOINT_URL, AWS_MEDIA_LOCATION)
     STATICFILES_STORAGE = 'config.settings.ext_storage.StaticStorage'    # Static Root
     DEFAULT_FILE_STORAGE = 'config.settings.ext_storage.MediaStorage'   # Media Root
 

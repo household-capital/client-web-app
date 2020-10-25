@@ -860,7 +860,7 @@ class EnqSummaryPdfView(TemplateView):
             self.template_name = 'enquiry/document/calculator_income_summary.html'
 
         elif obj.productType == productTypesEnum.CONTINGENCY_20K.value:
-            self.template_name = 'enquiry/document/calculator_summary_single_20k.html'
+            self.template_name = 'enquiry/document/calculator_summary_single_20K.html'
 
         elif obj.productType == productTypesEnum.COMBINATION.value:
             self.template_name = 'enquiry/document/calculator_combination_summary.html'
