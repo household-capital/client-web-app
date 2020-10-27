@@ -884,6 +884,7 @@ class FinalView(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper
     def get(self, request, *args, **kwargs):
         app.send_task('Create_Loan_Summary', kwargs={'caseUID': self.request.session['caseUID']})
         context={}
+        context['successCaseUrl'] = reverse_lazy("case:caseDetail", kwargs={"uid": self.request.session['caseUID']})
         context['failURL'] = self.request.build_absolute_uri(reverse('client2:finalError'))
         messages.success(request, "File generating - please wait")
 
