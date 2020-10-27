@@ -38,7 +38,7 @@ def getWordpressData():
                        'mortgage': 'mortgageDebt',
                        'repayment': 'mortgageRepayment'}
 
-            popList = ['id', 'retrieved', 'retrievedDate', 'timestamp', 'uuid', 'phone', 'contactDetails']
+            popList = ['id', 'retrieved', 'retrievedDate', 'timestamp', 'uuid', 'phone', 'contactDetails', 'isEnquiry']
 
             sourceUID = item['uuid']
 
