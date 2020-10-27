@@ -45,6 +45,13 @@
             </div>
         </div>
     {% endif %}
+        <div class="row justify-content-md-center pt-5" >
+            <div class="col-4 text-center">
+                    <a href="{{ successCaseUrl }}" > 
+                        <button id="success_case_btn"class="btn btn-hhcBlue" style="display:none"> Go back to Case</button>
+                    </a>
+            </div>
+        </div>
 
 
 </div>
@@ -69,6 +76,7 @@
                 data: {csrfmiddlewaretoken: '{{csrf_token}}'},
                 success: function (data) {
                     $(".alert").fadeOut()
+                    $('#success_case_btn').attr('style','display: default');
                     window.location.replace(data['pdfURL'])
                 },
                 error: function (data) {
