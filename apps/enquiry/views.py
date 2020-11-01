@@ -1155,9 +1155,9 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
         else:
             raise Exception('email or phone must be present')
 
-        obj = Enquiry.objects.filter(query).order_by("-updated").first()
-        if obj:
-            return str(obj.enqUID)
+        enqUID = Enquiry.objects.filter(query).order_by("-updated").values_list('enqUID').first()
+        if enqUID:
+            return str(enqUID)
 
     def cleanValuation(self, valString):
 
