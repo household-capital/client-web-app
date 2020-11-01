@@ -926,7 +926,11 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
         reader = csv.reader(fileWrapper)
         header = next(reader)
 
+        write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Commencing upload')
+
         if int(form.cleaned_data['partner']) == marketingTypesEnum.STARTS_AT_60.value:
+
+            write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'STARTS_AT_60')
 
             # Check file format - starts at 60
             if header[11] != 'Token':
@@ -967,6 +971,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
 
         elif int(form.cleaned_data['partner']) == marketingTypesEnum.CARE_ABOUT.value:
 
+            write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'CARE_ABOUT')
+
             # Check file format - Care About
 
             if header[15] != 'Customer Postal Code':
@@ -1003,27 +1009,34 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
 
         elif int(form.cleaned_data['partner']) == marketingTypesEnum.YOUR_LIFE_CHOICES.value:
 
+            write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'YOUR_LIFE_CHOICES')
+
             # Check file format - Your Life Choices
 
             if header[11] != 'Create Date':
                 messages.warning(self.request, "Unrecognised file structure - could not load")
                 return HttpResponseRedirect(self.request.path_info)
 
+            processed_count = 0
+
             for row in reader:
+                name = row[0].title()
+                if row[1]:
+                    name += " " + row[1].title()
+
+                write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'processing %s' % name)
+
                 email = row[2]
                 phoneNumber = cleanPhoneNumber(row[5])
 
                 if (email != "") and (email != "Email"):
+                    processed_count += 1
+
                     enquiryString = "[# Updated from Partner Upload #]"
                     enquiryString += "\r\nPartner: Your Life Choices"
                     enquiryString += "\r\nUpdated: " + datetime.date.today().strftime('%d/%m/%Y')
                     enquiryString += "\r\nOwnership: " + row[7]
                     enquiryString += "\r\nCreate Date: " + row[11]
-
-
-                    name = row[0].title()
-                    if row[1]:
-                        name += " " + row[1].title()
 
                     payload = {
                         "name": name,
@@ -1043,10 +1056,14 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
 
                     self.updateCreateEnquiry(email, phoneNumber, payload,
                                              enquiryString, marketingTypesEnum.YOUR_LIFE_CHOICES.value, False)
+                else:
+                    write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'ignoring - NO EMAIL ADDRESS')
 
-            messages.success(self.request, "Success - enquiries imported")
+            messages.success(self.request, "Success - %s enquiries imported" % processed_count)
 
         elif int(form.cleaned_data['partner']) == marketingTypesEnum.FACEBOOK.value:
+
+            write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'FACEBOOK')
 
             # Check file format - Your Life Choices
 
@@ -1094,22 +1111,31 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
         existingUID = self.findEnquiry(email, phoneNumber)
 
         if existingUID:
+            write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Found existing enquiry')
+
             qs = Enquiry.objects.queryset_byUID(existingUID)
             obj = qs.get()
 
-            if (obj.marketingSource != marketingSource) and (obj.actioned == 0):
+            if obj.actioned != 0:
+                write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Skipping converted enquiry')
+            elif obj.marketingSource == marketingSource:
+                write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Skipping enquiry from same marketing source')
+            else:
                 # Only update if a new marketing source and not converted
 
                 if (updateNonDirect == False) and (obj.referrer in nonDirectTypes):
                     # Don't update non-direct items (if specified)
+                    write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Skipping update on existing non-direct enquiry')
                     pass
                 else:
+                    write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Updating existing enquiry')
                     qs.update(**payload)
                     obj = qs.get()
                     updateNotes = "".join(filter(None, (obj.enquiryNotes, "\r\n\r\n" + enquiryString)))
                     obj.enquiryNotes = updateNotes
                     obj.save()
         else:
+            write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Creating new enquiry')
             payload["enquiryNotes"] = enquiryString
             Enquiry.objects.create(**payload)
 
