@@ -1113,6 +1113,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
         if existingUID:
             write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Found existing enquiry')
 
+            overwrite_owners = int(self.request.GET.get("overwrite_owners", 0))
+
             qs = Enquiry.objects.queryset_byUID(existingUID)
             obj = qs.get()
 
@@ -1129,6 +1131,9 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                     pass
                 else:
                     write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Updating existing enquiry')
+                    if (not overwrite_owners) and obj.user:
+                        write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Retaining owner')
+                        payload["user"] = obj.user
                     qs.update(**payload)
                     obj = qs.get()
                     updateNotes = "".join(filter(None, (obj.enquiryNotes, "\r\n\r\n" + enquiryString)))
@@ -1141,7 +1146,16 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
 
     def findEnquiry(self, email, phoneNumber):
 
-        obj = Enquiry.objects.filter((Q(email__iexact=email) | Q(phoneNumber=phoneNumber))).order_by("-updated").first()
+        if email and phoneNumber:
+            query = (Q(email__iexact=email) | Q(phoneNumber=phoneNumber))
+        elif email:
+            query = Q(email__iexact=email)
+        elif phoneNumber:
+            query = Q(phoneNumber=phoneNumber)
+        else:
+            raise Exception('email or phone must be present')
+
+        obj = Enquiry.objects.filter(query).order_by("-updated").first()
         if obj:
             return str(obj.enqUID)
 
