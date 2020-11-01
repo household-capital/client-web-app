@@ -1113,7 +1113,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
         if existingUID:
             write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Found existing enquiry')
 
-            overwrite_owners = int(self.request.GET.get("overwrite_owners", 0))
+            overwrite_owners = int(self.request.GET.get("overwrite_owners", 1))
 
             qs = Enquiry.objects.queryset_byUID(existingUID)
             obj = qs.get()
