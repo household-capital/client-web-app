@@ -444,8 +444,8 @@ class PartnerForm(forms.Form):
         (marketingTypesEnum.YOUR_LIFE_CHOICES.value, "Your Life Choices"),
         (marketingTypesEnum.STARTS_AT_60.value, "Starts at 60"),
         (marketingTypesEnum.CARE_ABOUT.value, "Care About"),
-        (marketingTypesEnum.FACEBOOK.value, "Facebook")
-
+        (marketingTypesEnum.FACEBOOK.value, "Facebook"),
+        (marketingTypesEnum.NATIONAL_SENIORS.value, "National Seniors"),
     )
 
     partner = forms.ChoiceField(choices=partnerTypes, required=True)
