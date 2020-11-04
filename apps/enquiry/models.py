@@ -114,6 +114,7 @@ class Enquiry(models.Model):
         (marketingTypesEnum.FACEBOOK.value, "Facebook"),
         (marketingTypesEnum.LINKEDIN.value, "LinkedIn"),
         (marketingTypesEnum.YOUR_LIFE_CHOICES.value, "Your Life Choices"),
+        (marketingTypesEnum.NATIONAL_SENIORS.value, "National Seniors"),
         (marketingTypesEnum.STARTS_AT_60.value, "Starts at 60"),
         (marketingTypesEnum.CARE_ABOUT.value, "Care About"),
         (marketingTypesEnum.BROKER_REFERRAL.value, "Broker Referral"),

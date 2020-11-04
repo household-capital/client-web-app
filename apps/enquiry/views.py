@@ -927,8 +927,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
         header = next(reader)
 
         write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Commencing upload')
-
-        if int(form.cleaned_data['partner']) == marketingTypesEnum.STARTS_AT_60.value:
+        partner_value = int(form.cleaned_data['partner'])
+        if partner_value == marketingTypesEnum.STARTS_AT_60.value:
 
             write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'STARTS_AT_60')
 
@@ -969,7 +969,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
             messages.success(self.request, "Success - enquiries imported")
 
 
-        elif int(form.cleaned_data['partner']) == marketingTypesEnum.CARE_ABOUT.value:
+        elif partner_value == marketingTypesEnum.CARE_ABOUT.value:
 
             write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'CARE_ABOUT')
 
@@ -1007,9 +1007,11 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
 
             messages.success(self.request, "Success - enquiries imported")
 
-        elif int(form.cleaned_data['partner']) == marketingTypesEnum.YOUR_LIFE_CHOICES.value:
+        elif partner_value in [marketingTypesEnum.YOUR_LIFE_CHOICES.value, marketingTypesEnum.NATIONAL_SENIORS.value]:
 
-            write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'YOUR_LIFE_CHOICES')
+            marketing_source_value = 'YOUR_LIFE_CHOICES' if partner_value == marketingTypesEnum.YOUR_LIFE_CHOICES.value else 'NATIONAL_SENIORS'
+            marketing_source_string = 'Your Life Choices' if partner_value == marketingTypesEnum.YOUR_LIFE_CHOICES.value else 'National Seniors'
+            write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', marketing_source_value)
 
             # Check file format - Your Life Choices
 
@@ -1033,7 +1035,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                     processed_count += 1
 
                     enquiryString = "[# Updated from Partner Upload #]"
-                    enquiryString += "\r\nPartner: Your Life Choices"
+                    enquiryString += "\r\nPartner: {}".format(marketing_source_string)
                     enquiryString += "\r\nUpdated: " + datetime.date.today().strftime('%d/%m/%Y')
                     enquiryString += "\r\nOwnership: " + row[7]
                     enquiryString += "\r\nCreate Date: " + row[11]
@@ -1045,7 +1047,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "phoneNumber": phoneNumber,
                         "valuation": self.cleanValuation(row[9]) if row[9] else None,
                         "age_1": None,
-                        "marketingSource": marketingTypesEnum.YOUR_LIFE_CHOICES.value,
+                        "marketingSource": partner_value,
                         "referrer": directTypesEnum.PARTNER.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "user": self.request.user,
@@ -1055,13 +1057,13 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                     }
 
                     self.updateCreateEnquiry(email, phoneNumber, payload,
-                                             enquiryString, marketingTypesEnum.YOUR_LIFE_CHOICES.value, False)
+                                             enquiryString, partner_value, False)
                 else:
                     write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'ignoring - NO EMAIL ADDRESS')
 
             messages.success(self.request, "Success - %s enquiries imported" % processed_count)
 
-        elif int(form.cleaned_data['partner']) == marketingTypesEnum.FACEBOOK.value:
+        elif partner_value == marketingTypesEnum.FACEBOOK.value:
 
             write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'FACEBOOK')
 

@@ -117,6 +117,7 @@ class marketingTypesEnum(Enum):
     BROKER_REFERRAL = 16
     FINANCIAL_ADVISER = 17
     AGED_CARE_ADVISER = 18
+    NATIONAL_SENIORS = 19
     OTHER = 100
 
 
