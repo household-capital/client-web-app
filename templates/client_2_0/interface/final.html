@@ -58,10 +58,11 @@
 <script>
 
     var cntr = 0;
+    var timeout = 3000; // 3.0s
 
     function backgroundPost() {
         cntr += 1;
-        if (cntr < 20) {
+        if (cntr < 30) {
             return $.ajax({
                 url: window.location.href,
                 type: "post",
@@ -73,7 +74,7 @@
                 error: function (data) {
                     setTimeout(function () {
                         backgroundPost()
-                    }, 3000);
+                    }, timeout);
 
                     if (cntr % 2 == 0) {
                         $(".alert").fadeIn();
@@ -86,6 +87,7 @@
 
             })
         } else {
+            // after 90s it will fail.
             window.location.replace('{{failURL}}');
         }
     }
@@ -93,7 +95,7 @@
     $(document).ready(function () {
         setTimeout(function () {
             backgroundPost()
-        }, 3000);
+        }, timeout);
     })
 
 </script>
