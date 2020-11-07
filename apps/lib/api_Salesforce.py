@@ -164,7 +164,7 @@ class apiSalesforce():
 
         # API returns results in batches (for large results, need to keep calling until done
         while isDone!= True:
-            qryResult=self.sf.query_more(qryResult['nextRecordsurl'],True)
+            qryResult=self.sf.query_more(qryResult['nextRecordsUrl'],True)
             resultsTable = resultsTable.append(DataFrame(qryResult['records']))
             isDone=qryResult['done']
 
