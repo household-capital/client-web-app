@@ -323,7 +323,7 @@ class ApplicationHelper(object):
         combinedDict['interestRate'] = ECONOMIC['interestRate']
         combinedDict['lendingMargin'] = ECONOMIC['lendingMargin']
         combinedDict['inflationRate'] = ECONOMIC['inflationRate']
-        combinedDict['totalInterestRate'] = ECONOMIC['interestRate'] + ECONOMIC['lendingMargin']
+        combinedDict['totalInterestRate'] = round(ECONOMIC['interestRate'] + ECONOMIC['lendingMargin'], 2)
         combinedDict['housePriceInflation'] = ECONOMIC['housePriceInflation']
         combinedDict['establishmentFeeRate'] = LOAN_LIMITS['establishmentFee']
 
@@ -340,9 +340,9 @@ class ApplicationHelper(object):
 
         context = self.validateGetContext()
         context.update(ECONOMIC)
-        context['totalInterestRate'] = ECONOMIC['interestRate'] + ECONOMIC['lendingMargin']
+        context['totalInterestRate'] = round(ECONOMIC['interestRate'] + ECONOMIC['lendingMargin'], 2)
         context['housePriceInflation'] = ECONOMIC['housePriceInflation']
-        context['comparisonRate'] = context['totalInterestRate'] + ECONOMIC['comparisonRateIncrement']
+        context['comparisonRate'] = round(context['totalInterestRate'] + ECONOMIC['comparisonRateIncrement'], 2)
 
         projectionResults = getProjectionResults(context,
                                                  scenarioList,
@@ -1237,7 +1237,7 @@ class ObjectivesView(SessionRequiredMixin, ApplicationHelper, UpdateView):
         loanProj = self.get_projection_object()
         proj_data = loanProj.getFutureIncomeEquityArray(increment=50, netOfFee=True)['data']  # net of fees
 
-        context['totalInterestRate'] = ECONOMIC['interestRate'] + ECONOMIC['lendingMargin']
+        context['totalInterestRate'] = round(ECONOMIC['interestRate'] + ECONOMIC['lendingMargin'], 2)
         context['housePriceInflation'] = ECONOMIC['housePriceInflation']
         context['establishmentFeeRate'] = LOAN_LIMITS['establishmentFee']
         context['sliderData'] = json.dumps(proj_data['dataArray'])
@@ -1355,7 +1355,7 @@ class ProjectionsView(SessionRequiredMixin, ApplicationHelper, TemplateView):
 
         context['slug'] = self.slug
 
-        context['totalInterestRate'] = ECONOMIC['interestRate'] + ECONOMIC['lendingMargin']
+        context['totalInterestRate'] = round(ECONOMIC['interestRate'] + ECONOMIC['lendingMargin'], 2)
         context['housePriceInflation'] = ECONOMIC['housePriceInflation']
         context['establishmentFeeRate'] = LOAN_LIMITS['establishmentFee']
 
@@ -1417,7 +1417,7 @@ class PdfLoanSummary(ApplicationHelper, TemplateView):
 
         self.request.session['appUID'] = str(kwargs['uid'])
 
-        context['totalInterestRate'] = ECONOMIC['interestRate'] + ECONOMIC['lendingMargin']
+        context['totalInterestRate'] = round(ECONOMIC['interestRate'] + ECONOMIC['lendingMargin'], 2)
         context['housePriceInflation'] = ECONOMIC['housePriceInflation']
         context['establishmentFeeRate'] = LOAN_LIMITS['establishmentFee']
         context['productTypesEnum'] = productTypesEnum
