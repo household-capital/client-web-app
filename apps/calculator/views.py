@@ -131,8 +131,8 @@ class CalcCreateEnquiry(HouseholdLoginRequiredMixin, UpdateView):
             email_context['customerFirstName'] = customerFirstName
 
             #  Get Rates
-            email_context['loanRate']= ECONOMIC['interestRate'] + ECONOMIC['lendingMargin']
-            email_context['compRate'] = email_context['loanRate'] + ECONOMIC['comparisonRateIncrement']
+            email_context['loanRate']= round(ECONOMIC['interestRate'] + ECONOMIC['lendingMargin'], 2)
+            email_context['compRate'] = round(email_context['loanRate'] + ECONOMIC['comparisonRateIncrement'], 2)
 
             email_context['user'] = request.user
             subject, from_email, to, bcc = "Household Capital: Your Personal Summary", \

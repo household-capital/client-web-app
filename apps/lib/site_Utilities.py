@@ -235,8 +235,8 @@ def getProjectionResults(sourceDict, scenarioList, img_url=None):
         context['resultsHouseValue'] = loanProj.getResultsList('BOPHouseValue', imageSize=110, imageMethod='lin')[
             'data']
 
-        context['totalInterestRate'] = sourceDict['interestRate'] + sourceDict['lendingMargin']
-        context['comparisonRate'] = context['totalInterestRate'] + sourceDict['comparisonRateIncrement']
+        context['totalInterestRate'] = round(sourceDict['interestRate'] + sourceDict['lendingMargin'], 2)
+        context['comparisonRate'] = round(context['totalInterestRate'] + sourceDict['comparisonRateIncrement'], 2)
         context['loanTypesEnum'] = loanTypesEnum
         context['clientTypesEnum'] = clientTypesEnum
 
@@ -398,9 +398,9 @@ def getEnquiryProjections(enqUID):
     context.update(enquiryProductContext(obj))
 
     context.update(ECONOMIC)
-    context['totalInterestRate'] = ECONOMIC['interestRate'] + ECONOMIC['lendingMargin']
+    context['totalInterestRate'] = round(ECONOMIC['interestRate'] + ECONOMIC['lendingMargin'], 2)
     context['housePriceInflation'] = ECONOMIC['housePriceInflation']
-    context['comparisonRate'] = context['totalInterestRate'] + ECONOMIC['comparisonRateIncrement']
+    context['comparisonRate'] = round(context['totalInterestRate'] + ECONOMIC['comparisonRateIncrement'], 2)
 
     # Get Loan Projections
     results = getProjectionResults(context, ['baseScenario'])
