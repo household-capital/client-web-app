@@ -231,9 +231,10 @@ class EnrichEnum:
                 # NameTitle - Strip dot
                 self.loanDict[prefix + str(i + 1) + ".NameTitle"] = \
                     self.loanDict[prefix + str(i + 1) + ".Salutation"].replace(".","")
-
-                self.loanDict[prefix + str(i + 1) + ".MaritalStatus"] = \
-                        self.loanDict[prefix + str(i + 1) + ".Marital_Status__c"].replace(".","")
+                
+                if prefix == "Brwr": 
+                    self.loanDict[prefix + str(i + 1) + ".MaritalStatus"] = \
+                            self.loanDict[prefix + str(i + 1) + ".Marital_Status__c"].replace(".","")
 
             return {"status": "Ok"}
         except:
