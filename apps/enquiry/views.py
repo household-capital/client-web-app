@@ -1007,10 +1007,56 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
 
             messages.success(self.request, "Success - enquiries imported")
 
-        elif partner_value in [marketingTypesEnum.YOUR_LIFE_CHOICES.value, marketingTypesEnum.NATIONAL_SENIORS.value]:
+        elif partner_value == marketingTypesEnum.NATIONAL_SENIORS.value:
+            write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'NATIONAL_SENIORS')
+            
+            if header[0] != "Timestamp":
+                messages.warning(self.request, "Unrecognised file structure - could not load")
+                return HttpResponseRedirect(self.request.path_info)
 
-            marketing_source_value = 'YOUR_LIFE_CHOICES' if partner_value == marketingTypesEnum.YOUR_LIFE_CHOICES.value else 'NATIONAL_SENIORS'
-            marketing_source_string = 'Your Life Choices' if partner_value == marketingTypesEnum.YOUR_LIFE_CHOICES.value else 'National Seniors'
+            processed_count = 0 
+            for row in reader: 
+                name = row[2].title()
+                write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'processing %s' % name)
+                email = row[3]
+                phonenumber = cleanPhoneNumber(row[5])
+                if email and email != "Email": 
+                    processed_count += 1
+                    
+                    enquiryString = "[# Updated from Partner Upload #]"
+                    enquiryString += "\r\nPartner: {}".format("National Seniors")
+                    enquiryString += "\r\nUpdated: " + datetime.date.today().strftime('%d/%m/%Y')
+                    enquiryString += "\r\nCreate Date: " + row[0]
+                    enquiryString += "\r\nCustomer Date of birth: " + row[9]
+                    
+                    payload = {
+                        "name": name,
+                        "postcode": row[4],
+                        "email": email,
+                        "phoneNumber": phonenumber,
+                        "valuation": None,
+                        "age_1": self.calcAge(row[9]),
+                        "marketingSource": partner_value,
+                        "productType": productTypesEnum.LUMP_SUM.value,
+                        "referrer": directTypesEnum.PARTNER.value,
+                        "user": self.request.user,
+                        "state":  None ,
+                    }
+                    self.updateCreateEnquiry(
+                        email, 
+                        phonenumber, 
+                        payload,
+                        enquiryString, 
+                        partner_value, 
+                        False
+                    )
+
+            messages.success(self.request, "Success - enquiries imported") 
+
+        elif partner_value == marketingTypesEnum.YOUR_LIFE_CHOICES.value:
+
+            marketing_source_value = 'YOUR_LIFE_CHOICES' 
+            marketing_source_string = 'Your Life Choices'
             write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', marketing_source_value)
 
             # Check file format - Your Life Choices
@@ -1176,8 +1222,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
         except:
             return None
 
-    def calcAge(self, DOBString):
+    def calcAge(self, DOBString, date_format='%m/%d/%Y'):
 
-        age = int((datetime.date.today() - datetime.datetime.strptime(DOBString, '%m/%d/%Y').date()).days / 365.25)
+        age = int((datetime.date.today() - datetime.datetime.strptime(DOBString, date_format).date()).days / 365.25)
         if age > 50 and age < 100:
             return age
