@@ -451,14 +451,6 @@
                         borderColor: "#5184a1",
                     },
                     {
-                        label: "Zoom Meetings",
-                        data: zoomMeetingData,
-                        borderColor: "#86b3b5",
-                        fill: false,
-                        borderWidth: 1,
-
-                    },
-                    {
                         label: "New Loan Settlements",
                         data: settlementData,
                         borderColor: "#fdb600",
@@ -502,11 +494,13 @@
                         label: "New Loans Written",
                         data: newLoansData,
                         borderColor: "#5184a1",
+                        yAxisID: 'y1'
                     },
                     {
                         label: "Total Loans Written",
                         data: portfolioData,
                         borderColor: "#fdb600",
+                        yAxisID: 'y2'
                     },
                 ]
             },
@@ -524,10 +518,11 @@
                             tooltipFormat: 'ddd DD-MMM-YYYY',
                         },
 
-
                     }],
                     yAxes: [{
+                        id: 'y2',
                         display: true,
+                        position: 'right',
                         ticks: {
                             beginAtZero: true,
                             callback: function (value, index, values) {
@@ -535,9 +530,22 @@
 
                             }
                         }
-                    }]
-                },
+                    },
+                        {
+                            id: 'y1',
+                            display: true,
+                            position: 'left',
+                            ticks: {
+                                max: 20000000,
+                                min: 0,
+                                beginAtZero: true,
+                                callback: function (value, index, values) {
+                                    return currencyFormat(value);
 
+                                }
+                            }
+                        }]
+                },
 
             }
         });
