@@ -141,7 +141,7 @@ def getWordpressData():
                            'uuid': 'referrerID'}
 
                 popList = ['id', 'retrieved', 'retrievedDate', 'timestamp', 'firstname', 'lastname',
-                           'origin', 'resource', 'phone', 'message']
+                           'origin', 'resource', 'phone', 'message', 'description']
 
                 srcData['referrer'] = directTypesEnum.WEB_ENQUIRY.value
                 srcData['enquiryStage'] = enquiryStagesEnum.BROCHURE_SENT.value
@@ -151,6 +151,8 @@ def getWordpressData():
                     srcData['name'] += " " + srcData['lastname'].title() if srcData['firstname'] else ""
                 srcData['enquiryNotes'] = '[# Website Enquiry #]'
                 srcData['enquiryNotes'] += '\r\n' + srcData['origin']
+                if srcData.get('description') is not None:
+                    srcData['enquiryNotes'] += '\r\n' + 'Description: {}'.format(srcData['description'])
                 srcData['referrerID'] = sourceUID
 
                 # map fields
