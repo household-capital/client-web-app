@@ -62,8 +62,20 @@ def getWordpressData():
             for key, value in srcData.items():
                 if value == "":
                     srcData[key] = None
+            
+            # concatinate firstname and lastname fields from wordpress
+            # Old API produces "name" field only, new API will produce "firstname" and "lastname"
+            if 'firstname' in srcData:
+                srcData['name'] = srcData['firstname'].title()
+                srcData.pop('firstname')
 
-            srcData['name'] = srcData['name'].title() if srcData['name'] else None
+            if 'lastname' in srcData:
+                if srcData['lastname']:
+                    srcData['name'] += " " + srcData['lastname'].title()
+                srcData.pop('lastname')
+            
+            if not srcData['name']:
+                srcData['name'] = None
 
             write_applog("INFO", 'API', 'Tasks-getWordpressData', "Item data: " + json.dumps(srcData))
 
