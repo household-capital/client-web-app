@@ -1,6 +1,6 @@
 #!/bin/bash
-VENV = vp/bin/
-PYTHON = $(VENV)python
+VENV = vp/bin
+PYTHON = $(VENV)/python
 
 ENV ?= dev
 
@@ -10,7 +10,8 @@ BACKEND_FILE ?= backends/$(ENV).hcl
 CONFIG_FILE ?= env-vars/$(ENV).tfvars
 
 create_vp: 
-	python3 -m venv vp 
+	python3 -m venv vp
+	$(VENV)/pip3 install --upgrade pip
 
 activate_vp: 
 	$(source vp/bin/activate)
@@ -90,7 +91,7 @@ redis-server:
 # CELERY
 
 celery: 
-	$(VENV)celery -A config worker -l debug --beat --scheduler django_celery_beat.schedulers:DatabaseScheduler --loglevel=info
+	$(VENV)/celery -A config worker -l debug --beat --scheduler django_celery_beat.schedulers:DatabaseScheduler --loglevel=info
 
 # ZIP 
 
@@ -118,13 +119,13 @@ tfinit:
 apply: tfinit
 	cd terraform && terraform apply -var-file=$(CONFIG_FILE)
 
-apply_hard: tfinitf
+apply_hard: tfinit
 	cd terraform && echo "yes" | terraform apply -var-file=$(CONFIG_FILE)
 
-destroy:
+destroy: tfinit
 	cd terraform && terraform destroy -var-file=$(CONFIG_FILE)
 
-destroy_hard:
+destroy_hard: tfinit
 	cd terraform && echo "yes" | terraform destroy -var-file=$(CONFIG_FILE)
 
 apply-deploy: create-zip apply
