@@ -5,6 +5,9 @@ PYTHON = $(VENV)/python
 ENV ?= dev
 
 AWS_PROFILE ?= devel
+# ideally we would export this to make the tfinit use the selected account too - BUT the S3 bucket we use for
+# state storage isn't accessible by any AWS account but the root one yet. We need to tidy that up.
+# export AWS_PROFILE
 
 BACKEND_FILE ?= backends/$(ENV).hcl
 CONFIG_FILE ?= env-vars/$(ENV).tfvars
