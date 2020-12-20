@@ -443,6 +443,7 @@ def enquiryProductContext(enqObj):
         else:
             topUpIncomeAmount = enqObj.calcIncome
 
+        context['totalTopUpIncomeAmount'] = int(round(topUpIncomeAmount, 0))
         context['topUpIncomeAmount'] = topUpIncomeAmount / (1 + LOAN_LIMITS['establishmentFee'])
         context['topUpFrequency'] = incomeFrequencyEnum.MONTHLY.value
         context['topUpPlanDrawdowns'] = APP_SETTINGS['incomeProjectionYears'] * 12
@@ -467,6 +468,7 @@ def enquiryProductContext(enqObj):
         else:
             topUpIncomeAmount = enqObj.calcIncome
 
+        context['totalTopUpIncomeAmount'] = int(round(topUpIncomeAmount, 0))
         context['topUpIncomeAmount'] = topUpIncomeAmount / (1 + LOAN_LIMITS['establishmentFee'])
         context['topUpFrequency'] = incomeFrequencyEnum.MONTHLY.value
         context['topUpPlanDrawdowns'] = APP_SETTINGS['incomeProjectionYears'] * 12
@@ -484,6 +486,7 @@ def enquiryProductContext(enqObj):
         else:
             topUpAmount = enqObj.calcLumpSum
 
+        context['totalTopUpAmount'] = int(round(topUpAmount, 0))
         context['topUpAmount'] = int(round(topUpAmount / (1 + LOAN_LIMITS['establishmentFee']), 0))
         totalLoanAmount += topUpAmount
         totalPlanAmount += topUpAmount
