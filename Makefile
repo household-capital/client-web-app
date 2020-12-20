@@ -104,11 +104,11 @@ rm-static:
 rm-artefacts: rm-old-zip
 
 zip-package: 
-	zip -r9g "package.zip" . --exclude "terraform/*" ".git/*"
+	zip -r9g "package.zip" . --exclude "terraform/*" ".git/*" "vp/*"
 
 create-zip-lazy: zip-package 
 	
-pre-deploy-handler: destroy_all_vp rm-static rm-artefacts
+pre-deploy-handler: rm-static rm-artefacts
  
 create-zip: pre-deploy-handler zip-package
 
