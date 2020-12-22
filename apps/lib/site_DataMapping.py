@@ -19,39 +19,40 @@ from apps.enquiry.models import Enquiry
 def mapEnquiryToLead(enqUID):
     """Build SF REST API payload: Enquiry -> SF Lead"""
 
-    SF_LEAD_MAPPING = {'phoneNumber': 'Phone',
-                       'email': 'Email',
-                       'age_1': 'Age_of_1st_Applicant__c',
-                       'age_2': 'Age_of_2nd_Applicant__c',
-                       'dwellingType': 'Dwelling_Type__c',
-                       'valuation': 'Estimated_Home_Value__c',
-                       'streetAddress': 'Street',
-                       'suburb': 'City',
-                       'postcode': 'PostalCode',
-                       'isTopUp': 'IsTopUp__c',
-                       'isRefi': 'IsRefi__c',
-                       'isLive': 'IsLive__c',
-                       'isGive': 'IsGive__c',
-                       'isCare': 'IsCare__c',
-                       'calcTopUp': 'CalcTopUp__c',
-                       'calcRefi': 'CalcRefi__c',
-                       'calcLive': 'CalcLive__c',
-                       'calcGive': 'CalcGive__c',
-                       'calcCare': 'CalcCare__c',
-                       'calcTotal': 'CalcTotal__c',
-                       'enquiryNotes': 'External_Notes__c',
-                       'payIntAmount': 'payIntAmount__c',
-                       'payIntPeriod': 'payIntPeriod__c',
-                       'status': 'HCC_Loan_Eligible__c',
-                       'maxLoanAmount': 'Maximum_Loan__c',
-                       'maxLVR': 'Maximum_LVR__c',
-                       'errorText': 'Ineligibility_Reason__c',
-                       'referrerID': 'Referrer_ID__c',
-                       'doNotMarket': 'DoNotMarket__c',
-                       'isCalendly': 'isCalendly__c',
-                       'mortgageDebt': 'Mortgage_Debt__c',
-                       'mortgageRepayment': 'Mortgage_Repayment__c',
-                       }
+    SF_LEAD_MAPPING = {
+        'phoneNumber': 'Phone',
+        'email': 'Email',
+        'age_1': 'Age_of_1st_Applicant__c',
+        'age_2': 'Age_of_2nd_Applicant__c',
+        'dwellingType': 'Dwelling_Type__c',
+        'valuation': 'Estimated_Home_Value__c',
+        'streetAddress': 'Street',
+        'suburb': 'City',
+        'postcode': 'PostalCode',
+        'isTopUp': 'IsTopUp__c',
+        'isRefi': 'IsRefi__c',
+        'isLive': 'IsLive__c',
+        'isGive': 'IsGive__c',
+        'isCare': 'IsCare__c',
+        'calcTopUp': 'CalcTopUp__c',
+        'calcRefi': 'CalcRefi__c',
+        'calcLive': 'CalcLive__c',
+        'calcGive': 'CalcGive__c',
+        'calcCare': 'CalcCare__c',
+        'calcTotal': 'CalcTotal__c',
+        'enquiryNotes': 'External_Notes__c',
+        'payIntAmount': 'payIntAmount__c',
+        'payIntPeriod': 'payIntPeriod__c',
+        'status': 'HCC_Loan_Eligible__c',
+        'maxLoanAmount': 'Maximum_Loan__c',
+        'maxLVR': 'Maximum_LVR__c',
+        'errorText': 'Ineligibility_Reason__c',
+        'referrerID': 'Referrer_ID__c',
+        'doNotMarket': 'DoNotMarket__c',
+        'isCalendly': 'isCalendly__c',
+        'mortgageDebt': 'Mortgage_Debt__c',
+        'mortgageRepayment': 'Mortgage_Repayment__c',
+    }
 
     BooleanList = ['isTopUp', 'isRefi', 'isLive', 'isGive', 'isCare', 'doNotMarket']
 
@@ -83,6 +84,7 @@ def mapEnquiryToLead(enqUID):
     payload['Marketing_Source__c'] = enquiry.enumMarketingSource()
     payload['State'] = sfStateEnum(enquiry.state)
     payload['Status__c'] = enquiry.enumEnquiryStage()
+    payload['Propensity_Category__c'] = enquiry.enumPropensityCategory()
 
 
     # Map / create other fields

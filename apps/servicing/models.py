@@ -321,15 +321,15 @@ class FacilityPurposes(models.Model):
         (incomeFrequencyEnum.MONTHLY.value, 'Monthly'))
 
 
-    categoryTypes = {
+    categoryTypes = (
         (purposeCategoryEnum.TOP_UP.value, "Top Up"),
         (purposeCategoryEnum.REFINANCE.value, "Refinance"),
         (purposeCategoryEnum.LIVE.value, "Live"),
         (purposeCategoryEnum.GIVE.value, "Give"),
         (purposeCategoryEnum.CARE.value, "Care")
-    }
+    )
 
-    intentionTypes = {
+    intentionTypes = (
         (purposeIntentionEnum.INVESTMENT.value, "Investment"),
         (purposeIntentionEnum.CONTINGENCY.value, "Contingency"),
         (purposeIntentionEnum.REGULAR_DRAWDOWN.value, "Regular Drawdown"),
@@ -338,7 +338,7 @@ class FacilityPurposes(models.Model):
         (purposeIntentionEnum.TRANSPORT_AND_TRAVEL.value, "Transport and Travel"),
         (purposeIntentionEnum.LUMP_SUM.value, "Lump Sum"),
         (purposeIntentionEnum.MORTGAGE.value, "Mortgage")
-    }
+    )
     facility = models.ForeignKey(Facility, on_delete=models.CASCADE)
     sfPurposeID = models.CharField(max_length=20, null=False, blank=False, unique=True)
     category = models.IntegerField(choices=categoryTypes)

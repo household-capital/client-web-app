@@ -714,6 +714,7 @@ class EnquiryConvert(HouseholdLoginRequiredMixin, View):
         caseDict['enquiryCreateDate'] = enq_obj.timestamp
         caseDict['street'] = enq_obj.streetAddress
         caseDict['channelDetail'] = enq_obj.marketingSource
+        caseDict['propensityCategory'] = enq_obj.propensityCategory
 
         salesChannelMap = {
             directTypesEnum.PARTNER.value: channelTypesEnum.PARTNER.value,

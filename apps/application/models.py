@@ -311,15 +311,15 @@ class ApplicationPurposes(models.Model):
         (incomeFrequencyEnum.FORTNIGHTLY.value, 'Fortnightly'),
         (incomeFrequencyEnum.MONTHLY.value, 'Monthly'))
 
-    categoryTypes = {
+    categoryTypes = (
         (purposeCategoryEnum.TOP_UP.value, "TOP_UP"),
         (purposeCategoryEnum.REFINANCE.value, "REFINANCE"),
         (purposeCategoryEnum.LIVE.value, "LIVE"),
         (purposeCategoryEnum.GIVE.value, "GIVE"),
         (purposeCategoryEnum.CARE.value, "CARE")
-    }
+    )
 
-    intentionTypes = {
+    intentionTypes = (
         (purposeIntentionEnum.INVESTMENT.value, "INVESTMENT"),
         (purposeIntentionEnum.CONTINGENCY.value, "CONTINGENCY"),
         (purposeIntentionEnum.REGULAR_DRAWDOWN.value, "REGULAR_DRAWDOWN"),
@@ -328,7 +328,7 @@ class ApplicationPurposes(models.Model):
         (purposeIntentionEnum.TRANSPORT_AND_TRAVEL.value, "TRANSPORT_AND_TRAVEL"),
         (purposeIntentionEnum.LUMP_SUM.value, "LUMP_SUM"),
         (purposeIntentionEnum.MORTGAGE.value, "MORTGAGE")
-    }
+    )
 
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
     category = models.IntegerField(choices=categoryTypes, blank=True, null=True)
