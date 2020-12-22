@@ -446,6 +446,7 @@ class PartnerForm(forms.Form):
         (marketingTypesEnum.CARE_ABOUT.value, "Care About"),
         (marketingTypesEnum.FACEBOOK.value, "Facebook"),
         (marketingTypesEnum.NATIONAL_SENIORS.value, "National Seniors"),
+        (marketingTypesEnum.LINKEDIN.value, "LinkedIn")        
     )
 
     partner = forms.ChoiceField(choices=partnerTypes, required=True)
