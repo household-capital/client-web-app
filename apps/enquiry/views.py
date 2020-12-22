@@ -1018,7 +1018,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
             for row in reader: 
                 name = row[2].title()
                 write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'processing %s' % name)
-                email = row[3]
+                email = row[3]  
                 phonenumber = cleanPhoneNumber(row[5])
                 if email and email != "Email": 
                     processed_count += 1
@@ -1147,6 +1147,49 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                                              enquiryString, marketingTypesEnum.FACEBOOK.value, False)
 
             messages.success(self.request, "Success - enquiries imported")
+
+        elif partner_value == marketingTypesEnum.LINKEDIN.value:
+
+            write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'LINKEDIN')
+
+            # Check file format - LinkedIn
+
+            if header[11] != 'Year of birth or Age':
+                messages.warning(
+                    self.request, "Unrecognised file structure - could not load")
+                return HttpResponseRedirect(self.request.path_info)
+
+            for row in reader:
+                email = row[4]
+                phoneNumber = cleanPhoneNumber(row[6])
+
+                if email:
+                    enquiryString = "[# Updated from Social Upload #]"
+                    enquiryString += "\r\nSocial: LinkedIn"
+                    enquiryString += "\r\nUpdated: " + datetime.date.today().strftime('%d/%m/%Y')
+                    enquiryString += "\r\nMonth of Birth: " + row[10]
+                    enquiryString += "\r\nYear of Birth: " + row[11]
+
+                    payload = {
+                        "name": row[2].title() + " " + row[3].title(),
+                        "postcode": row[5],
+                        "email": email,
+                        "phoneNumber": phoneNumber,
+                        "valuation": None,
+                        "age_1": None,
+                        "marketingSource": marketingTypesEnum.LINKEDIN.value,
+                        "referrer": directTypesEnum.SOCIAL.value,
+                        "productType": productTypesEnum.LUMP_SUM.value,
+                        "user": None
+                    }
+
+                    self.updateCreateEnquiry(email, phoneNumber, payload,
+                                             enquiryString, marketingTypesEnum.LINKEDIN.value, False)
+
+            messages.success(self.request, "Success - enquiries imported")
+
+
+
 
         return HttpResponseRedirect(self.request.path_info)
 
