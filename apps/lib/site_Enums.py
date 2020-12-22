@@ -289,5 +289,15 @@ class closeReasonTypes(Enum):
     OTHER = 12
 
 
-    
-    
+@accessInTemplate
+class propensityCategoriesEnum(Enum):
+    A = 1
+    B = 2
+    C = 3
+
+
+propensityChoices = [
+    (propensityCategoriesEnum.A.value, 'A'),
+    (propensityCategoriesEnum.B.value, 'B'),
+    (propensityCategoriesEnum.C.value, 'C'),
+]

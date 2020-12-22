@@ -126,6 +126,7 @@ class Case(models.Model):
         (marketingTypesEnum.FACEBOOK.value, "Facebook"),
         (marketingTypesEnum.LINKEDIN.value, "LinkedIn"),
         (marketingTypesEnum.YOUR_LIFE_CHOICES.value, "Your Life Choices"),
+        (marketingTypesEnum.NATIONAL_SENIORS.value, "National Seniors"),
         (marketingTypesEnum.STARTS_AT_60.value, "Starts at 60"),
         (marketingTypesEnum.CARE_ABOUT.value, "Care About"),
         (marketingTypesEnum.BROKER_REFERRAL.value, "Broker Referral"),
@@ -134,7 +135,6 @@ class Case(models.Model):
         (marketingTypesEnum.AGED_CARE_ADVISER.value, "Age Care Adviser"),
         (marketingTypesEnum.OTHER.value, "Other"),
     )
-
 
     stateTypes=(
         (stateTypesEnum.NSW.value, "NSW"),
@@ -146,7 +146,6 @@ class Case(models.Model):
         (stateTypesEnum.TAS.value, "TAS"),
         (stateTypesEnum.NT.value, "NT"),
     )
-
 
     salutationTypes=(
         (salutationEnum.MR.value,"Mr."),
@@ -271,6 +270,9 @@ class Case(models.Model):
 
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+    # Scoring
+    propensityCategory = models.IntegerField(choices=propensityChoices, blank=True, null=True)
 
     objects=CaseManager()
 
@@ -468,15 +470,15 @@ class LoanPurposes(models.Model):
         (incomeFrequencyEnum.FORTNIGHTLY.value, 'Fortnightly'),
         (incomeFrequencyEnum.MONTHLY.value, 'Monthly'))
 
-    categoryTypes = {
+    categoryTypes = (
         (purposeCategoryEnum.TOP_UP.value, "TOP_UP"),
         (purposeCategoryEnum.REFINANCE.value, "REFINANCE"),
         (purposeCategoryEnum.LIVE.value, "LIVE"),
         (purposeCategoryEnum.GIVE.value, "GIVE"),
         (purposeCategoryEnum.CARE.value, "CARE")
-    }
+    )
 
-    intentionTypes = {
+    intentionTypes = (
         (purposeIntentionEnum.INVESTMENT.value, "INVESTMENT"),
         (purposeIntentionEnum.CONTINGENCY.value, "CONTINGENCY"),
         (purposeIntentionEnum.REGULAR_DRAWDOWN.value, "REGULAR_DRAWDOWN"),
@@ -485,7 +487,7 @@ class LoanPurposes(models.Model):
         (purposeIntentionEnum.TRANSPORT_AND_TRAVEL.value, "TRANSPORT_AND_TRAVEL"),
         (purposeIntentionEnum.LUMP_SUM.value, "LUMP_SUM"),
         (purposeIntentionEnum.MORTGAGE.value, "MORTGAGE")
-    }
+    )
 
     loan = models.ForeignKey(Loan, on_delete=models.CASCADE)
     purposeID = models.AutoField(primary_key=True)

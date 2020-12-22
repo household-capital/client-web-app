@@ -21,7 +21,7 @@ class EnquiryForm(forms.ModelForm):
         fields = ['loanType', 'name', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
                   'streetAddress', 'suburb', 'state', 'mortgageDebt',
                   'referrer', 'email', 'phoneNumber', 'enquiryNotes',
-                  'marketingSource']
+                  'marketingSource', 'propensityCategory']
 
         widgets = {
             'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
@@ -49,6 +49,9 @@ class EnquiryForm(forms.ModelForm):
                 Div(
                     Div(HTML("Enquiry Notes"), css_class='form-label'),
                     Div(Field('enquiryNotes'))),
+                Div(
+                    Div(HTML("Propensity Score"), css_class='form-label'),
+                    Div(Field('propensityCategory'))),
                 Div(
                     Div(HTML("Enquiry Source"), css_class='form-label'),
                     Div(Field('referrer'))),
@@ -131,7 +134,7 @@ class EnquiryDetailForm(forms.ModelForm):
         fields = ['loanType', 'name', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
                   'streetAddress', 'suburb', 'state', 'mortgageDebt',
                   'referrer', 'email', 'phoneNumber', 'enquiryNotes', 'calcLumpSum', 'calcIncome',
-                  'marketingSource', 'productType', 'enquiryStage', 'valuationDocument']
+                  'marketingSource', 'productType', 'enquiryStage', 'valuationDocument', 'propensityCategory']
 
         widgets = {
             'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
@@ -147,10 +150,24 @@ class EnquiryDetailForm(forms.ModelForm):
     helper.form_show_errors = True
     helper.layout = Layout(
         Div(
+
+            Div(
+                Div(
+                    Div(Submit('submit', 'Update', css_class='btn btn-outline-secondary')),
+                    css_class='text-right pt-4'
+                ),
+                css_class='col-lg-12'
+            ),
+
             Div(
                 Div(
                     Div(HTML("Enquiry Status"), css_class='form-label'),
-                    Div(Field('enquiryStage'))),
+                    Div(Field('enquiryStage')),
+                    Div(HTML("Propensity Score"), css_class='form-label'),
+                    Div(Field('propensityCategory')),
+                ),
+
+                Div(HTML("<br>")),
 
                 Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Client Details"), css_class='form-header'),
                 Div(
@@ -165,7 +182,6 @@ class EnquiryDetailForm(forms.ModelForm):
                 Div(
                     Div(HTML("Enquiry Notes"), css_class='form-label'),
                     Div(Field('enquiryNotes'))),
-
                 Div(
                     Div(HTML("Enquiry Source"), css_class='form-label'),
                     Div(Field('referrer'))),
@@ -178,9 +194,6 @@ class EnquiryDetailForm(forms.ModelForm):
                 css_class='col-lg-6'),
 
             Div(
-                Div(Div(Submit('submit', 'Update', css_class='btn btn-outline-secondary')),
-                    css_class='text-right pt-4'),
-
                 Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Borrower(s)"), css_class='form-header pt-2'),
                 Div(
                     Div(HTML("Single or Joint Borrowers"), css_class='form-label'),
@@ -191,6 +204,8 @@ class EnquiryDetailForm(forms.ModelForm):
                 Div(
                     Div(HTML("Age Borrower 2"), css_class='form-label'),
                     Div(Field('age_2'))),
+
+                Div(HTML("<br>")),
 
                 Row(
                     Column(Div(HTML("<i class='fas fa-home'> </i>&nbsp;&nbsp;Property")), css_class='col-6'),
@@ -264,7 +279,7 @@ class EnquiryDetailForm(forms.ModelForm):
 class EnquiryCallForm(forms.ModelForm):
     class Meta:
         model = Enquiry
-        fields = ['name', 'postcode', 'phoneNumber', 'marketingSource', 'enquiryNotes']
+        fields = ['name', 'postcode', 'phoneNumber', 'marketingSource', 'enquiryNotes', 'propensityCategory']
 
         widgets = {
             'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
@@ -290,6 +305,9 @@ class EnquiryCallForm(forms.ModelForm):
                 Div(
                     Div(HTML("Enquiry Notes"), css_class='form-label'),
                     Div(Field('enquiryNotes'))),
+                Div(
+                    Div(HTML("Propensity Score"), css_class='form-label'),
+                    Div(Field('propensityCategory'))),
                 css_class='col-lg-6'),
 
             Div(

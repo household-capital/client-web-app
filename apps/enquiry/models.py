@@ -155,6 +155,7 @@ class Enquiry(models.Model):
         (stateTypesEnum.NT.value, "NT"),
     )
 
+
     # Identifiers
     enqUID = models.UUIDField(default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
@@ -233,6 +234,9 @@ class Enquiry(models.Model):
     payIntPeriod = models.IntegerField(blank=True, null=True)  # deprecated
     lossNotes=models.TextField(blank=True, null=True)  # deprecated
 
+    # Scoring
+    propensityCategory = models.IntegerField(choices=propensityChoices, blank=True, null=True)
+
     objects = EnquiryManager()
 
     @property
@@ -274,6 +278,10 @@ class Enquiry(models.Model):
     def enumEnquiryStage(self):
         if self.enquiryStage is not None:
             return dict(self.enquiryStageTypes)[self.enquiryStage]
+
+    def enumPropensityCategory(self):
+        if self.propensityCategory is not None:
+            return dict(self.propensityChoices)[self.propensityCategory]
 
     def __str__(self):
         return smart_text(self.email)

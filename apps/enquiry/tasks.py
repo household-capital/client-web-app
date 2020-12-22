@@ -1,6 +1,7 @@
 # Python Imports
 import json
 from datetime import timedelta
+import os
 
 # Django Imports
 from django.conf import settings
@@ -203,86 +204,94 @@ def createSFLead(enqUID, sfAPIInstance=None):
     qs = Enquiry.objects.queryset_byUID(enqUID)
     enquiry = qs.get()
 
+    missing_data = []
     # Check for an email or phoneNumber as well as a user
-    if (enquiry.email or enquiry.phoneNumber) and enquiry.user and enquiry.postcode:
+    if not (enquiry.email or enquiry.phoneNumber):
+        missing_data.append('No email or phone number')
+    if not enquiry.user:
+        missing_data.append('No user assigned')
+    if not enquiry.postcode:
+        missing_data.append('No postcode set')
+    if missing_data:
+        message = ', '.join(missing_data)
+        write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', message)
+        return {"status": "ERROR", "responseText": message}
 
-        # Check for Household email address
-        if enquiry.email:
-            if 'householdcapital.com' in enquiry.email:
-                # Don't create LeadID
-                write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', "Internal email re:" + str(enquiry.email))
-                return {"status": "ERROR", 'responseText': 'Internal email re:' + str(enquiry.email)}
 
-        payload = mapEnquiryToLead(str(enquiry.enqUID))
-        payload['CreatedDate'] = enquiry.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
+    # Check for Household email address
+    if enquiry.email:
+        if (os.environ.get('ENV') == 'prod') and ('householdcapital.com' in enquiry.email):
+            # Don't create LeadID
+            write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', "Internal email re:" + str(enquiry.email))
+            return {"status": "ERROR", 'responseText': 'Internal email re:' + str(enquiry.email)}
 
-        if enquiry.name:
-            write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', "Attempting:" + str(enquiry.name))
-        else:
-            write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'Attempting: Unknown')
+    payload = mapEnquiryToLead(str(enquiry.enqUID))
+    payload['CreatedDate'] = enquiry.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-        # Create SF Lead
-        result = sfAPI.createLead(payload)
-
-        if result['status'] == "Ok":
-            enquiry.sfLeadID = result['data']['id']
-            write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', "Created ID" + str(enquiry.sfLeadID))
-            enquiry.save(update_fields=['sfLeadID'])
-            return {"status": "Ok", "responseText": "Lead Created"}
-
-        else:
-
-            if isinstance(result['responseText'], dict):
-                write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', result['responseText']['message'])
-
-                # Check for duplicates (as indicated by SF)
-                if 'existing' in result['responseText']['message']:
-                    if enquiry.email:
-                        # Search for email in Leads
-                        result = sfAPI.qryToDict('LeadByEmail', enquiry.email, 'result')
-                        if len(result['data']) == 0:
-                            write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'No SF ID returned')
-                            return {"status": "ERROR", "responseText": "No SF ID returned"}
-                        else:
-                            if __checkInt(result['data']['result.PostalCode']) == __checkInt(enquiry.postcode):
-                                # match on postcode too
-                                enquiry.sfLeadID = result['data']['result.Id']
-                                enquiry.save(update_fields=['sfLeadID'])
-                                write_applog("INFO", 'Enquiry', 'Tasks-createSFLead',
-                                             "Saved ID" + str(enquiry.sfLeadID))
-                                return {"status": "Ok"}
-                            else:
-                                write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'Postcode mismatch')
-                                return {"status": "ERROR", "responseText": "Postcode mismatch"}
-
-                    elif enquiry.phoneNumber:
-                        # Search for phone number in Leads
-                        result = sfAPI.qryToDict('LeadByPhone', enquiry.phoneNumber, 'result')
-                        if len(result['data']) == 0:
-                            write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'No SF ID returned')
-                            return {"status": "ERROR", "responseText": "No SF ID returned"}
-                        else:
-                            if __checkInt(result['data']['result.PostalCode']) == __checkInt(enquiry.postcode):
-                                # match on postcode too
-                                enquiry.sfLeadID = result['data']['result.Id']
-                                enquiry.save(update_fields=['sfLeadID'])
-                                write_applog("INFO", 'Enquiry', 'Tasks-createSFLead',
-                                             "Saved ID" + str(enquiry.sfLeadID))
-                                return {"status": "Ok"}
-
-                            else:
-                                write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'Postcode mismatch')
-                                return {"status": "ERROR", "responseText": "Postcode mismatch"}
-                else:
-                    write_applog("INFO", 'Case', 'Tasks-createSFLead', result['responseText']['message'])
-                    return {"status": "ERROR", "responseText": result['responseText']['message']}
-
-            else:
-                write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'Unknown SF error')
-                return {"status": "ERROR", "responseText": "Unknown SF error"}
+    if enquiry.name:
+        write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', "Attempting:" + str(enquiry.name))
     else:
-        write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'No email or phone number')
-        return {"status": "ERROR", "responseText": "No email or phone number"}
+        write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'Attempting: Unknown')
+
+    # Create SF Lead
+    result = sfAPI.createLead(payload)
+
+    if result['status'] == "Ok":
+        enquiry.sfLeadID = result['data']['id']
+        write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', "Created ID" + str(enquiry.sfLeadID))
+        enquiry.save(update_fields=['sfLeadID'])
+        return {"status": "Ok", "responseText": "Lead Created"}
+
+    else:
+
+        if isinstance(result['responseText'], dict):
+            write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', result['responseText']['message'])
+
+            # Check for duplicates (as indicated by SF)
+            if 'existing' in result['responseText']['message']:
+                if enquiry.email:
+                    # Search for email in Leads
+                    result = sfAPI.qryToDict('LeadByEmail', enquiry.email, 'result')
+                    if len(result['data']) == 0:
+                        write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'No SF ID returned')
+                        return {"status": "ERROR", "responseText": "No SF ID returned"}
+                    else:
+                        if __checkInt(result['data']['result.PostalCode']) == __checkInt(enquiry.postcode):
+                            # match on postcode too
+                            enquiry.sfLeadID = result['data']['result.Id']
+                            enquiry.save(update_fields=['sfLeadID'])
+                            write_applog("INFO", 'Enquiry', 'Tasks-createSFLead',
+                                         "Saved ID" + str(enquiry.sfLeadID))
+                            return {"status": "Ok"}
+                        else:
+                            write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'Postcode mismatch')
+                            return {"status": "ERROR", "responseText": "Postcode mismatch"}
+
+                elif enquiry.phoneNumber:
+                    # Search for phone number in Leads
+                    result = sfAPI.qryToDict('LeadByPhone', enquiry.phoneNumber, 'result')
+                    if len(result['data']) == 0:
+                        write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'No SF ID returned')
+                        return {"status": "ERROR", "responseText": "No SF ID returned"}
+                    else:
+                        if __checkInt(result['data']['result.PostalCode']) == __checkInt(enquiry.postcode):
+                            # match on postcode too
+                            enquiry.sfLeadID = result['data']['result.Id']
+                            enquiry.save(update_fields=['sfLeadID'])
+                            write_applog("INFO", 'Enquiry', 'Tasks-createSFLead',
+                                         "Saved ID" + str(enquiry.sfLeadID))
+                            return {"status": "Ok"}
+
+                        else:
+                            write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'Postcode mismatch')
+                            return {"status": "ERROR", "responseText": "Postcode mismatch"}
+            else:
+                write_applog("INFO", 'Case', 'Tasks-createSFLead', result['responseText']['message'])
+                return {"status": "ERROR", "responseText": result['responseText']['message']}
+
+        else:
+            write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'Unknown SF error')
+            return {"status": "ERROR", "responseText": "Unknown SF error"}
 
 
 def updateSFLead(enqUID, sfAPIInstance=None):

@@ -1,6 +1,7 @@
 # Python Imports
 import json
 import base64
+import os
 
 # Django Imports
 from django.core.files.storage import default_storage
@@ -458,7 +459,7 @@ def createSFLeadCase(caseUID, sfAPIInstance=None):
     if (case.email or case.phoneNumber) and case.owner:
         # Check for Household email address
         if case.email:
-            if 'householdcapital.com' in case.email:
+            if (os.environ.get('ENV') == 'prod') and ('householdcapital.com' in case.email):
                 # Don't create LeadID
                 write_applog("INFO", 'Case', 'Tasks-createSFLead', "Internal email re:" + str(case.email))
                 return {"status": "Error", "responseText": "HouseholdCapital email address"}
