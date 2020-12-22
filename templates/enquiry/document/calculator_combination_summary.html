@@ -45,21 +45,21 @@
     <div class="print-container">
         <div class="row justify-content-center">
             <div class="gold_underline">
-                <p class="secondary_title text-center ">Your summary</p>
+                <p class="secondary_title text-center ">Your Calculator Summary</p>
             </div>
         </div>
         <div class="row justify-content-center">
             <div class="text-center">
                 <br>
-                <p class="x-large"><b>Your Household Transfer</b></p>
-                <p class="print-text">You may be eligible for a Household Transfer as follows </p>
+                <p class="x-large"><b>Your Household Loan</b></p>
+                <p class="print-text">You may be eligible for a Household Loan as follows </p>
             </div>
         </div>
     </div>
 
     <div class="print-container">
         <div class="row justify-content-center">
-            <div class="col-lg-10 ">
+            <div class="col-lg-11 ">
                 <div class="row justify-content-center">
                     <div class="col-lg-12 ">
                         <br>
@@ -75,7 +75,7 @@
                                 <p class="print-text text-left pl-2">Estimated value</p>
                             </div>
                             <div class="col-lg-3 text-left">
-                                <p class="print-text text-left">Maximum amount</p>
+                                <p class="print-text text-center">Available Household Capital</p>
                             </div>
                         </div>
                     </div>
@@ -167,7 +167,7 @@
                     <div class="col-lg-12 text-center ">
                         <br>
                         <p class="x-large"><b>Retirement funding needs</b></p>
-                        <p class="print-text">Household Transfers can be used for a range of funding needs</p>
+                        <p class="print-text">Household Loans can be used for a range of funding needs</p>
                         {% if obj.calcLumpSum %}
                         <p class="print-text">You have indicated a potential need for ${{ obj.calcLumpSum }} and
                             ${{ obj.calcIncome }}/mth </p>
@@ -257,8 +257,6 @@
                         {{ obj.calcCare }}{% endif %}</p></div>
                 </div>
 
-                <br>
-
             </div>
         </div>
     </div>
@@ -266,16 +264,13 @@
     <div class="print-container">
 
         <div class="row justify-content-center pt-1">
-
-            <div class="col-md-10 text-center">
-
-
-                <p class="small">*This calculation does not constitute an approval but provides an indication
-                    of the maximum possible loan. Household Transfers are subject to loan approval criteria, which
+            <div class="col-md-11 text-center">
+                <br>
+                <p class="print-text-fine pb-1">*This calculation does not constitute an approval but provides an indication
+                    of the maximum possible loan. Household Loans are subject to loan approval criteria, which
                     includes a home valuation. Lending limits may apply for specific purposes. Full terms and conditions
                     will be included in any loan
                     application</p>
-                <br>
             </div>
         </div>
     </div>
@@ -339,13 +334,13 @@
 
         <div class="row justify-content-center pt-2">
             <div class="text-center">
-                <p class="x-large pb-2"><b>How does a Household Transfer work?</b></p>
+                <p class="x-large pb-2"><b>How does a Household Loan work?</b></p>
             </div>
 
         </div>
         <div class="row justify-content-center">
             <div class="col-sm-9 text-center">
-                <p class="print-text-smaller">A Household Transfer is our approach to borrowing against home equity for
+                <p class="print-text-smaller">A Household Loan is our approach to borrowing against home equity for
                     responsible,
                     long-term, retirement funding. Our loan is structured as a reverse mortgage and therefore you
                     benefit
@@ -401,7 +396,7 @@
                 </div>
                 <div class="row justify-content-center">
                     <div class="col-sm-9 text-center">
-                        <p class="print-text-smaller">As the interest on a Household Transfer is added to the principal
+                        <p class="print-text-smaller">As the interest on a Household Loan is added to the principal
                             (the borrowed amount), the
                             loan
                             balance grows over time.
@@ -422,8 +417,8 @@
                 <br>
                 <p class="print-text-smaller"> The following is an illustration of how your home equity might change
                     over time,
-                    based on a lump sum amount of <b>${{ calcLumpSum|intcomma }}</b> as well as
-                    <b>${{ calcIncome|intcomma }}/month</b>
+                    based on a lump sum amount of <b>${{ totalTopUpAmount|intcomma }}</b> as well as
+                    <b>${{ totalTopUpIncomeAmount|intcomma }}/month</b>
                     for 10 years (a total plan amount of ${{ totalPlanAmount|intcomma }} including establishment fee) and a
                     current home value of <b>${{ obj.valuation }}</b> (see assumptions below)</p>
                 <br>
@@ -523,7 +518,7 @@
         <div class="cal_background_warm print-edge-row">
             <div class="text-center">
                 <br>
-                <p class="x-large pb-2"><b>Could a Household Transfer be right for you?</b></p>
+                <p class="x-large pb-2"><b>Could a Household Loan be right for you?</b></p>
                 <p class="print-text-smaller">Contact {{ obj.user.first_name }} {{ obj.user.last_name }}
                     ({{ obj.user.profile.mobile }}
                     or {{ obj.user.email }}) to discuss your circumstances in more detail</p>

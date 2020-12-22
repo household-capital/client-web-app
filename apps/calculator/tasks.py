@@ -118,7 +118,7 @@ def getWordpressData():
                 mapList = {'age': 'age_1'}
 
                 popList = ['id', 'retrieved', 'retrievedDate', 'timestamp', 'uuid', 'firstname',
-                           'lastname', 'origin', 'resource']
+                           'lastname', 'origin', 'resource', 'description']
 
                 srcData['phone'] = cleanPhoneNumber(srcData['phone'])
                 srcData['name'] = srcData['firstname'].title() if srcData['firstname'] else None
