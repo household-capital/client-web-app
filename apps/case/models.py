@@ -349,6 +349,10 @@ class Case(models.Model):
             else:
                 return 'Rejected'
 
+    def enumPropensityCategory(self):
+        if self.propensityCategory is not None:
+            return dict(propensityChoices)[self.propensityCategory]
+
     def get_absolute_url(self):
         return reverse_lazy("case:caseDetail", kwargs={"uid": self.caseUID})
 

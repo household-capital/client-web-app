@@ -281,7 +281,7 @@ class Enquiry(models.Model):
 
     def enumPropensityCategory(self):
         if self.propensityCategory is not None:
-            return dict(self.propensityChoices)[self.propensityCategory]
+            return dict(propensityChoices)[self.propensityCategory]
 
     def __str__(self):
         return smart_text(self.email)
