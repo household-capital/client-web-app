@@ -1,16 +1,20 @@
 #!/bin/bash
-VENV = vp/bin/
-PYTHON = $(VENV)python
+VENV = vp/bin
+PYTHON = $(VENV)/python
 
 ENV ?= dev
 
 AWS_PROFILE ?= devel
+# ideally we would export this to make the tfinit use the selected account too - BUT the S3 bucket we use for
+# state storage isn't accessible by any AWS account but the root one yet. We need to tidy that up.
+# export AWS_PROFILE
 
 BACKEND_FILE ?= backends/$(ENV).hcl
 CONFIG_FILE ?= env-vars/$(ENV).tfvars
 
 create_vp: 
-	python3 -m venv vp 
+	python3 -m venv vp
+	$(VENV)/pip3 install --upgrade pip
 
 activate_vp: 
 	$(source vp/bin/activate)
@@ -90,7 +94,7 @@ redis-server:
 # CELERY
 
 celery: 
-	$(VENV)celery -A config worker -l debug --beat --scheduler django_celery_beat.schedulers:DatabaseScheduler --loglevel=info
+	$(VENV)/celery -A config worker -l debug --beat --scheduler django_celery_beat.schedulers:DatabaseScheduler --loglevel=info
 
 # ZIP 
 
@@ -103,11 +107,11 @@ rm-static:
 rm-artefacts: rm-old-zip
 
 zip-package: 
-	zip -r9g "package.zip" . --exclude "terraform/*" ".git/*"
+	zip -r9g "package.zip" . --exclude "terraform/*" ".git/*" "vp/*"
 
 create-zip-lazy: zip-package 
 	
-pre-deploy-handler: destroy_all_vp rm-static rm-artefacts
+pre-deploy-handler: rm-static rm-artefacts
  
 create-zip: pre-deploy-handler zip-package
 
@@ -118,13 +122,13 @@ tfinit:
 apply: tfinit
 	cd terraform && terraform apply -var-file=$(CONFIG_FILE)
 
-apply_hard: tfinitf
+apply_hard: tfinit
 	cd terraform && echo "yes" | terraform apply -var-file=$(CONFIG_FILE)
 
-destroy:
+destroy: tfinit
 	cd terraform && terraform destroy -var-file=$(CONFIG_FILE)
 
-destroy_hard:
+destroy_hard: tfinit
 	cd terraform && echo "yes" | terraform destroy -var-file=$(CONFIG_FILE)
 
 apply-deploy: create-zip apply

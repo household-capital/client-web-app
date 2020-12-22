@@ -26,35 +26,15 @@ class pdfGenerator():
         self.pdfUrl = ""
         self.pdfContents = None
         self.pdfID = pdfID
+        self.pdf_options = {'preferCSSPageSize': True, 'marginBottom': 0, 'marginLeft': 0, 'marginRight': 0, 'marginTop': 0,
+                                      'paperWidth': 8.27, 'paperHeight': 11.69}
 
-    def createPdfFromUrl(self, sourceURL, pdfDescription, targetFileName):
-
-        self.pdfUrl = ""
-        try:
-            sourceUrl = sourceURL
-
-            # Make API request to Api2Pdf
-            options = {'preferCSSPageSize': True, 'marginBottom': 0, 'marginLeft': 0, 'marginRight': 0, 'marginTop': 0,
-                       'paperWidth': 8.27, 'paperHeight': 11.69}
-
-            write_applog("INFO", 'pdfGenerator', 'createPdf', "Api2Pdf submitted: " + self.pdfID)
-
-            api_response = self.a2p_client.HeadlessChrome.convert_from_url(sourceUrl,
-                                                                           file_name=pdfDescription,
-                                                                           **options)
-            if api_response.result['success']:
-                write_applog("INFO", 'pdfGenerator', 'createPdf', "Api2Pdf success: " + self.pdfID)
-
-            else:
-                write_applog("ERROR", 'pdfGenerator', 'createPdf', "Api2Pdf failure: " + self.pdfID + "-"
-                             + str(api_response))
-
-                return {False, "API Returned Error"}
-
-        except:
-            write_applog("ERROR", 'pdfGenerator', 'createPdf', "Presumed timeout error: " + self.pdfID)
-
-            return {False, "API Error"}
+    def _processAPIResult(self, api_response, targetFileName):
+        if api_response.result['success']:
+            write_applog("INFO", 'pdfGenerator', 'createPdf', "Api2Pdf success: " + self.pdfID)
+        else:
+            write_applog("ERROR", 'pdfGenerator', 'createPdf', "Api2Pdf failure: " + self.pdfID + "-" + str(api_response))
+            return {False, "API Returned Error"}
 
         self.pdfUrl = api_response.result['pdf']
 
@@ -68,15 +48,36 @@ class pdfGenerator():
         localfile = default_storage.open(targetFileName, 'rb')
         self.pdfContents = localfile.read()
 
-        try:
-            pass
-        except:
-            write_applog("ERROR", 'pdfGenerator', 'createPdf',
-                         "Failed to save Summary Report: " + self.pdfID)
-
-            return {False, "Could not save"}
-
         return {True, "File saved"}
+
+    def createPdfFromUrl(self, sourceURL, pdfDescription, targetFileName):
+        self.pdfUrl = ""
+        try:
+            # Make API request to Api2Pdf
+            write_applog("INFO", 'pdfGenerator', 'createPdf', "Api2Pdf submitted: " + self.pdfID)
+
+            api_response = self.a2p_client.HeadlessChrome.convert_from_url(
+                sourceURL, file_name=pdfDescription, **self.pdf_options
+            )
+        except:
+            write_applog("ERROR", 'pdfGenerator', 'createPdf', "Presumed timeout error: " + self.pdfID)
+            return {False, "API Error"}
+
+        return self._processAPIResult(api_response, targetFileName)
+
+    def createPdfFromHTML(self, html, pdfDescription, targetFileName):
+        try:
+            # Make API request to Api2Pdf
+            write_applog("INFO", 'pdfGenerator', 'createPdf', "Api2Pdf submitted: " + self.pdfID)
+
+            api_response = self.a2p_client.HeadlessChrome.convert_from_html(
+                html, file_name=pdfDescription, **self.pdf_options
+            )
+        except:
+            write_applog("ERROR", 'pdfGenerator', 'createPdf', "Presumed timeout error: " + self.pdfID)
+            return {False, "API Error"}
+
+        return self._processAPIResult(api_response, targetFileName)
 
     def mergePdfs(self, urlList, pdfDescription, targetFileName):
 
