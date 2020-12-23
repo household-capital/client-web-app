@@ -9,6 +9,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.http import HttpResponseRedirect
 from django.template.loader import get_template
 from django.urls import reverse_lazy
+from django.db import models
 
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.hhc_LoanProjection import LoanProjection
@@ -580,9 +581,9 @@ def sendTemplateEmail(template_name, email_context, subject, from_email, to, cc=
     if attachments:
         for attachment in attachments:
             if len(attachment) == 3:
-               msg = attachFile(msg, attachment[0], attachment[1], attachment[2])
+                msg = attachFile(msg, attachment[0], attachment[1], attachment[2])
             else:
-               msg = attachFile(msg,attachment[0],attachment[1])
+                msg = attachFile(msg,attachment[0],attachment[1])
     try:
         msg.send()
         return True
@@ -646,7 +647,7 @@ def cleanPhoneNumber(phone):
 
 def remove_prefix(text, prefix):
     if text.startswith(prefix):
-         text = text.replace(prefix, "", 1)
+        text = text.replace(prefix, "", 1)
     return text
 
 def checkMobileNumber(number):
@@ -661,3 +662,21 @@ def checkMobileNumber(number):
 
 def chkNone(arg):
     return arg if arg else ''
+
+
+class SingletonModel(models.Model):
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super(SingletonModel, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        pass
+
+    @classmethod
+    def load(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj

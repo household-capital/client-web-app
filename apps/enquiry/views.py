@@ -6,6 +6,7 @@ import csv
 import os
 import json
 import pathlib
+from urllib.parse import urljoin
 
 # Django Imports
 from django.conf import settings
@@ -37,7 +38,8 @@ from .forms import EnquiryForm, EnquiryDetailForm, EnquiryCloseForm, EnquiryAssi
 from .models import Enquiry
 from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, getEnquiryProjections, updateNavQueue, \
     cleanPhoneNumber, validateEnquiry
-from urllib.parse import urljoin
+from .util import assign_enquiry
+
 
 # AUTHENTICATED VIEWS
 
@@ -800,7 +802,6 @@ class EnquiryOwnView(HouseholdLoginRequiredMixin, View):
 
 class EnquiryAssignView(HouseholdLoginRequiredMixin, UpdateView):
     template_name = 'enquiry/enquiryOther.html'
-    email_template_name = 'enquiry/email/email_assign.html'
     form_class = EnquiryAssignForm
     model = Enquiry
 
@@ -818,31 +819,9 @@ class EnquiryAssignView(HouseholdLoginRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        preObj = queryset = Enquiry.objects.queryset_byUID(str(self.kwargs['uid'])).get()
-
+        preObj = Enquiry.objects.queryset_byUID(str(self.kwargs['uid'])).get()
         enq_obj = form.save(commit=False)
-        if preObj.user:
-            enq_obj.enquiryNotes += '\r\n[# Enquiry assigned from ' + preObj.user.username + ' #]'
-        elif preObj.BROKER == directTypesEnum.REFERRAL.value:
-            enq_obj.enquiryNotes += '\r\n[# Enquiry assigned from ' + preObj.referralUser.profile.referrer.companyName + ' #]'
-
-        enq_obj.save()
-
-        # Email recipient
-        subject, from_email, to = "Enquiry Assigned to You", "noreply@householdcapital.app", enq_obj.user.email
-        text_content = "Text Message"
-        email_context = {}
-        email_context['obj'] = enq_obj
-        email_context['base_url'] = settings.SITE_URL
-
-        try:
-            html = get_template(self.email_template_name)
-            html_content = html.render(email_context)
-            msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-            msg.attach_alternative(html_content, "text/html")
-            msg.send()
-        except:
-            pass
+        assign_enquiry(preObj, enq_obj.user.id)
 
         messages.success(self.request, "Enquiry assigned to " + enq_obj.user.username)
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
