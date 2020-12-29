@@ -46,8 +46,8 @@ class InitiateForm(forms.ModelForm):
         model = Application
         fields = ['surname_1', 'firstname_1', 'email', 'mobile']
 
-    surname_1 = forms.CharField(max_length=60, required=True)
-    firstname_1 = forms.CharField(max_length=60, required=True)
+    surname_1 = forms.CharField(max_length=80, required=True)
+    firstname_1 = forms.CharField(max_length=40, required=True)
     email = forms.CharField(max_length=60, required=True)
     mobile = forms.CharField(max_length=60, required=True)
 
