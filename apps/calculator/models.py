@@ -68,7 +68,8 @@ class WebCalculator(models.Model):
     referrer = models.URLField(blank=True, null=True)
 
     # Client Data
-    name = models.CharField(max_length=30, blank=True, null=True)
+    firstname = models.CharField(max_length=40, blank=True, null=True)
+    lastname = models.CharField(max_length=80, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     phoneNumber = models.CharField(max_length=15, blank=True, null=True)
     loanType = models.BooleanField(default=True, blank=False, null=False)

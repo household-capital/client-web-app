@@ -5,7 +5,7 @@ from django.contrib import admin
 from .models import WebCalculator,WebContact
 
 class WebCalculatorAdmin(admin.ModelAdmin):
-    list_display = ('status','age_1','age_2','postcode','maxLVR','maxLoanAmount','name', 'email','timestamp')
+    list_display = ('status','age_1','age_2','postcode','maxLVR','maxLoanAmount','firstname', 'lastname', 'email','timestamp')
 
 
 class WebContactAdmin(admin.ModelAdmin):

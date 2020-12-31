@@ -32,11 +32,13 @@ def getWordpressData():
         for item in result['data']['response']:
             #Map website data to WebCalculator
 
-            mapList = {'age1': 'age_1',
-                       'age2': 'age_2',
-                       'maxDrawdown': 'maxDrawdownAmount',
-                       'mortgage': 'mortgageDebt',
-                       'repayment': 'mortgageRepayment'}
+            mapList = {
+                'age1': 'age_1',
+                'age2': 'age_2',
+                'maxDrawdown': 'maxDrawdownAmount',
+                'mortgage': 'mortgageDebt',
+                'repayment': 'mortgageRepayment'
+            }
 
             popList = ['id', 'retrieved', 'retrievedDate', 'timestamp', 'uuid', 'phone', 'contactDetails', 'isEnquiry']
 
@@ -63,23 +65,28 @@ def getWordpressData():
                 if value == "":
                     srcData[key] = None
             
-            # concatinate firstname and lastname fields from wordpress
-            # Old API produces "name" field only, new API will produce "firstname" and "lastname"
-            if 'firstname' in srcData:
-                # truncate at salesforce limit of 40 chars
-                srcData['name'] = srcData['firstname'][:40].title()
-                srcData.pop('firstname')
+            if 'firstname' in srcData and srcData['firstname']:
+                srcData['firstname'] = srcData['firstname'].title()
 
-            if 'lastname' in srcData:
-                if srcData['lastname']:
-                    # truncate at salesforce limit of 80 chars
-                    srcData['name'] += " " + srcData['lastname'][:80].title()
-                srcData.pop('lastname')
-            
-            if not srcData['name']:
-                srcData['name'] = None
+                if len(srcData['firstname']) > 40:
+                    write_applog("INFO", 'API', 'Tasks-getWordpressData', 
+                                 srcData['firstname'] + " truncated to " + srcData['firstname'][:40])
+                    srcData['firstname'] = srcData['firstname'][:40]
+            else:
+                srcData['firstname'] = None
+                
+            if 'lastname' in srcData and srcData['lastname']:
+                srcData['lastname'] = srcData['lastname'].title()
 
-            write_applog("INFO", 'API', 'Tasks-getWordpressData', "Item data: " + json.dumps(srcData))
+                if len(srcData['lastname']) > 80:
+                    write_applog("INFO", 'API', 'Tasks-getWordpressData',
+                                 srcData['lastname'] + " truncated to " + srcData['lastname'][:80])
+                    srcData['lastname'] = srcData['lastname'][:80]
+            else:
+                srcData['lastname'] = None
+
+            write_applog("INFO", 'API', 'Tasks-getWordpressData',
+                         "Item data: " + json.dumps(srcData))
 
             # Create and save new WebCalculator object
             try:
