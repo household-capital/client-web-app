@@ -3,6 +3,31 @@ resource "aws_iam_instance_profile" "elb_profile" {
   role = "${aws_iam_role.elb.name}"
 }
 
+
+resource "aws_iam_policy" "cloudwatchpolicy" {
+  name = "ec2-cloud-watch-policy-${var.environment}"
+  path = "/"
+  description = "IAM policy for cloudwatch"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "cloudwatch:PutMetricData",
+        "ec2:DescribeTags"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "*"
+      ]
+    }
+  ]
+}
+EOF
+}
+
 resource "aws_iam_role" "elb" {
   name = "${var.environment}-elb-ec2-role-client-app"
 
@@ -20,6 +45,11 @@ resource "aws_iam_role" "elb" {
   ]
 }
 EOF
+}
+
+resource "aws_iam_role_policy_attachment" "elb-cloudwatch" {
+  role       = "${aws_iam_role.elb.name}"
+  policy_arn = "${aws_iam_policy.cloudwatchpolicy.arn}"
 }
 
 resource "aws_iam_role_policy_attachment" "elb-attach-ebweb" {
