@@ -185,7 +185,7 @@ class Case(models.Model):
     caseStage = models.IntegerField(choices=caseStages)
     appType = models.IntegerField(default = 0, choices = appTypes)
     productType = models.IntegerField(choices=productTypes, null=True, blank=True, default=0)
-    caseDescription = models.CharField(max_length=60, null=False, blank=False)
+    caseDescription = models.CharField(max_length=90, null=False, blank=False) # Surname + postcode
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
 
     # Customer Data
@@ -197,11 +197,11 @@ class Case(models.Model):
     #- Borrower 1
     clientType1=models.IntegerField(choices=clientTypes,null=True, blank=True)
     salutation_1 = models.IntegerField(choices=salutationTypes,null=True, blank=True)
-    middlename_1 = models.CharField(max_length=30, null=True, blank=True)
+    middlename_1 = models.CharField(max_length=40, null=True, blank=True)
     maritalStatus_1 = models.IntegerField(choices=maritalTypes,null=True, blank=True)
-    surname_1=models.CharField(max_length=30, null=True, blank=True)
-    firstname_1=models.CharField(max_length=30, null=True, blank=True)
-    preferredName_1=models.CharField(max_length=30, null=True, blank=True)
+    surname_1=models.CharField(max_length=80, null=True, blank=True)
+    firstname_1=models.CharField(max_length=40, null=True, blank=True)
+    preferredName_1=models.CharField(max_length=40, null=True, blank=True)
     birthdate_1=models.DateField(null=True, blank=True)
     age_1=models.IntegerField(null=True, blank=True)
     sex_1=models.IntegerField(choices=clientSex,null=True, blank=True)
@@ -209,11 +209,11 @@ class Case(models.Model):
     #- Borrower 2
     clientType2 = models.IntegerField(choices=clientTypes, null=True, blank=True)
     salutation_2 = models.IntegerField(choices=salutationTypes,null=True, blank=True)
-    middlename_2 = models.CharField(max_length=30, null=True, blank=True)
+    middlename_2 = models.CharField(max_length=40, null=True, blank=True)
     maritalStatus_2 = models.IntegerField(choices=maritalTypes,null=True, blank=True)
-    surname_2=models.CharField(max_length=30, null=True, blank=True)
-    firstname_2=models.CharField(max_length=30, null=True, blank=True)
-    preferredName_2=models.CharField(max_length=30, null=True, blank=True)
+    surname_2=models.CharField(max_length=80, null=True, blank=True)
+    firstname_2=models.CharField(max_length=40, null=True, blank=True)
+    preferredName_2=models.CharField(max_length=40, null=True, blank=True)
     birthdate_2=models.DateField(null=True, blank=True)
     age_2=models.IntegerField(null=True, blank=True)
     sex_2=models.IntegerField(choices=clientSex,null=True, blank=True)

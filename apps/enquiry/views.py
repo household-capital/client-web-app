@@ -821,7 +821,9 @@ class EnquiryAssignView(HouseholdLoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         preObj = Enquiry.objects.queryset_byUID(str(self.kwargs['uid'])).get()
         enq_obj = form.save(commit=False)
-        assign_enquiry(preObj, enq_obj.user.id)
+        # NB: we must send down the "preObj" so the user switch gets documented correctly in the enquiry notes
+        # during reassignment.
+        assign_enquiry(enq_obj, enq_obj.user.id)
 
         messages.success(self.request, "Enquiry assigned to " + enq_obj.user.username)
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))

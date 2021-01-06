@@ -173,7 +173,7 @@ class Enquiry(models.Model):
     # Enquiry Inputs
     productType = models.IntegerField(choices=productTypes, null=True, blank=True, default=0)
     loanType = models.IntegerField(choices=loanTypes, null=True, blank=True)
-    name=models.CharField(max_length=30,blank= True,null=True)
+    name = models.CharField(max_length=121, blank=True, null=True) # 40 chars firstname, 80 chars surname plus ' '
     age_1=models.IntegerField(blank=True, null=True)
     age_2 = models.IntegerField(blank=True, null=True)
     dwellingType=models.IntegerField(blank=True, null=True, choices=dwellingTypes)

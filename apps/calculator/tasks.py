@@ -69,12 +69,14 @@ def getWordpressData():
             # concatinate firstname and lastname fields from wordpress
             # Old API produces "name" field only, new API will produce "firstname" and "lastname"
             if 'firstname' in srcData:
-                srcData['name'] = srcData['firstname'].title()
+                # truncate at salesforce limit of 40 chars
+                srcData['name'] = srcData['firstname'][:40].title()
                 srcData.pop('firstname')
 
             if 'lastname' in srcData:
                 if srcData['lastname']:
-                    srcData['name'] += " " + srcData['lastname'].title()
+                    # truncate at salesforce limit of 80 chars
+                    srcData['name'] += " " + srcData['lastname'][:80].title()
                 srcData.pop('lastname')
             
             if not srcData['name']:
