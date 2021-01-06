@@ -60,7 +60,7 @@ class pdfGenerator():
                 sourceURL, file_name=pdfDescription, **self.pdf_options
             )
         except:
-            write_applog("ERROR", 'pdfGenerator', 'createPdf', "Presumed timeout error: " + self.pdfID)
+            write_applog("ERROR", 'pdfGenerator', 'createPdf', " Presumed timeout error: " + self.pdfID, is_exception=True)
             return {False, "API Error"}
 
         return self._processAPIResult(api_response, targetFileName)
@@ -74,7 +74,7 @@ class pdfGenerator():
                 html, file_name=pdfDescription, **self.pdf_options
             )
         except:
-            write_applog("ERROR", 'pdfGenerator', 'createPdf', "Presumed timeout error: " + self.pdfID)
+            write_applog("ERROR", 'pdfGenerator', 'createPdf', "Presumed timeout error: " + self.pdfID, is_exception=True)
             return {False, "API Error"}
 
         return self._processAPIResult(api_response, targetFileName)
@@ -94,7 +94,7 @@ class pdfGenerator():
                 return {'False', "API Returned Error"}
 
         except:
-            write_applog("ERROR", 'pdfGenerator', 'mergePdfs', "Presumed timeout error: " + self.pdfID)
+            write_applog("ERROR", 'pdfGenerator', 'mergePdfs', "Presumed timeout error: " + self.pdfID, is_exception=True)
 
             return {'False', "API Error"}
 
@@ -113,7 +113,7 @@ class pdfGenerator():
 
         except:
             write_applog("ERROR", 'pdfGenerator', 'mergePdfs',
-                         "Failed to save Merged Pdfs: " + self.pdfID)
+                         "Failed to save Merged Pdfs: " + self.pdfID, is_exception=True)
 
             return {'False', "Could not save"}
 
@@ -131,7 +131,7 @@ class pdfGenerator():
             return True
         except:
             write_applog("ERROR", 'pdfGenerator', 'emailPdf',
-                         "Failed to email Summary Report:" + self.pdfID)
+                         "Failed to email Summary Report:" + self.pdfID, is_exception=True)
             return False
 
     def getContent(self):

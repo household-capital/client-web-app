@@ -22,6 +22,7 @@ from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, getEnquiryProje
 from apps.enquiry.models import Enquiry
 from .models import WebCalculator, WebContact
 from .forms import WebContactDetail
+from .util import  convert_calc, ProcessingError
 from urllib.parse import urljoin
 
 # AUTHENTICATED VIEWS EXPOSED VIEWS
@@ -50,113 +51,23 @@ class CalcListView(HouseholdLoginRequiredMixin, ListView):
 
         return context
 
+
 class CalcCreateEnquiry(HouseholdLoginRequiredMixin, UpdateView):
     """ This view does not render it creates and enquiry, sends an email, updates the calculator
     and redirects to the Enquiry ListView"""
     context_object_name = 'object_list'
     model = WebCalculator
-    template_name = 'calculator/email/email_cover_calculator.html'
 
     def get(self, request, *args, **kwargs):
+        calc_uid = str(kwargs['uid'])
+        calculator = WebCalculator.objects.queryset_byUID(str(calc_uid)).get()
 
-        user = self.request.user
-        if not user.profile.calendlyUrl:
-            messages.error(self.request, "You are not set-up to action this type of enquiry")
-            return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
-
-        calcUID = str(kwargs['uid'])
-        queryset = WebCalculator.objects.queryset_byUID(str(calcUID))
-        obj = queryset.get()
-
-        calcDict = WebCalculator.objects.dictionary_byUID(str(calcUID))
-
-        # Create enquiry using WebCalculator Data
-        # Remove certain items from the dictionary
-        referrer = calcDict['referrer']
-        referrerID = calcDict['sourceID']
-
-        popList = ['calcUID', 'actionedBy', 'id', 'sourceID', 'referrer', 'updated', 'timestamp', 'actioned', 'application']
-        for item in popList:
-            calcDict.pop(item)
-
-        calcDict['name'] = calcDict['name'][:29] if calcDict['name'] else None
-        calcDict['streetAddress'] = calcDict['streetAddress'][:79] if calcDict['streetAddress'] else None
-        calcDict['suburb'] = calcDict['suburb'][:39] if calcDict['suburb'] else None
-
-        enq_obj = Enquiry.objects.create(user=user, referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer,
-                                         **calcDict)
-        enq_obj.save()
-
-        if enq_obj.status:
-
-            # PRODUCE PDF REPORT
-            sourceUrl = urljoin(
-                settings.SITE_URL,
-                reverse('enquiry:enqSummaryPdf', kwargs={'uid': str(enq_obj.enqUID)})
-            )
-            targetFileName = "enquiryReports/Enquiry-" + str(enq_obj.enqUID)[-12:] + ".pdf"
-
-            pdf = pdfGenerator(calcUID)
-            created, text = pdf.createPdfFromUrl(sourceUrl, 'CalculatorSummary.pdf', targetFileName)
-
-            if not created:
-                messages.error(self.request, "Enquiry created - but email not sent")
-
-                obj.actioned = 1
-                obj.save(update_fields=['actioned'])
-
-                return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
-
-            try:
-                # SAVE TO DATABASE (Enquiry Model)
-                qsEnq = Enquiry.objects.queryset_byUID(str(enq_obj.enqUID))
-                qsEnq.update(summaryDocument=targetFileName, enquiryStage = enquiryStagesEnum.SUMMARY_SENT.value )
-
-            except:
-                write_applog("ERROR", 'calcCreateEnquiry', 'get',
-                             "Failed to save Calc Summary in Database: " + str(enq_obj.enqUID))
-
-            #Build context
-            email_context = {}
-
-            #  Strip name
-            if obj.name:
-                if " " in obj.name:
-                    customerFirstName, surname = obj.name.split(" ", 1)
-                else:
-                    customerFirstName = obj.name
-                if len(customerFirstName) < 2:
-                    customerFirstName = None
-
-            email_context['customerFirstName'] = customerFirstName
-
-            #  Get Rates
-            email_context['loanRate']= round(ECONOMIC['interestRate'] + ECONOMIC['lendingMargin'], 2)
-            email_context['compRate'] = round(email_context['loanRate'] + ECONOMIC['comparisonRateIncrement'], 2)
-
-            email_context['user'] = request.user
-            subject, from_email, to, bcc = "Household Capital: Your Personal Summary", \
-                                           self.request.user.email, \
-                                           obj.email, \
-                                           self.request.user.email
-            text_content = "Text Message"
-            attachFilename = 'HHC-CalculatorSummary.pdf'
-
-            sent = pdf.emailPdf(self.template_name, email_context, subject, from_email, to, bcc, text_content,
-                                    attachFilename)
-
-            if sent:
-                messages.success(self.request, "Client has been emailed and enquiry created")
-            else:
-                messages.error(self.request, "Enquiry created - but email not sent")
-
+        try:
+            convert_calc(calculator, request.user)
+        except ProcessingError as ex:
+            messages.error(self.request, ex.args[0])
         else:
-            messages.error(self.request, "Age or Postcode Restriction - please respond to customer")
-
-        obj.actioned = 1
-        obj.save(update_fields=['actioned'])
-
-        app.send_task('Create_SF_Lead', kwargs={'enqUID': str(enq_obj.enqUID)})
+            messages.success(self.request, "Client has been emailed and enquiry created")
 
         return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
 

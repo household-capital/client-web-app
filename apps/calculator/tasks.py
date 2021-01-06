@@ -13,6 +13,9 @@ from apps.lib.api_Wordpress import apiWordpress
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Utilities import raiseTaskAdminError, cleanPhoneNumber
 from apps.lib.site_Enums import *
+from .util import convert_calc
+from apps.enquiry.util import find_auto_assignee
+
 
 # TASKS
 
@@ -81,22 +84,23 @@ def getWordpressData():
 
             # Create and save new WebCalculator object
             try:
-                item_saved = False
                 web_obj = WebCalculator.objects.create(**srcData)
-                item_saved = True
             except BaseException as e:
                 write_applog("ERROR", 'Api', 'Tasks-getWordpressData', "Could not save calculator entry")
                 raiseTaskAdminError("Could not save calculator entry", json.dumps(srcData))
                 raise e
 
-            if item_saved:
-                # Mark items as retrieved on Wordpress
-                result = wp.markCalculatorRetrieved(sourceUID)
+            # Mark items as retrieved on Wordpress
+            result = wp.markCalculatorRetrieved(sourceUID)
 
-                if result['status'] != 'Ok':
-                    write_applog("ERROR", 'Api', 'Tasks-getWordpressData', "Could not mark retrieved")
-                    raiseTaskAdminError("Could not mark calculator entry retrieved", json.dumps(srcData))
-                    raise Exception('Could not mark calculator entry retrieved')
+            if result['status'] != 'Ok':
+                write_applog("ERROR", 'Api', 'Tasks-getWordpressData', "Could not mark retrieved")
+                raiseTaskAdminError("Could not mark calculator entry retrieved", json.dumps(srcData))
+                raise Exception('Could not mark calculator entry retrieved')
+
+            proposed_owner = find_auto_assignee(directTypesEnum.WEB_CALCULATOR.value, None)
+            if proposed_owner:
+                convert_calc(web_obj, proposed_owner)
 
     # Retrieve contact data
     wp = apiWordpress()
@@ -139,12 +143,10 @@ def getWordpressData():
 
                 # Create and save new WebContact object
                 try:
-                    item_saved = False
                     web_obj = WebContact.objects.create(**srcData)
-                    item_saved = True
                 except:
-                    write_applog("ERROR", 'Api', 'Tasks-getWordpressData', "Could not save contact entry")
-                    raise raiseTaskAdminError("Could not save calculator entry", json.dumps(srcData))
+                    write_applog("ERROR", 'Api', 'Tasks-getWordpressData', 'Could not save "contact us" entry')
+                    raise raiseTaskAdminError('Could not save "contact us" entry', json.dumps(srcData))
 
             else:
                 #Map website data to Enquiry
@@ -180,20 +182,17 @@ def getWordpressData():
 
                 # Create and save new Enquiry object
                 try:
-                    item_saved = False
                     web_obj = Enquiry.objects.create(**srcData)
-                    item_saved = True
                 except:
-                    write_applog("ERROR", 'Api', 'Tasks-getWordpressData', "Could not save contact entry")
-                    raise raiseTaskAdminError("Could not save calculator entry", json.dumps(srcData))
+                    write_applog("ERROR", 'Api', 'Tasks-getWordpressData', 'Could not save "web enquiry" entry')
+                    raise raiseTaskAdminError('Could not save "web enquiry" entry', json.dumps(srcData))
 
-            if item_saved:
-                # Mark items as retrieved on Wordpress
-                result = wp.markContactRetrieved(sourceUID)
+            # Mark items as retrieved on Wordpress
+            result = wp.markContactRetrieved(sourceUID)
 
-                if result['status'] != 'Ok':
-                    write_applog("ERROR", 'Api', 'Tasks-getWordpressData', "Could not mark retrieved")
-                    raise raiseTaskAdminError("Could not mark contact entry retrieved", json.dumps(srcData))
+            if result['status'] != 'Ok':
+                write_applog("ERROR", 'Api', 'Tasks-getWordpressData', "Could not mark retrieved")
+                raise raiseTaskAdminError("Could not mark contact entry retrieved", json.dumps(srcData))
 
     write_applog("INFO", 'API', 'Tasks-getWordpresData', 'Finishing Retrieving Data')
     return 'Task completed successfully'

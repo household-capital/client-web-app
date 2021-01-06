@@ -2,6 +2,7 @@
 from django.conf import settings
 from django.urls import reverse_lazy
 from django.db import models
+from django.db.models import Q
 
 from apps.lib.site_Utilities import SingletonModel
 
@@ -14,7 +15,11 @@ class GlobalSettings(SingletonModel):
     autoassignees_calculators = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         blank=True,
-        limit_choices_to={'profile__isCreditRep': True}
+        limit_choices_to=Q(
+            Q(profile__isCreditRep=True) &
+            Q(profile__calendlyUrl__isnull=False) &
+            ~Q(profile__calendlyUrl='')
+        )
     )
 
     @property
