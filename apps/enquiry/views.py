@@ -1218,17 +1218,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
             Enquiry.objects.create(**payload)
 
     def findEnquiry(self, email, phoneNumber):
-
-        if email and phoneNumber:
-            query = (Q(email__iexact=email) | Q(phoneNumber=phoneNumber))
-        elif email:
-            query = Q(email__iexact=email)
-        elif phoneNumber:
-            query = Q(phoneNumber=phoneNumber)
-        else:
-            raise Exception('email or phone must be present')
-
-        enqUID = Enquiry.objects.filter(query).order_by("-updated").values_list('enqUID', flat=True).first()
+        enqUID = Enquiry.objects.find_duplicates_QS(email, phoneNumber).order_by("-updated").values_list('enqUID', flat=True).first()
         if enqUID:
             return str(enqUID)
 

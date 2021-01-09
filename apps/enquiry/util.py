@@ -10,6 +10,7 @@ from django.core.mail import EmailMultiAlternatives
 from apps.settings.models import GlobalSettings
 from apps.lib.site_Enums import *
 from apps.lib.site_Logging import write_applog
+from .models import Enquiry
 
 
 def assign_enquiries(assignments):
@@ -78,24 +79,42 @@ _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP = {
 }
 
 
-def find_auto_assignee(referrer, marketing_source, global_settings=None):
+def find_auto_assignee(referrer=None, marketing_source=None, email=None, phoneNumber=None, global_settings=None):
+
+    write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'BEGIN')
+
     if global_settings is None:
         global_settings = GlobalSettings.load()
 
-    user_field = None
+    settings_assignee_field = None
+    choice_filter = None
+
     if referrer in _AUTO_ASSIGN_LEADSOURCE_LOOKUP:
-        user_field, choice_filter = _AUTO_ASSIGN_LEADSOURCE_LOOKUP[referrer]
+        settings_assignee_field, choice_filter = _AUTO_ASSIGN_LEADSOURCE_LOOKUP[referrer]
     elif marketing_source in _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP:
-        user_field, choice_filter = _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP[marketing_source]
+        settings_assignee_field, choice_filter = _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP[marketing_source]
 
-    if not user_field:
-        return None
+    # First we honour using the same owner as a existing duplicate enquiry
+    if email or phoneNumber:
+        write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Checking duplicates')
+        duplicates = Enquiry.objects.find_duplicates(email, phoneNumber, order_by="-updated")
+        dup_owners = [duplicate.user for duplicate in duplicates if duplicate.user is not None]
+        if choice_filter:
+            dup_owners = choice_filter(dup_owners)
+        if dup_owners:
+            write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Using duplicate assignee')
+            return dup_owners[0]
 
-    users = choice_filter(getattr(global_settings, user_field).all())
-    if not users:
-        return None
+    # next try to use the system settings to find an active assignee
+    if settings_assignee_field:
+        write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Checking system settings')
+        users = choice_filter(getattr(global_settings, settings_assignee_field).all())
+        if users:
+            write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Using settings assignee')
+            return random.choice(users)
 
-    return random.choice(users)
+    write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Failed to locate potential assignee')
+    return None
 
 
 def auto_assign_enquiries(enquiries):
@@ -103,8 +122,12 @@ def auto_assign_enquiries(enquiries):
     assignments = {}
 
     for enquiry in enquiries:
-        user = find_auto_assignee(enquiry.referrer, enquiry.marketingSource, global_settings)
-        assignments.setdefault(user.id, []).append(enquiry)
+        user = find_auto_assignee(
+            enquiry.referrer, enquiry.marketingSource, enquiry.email, enquiry.phoneNumber, global_settings
+        )
+        if user:
+            assignments.setdefault(user.id, []).append(enquiry)
 
     if assignments:
         return assign_enquiries(assignments)
+

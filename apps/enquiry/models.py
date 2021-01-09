@@ -11,10 +11,12 @@ from django.db.models.fields import DateField
 from django.utils.timezone import get_current_timezone
 from django.utils.encoding import smart_text
 from django.urls import reverse_lazy
+from django.db.models import Q
 
 from urllib.parse import urljoin
 #Local Imports
 from apps.lib.site_Enums import *
+
 
 class EnquiryManager(models.Manager):
 
@@ -48,6 +50,21 @@ class EnquiryManager(models.Manager):
         result = self.__timeSeriesQry(Enquiry.objects.filter(referrer=seriesType), length)
 
         return result if result else {}
+
+    def find_duplicates_QS(self, email, phoneNumber):
+        if email and phoneNumber:
+            query = (Q(email__iexact=email) | Q(phoneNumber=phoneNumber))
+        elif email:
+            query = Q(email__iexact=email)
+        elif phoneNumber:
+            query = Q(phoneNumber=phoneNumber)
+        else:
+            raise Exception('email or phone must be present')
+
+        return Enquiry.objects.filter(query)
+
+    def find_duplicates(self, email, phoneNumber, order_by="-updated"):
+        return self.find_duplicates_QS(email, phoneNumber).order_by(order_by).all()
 
 
 class Enquiry(models.Model):
@@ -282,6 +299,14 @@ class Enquiry(models.Model):
     def enumPropensityCategory(self):
         if self.propensityCategory is not None:
             return dict(propensityChoices)[self.propensityCategory]
+
+    def has_duplicate(self):
+        if self.email and (Enquiry.objects.filter(email=self.email).count() > 1):
+            return True
+        if self.phoneNumber and (Enquiry.objects.filter(phoneNumber=self.phoneNumber).count() > 1):
+            return True
+
+        return False
 
     def __str__(self):
         return smart_text(self.email)

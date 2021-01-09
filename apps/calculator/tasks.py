@@ -93,6 +93,8 @@ def getWordpressData():
                 raise e
 
             # Mark items as retrieved on Wordpress
+            # FIX ME - big here, because multiple calc entries use same source ID these days,
+            # this can mark retrieved too soon. The ID needs to be changed to row specific!!
             result = wp.markCalculatorRetrieved(sourceUID)
 
             if result['status'] != 'Ok':
@@ -100,7 +102,9 @@ def getWordpressData():
                 raiseTaskAdminError("Could not mark calculator entry retrieved", json.dumps(srcData))
                 raise Exception('Could not mark calculator entry retrieved')
 
-            proposed_owner = find_auto_assignee(directTypesEnum.WEB_CALCULATOR.value, None)
+            proposed_owner = find_auto_assignee(
+                referrer=directTypesEnum.WEB_CALCULATOR.value, email=web_obj.email, phoneNumber=web_obj.phoneNumber
+            )
             if proposed_owner:
                 convert_calc(web_obj, proposed_owner)
 

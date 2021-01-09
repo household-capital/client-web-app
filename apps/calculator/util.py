@@ -1,4 +1,5 @@
 from urllib.parse import urljoin
+import time
 
 from django.conf import settings
 from django.urls import reverse_lazy, reverse
@@ -11,7 +12,7 @@ from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 
 from apps.enquiry.models import Enquiry
 from .models import WebCalculator
-from apps.enquiry.util import auto_assign_enquiries
+from apps.enquiry.util import auto_assign_enquiries, assign_enquiry
 
 
 class ProcessingError(Exception):
@@ -22,6 +23,11 @@ def convert_calc(calculator, proposed_owner=None):
 
     def attempt_sync(enq_obj):
         try:
+            if enq_obj.has_duplicate():
+                # in case the dup was recently created, let's wait to give it time to finish a SF sync before
+                # we start this one.
+                write_applog("INFO", 'calculator.util', 'attempt_sync', "Pausing for 20 secs to allow duplicate to settle")
+                time.sleep(20)
             app.send_task('Create_SF_Lead', kwargs={'enqUID': str(enq_obj.enqUID)})
         except Exception as ex:
             try:
@@ -50,12 +56,14 @@ def convert_calc(calculator, proposed_owner=None):
         calc_dict['suburb'] = calc_dict['suburb'][:39] if calc_dict['suburb'] else None
 
         enq_obj = Enquiry.objects.create(
-            user=proposed_owner, referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer, **calc_dict
+            user=None, referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer, **calc_dict
         )
         enq_obj.save()
 
         if proposed_owner is None:
             auto_assign_enquiries([enq_obj])
+        else:
+            assign_enquiry(enq_obj, proposed_owner.id)
 
         return enq_obj
 
