@@ -273,6 +273,22 @@ def mapCaseToOpportunity(caseObj, lossObj):
         'careNotes': caseObj.factfind.careNotes,
         'futureNotes': caseObj.factfind.futureNotes,
         'clientNotes': caseObj.factfind.clientNotes,
+
+        'isApplicantsEngaged': caseObj.factfind.all_applications_are_engaged,
+        'applicantDisagreementReason': caseObj.factfind.applicants_disengagement_reason,
+        'isThirdPartyEngaged': caseObj.factfind.is_third_party_engaged,
+        'reasonForThirdPartyEngagement': caseObj.factfind.reason_for_thirdparty_engagement,
+        'isPOASign': caseObj.factfind.applicant_poa_signing,
+        'PlannedLengthOfStay': caseObj.factfind.enumPlannedLengthOfStay(),
+        'PlannedMethodOfDischarge': caseObj.factfind.enumPlannedMethodOfDischarge(),
+        'isVulnerable': caseObj.factfind.is_vulnerable_customer,
+        'vulnerableDescription': caseObj.factfind.vulnerability_description,
+        'considredAltDownsizingOpts': caseObj.factfind.considered_alt_downsizing_opts,
+        'isProtectedEquity': caseObj.factfind.is_protected_equity,
+        'protectedEquity': caseObj.factfind.enumProtectedEquity(),
+        'planForGiving': caseObj.factfind.plan_for_future_giving,
+        'planForCare': caseObj.factfind.plan_for_aged_care,
+        'additionalCreditInfo': caseObj.factfind.additional_info_credit,
     }
 
     # Second Borrower
