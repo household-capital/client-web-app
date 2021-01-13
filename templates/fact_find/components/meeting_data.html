@@ -1,0 +1,169 @@
+{% load crispy_forms_tags %}
+
+<div class="row align-items-center">
+    <div class="col-lg-12 ">
+        <br/>
+        <p class="small-blue pb-2">Meeting Data</p>
+        <div class="row">
+            <div class="col">
+                <p class="small">
+                    Were all applicant(s) part of the customer engagement?
+                </p>
+                <p class="small">
+                    <i>Note: This does not include a nominated occupant.</i>
+                </p>
+            </div>
+            <div class="col">
+                <div class="form-check form-check-inline">
+                    <label>
+                        <input 
+                            type="radio" 
+                            name="all_applications_are_engaged" 
+                            required 
+                            autocomplete="off"
+                            value="True"
+                            {% if object.all_applications_are_engaged == True %} checked {% endif %}
+                        >
+                        Yes
+                    </label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <label>
+                        <input 
+                            type="radio" 
+                            required 
+                            name="all_applications_are_engaged"
+                            autocomplete="off"
+                            value="False"
+                            {% if object.all_applications_are_engaged == False %} checked {% endif %}
+                        >
+                        No
+                    </label>
+                </div>
+            </div>
+        </div>
+         <p class="small">
+            If no, please describe
+        </p>
+        <div class="row ">
+            <div class="col-lg-8 ">
+                <textarea class="textarea form-control" rows="5" name="applicants_disengagement_reason">{% if object.applicants_disengagement_reason != None %}{{ object.applicants_disengagement_reason }}{% endif %}</textarea>
+            </div>
+        </div>
+
+        <br/>
+        <div class="row">
+            <div class="col">
+                <p class="small">
+                    Was there a third party present for the customer engagement? 
+                </p>
+                <p class="small">
+                    <i>Note: This includes a nominated occupant.</i>
+                </p>
+            </div>
+            <div class="col">
+                <div class="form-check form-check-inline">
+                    <label>
+                        <input 
+                            type="radio" 
+                            name="is_third_party_engaged" 
+                            required 
+                            autocomplete="off"
+                            value="True"
+                            {% if object.is_third_party_engaged == True %} checked {% endif %}
+                        >
+                        Yes
+                    </label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <label>
+                        <input 
+                            type="radio" 
+                            required 
+                            name="is_third_party_engaged"
+                            autocomplete="off"
+                            value="False"
+                            {% if object.is_third_party_engaged == False %} checked {% endif %}
+                        >
+                        No
+                    </label>
+                </div>
+            </div>
+        </div>
+         <p class="small">
+            If no, please describe
+        </p>
+        <div class="row ">
+            <div class="col-lg-8 ">
+                <textarea class="textarea form-control" rows="5" name="reason_for_thirdparty_engagement">{% if object.reason_for_thirdparty_engagement != None %}{{ object.reason_for_thirdparty_engagement }}{% endif %}</textarea>
+            </div>
+        </div>
+
+        <br/>
+        <div class="row">
+            <div class="col">
+                <p class="small">
+                    Are either of the applicant(s) signing under a power of attorney?
+                </p>
+            </div>
+            <div class="col">
+                <div class="form-check form-check-inline">
+                    <label>
+                        <input 
+                            type="radio" 
+                            name="applicant_poa_signing" 
+                            required 
+                            autocomplete="off"
+                            value="True"
+                            {% if object.applicant_poa_signing == True %} checked {% endif %}
+                        >
+                        Yes
+                    </label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <label>
+                        <input 
+                            type="radio" 
+                            required 
+                            name="applicant_poa_signing"
+                            autocomplete="off"
+                            value="False"
+                            {% if object.applicant_poa_signing == False %} checked {% endif %}
+                        >
+                        No
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <br/>
+        <div class="row">
+            <div class="col">
+                <p class="small">
+                    How long does the applicant(s) plan to stay in their home?
+                </p>
+            </div>
+            <div class="col">
+                <div class="form-group col-md-5">
+                    {{ form.planned_length_of_stay | as_crispy_field }}
+                </div>
+            </div>
+        </div>
+
+        <br/>
+        <div class="row">
+            <div class="col">
+                <p class="small">
+                    What is the applicant(s) planned method of discharge?
+                </p>
+            </div>
+            <div class="col">
+                <div class="form-group col-md-5">
+                    {{ form.planned_method_of_discharge | as_crispy_field }}
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>

@@ -69,7 +69,7 @@ class ragTypesEnum(Enum):
 
 @accessInTemplate
 class channelTypesEnum(Enum):
-    DIRECT_ACQUISITION=11
+    DIRECT_ACQUISITION=11    
     PARTNER = 12
     BROKER=7
     ADVISER = 13
@@ -288,7 +288,27 @@ class closeReasonTypes(Enum):
     NO_CLIENT_ACTION=13
     OTHER = 12
 
+class lengthOfStayEnum(Enum):
+    LESS_1_YEAR = 1
+    ONE_YEAR = 2
+    TWO_YEAR = 3
+    THREE_YEAR = 4
+    FOUR_YEAR = 5
+    FIVE_YEAR = 6
+    SIX_YEAR = 7
+    SEVEN_YEAR = 8
+    EIGHT_YEAR = 9
+    NINE_YEAR = 10
+    TEN_YEAR = 11
+    MORE_THAN_10_YEAR = 12
+    LONG_AS_POSSIBLE = 13 
 
+class methodOfDischargeEnum(Enum):
+    DEATH = 1
+    AGED_CARE = 2
+    SALE = 3 
+    VOLUNTARY_REPAYMENT = 4  
+    
 @accessInTemplate
 class propensityCategoriesEnum(Enum):
     A = 1
