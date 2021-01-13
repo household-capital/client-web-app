@@ -707,6 +707,35 @@ class LossData(models.Model):
 
 
 class FactFind(models.Model):
+
+    lengthOfStayTypes = (
+        (lengthOfStayEnum.LESS_1_YEAR.value, '< 1 Year'),
+        (lengthOfStayEnum.ONE_YEAR.value, '1 Year'),
+        (lengthOfStayEnum.TWO_YEAR.value, '2 Years'),
+        (lengthOfStayEnum.THREE_YEAR.value, '3 Years'),
+        (lengthOfStayEnum.FOUR_YEAR.value, '4 Years'),
+        (lengthOfStayEnum.FIVE_YEAR.value, '5 Years'),
+        (lengthOfStayEnum.SIX_YEAR.value, '6 Years'),
+        (lengthOfStayEnum.SEVEN_YEAR.value, '7 Years'),
+        (lengthOfStayEnum.EIGHT_YEAR.value, '8 Years'),
+        (lengthOfStayEnum.NINE_YEAR.value, '9 Years'),
+        (lengthOfStayEnum.TEN_YEAR.value, '10 Years'),
+        (lengthOfStayEnum.MORE_THAN_10_YEAR.value, 'More than 10 Years'),
+        (lengthOfStayEnum.LONG_AS_POSSIBLE.value, 'Long as possible'),
+    )
+
+    methodOfDischargeTypes = (
+        (methodOfDischargeEnum.DEATH.value, 'Death'),
+        (methodOfDischargeEnum.AGED_CARE.value, 'Aged Care'),
+        (methodOfDischargeEnum.SALE.value, 'Sale'),
+        (methodOfDischargeEnum.VOLUNTARY_REPAYMENT.value, 'Voluntary Repayment'),
+    )
+
+    protectedEquityTypes = (
+        (i , "{} %".format(i*5))
+        for i in range(1,11)
+    )
+
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
     backgroundNotes = models.TextField(blank=True, null=True)
     requirementsNotes = models.TextField(blank=True, null=True)
@@ -720,6 +749,30 @@ class FactFind(models.Model):
     additionalNotes = models.TextField(blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+
+    #meeting data
+    all_applications_are_engaged = models.BooleanField(blank=True, null=True)
+    applicants_disengagement_reason = models.TextField(blank=True, null=True)
+    
+    is_third_party_engaged = models.BooleanField(blank=True, null=True)
+    reason_for_thirdparty_engagement = models.TextField(blank=True, null=True)
+
+    applicant_poa_signing = models.BooleanField(blank=True, null=True)
+    planned_length_of_stay = models.IntegerField(choices=lengthOfStayTypes, null=True, blank=True)
+    planned_method_of_discharge = models.IntegerField(choices=methodOfDischargeTypes, null=True, blank=True)
+    
+    #customer Data 
+    is_vulnerable_customer = models.BooleanField(blank=True, null=True)
+    vulnerability_description = models.TextField(blank=True, null=True)
+    considered_alt_downsizing_opts = models.BooleanField(blank=True, null=True)
+
+    is_protected_equity = models.BooleanField(blank=True, null=True)
+    protected_equity = models.IntegerField(choices=protectedEquityTypes, null=True, blank=True)
+    plan_for_future_giving = models.TextField(blank=True, null=True)
+    plan_for_aged_care = models.TextField(blank=True, null=True)
+
+    additional_info_credit = models.TextField(blank=True, null=True)
 
     objects = CaseManager()
 

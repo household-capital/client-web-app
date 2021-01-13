@@ -63,7 +63,6 @@ class Main(HouseholdLoginRequiredMixin, ContextHelper,  UpdateView):
 
         context = super(Main, self).get_context_data(**kwargs)
         context['title'] = 'Case Summary'
-
         return context
 
     def get_object(self, queryset=None):
