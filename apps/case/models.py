@@ -784,3 +784,16 @@ class FactFind(models.Model):
 
     def __unicode__(self):
         return smart_text(self.case.caseDescription)
+
+    @property
+    def enumPlannedLengthOfStay(self):
+        return dict(self.lengthOfStayTypes)[self.planned_length_of_stay]
+    
+
+    @property
+    def enumProtectedEquity(self):
+        return dict(self.protectedEquityTypes)[self.protected_equity]
+
+    @property
+    def enumPlannedMethodOfDischarge(self):
+        return dict(self.methodOfDischargeTypes)[self.planned_method_of_discharge]
