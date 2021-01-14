@@ -163,6 +163,7 @@ class GeneratePdf(View):
         #Call Synch document task
         if obj.sfOpportunityID:
             app.send_task('SF_Doc_Synch', kwargs={'caseUID': str(obj.caseUID)})
+            app.send_task('SF_Opp_Synch', kwargs={'caseUID': str(obj.caseUID)})
 
         return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseUID}))
 

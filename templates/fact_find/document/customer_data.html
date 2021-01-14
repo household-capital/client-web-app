@@ -1,0 +1,106 @@
+<div>
+    <p class="small-blue pb-2">Customer Data</p>
+    <br/>
+    <div class="row">
+        <div class="col">
+            <p class="small">
+                Are either of the applicant(s) a vulnerable customer under any of the following?
+            </p>
+            <ul>
+                <li> <p class="small"> Age-related impairment </p> </li>
+                <li> <p class="small"> Cognitive impairment <p> </li>
+                <li> <p class="small"> Elder abuse </p> </li>
+                <li> <p class="small"> Family or domestric violence </p> </li>
+                <li> <p class="small"> Financial abuse </p> </li>
+                <li> <p class="small"> Mental illness </p> </li>
+                <li> <p class="small"> Serious illness </p> </li>
+                <li> <p class="small"> Any other personal, or financial, circumstance causing significant detriment </p> </li>
+            <ul>
+        </div>
+        <div class="col">
+            <p>
+                {% if factObj.is_vulnerable_customer %}
+                    Yes
+                {% else %}
+                    No
+                {% endif %}
+            </p>
+        </div>
+    </div> 
+    {% if factObj.is_vulnerable_customer is True  %}
+        <p class="small">
+            If yes, please describe
+        </p>
+        <div class="row ">
+            <div class="col-lg-8 ">
+                <textarea class="textarea form-control" rows="5" readonly>{{ factObj.vulnerability_description }}</textarea>
+            </div>
+        </div>
+    {% endif %}
+    <br/>
+    <div class="row">
+        <div class="col">
+            <p class="small">
+                Has the applicant(s) consdiered alternative strategies including downsizing? 
+            </p>
+        </div>
+        <div class="col">
+            <p>
+                {% if factObj.considered_alt_downsizing_opts %}
+                    Yes
+                {% else %}
+                    No
+                {% endif %}
+            </p>
+        </div>
+    </div>
+    <br/>
+    <div class="row">
+        <div class="col">
+            <p class="small">
+                Does the applicant(s) wish to protect some equity in their home?
+            </p>
+        </div>
+        <div class="col">
+            <p>
+                {% if factObj.is_protected_equity %}
+                    Yes
+                {% else %}
+                    No
+                {% endif %}
+            </p>
+        </div>
+    </div> 
+    {% if factObj.is_protected_equity %}
+    <div class="row">
+        <div class="col">
+            <p class="small">
+                If yes, what percentage? 
+            </p>
+        </div>
+        <div class="col">
+            <p>
+                {{ factObj.enumProtectedEquity }}
+            </p>
+        </div>
+    </div> 
+    {% endif %}
+    <br/>
+    <p class="small">
+        Describe the applicant(s) plan for future giving 
+    </p>
+    <div class="row">
+        <div class="col-lg-8">
+            <textarea class="textarea form-control" rows="5" name="plan_for_future_giving" readonly>{% if factObj.plan_for_future_giving != None %}{{ factObj.plan_for_future_giving }}{% endif %}</textarea>
+        </div>
+    </div>
+    <br/>
+    <p class="small">
+        Describe the applicant(s) plan for aged care 
+    </p>
+    <div class="row">
+        <div class="col-lg-8">
+            <textarea class="textarea form-control" rows="5" name="plan_for_aged_care" readonly>{% if factObj.plan_for_aged_care != None %}{{ factObj.plan_for_aged_care }}{% endif %}</textarea>
+        </div>
+    </div>
+</div>
