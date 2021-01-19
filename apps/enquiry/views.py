@@ -1181,7 +1181,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": marketingTypesEnum.LINKEDIN.value,
                         "referrer": directTypesEnum.SOCIAL.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "user": None
+                        "user": self.request.user
                     }
 
                     self.updateCreateEnquiry(email, phoneNumber, payload,
