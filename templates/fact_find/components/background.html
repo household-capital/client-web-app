@@ -26,7 +26,7 @@
                     <div class="card-body">
                         <div class="row ">
                             <div class="col-lg-8 ">
-                                <textarea readonly class="textarea form-control" rows="10" name="backgroundNotes" id="id_backgroundNotes">{% if form.backgroundNotes.value != None %}{{ form.backgroundNotes.value }}{% endif %}</textarea>
+                                <textarea class="textarea form-control" rows="10" name="backgroundNotes" id="id_backgroundNotes">{% if form.backgroundNotes.value != None %}{{ form.backgroundNotes.value }}{% endif %}</textarea>
                             </div>
 
                             <div class="col-lg-4 notes">
@@ -44,6 +44,13 @@
                             </div>
                         </div>
                         <br>
+                         <div class="row ">
+                            <div class="col-lg-8 text-right">
+                                 <button id="background" type="submit" value="Submit" form="clientForm"
+                                            class="btn btn-warning"> Save
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
