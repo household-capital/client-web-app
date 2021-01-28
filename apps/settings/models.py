@@ -14,12 +14,55 @@ class GlobalSettings(SingletonModel):
 
     autoassignees_calculators = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
+        related_name='autoassignees_calculators',
         blank=True,
         limit_choices_to=Q(
             Q(profile__isCreditRep=True) &
             Q(profile__calendlyUrl__isnull=False) &
             ~Q(profile__calendlyUrl='')
         )
+    )
+
+    autoassignees_STARTS_AT_60 = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='autoassignees_STARTS_AT_60',
+        blank=True,
+        limit_choices_to=Q(profile__isCreditRep=True)
+    )
+
+    autoassignees_CARE_ABOUT = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='autoassignees_CARE_ABOUT',
+        blank=True,
+        limit_choices_to=Q(profile__isCreditRep=True)
+    )
+
+    autoassignees_NATIONAL_SENIORS = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='autoassignees_NATIONAL_SENIORS',
+        blank=True,
+        limit_choices_to=Q(profile__isCreditRep=True)
+    )
+
+    autoassignees_YOUR_LIFE_CHOICES = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='autoassignees_YOUR_LIFE_CHOICES',
+        blank=True,
+        limit_choices_to=Q(profile__isCreditRep=True)
+    )
+
+    autoassignees_FACEBOOK = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='autoassignees_FACEBOOK',
+        blank=True,
+        limit_choices_to=Q(profile__isCreditRep=True)
+    )
+
+    autoassignees_LINKEDIN = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='autoassignees_LINKEDIN',
+        blank=True,
+        limit_choices_to=Q(profile__isCreditRep=True)
     )
 
     @property

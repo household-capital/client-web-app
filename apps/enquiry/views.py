@@ -924,6 +924,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
 
         write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Commencing upload')
         partner_value = int(form.cleaned_data['partner'])
+
         if partner_value == marketingTypesEnum.STARTS_AT_60.value:
 
             write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'STARTS_AT_60')
@@ -1016,6 +1017,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
 
         elif partner_value == marketingTypesEnum.NATIONAL_SENIORS.value:
             write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'NATIONAL_SENIORS')
+
+            print(str(header))
             
             if header[0] != "Timestamp":
                 messages.warning(self.request, "Unrecognised file structure - could not load")

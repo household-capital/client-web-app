@@ -71,11 +71,28 @@ def _filter_calc_assignees(assignees):
     ]
 
 
+def _filter_partner_assignees(assignees):
+    return [
+        assignee for assignee in assignees if assignee.profile.isCreditRep
+    ]
+
+
+def _filter_social_assignees(assignees):
+    return [
+        assignee for assignee in assignees if assignee.profile.isCreditRep
+    ]
+
 _AUTO_ASSIGN_LEADSOURCE_LOOKUP = {
-    directTypesEnum.WEB_CALCULATOR.value: ('autoassignees_calculators',  _filter_calc_assignees)
+    directTypesEnum.WEB_CALCULATOR.value: ('autoassignees_calculators',  _filter_calc_assignees),
 }
 
 _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP = {
+    marketingTypesEnum.STARTS_AT_60.value: ('autoassignees_STARTS_AT_60',  _filter_calc_assignees),
+    marketingTypesEnum.CARE_ABOUT.value: ('autoassignees_CARE_ABOUT',  _filter_partner_assignees),
+    marketingTypesEnum.NATIONAL_SENIORS.value: ('autoassignees_NATIONAL_SENIORS',  _filter_partner_assignees),
+    marketingTypesEnum.YOUR_LIFE_CHOICES.value: ('autoassignees_YOUR_LIFE_CHOICES',  _filter_partner_assignees),
+    marketingTypesEnum.FACEBOOK.value: ('autoassignees_FACEBOOK',  _filter_social_assignees),
+    marketingTypesEnum.LINKEDIN.value: ('autoassignees_LINKEDIN',  _filter_social_assignees),
 }
 
 
