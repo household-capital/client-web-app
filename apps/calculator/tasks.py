@@ -124,12 +124,14 @@ def getWordpressData():
 
                 srcData['phone'] = cleanPhoneNumber(srcData['phone'])
 
-                srcData['name'] = srcData['firstname'] if 'firstname' in srcData else None
-                if 'lastname' in srcData:
-                    if srcData['name'] is not None:
-                        srcData['name'] += " " + srcData['lastname']
-                    else: 
-                        srcData['name'] = srcData['lastname']
+                firstname = srcData.get('firstname')
+                lastname = srcData.get('lastname')
+
+                if firstname and lastname:
+                    srcData['name'] = "{} {}".format(firstname, lastname)
+                else:
+                    # reduces to None if neither are present
+                    srcData['name'] = firstname or lastname
                     
                 srcData['sourceID'] = sourceUID
 
