@@ -54,26 +54,29 @@ class GlobalSettingsForm(forms.ModelForm):
                 ),
                 Div(
                     Div(HTML("Web Calculators:"), css_class='form-label pb-1'),
-                    Div(HHCInlineCheckboxes('autoassignees_calculators'), css_class='pb-3')
+                    Div(
+                        Field('autoassignees_calculators'),
+                        css_class='pl-5 col-lg-7'
+                    )
                 ),
                 Div(
                     Div(HTML("Partner Channels:"), css_class='form-label pb-1'),
                     Div(
                         Div(
                             Div(HTML("Starts at 60:"), css_class='form-label pb-1'),
-                            Div(HHCInlineCheckboxes('autoassignees_STARTS_AT_60'), css_class='pb-3')
+                            Div(Field('autoassignees_STARTS_AT_60'), css_class='pb-3')
                         ),
                         Div(
                             Div(HTML("Care About:"), css_class='form-label pb-1'),
-                            Div(HHCInlineCheckboxes('autoassignees_CARE_ABOUT'), css_class='pb-3')
+                            Div(Field('autoassignees_CARE_ABOUT'), css_class='pb-3')
                         ),
                         Div(
                             Div(HTML("National Seniors:"), css_class='form-label pb-1'),
-                            Div(HHCInlineCheckboxes('autoassignees_NATIONAL_SENIORS'), css_class='pb-3')
+                            Div(Field('autoassignees_NATIONAL_SENIORS'), css_class='pb-3')
                         ),
                         Div(
                             Div(HTML("Your  Life Choices:"), css_class='form-label pb-1'),
-                            Div(HHCInlineCheckboxes('autoassignees_YOUR_LIFE_CHOICES'), css_class='pb-3')
+                            Div(Field('autoassignees_YOUR_LIFE_CHOICES'), css_class='pb-3')
                         ),
                         css_class='pl-5 col-lg-7'
                     )
@@ -83,11 +86,11 @@ class GlobalSettingsForm(forms.ModelForm):
                     Div(
                         Div(
                             Div(HTML("Facebook:"), css_class='form-label pb-1'),
-                            Div(HHCInlineCheckboxes('autoassignees_FACEBOOK'), css_class='pb-3')
+                            Div(Field('autoassignees_FACEBOOK'), css_class='pb-3')
                         ),
                         Div(
                             Div(HTML("LinkedIn:"), css_class='form-label pb-1'),
-                            Div(HHCInlineCheckboxes('autoassignees_LINKEDIN'), css_class='pb-3')
+                            Div(Field('autoassignees_LINKEDIN'), css_class='pb-3')
                         ),
                         css_class='pl-5 col-lg-7'
                     )

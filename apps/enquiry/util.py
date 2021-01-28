@@ -84,14 +84,14 @@ def _filter_calc_assignees(assignees):
 def _filter_partner_assignees(assignees):
     return [
         assignee for assignee in assignees
-        if assignee.is_active and assignee.profile.isCreditRep
+        if assignee.is_active #and assignee.profile.isCreditRep
     ]
 
 
 def _filter_social_assignees(assignees):
     return [
         assignee for assignee in assignees
-        if assignee.is_active and assignee.profile.isCreditRep
+        if assignee.is_active #and assignee.profile.isCreditRep
     ]
 
 _AUTO_ASSIGN_LEADSOURCE_LOOKUP = {

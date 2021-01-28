@@ -29,8 +29,8 @@ class GlobalSettings(SingletonModel):
         related_name='autoassignees_STARTS_AT_60',
         blank=True,
         limit_choices_to=Q(
-            Q(is_active=True) &
-            Q(profile__isCreditRep=True)
+            Q(is_active=True) #&
+            #Q(profile__isCreditRep=True)
         )
     )
 
@@ -39,8 +39,8 @@ class GlobalSettings(SingletonModel):
         related_name='autoassignees_CARE_ABOUT',
         blank=True,
         limit_choices_to=Q(
-            Q(is_active=True) &
-            Q(profile__isCreditRep=True)
+            Q(is_active=True) #&
+            #Q(profile__isCreditRep=True)
         )
     )
 
@@ -49,8 +49,8 @@ class GlobalSettings(SingletonModel):
         related_name='autoassignees_NATIONAL_SENIORS',
         blank=True,
         limit_choices_to=Q(
-            Q(is_active=True) &
-            Q(profile__isCreditRep=True)
+            Q(is_active=True) #&
+            #Q(profile__isCreditRep=True)
         )
     )
 
@@ -59,8 +59,8 @@ class GlobalSettings(SingletonModel):
         related_name='autoassignees_YOUR_LIFE_CHOICES',
         blank=True,
         limit_choices_to=Q(
-            Q(is_active=True) &
-            Q(profile__isCreditRep=True)
+            Q(is_active=True) #&
+            #Q(profile__isCreditRep=True)
         )
     )
 
@@ -69,8 +69,8 @@ class GlobalSettings(SingletonModel):
         related_name='autoassignees_FACEBOOK',
         blank=True,
         limit_choices_to=Q(
-            Q(is_active=True) &
-            Q(profile__isCreditRep=True)
+            Q(is_active=True) #&
+            #Q(profile__isCreditRep=True)
         )
     )
 
@@ -79,8 +79,8 @@ class GlobalSettings(SingletonModel):
         related_name='autoassignees_LINKEDIN',
         blank=True,
         limit_choices_to=Q(
-            Q(is_active=True) &
-            Q(profile__isCreditRep=True)
+            Q(is_active=True) #&
+            #Q(profile__isCreditRep=True)
         )
     )
 
