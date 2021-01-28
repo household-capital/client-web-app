@@ -76,6 +76,19 @@ def get_celery_beat_config():
         'AMAL_FUNDED_DATA - Nightly':{
             'task': 'AMAL_Funded_Data', # custom task (?)
             'schedule': crontab(hour=3, minute=0)
+        },
+        # The following tasks are cloudwatch tasks 
+        'CloudWatch_Task_Poll_Wordpress_Data': {
+            'task': 'CW_Wordpress_Data_stats',
+            'schedule': schedule(run_every=timedelta(minutes=15))
+        },
+        'CloudWatch_Task_Poll_Catchall_SF_Lead': {
+            'task': 'CW_Catchall_SF_Lead_stats',
+            'schedule': crontab(hour=4, minute=0)
+        },
+        'CloudWatch_Task_Poll_Catchall_SF_Case_Lead': {
+            'task': 'CW_Catchall_SF_Case_Lead_stats',
+            'schedule': crontab(hour=4, minute=0)
         }
     }
 

@@ -5,6 +5,7 @@
 
 
 <div>
+    <p class="small-blue pb-2">Loan Purposes</p>
     {% if topUpAmount != 0 or topUpContingencyAmount != 0 or topUpDrawdownAmount != 0 %}
         <p class="small pt-4 pb-2"><b>Purpose: Top-up</b></p>
         <p> {{ factObj.topUpNotes }} </p>
@@ -30,11 +31,10 @@
         <p> {{ factObj.careNotes }} </p>
     {% endif %}
 
-    <p class="pt-5 pb-2"><b>Future Requirements</b></p>
-    <p> {{ factObj.futureNotes }} </p>
-
-    <p class="pt-5 pb-2"><b>Client understanding</b></p>
-    <p> {{ factObj.clientNotes }} </p>
-
+    {% if factObj.additional_info_credit %}
+        <hr/>
+        <p class="small pt-4 pb-2"><b>Extra Info For Credit Assessment</b></p>
+        <p>{{ factObj.additional_info_credit }}</p>
+    {% endif %}
 </div>
 

@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'apps.referrer',
     'apps.site_tags',
     'apps.settings',
+    'apps.operational'
 ]
 
 MIDDLEWARE = [

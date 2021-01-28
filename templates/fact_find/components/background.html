@@ -44,12 +44,11 @@
                             </div>
                         </div>
                         <br>
-                        <div class="row ">
+                         <div class="row ">
                             <div class="col-lg-8 text-right">
-                                <button id="background" type="submit" value="Submit" form="clientForm"
-                                        class="btn btn-warning"> Save
+                                 <button id="background" type="submit" value="Submit" form="clientForm"
+                                            class="btn btn-warning"> Save
                                 </button>
-
                             </div>
                         </div>
                     </div>
@@ -58,55 +57,6 @@
             </div>
         </div>
 
-
-        <div class="accordion" id="accordionRequirements">
-            <div class="card pt-1">
-                <div class="card-header" id="headingRequirements">
-                    <h2 class="mb-0">
-                        <button class="btn btn-light" type="button" data-toggle="collapse"
-                                data-target="#collapseRequirements"
-                                aria-expanded="true" aria-controls="collapseRequirements">
-                            <p>
-                                <i class="fa fa-plus fa-xs"></i>&nbsp;&nbsp;Requirements and objectives</p>
-
-                        </button>
-                    </h2>
-                </div>
-
-                <!-- Requirements Questions -->
-                <div id="collapseRequirements" class="collapse" aria-labelledby="headingRequirements"
-                     data-parent="#accordionRequirements">
-                    <div class="card-body">
-                        <div class="row ">
-                            <div class="col-lg-8">
-
-                                <textarea class="textarea form-control" rows="10" name="requirementsNotes"
-                                          id="id_requirementNotes">{% if form.requirementsNotes.value != None %}{{ form.requirementsNotes.value }}{% endif %}</textarea>
-                            </div>
-
-                            <div class="col-lg-4 notes">
-                                <ul>
-                                    <li>What are the customer's primary objective(s) (purposes below)</li>
-                                    <li>Retirement funding, avoid downsizing, interest payment</li>
-                                    <li>Have other alternative strategies been considered (e.g., downsizing)?</li>
-                    
-
-                                </ul>
-                            </div>
-                        </div>
-                        <br>
-                        <div class="row ">
-                            <div class="col-lg-8 text-right">
-                                <button id="requirement" type="submit" value="Submit" form="clientForm"
-                                        class="btn btn-warning"> Save
-                                </button>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
     </div>
 </div>

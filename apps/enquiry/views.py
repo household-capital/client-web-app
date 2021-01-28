@@ -947,7 +947,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         '%d/%m/%Y')
 
                     payload = {
-                        "name": (row[0] + " " + row[5]).title(),
+                        "name": (row[0] + " " + row[5]),
                         "postcode": row[2],
                         "email": email,
                         "phoneNumber": phoneNumber,
@@ -991,7 +991,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                     enquiryString += "\r\nWho needs help: " + row[16]
 
                     payload = {
-                        "name": (row[3] + " " + row[2]).title(),
+                        "name": (row[3] + " " + row[2]),
                         "postcode": self.cleanValuation(row[15]),
                         "email": email,
                         "phoneNumber": phoneNumber,
@@ -1023,7 +1023,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
 
             processed_count = 0 
             for row in reader: 
-                name = row[2].title()
+                name = row[2]
                 write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'processing %s' % name)
                 email = row[3]  
                 phonenumber = cleanPhoneNumber(row[5])
@@ -1075,9 +1075,9 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
             processed_count = 0
 
             for row in reader:
-                name = row[0].title()
+                name = row[0]
                 if row[1]:
-                    name += " " + row[1].title()
+                    name += " " + row[1]
 
                 write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'processing %s' % name)
 
@@ -1144,7 +1144,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                     enquiryString += "\r\nYear of Birth: " + row[10]
 
                     payload = {
-                        "name": row[2].title(),
+                        "name": row[2],
                         "postcode": row[4],
                         "email": email,
                         "phoneNumber": phoneNumber,
@@ -1190,7 +1190,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                     enquiryString += "\r\nYear of Birth: " + row[11]
 
                     payload = {
-                        "name": row[2].title() + " " + row[3].title(),
+                        "name": row[2] + " " + row[3],
                         "postcode": row[5],
                         "email": email,
                         "phoneNumber": phoneNumber,
@@ -1198,7 +1198,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "age_1": None,
                         "marketingSource": marketingTypesEnum.LINKEDIN.value,
                         "referrer": directTypesEnum.SOCIAL.value,
-                        "productType": productTypesEnum.LUMP_SUM.value
+                        "productType": productTypesEnum.LUMP_SUM.value,
+                        "user": self.request.user
                     }
 
                     self.updateCreateEnquiry(
