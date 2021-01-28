@@ -116,7 +116,7 @@ class EnquiryForm(forms.ModelForm):
 
     def clean_name(self):
         if self.cleaned_data['name']:
-            return self.cleaned_data['name'].title()
+            return self.cleaned_data['name']
 
     def clean_phoneNumber(self):
         if self.cleaned_data['phoneNumber']:
@@ -265,7 +265,7 @@ class EnquiryDetailForm(forms.ModelForm):
 
     def clean_name(self):
         if self.cleaned_data['name']:
-            return self.cleaned_data['name'].title()
+            return self.cleaned_data['name']
 
     def clean_phoneNumber(self):
         if self.cleaned_data['phoneNumber']:
@@ -338,7 +338,7 @@ class EnquiryCallForm(forms.ModelForm):
 
     def clean_name(self):
         if self.cleaned_data['name']:
-            return self.cleaned_data['name'].title()
+            return self.cleaned_data['name']
 
     def clean_phoneNumber(self):
         if self.cleaned_data['phoneNumber']:

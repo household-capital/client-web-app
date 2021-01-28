@@ -67,13 +67,13 @@ def getWordpressData():
             # Old API produces "name" field only, new API will produce "firstname" and "lastname"
             if 'firstname' in srcData:
                 # truncate at salesforce limit of 40 chars
-                srcData['name'] = srcData['firstname'][:40].title()
+                srcData['name'] = srcData['firstname'][:40]
                 srcData.pop('firstname')
 
             if 'lastname' in srcData:
                 if srcData['lastname']:
                     # truncate at salesforce limit of 80 chars
-                    srcData['name'] += " " + srcData['lastname'][:80].title()
+                    srcData['name'] += " " + srcData['lastname'][:80]
                 srcData.pop('lastname')
             
             if not srcData['name']:
@@ -123,9 +123,16 @@ def getWordpressData():
                            'lastname', 'origin', 'resource', 'description']
 
                 srcData['phone'] = cleanPhoneNumber(srcData['phone'])
-                srcData['name'] = srcData['firstname'].title() if srcData['firstname'] else None
-                if srcData['lastname']:
-                    srcData['name'] += " " + srcData['lastname'].title() if srcData['firstname'] else ""
+
+                firstname = srcData.get('firstname')
+                lastname = srcData.get('lastname')
+
+                if firstname and lastname:
+                    srcData['name'] = "{} {}".format(firstname, lastname)
+                else:
+                    # reduces to None if neither are present
+                    srcData['name'] = firstname or lastname
+                    
                 srcData['sourceID'] = sourceUID
 
                 # map fields
@@ -160,9 +167,10 @@ def getWordpressData():
                 srcData['referrer'] = directTypesEnum.WEB_ENQUIRY.value
                 srcData['enquiryStage'] = enquiryStagesEnum.BROCHURE_SENT.value
                 srcData['phoneNumber'] = cleanPhoneNumber(srcData['phone'])
-                srcData['name'] = srcData['firstname'].title() if srcData['firstname'] else None
+                srcData['name'] = srcData['firstname'] if srcData['firstname'] else None
                 if srcData['lastname']:
-                    srcData['name'] += " " + srcData['lastname'].title() if srcData['firstname'] else ""
+                    srcData['name'] += " " + \
+                        srcData['lastname'] if srcData['firstname'] else ""
                 srcData['enquiryNotes'] = '[# Website Enquiry #]'
                 srcData['enquiryNotes'] += '\r\n' + srcData['origin']
                 if srcData.get('description') is not None:
