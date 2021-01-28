@@ -823,7 +823,7 @@ class EnquiryAssignView(HouseholdLoginRequiredMixin, UpdateView):
         enq_obj = form.save(commit=False)
         # NB: we must send down the "preObj" so the user switch gets documented correctly in the enquiry notes
         # during reassignment.
-        assign_enquiry(enq_obj, enq_obj.user.id)
+        assign_enquiry(preObj, enq_obj.user)
 
         messages.success(self.request, "Enquiry assigned to " + enq_obj.user.username)
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
@@ -908,12 +908,12 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
             result = self._form_valid(form, enquiries_to_assign)
         except Exception as ex:
             try:
-                auto_assign_enquiries(enquiries_to_assign)
+                auto_assign_enquiries(enquiries_to_assign, force=True)
             except Exception as ex:
                 write_applog("ERROR", 'Enquiry', 'EnquiryPartnerUpload', 'Error in auto assignments', is_exception=True)
             raise
         else:
-            auto_assign_enquiries(enquiries_to_assign)
+            auto_assign_enquiries(enquiries_to_assign, force=True)
             return result
 
     def _form_valid(self, form, enquiries_to_assign):
@@ -1202,7 +1202,6 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": marketingTypesEnum.LINKEDIN.value,
                         "referrer": directTypesEnum.SOCIAL.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "user": self.request.user
                     }
 
                     self.updateCreateEnquiry(
@@ -1230,6 +1229,9 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
         if existingUID:
             write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Found existing enquiry')
 
+            # preserve_owners is just a query flag I put in so I could safely rerun a file
+            # without stealing ownership of leads for myself ;) -- but it might be removable,
+            # probably no one using it any more. (mattc)
             preserve_owners = int(self.request.GET.get("preserve_owners", 0))
 
             qs = Enquiry.objects.queryset_byUID(existingUID)
@@ -1248,17 +1250,12 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                     pass
                 else:
                     write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Updating existing enquiry')
-                    if not preserve_owners:
-                        payload["user"] = None
                     qs.update(**payload)
                     obj = qs.get()
                     updateNotes = "".join(filter(None, (obj.enquiryNotes, "\r\n\r\n" + enquiryString)))
                     obj.enquiryNotes = updateNotes
                     obj.save()
                     if not preserve_owners:
-
-                        # FIX ME CHECK THIS WITH JAY -- IT"S WEIRD !!
-
                         write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Overwriting owner')
                         enquiries_to_assign.append(obj)
         else:

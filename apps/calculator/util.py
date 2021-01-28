@@ -63,7 +63,7 @@ def convert_calc(calculator, proposed_owner=None):
         if proposed_owner is None:
             auto_assign_enquiries([enq_obj])
         else:
-            assign_enquiry(enq_obj, proposed_owner.id)
+            assign_enquiry(enq_obj, proposed_owner)
 
         return enq_obj
 
