@@ -123,10 +123,13 @@ def getWordpressData():
                            'lastname', 'origin', 'resource', 'description']
 
                 srcData['phone'] = cleanPhoneNumber(srcData['phone'])
-                srcData['name'] = srcData['firstname'] if srcData['firstname'] else None
-                if srcData['lastname']:
-                    srcData['name'] += " " + \
-                        srcData['lastname'] if srcData['firstname'] else ""
+
+                if 'firstname' in srcData and 'lastname' in srcData:
+	                srcData['name'] = srcData['firstname'] + \
+	                    " " + srcData['lastname']
+                else:
+	                srcData['name'] = srcData['firstname'] if 'firstname' in srcData else srcData['lastname'] if 'lastname' in srcData else None
+
                 srcData['sourceID'] = sourceUID
 
                 # map fields
