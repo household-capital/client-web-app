@@ -16,12 +16,19 @@ from crispy_forms.layout import Submit, Layout, Field, Div, HTML, Row, Column
 from apps.lib.site_Enums import loanTypesEnum, caseStagesEnum, incomeFrequencyEnum, purposeCategoryEnum, \
     purposeIntentionEnum, clientTypesEnum
 from apps.base.model_utils import address_model_fields
+<<<<<<< HEAD
 from apps.base.form_utils import AddressFormMixin
+=======
+>>>>>>> HM-2097: Address field split
 from .models import Case, LossData, LoanPurposes
 
 
 
+<<<<<<< HEAD
 class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
+=======
+class CaseDetailsForm(forms.ModelForm):
+>>>>>>> HM-2097: Address field split
     # A model form with some overriding using form fields for rendering purposes
     # Additional HTML rendering in the form
 
@@ -172,6 +179,14 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                     Div(Div(Field('gnaf_id'))),
                     Div(Div(HTML("Suburb*"), css_class='form-label'),
                         Div(Field('suburb'))),
+                    Div(Div(HTML("Unit / Apartment / Lot"), css_class='form-label'),
+                        Div(Field('base_specificity'))),
+                    Div(Div(HTML("Street Number"), css_class='form-label'),
+                        Div(Field('street_number'))),
+                    Div(Div(HTML("Street Name"), css_class='form-label'),
+                        Div(Field('street_name'))),
+                    Div(Div(HTML("Street Type e.g Avenue, Lane, etc"), css_class='form-label'),
+                        Div(Field('street_type'))),
                     Row(
                         Column(Div(Div(HTML("State*"), css_class='form-label'),
                                    Div(Field('state'))), css_class='col-6'),

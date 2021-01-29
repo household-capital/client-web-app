@@ -76,7 +76,7 @@ class MarketingCampaign(AbstractAddressModel):
     def __str__(self):
         return smart_text(self.campaign_name)
 
-class Enquiry(models.Model):
+class Enquiry(AbstractAddressModel):
 
     productTypes = (
         (productTypesEnum.LUMP_SUM.value, "Lump Sum"),
