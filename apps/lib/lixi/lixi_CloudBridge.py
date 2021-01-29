@@ -202,7 +202,7 @@ class CloudBridge():
         self.__logging(" -  "+str(loanDict))
 
         self.__logging("Step 3 - Generating XML File")
-
+        
         commentStr = str(
             "This file is for short-form loan ID {0}, short-form opportunity ID {1} and with opportunity description {2}").format(
             loanDict['LoanObject.LoanNumber'], loanDict['Loan.Loan_Number__c'], loanDict['Opp.Name'])

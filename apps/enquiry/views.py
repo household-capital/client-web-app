@@ -40,6 +40,8 @@ from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, getEnquiryProje
     cleanPhoneNumber, validateEnquiry
 from .util import assign_enquiry, auto_assign_enquiries
 
+from urllib.parse import urljoin
+from apps.base.model_utils import address_model_fields
 
 # AUTHENTICATED VIEWS
 
@@ -731,6 +733,10 @@ class EnquiryConvert(HouseholdLoginRequiredMixin, View):
         caseDict['street'] = enq_obj.streetAddress
         caseDict['channelDetail'] = enq_obj.marketingSource
         caseDict['propensityCategory'] = enq_obj.propensityCategory
+
+        # address split 
+        for field in address_model_fields: 
+            caseDict[field] = getattr(enq_obj, field)
 
         salesChannelMap = {
             directTypesEnum.PARTNER.value: channelTypesEnum.PARTNER.value,

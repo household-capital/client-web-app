@@ -104,11 +104,23 @@ class EnrichEnum:
         self.__logging("Enriching Property Information")
 
         mappify = apiMappify()
-
+        
+        concatenated_address = "{} {} {} {}".format(
+            self.loanDict['Prop.Unit__c'],
+            self.loanDict['Prop.Street_Number__c'],
+            self.loanDict['Prop.Street_Name__c'],
+            self.loanDict['Prop.Street_Type__c']
+        )
+        self.__logging('Concating property addreses - Result = {}'.format(concatenated_address))
         result = mappify.setAddress({"streetAddress": self.loanDict['Prop.Street_Address__c'],
                                      "suburb": self.loanDict['Prop.Suburb_City__c'],
                                      "postcode": self.loanDict['Prop.Postcode__c'],
-                                     "state": self.__enumState(self.loanDict['Prop.State__c'])})
+                                     "state": self.__enumState(self.loanDict['Prop.State__c']),
+                                     "unit": self.loanDict['Prop.Unit__c'],
+                                     "streetnumber": self.loanDict['Prop.Street_Number__c'],
+                                     "streetname": self.loanDict['Prop.Street_Name__c'],
+                                     "streettype":self.loanDict['Prop.Street_Type__c']
+                                     })
 
         if result['status'] != 'Ok':
             self.__logging(result['responseText'])
@@ -157,7 +169,7 @@ class EnrichEnum:
             # Purposes
             # Look up ABS and Primary Purpose using associated dictionaries
             maxval = 0
-
+            
             for i in range(int(self.loanDict['Purp.NoPurposes'])):
                 self.loanDict["Purp" + str(i + 1) + ".ABSCode"] = self.ABS_LendingCodes[
                     self.loanDict["Purp" + str(i + 1) + ".Category__c"]]

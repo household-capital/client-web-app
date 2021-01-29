@@ -17,6 +17,7 @@ from urllib.parse import urljoin
 #Local Imports
 from apps.lib.site_Enums import *
 from config.celery import app
+from apps.base.model_utils import AbstractAddressModel
 
 
 class EnquiryManager(models.Manager):
@@ -68,7 +69,7 @@ class EnquiryManager(models.Manager):
         return self.find_duplicates_QS(email, phoneNumber).order_by(order_by)
 
 
-class Enquiry(models.Model):
+class Enquiry(AbstractAddressModel):
 
     productTypes = (
         (productTypesEnum.LUMP_SUM.value, "Lump Sum"),

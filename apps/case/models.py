@@ -16,6 +16,7 @@ from apps.lib.site_Enums import *
 from apps.accounts.models import Referer
 from urllib.parse import urljoin
 
+from apps.base.model_utils import AbstractAddressModel
 
 class FundDetail(models.Model):
     #Model for Fund Names/Images
@@ -57,7 +58,7 @@ class CaseManager(models.Manager):
         return Case.objects.filter(owner__isnull=True).count()
 
 
-class Case(models.Model):
+class Case(AbstractAddressModel):
     # Main model - extended by Loan, ModelSettings and LossData
 
     appTypes = (
