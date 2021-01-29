@@ -13,6 +13,7 @@ from apps.servicing.models import FacilityRoles, FacilityProperty, FacilityPrope
 from apps.case.models import LoanPurposes, Loan
 from apps.enquiry.models import Enquiry
 
+from apps.base.model_utils import db_to_sf_map
 
 # INTERNAL MAPPING
 
@@ -292,7 +293,12 @@ def mapCaseToOpportunity(caseObj, lossObj):
         'planForGiving': caseObj.factfind.plan_for_future_giving,
         'planForCare': caseObj.factfind.plan_for_aged_care,
         'additionalCreditInfo': caseObj.factfind.additional_info_credit,
+
+        
     }
+    # syncing new address fields - hm-2097
+    for db_field, sf_name in db_to_sf_map.items(): 
+        payload[sf_name] = getattr(caseObj, db_field)
 
     # Second Borrower
     if caseObj.clientType2 != None:

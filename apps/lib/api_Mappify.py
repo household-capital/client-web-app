@@ -25,34 +25,44 @@ class apiMappify():
         self.APIKey=os.getenv('MAPPIFY_KEY')
 
     def setAddress(self,addressDict):
-        minFields=['streetAddress','suburb','postcode','state']
+        minFields=['streetAddress', 'suburb', 'postcode', 'state']
 
         for field in minFields:
             if field not in addressDict or addressDict[field]==None:
                 return {"status":"Error","responseText":"Missing Addresss Fields"}
 
-        if '/' in addressDict['streetAddress']:
-            self.unit, self.streetAddress = addressDict['streetAddress'].split("/", 1)
-            self.fullStreetAddress = addressDict['streetAddress']
-        else:
-            self.streetAddress = addressDict['streetAddress']
-            self.fullStreetAddress = addressDict['streetAddress']
+        street_address = "{} {} {}".format(
+            addressDict.get('streetnumber', ''),
+            addressDict.get('streetname', ''),
+            addressDict.get('streettype', ''),
+        ).strip()
+
+        concatenated_address = "{} {}".format(
+            addressDict.get('unit', ''),
+            street_address
+        ).strip()
+
+        self.streetAddress = concatenated_address
+        self.fullStreetAddress = concatenated_address
+
+        if addressDict.get('unit', '') != '': 
+            self.unit = addressDict.get('unit', '')
+            self.streetAddress = street_address
 
         self.suburb = addressDict['suburb']
         self.postcode = addressDict['postcode']
         self.state = addressDict['state']
+        
+        self.streetnumber = addressDict.get('streetnumber', '')
+        self.streetname = addressDict.get('streetname', '')
+        self.streettype = addressDict.get('streettype', '')
 
         return {"status": "Ok"}
 
     def checkPostalAddress(self):
 
         #Strip apartment if present
-        if "/" in self.fullStreetAddress:
-            addressList=self.fullStreetAddress.split("/",1)
-            stripAddress=addressList[1]
-        else:
-            stripAddress = self.fullStreetAddress
-
+        stripAddress = self.streetAddress
         #Use GeoCode to get location first
         payload = {"streetAddress": stripAddress,
                    "postcode": self.postcode,
@@ -90,17 +100,41 @@ class apiMappify():
 
         if response.status_code != 200:
             write_applog("ERROR", 'apiMappify', 'checkPostalAddress', 'API Call Failed - '+response.status_code)
-            return {'status':"Error","errorText":'API Call Failed - could not check address'}
+            return {'status':"Error","responseText":'API Call Failed - could not check address'}
 
 
         response=response.json()
 
         write_applog("INFO", 'apiMappify', 'checkPostalAddress', 'API Success')
-
-        if len(response['result'])==1 and response['confidence']>0.5:
-               return {'status': "Ok", "responseText": 'Address Match - High Confidence',"result":response['result'][0]}
-        else:
-            return {'status': "Ok", "responseText": 'Address Match - Low Confidence', "result": response['result'][0]}
+        results = response['result']
+        confidence = response['confidence']
+        normalise = lambda _s: str(_s).lower()
+        base_validator = lambda _dict, dictkey, objkey: normalise(_dict[dictkey]) == normalise(getattr(self, objkey, ''))
+        dict_validator_map = {
+            'flatNumber': 'unit',
+            'streetName': 'streetname',
+            'streetType': 'streettype' 
+        }
+        error_text = ""
+        for result in results: 
+            result_valid = True
+            error_text = error_text + "\nAttempting Validation: {}".format(result['streetAddress'])
+            for x,y in dict_validator_map.items():  
+                if base_validator(result, x, y) == False: 
+                    error_text = error_text + "\n" + "- Validator_value={} != In-App={} [{} in app]".format(
+                        result[x],
+                        getattr(self, y, ''),
+                        y
+                    )
+                result_valid =  result_valid and  base_validator(result, x, y)
+            if result_valid: 
+                return {
+                    'status': 'Ok',
+                    'responseText': 'Address Match - {} Confidence'.format('High' if confidence > 0.5 else 'Low'),
+                    'result': result
+                }
+        error_text += "\nNo valid address found. Please edit unit or streetnumber or streetname or streettype"
+        return {'status':"Error", "responseText": error_text}
 
     def autoComplete(self, streetAddress):
 

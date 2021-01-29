@@ -17,6 +17,7 @@ from urllib.parse import urljoin
 #Local Imports
 from apps.lib.site_Enums import *
 from config.celery import app
+from apps.base.model_utils import AbstractAddressModel
 
 
 class EnquiryManager(models.Manager):
@@ -75,7 +76,7 @@ class MarketingCampaign(models.Model):
     def __str__(self):
         return smart_text(self.campaign_name)
 
-class Enquiry(models.Model):
+class Enquiry(AbstractAddressModel):
 
     productTypes = (
         (productTypesEnum.LUMP_SUM.value, "Lump Sum"),

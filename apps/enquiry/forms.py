@@ -11,6 +11,7 @@ from crispy_forms.layout import Submit, Layout, Field, Div, HTML, Row, Column
 from apps.lib.site_Enums import loanTypesEnum, marketingTypesEnum
 from apps.lib.site_Utilities import cleanPhoneNumber
 from apps.enquiry.models import MarketingCampaign
+from apps.base.model_utils import address_model_fields
 from .models import Enquiry
 
 
@@ -22,7 +23,7 @@ class EnquiryForm(forms.ModelForm):
         fields = ['loanType', 'name', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
                   'streetAddress', 'suburb', 'state', 'mortgageDebt',
                   'referrer', 'email', 'phoneNumber', 'enquiryNotes',
-                  'marketingSource', 'propensityCategory', 'marketing_campaign']
+                  'marketingSource', 'propensityCategory', 'marketing_campaign']  + address_model_fields
 
         widgets = {
             'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
@@ -88,6 +89,14 @@ class EnquiryForm(forms.ModelForm):
                     Div(Field('streetAddress'))),
                 Div(Div(HTML("Suburb"), css_class='form-label'),
                     Div(Field('suburb'))),
+                Div(Div(HTML("Unit / Apartment / Lot"), css_class='form-label'),
+                    Div(Field('base_specificity'))),
+                Div(Div(HTML("Street Number"), css_class='form-label'),
+                    Div(Field('street_number'))),
+                Div(Div(HTML("Street Name"), css_class='form-label'),
+                    Div(Field('street_name'))),
+                Div(Div(HTML("Street Type e.g Avenue, Lane, etc"), css_class='form-label'),
+                    Div(Field('street_type'))),
                 Row(
                     Column(Div(Div(HTML("State"), css_class='form-label'),
                                Div(Field('state'))), css_class='col-6'),
@@ -141,7 +150,7 @@ class EnquiryDetailForm(forms.ModelForm):
             'referrer', 'email', 'phoneNumber', 'enquiryNotes', 'calcLumpSum', 'calcIncome',
             'marketingSource', 'productType', 'enquiryStage', 'valuationDocument', 'propensityCategory',
             'marketing_campaign'
-        ]
+        ]+ address_model_fields
 
         widgets = {
             'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
@@ -223,6 +232,14 @@ class EnquiryDetailForm(forms.ModelForm):
                     Div(Field('streetAddress'))),
                 Div(Div(HTML("Suburb"), css_class='form-label'),
                     Div(Field('suburb'))),
+                Div(Div(HTML("Unit / Apartment / Lot"), css_class='form-label'),
+                    Div(Field('base_specificity'))),
+                Div(Div(HTML("Street Number"), css_class='form-label'),
+                    Div(Field('street_number'))),
+                Div(Div(HTML("Street Name"), css_class='form-label'),
+                    Div(Field('street_name'))),
+                Div(Div(HTML("Street Type e.g Avenue, Lane, etc"), css_class='form-label'),
+                    Div(Field('street_type'))),
                 Row(
                     Column(Div(Div(HTML("State"), css_class='form-label'),
                                Div(Field('state'))), css_class='col-6'),

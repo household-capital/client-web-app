@@ -523,10 +523,16 @@
         }
 
         function setAddressData(obj) {
-            $('#id_streetAddress').prop("value", addressData[obj.val()].streetComponent);
-            $('#id_suburb').prop("value", addressData[obj.val()].suburb);
-            $('#id_state').prop("value", addressData[obj.val()].stateCode);
-            $('#id_postcode').prop("value", addressData[obj.val()].postCode);
+            let address_obj = addressData[obj.val()]
+            $('#id_streetAddress').prop("value", address_obj.streetComponent);
+            $('#id_suburb').prop("value", address_obj.suburb);
+            $('#id_state').prop("value", address_obj.stateCode);
+            $('#id_postcode').prop("value", address_obj.postCode);
+
+            $('#id_base_specificity').prop("value", address_obj.flatNumber);
+            $('#id_street_number').prop("value", (address_obj.numberFirstPrefix || "") + address_obj.numberFirst + (address_obj.numberFirstSuffix||""));
+            $('#id_street_name').prop("value", address_obj.streetName);
+            $('#id_street_type').prop("value", address_obj.streetType);
             $("#addressSelect").attr('size', 1.9);
         }
 
