@@ -127,13 +127,10 @@ def find_auto_assignee(referrer=None, marketing_source=None, email=None, phoneNu
     if email or phoneNumber:
         write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Checking duplicates for (%s, %s)' % (phoneNumber, email))
         duplicates = Enquiry.objects.find_duplicates(email, phoneNumber, order_by="-updated")
-        print(repr(duplicates))
         dup_owners = [duplicate.user for duplicate in duplicates if duplicate.user is not None]
         dup_owners = [owner for owner in dup_owners if owner.is_active]
-        print(str(dup_owners))
         if choice_filter:
             dup_owners = choice_filter(dup_owners)
-            print(str(dup_owners))
         if dup_owners:
             write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Using duplicate assignee')
             return dup_owners[0]
