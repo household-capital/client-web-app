@@ -8,6 +8,8 @@ from crispy_forms.bootstrap import InlineCheckboxes
 from .models import GlobalSettings
 
 
+
+# This is now redundant - its for is we want to switch to django checkboxes
 class HHCInlineCheckboxes(InlineCheckboxes):
     """
     Layout object for rendering checkboxes inline::
