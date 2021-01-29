@@ -30,7 +30,6 @@ class apiAMAL():
         self.token = ""
 
     def openAPI(self, production):
-
         if production == True:
             ENV_STR = '_PROD'
         else:

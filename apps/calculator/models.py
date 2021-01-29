@@ -13,6 +13,8 @@ from django.db.models.functions import TruncDate,TruncDay, Cast
 from django.db.models.fields import DateField
 from django.utils.timezone import get_current_timezone
 
+from apps.base.model_utils import AbstractAddressModel
+
 from apps.lib.site_Enums import *
 
 
@@ -33,7 +35,7 @@ class WebManager(models.Manager):
         return WebCalculator.objects.filter(email__isnull=False, actioned=0).count()
 
 
-class WebCalculator(models.Model):
+class WebCalculator(AbstractAddressModel):
     dwellingTypes = (
         (dwellingTypesEnum.HOUSE.value, 'House'),
         (dwellingTypesEnum.APARTMENT.value, 'Apartment'))
