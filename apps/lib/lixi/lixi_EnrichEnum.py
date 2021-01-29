@@ -104,6 +104,7 @@ class EnrichEnum:
         self.__logging("Enriching Property Information")
 
         mappify = apiMappify()
+<<<<<<< HEAD
         sf_gnaf = self.loanDict.get('Gnaf_id__c')
         addressDict = {
             'gnafId': sf_gnaf,
@@ -135,6 +136,31 @@ class EnrichEnum:
                 return {'status': "Error"}
 
             result = mappify.checkPostalAddress()
+=======
+        
+        concatenated_address = "{} {} {} {}".format(
+            self.loanDict['Prop.Unit__c'],
+            self.loanDict['Prop.Street_Number__c'],
+            self.loanDict['Prop.Street_Name__c'],
+            self.loanDict['Prop.Street_Type__c']
+        )
+        self.__logging('Concating property addreses - Result = {}'.format(concatenated_address))
+        result = mappify.setAddress({"streetAddress": self.loanDict['Prop.Street_Address__c'],
+                                     "suburb": self.loanDict['Prop.Suburb_City__c'],
+                                     "postcode": self.loanDict['Prop.Postcode__c'],
+                                     "state": self.__enumState(self.loanDict['Prop.State__c']),
+                                     "unit": self.loanDict['Prop.Unit__c'],
+                                     "streetnumber": self.loanDict['Prop.Street_Number__c'],
+                                     "streetname": self.loanDict['Prop.Street_Name__c'],
+                                     "streettype":self.loanDict['Prop.Street_Type__c']
+                                     })
+
+        if result['status'] != 'Ok':
+            self.__logging(result['responseText'])
+            return {'status': "Error"}
+
+        result = mappify.checkPostalAddress()
+>>>>>>> HM-2097: Address field split
 
             if result['status'] == 'Error':
                 self.__logging(result['responseText'])
