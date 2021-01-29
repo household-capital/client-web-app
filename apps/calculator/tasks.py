@@ -13,7 +13,7 @@ from apps.lib.api_Wordpress import apiWordpress
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Utilities import raiseTaskAdminError, cleanPhoneNumber
 from apps.lib.site_Enums import *
-from .util import convert_calc
+from .util import convert_calc, ProcessingError
 from apps.enquiry.util import find_auto_assignee
 
 
@@ -106,7 +106,12 @@ def getWordpressData():
                 referrer=directTypesEnum.WEB_CALCULATOR.value, email=web_obj.email, phoneNumber=web_obj.phoneNumber
             )
             if proposed_owner:
-                convert_calc(web_obj, proposed_owner)
+                try:
+                    convert_calc(web_obj, proposed_owner)
+                except ProcessingError as ex:
+                    # try next lead
+                    # get Jainish to help with a tech alert!
+                    pass
 
     # Retrieve contact data
     wp = apiWordpress()
