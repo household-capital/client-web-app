@@ -64,7 +64,7 @@ class EnquiryManager(models.Manager):
         return Enquiry.objects.filter(query)
 
     def find_duplicates(self, email, phoneNumber, order_by="-updated"):
-        return self.find_duplicates_QS(email, phoneNumber).order_by(order_by).all()
+        return self.find_duplicates_QS(email, phoneNumber).order_by(order_by)
 
 
 class Enquiry(models.Model):
