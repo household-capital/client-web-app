@@ -59,7 +59,7 @@ def get_celery_beat_config():
         },
         'Website Poll':{
             'task': 'Wordpress_Data', # custom task (?)
-            'schedule': schedule(run_every=timedelta(minutes=15))
+            'schedule': schedule(run_every=timedelta(minutes=5))
         },
         'EnquiryFollowupEmail':{
             'task': 'EnquiryFollowUp', # custom task (?)
