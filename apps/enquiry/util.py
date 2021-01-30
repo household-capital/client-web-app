@@ -99,12 +99,15 @@ def _filter_social_assignees(assignees):
     ]
 
 _AUTO_ASSIGN_LEADSOURCE_LOOKUP = {
-    directTypesEnum.WEB_CALCULATOR.value: ('autoassignees_calculators',  _filter_calc_assignees),
+    directTypesEnum.WEB_CALCULATOR.value: {
+        'settings_assignee_field': 'autoassignees_calculators',
+        'choice_filter': _filter_calc_assignees,
+    },
 }
 
 _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP = {
     marketingTypesEnum.STARTS_AT_60.value: {
-        'settings_field': 'autoassignees_STARTS_AT_60',
+        'settings_assignee_field': 'autoassignees_STARTS_AT_60',
         'choice_filter': _filter_partner_assignees,
     },
     marketingTypesEnum.CARE_ABOUT.value: {
