@@ -58,7 +58,6 @@ def convert_calc(calculator, proposed_owner=None):
         enq_obj = Enquiry.objects.create(
             user=None, referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer, **calc_dict
         )
-        enq_obj.save()
 
         if proposed_owner is None:
             auto_assign_enquiries([enq_obj])
