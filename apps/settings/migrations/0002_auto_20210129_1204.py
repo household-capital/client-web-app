@@ -9,12 +9,12 @@ def forwards_func(apps, schema_editor):
     GlobalSettings = apps.get_model("settings", "GlobalSettings")
     GlobalSettings.objects.get_or_create(pk=1)
 
+
 def reverse_func(apps, schema_editor):
     # forwards_func() creates two Country instances,
     # so reverse_func() should delete them.
-    #GlobalSettings = apps.get_model("settings", "GlobalSettings")
-    #GlobalSettings.load().delete()
-    pass
+    GlobalSettings = apps.get_model("settings", "GlobalSettings")
+    GlobalSettings.objects.all().delete()
 
 
 class Migration(migrations.Migration):
