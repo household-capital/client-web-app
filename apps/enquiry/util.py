@@ -135,18 +135,23 @@ _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP = {
 
 def find_auto_assignee(referrer=None, marketing_source=None, email=None, phoneNumber=None, global_settings=None):
 
+    def load_options():
+        options = None
+
+        if options is None and referrer in _AUTO_ASSIGN_LEADSOURCE_LOOKUP:
+            options = _AUTO_ASSIGN_LEADSOURCE_LOOKUP[referrer]
+
+        if options is None and marketing_source in _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP:
+            options = _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP[marketing_source]
+
+        return options or {}
+
     write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'BEGIN')
 
     if global_settings is None:
         global_settings = GlobalSettings.load()
 
-    options = {}
-
-    if options is None and referrer in _AUTO_ASSIGN_LEADSOURCE_LOOKUP:
-        options = _AUTO_ASSIGN_LEADSOURCE_LOOKUP[referrer]
-
-    if options is None and marketing_source in _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP:
-        options = _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP[marketing_source]
+    options = load_options()
 
     # First we honour using the same owner as a existing duplicate enquiry
     if email or phoneNumber:
