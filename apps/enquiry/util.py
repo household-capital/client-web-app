@@ -16,7 +16,11 @@ from .models import Enquiry
 def _assign_enquiries(assignments):
 
     def send_summary_email(user, enquiries):
-        subject, from_email, to = "Enquiry(s) Assigned to You", "noreply@householdcapital.app", user.email
+        if not enquiries:
+            return
+        subject = "Enquiry(s) Assigned to You"
+        from_email = "noreply@householdcapital.app"
+        to = user.email
         text_content = "Text Message"
         email_context = {
             'user': user,
@@ -46,9 +50,9 @@ def _assign_enquiries(assignments):
                 write_applog('INFO', 'enquiry.util', 'assign_enquiries', 'Assigning enquiry (%s) to user %s' % (enquiry.enqUID, username))
 
                 if enquiry.user:
-                    enquiry.enquiryNotes += '\r\n[# Enquiry assigned from ' + enquiry.user.username + ' to ' + username + ' #]'
+                    enquiry.enquiryNotes = (enquiry.enquiryNotes or '') + '\r\n[# Enquiry assigned from ' + enquiry.user.username + ' to ' + username + ' #]'
                 elif enquiry.referrer == directTypesEnum.BROKER.value:
-                    enquiry.enquiryNotes += '\r\n[# Enquiry assigned from ' + enquiry.referralUser.profile.referrer.companyName + ' to ' + username + ' #]'
+                    enquiry.enquiryNotes = (enquiry.enquiryNotes or '') + '\r\n[# Enquiry assigned from ' + enquiry.referralUser.profile.referrer.companyName + ' to ' + username + ' #]'
 
                 enquiry.user = user
                 enquiry.save()
@@ -77,21 +81,21 @@ def assign_enquiry(enquiry, user):
 def _filter_calc_assignees(assignees):
     return [
         assignee for assignee in assignees
-        if assignee.is_active and assignee.profile.isCreditRep and assignee.profile.calendlyUrl
+        if assignee.profile.isCreditRep and assignee.profile.calendlyUrl
     ]
 
 
 def _filter_partner_assignees(assignees):
     return [
         assignee for assignee in assignees
-        if assignee.is_active #and assignee.profile.isCreditRep
+        #if assignee.profile.isCreditRep
     ]
 
 
 def _filter_social_assignees(assignees):
     return [
         assignee for assignee in assignees
-        if assignee.is_active #and assignee.profile.isCreditRep
+        #if assignee.profile.isCreditRep
     ]
 
 _AUTO_ASSIGN_LEADSOURCE_LOOKUP = {
@@ -99,12 +103,30 @@ _AUTO_ASSIGN_LEADSOURCE_LOOKUP = {
 }
 
 _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP = {
-    marketingTypesEnum.STARTS_AT_60.value: ('autoassignees_STARTS_AT_60',  _filter_partner_assignees),
-    marketingTypesEnum.CARE_ABOUT.value: ('autoassignees_CARE_ABOUT',  _filter_partner_assignees),
-    marketingTypesEnum.NATIONAL_SENIORS.value: ('autoassignees_NATIONAL_SENIORS',  _filter_partner_assignees),
-    marketingTypesEnum.YOUR_LIFE_CHOICES.value: ('autoassignees_YOUR_LIFE_CHOICES',  _filter_partner_assignees),
-    marketingTypesEnum.FACEBOOK.value: ('autoassignees_FACEBOOK',  _filter_social_assignees),
-    marketingTypesEnum.LINKEDIN.value: ('autoassignees_LINKEDIN',  _filter_social_assignees),
+    marketingTypesEnum.STARTS_AT_60.value: {
+        'settings_field': 'autoassignees_STARTS_AT_60',
+        'choice_filter': _filter_partner_assignees,
+    },
+    marketingTypesEnum.CARE_ABOUT.value: {
+        'settings_assignee_field': 'autoassignees_CARE_ABOUT',
+        'choice_filter': _filter_partner_assignees,
+    },
+    marketingTypesEnum.NATIONAL_SENIORS.value: {
+        'settings_assignee_field': 'autoassignees_NATIONAL_SENIORS',
+        'choice_filter': _filter_partner_assignees,
+    },
+    marketingTypesEnum.YOUR_LIFE_CHOICES.value: {
+        'settings_assignee_field': 'autoassignees_YOUR_LIFE_CHOICES',
+        'choice_filter': _filter_partner_assignees,
+    },
+    marketingTypesEnum.FACEBOOK.value: {
+        'settings_assignee_field': 'autoassignees_FACEBOOK',
+        'choice_filter': _filter_social_assignees,
+    },
+    marketingTypesEnum.LINKEDIN.value: {
+        'settings_assignee_field': 'autoassignees_LINKEDIN',
+        'choice_filter': _filter_social_assignees,
+    },
 }
 
 
@@ -115,34 +137,34 @@ def find_auto_assignee(referrer=None, marketing_source=None, email=None, phoneNu
     if global_settings is None:
         global_settings = GlobalSettings.load()
 
-    settings_assignee_field = None
-    choice_filter = None
+    options = {}
 
-    if referrer in _AUTO_ASSIGN_LEADSOURCE_LOOKUP:
-        settings_assignee_field, choice_filter = _AUTO_ASSIGN_LEADSOURCE_LOOKUP[referrer]
-    elif marketing_source in _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP:
-        settings_assignee_field, choice_filter = _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP[marketing_source]
+    if options is None and referrer in _AUTO_ASSIGN_LEADSOURCE_LOOKUP:
+        options = _AUTO_ASSIGN_LEADSOURCE_LOOKUP[referrer]
+
+    if options is None and marketing_source in _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP:
+        options = _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP[marketing_source]
 
     # First we honour using the same owner as a existing duplicate enquiry
     if email or phoneNumber:
         write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Checking duplicates for (%s, %s)' % (phoneNumber, email))
         duplicates = Enquiry.objects.find_duplicates(email, phoneNumber, order_by="-updated")
-        dup_owners = [duplicate.user for duplicate in duplicates if duplicate.user is not None]
-        dup_owners = [owner for owner in dup_owners if owner.is_active]
-        if choice_filter:
-            dup_owners = choice_filter(dup_owners)
-        if dup_owners:
+        potential_owners = [duplicate.user for duplicate in duplicates if (duplicate.user is not None and duplicate.user.is_active)]
+        if 'choice_filter' in options:
+            potential_owners = options['choice_filter'](potential_owners)
+        if potential_owners:
             write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Using duplicate assignee')
-            return dup_owners[0]
+            return potential_owners[0]
 
     # next try to use the system settings to find an active assignee
-    if settings_assignee_field:
+    if 'settings_assignee_field' in options:
         write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Checking system settings')
-        users = choice_filter(getattr(global_settings, settings_assignee_field).all())
-        users = [user for user in users if user.is_active]
-        if users:
+        potential_owners = [user for user in getattr(global_settings, options['settings_assignee_field']).all() if user.is_active]
+        if 'choice_filter' in options:
+            potential_owners = options['choice_filter'](potential_owners)
+        if potential_owners:
             write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Using settings assignee')
-            return random.choice(users)
+            return random.choice(potential_owners)
 
     write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Failed to locate potential assignee')
     return None
