@@ -59,7 +59,7 @@ def get_celery_beat_config():
         },
         'Website Poll':{
             'task': 'Wordpress_Data', # custom task (?)
-            'schedule': schedule(run_every=timedelta(minutes=15))
+            'schedule': schedule(run_every=timedelta(minutes=5))
         },
         'EnquiryFollowupEmail':{
             'task': 'EnquiryFollowUp', # custom task (?)
@@ -80,7 +80,7 @@ def get_celery_beat_config():
         # The following tasks are cloudwatch tasks 
         'CloudWatch_Task_Poll_Wordpress_Data': {
             'task': 'CW_Wordpress_Data_stats',
-            'schedule': schedule(run_every=timedelta(minutes=15))
+            'schedule': schedule(run_every=timedelta(minutes=5))
         },
         'CloudWatch_Task_Poll_Catchall_SF_Lead': {
             'task': 'CW_Catchall_SF_Lead_stats',

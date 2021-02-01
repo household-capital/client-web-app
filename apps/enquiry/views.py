@@ -6,6 +6,7 @@ import csv
 import os
 import json
 import pathlib
+from urllib.parse import urljoin
 
 # Django Imports
 from django.conf import settings
@@ -37,7 +38,8 @@ from .forms import EnquiryForm, EnquiryDetailForm, EnquiryCloseForm, EnquiryAssi
 from .models import Enquiry
 from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, getEnquiryProjections, updateNavQueue, \
     cleanPhoneNumber, validateEnquiry
-from urllib.parse import urljoin
+from .util import assign_enquiry, auto_assign_enquiries
+
 
 # AUTHENTICATED VIEWS
 
@@ -800,7 +802,6 @@ class EnquiryOwnView(HouseholdLoginRequiredMixin, View):
 
 class EnquiryAssignView(HouseholdLoginRequiredMixin, UpdateView):
     template_name = 'enquiry/enquiryOther.html'
-    email_template_name = 'enquiry/email/email_assign.html'
     form_class = EnquiryAssignForm
     model = Enquiry
 
@@ -818,31 +819,11 @@ class EnquiryAssignView(HouseholdLoginRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        preObj = queryset = Enquiry.objects.queryset_byUID(str(self.kwargs['uid'])).get()
-
+        preObj = Enquiry.objects.queryset_byUID(str(self.kwargs['uid'])).get()
         enq_obj = form.save(commit=False)
-        if preObj.user:
-            enq_obj.enquiryNotes += '\r\n[# Enquiry assigned from ' + preObj.user.username + ' #]'
-        elif preObj.referrer == directTypesEnum.BROKER.value:
-            enq_obj.enquiryNotes += '\r\n[# Enquiry assigned from ' + preObj.referralUser.profile.referrer.companyName + ' #]'
-
-        enq_obj.save()
-
-        # Email recipient
-        subject, from_email, to = "Enquiry Assigned to You", "noreply@householdcapital.app", enq_obj.user.email
-        text_content = "Text Message"
-        email_context = {}
-        email_context['obj'] = enq_obj
-        email_context['base_url'] = settings.SITE_URL
-
-        try:
-            html = get_template(self.email_template_name)
-            html_content = html.render(email_context)
-            msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-            msg.attach_alternative(html_content, "text/html")
-            msg.send()
-        except:
-            pass
+        # NB: we must send down the "preObj" so the user switch gets documented correctly in the enquiry notes
+        # during reassignment.
+        assign_enquiry(preObj, enq_obj.user)
 
         messages.success(self.request, "Enquiry assigned to " + enq_obj.user.username)
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
@@ -922,6 +903,20 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
         return context
 
     def form_valid(self, form):
+        enquiries_to_assign = []
+        try:
+            result = self._form_valid(form, enquiries_to_assign)
+        except Exception as ex:
+            try:
+                auto_assign_enquiries(enquiries_to_assign, force=True)
+            except Exception as ex:
+                write_applog("ERROR", 'Enquiry', 'EnquiryPartnerUpload', 'Error in auto assignments', is_exception=True)
+            raise
+        else:
+            auto_assign_enquiries(enquiries_to_assign, force=True)
+            return result
+
+    def _form_valid(self, form, enquiries_to_assign):
 
         fileWrapper = io.TextIOWrapper(form.cleaned_data['uploadFile'], encoding='utf-8')
         reader = csv.reader(fileWrapper)
@@ -929,6 +924,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
 
         write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Commencing upload')
         partner_value = int(form.cleaned_data['partner'])
+
         if partner_value == marketingTypesEnum.STARTS_AT_60.value:
 
             write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'STARTS_AT_60')
@@ -961,14 +957,19 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": marketingTypesEnum.STARTS_AT_60.value,
                         "referrer": directTypesEnum.PARTNER.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "user": None
                     }
 
-                    self.updateCreateEnquiry(email, phoneNumber, payload,
-                                             enquiryString, marketingTypesEnum.STARTS_AT_60.value, False)
+                    self.updateCreateEnquiry(
+                        email,
+                        phoneNumber,
+                        payload,
+                        enquiryString,
+                        marketingTypesEnum.STARTS_AT_60.value,
+                        enquiries_to_assign,
+                        False
+                    )
 
             messages.success(self.request, "Success - enquiries imported")
-
 
         elif partner_value == marketingTypesEnum.CARE_ABOUT.value:
 
@@ -1000,16 +1001,24 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": marketingTypesEnum.CARE_ABOUT.value,
                         "referrer": directTypesEnum.PARTNER.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "user": None
                     }
 
-                    self.updateCreateEnquiry(email, phoneNumber, payload,
-                                             enquiryString, marketingTypesEnum.CARE_ABOUT.value, False)
+                    self.updateCreateEnquiry(
+                        email,
+                        phoneNumber,
+                        payload,
+                        enquiryString,
+                        marketingTypesEnum.CARE_ABOUT.value,
+                        enquiries_to_assign,
+                        False
+                    )
 
             messages.success(self.request, "Success - enquiries imported")
 
         elif partner_value == marketingTypesEnum.NATIONAL_SENIORS.value:
             write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'NATIONAL_SENIORS')
+
+            print(str(header))
             
             if header[0] != "Timestamp":
                 messages.warning(self.request, "Unrecognised file structure - could not load")
@@ -1040,7 +1049,6 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": partner_value,
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "referrer": directTypesEnum.PARTNER.value,
-                        "user": self.request.user,
                         "state":  None ,
                     }
                     self.updateCreateEnquiry(
@@ -1048,7 +1056,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         phonenumber, 
                         payload,
                         enquiryString, 
-                        partner_value, 
+                        partner_value,
+                        enquiries_to_assign,
                         False
                     )
 
@@ -1097,14 +1106,20 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": partner_value,
                         "referrer": directTypesEnum.PARTNER.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "user": self.request.user,
                         "state": stateTypesEnum[row[10]].value if row[10] else None ,
                         'dwellingType': dwellingTypesEnum.APARTMENT.value if row[8] == "Strata Property" else dwellingTypesEnum.HOUSE.value,
                         "enquiryStage": enquiryStagesEnum.GENERAL_INFORMATION.value if row[4] == "Closed Lost" else enquiryStagesEnum.FOLLOW_UP_NO_ANSWER.value
                     }
 
-                    self.updateCreateEnquiry(email, phoneNumber, payload,
-                                             enquiryString, partner_value, False)
+                    self.updateCreateEnquiry(
+                        email,
+                        phoneNumber,
+                        payload,
+                        enquiryString,
+                        partner_value,
+                        enquiries_to_assign,
+                        False
+                    )
                 else:
                     write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'ignoring - NO EMAIL ADDRESS')
 
@@ -1141,11 +1156,17 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": marketingTypesEnum.FACEBOOK.value,
                         "referrer": directTypesEnum.SOCIAL.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "user": None
                     }
 
-                    self.updateCreateEnquiry(email, phoneNumber, payload,
-                                             enquiryString, marketingTypesEnum.FACEBOOK.value, False)
+                    self.updateCreateEnquiry(
+                        email,
+                        phoneNumber,
+                        payload,
+                        enquiryString,
+                        marketingTypesEnum.FACEBOOK.value,
+                        enquiries_to_assign,
+                        False
+                    )
 
             messages.success(self.request, "Success - enquiries imported")
 
@@ -1181,20 +1202,23 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": marketingTypesEnum.LINKEDIN.value,
                         "referrer": directTypesEnum.SOCIAL.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "user": self.request.user
                     }
 
-                    self.updateCreateEnquiry(email, phoneNumber, payload,
-                                             enquiryString, marketingTypesEnum.LINKEDIN.value, False)
+                    self.updateCreateEnquiry(
+                        email,
+                        phoneNumber,
+                        payload,
+                        enquiryString,
+                        marketingTypesEnum.LINKEDIN.value,
+                        enquiries_to_assign,
+                        False
+                    )
 
             messages.success(self.request, "Success - enquiries imported")
 
-
-
-
         return HttpResponseRedirect(self.request.path_info)
 
-    def updateCreateEnquiry(self, email, phoneNumber, payload, enquiryString, marketingSource, updateNonDirect=True):
+    def updateCreateEnquiry(self, email, phoneNumber, payload, enquiryString, marketingSource, enquiries_to_assign, updateNonDirect=True):
 
         nonDirectTypes = [directTypesEnum.PARTNER.value, directTypesEnum.BROKER.value,
                           directTypesEnum.ADVISER.value]
@@ -1205,7 +1229,10 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
         if existingUID:
             write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Found existing enquiry')
 
-            overwrite_owners = int(self.request.GET.get("overwrite_owners", 1))
+            # preserve_owners is just a query flag I put in so I could safely rerun a file
+            # without stealing ownership of leads for myself ;) -- but it might be removable,
+            # probably no one using it any more. (mattc)
+            preserve_owners = int(self.request.GET.get("preserve_owners", 0))
 
             qs = Enquiry.objects.queryset_byUID(existingUID)
             obj = qs.get()
@@ -1217,37 +1244,28 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
             else:
                 # Only update if a new marketing source and not converted
 
-                if (updateNonDirect == False) and (obj.referrer in nonDirectTypes):
+                if (not updateNonDirect) and (obj.referrer in nonDirectTypes):
                     # Don't update non-direct items (if specified)
                     write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Skipping update on existing non-direct enquiry')
                     pass
                 else:
                     write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Updating existing enquiry')
-                    if (not overwrite_owners) and obj.user:
-                        write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Retaining owner')
-                        payload["user"] = obj.user
                     qs.update(**payload)
                     obj = qs.get()
                     updateNotes = "".join(filter(None, (obj.enquiryNotes, "\r\n\r\n" + enquiryString)))
                     obj.enquiryNotes = updateNotes
                     obj.save()
+                    if not preserve_owners:
+                        write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Overwriting owner')
+                        enquiries_to_assign.append(obj)
         else:
             write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Creating new enquiry')
             payload["enquiryNotes"] = enquiryString
-            Enquiry.objects.create(**payload)
+            new_enq = Enquiry.objects.create(**payload)
+            enquiries_to_assign.append(new_enq)
 
     def findEnquiry(self, email, phoneNumber):
-
-        if email and phoneNumber:
-            query = (Q(email__iexact=email) | Q(phoneNumber=phoneNumber))
-        elif email:
-            query = Q(email__iexact=email)
-        elif phoneNumber:
-            query = Q(phoneNumber=phoneNumber)
-        else:
-            raise Exception('email or phone must be present')
-
-        enqUID = Enquiry.objects.filter(query).order_by("-updated").values_list('enqUID', flat=True).first()
+        enqUID = Enquiry.objects.find_duplicates_QS(email, phoneNumber).order_by("-updated").values_list('enqUID', flat=True).first()
         if enqUID:
             return str(enqUID)
 

@@ -95,13 +95,16 @@
             </ul>
 
             <ul class="nav navbar-nav ml-auto pt-2">
-                {% if request.user.is_authenticated %}
-                    <li><a href='{% url "accounts:logout" %}'><i class="fas fa-sign-out-alt"></i> Logout </a>
-                        {% else %}
-                    <li><a href='{% url "accounts:login" %}'><i class="fas fa-sign-in-alt"></i> Log In </a><
-                {% endif %}
-                <br>
-                <a href=""><i class="fas fa-user-circle"></i> {{ request.user.username }}&nbsp;&nbsp;&nbsp;</a>
+                <li>
+                    <a href="{% url "settings:globalSettings" %}"><i class="fas fa-cog"></i> Settings </a>
+                    <br/>
+                    {% if request.user.is_authenticated %}
+                        <a href='{% url "accounts:logout" %}'><i class="fas fa-sign-out-alt"></i> Logout </a>
+                            {% else %}
+                        <a href='{% url "accounts:login" %}'><i class="fas fa-sign-in-alt"></i> Log In </a><
+                    {% endif %}
+                    <br>
+                    <a href=""><i class="fas fa-user-circle"></i> {{ request.user.username }}&nbsp;&nbsp;&nbsp;</a>
                 </li>
             </ul>
 

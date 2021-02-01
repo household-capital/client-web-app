@@ -252,10 +252,7 @@ def createSFLead(enqUID, sfAPIInstance=None):
                 if enquiry.email:
                     # Search for email in Leads
                     result = sfAPI.qryToDict('LeadByEmail', enquiry.email, 'result')
-                    if len(result['data']) == 0:
-                        write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'No SF ID returned')
-                        return {"status": "ERROR", "responseText": "No SF ID returned"}
-                    else:
+                    if len(result['data']) != 0:
                         if __checkInt(result['data']['result.PostalCode']) == __checkInt(enquiry.postcode):
                             # match on postcode too
                             enquiry.sfLeadID = result['data']['result.Id']
@@ -267,13 +264,10 @@ def createSFLead(enqUID, sfAPIInstance=None):
                             write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'Postcode mismatch')
                             return {"status": "ERROR", "responseText": "Postcode mismatch"}
 
-                elif enquiry.phoneNumber:
+                if enquiry.phoneNumber:
                     # Search for phone number in Leads
                     result = sfAPI.qryToDict('LeadByPhone', enquiry.phoneNumber, 'result')
-                    if len(result['data']) == 0:
-                        write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'No SF ID returned')
-                        return {"status": "ERROR", "responseText": "No SF ID returned"}
-                    else:
+                    if len(result['data']) != 0:
                         if __checkInt(result['data']['result.PostalCode']) == __checkInt(enquiry.postcode):
                             # match on postcode too
                             enquiry.sfLeadID = result['data']['result.Id']
@@ -285,6 +279,10 @@ def createSFLead(enqUID, sfAPIInstance=None):
                         else:
                             write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'Postcode mismatch')
                             return {"status": "ERROR", "responseText": "Postcode mismatch"}
+
+                write_applog("INFO", 'Enquiry', 'Tasks-createSFLead', 'No SF ID returned')
+                return {"status": "ERROR", "responseText": "No SF ID returned"}
+
             else:
                 write_applog("INFO", 'Case', 'Tasks-createSFLead', result['responseText']['message'])
                 return {"status": "ERROR", "responseText": result['responseText']['message']}

@@ -5,17 +5,23 @@
 <html lang="en">
 
 <body>
+Hey {{ user.first_name }}<br/><br/>
 
-Hey {{ obj.user.first_name }}<br><br>
-
-Just for your information - one of your colleagues has assigned the enquiry <a href="{{ base_url }}{{ obj.get_absolute_url}}">
-    <button style="background-color: #ffc107; border: none;color: black; padding: 10px 20px; text-align: center;
-            text-decoration: none; display: inline-block; font-size: 16px; border-radius: 12px">{{ obj.name }} - {{ obj.postcode|stringformat:"d"  }}
-</button></a> to your capable hands.<br><br>
-
+Heads up - you have just been assigned the following enquiries:<br/><br/>
+{% for enquiry in enquiries %}
+    <div style="padding-left: 5px">
+        <a href="{{ base_url }}{{ enquiry.get_absolute_url}}">
+            <button style="background-color: #ffc107; border: none;color: black; padding: 6px 16px; text-align: center;
+                text-decoration: none; display: inline-block; font-size: 14px; border-radius: 12px">{{ enquiry.name }} - {{ enquiry.postcode|stringformat:"d"  }}
+            </button>
+        </a>
+    </div>
+    <br/>
+{% endfor %}
+<br/>
 Check out the Enquiry List for further details.<br><br>
 
-Kind regards<br><br>
+YOU ROCK!<br><br>
 
 The ClientApp
 
