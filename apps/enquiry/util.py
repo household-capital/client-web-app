@@ -13,7 +13,7 @@ from apps.lib.site_Logging import write_applog
 from .models import Enquiry
 
 
-def _assign_enquiries(assignments):
+def _assign_enquiries(assignments, notify):
 
     def send_summary_email(user, enquiries):
         if not enquiries:
@@ -59,7 +59,7 @@ def _assign_enquiries(assignments):
                 processed.append(enquiry)
                 write_applog('INFO', 'enquiry.util', 'assign_enquiries', 'Succeeded')
         except Exception as ex:
-            if user is not None:
+            if notify and (user is not None):
                 try:
                     write_applog('INFO', 'enquiry.util', 'assign_enquiries', 'Sending summary email')
                     send_summary_email(user, processed)
@@ -68,14 +68,14 @@ def _assign_enquiries(assignments):
                     write_applog('ERROR', 'enquiry.util', 'assign_enquiries', 'Could not send email', is_exception=True)
             raise
 
-        if user is not None:
+        if notify and (user is not None):
             write_applog('INFO', 'enquiry.util', 'assign_enquiries', 'Sending summary email')
             send_summary_email(user, processed)
             write_applog('INFO', 'enquiry.util', 'assign_enquiries', 'Summary email sent')
 
 
-def assign_enquiry(enquiry, user):
-    return _assign_enquiries({user.id: [enquiry]})
+def assign_enquiry(enquiry, user, notify=True):
+    return _assign_enquiries({user.id: [enquiry]}, notify)
 
 
 def _filter_calc_assignees(assignees):
@@ -178,7 +178,7 @@ def find_auto_assignee(referrer=None, marketing_source=None, email=None, phoneNu
     return None
 
 
-def auto_assign_enquiries(enquiries, force=False):
+def auto_assign_enquiries(enquiries, force=False, notify=True):
     global_settings = GlobalSettings.load()
     assignments = {}
 
@@ -214,5 +214,5 @@ def auto_assign_enquiries(enquiries, force=False):
             assignments.setdefault(None, []).append(enquiry)
 
     if assignments:
-        return _assign_enquiries(assignments)
+        return _assign_enquiries(assignments, notify)
 

@@ -19,11 +19,11 @@ class ProcessingError(Exception):
     pass
 
 
-def convert_calc(calculator, proposed_owner=None):
+def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
 
-    def attempt_sync(enq_obj):
+    def attempt_sync(enq_obj, pause_for_dups):
         try:
-            if enq_obj.has_duplicate():
+            if pause_for_dups and enq_obj.has_duplicate():
                 # in case the dup was recently created, let's wait to give it time to finish a SF sync before
                 # we start this one.
                 write_applog("INFO", 'calculator.util', 'attempt_sync', "Pausing for 20 secs to allow duplicate to settle")
@@ -60,9 +60,9 @@ def convert_calc(calculator, proposed_owner=None):
         )
 
         if proposed_owner is None:
-            auto_assign_enquiries([enq_obj])
+            auto_assign_enquiries([enq_obj], notify=False)
         else:
-            assign_enquiry(enq_obj, proposed_owner)
+            assign_enquiry(enq_obj, proposed_owner, notify=False)
 
         return enq_obj
 
@@ -142,4 +142,4 @@ def convert_calc(calculator, proposed_owner=None):
             pdf = gen_calc_summary(enq_obj, calculator)
             email_customer(pdf, enq_obj, calculator)
     finally:
-        attempt_sync(enq_obj)
+        attempt_sync(enq_obj, pause_for_dups)
