@@ -30,6 +30,9 @@ urlpatterns = [
     #Unauthenticated Views
     path('enquirySummaryPdf/<uuid:uid>', views.EnqSummaryPdfView.as_view(), name='enqSummaryPdf'),
 
+    # API Views 
+    path('api/', include('apps.enquiry.api_urls')),
+
 
 ]
 

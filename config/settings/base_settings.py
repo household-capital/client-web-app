@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     # third-party apps
     'crispy_forms',
     'rest_framework',
+    'rest_framework.authtoken',
     'django_celery_beat',
     'django_celery_results',
     'storages',
