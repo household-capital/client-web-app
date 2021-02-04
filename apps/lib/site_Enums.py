@@ -321,3 +321,8 @@ propensityChoices = [
     (propensityCategoriesEnum.B.value, 'B'),
     (propensityCategoriesEnum.C.value, 'C'),
 ]
+
+propensityChoicesReverseDict = {
+    y:x 
+    for x,y in propensityChoices
+}
