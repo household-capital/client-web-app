@@ -37,9 +37,9 @@ from .forms import EnquiryForm, EnquiryDetailForm, EnquiryCloseForm, EnquiryAssi
     AddressForm, PartnerForm
 from .models import Enquiry
 from apps.lib.site_Utilities import getEnquiryProjections, updateNavQueue, \
-    cleanPhoneNumber, validateEnquiry
+    cleanPhoneNumber, validateEnquiry, cleanValuation, calcAge
 from apps.lib.mixins import HouseholdLoginRequiredMixin, AddressLookUpFormMixin 
-from .util import assign_enquiry, auto_assign_enquiries
+from .util import assign_enquiry, auto_assign_enquiries, updateCreateEnquiry
 
 from urllib.parse import urljoin
 from apps.base.model_utils import address_model_fields
@@ -999,22 +999,23 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "postcode": row[2],
                         "email": email,
                         "phoneNumber": phoneNumber,
-                        "valuation": self.cleanValuation(row[6]),
-                        "age_1": self.calcAge(row[9]),
+                        "valuation": cleanValuation(row[6]),
+                        "age_1": calcAge(row[9]),
                         "marketingSource": marketingTypesEnum.STARTS_AT_60.value,
                         "referrer": directTypesEnum.PARTNER.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "marketing_campaign": marketing_campaign
                     }
 
-                    self.updateCreateEnquiry(
+                    updateCreateEnquiry(
                         email,
                         phoneNumber,
                         payload,
                         enquiryString,
                         marketingTypesEnum.STARTS_AT_60.value,
                         enquiries_to_assign,
-                        False
+                        False,
+                        int(self.request.GET.get("preserve_owners", 0))
                     )
 
             messages.success(self.request, "Success - enquiries imported")
@@ -1041,7 +1042,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
 
                     payload = {
                         "name": (row[3] + " " + row[2]),
-                        "postcode": self.cleanValuation(row[15]),
+                        "postcode": cleanValuation(row[15]),
                         "email": email,
                         "phoneNumber": phoneNumber,
                         "valuation": None,
@@ -1052,14 +1053,15 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketing_campaign": marketing_campaign
                     }
 
-                    self.updateCreateEnquiry(
+                    updateCreateEnquiry(
                         email,
                         phoneNumber,
                         payload,
                         enquiryString,
                         marketingTypesEnum.CARE_ABOUT.value,
                         enquiries_to_assign,
-                        False
+                        False,
+                        int(self.request.GET.get("preserve_owners", 0))
                     )
 
             messages.success(self.request, "Success - enquiries imported")
@@ -1094,21 +1096,23 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "email": email,
                         "phoneNumber": phonenumber,
                         "valuation": None,
-                        "age_1": self.calcAge(row[9]),
+                        "age_1": calcAge(row[9]),
                         "marketingSource": partner_value,
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "referrer": directTypesEnum.PARTNER.value,
                         "state":  None ,
                         "marketing_campaign": marketing_campaign
                     }
-                    self.updateCreateEnquiry(
+                    
+                    updateCreateEnquiry(
                         email, 
                         phonenumber, 
                         payload,
                         enquiryString, 
                         partner_value,
                         enquiries_to_assign,
-                        False
+                        False,
+                        int(self.request.GET.get("preserve_owners", 0))
                     )
 
             messages.success(self.request, "Success - enquiries imported") 
@@ -1151,7 +1155,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "postcode": row[6],
                         "email": email,
                         "phoneNumber": phoneNumber,
-                        "valuation": self.cleanValuation(row[9]) if row[9] else None,
+                        "valuation": cleanValuation(row[9]) if row[9] else None,
                         "age_1": None,
                         "marketingSource": partner_value,
                         "referrer": directTypesEnum.PARTNER.value,
@@ -1162,14 +1166,15 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketing_campaign": marketing_campaign
                     }
 
-                    self.updateCreateEnquiry(
+                    updateCreateEnquiry(
                         email,
                         phoneNumber,
                         payload,
                         enquiryString,
                         partner_value,
                         enquiries_to_assign,
-                        False
+                        False,
+                        int(self.request.GET.get("preserve_owners", 0))
                     )
                 else:
                     write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'ignoring - NO EMAIL ADDRESS')
@@ -1252,14 +1257,15 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketing_campaign": marketing_campaign
                     }
 
-                    self.updateCreateEnquiry(
+                    updateCreateEnquiry(
                         email,
                         phoneNumber,
                         payload,
                         enquiryString,
                         marketingTypesEnum.FACEBOOK.value,
                         enquiries_to_assign,
-                        False
+                        False,
+                        int(self.request.GET.get("preserve_owners", 0))
                     )
 
             messages.success(self.request, "Success - enquiries imported")
@@ -1299,88 +1305,17 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketing_campaign": marketing_campaign
                     }
 
-                    self.updateCreateEnquiry(
+                    updateCreateEnquiry(
                         email,
                         phoneNumber,
                         payload,
                         enquiryString,
                         marketingTypesEnum.LINKEDIN.value,
                         enquiries_to_assign,
-                        False
+                        False,
+                        int(self.request.GET.get("preserve_owners", 0))
                     )
 
             messages.success(self.request, "Success - enquiries imported")
 
         return HttpResponseRedirect(self.request.path_info)
-
-    def updateCreateEnquiry(self, email, phoneNumber, payload, enquiryString, marketingSource, enquiries_to_assign, updateNonDirect=True):
-
-        nonDirectTypes = [directTypesEnum.PARTNER.value, directTypesEnum.BROKER.value,
-                          directTypesEnum.ADVISER.value]
-
-        # Try find existing enquiry
-        existingUID = self.findEnquiry(email, phoneNumber)
-
-        if existingUID:
-            write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Found existing enquiry')
-
-            # preserve_owners is just a query flag I put in so I could safely rerun a file
-            # without stealing ownership of leads for myself ;) -- but it might be removable,
-            # probably no one using it any more. (mattc)
-            preserve_owners = int(self.request.GET.get("preserve_owners", 0))
-
-            qs = Enquiry.objects.queryset_byUID(existingUID)
-            obj = qs.get()
-
-            if obj.actioned != 0:
-                write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Skipping converted enquiry')
-            elif obj.marketingSource == marketingSource:
-                write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Skipping enquiry from same marketing source')
-            else:
-                # Only update if a new marketing source and not converted
-
-                if (not updateNonDirect) and (obj.referrer in nonDirectTypes):
-                    # Don't update non-direct items (if specified)
-                    write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Skipping update on existing non-direct enquiry')
-                    pass
-                else:
-                    write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Updating existing enquiry')
-                    qs.update(**payload)
-                    obj = qs.get()
-                    updateNotes = "".join(filter(None, (obj.enquiryNotes, "\r\n\r\n" + enquiryString)))
-                    obj.enquiryNotes = updateNotes
-                    obj.save(should_sync=True)
-                    if not preserve_owners:
-                        write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Overwriting owner')
-                        enquiries_to_assign.append(obj)
-        else:
-            write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Creating new enquiry')
-            payload["enquiryNotes"] = enquiryString
-            new_enq = Enquiry.objects.create(**payload)
-            enquiries_to_assign.append(new_enq)
-
-    def findEnquiry(self, email, phoneNumber):
-        enqUID = Enquiry.objects.find_duplicates_QS(email, phoneNumber).order_by("-updated").values_list('enqUID', flat=True).first()
-        if enqUID:
-            return str(enqUID)
-
-    def cleanValuation(self, valString):
-
-        val = valString.replace("$", "").replace(",", "").replace("Million", "M"). \
-            replace("m", "M").replace("k", "K").replace("M", "000000").replace("K", "000")
-        try:
-            val = int(val)
-            if val > 5000000:
-                return None
-            elif val < 1000:
-                return val * 1000
-            else:
-                return val
-        except:
-            return None
-
-    def calcAge(self, DOBString, date_format='%m/%d/%Y'):
-
-        age = int((datetime.date.today() - datetime.datetime.strptime(DOBString, date_format).date()).days / 365.25)
-        if age > 50 and age < 100:
-            return age

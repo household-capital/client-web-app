@@ -1,6 +1,7 @@
 
 import random
 import logging
+import datetime
 
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -216,3 +217,54 @@ def auto_assign_enquiries(enquiries, force=False, notify=True):
     if assignments:
         return _assign_enquiries(assignments, notify)
 
+def findEnquiry(email, phoneNumber): 
+    enqUID = Enquiry.objects.find_duplicates_QS(email, phoneNumber).order_by("-updated").values_list('enqUID', flat=True).first()
+    if enqUID:
+        return str(enqUID)
+
+def updateCreateEnquiry(email, phoneNumber, payload, enquiryString, marketingSource, enquiries_to_assign, updateNonDirect=True, preserve_owners=0):
+    
+    nonDirectTypes = [
+        directTypesEnum.PARTNER.value, 
+        directTypesEnum.BROKER.value,
+        directTypesEnum.ADVISER.value
+    ]
+
+    existingUID = findEnquiry(email, phoneNumber)
+
+    if existingUID:
+        write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Found existing enquiry')
+
+        # preserve_owners is just a query flag I put in so I could safely rerun a file
+        # without stealing ownership of leads for myself ;) -- but it might be removable,
+        # probably no one using it any more. (mattc)
+
+        qs = Enquiry.objects.queryset_byUID(existingUID)
+        obj = qs.get()
+
+        if obj.actioned != 0:
+            write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Skipping converted enquiry')
+        elif obj.marketingSource == marketingSource:
+            write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Skipping enquiry from same marketing source')
+        else:
+            # Only update if a new marketing source and not converted
+
+            if (not updateNonDirect) and (obj.referrer in nonDirectTypes):
+                # Don't update non-direct items (if specified)
+                write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Skipping update on existing non-direct enquiry')
+                pass
+            else:
+                write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Updating existing enquiry')
+                qs.update(**payload)
+                obj = qs.get()
+                updateNotes = "".join(filter(None, (obj.enquiryNotes, "\r\n\r\n" + enquiryString)))
+                obj.enquiryNotes = updateNotes
+                obj.save(should_sync=True)
+                if not preserve_owners:
+                    write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Overwriting owner')
+                    enquiries_to_assign.append(obj)
+    else:
+        write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Creating new enquiry')
+        payload["enquiryNotes"] = enquiryString
+        new_enq = Enquiry.objects.create(**payload)
+        enquiries_to_assign.append(new_enq)
