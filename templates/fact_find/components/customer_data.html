@@ -96,54 +96,6 @@
         </div>
 
         <br/>
-        <div class="row">
-            <div class="col">
-                <p class="small">
-                    Does the applicant(s) wish to protect some equity in their home?
-                </p>
-            </div>
-            <div class="col">
-                <div class="form-check form-check-inline">
-                    <label>
-                        <input 
-                            type="radio" 
-                            name="is_protected_equity" 
-                            required 
-                            autocomplete="off"
-                            value="True"
-                            {% if object.is_protected_equity == True %} checked {% endif %}
-                        >
-                        Yes
-                    </label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <label>
-                        <input 
-                            type="radio" 
-                            required 
-                            name="is_protected_equity"
-                            autocomplete="off"
-                            value="False"
-                            {% if object.is_protected_equity == False %} checked {% endif %}
-                        >
-                        No
-                    </label>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col">
-                <p class="small">
-                    If yes, what percentage? 
-                </p>
-            </div>
-            <div class="col">
-                <div class="col-md-5 ">
-                    {{ form.protected_equity | as_crispy_field }}
-                </div>
-            </div>
-        </div>
-        <br/>
         <p class="small">
             Describe the applicant(s) plan for future giving 
         </p>

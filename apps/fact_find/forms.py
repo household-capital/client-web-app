@@ -17,8 +17,7 @@ class FactFindForm(forms.ModelForm):
         super(FactFindForm, self).__init__(*args, **kwargs)
         self.fields['planned_length_of_stay'].label = False
         self.fields['planned_method_of_discharge'].label = False
-        self.fields['protected_equity'].label = False
-
+        
     class Meta:
         model = FactFind
         fields = [
@@ -44,8 +43,6 @@ class FactFindForm(forms.ModelForm):
             'is_vulnerable_customer',
             'vulnerability_description',
             'considered_alt_downsizing_opts',
-            'is_protected_equity',
-            'protected_equity',
             'plan_for_future_giving',
             'plan_for_aged_care',
             #purposes
