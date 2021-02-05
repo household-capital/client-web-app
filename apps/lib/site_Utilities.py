@@ -602,6 +602,7 @@ def createCaseModelSettings(caseUID):
 
 
 def cleanPhoneNumber(phone):
+    phone = str(phone)
     if phone:
         number = phone.replace(" ", "").replace("(", "").replace(")", "").replace("+61", "0").replace("-", "")
         number = remove_prefix(number,"61")
