@@ -731,11 +731,6 @@ class FactFind(models.Model):
         (methodOfDischargeEnum.VOLUNTARY_REPAYMENT.value, 'Voluntary Repayment'),
     )
 
-    protectedEquityTypes = [
-        (i , "{} %".format(i*5))
-        for i in range(1,11)
-    ]
-
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
     backgroundNotes = models.TextField(blank=True, null=True)
     requirementsNotes = models.TextField(blank=True, null=True)
@@ -766,9 +761,7 @@ class FactFind(models.Model):
     is_vulnerable_customer = models.BooleanField(blank=True, null=True)
     vulnerability_description = models.TextField(blank=True, null=True)
     considered_alt_downsizing_opts = models.BooleanField(blank=True, null=True)
-
-    is_protected_equity = models.BooleanField(blank=True, null=True)
-    protected_equity = models.IntegerField(choices=protectedEquityTypes, null=True, blank=True)
+    
     plan_for_future_giving = models.TextField(blank=True, null=True)
     plan_for_aged_care = models.TextField(blank=True, null=True)
 
@@ -788,17 +781,6 @@ class FactFind(models.Model):
     @property
     def enumPlannedLengthOfStay(self):
         return dict(self.lengthOfStayTypes).get(self.planned_length_of_stay)
-    
-
-    @property
-    def enumProtectedEquity(self): 
-        return dict(self.protectedEquityTypes).get(self.protected_equity)
-    
-    @property
-    def enumProtectedEquityInt(self):
-        procEquity = self.enumProtectedEquity
-        if procEquity is not None: 
-            return int(procEquity.rstrip('%').strip())
 
     @property
     def enumPlannedMethodOfDischarge(self):

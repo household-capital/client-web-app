@@ -55,37 +55,6 @@
         </div>
     </div>
     <br/>
-    <div class="row">
-        <div class="col">
-            <p class="small">
-                Does the applicant(s) wish to protect some equity in their home?
-            </p>
-        </div>
-        <div class="col">
-            <p>
-                {% if factObj.is_protected_equity %}
-                    Yes
-                {% else %}
-                    No
-                {% endif %}
-            </p>
-        </div>
-    </div> 
-    {% if factObj.is_protected_equity %}
-    <div class="row">
-        <div class="col">
-            <p class="small">
-                If yes, what percentage? 
-            </p>
-        </div>
-        <div class="col">
-            <p>
-                {{ factObj.enumProtectedEquity }}
-            </p>
-        </div>
-    </div> 
-    {% endif %}
-    <br/>
     <p class="small">
         Describe the applicant(s) plan for future giving 
     </p>
