@@ -769,7 +769,7 @@ class FactFind(models.Model):
 
     is_protected_equity = models.BooleanField(blank=True, null=True)
     protected_equity = models.IntegerField(choices=protectedEquityTypes, null=True, blank=True)
-    plan_for_future_giving = models.TextField(blank=True, null=True)
+    plan_for_future_living = models.TextField(blank=True, null=True)
     plan_for_aged_care = models.TextField(blank=True, null=True)
 
     additional_info_credit = models.TextField(blank=True, null=True)

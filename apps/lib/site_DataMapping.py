@@ -286,7 +286,7 @@ def mapCaseToOpportunity(caseObj, lossObj):
         'considredAltDownsizingOpts': caseObj.factfind.considered_alt_downsizing_opts,
         'isProtectedEquity': caseObj.factfind.is_protected_equity,
         'protectedEquity': caseObj.factfind.enumProtectedEquityInt,
-        'planForGiving': caseObj.factfind.plan_for_future_giving,
+        'planForLiving': caseObj.factfind.plan_for_future_living,
         'planForCare': caseObj.factfind.plan_for_aged_care,
         'additionalCreditInfo': caseObj.factfind.additional_info_credit,
     }

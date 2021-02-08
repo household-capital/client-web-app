@@ -46,7 +46,7 @@ class FactFindForm(forms.ModelForm):
             'considered_alt_downsizing_opts',
             'is_protected_equity',
             'protected_equity',
-            'plan_for_future_giving',
+            'plan_for_future_living',
             'plan_for_aged_care',
             #purposes
             'additional_info_credit'
