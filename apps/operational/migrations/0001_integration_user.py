@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.core.mail import mail_admins
 
+from config.utils import set_settings
 
 def forwards_func(apps, schema_editor):
     # We get the model from the versioned app registry;
@@ -14,6 +15,7 @@ def forwards_func(apps, schema_editor):
     )
     token, created = Token.objects.get_or_create(user=user)
     if created: 
+        set_settings('integration_user_token', token.key)
         mail_admins(
             'Client-App-{} Integration User - Token Created'.format(os.getenv('ENV', 'local')),
             'Integration user token reset to: {}'.format(token.key)
