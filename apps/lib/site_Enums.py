@@ -326,3 +326,26 @@ propensityChoicesReverseDict = {
     y:x 
     for x,y in propensityChoices
 }
+
+marketingReferrerDict = {
+    "TV_ADVERT":"OTHER",
+    "TV_ADVERTORIAL": "OTHER", 
+    "RADIO": "OTHER",
+    "WORD_OF_MOUTH": "OTHER", 
+    "ADVISER": "ADVISOR",
+    "COMPETITOR": "OTHER", 
+    "DIRECT_MAIL": "OTHER", 
+    "WEB_SEARCH": "WEB_ENQUIRY", 
+    "DIRECT_EMAIL": "EMAIL", 
+    "FACEBOOK": "SOCIAL", 
+    "LINKEDIN": "SOCIAL",
+    "YOUR_LIFE_CHOICES": "PARTNER", 
+    "STARTS_AT_60": "PARTNER", 
+    "CARE_ABOUT": "PARTNER", 
+    "BROKER_SPECIALIST": "BROKER", 
+    "BROKER_REFERRAL": "BROKER", 
+    "FINANCIAL_ADVISER": "ADVISOR", 
+    "AGED_CARE_ADVISER": "ADVISOR", 
+    "NATIONAL_SENIORS": "PARTNER", 
+    "OTHER": "OTHER" 
+}

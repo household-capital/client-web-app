@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.core.mail import mail_admins
 from rest_framework.authtoken.models import Token
 
+from config.utils import set_settings
 
 class Command(BaseCommand):
     help = 'Create DRF Token for integration user'
@@ -17,6 +18,7 @@ class Command(BaseCommand):
             Token.objects.filter(user=user).delete() 
         token, created = Token.objects.get_or_create(user=user)
         if created:
+            set_settings('integration_user_token', token.key)
             mail_admins(
                 'Client-App-{} Integration User - Token Reset'.format(os.getenv('ENV', 'local')),
                 'Integration user token reset to: {}'.format(token.key)

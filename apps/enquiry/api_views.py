@@ -11,7 +11,8 @@ from apps.lib.site_Enums import (
     directTypesEnum, 
     stateTypesEnum, 
     productTypesEnum,
-    propensityChoicesReverseDict
+    propensityChoicesReverseDict,
+    marketingReferrerDict
 )
 
 class DataIngestion(APIView):
@@ -60,7 +61,7 @@ class DataIngestion(APIView):
         age_1 = calcAge(json_payload['dob'])
         marketing_source_value = json_payload['stream']
         marketingSource = marketingTypesEnum[marketing_source_value].value
-        referrer = directTypesEnum.PARTNER.value
+        referrer = directTypesEnum[marketingReferrerDict.get(marketingSource, "OTHER")].value
         productType = productTypesEnum.LUMP_SUM.value
         state = stateTypesEnum[json_payload['state']].value
         propensityCategory = propensityChoicesReverseDict.get(

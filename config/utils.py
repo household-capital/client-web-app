@@ -92,15 +92,17 @@ def get_celery_beat_config():
         }
     }
 
-def get_secret(secret_name):
-    region_name = "ap-southeast-2"
-
-    # Create a Secrets Manager client
+def secrets_manager_client(region_name):
     session = boto3.session.Session()
     client = session.client(
         service_name='secretsmanager',
         region_name=region_name
     )
+    return client
+
+def get_secret(secret_name):
+    region_name = "ap-southeast-2"
+    client = secrets_manager_client(region_name)
 
     # In this sample we only handle the specific exceptions for the 'GetSecretValue' API.
     # See https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
@@ -140,9 +142,22 @@ def get_secret(secret_name):
         return secret
 
 def get_settings():
-    secret_json = get_secret('{env}/clientapp/db-cred'.format(env=os.environ.get('ENV')))
+    secret_json = get_secret('{env}/clientapp/db-cred'.format(env=os.environ.get('ENV', 'local')))
     return json.loads(secret_json)
 
 
 def get_setting(setting): 
     return get_settings()[setting]
+
+def set_settings(key, value): 
+    secret_name = '{env}/clientapp/db-cred'.format(env=os.environ.get('ENV', 'local'))
+    region_name = "ap-southeast-2"
+    secret_value = get_settings()
+    secret_value[key] = value
+    
+    client = secrets_manager_client(region_name)
+    client.update_secret(
+        SecretId=secret_name, 
+        SecretString=json.dumps(secret_value)
+    )
+
