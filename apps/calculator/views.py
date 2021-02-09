@@ -17,7 +17,8 @@ from apps.lib.site_Enums import directTypesEnum, enquiryStagesEnum
 from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
-from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, getEnquiryProjections, updateNavQueue
+from apps.lib.site_Utilities import getEnquiryProjections, updateNavQueue
+from apps.lib.mixins import HouseholdLoginRequiredMixin
 
 from apps.enquiry.models import Enquiry
 from .models import WebCalculator, WebContact

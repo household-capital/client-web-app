@@ -19,7 +19,8 @@ from apps.case.models import ModelSetting, Loan, Case, FactFind
 from apps.lib.api_Pdf import pdfGenerator
 
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, validateLoanGetContext, getProjectionResults
+from apps.lib.site_Utilities import validateLoanGetContext, getProjectionResults
+from apps.lib.mixins import HouseholdLoginRequiredMixin
 from urllib.parse import urljoin
 
 # Utilities

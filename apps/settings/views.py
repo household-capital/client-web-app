@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, UpdateView, CreateView, TemplateView, View, FormView, DetailView
 from django.contrib import messages
 
-from apps.lib.site_Utilities import HouseholdLoginRequiredMixin
+from apps.lib.mixins import HouseholdLoginRequiredMixin
 
 from .models import GlobalSettings
 from .forms import GlobalSettingsForm
