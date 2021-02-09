@@ -63,7 +63,7 @@ class CalcCreateEnquiry(HouseholdLoginRequiredMixin, UpdateView):
         calculator = WebCalculator.objects.queryset_byUID(str(calc_uid)).get()
 
         try:
-            convert_calc(calculator, request.user)
+            convert_calc(calculator, request.user, pause_for_dups=False)
         except ProcessingError as ex:
             messages.error(self.request, ex.args[0])
         else:
