@@ -134,15 +134,15 @@ class EnrichEnum:
 
         addressDict = result["result"]
 
-        self.loanDict['Prop.buildingName'] = str(addressDict['buildingName'])
-        self.loanDict['Prop.flatNumber'] = str(addressDict['flatNumber'])
+        self.loanDict['Prop.buildingName'] =  str(addressDict['buildingName'])
+        self.loanDict['Prop.flatNumber'] = str(self.loanDict['Prop.Street_Number__c'])
         self.loanDict['Prop.numberFirst'] = addressDict['numberFirst']
-        self.loanDict['Prop.streetName'] = self.__firstCap(addressDict['streetName'])
-        self.loanDict['Prop.streetType'] = self.__firstCap(addressDict['streetType'])
-        self.loanDict['Prop.suburb'] = self.__firstCap(addressDict['suburb'])
+        self.loanDict['Prop.streetName'] = self.__firstCap(self.loanDict['Prop.Street_Name__c'])
+        self.loanDict['Prop.streetType'] = self.__firstCap(self.loanDict['Prop.Street_Type__c'])
+        self.loanDict['Prop.suburb'] = self.__firstCap(self.loanDict['Prop.Suburb_City__c'])
         self.loanDict['Prop.gnafId'] = addressDict['gnafId']
-        self.loanDict['Prop.streetAddress'] = addressDict['streetAddress']
-        self.loanDict['Prop.state'] = addressDict['state']
+        self.loanDict['Prop.streetAddress'] = self.loanDict['Prop.Street_Address__c']
+        self.loanDict['Prop.state'] = self.__enumState(self.loanDict['Prop.State__c'])
 
         return {'status': "Ok"}
 
