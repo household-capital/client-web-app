@@ -32,7 +32,8 @@ from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Utilities import raiseAdminError, getProjectionResults, \
     validateApplicationGetContext, populateDrawdownPurpose, getFileFieldMimeType, \
-    createCaseModelSettings, HouseholdLoginRequiredMixin, updateNavQueue
+    createCaseModelSettings, updateNavQueue
+from apps.lib.mixins import HouseholdLoginRequiredMixin
 
 from apps.accounts.models import SessionLog
 from apps.case.models import Case, LoanPurposes, Loan, LoanApplication

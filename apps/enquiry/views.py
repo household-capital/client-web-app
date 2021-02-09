@@ -36,8 +36,9 @@ from apps.lib.api_Pdf import pdfGenerator
 from .forms import EnquiryForm, EnquiryDetailForm, EnquiryCloseForm, EnquiryAssignForm, EnquiryCallForm, \
     AddressForm, PartnerForm
 from .models import Enquiry
-from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, getEnquiryProjections, updateNavQueue, \
+from apps.lib.site_Utilities import getEnquiryProjections, updateNavQueue, \
     cleanPhoneNumber, validateEnquiry
+from apps.lib.mixins import HouseholdLoginRequiredMixin, AddressLookUpFormMixin 
 from .util import assign_enquiry, auto_assign_enquiries
 
 from urllib.parse import urljoin
@@ -217,7 +218,7 @@ class EnquiryPartnerList(HouseholdLoginRequiredMixin, ListView):
 
 
 # Enquiry Detail View
-class EnquiryUpdateView(HouseholdLoginRequiredMixin, UpdateView):
+class EnquiryUpdateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, UpdateView):
     template_name = "enquiry/enquiry.html"
     form_class = EnquiryDetailForm
     model = Enquiry
@@ -289,12 +290,6 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, UpdateView):
                 context['calendlyUrl'] = obj.user.profile.calendlyUrl + paramStr
         else:
             context['calendlyUrl'] = ""
-
-        # Pass address form
-        context['address_form'] = AddressForm()
-        # Ajax URl
-        context['ajaxURL'] = reverse_lazy("enquiry:addressComplete")
-
         return context
 
     def form_valid(self, form):
