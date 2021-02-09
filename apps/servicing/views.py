@@ -30,8 +30,9 @@ from apps.lib.site_Enums import roleEnum, caseStagesEnum, loanTypesEnum, appType
     channelTypesEnum, facilityStatusEnum
 
 from apps.lib.api_Salesforce import apiSalesforce
-from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, updateNavQueue, sendTemplateEmail
+from apps.lib.site_Utilities import updateNavQueue, sendTemplateEmail
 from apps.case.utils import createLoanVariation
+from apps.lib.mixins import HouseholdLoginRequiredMixin
 
 from .models import Facility, FacilityTransactions, FacilityRoles, FacilityProperty, FacilityPropertyVal, \
     FacilityPurposes, FacilityEvents, FacilityEnquiry, FacilityAdditional, FacilityAnnual

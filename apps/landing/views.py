@@ -24,8 +24,8 @@ from apps.servicing.models import Facility
 
 from apps.enquiry.models import Enquiry
 from apps.lib.site_Enums import caseStagesEnum, directTypesEnum, channelTypesEnum, appTypesEnum, closeReasonEnum
-from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, LoginOnlyRequiredMixin, updateNavQueue
-
+from apps.lib.site_Utilities import updateNavQueue
+from apps.lib.mixins import HouseholdLoginRequiredMixin, LoginOnlyRequiredMixin
 
 class LandingView(LoginOnlyRequiredMixin, View):
     # Main entry point view - switch between Household Views and Referrer Views

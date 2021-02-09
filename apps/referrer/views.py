@@ -24,7 +24,7 @@ from config.celery import app
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, dwellingTypesEnum, directTypesEnum, channelTypesEnum
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Utilities import ReferrerLoginRequiredMixin
+from apps.lib.mixins import ReferrerLoginRequiredMixin
 from .forms import EnquiryForm, CaseDetailsForm
 from apps.enquiry.models import Enquiry
 from apps.case.models import Case

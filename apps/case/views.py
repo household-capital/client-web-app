@@ -33,9 +33,9 @@ from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, appTypesEnum, pur
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Logging import write_applog
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
-from apps.lib.site_Utilities import HouseholdLoginRequiredMixin, validateLoanGetContext, \
+from apps.lib.site_Utilities import validateLoanGetContext, \
     updateNavQueue, getProjectionResults, cleanPhoneNumber, sendTemplateEmail
-
+from apps.lib.mixins import HouseholdLoginRequiredMixin, AddressLookUpFormMixin
 from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignForm, \
     lumpSumPurposeForm, drawdownPurposeForm, purposeAddForm, smsForm
 from .models import Case, LossData, Loan, ModelSetting, LoanPurposes
@@ -169,7 +169,7 @@ class CaseListView(HouseholdLoginRequiredMixin, ListView):
 
 
 # Case Detail View (UpdateView)
-class CaseDetailView(HouseholdLoginRequiredMixin, UpdateView):
+class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, UpdateView):
     template_name = 'case/caseDetail.html'
     model = Case
     form_class = CaseDetailsForm
@@ -357,7 +357,7 @@ class CaseDetailView(HouseholdLoginRequiredMixin, UpdateView):
 
 
 # Case Create View (Create View)
-class CaseCreateView(HouseholdLoginRequiredMixin, CreateView):
+class CaseCreateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, CreateView):
     template_name = 'case/caseDetail.html'
     model = Case
     form_class = CaseDetailsForm

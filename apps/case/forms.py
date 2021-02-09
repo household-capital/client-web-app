@@ -150,9 +150,14 @@ class CaseDetailsForm(forms.ModelForm):
                     Div(Div(HTML("Introducer or Advisor"), css_class='form-label'),
                         Div(Field('adviser'))),
 
-                    Div(HTML("<i class='fas fa-home'></i>&nbsp;&nbsp;Property"), css_class='form-header pt-2'),
+                     Row(
+                    Column(Div(HTML("<i class='fas fa-home'> </i>&nbsp;&nbsp;Property")), css_class='col-6'),
+                    Column(Div(Div(HTML(
+                        "<button id='lookup_dialogue' type='button' class='btn btn-sm btn-light'><i class='fas fa-search'></i> Find</button> ")),
+                               css_class='text-right'), css_class='col-6')),
                     Div(Div(HTML("Dwelling Type*"), css_class='form-label'),
                         Div(Field('dwellingType'))),
+
                     Div(Div(HTML("Street Address*"), css_class='form-label'),
                         Div(Field('street'))),
                     Div(Div(HTML("Suburb*"), css_class='form-label'),

@@ -22,48 +22,12 @@ from apps.application.models import Application
 from apps.calculator.models import WebCalculator, WebContact
 from apps.case.models import Case, LossData, Loan, ModelSetting, LoanPurposes
 from apps.enquiry.models import Enquiry
+
 from apps.servicing.models import FacilityEnquiry, Facility
 from urllib.parse import urljoin
 
 
 # CLASSES
-class HouseholdLoginRequiredMixin():
-    """Ensures views will not render unless logged in, redirects to login page"""
-    @classmethod
-    def as_view(cls, **kwargs):
-        view = super(HouseholdLoginRequiredMixin, cls).as_view(**kwargs)
-        return login_required(view)
-
-    # Ensures views will not render unless Household employee, redirects to Landing
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.profile.isHousehold:
-            return super(HouseholdLoginRequiredMixin, self).dispatch(request, *args, **kwargs)
-        else:
-            return HttpResponseRedirect(reverse_lazy('landing:landing'))
-
-
-class LoginOnlyRequiredMixin():
-    """Ensures views will not render unless logged in, redirects to login page"""
-    @classmethod
-    def as_view(cls, **kwargs):
-        view = super(LoginOnlyRequiredMixin, cls).as_view(**kwargs)
-        return login_required(view)
-
-
-class ReferrerLoginRequiredMixin():
-    """Ensures views will not render unless logged in, redirects to login page"""
-    @classmethod
-    def as_view(cls, **kwargs):
-        view = super(ReferrerLoginRequiredMixin, cls).as_view(**kwargs)
-        return login_required(view)
-
-        # Ensures views will not render unless Household employee, redirects to Landing
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.profile.referrer:
-            return super(ReferrerLoginRequiredMixin, self).dispatch(request, *args, **kwargs)
-        else:
-            return HttpResponseRedirect(reverse_lazy('landing:landing'))
 
 # CORE FUNCTIONS
 
