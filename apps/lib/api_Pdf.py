@@ -119,14 +119,37 @@ class pdfGenerator():
 
         return {'True', "File saved"}
 
-    def emailPdf(self, template_name, email_context, subject, from_email, to, bcc, text_content, attachFilename):
+    def emailPdf(
+        self, 
+        template_name, 
+        email_context, 
+        subject, from_email, 
+        to, bcc, 
+        text_content, 
+        attachFilename,
+        other_attachments=[]
+        ):
         '''Email PDF using provided template and context'''
+        """
+            other_attachments = [
+                {
+                    'name': 'test.pdf',
+                    'type': 'application/pdf',
+                    'content': '...'
+                }, ...]
+        """
         try:
             html = get_template(template_name)
             html_content = html.render(email_context)
             msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [bcc])
             msg.attach_alternative(html_content, "text/html")
             msg.attach(attachFilename, self.pdfContents, 'application/pdf')
+            for attachment in other_attachments:
+                msg.attach(
+                    attachment['name'],
+                    attachment['content'],
+                    attachment['type']
+                )
             msg.send()
             return True
         except:

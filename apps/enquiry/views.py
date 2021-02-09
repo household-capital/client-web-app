@@ -536,9 +536,23 @@ class SendEnquirySummary(HouseholdLoginRequiredMixin, UpdateView):
 
         text_content = "Text Message"
         attachFilename = 'HHC-Summary.pdf'
-
-        sent = pdf.emailPdf(self.template_name, email_context, subject, from_email, to, bcc,
-                            text_content, attachFilename)
+        sent = pdf.emailPdf(
+            self.template_name, 
+            email_context, 
+            subject, 
+            from_email, 
+            to, 
+            bcc,
+            text_content, 
+            attachFilename,
+            other_attachments=[
+                {
+                    'name': "HHC-Brochure.pdf",
+                    'type': 'application/pdf',
+                    'content': staticfiles_storage.open('img/document/brochure.pdf', 'rb').read()
+                }
+            ]
+        )
         if sent:
             messages.success(self.request, "Client has been emailed")
         else:

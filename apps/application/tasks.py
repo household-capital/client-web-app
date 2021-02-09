@@ -118,9 +118,22 @@ def EmailLoanSummaryTask(appUID):
             email_context = {}
             email_context['obj'] = obj
 
-            result = pdf.emailPdf(email_template, email_context, 'Household Capital Loan Summary',
-                                  'noreply@householdcapital.com',
-                                  obj.email, None, 'Household Loan Summary', 'LoanSummary.pdf')
+            result = pdf.emailPdf(
+                email_template, 
+                email_context, 
+                'Household Capital Loan Summary',
+                'noreply@householdcapital.com',
+                obj.email, 
+                None, 
+                'Household Loan Summary', 'LoanSummary.pdf',
+                other_attachments=[
+                    {
+                        'name': "HHC-Brochure.pdf",
+                        'type': 'application/pdf',
+                        'content': staticfiles_storage.open('img/document/brochure.pdf', 'rb').read()
+                    }
+                ]
+            )
 
             if result == False:
                 write_applog("ERROR", 'EmailLoanSummary', 'get',

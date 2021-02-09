@@ -3,6 +3,8 @@ import time
 
 from django.conf import settings
 from django.urls import reverse_lazy, reverse
+from django.contrib.staticfiles.storage import staticfiles_storage
+
 from config.celery import app
 
 from apps.lib.site_Enums import directTypesEnum, enquiryStagesEnum
@@ -125,7 +127,23 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
         text_content = "Text Message"
         attach_filename = 'HHC-CalculatorSummary.pdf'
 
-        sent = pdf.emailPdf(template_name, email_context, subject, from_email, to, bcc, text_content, attach_filename)
+        sent = pdf.emailPdf(
+            template_name, 
+            email_context, 
+            subject, 
+            from_email, 
+            to, 
+            bcc, 
+            text_content, 
+            attach_filename,
+            other_attachments=[
+                {
+                    'name': "HHC-Brochure.pdf",
+                    'type': 'application/pdf',
+                    'content': staticfiles_storage.open('img/document/brochure.pdf', 'rb').read()
+                }
+            ]
+        )
 
         if not sent:
             raise ProcessingError("Enquiry created - but email not sent")
