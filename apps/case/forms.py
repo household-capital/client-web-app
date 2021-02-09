@@ -16,19 +16,12 @@ from crispy_forms.layout import Submit, Layout, Field, Div, HTML, Row, Column
 from apps.lib.site_Enums import loanTypesEnum, caseStagesEnum, incomeFrequencyEnum, purposeCategoryEnum, \
     purposeIntentionEnum, clientTypesEnum
 from apps.base.model_utils import address_model_fields
-<<<<<<< HEAD
 from apps.base.form_utils import AddressFormMixin
-=======
->>>>>>> HM-2097: Address field split
 from .models import Case, LossData, LoanPurposes
 
 
 
-<<<<<<< HEAD
 class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
-=======
-class CaseDetailsForm(forms.ModelForm):
->>>>>>> HM-2097: Address field split
     # A model form with some overriding using form fields for rendering purposes
     # Additional HTML rendering in the form
 
