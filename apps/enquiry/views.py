@@ -1139,6 +1139,47 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
 
             messages.success(self.request, "Success - %s enquiries imported" % processed_count)
 
+        elif partner_value == -1: # pseudo facebook source 
+            # pseudo fb source with different file schema 
+            write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'FACEBOOK INTERACTIVE')
+            if header[6] != 'Est. Property value':
+                messages.warning(self.request, "Unrecognised file structure - could not load")
+                return HttpResponseRedirect(self.request.path_info)
+            
+            for row in reader: 
+                email = row[3]
+                phoneNumber = cleanPhoneNumber(row[5])
+                if email:
+                    enquiryString = "[# Updated from Social Upload #]"
+                    enquiryString += "\r\nSocial: Facebook Interactive"
+                    enquiryString += "\r\nUpdated: " + datetime.date.today().strftime('%d/%m/%Y')
+                    enquiryString += "\r\nOver 60?: " + row[1]
+                    enquiryString += "\r\nValuation: " + row[6]
+
+                    payload = {
+                        "name": row[2],
+                        "postcode": row[4],
+                        "email": email,
+                        "phoneNumber": phoneNumber,
+                        "valuation": None,
+                        "age_1": None,
+                        "marketingSource": marketingTypesEnum.FACEBOOK.value,
+                        "referrer": directTypesEnum.SOCIAL.value,
+                        "productType": productTypesEnum.LUMP_SUM.value,
+                    }
+                    self.updateCreateEnquiry(
+                        email,
+                        phoneNumber,
+                        payload,
+                        enquiryString,
+                        marketingTypesEnum.FACEBOOK.value,
+                        enquiries_to_assign,
+                        False
+                    )
+
+            messages.success(self.request, "Success - enquiries imported")
+
+
         elif partner_value == marketingTypesEnum.FACEBOOK.value:
 
             write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'FACEBOOK')
