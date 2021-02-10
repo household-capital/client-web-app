@@ -135,8 +135,8 @@ class EnrichEnum:
         addressDict = result["result"]
 
         self.loanDict['Prop.buildingName'] =  str(addressDict['buildingName'])
-        self.loanDict['Prop.flatNumber'] = str(self.loanDict['Prop.Street_Number__c'])
-        self.loanDict['Prop.numberFirst'] = addressDict['numberFirst']
+        self.loanDict['Prop.flatNumber'] = str(self.loanDict['Prop.Unit__c']) 
+        self.loanDict['Prop.numberFirst'] = str(self.loanDict['Prop.Street_Number__c']) 
         self.loanDict['Prop.streetName'] = self.__firstCap(self.loanDict['Prop.Street_Name__c'])
         self.loanDict['Prop.streetType'] = self.__firstCap(self.loanDict['Prop.Street_Type__c'])
         self.loanDict['Prop.suburb'] = self.__firstCap(self.loanDict['Prop.Suburb_City__c'])
