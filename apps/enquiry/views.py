@@ -1309,7 +1309,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                     obj = qs.get()
                     updateNotes = "".join(filter(None, (obj.enquiryNotes, "\r\n\r\n" + enquiryString)))
                     obj.enquiryNotes = updateNotes
-                    obj.save()
+                    obj.save(should_sync=True)
                     if not preserve_owners:
                         write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Overwriting owner')
                         enquiries_to_assign.append(obj)
