@@ -277,6 +277,39 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Upd
                 if loanStatus['data']['errors']:
                     context['requirementError'] = 'Invalid requirement amounts'
 
+        # Validate Address
+        mappify  = apiMappify()
+        address_fields = [
+            'streetAddress',
+            'suburb',
+            'base_specificity',
+            'street_number',
+            'street_name',
+            'street_type'
+        ]
+        should_validate = any(
+            getattr(obj, x)
+            for x in address_fields
+        )
+        if should_validate: 
+            result = mappify.setAddress(
+                {
+                    "streetAddress": obj.streetAddress,
+                    "suburb": obj.suburb,
+                    "postcode": obj.postcode,
+                    "state": obj.state,
+                    "unit": obj.base_specificity,
+                    "streetnumber": obj.street_number,
+                    "streetname": obj.street_name,
+                    "streettype": obj.street_type
+                }
+            )
+            if result['status'] != 'Ok':
+                messages.error(self.request, "Address error. Please check address fields")
+            else:
+                result = mappify.checkPostalAddress()
+                if result['status'] == 'Error':
+                    messages.error(self.request, "Address validation. Please check address fields, or set address fields with find widget")
         context['obj'] = obj
         context['isUpdate'] = True
         context['productTypesEnum'] = productTypesEnum
