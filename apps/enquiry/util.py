@@ -55,7 +55,7 @@ def _assign_enquiries(assignments, notify):
                     enquiry.enquiryNotes = (enquiry.enquiryNotes or '') + '\r\n[# Enquiry assigned from ' + enquiry.referralUser.profile.referrer.companyName + ' to ' + username + ' #]'
 
                 enquiry.user = user
-                enquiry.save()
+                enquiry.save(should_sync=True)
                 processed.append(enquiry)
                 write_applog('INFO', 'enquiry.util', 'assign_enquiries', 'Succeeded')
         except Exception as ex:

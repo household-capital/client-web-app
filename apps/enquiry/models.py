@@ -16,6 +16,7 @@ from django.db.models import Q
 from urllib.parse import urljoin
 #Local Imports
 from apps.lib.site_Enums import *
+from config.celery import app
 
 
 class EnquiryManager(models.Manager):
@@ -310,6 +311,18 @@ class Enquiry(models.Model):
 
     def __str__(self):
         return smart_text(self.email)
-
+    
+    def save(self, should_sync=False, *args, **kwargs):
+        if self.pk is None: 
+            # attempt sync on create
+            should_sync = bool(
+                self.email and 
+                self.phoneNumber and 
+                self.user and 
+                self.postcode
+            )
+        super(Enquiry, self).save()
+        if should_sync:
+            app.send_task('Update_SF_Lead', kwargs={'enqUID': str(self.enqUID)})
     class Meta:
         ordering = ('-updated',)
