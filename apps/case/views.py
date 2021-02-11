@@ -40,6 +40,7 @@ from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignF
     lumpSumPurposeForm, drawdownPurposeForm, purposeAddForm, smsForm
 from .models import Case, LossData, Loan, ModelSetting, LoanPurposes
 from apps.application.models import ApplicationDocuments
+from apps.lib.api_Mappify import apiMappify
 from urllib.parse import urljoin
 
 # // UTILITIES
@@ -226,7 +227,39 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
                 context['docList'] = ApplicationDocuments.objects.filter(application__appUID=caseObj.appUID)
             except ApplicationDocuments.DoesNotExist:
                 pass
-
+                # Validate Address
+        mappify  = apiMappify()
+        address_fields = [
+            'street',
+            'suburb',
+            'base_specificity',
+            'street_number',
+            'street_name',
+            'street_type'
+        ]
+        should_validate = any(
+            getattr(caseObj, x)
+            for x in address_fields
+        )
+        if should_validate: 
+            result = mappify.setAddress(
+                {
+                    "streetAddress": caseObj.street,
+                    "suburb": caseObj.suburb,
+                    "postcode": caseObj.postcode,
+                    "state": caseObj.state,
+                    "unit": caseObj.base_specificity,
+                    "streetnumber": caseObj.street_number,
+                    "streetname": caseObj.street_name,
+                    "streettype": caseObj.street_type
+                }
+            )
+            if result['status'] != 'Ok':
+                messages.error(self.request, "Address error. Please check address fields")
+            else:
+                result = mappify.checkPostalAddress()
+                if result['status'] == 'Error':
+                    messages.error(self.request, "Address validation. Please check address fields, or set address fields with find widget")
         return context
 
     def form_valid(self, form):
