@@ -103,17 +103,21 @@
             }
         }
 
+        function convert_str (str) { 
+            return str.split(' ').map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(' ')
+        }
+
         function setAddressData(obj) {
             let address_obj = addressData[obj.val()]
             $('#id_streetAddress').prop("value", address_obj.streetComponent);
-            $('#id_suburb').prop("value", address_obj.suburb);
+            $('#id_suburb').prop("value", convert_str(address_obj.suburb));
             $('#id_state').prop("value", address_obj.stateCode);
             $('#id_postcode').prop("value", address_obj.postCode);
 
             $('#id_base_specificity').prop("value", address_obj.flatNumber);
             $('#id_street_number').prop("value", (address_obj.numberFirstPrefix || "") + address_obj.numberFirst + (address_obj.numberFirstSuffix||""));
-            $('#id_street_name').prop("value", address_obj.streetName);
-            $('#id_street_type').prop("value", address_obj.streetType);
+            $('#id_street_name').prop("value", convert_str(address_obj.streetName));
+            $('#id_street_type').prop("value", convert_str(address_obj.streetType));
             $("#addressSelect").attr('size', 1.9);
         }
 

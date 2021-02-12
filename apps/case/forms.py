@@ -24,6 +24,10 @@ class CaseDetailsForm(forms.ModelForm):
     # A model form with some overriding using form fields for rendering purposes
     # Additional HTML rendering in the form
 
+    def __init__(self, *args, **kwargs):
+        super(CaseDetailsForm, self).__init__(*args, **kwargs)
+        self.fields['street'].disabled = True
+
     valuation = forms.IntegerField(required=False, localize=True, widget=widgets.TextInput())
     mortgageDebt = forms.IntegerField(required=False, localize=True, widget=widgets.TextInput())
     superAmount = forms.IntegerField(required=False, localize=True, widget=widgets.TextInput())

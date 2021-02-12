@@ -141,6 +141,11 @@ class EnquiryForm(forms.ModelForm):
 
 
 class EnquiryDetailForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(EnquiryDetailForm, self).__init__(*args, **kwargs)
+        self.fields['streetAddress'].disabled = True
+
     class Meta:
         model = Enquiry
 

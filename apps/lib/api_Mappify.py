@@ -72,7 +72,7 @@ class apiMappify():
 
         response = requests.post(self.mappifyUrlGeo, data=json.dumps(payload),
                                  headers={'content-type': 'application/json'})
-
+                                 
         if response.status_code != 200:
             write_applog("ERROR", 'apiMappify', 'checkPostalAddress', 'API Call Failed - '+ str(response.status_code))
             return {'status':"Error","responseText":'API Call Failed - could not check address'}
@@ -87,7 +87,7 @@ class apiMappify():
 
         self.location=response['result']['location']
 
-
+        
         # Use Autocomplete to get Postal Address
         payload = {"streetAddress": "{} {} {} {}".format(self.fullStreetAddress, self.suburb, self.postcode, self.state),
                    "sortOrigin": self.location,

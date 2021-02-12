@@ -247,7 +247,7 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
                     "streetAddress": caseObj.street,
                     "suburb": caseObj.suburb,
                     "postcode": caseObj.postcode,
-                    "state": caseObj.state,
+                    "state": dict(Case.stateTypes).get(caseObj.state),
                     "unit": caseObj.base_specificity,
                     "streetnumber": caseObj.street_number,
                     "streetname": caseObj.street_name,
