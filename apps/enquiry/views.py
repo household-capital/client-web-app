@@ -297,7 +297,7 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Upd
                     "streetAddress": obj.streetAddress,
                     "suburb": obj.suburb,
                     "postcode": obj.postcode,
-                    "state": obj.state,
+                    "state": dict(Enquiry.stateTypes).get(obj.state),
                     "unit": obj.base_specificity,
                     "streetnumber": obj.street_number,
                     "streetname": obj.street_name,
