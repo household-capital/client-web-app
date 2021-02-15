@@ -164,8 +164,6 @@ class CaseDetailsForm(forms.ModelForm):
 
                     Div(Div(HTML("Street Address*"), css_class='form-label'),
                         Div(Field('street'))),
-                    Div(Div(HTML("Suburb*"), css_class='form-label'),
-                        Div(Field('suburb'))),
                     Div(Div(HTML("Unit / Apartment / Lot"), css_class='form-label'),
                         Div(Field('base_specificity'))),
                     Div(Div(HTML("Street Number"), css_class='form-label'),
@@ -174,6 +172,8 @@ class CaseDetailsForm(forms.ModelForm):
                         Div(Field('street_name'))),
                     Div(Div(HTML("Street Type e.g Avenue, Lane, etc"), css_class='form-label'),
                         Div(Field('street_type'))),
+                    Div(Div(HTML("Suburb*"), css_class='form-label'),
+                        Div(Field('suburb'))),
                     Row(
                         Column(Div(Div(HTML("State*"), css_class='form-label'),
                                    Div(Field('state'))), css_class='col-6'),
