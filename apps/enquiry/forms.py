@@ -15,6 +15,7 @@ from apps.base.model_utils import address_model_fields
 from apps.base.form_utils import AddressFormMixin
 from apps.enquiry.models import MarketingCampaign
 from apps.base.model_utils import address_model_fields
+from apps.base.form_utils import AddressFormMixin
 from .models import Enquiry
 
 
@@ -153,6 +154,10 @@ class EnquiryForm(AddressFormMixin, forms.ModelForm):
 
 
 class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(EnquiryDetailForm, self).__init__(*args, **kwargs)
+        self.fields['streetAddress'].disabled = True
 
     class Meta:
         model = Enquiry
