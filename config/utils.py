@@ -141,18 +141,22 @@ def get_secret(secret_name):
 
         return secret
 
-def get_settings():
-    secret_json = get_secret('{env}/clientapp/db-cred'.format(env=os.environ.get('ENV', 'local')))
+def get_settings(secret_type='db-cred'):
+    secret_json = get_secret('{env}/clientapp/{secret_type}'.format(
+            env=os.environ.get('ENV', 'local'),
+            secret_type=secret_type
+        )
+    )
     return json.loads(secret_json)
 
 
-def get_setting(setting): 
-    return get_settings()[setting]
+def get_setting(setting, secret_type='db-cred'): 
+    return get_settings(secret_type)[setting]
 
-def set_settings(key, value): 
-    secret_name = '{env}/clientapp/db-cred'.format(env=os.environ.get('ENV', 'local'))
+def set_settings(key, value, secret_type='db-cred'): 
+    secret_name = '{env}/clientapp/{secret_type}'.format(env=os.environ.get('ENV', 'local'), secret_type=secret_type)
     region_name = "ap-southeast-2"
-    secret_value = get_settings()
+    secret_value = get_settings(secret_type)
     secret_value[key] = value
     
     client = secrets_manager_client(region_name)
