@@ -12,12 +12,13 @@ from apps.lib.site_Enums import loanTypesEnum, marketingTypesEnum
 from apps.lib.site_Utilities import cleanPhoneNumber
 from apps.enquiry.models import MarketingCampaign
 from apps.base.model_utils import address_model_fields
+from apps.base.form_utils import AddressFormMixin
 from .models import Enquiry
 
 
 # FORMS
 
-class EnquiryForm(forms.ModelForm):
+class EnquiryForm(AddressFormMixin, forms.ModelForm):
     class Meta:
         model = Enquiry
         fields = ['loanType', 'name', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
@@ -140,7 +141,7 @@ class EnquiryForm(forms.ModelForm):
                 return number
 
 
-class EnquiryDetailForm(forms.ModelForm):
+class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(EnquiryDetailForm, self).__init__(*args, **kwargs)
