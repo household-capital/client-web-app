@@ -73,7 +73,7 @@ def catchallSFLeadTask():
 def updateToday():
     write_applog("INFO", 'Enquiry', 'FollowUpEmail', "Starting")
 
-    delta = timedelta(days=7)
+    delta = timedelta(days=21)
     windowDate = timezone.now() - delta
 
     qs = Enquiry.objects.filter(followUp__isnull=True,
