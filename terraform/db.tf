@@ -31,7 +31,7 @@ resource "aws_db_instance" "rds_env_instance" {
   # Automatic Backups (3:00am to 6:00am AEDT Every day) 
   backup_window               = "16:00-19:00" # must be outside maintenance window.
   skip_final_snapshot         = true
-  backup_retention_period     = var.environment == "andrew" ? 35 : 0 # !!!!!!! change to prod when working
+  backup_retention_period     = var.environment == "prod" ? 35 : 0
 }
 
 resource "aws_db_subnet_group" "db_subnet_group" {
