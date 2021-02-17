@@ -2,7 +2,7 @@
 from django.contrib import admin
 
 #Local Application Imports
-from .models import Enquiry
+from .models import Enquiry, MarketingCampaign
 # Model registration to enable maintenance in the Admin screens
 
 
@@ -11,3 +11,4 @@ class EnquiryAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Enquiry,EnquiryAdmin)
+admin.site.register(MarketingCampaign)

@@ -593,6 +593,9 @@ def __buildLeadCasePayload(case):
     payload['Dwelling_Type__c'] = case.enumDwellingType()
     payload['Date_Case_Created__c'] = case.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
     payload['Propensity_Category__c'] = case.enumPropensityCategory()
+    payload['Marketing_Campaign__c'] = ''
+    if case.marketing_campaign: 
+        payload['Marketing_Campaign__c'] = case.marketing_campaign.campaign_name
 
     # Map / create other fields
     if case.lossdata.followUpDate:
