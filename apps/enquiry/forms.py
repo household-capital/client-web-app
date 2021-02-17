@@ -96,6 +96,7 @@ class EnquiryForm(AddressFormMixin, forms.ModelForm):
                     Div(Field('street_name'))),
                 Div(Div(HTML("Street Type e.g Avenue, Lane, etc"), css_class='form-label'),
                     Div(Field('street_type'))),
+                Div(Div(Field('gnaf_id'))),
                 Div(Div(HTML("Suburb"), css_class='form-label'),
                     Div(Field('suburb'))),
                 Row(
@@ -244,6 +245,7 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
                     Div(Field('street_name'))),
                 Div(Div(HTML("Street Type e.g Avenue, Lane, etc"), css_class='form-label'),
                     Div(Field('street_type'))),
+                Div(Div(Field('gnaf_id'))),
                 Div(Div(HTML("Suburb"), css_class='form-label'),
                     Div(Field('suburb'))),
                 Row(

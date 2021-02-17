@@ -536,6 +536,7 @@
             $('#id_street_number').prop("value", (address_obj.numberFirstPrefix || "") + address_obj.numberFirst + (address_obj.numberFirstSuffix||""));
             $('#id_street_name').prop("value", convert_str(address_obj.streetName));
             $('#id_street_type').prop("value", convert_str(address_obj.streetType));
+            $('#id_gnaf_id').prop("value", address_obj.gnafId);
             $("#addressSelect").attr('size', 1.9);
         }
 
