@@ -85,6 +85,9 @@ def mapEnquiryToLead(enqUID):
     payload['State'] = sfStateEnum(enquiry.state)
     payload['Status__c'] = enquiry.enumEnquiryStage()
     payload['Propensity_Category__c'] = enquiry.enumPropensityCategory()
+    payload['Marketing_Campaign__c'] = ''
+    if enquiry.marketing_campaign: 
+        payload['Marketing_Campaign__c'] = enquiry.marketing_campaign.campaign_name
 
 
     # Map / create other fields

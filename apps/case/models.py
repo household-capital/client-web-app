@@ -14,6 +14,7 @@ from django.urls import reverse_lazy
 from apps.lib.site_Enums import *
 
 from apps.accounts.models import Referer
+from apps.enquiry.models import MarketingCampaign
 from urllib.parse import urljoin
 
 
@@ -274,6 +275,8 @@ class Case(models.Model):
     # Scoring
     propensityCategory = models.IntegerField(choices=propensityChoices, blank=True, null=True)
 
+    marketing_campaign = models.ForeignKey(MarketingCampaign, null=True, blank=True, on_delete=models.SET_NULL)
+    
     objects=CaseManager()
 
     def __str__(self):

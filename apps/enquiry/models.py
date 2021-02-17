@@ -68,6 +68,13 @@ class EnquiryManager(models.Manager):
         return self.find_duplicates_QS(email, phoneNumber).order_by(order_by)
 
 
+class MarketingCampaign(models.Model):
+
+    campaign_name = models.CharField(max_length=200, unique=True)
+    
+    def __str__(self):
+        return smart_text(self.campaign_name)
+
 class Enquiry(models.Model):
 
     productTypes = (
@@ -254,7 +261,9 @@ class Enquiry(models.Model):
 
     # Scoring
     propensityCategory = models.IntegerField(choices=propensityChoices, blank=True, null=True)
-
+    
+    marketing_campaign = models.ForeignKey(MarketingCampaign, null=True, blank=True, on_delete=models.SET_NULL)
+    
     objects = EnquiryManager()
 
     @property
