@@ -276,7 +276,7 @@ def appFollowUp():
     """Send in-progress application customers a reminder email"""
     write_applog("INFO", 'Application', 'FollowUpEmail', "Starting")
 
-    delta = timedelta(days=7)
+    delta = timedelta(days=21)
     windowDate = timezone.now() - delta
 
     qs = Application.objects.filter(followUpEmail__isnull=True,
