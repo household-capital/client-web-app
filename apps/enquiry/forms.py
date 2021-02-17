@@ -23,7 +23,7 @@ class EnquiryForm(AddressFormMixin, forms.ModelForm):
         fields = ['loanType', 'name', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
                   'streetAddress', 'suburb', 'state', 'mortgageDebt',
                   'referrer', 'email', 'phoneNumber', 'enquiryNotes',
-                  'marketingSource', 'propensityCategory'] + address_model_fields
+                  'marketingSource', 'propensityCategory', 'marketing_campaign'] + address_model_fields
 
         widgets = {
             'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
@@ -54,6 +54,9 @@ class EnquiryForm(AddressFormMixin, forms.ModelForm):
                 Div(
                     Div(HTML("Propensity Score"), css_class='form-label'),
                     Div(Field('propensityCategory'))),
+                Div(
+                    Div(HTML("Marketing Campaign"), css_class='form-label'),
+                    Div(Field('marketing_campaign'))),
                 Div(
                     Div(HTML("Enquiry Source"), css_class='form-label'),
                     Div(Field('referrer'))),
@@ -146,8 +149,9 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
         fields = ['loanType', 'name', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
                   'streetAddress', 'suburb', 'state', 'mortgageDebt',
                   'referrer', 'email', 'phoneNumber', 'enquiryNotes', 'calcLumpSum', 'calcIncome',
-                  'marketingSource', 'productType', 'enquiryStage', 'valuationDocument', 'propensityCategory'
-                  ] + address_model_fields
+                  'marketingSource', 'productType', 'enquiryStage', 'valuationDocument', 'propensityCategory', 
+                  'marketing_campaign'
+                ] + address_model_fields
 
         widgets = {
             'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
@@ -178,6 +182,8 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
                     Div(Field('enquiryStage')),
                     Div(HTML("Propensity Score"), css_class='form-label'),
                     Div(Field('propensityCategory')),
+                    Div(HTML("Marketing Campaign"), css_class='form-label'),
+                    Div(Field('marketing_campaign')),
                 ),
 
                 Div(HTML("<br>")),
@@ -301,7 +307,7 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
 class EnquiryCallForm(forms.ModelForm):
     class Meta:
         model = Enquiry
-        fields = ['name', 'postcode', 'phoneNumber', 'marketingSource', 'enquiryNotes', 'propensityCategory']
+        fields = ['name', 'postcode', 'phoneNumber', 'marketingSource', 'enquiryNotes', 'propensityCategory', 'marketing_campaign']
 
         widgets = {
             'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
@@ -330,6 +336,9 @@ class EnquiryCallForm(forms.ModelForm):
                 Div(
                     Div(HTML("Propensity Score"), css_class='form-label'),
                     Div(Field('propensityCategory'))),
+                Div(
+                    Div(HTML("Marketing Campaign"), css_class='form-label'),
+                    Div(Field('marketing_campaign'))),
                 css_class='col-lg-6'),
 
             Div(
