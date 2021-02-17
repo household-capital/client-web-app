@@ -18,10 +18,20 @@ resource "aws_db_instance" "rds_env_instance" {
   vpc_security_group_ids = [aws_security_group.db_sg.id]   # Security Group
   # db_subnet_group_name   = var.storage_subnet_group  # Subnet Group
   db_subnet_group_name =  aws_db_subnet_group.db_subnet_group.id # "awseb-e-mdegjcpmbn-stack-awsebrdsdbsubnetgroup-tgen5assryx2"
-  skip_final_snapshot    = true
   multi_az               = true
   identifier             = "clientapp-db-${var.environment}"
   publicly_accessible    = var.environment != "prod" 
+
+  # RDS Maintenance (1:00am - 3:00am AEDT Monday nights)
+  maintenance_window          = "Sun:14:00-Sun:16:00" # UTC
+  allow_major_version_upgrade = false
+  auto_minor_version_upgrade  = true
+  apply_immediately           = true
+
+  # Automatic Backups (3:00am to 6:00am AEDT Every day) 
+  backup_window               = "16:00-19:00" # must be outside maintenance window.
+  skip_final_snapshot         = true
+  backup_retention_period     = var.environment == "andrew" ? 35 : 0 # !!!!!!! change to prod when working
 }
 
 resource "aws_db_subnet_group" "db_subnet_group" {
