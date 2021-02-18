@@ -13,6 +13,7 @@ from apps.lib.site_Utilities import cleanPhoneNumber
 from apps.enquiry.models import MarketingCampaign
 from apps.base.model_utils import address_model_fields
 from apps.base.form_utils import AddressFormMixin
+from apps.enquiry.models import MarketingCampaign
 from .models import Enquiry
 
 
@@ -497,6 +498,10 @@ class PartnerForm(forms.Form):
         (-1, "Facebook Interactive"),
         (marketingTypesEnum.NATIONAL_SENIORS.value, "National Seniors"),
         (marketingTypesEnum.LINKEDIN.value, "LinkedIn")        
+    )
+
+    marketing_campains = [(None, '---- No Campaign ----')]+list(
+        MarketingCampaign.objects.values_list('id', 'campaign_name')
     )
 
     partner = forms.ChoiceField(choices=partnerTypes, required=True)
