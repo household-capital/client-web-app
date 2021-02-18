@@ -104,35 +104,43 @@ class EnrichEnum:
         self.__logging("Enriching Property Information")
 
         mappify = apiMappify()
-        
-        concatenated_address = "{} {} {} {}".format(
-            self.loanDict['Prop.Unit__c'],
-            self.loanDict['Prop.Street_Number__c'],
-            self.loanDict['Prop.Street_Name__c'],
-            self.loanDict['Prop.Street_Type__c']
-        )
-        self.__logging('Concating property addreses - Result = {}'.format(concatenated_address))
-        result = mappify.setAddress({"streetAddress": self.loanDict['Prop.Street_Address__c'],
-                                     "suburb": self.loanDict['Prop.Suburb_City__c'],
-                                     "postcode": self.loanDict['Prop.Postcode__c'],
-                                     "state": self.__enumState(self.loanDict['Prop.State__c']),
-                                     "unit": self.loanDict['Prop.Unit__c'],
-                                     "streetnumber": self.loanDict['Prop.Street_Number__c'],
-                                     "streetname": self.loanDict['Prop.Street_Name__c'],
-                                     "streettype":self.loanDict['Prop.Street_Type__c']
-                                     })
+        sf_gnaf = self.loanDict.get('Gnaf_id__c')
+        addressDict = {
+            'gnafId': sf_gnaf,
+            'buildingName': "None"
+        }
+        if not sf_gnaf or sf_gnaf == "None": 
+            # if no gnaf in salesforce (i.e address populated without mappify/geo lib)
+            # use mappify to retrieve
+            concatenated_address = "{} {} {} {}".format(
+                self.loanDict['Prop.Unit__c'],
+                self.loanDict['Prop.Street_Number__c'],
+                self.loanDict['Prop.Street_Name__c'],
+                self.loanDict['Prop.Street_Type__c']
+            )
+            self.__logging("Using Mappify to build gnaf ID")
+            self.__logging('Concating property addreses - Result = {}'.format(concatenated_address))
+            result = mappify.setAddress({"streetAddress": self.loanDict['Prop.Street_Address__c'],
+                                        "suburb": self.loanDict['Prop.Suburb_City__c'],
+                                        "postcode": self.loanDict['Prop.Postcode__c'],
+                                        "state": self.__enumState(self.loanDict['Prop.State__c']),
+                                        "unit": self.loanDict['Prop.Unit__c'],
+                                        "streetnumber": self.loanDict['Prop.Street_Number__c'],
+                                        "streetname": self.loanDict['Prop.Street_Name__c'],
+                                        "streettype":self.loanDict['Prop.Street_Type__c']
+                                        })
 
-        if result['status'] != 'Ok':
-            self.__logging(result['responseText'])
-            return {'status': "Error"}
+            if result['status'] != 'Ok':
+                self.__logging(result['responseText'])
+                return {'status': "Error"}
 
-        result = mappify.checkPostalAddress()
+            result = mappify.checkPostalAddress()
 
-        if result['status'] == 'Error':
-            self.__logging(result['responseText'])
-            return {'status': "Error"}
+            if result['status'] == 'Error':
+                self.__logging(result['responseText'])
+                return {'status': "Error"}
 
-        addressDict = result["result"]
+            addressDict = result["result"]
 
         self.loanDict['Prop.buildingName'] =  str(addressDict['buildingName'])
         self.loanDict['Prop.flatNumber'] = str(self.loanDict['Prop.Unit__c']) 
