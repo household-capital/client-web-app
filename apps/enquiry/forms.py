@@ -87,15 +87,15 @@ class EnquiryForm(AddressFormMixin, forms.ModelForm):
                         "<button id='lookup_dialogue' type='button' class='btn btn-sm btn-light'><i class='fas fa-search'></i> Find</button> ")),
                                css_class='text-right'), css_class='col-6')),
                 Div(Div(HTML("Street Address"), css_class='form-label'),
-                    Div(Field('streetAddress'))),
+                    Div(Field('streetAddress', readonly=True))),
                 Div(Div(HTML("Unit / Apartment / Lot"), css_class='form-label'),
-                    Div(Field('base_specificity'))),
+                    Div(Field('base_specificity', readonly=True))),
                 Div(Div(HTML("Street Number"), css_class='form-label'),
-                    Div(Field('street_number'))),
+                    Div(Field('street_number', readonly=True))),
                 Div(Div(HTML("Street Name"), css_class='form-label'),
-                    Div(Field('street_name'))),
+                    Div(Field('street_name', readonly=True))),
                 Div(Div(HTML("Street Type e.g Avenue, Lane, etc"), css_class='form-label'),
-                    Div(Field('street_type'))),
+                    Div(Field('street_type', readonly=True))),
                 Div(Div(Field('gnaf_id'))),
                 Div(Div(HTML("Suburb"), css_class='form-label'),
                     Div(Field('suburb'))),
@@ -143,10 +143,6 @@ class EnquiryForm(AddressFormMixin, forms.ModelForm):
 
 
 class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
-
-    def __init__(self, *args, **kwargs):
-        super(EnquiryDetailForm, self).__init__(*args, **kwargs)
-        self.fields['streetAddress'].disabled = True
 
     class Meta:
         model = Enquiry
@@ -236,15 +232,15 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
                         "<button id='lookup_dialogue' type='button' class='btn btn-sm btn-light'><i class='fas fa-search'></i> Find</button> ")),
                         css_class='text-right'), css_class='col-6')),
                 Div(Div(HTML("Street Address"), css_class='form-label'),
-                    Div(Field('streetAddress'))),
+                    Div(Field('streetAddress', readonly=True))),
                 Div(Div(HTML("Unit / Apartment / Lot"), css_class='form-label'),
-                    Div(Field('base_specificity'))),
+                    Div(Field('base_specificity', readonly=True))),
                 Div(Div(HTML("Street Number"), css_class='form-label'),
-                    Div(Field('street_number'))),
+                    Div(Field('street_number', readonly=True))),
                 Div(Div(HTML("Street Name"), css_class='form-label'),
-                    Div(Field('street_name'))),
+                    Div(Field('street_name', readonly=True))),
                 Div(Div(HTML("Street Type e.g Avenue, Lane, etc"), css_class='form-label'),
-                    Div(Field('street_type'))),
+                    Div(Field('street_type', readonly=True))),
                 Div(Div(Field('gnaf_id'))),
                 Div(Div(HTML("Suburb"), css_class='form-label'),
                     Div(Field('suburb'))),

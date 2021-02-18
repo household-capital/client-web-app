@@ -25,10 +25,6 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
     # A model form with some overriding using form fields for rendering purposes
     # Additional HTML rendering in the form
 
-    def __init__(self, *args, **kwargs):
-        super(CaseDetailsForm, self).__init__(*args, **kwargs)
-        self.fields['street'].disabled = True
-
     valuation = forms.IntegerField(required=False, localize=True, widget=widgets.TextInput())
     mortgageDebt = forms.IntegerField(required=False, localize=True, widget=widgets.TextInput())
     superAmount = forms.IntegerField(required=False, localize=True, widget=widgets.TextInput())
@@ -164,15 +160,15 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                         Div(Field('dwellingType'))),
 
                     Div(Div(HTML("Street Address*"), css_class='form-label'),
-                        Div(Field('street'))),
+                        Div(Field('street', readonly=True))),
                     Div(Div(HTML("Unit / Apartment / Lot"), css_class='form-label'),
-                        Div(Field('base_specificity'))),
+                        Div(Field('base_specificity', readonly=True))),
                     Div(Div(HTML("Street Number"), css_class='form-label'),
-                        Div(Field('street_number'))),
+                        Div(Field('street_number', readonly=True))),
                     Div(Div(HTML("Street Name"), css_class='form-label'),
-                        Div(Field('street_name'))),
+                        Div(Field('street_name', readonly=True))),
                     Div(Div(HTML("Street Type e.g Avenue, Lane, etc"), css_class='form-label'),
-                        Div(Field('street_type'))),
+                        Div(Field('street_type', readonly=True))),
                     Div(Div(Field('gnaf_id'))),
                     Div(Div(HTML("Suburb*"), css_class='form-label'),
                         Div(Field('suburb'))),
