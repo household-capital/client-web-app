@@ -5,7 +5,7 @@ db_to_sf_map = {
     'street_number': 'streetNumber',
     'street_name': 'streetName',
     'street_type': 'streetType',
-    'gnaf_id': 'gnaf_id'
+    'gnaf_id': 'gnafId'
 }
 
 address_model_fields = list(db_to_sf_map.keys()) 
