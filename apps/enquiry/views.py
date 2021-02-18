@@ -972,8 +972,6 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
         write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Commencing upload')
         partner_value = int(form.cleaned_data['partner'])
         marketing_campaign = form.cleaned_data.get('marketing_campaign')
-        if marketing_campaign is not None and marketing_campaign != '':
-            marketing_campaign = int(marketing_campaign) 
         if partner_value == marketingTypesEnum.STARTS_AT_60.value:
 
             write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'STARTS_AT_60')
@@ -1006,7 +1004,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": marketingTypesEnum.STARTS_AT_60.value,
                         "referrer": directTypesEnum.PARTNER.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "marketing_campaign_id": marketing_campaign
+                        "marketing_campaign": marketing_campaign
                     }
 
                     self.updateCreateEnquiry(
@@ -1051,7 +1049,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": marketingTypesEnum.CARE_ABOUT.value,
                         "referrer": directTypesEnum.PARTNER.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "marketing_campaign_id": marketing_campaign
+                        "marketing_campaign": marketing_campaign
                     }
 
                     self.updateCreateEnquiry(
@@ -1101,7 +1099,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "referrer": directTypesEnum.PARTNER.value,
                         "state":  None ,
-                        "marketing_campaign_id": marketing_campaign
+                        "marketing_campaign": marketing_campaign
                     }
                     self.updateCreateEnquiry(
                         email, 
@@ -1161,7 +1159,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "state": stateTypesEnum[row[10]].value if row[10] else None ,
                         'dwellingType': dwellingTypesEnum.APARTMENT.value if row[8] == "Strata Property" else dwellingTypesEnum.HOUSE.value,
                         "enquiryStage": enquiryStagesEnum.GENERAL_INFORMATION.value if row[4] == "Closed Lost" else enquiryStagesEnum.FOLLOW_UP_NO_ANSWER.value,
-                        "marketing_campaign_id": marketing_campaign
+                        "marketing_campaign": marketing_campaign
                     }
 
                     self.updateCreateEnquiry(
@@ -1205,7 +1203,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": marketingTypesEnum.FACEBOOK.value,
                         "referrer": directTypesEnum.SOCIAL.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "marketing_campaign_id": marketing_campaign
+                        "marketing_campaign": marketing_campaign
                     }
                     self.updateCreateEnquiry(
                         email,
@@ -1251,7 +1249,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": marketingTypesEnum.FACEBOOK.value,
                         "referrer": directTypesEnum.SOCIAL.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "marketing_campaign_id": marketing_campaign
+                        "marketing_campaign": marketing_campaign
                     }
 
                     self.updateCreateEnquiry(
@@ -1298,7 +1296,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": marketingTypesEnum.LINKEDIN.value,
                         "referrer": directTypesEnum.SOCIAL.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "marketing_campaign_id": marketing_campaign
+                        "marketing_campaign": marketing_campaign
                     }
 
                     self.updateCreateEnquiry(
