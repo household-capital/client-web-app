@@ -334,7 +334,6 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Upd
 
         loanObj = LoanValidator(clientDict)
         chkOpp = loanObj.validateLoan()
-
         if obj.user == None and self.request.user.profile.calendlyUrl:
             obj.user = self.request.user
 
