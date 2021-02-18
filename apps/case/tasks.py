@@ -667,7 +667,6 @@ def updateSFOpp(caseUID, sfAPI):
     # Update Opportunity [Application]
 
     payload = mapCaseToOpportunity(caseObj, lossObj)
-
     # Call endpoint
     result = sfAPI.apexCall(end_point, end_point_method, data=payload)
     if result['status'] != 'Ok':

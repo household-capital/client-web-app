@@ -522,7 +522,7 @@
             }
         }
         function convert_str (str) { 
-            return str.split(' ').map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(' ')
+            return str ? str.split(' ').map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(' '): ''
         }
 
         function setAddressData(obj) {
