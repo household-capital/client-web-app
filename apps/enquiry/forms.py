@@ -10,6 +10,7 @@ from crispy_forms.layout import Submit, Layout, Field, Div, HTML, Row, Column
 # Local Application Imports
 from apps.lib.site_Enums import loanTypesEnum, marketingTypesEnum
 from apps.lib.site_Utilities import cleanPhoneNumber
+from apps.enquiry.models import MarketingCampaign
 from .models import Enquiry
 
 
@@ -476,7 +477,12 @@ class PartnerForm(forms.Form):
         (marketingTypesEnum.LINKEDIN.value, "LinkedIn")        
     )
 
+    marketing_campains = [(None, '---- No Campaign ----')]+list(
+        MarketingCampaign.objects.values_list('id', 'campaign_name')
+    )
+
     partner = forms.ChoiceField(choices=partnerTypes, required=True)
+    marketing_campaign = forms.ChoiceField(choices=marketing_campains, required=False)
     uploadFile = forms.FileField(required=True, widget=forms.FileInput)
 
     helper = FormHelper()
@@ -491,6 +497,8 @@ class PartnerForm(forms.Form):
             Div(
                 Div(Div(HTML("Partner*"), css_class='form-label'),
                     Div(Field('partner'))),
+                Div(Div(HTML("Marketing Campaign*"), css_class='form-label'),
+                    Div(Field('marketing_campaign'))),
                 Div(Div(HTML("Upload File"), css_class='form-label'),
                     Div(Field('uploadFile'))),
             )
