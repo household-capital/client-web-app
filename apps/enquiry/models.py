@@ -16,6 +16,7 @@ from django.db.models import Q
 from urllib.parse import urljoin
 #Local Imports
 from apps.lib.site_Enums import *
+from apps.case.model_utils import get_existing_case, create_case_from_enquiry
 from config.celery import app
 from apps.base.model_utils import AbstractAddressModel
 
@@ -269,6 +270,15 @@ class Enquiry(AbstractAddressModel):
     
     objects = EnquiryManager()
 
+
+    case = models.ForeignKey(
+        'case.Case',
+        related_name='enquiries',
+        blank=True, 
+        null=True,  # Forward migration to fix some of these: Loosely constraining this to allow selective migration 
+        on_delete=models.CASCADE 
+    )
+
     @property
     def get_absolute_url(self):
         return reverse_lazy("enquiry:enquiryDetail", kwargs={"uid":self.enqUID})
@@ -325,7 +335,8 @@ class Enquiry(AbstractAddressModel):
         return smart_text(self.email)
     
     def save(self, should_sync=False, *args, **kwargs):
-        if self.pk is None: 
+        is_create = self.pk is None 
+        if is_create: 
             # attempt sync on create
             should_sync = bool(
                 self.email and 
@@ -333,7 +344,16 @@ class Enquiry(AbstractAddressModel):
                 self.user and 
                 self.postcode
             )
-        super(Enquiry, self).save()
+        
+        super(Enquiry, self).save(*args, **kwargs)
+        self.refresh_from_db()
+        # Case Wasnt passed in save kwarg / Or doesnt exist
+        if not self.case_id: 
+            existing_case = get_existing_case(self.phoneNumber, self.email)
+            if existing_case is not None: 
+                existing_case.enquries.add(self)
+            else: 
+                create_case_from_enquiry(self)
         if should_sync:
             app.send_task('Update_SF_Lead', kwargs={'enqUID': str(self.enqUID)})
     class Meta:
