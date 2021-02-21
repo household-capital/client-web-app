@@ -1,5 +1,5 @@
 #Python Imports
-import uuid, os
+import uuid, os, reversion
 from datetime import datetime, timedelta
 
 #Django Imports
@@ -12,6 +12,8 @@ from django.utils.timezone import get_current_timezone
 from django.utils.encoding import smart_text
 from django.urls import reverse_lazy
 from django.db.models import Q
+
+from apps.helpers.model_utils import ReversionModel
 
 from urllib.parse import urljoin
 #Local Imports
@@ -77,7 +79,8 @@ class MarketingCampaign(models.Model):
     def __str__(self):
         return smart_text(self.campaign_name)
 
-class Enquiry(AbstractAddressModel):
+@reversion.register()
+class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
 
     productTypes = (
         (productTypesEnum.LUMP_SUM.value, "Lump Sum"),
@@ -335,6 +338,7 @@ class Enquiry(AbstractAddressModel):
         return smart_text(self.email)
     
     def save(self, should_sync=False, *args, **kwargs):
+
         is_create = self.pk is None 
         if is_create: 
             # attempt sync on create
@@ -351,7 +355,7 @@ class Enquiry(AbstractAddressModel):
         if not self.case_id: 
             existing_case = get_existing_case(self.phoneNumber, self.email)
             if existing_case is not None: 
-                existing_case.enquries.add(self)
+                existing_case.enquiries.add(self)
             else: 
                 create_case_from_enquiry(self)
         if should_sync:
