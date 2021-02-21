@@ -72,7 +72,7 @@ def create_case_from_enquiry(enquiry, attach_to_case=True):
         **caseDict
     )
     if attach_to_case: 
-        case_obj.enquries.add(enquiry)
+        case_obj.enquiries.add(enquiry)
     # TBC for exisitng documents
     return case_obj
     
