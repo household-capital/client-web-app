@@ -56,6 +56,9 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
         calc_dict['name'] = calc_dict['name'][:29] if calc_dict['name'] else None
         calc_dict['streetAddress'] = calc_dict['streetAddress'][:79] if calc_dict['streetAddress'] else None
         calc_dict['suburb'] = calc_dict['suburb'][:39] if calc_dict['suburb'] else None
+        calc_dict['enquiryNotes'] = '[# Website Calculator #]'
+        if calc_dict.get('submissionOrigin'):
+            calc_dict['enquiryNotes'] += '\r\norigin: ' + calc_dict['submissionOrigin']
 
         enq_obj = Enquiry.objects.create(
             user=None, referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer, **calc_dict
