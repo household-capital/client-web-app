@@ -43,7 +43,7 @@
     <div class="container">
 
         <div class="row pt-1">
-
+    
             <div class="col-lg-8">
                 {% if obj.sfOpportunityID %}
                     <p class="larger pt-3 pl-3">
@@ -51,6 +51,11 @@
                             <i class="fas fa-external-link-alt"></i>&nbsp;
                             Salesforce {{ obj.sfLoanID }}</a></p>
                 {% endif %}
+                <p class="larger pt-3 pl-3"> 
+                    <a data-toggle="modal" style="color:#5fb700" href="#enquiryModal">
+                        <i class="fas fa-project-diagram"></i>&nbsp; Attached Enquiries
+                    </a>
+                </p>
             </div>
 
         </div>
@@ -599,6 +604,30 @@
             </div>
         </div>
 
+        <div class="modal fade" id="enquiryModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Attached Enquiries</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        {% for enq in obj.enquiries.all %}
+                            <a style="color:#000000" href="{% url 'enquiry:enquiryDetail' enq.enqUID %}" target="_blank">
+                                <i class="fas fa-user-tie"></i>&nbsp;{{ enq.enqUID }} 
+                            </a>
+                            <br/>
+                        {% endfor %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Go back</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     {% endif %}
 
