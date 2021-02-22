@@ -1,4 +1,4 @@
-import datetime 
+import datetime, logging
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -14,6 +14,16 @@ from apps.lib.site_Enums import (
     propensityChoicesReverseDict,
     marketingReferrerDict
 )
+from apps.enquiry.exceptions import MissingRequiredFields
+
+
+REQUIRED_FIELDS = [
+    'last',
+    'phone',
+    'postcode',
+    'grading',
+    'stream'
+]
 
 class DataIngestion(APIView):
     permission_classes = (IsAuthenticated,)            
@@ -50,47 +60,41 @@ class DataIngestion(APIView):
                 "stream" : "YOUR_LIFE_CHOICES"
             }
         """
-        name = "{} {}".format(
-            json_payload.get('first', ''),
-            json_payload.get('last', '')
-        )
-        postcode = json_payload['postcode']
-        email = json_payload['email']
-        phonenumber = cleanPhoneNumber(json_payload['mobile'])
-        valuation = cleanValuation(json_payload['property_value'])
-        age_1 = calcAge(json_payload['dob'])
+        for req_field in REQUIRED_FIELDS: 
+            if json_payload.get(req_field) is None: 
+                raise MissingRequiredFields('Missing field: \'{}\''.format(req_field))
+        
         marketing_source_value = json_payload['stream']
         marketingSource = marketingTypesEnum[marketing_source_value].value
-        referrer = directTypesEnum[marketingReferrerDict.get(marketingSource, "OTHER")].value
-        productType = productTypesEnum.LUMP_SUM.value
-        state = stateTypesEnum[json_payload['state']].value
-        propensityCategory = propensityChoicesReverseDict.get(
-            json_payload['grading']
-        )
+        payload = {
+            'name': "{} {}".format(
+                json_payload.get('first', ''),
+                json_payload.get('last', '')
+            )
+            ,
+            'phoneNumber': cleanPhoneNumber(json_payload['phone']),
+            'postcode': json_payload.get('postcode'),
+            'propensityCategory': propensityChoicesReverseDict.get(json_payload['grading']),
+            'marketingSource': marketingSource,
+            'email': json_payload.get('email'),
+            'valuation':  cleanValuation(json_payload.get('property_value')),
+            'age_1': calcAge(json_payload.get('dob')),
+            'productType': productTypesEnum.LUMP_SUM.value,
+            'referrer': directTypesEnum[marketingReferrerDict.get(marketingSource, "OTHER")].value
+        }
+        if json_payload.get('state'): 
+            payload['state'] = stateTypesEnum[json_payload['state']].value
         enquiryString = "[# Updated from Partner Upload #]"
         enquiryString += "\r\nPartner: {}".format(marketing_source_value)
         enquiryString += "\r\nUpdated: " + datetime.date.today().strftime('%d/%m/%Y')
         if json_payload.get('notes'): 
-            enquiryString += json_payload.get('notes')
-        payload = {
-            "name": name,
-            "postcode": postcode,
-            "email": email,
-            "phoneNumber": phonenumber,
-            "valuation": valuation,
-            "age_1": age_1,
-            "marketingSource": marketingSource,
-            "referrer": referrer,
-            "productType": productType,
-            "state": state ,
-            "propensityCategory": propensityCategory
-        }
+            enquiryString += '\n'+ json_payload.get('notes')
         updateCreateEnquiry(
-            email,
-            phonenumber,
+            payload.get('email'),
+            payload.get('phoneNumber'),
             payload,
             enquiryString,
-            marketingSource,
+            payload.get('marketingSource'),
             [],
             False,
         )
@@ -101,10 +105,16 @@ class DataIngestion(APIView):
         json_payload = request.data
         try:
             self.process_payload(json_payload)
-        except KeyError as e: 
-            missing_key = str(e)
-            content = {
-                'status': 'Payload missing mandatory key {}'.format(missing_key)
-            }
-            status = 400 
+        except Exception as e:
+            logging.exception("Ingestion Error")
+            if type(e) is MissingRequiredFields:
+                content = {
+                    'status': str(e)
+                }
+                status = 400 
+            else: 
+                status = 500 
+                content = {
+                    'status': 'Server error'
+                }
         return Response(content, status=status)
