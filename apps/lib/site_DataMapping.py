@@ -60,6 +60,9 @@ def mapEnquiryToLead(enqUID):
         'street_name': 'Street_Name__c',
         'street_type': 'Street_Type__c',
         'gnaf_id': 'Gnafid__c',
+        
+        'submissionOrigin': 'Submission_Origin__c',
+        'requestedCallback': 'Requested_Callback__c',
     }
 
     BooleanList = ['isTopUp', 'isRefi', 'isLive', 'isGive', 'isCare', 'doNotMarket']

@@ -142,6 +142,10 @@ class EnquiryForm(AddressFormMixin, forms.ModelForm):
             else:
                 return number
 
+TRUE_FALSE_CHOICES = (
+    (True, 'Yes'),
+    (False, 'No')
+)
 
 class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
 
@@ -153,11 +157,12 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
             'streetAddress', 'suburb', 'state', 'mortgageDebt',
             'referrer', 'email', 'phoneNumber', 'enquiryNotes', 'calcLumpSum', 'calcIncome',
             'marketingSource', 'productType', 'enquiryStage', 'valuationDocument', 'propensityCategory',
-            'marketing_campaign'
-        ]+ address_model_fields
+            'marketing_campaign', 'requestedCallback',
+        ] + address_model_fields
 
         widgets = {
             'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
+            'requestedCallback': forms.Select(choices=TRUE_FALSE_CHOICES),
         }
 
         valuationDocument = forms.FileField(required=False, widget=forms.FileInput)
