@@ -162,7 +162,6 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
 
         widgets = {
             'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
-            'requestedCallback': forms.Select(choices=TRUE_FALSE_CHOICES),
         }
 
         valuationDocument = forms.FileField(required=False, widget=forms.FileInput)
