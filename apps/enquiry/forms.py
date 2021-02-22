@@ -144,12 +144,11 @@ class EnquiryDetailForm(forms.ModelForm):
             'streetAddress', 'suburb', 'state', 'mortgageDebt',
             'referrer', 'email', 'phoneNumber', 'enquiryNotes', 'calcLumpSum', 'calcIncome',
             'marketingSource', 'productType', 'enquiryStage', 'valuationDocument', 'propensityCategory',
-            'marketing_campaign', 'requestedCallback',
+            'marketing_campaign'
         ]
 
         widgets = {
             'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
-            'requestedCallback': forms.Select(choices=TRUE_FALSE_CHOICES),
         }
 
         valuationDocument = forms.FileField(required=False, widget=forms.FileInput)
