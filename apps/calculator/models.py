@@ -104,6 +104,9 @@ class WebCalculator(AbstractAddressModel):
     calcLumpSum = models.IntegerField(blank=True, null=True)
     calcIncome = models.IntegerField(blank=True, null=True)
 
+    # Analytics fields
+    submissionOrigin = models.CharField(max_length=200, blank=True, null=True)
+
     # Workflow
     application = models.BooleanField(default=False, blank=False, null=False)
     actioned=models.IntegerField(default=0,blank=True, null=True)
@@ -111,6 +114,7 @@ class WebCalculator(AbstractAddressModel):
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
     sourceID = models.CharField(max_length=36, null=True, blank=True)
+    requestedCallback = models.BooleanField(default=False, blank=False, null=False)
 
     # Other
     calcTopUp = models.IntegerField(blank=True, null=True) #deprecated
