@@ -130,10 +130,6 @@ class EnquiryForm(forms.ModelForm):
             else:
                 return number
 
-TRUE_FALSE_CHOICES = (
-    (True, 'Yes'),
-    (False, 'No')
-)
 
 class EnquiryDetailForm(forms.ModelForm):
     class Meta:
