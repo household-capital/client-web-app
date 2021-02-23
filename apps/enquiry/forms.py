@@ -141,10 +141,6 @@ class EnquiryForm(AddressFormMixin, forms.ModelForm):
             else:
                 return number
 
-TRUE_FALSE_CHOICES = (
-    (True, 'Yes'),
-    (False, 'No')
-)
 
 class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
 
