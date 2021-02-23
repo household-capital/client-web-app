@@ -86,7 +86,8 @@ def getWordpressData():
                 srcData['name'] = None
 
             write_applog("INFO", 'API', 'Tasks-getWordpressData', "Item data: " + json.dumps(srcData))
-
+            if srcData.get('requestedCallback') is None: 
+                srcData['requestedCallback'] = False
             # Create and save new WebCalculator object
             try:
                 web_obj = WebCalculator.objects.create(**srcData)
