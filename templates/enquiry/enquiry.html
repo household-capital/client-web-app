@@ -183,6 +183,10 @@
                                 <span class="badge badge-danger">Enquiry Closed</span>
                             {% endif %}
 
+                            {% if obj.requestedCallback %}
+                                <span class="badge badge-info">Callback Requested!</span>
+                            {% endif %}
+
                             {% if obj.productType == productTypesEnum.INCOME.value %}
                                 <p class="badge badge-info">
                                     Income</p>

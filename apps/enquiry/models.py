@@ -189,6 +189,7 @@ class Enquiry(models.Model):
     referralUser=models.ForeignKey(settings.AUTH_USER_MODEL, related_name='referralUser', null=True, blank=True, on_delete=models.SET_NULL)
     sfLeadID = models.CharField(max_length=20, null=True, blank=True)
     marketingSource = models.IntegerField(blank=True, null=True, choices=marketingTypes )
+    submissionOrigin = models.CharField(max_length=200, blank=True, null=True)
 
     # Client Data
     email=models.EmailField(blank=True, null=True)
@@ -244,6 +245,7 @@ class Enquiry(models.Model):
     followUpNotes = models.TextField(blank=True, null=True)
     doNotMarket = models.BooleanField(default=False)
     enquiryStage = models.IntegerField(blank=True, null=True, choices=enquiryStageTypes)
+    requestedCallback = models.BooleanField(default=False, blank=False, null=False)
 
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)

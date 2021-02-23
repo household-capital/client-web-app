@@ -135,16 +135,20 @@ class EnquiryDetailForm(forms.ModelForm):
     class Meta:
         model = Enquiry
 
-        fields = ['loanType', 'name', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
-                  'streetAddress', 'suburb', 'state', 'mortgageDebt',
-                  'referrer', 'email', 'phoneNumber', 'enquiryNotes', 'calcLumpSum', 'calcIncome',
-                  'marketingSource', 'productType', 'enquiryStage', 'valuationDocument', 'propensityCategory', 'marketing_campaign']
+        fields = [
+            'loanType', 'name', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
+            'streetAddress', 'suburb', 'state', 'mortgageDebt',
+            'referrer', 'email', 'phoneNumber', 'enquiryNotes', 'calcLumpSum', 'calcIncome',
+            'marketingSource', 'productType', 'enquiryStage', 'valuationDocument', 'propensityCategory',
+            'marketing_campaign'
+        ]
 
         widgets = {
             'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
         }
 
         valuationDocument = forms.FileField(required=False, widget=forms.FileInput)
+
 
     helper = FormHelper()
     helper.form_method = 'POST'
@@ -191,12 +195,9 @@ class EnquiryDetailForm(forms.ModelForm):
                 Div(
                     Div(HTML("Enquiry Source"), css_class='form-label'),
                     Div(Field('referrer'))),
-
                 Div(
                     Div(HTML("Source Detail"), css_class='form-label'),
                     Div(Field('marketingSource'))),
-
-
                 css_class='col-lg-6'),
 
             Div(

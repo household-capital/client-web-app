@@ -35,11 +35,14 @@ def getWordpressData():
         for item in result['data']['response']:
             #Map website data to WebCalculator
 
-            mapList = {'age1': 'age_1',
-                       'age2': 'age_2',
-                       'maxDrawdown': 'maxDrawdownAmount',
-                       'mortgage': 'mortgageDebt',
-                       'repayment': 'mortgageRepayment'}
+            mapList = {
+                'age1': 'age_1',
+                'age2': 'age_2',
+                'maxDrawdown': 'maxDrawdownAmount',
+                'mortgage': 'mortgageDebt',
+                'repayment': 'mortgageRepayment',
+                'origin': 'submissionOrigin',
+            }
 
             popList = ['id', 'retrieved', 'retrievedDate', 'timestamp', 'uuid', 'phone', 'contactDetails', 'isEnquiry']
 
