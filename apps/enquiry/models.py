@@ -69,7 +69,7 @@ class EnquiryManager(models.Manager):
         return self.find_duplicates_QS(email, phoneNumber).order_by(order_by)
 
 
-class MarketingCampaign(AbstractAddressModel):
+class MarketingCampaign(models.Model):
 
     campaign_name = models.CharField(max_length=200, unique=True)
     
