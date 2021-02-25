@@ -528,7 +528,7 @@
         function setAddressData(obj) {
             let address_obj = addressData[obj.val()]
             let number = (address_obj.numberFirstPrefix || "") + address_obj.numberFirst + (address_obj.numberFirstSuffix||"")
-            if (number === null || number === undefined ) {
+            if (number === null || number === undefined || number === "null") {
                 number = ''
             }
             $('#id_streetAddress').prop("value", address_obj.streetComponent);
