@@ -508,10 +508,6 @@ class PartnerForm(forms.Form):
         (marketingTypesEnum.LINKEDIN.value, "LinkedIn")        
     )
 
-    marketing_campains = [(None, '---- No Campaign ----')]+list(
-        MarketingCampaign.objects.values_list('id', 'campaign_name')
-    )
-
     partner = forms.ChoiceField(choices=partnerTypes, required=True)
     marketing_campaign = forms.ModelChoiceField(queryset=MarketingCampaign.objects.all(), empty_label=" ---- No Campaign ----", required=False)
     uploadFile = forms.FileField(required=True, widget=forms.FileInput)
