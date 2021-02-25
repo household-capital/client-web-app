@@ -112,6 +112,18 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
         (directTypesEnum.OTHER.value,'Other'),
     )
 
+    refferTypesHTML = (
+        (directTypesEnum.PHONE.value, '<i class="fas fa-mobile"></i> Phone'),
+        (directTypesEnum.EMAIL.value, '<i class="fas fa-envelope"></i> Email'),
+        (directTypesEnum.WEB_ENQUIRY.value,'<i class="fas fa-mouse-pointer"></i> Web'),
+        (directTypesEnum.SOCIAL.value, '<i class="fas fa-thumbs-up"></i> Social'),
+        (directTypesEnum.WEB_CALCULATOR.value, '<i class="fas fa-calculator"></i> Calculator'),
+        (directTypesEnum.PARTNER.value, '<i class="fas fa-handshake"></i> Partner'),
+        (directTypesEnum.BROKER.value, '<i class="fas fa-user-tie"></i> Broker'),
+        (directTypesEnum.ADVISER.value, '<i class="fas fa-comments"></i> Adviser'),
+        (directTypesEnum.OTHER.value,'<i class="fas fa-question"></i> Other'),
+    )
+
 
     closeReasons=(
         (closeReasonEnum.DUPLICATE.value, 'Duplicate'),
@@ -297,6 +309,11 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
     def enumReferrerType(self):
         if self.referrer is not None:
             return dict(self.referrerTypes)[self.referrer]
+
+    def enumReferrerTypeHTML(self): 
+        if self.referrer is not None: 
+            return dict(self.refferTypesHTML)[self.referrer]
+        return 'N/A'
 
     def enumLoanType(self):
         if self.loanType is not None:
