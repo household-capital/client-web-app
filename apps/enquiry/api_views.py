@@ -80,7 +80,11 @@ class DataIngestion(APIView):
             'valuation':  cleanValuation(json_payload.get('property_value')),
             'age_1': calcAge(json_payload.get('dob')),
             'productType': productTypesEnum.LUMP_SUM.value,
-            'referrer': directTypesEnum[marketingReferrerDict.get(marketingSource, "OTHER")].value
+            'referrer': directTypesEnum[marketingReferrerDict.get(marketingSource, "OTHER")].value,
+            'base_specificity': json_payload.get('unit'),
+            'street_number': json_payload.get('street_number'),
+            'street_name': json_payload.get('street_name'),
+            'street_type': json_payload.get('street_type')
         }
         if json_payload.get('state'): 
             payload['state'] = stateTypesEnum[json_payload['state']].value
