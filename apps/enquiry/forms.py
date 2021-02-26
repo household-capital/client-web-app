@@ -10,7 +10,6 @@ from crispy_forms.layout import Submit, Layout, Field, Div, HTML, Row, Column
 # Local Application Imports
 from apps.lib.site_Enums import loanTypesEnum, marketingTypesEnum
 from apps.lib.site_Utilities import cleanPhoneNumber
-from apps.enquiry.models import MarketingCampaign
 from apps.base.model_utils import address_model_fields
 from apps.base.form_utils import AddressFormMixin
 from apps.enquiry.models import MarketingCampaign

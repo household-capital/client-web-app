@@ -59,7 +59,7 @@ def mapEnquiryToLead(enqUID):
         'street_number': 'Street_Number__c',
         'street_name': 'Street_Name__c',
         'street_type': 'Street_Type__c',
-        'gnaf_id': 'Gnafid__c',
+        # gnaf not stored in uat
     }
 
     BooleanList = ['isTopUp', 'isRefi', 'isLive', 'isGive', 'isCare', 'doNotMarket']
