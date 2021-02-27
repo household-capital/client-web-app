@@ -1210,7 +1210,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "marketing_campaign": marketing_campaign
                     }
-                    self.updateCreateEnquiry(
+                    updateCreateEnquiry(
                         email,
                         phoneNumber,
                         payload,

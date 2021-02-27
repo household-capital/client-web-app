@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated  # <-- Here
 
-from apps.enquiry.util import updateCreateEnquiry
+from apps.enquiry.util import updateCreateEnquiry, auto_assign_enquiries
 from apps.lib.site_Utilities import cleanPhoneNumber, cleanValuation, calcAge
 from apps.lib.site_Enums import (
     marketingTypesEnum, 
@@ -80,7 +80,7 @@ class DataIngestion(APIView):
             'valuation':  cleanValuation(json_payload.get('property_value')),
             'age_1': calcAge(json_payload.get('dob')),
             'productType': productTypesEnum.LUMP_SUM.value,
-            'referrer': directTypesEnum[marketingReferrerDict.get(marketingSource, "OTHER")].value,
+            'referrer': directTypesEnum[marketingReferrerDict.get(marketing_source_value, "OTHER")].value,
             'base_specificity': json_payload.get('unit'),
             'street_number': json_payload.get('street_number'),
             'street_name': json_payload.get('street_name'),
@@ -88,20 +88,27 @@ class DataIngestion(APIView):
         }
         if json_payload.get('state'): 
             payload['state'] = stateTypesEnum[json_payload['state']].value
-        enquiryString = "[# Updated from Partner Upload #]"
-        enquiryString += "\r\nPartner: {}".format(marketing_source_value)
+        is_social = marketing_source_value in [
+            'LINKEDIN',
+            'FACEBOOK'
+        ]
+        upload_type = 'SOCIAL' if is_social else 'PARTNER'
+        enquiryString = "[# Updated from {} Upload #]".format(upload_type)
+        enquiryString += "\r\n{}: {}".format(upload_type, marketing_source_value)
         enquiryString += "\r\nUpdated: " + datetime.date.today().strftime('%d/%m/%Y')
         if json_payload.get('notes'): 
             enquiryString += '\n'+ json_payload.get('notes')
+        enquiries_to_assign = []
         updateCreateEnquiry(
             payload.get('email'),
             payload.get('phoneNumber'),
             payload,
             enquiryString,
             payload.get('marketingSource'),
-            [],
+            enquiries_to_assign,
             False,
         )
+        auto_assign_enquiries(enquiries_to_assign, force=True)
 
     def post(self, request):
         content = {'status': 'Success'}
