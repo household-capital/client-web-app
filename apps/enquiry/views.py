@@ -262,14 +262,6 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Upd
         context['status'] = chkOpp
 
         # Check for duplicates
-        if obj.email:
-            if Enquiry.objects.filter(email=obj.email).count() > 1:
-                messages.error(self.request, "Email exists - avoid duplicates")
-
-        if obj.phoneNumber:
-            if Enquiry.objects.filter(phoneNumber=obj.phoneNumber).count() > 1:
-                messages.error(self.request, "Phone number exists - avoid duplicates")
-
         # Validate requirement amounts (if present)
         if obj.calcLumpSum or obj.calcIncome:
             loanStatus = validateEnquiry(str(self.kwargs['uid']))

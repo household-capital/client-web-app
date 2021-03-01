@@ -50,6 +50,11 @@
                         <a style="color:deepskyblue" href="{{ obj.get_SF_url }}" target="_blank">
                             <i class="fas fa-external-link-alt"></i>&nbsp;
                             Salesforce {{ obj.sfLoanID }}</a></p>
+                {% elif obj.sfLeadID %}
+                    <p class="larger pt-3 pl-3">
+                        <a style="color:deepskyblue" href="{{ obj.get_SF_url }}" target="_blank">
+                            <i class="fas fa-external-link-alt"></i>&nbsp;
+                            Salesforce Lead </a></p>
                 {% endif %}
             </div>
 

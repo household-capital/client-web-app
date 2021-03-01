@@ -400,7 +400,6 @@ def sfEnquiryLeadSync(enqUID):
     except Enquiry.DoesNotExist: 
         write_applog("ERROR", 'Enquiry', 'Tasks-updateSFEnquiry', 'Enquiry {} does not exist'.format(enqUID))
         return {"status": "ERROR", 'responseText': 'Enquiry {} does not exist'.format(enqUID)}
-    
     if not enquiry.case.sfLeadID:
         result = createSFLeadCase(str(enquiry.case.caseUID))
         if result['status'] != 'Ok':

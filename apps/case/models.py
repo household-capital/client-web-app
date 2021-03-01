@@ -370,6 +370,11 @@ class Case(AbstractAddressModel):
                 os.getenv('SALESFORCE_BASE_URL'),
                 "lightning/r/Opportunity/{0}/view".format(self.sfOpportunityID)
             )
+        if self.sfLeadID:
+            return urljoin(
+                os.getenv('SALESFORCE_BASE_URL'),
+                "lightning/r/Lead/{0}/view".format(self.sfLeadID)
+            )
 
 
 # Pre-save function to extend Case
