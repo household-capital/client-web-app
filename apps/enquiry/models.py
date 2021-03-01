@@ -22,7 +22,6 @@ from apps.case.model_utils import get_existing_case, create_case_from_enquiry
 from config.celery import app
 from apps.base.model_utils import AbstractAddressModel
 
-
 class EnquiryManager(models.Manager):
 
     #Custom model manager to return related queryset and dictionary (using UID)
@@ -205,6 +204,7 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
     referrerID=models.CharField(max_length=200,blank= True,null=True)
     referralUser=models.ForeignKey(settings.AUTH_USER_MODEL, related_name='referralUser', null=True, blank=True, on_delete=models.SET_NULL)
     sfLeadID = models.CharField(max_length=20, null=True, blank=True)
+    sfEnqID = models.CharField(max_length=20, null=True, blank=True)
     marketingSource = models.IntegerField(blank=True, null=True, choices=marketingTypes )
     submissionOrigin = models.CharField(max_length=200, blank=True, null=True)
 
@@ -299,6 +299,11 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
         return reverse_lazy("enquiry:enquiryDetail", kwargs={"uid":self.enqUID})
 
     def get_SF_url(self):
+        if self.sfEnqID: 
+            return urljoin(
+                os.getenv('SALESFORCE_BASE_URL'),
+                "lightning/r/Enquiry__c/{0}/view".format(self.sfEnqID)
+            )
         if self.sfLeadID:
             return urljoin(
                 os.getenv('SALESFORCE_BASE_URL'),
@@ -356,12 +361,12 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
     
     def save(self, should_sync=False, *args, **kwargs):
 
-        is_create = self.pk is None 
+        is_create = self.pk is None
+         
         if is_create: 
             # attempt sync on create
             should_sync = bool(
-                self.email and 
-                self.phoneNumber and 
+                (self.email or self.phoneNumber)  and  
                 self.user and 
                 self.postcode
             )
@@ -375,7 +380,10 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
                 existing_case.enquiries.add(self)
             else: 
                 create_case_from_enquiry(self)
+                should_sync = False 
+                # no need to re-trigger sync as current job already takes care of it.
+
         if should_sync:
-            app.send_task('Update_SF_Lead', kwargs={'enqUID': str(self.enqUID)})
+            app.send_task('Update_SF_Enquiry', kwargs={'enqUID': str(self.enqUID)})
     class Meta:
         ordering = ('-updated',)

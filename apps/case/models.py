@@ -292,21 +292,21 @@ class Case(AbstractAddressModel):
         verbose_name_plural = "Case"
 
     def enumCaseStage(self):
-        return dict(self.caseStages)[self.caseStage]
+        return dict(self.caseStages).get(self.caseStage)
 
     def enumLoanType(self):
         if self.loanType is not None:
-            return dict(self.loanTypes)[self.loanType]
+            return dict(self.loanTypes).get(self.loanType)
 
     def enumStateType(self):
         if self.state is not None:
-            return dict(self.stateTypes)[self.state]
+            return dict(self.stateTypes).get(self.state)
 
     def enumDwellingType(self):
-        return dict(self.dwellingTypes)[self.dwellingType]
+        return dict(self.dwellingTypes).get(self.dwellingType)
 
     def enumProductType(self):
-        return dict(self.productTypes)[self.productType]
+        return dict(self.productTypes).get(self.productType)
 
     def enumSex(self):
         if self.clientType2 == None:

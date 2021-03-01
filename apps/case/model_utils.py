@@ -1,5 +1,7 @@
-from apps.case.models import Case
+from config.celery import app
 from django.db.models import Q
+
+from apps.case.models import Case
 from apps.lib.site_Enums import (
     directTypesEnum, 
     channelTypesEnum,
@@ -73,6 +75,7 @@ def create_case_from_enquiry(enquiry, attach_to_case=True):
     )
     if attach_to_case: 
         case_obj.enquiries.add(enquiry)
+    app.send_task('sfEnquiryLeadSync', kwargs={'enqUID': str(enquiry.enqUID)})
     # TBC for exisitng documents
     return case_obj
     

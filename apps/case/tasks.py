@@ -41,8 +41,7 @@ def createSFLeadCaseTask(caseUID):
     else:
         write_applog("INFO", 'Case', 'Tasks-createSFLead', "Finished - Unsuccessfully")
         return "Finished - Unsuccessfully"
-
-
+        
 @app.task(name="Update_SF_Case_Lead")
 def updateSFLeadTask(caseUID):
     # Task wrapper to update a SF Lead
