@@ -42,17 +42,15 @@ def createSFLeadTask(enqUID):
 
 @app.task(name="Update_SF_Lead")
 def updateSFLeadTask(enqUID):
-    # Task to create(or retrieve) a SF Lead
-    app.send_task('Update_SF_Enquiry', kwargs={'enqUID': enqUID})
-    # NOTE:FIX THIS
-    # write_applog("INFO", 'Enquiry', 'Tasks-updateSFLead', "Updating lead for:" + str(enqUID))
-    # result = updateSFLead(enqUID)
-    # if result['status'] == "Ok":
-    #     write_applog("INFO", 'Enquiry', 'Tasks-updateSFLead', "Finished - Successfully")
-    #     return "Finished - Successfully"
-    # else:
-    #     write_applog("INFO", 'Enquiry', 'Tasks-updateSFLead', "Finished - Unsuccessfully")
-    #     return result['responseText']
+    # deprecated
+    write_applog("INFO", 'Enquiry', 'Tasks-updateSFLead', "Updating lead for:" + str(enqUID))
+    result = updateSFLead(enqUID)
+    if result['status'] == "Ok":
+        write_applog("INFO", 'Enquiry', 'Tasks-updateSFLead', "Finished - Successfully")
+        return "Finished - Successfully"
+    else:
+        write_applog("INFO", 'Enquiry', 'Tasks-updateSFLead', "Finished - Unsuccessfully")
+        return result['responseText']
 
 @app.task(name='Update_SF_Enquiry')
 def updateSFEnquiryTask(enqUID): 
