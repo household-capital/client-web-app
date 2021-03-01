@@ -384,6 +384,14 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
                 # no need to re-trigger sync as current job already takes care of it.
 
         if should_sync:
-            app.send_task('Update_SF_Enquiry', kwargs={'enqUID': str(self.enqUID)})
+            # if this is a should_sync which comes from user assignment
+            if self.user and self.case.owner is None: 
+                case = self.case 
+                case.owner = self.user 
+                case.save()
+                # if user didnt exist then sync never passed 
+                app.send_task('sfEnquiryLeadSync', kwargs={'enqUID': str(self.enqUID)})
+            else:
+                app.send_task('Update_SF_Enquiry', kwargs={'enqUID': str(self.enqUID)})
     class Meta:
         ordering = ('-updated',)
