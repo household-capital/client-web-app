@@ -10,5 +10,6 @@ class EnquiryAdmin(admin.ModelAdmin):
     list_display = ('user','status','age_1','age_2','postcode','maxLVR','maxLoanAmount','name', 'email','timestamp')
 
 
-admin.site.register(Enquiry,EnquiryAdmin)
+# admin.site.register(Enquiry,EnquiryAdmin)
+admin.site.register(Enquiry)
 admin.site.register(MarketingCampaign)

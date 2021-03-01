@@ -195,6 +195,25 @@ class apiSalesforce():
 
     # SF Create / Update / Workflow
 
+    def createEnquiry(self, enqDict):
+        try:
+            result=self.sf.Enquiry__c.create(enqDict)
+            return {'status':'Ok','data':result}
+        except SalesforceMalformedRequest as err:
+            return {'status':'Error', 'responseText':err.content[0]}
+        except:
+            return {'status':'Error','responseText':'Unknown' }
+
+    def updateEnquiry(self, enqID, enqDict):
+        try:
+            result=self.sf.Enquiry__c.update(enqID, enqDict)
+            return {'status':'Ok','data':result}
+
+        except SalesforceMalformedRequest as err:
+            return {'status':'Error', 'responseText':err.content[0]}
+        except:
+            return {'status':'Error','responseText':'Unknown' }
+
     def createLead(self,leadDict):
 
         try:

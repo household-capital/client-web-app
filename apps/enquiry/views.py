@@ -374,10 +374,7 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Upd
         obj.save()
 
         # Background task to update SF
-        if obj.sfLeadID:
-            app.send_task('Update_SF_Lead', kwargs={'enqUID': str(obj.enqUID)})
-        else:
-            app.send_task('Create_SF_Lead', kwargs={'enqUID': str(obj.enqUID)})
+        app.send_task('Update_SF_Enquiry', kwargs={'enqUID': str(obj.enqUID)})
 
         messages.success(self.request, "Enquiry Saved")
 
@@ -745,7 +742,7 @@ class EnquiryConvert(HouseholdLoginRequiredMixin, View):
         enq_obj.actioned = -1
         enq_obj.enquiryStage = enquiryStagesEnum.LOAN_INTERVIEW.value
         enq_obj.save()
-        app.send_task('Update_SF_Lead', kwargs={'enqUID': enqUID})
+        app.send_task('Update_SF_Enquiry', kwargs={'enqUID': enqUID})
 
         # Copy enquiryReport across to customerReport and add to the database
         self.moveDocument("enquiryDocument", "summaryDocument", 'customerReports', caseDict, enqDict, case_obj)
@@ -794,7 +791,7 @@ class EnquiryOwnView(HouseholdLoginRequiredMixin, View):
             messages.success(self.request, "Ownership Changed")
 
             # Background task to update SF
-            app.send_task('Update_SF_Lead', kwargs={'enqUID': enqUID})
+            app.send_task('Update_SF_Enquiry', kwargs={'enqUID': enqUID})
 
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
 

@@ -17,6 +17,79 @@ from apps.base.model_utils import db_to_sf_map
 
 # INTERNAL MAPPING
 
+def mapEnquiryForSF(enqUID): 
+    # mock function, however as the data model evolves, the mappings will begin to differ. 
+    SF_LEAD_MAPPING = {
+        'phoneNumber': 'Phone__c',
+        'email': 'Email__c',
+        'age_1': 'Age_of_1st_Applicant__c',
+        'age_2': 'Age_of_2nd_Applicant__c',
+        'dwellingType': 'Dwelling_Type__c',
+        'valuation': 'Estimated_Home_Value__c',
+        'suburb': 'Suburb__c',
+        'postcode': 'Postal_Code__c',
+        'isTopUp': 'IsTopUp__c',
+        'isRefi': 'IsRefi__c',
+        'isLive': 'IsLive__c',
+        'isGive': 'IsGive__c',
+        'isCare': 'IsCare__c',
+        'enquiryNotes': 'External_Notes__c',
+        'payIntPeriod': 'Pay_Interest_Period__c',
+        'status': 'HHC_Loan_Eligible__c',
+        'maxLoanAmount': 'Maximum_Loan__c',
+        'maxLVR': 'Maximum_LVR__c',
+        'referrerID': 'Referral_UserID__c',
+        'mortgageDebt': 'Mortgage_Debt__c',
+        'mortgageRepayment': 'Mortgage_Repayment__c',
+        'base_specificity': 'Unit__c',
+        'street_number': 'Street_Number__c',
+        'street_name': 'Street_Name__c',
+        'street_type': 'Street_Type__c',
+        # gnaf not stored in uat
+    }
+
+    BooleanList = ['isTopUp', 'isRefi', 'isLive', 'isGive', 'isCare', 'doNotMarket']
+
+    qs = Enquiry.objects.queryset_byUID(enqUID)
+    enquiry = qs.get()
+
+    payload = {}
+    enquiryDict = enquiry.__dict__
+
+    for app_field, sf_field in SF_LEAD_MAPPING.items():
+        payload[sf_field] = enquiryDict[app_field]
+        # Ensure Boolean fields are not null
+        if app_field in BooleanList and not enquiryDict[app_field]:
+            payload[sf_field] = False
+
+    # Ensure name fields populated
+    if not enquiryDict['name']:
+        payload['Last_Name__c'] = 'Unknown'
+    elif " " in enquiryDict['name']:
+        payload['First_Name__c'], payload['Last_Name__c'] = enquiryDict['name'].split(" ", 1)
+    else:
+        payload['Last_Name__c'] = enquiryDict['name']
+
+    payload['External_Id__c'] = str(enquiryDict['enqUID'])
+    payload['OwnerID'] = enquiry.user.profile.salesforceID
+    payload['Loan_Type__c'] = enquiry.enumLoanType()
+    payload['Dwelling_Type__c'] = enquiry.enumDwellingType()
+    payload['Lead_Source__c'] = enquiry.enumReferrerType()
+    payload['Marketing_Source__c'] = enquiry.enumMarketingSource()
+    payload['State__c'] = sfStateEnum(enquiry.state)
+    # payload['Status__c'] = enquiry.enumEnquiryStage()
+    # payload['Propensity_Category__c'] = enquiry.enumPropensityCategory()
+    # payload['Marketing_Campaign__c'] = ''
+    # if enquiry.marketing_campaign: 
+    #     payload['Marketing_Campaign__c'] = enquiry.marketing_campaign.campaign_name
+
+
+    # Map / create other fields
+    if enquiry.referralUser:
+        payload['Referral_UserID__c'] = enquiry.referralUser.last_name
+   
+    return payload
+
 def mapEnquiryToLead(enqUID):
     """Build SF REST API payload: Enquiry -> SF Lead"""
 

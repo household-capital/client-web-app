@@ -71,13 +71,18 @@
                         </div>
                     </div>
 
-                {% elif obj.sfLeadID %}
+                {% comment %} {% elif obj.sfLeadID %}
+                    <p class="larger">
+                        <a style="color:deepskyblue" href="{{ obj.get_SF_url }}" target="_blank"><i
+                                class="fas fa-external-link-alt"></i>&nbsp;
+                            Salesforce </a>
+                    </p> {% endcomment %}
+                {% elif obj.sfEnqID %}
                     <p class="larger">
                         <a style="color:deepskyblue" href="{{ obj.get_SF_url }}" target="_blank"><i
                                 class="fas fa-external-link-alt"></i>&nbsp;
                             Salesforce </a>
                     </p>
-
                 {% endif %}
             </div>
         </div>

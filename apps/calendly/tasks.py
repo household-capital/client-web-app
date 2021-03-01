@@ -57,7 +57,7 @@ def synchCalendly():
                     updateEnquiry(enqObj.enqUID, obj.meetingName, obj.customerPhone)
 
                     if not enqObj.closeDate:
-                        app.send_task('Update_SF_Lead', kwargs={'enqUID': str(enqObj.enqUID)})
+                        app.send_task('Update_SF_Enquiry', kwargs={'enqUID': str(enqObj.enqUID)})
 
         elif meeting_set & zoom_meeting_set:
 

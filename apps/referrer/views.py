@@ -99,7 +99,7 @@ class EnquiryView(ReferrerLoginRequiredMixin, UpdateView):
             obj.save()
 
         # Background task to update SF
-        app.send_task('Update_SF_Lead', kwargs={'enqUID': str(obj.enqUID)})
+        app.send_task('Update_SF_Enquiry', kwargs={'enqUID': str(obj.enqUID)})
 
         messages.success(self.request, "Referral Captured or Updated")
 
