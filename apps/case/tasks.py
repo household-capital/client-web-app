@@ -431,7 +431,12 @@ SF_LEAD_CASE_MAPPING = {'phoneNumber': 'Phone',
                         'caseNotes': 'External_Notes__c',
                         'firstname_1': 'Firstname',
                         'surname_1': 'Lastname',
-                        'isZoomMeeting': 'isZoom__c'
+                        'isZoomMeeting': 'isZoom__c',
+                        'base_specificity': 'Unit__c',
+                        'street_number': 'Street_Number__c',
+                        'street_name': 'Street_Name__c',
+                        'street_type': 'Street_Type__c',
+                        'suburb': 'Suburb__c'
                         }
 
 
