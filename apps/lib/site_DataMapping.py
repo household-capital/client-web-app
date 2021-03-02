@@ -49,7 +49,6 @@ def mapEnquiryToLead(enqUID):
         'maxLVR': 'Maximum_LVR__c',
         'errorText': 'Ineligibility_Reason__c',
         'referrerID': 'Referrer_ID__c',
-        'doNotMarket': 'DoNotMarket__c',
         'isCalendly': 'isCalendly__c',
         'mortgageDebt': 'Mortgage_Debt__c',
         'mortgageRepayment': 'Mortgage_Repayment__c',
@@ -62,7 +61,7 @@ def mapEnquiryToLead(enqUID):
         # gnaf not stored in uat
     }
 
-    BooleanList = ['isTopUp', 'isRefi', 'isLive', 'isGive', 'isCare', 'doNotMarket']
+    BooleanList = ['isTopUp', 'isRefi', 'isLive', 'isGive', 'isCare']
 
     qs = Enquiry.objects.queryset_byUID(enqUID)
     enquiry = qs.get()

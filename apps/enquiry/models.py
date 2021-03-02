@@ -260,7 +260,7 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
     closeReason=models.IntegerField(blank=True, null=True, choices=closeReasons)
     followUpDate=models.DateField(blank=True, null=True)
     followUpNotes = models.TextField(blank=True, null=True)
-    doNotMarket = models.BooleanField(default=False)
+    doNotMarket = models.BooleanField(default=False) # TODO: REMOVE THIS FIELD AFTER this value has been propagated to CASE after new data models are taken into effect
     enquiryStage = models.IntegerField(blank=True, null=True, choices=enquiryStageTypes)
     requestedCallback = models.BooleanField(default=False, blank=False, null=False)
 

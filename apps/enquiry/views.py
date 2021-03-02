@@ -33,7 +33,7 @@ from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.site_Enums import *
 from apps.lib.site_Logging import write_applog
 from apps.lib.api_Pdf import pdfGenerator
-from .forms import EnquiryForm, EnquiryDetailForm, EnquiryCloseForm, EnquiryAssignForm, EnquiryCallForm, \
+from .forms import EnquiryForm, EnquiryDetailForm, EnquiryAssignForm, EnquiryCallForm, \
     AddressForm, PartnerForm
 from .models import Enquiry
 from apps.lib.site_Utilities import getEnquiryProjections, updateNavQueue, \
@@ -368,15 +368,10 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Upd
                 pass
 
         # Check Close Case
-        if obj.enquiryStage in [enquiryStagesEnum.DID_NOT_QUALIFY.value,
-                                enquiryStagesEnum.NOT_PROCEEDING.value,
-                                enquiryStagesEnum.FUTURE_CALL.value,
-                                enquiryStagesEnum.DUPLICATE.value]:
-            return HttpResponseRedirect(reverse_lazy('enquiry:enqMarkFollowUp', kwargs={'uid': str(obj.enqUID)}))
-        else:
-            obj.closeDate = None
-            obj.closeReason = None
-            obj.save()
+        
+        obj.closeDate = None
+        obj.closeReason = None
+        obj.save()
 
         # Background task to update SF
         if obj.sfLeadID:
@@ -679,49 +674,6 @@ class EnquiryEmailEligibility(HouseholdLoginRequiredMixin, TemplateView):
 
         messages.success(self.request, "A summary email has been sent to you")
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': obj.enqUID}))
-
-
-class EnquiryCloseFollowUp(HouseholdLoginRequiredMixin, UpdateView):
-    template_name = 'enquiry/enquiryOther.html'
-    form_class = EnquiryCloseForm
-    model = Enquiry
-
-    def get_object(self, queryset=None):
-        if "uid" in self.kwargs:
-            enqUID = str(self.kwargs['uid'])
-            queryset = Enquiry.objects.queryset_byUID(str(enqUID))
-            obj = queryset.get()
-            return obj
-
-    def get_context_data(self, **kwargs):
-        context = super(EnquiryCloseFollowUp, self).get_context_data(**kwargs)
-        context['title'] = 'Enquiry Close or Follow-Up'
-
-        if "uid" in self.kwargs:
-            clientDict = Enquiry.objects.dictionary_byUID(str(self.kwargs['uid']))
-            loanObj = LoanValidator(clientDict)
-            chkOpp = loanObj.validateLoan()
-            context['status'] = chkOpp
-            obj = self.get_object()
-            context['obj'] = obj
-            context['isUpdate'] = False
-        return context
-
-    def form_valid(self, form):
-        obj = form.save()
-        obj.followUp = timezone.now()
-
-        if obj.user == None:
-            obj.user = self.request.user
-
-        if form.cleaned_data['closeReason']:
-            obj.closeDate = timezone.now()
-        obj.save(update_fields=['followUp', 'closeDate', 'user'])
-
-        app.send_task('Update_SF_Lead', kwargs={'enqUID': str(obj.enqUID)})
-
-        messages.success(self.request, "Enquiry closed or marked as followed-up")
-        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryList'))
 
 
 class EnquiryConvert(HouseholdLoginRequiredMixin, View):
