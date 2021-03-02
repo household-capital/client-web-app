@@ -18,7 +18,6 @@ urlpatterns = [
     path('enquiryConvert/<uuid:uid>', views.EnquiryConvert.as_view(), name='enqConvert'),
     path('enquiryOwn/<uuid:uid>', views.EnquiryOwnView.as_view(), name='enquiryOwn'),
     path('enquiryAssign/<uuid:uid>', views.EnquiryAssignView.as_view(), name='enqAssign'),
-    path('enquiryCloseFollowUp/<uuid:uid>',views.EnquiryCloseFollowUp.as_view(),name='enqMarkFollowUp'),
     path('enquiryDelete/<uuid:uid>', views.EnquiryDeleteView.as_view(), name='enqDelete'),
     path('enquiryRefer/<uuid:uid>', views.EnquiryReferView.as_view(), name='enqReview'),
     path('enquiryPartnerUpload', views.EnquiryPartnerUpload.as_view(), name='enqPartnerUpload'),

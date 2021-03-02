@@ -387,67 +387,6 @@ class EnquiryCallForm(forms.ModelForm):
             else:
                 return number
 
-class EnquiryCloseForm(forms.ModelForm):
-    # Form Data
-
-    class Meta:
-        model = Enquiry
-        fields = ['closeReason', 'closeDate',
-                  'followUpDate', 'followUpNotes',
-                  'doNotMarket'
-                  ]
-
-        widgets = {
-            'lossNotes': forms.Textarea(attrs={'rows': 5, 'cols': 100}),
-            'followUpNotes': forms.Textarea(attrs={'rows': 5, 'cols': 100}),
-
-        }
-
-    # Form Layout
-    helper = FormHelper()
-    helper.form_method = 'POST'
-    helper.form_class = 'form-horizontal col-lg-12'
-    helper.field_class = 'col-lg-12'
-    helper.form_show_labels = False
-    helper.form_show_errors = True
-    helper.layout = Layout(
-        Div(
-            Div(
-                HTML("<i class='fas fa-user-times'></i>&nbsp;&nbsp;<small>Close Enquiry</small>"),
-                Div(
-                    Div(
-                        Div(Div(HTML("Close Reason"), css_class='form-label'),
-                            Div(Field('closeReason'))),
-                    )
-
-                ),
-                Div(Div(HTML("<br>"))),
-                Div(HTML("<i class='far fa-envelope pb-2'></i></i>&nbsp;&nbsp;<small>Marketing</small>"),
-                    Div(
-                        Div(Field('doNotMarket'), css_class="col-lg-2"),
-                        Div(HTML("<p>Do Not Market</p>"), css_class="col-lg-8 pt-1 pl-0 "),
-                        css_class="row "),
-                    css_class='col-lg-12'),
-
-                css_class="col-lg-6"),
-
-            Div(
-                HTML("<i class='fas fa-user-tag'></i>&nbsp;&nbsp;<small>Create Follow-up</small>"),
-                Div(
-                    Div(Div(HTML("Follow-up Date"), css_class='form-label'),
-                        Div(Field('followUpDate'))),
-                    Div(Div(HTML("Follow-up Notes"), css_class='form-label'),
-                        Div(Field('followUpNotes'))),
-                ),
-                css_class="col-lg-6"),
-
-            css_class='row'),
-
-        Div((Div(Div(Submit('submit', 'Update', css_class='btn btn-warning')), css_class='text-right')
-
-             ))
-    )
-
 
 class EnquiryAssignForm(forms.ModelForm):
     class Meta:
