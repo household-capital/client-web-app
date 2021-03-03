@@ -277,6 +277,8 @@ class Case(AbstractAddressModel):
 
     marketing_campaign = models.ForeignKey('enquiry.MarketingCampaign', null=True, blank=True, on_delete=models.SET_NULL)
     
+    doNotMarket = models.BooleanField(default=False)
+
     objects=CaseManager()
 
     def __str__(self):
@@ -686,7 +688,7 @@ class LossData(models.Model):
 
     followUpDate=models.DateField(blank=True, null=True)
     followUpNotes = models.TextField(blank=True, null=True)
-    doNotMarket = models.BooleanField(default=False)
+    doNotMarket = models.BooleanField(default=False) # NOTE: Migrate values to case Object once deployed 
 
     objects = CaseManager()
 

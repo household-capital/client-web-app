@@ -41,7 +41,9 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                   'salutation_2', 'middlename_2', 'maritalStatus_2',
                   'street', 'suburb', 'postcode', 'valuation', 'dwellingType', 'propertyImage', 'mortgageDebt',
                   'superFund', 'valuationDocument', 'state', 'investmentLabel',
-                  'superAmount', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email', 'productType', 'channelDetail'] + address_model_fields
+                  'superAmount', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email', 'productType', 'channelDetail',
+                  'doNotMarket'
+                ] + address_model_fields
         widgets = {
             'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
         }
@@ -85,6 +87,10 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
             Div(
                 Div(HTML("Case Notes"), css_class='form-label'),
                 Div(Field('caseNotes'))),
+            Div(
+                Div(Field('doNotMarket')),
+                Div(HTML("<p>&nbsp;&nbsp;Do not market</p>"), css_class="pt-1 pl-0 "),
+                css_class="row "),
             Div(
                 Div(Div(HTML("<i class='far fa-address-card'></i>&nbsp;&nbsp;Contact Details"),
                         css_class='form-header'),
@@ -241,8 +247,7 @@ class LossDetailsForm(forms.ModelForm):
     class Meta:
         model = LossData
         fields = ['closeReason',
-                  'followUpDate', 'followUpNotes',
-                  'doNotMarket'
+                  'followUpDate', 'followUpNotes'
                   ]
 
         widgets = {
@@ -266,11 +271,6 @@ class LossDetailsForm(forms.ModelForm):
                     Div(Div(HTML("Close Reason"), css_class='form-label'),
                         Div(Field('closeReason'))),
                     Div(Div(HTML("<br>"))),
-                    Div(HTML("<i class='far fa-envelope pb-2'></i></i>&nbsp;&nbsp;<small>Marketing</small>")),
-                    Div(
-                        Div(Field('doNotMarket'), css_class="col-lg-2"),
-                        Div(HTML("<p>Do Not Market</p>"), css_class="col-lg-5 pt-1 pl-0 "),
-                        css_class="row "),
                 ),
                 css_class="col-lg-4"),
 

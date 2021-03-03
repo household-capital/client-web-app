@@ -609,7 +609,7 @@ def __buildLeadCasePayload(case):
 
     payload['Reason_for_Parking_Lead__c'] = case.lossdata.enumCloseReason()
 
-    if case.lossdata.doNotMarket:
+    if case.doNotMarket:
         payload['DoNotMarket__c'] = True
 
     payload['Sales_Channel__c'] = case.enumChannelType()
