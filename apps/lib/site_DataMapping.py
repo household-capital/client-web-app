@@ -211,7 +211,7 @@ def mapCaseToOpportunity(caseObj, lossObj):
         "channelDetail": caseObj.enumChannelDetailType(),
         'closeReason': caseObj.lossdata.enumCloseReason(),
         'followUpNotes': caseObj.lossdata.followUpNotes,
-        'doNotMarket': caseObj.lossdata.doNotMarket,
+        'doNotMarket': caseObj.doNotMarket,
         'mortgageDebt': caseObj.mortgageDebt,
         'superAmount': caseObj.superAmount,
         'pensionType': caseObj.enumPensionType(),
