@@ -83,7 +83,7 @@
                                 <button type="button" class="btn btn-outline-secondary dropdown-toggle"
                                         data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false" id="btnCaseActions">
-                                    Case Actions
+                                    Lead Actions
                                 </button>
                                 <div class="dropdown-menu">
 
@@ -108,7 +108,7 @@
 
                                         <a class="dropdown-item"
                                            href="{% url 'case:caseClose' uid=obj.caseUID %}">
-                                            &nbsp;<i class="far fa-fw fa-window-close"></i>&nbsp;&nbsp;Close Case&nbsp;&nbsp;
+                                            &nbsp;<i class="far fa-fw fa-window-close"></i>&nbsp;&nbsp;Close Lead&nbsp;&nbsp;
                                         </a>
 
                                         <div class="dropdown-divider"></div>
@@ -161,7 +161,7 @@
 
                                         <a class="dropdown-item"
                                            href="{% url 'case:caseClose' uid=obj.caseUID %}">
-                                            &nbsp;<i class="far fa-fw fa-window-close"></i>&nbsp;&nbsp;Close Case&nbsp;&nbsp;
+                                            &nbsp;<i class="far fa-fw fa-window-close"></i>&nbsp;&nbsp;Close Lead&nbsp;&nbsp;
                                         </a>
 
                                         {% if obj.summaryDocument and obj.email %}
@@ -189,7 +189,7 @@
 
                                         <a class="dropdown-item"
                                            href="{% url 'fact_find:factfind' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-user-edit  fa-fw"></i>&nbsp;&nbsp;Case Summary&nbsp;&nbsp;
+                                            &nbsp;<i class="fas fa-user-edit  fa-fw"></i>&nbsp;&nbsp;Lead Summary&nbsp;&nbsp;
                                         </a>
 
                                     {% endif %}
@@ -200,7 +200,7 @@
 
                                         <a class="dropdown-item"
                                            href="{% url 'fact_find:factfind' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-user-edit  fa-fw"></i>&nbsp;&nbsp;Case Summary&nbsp;&nbsp;
+                                            &nbsp;<i class="fas fa-user-edit  fa-fw"></i>&nbsp;&nbsp;Lead Summary&nbsp;&nbsp;
                                         </a>
 
 
@@ -230,7 +230,7 @@
 
                                         <a class="dropdown-item"
                                            href="{% url 'case:caseUnclose' uid=obj.caseUID %}">
-                                            &nbsp;<i class="far fa-fw fa-check-square"></i>&nbsp;&nbsp;Reopen Case&nbsp;&nbsp;
+                                            &nbsp;<i class="far fa-fw fa-check-square"></i>&nbsp;&nbsp;Reopen Lead&nbsp;&nbsp;
                                         </a>
 
                                     {% endif %}
@@ -366,7 +366,7 @@
                                     <p><a href="{{ obj.applicationDocument.url }}">Application
                                         Summary</a></p>{% endif %}
                                 {% if obj.responsibleDocument %}
-                                    <p><a href="{{ obj.responsibleDocument.url}}">Case
+                                    <p><a href="{{ obj.responsibleDocument.url}}">Lead
                                         Summary</a></p>{% endif %}
                                 {% if obj.dataCSV %}
                                     <p><a href="{{ obj.dataCSV.url}}">Document

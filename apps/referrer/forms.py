@@ -118,18 +118,18 @@ class CaseDetailsForm(forms.ModelForm):
     helper.form_show_errors = True
     helper.layout = Layout(
         Div(
-            Div(HTML("<i class='far fa-address-card'></i>&nbsp;&nbsp;Case Notes"), css_class='form-header'),
+            Div(HTML("<i class='far fa-address-card'></i>&nbsp;&nbsp;Lead Notes"), css_class='form-header'),
             Div(
                 Div(
-                    Div(HTML("Case Description"), css_class='form-label'),
+                    Div(HTML("Lead Description"), css_class='form-label'),
                     Div(Field('caseDescription')), css_class="col-lg-6"),
                 Div(
-                    Div(Submit('submit', 'Update Case ', css_class='btn btn-outline-secondary')),
+                    Div(Submit('submit', 'Update Lead ', css_class='btn btn-outline-secondary')),
                     css_class="col-lg-4 text-left"),
                 Div(css_class="col-lg-6"),
                 css_class="row align-items-center"),
             Div(
-                Div(HTML("Case Notes"), css_class='form-label'),
+                Div(HTML("Lead Notes"), css_class='form-label'),
                 Div(Field('caseNotes'))),
             Div(
                 Div(Div(HTML("<i class='far fa-address-card'></i>&nbsp;&nbsp;Contact Details"),

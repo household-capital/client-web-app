@@ -146,7 +146,7 @@ class CaseListView(HouseholdLoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(CaseListView, self).get_context_data(**kwargs)
-        context['title'] = 'Cases'
+        context['title'] = 'Leads'
 
         if self.request.GET.get('search'):
             context['search'] = self.request.GET.get('search')
@@ -184,7 +184,7 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
 
     def get_context_data(self, **kwargs):
         context = super(CaseDetailView, self).get_context_data(**kwargs)
-        context['title'] = 'Case Detail'
+        context['title'] = 'Lead Detail'
         context['isUpdate'] = True
         context['caseStagesEnum'] = caseStagesEnum
         context['appTypesEnum'] = appTypesEnum
@@ -343,7 +343,7 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
         else:
             # Salesforce Synch
             self.salesforceSynch(obj)
-            messages.success(self.request, "Case has been updated")
+            messages.success(self.request, "Lead has been updated")
 
         return super(CaseDetailView, self).form_valid(form)
 
@@ -397,7 +397,7 @@ class CaseCreateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Create
 
     def get_context_data(self, **kwargs):
         context = super(CaseCreateView, self).get_context_data(**kwargs)
-        context['title'] = 'New Case'
+        context['title'] = 'New Lead'
 
         return context
 
@@ -423,7 +423,7 @@ class CaseCreateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Create
         obj.owner = self.request.user
 
         obj.save()
-        messages.success(self.request, "Case Created")
+        messages.success(self.request, "Lead Created")
 
         # Background task to update SF
         app.send_task('Create_SF_Case_Lead', kwargs={'caseUID': str(obj.caseUID)})
@@ -437,7 +437,7 @@ class CaseDeleteView(HouseholdLoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         if "uid" in kwargs:
             Case.objects.filter(caseUID=kwargs['uid']).delete()
-            messages.success(self.request, "Case deleted")
+            messages.success(self.request, "Lead deleted")
 
         return HttpResponseRedirect(reverse_lazy('case:caseList'))
 
@@ -493,7 +493,7 @@ class CaseCloseView(HouseholdLoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(CaseCloseView, self).get_context_data(**kwargs)
-        context['title'] = 'Close Case'
+        context['title'] = 'Close Lead'
         return context
 
     def form_valid(self, form):
@@ -506,7 +506,7 @@ class CaseCloseView(HouseholdLoginRequiredMixin, UpdateView):
         caseObj.caseStage = caseStagesEnum.CLOSED.value
         caseObj.save(update_fields=['caseStage'])
 
-        messages.success(self.request, "Case closed or marked as followed-up")
+        messages.success(self.request, "Lead closed or marked as followed-up")
 
         try:
             caseObj = Case.objects.filter(caseUID=str(self.kwargs.get('uid'))).get()
@@ -525,7 +525,7 @@ class CaseUncloseView(HouseholdLoginRequiredMixin, View):
         obj = Case.objects.filter(caseUID=kwargs['uid']).get()
         obj.caseStage = caseStagesEnum.DISCOVERY.value
         obj.save(update_fields=['caseStage'])
-        messages.success(self.request, "Case restored")
+        messages.success(self.request, "Lead restored")
         return HttpResponseRedirect(reverse_lazy('case:caseList'))
 
 
