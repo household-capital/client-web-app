@@ -166,7 +166,6 @@ class EnquiryCreateView(HouseholdLoginRequiredMixin, CreateView):
             obj.save()
 
         # Background task to update SF
-        app.send_task('Create_SF_Lead', kwargs={'enqUID': str(obj.enqUID)})
 
         messages.success(self.request, "Enquiry Saved")
 
@@ -465,7 +464,6 @@ class EnquiryCallView(HouseholdLoginRequiredMixin, CreateView):
         obj.save()
 
         # Background task to update SF
-        app.send_task('Create_SF_Lead', kwargs={'enqUID': str(obj.enqUID)})
 
         if 'submit' in form.data:
             # Continue to enquiry
