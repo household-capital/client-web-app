@@ -28,6 +28,34 @@ REQUIRED_FIELDS = [
 class DataIngestion(APIView):
     permission_classes = (IsAuthenticated,)            
     
+    def process_notes(self, json_payload): 
+        marketing_source_value = json_payload['stream']
+        is_social = marketing_source_value in [
+            'LINKEDIN',
+            'FACEBOOK'
+        ]
+        upload_type = 'SOCIAL' if is_social else 'PARTNER'
+        enquiryString = "[# Updated from {} Upload #]".format(upload_type)
+        enquiryString += "\r\n{}: {}".format(upload_type, marketing_source_value)
+        enquiryString += "\r\nUpdated: " + datetime.date.today().strftime('%d/%m/%Y')
+        if json_payload.get('origin_timestamp'):
+            enquiryString += "\r\nCreate Date: {}".format(json_payload.get('origin_timestamp'))
+        if json_payload.get('dob'):
+            enquiryString += "\r\nCustomer Date of birth: {}".format(
+                datetime.datetime.strptime(
+                    json_payload.get('dob'),
+                    '%m/%d/%Y'
+                ).strftime('%d/%m/%Y')
+            )
+        if is_social: 
+            enquiryString += "\r\nMonth of Birth: {}".format(
+                json_payload.get('month_of_birth', '')
+            )
+            enquiryString += "\r\nYear of Birth: {}".format(
+                json_payload.get('age_status', '')
+            )
+        return enquiryString
+
     def process_payload(self, json_payload):
         # basic payload format 
         """
@@ -88,14 +116,7 @@ class DataIngestion(APIView):
         }
         if json_payload.get('state'): 
             payload['state'] = stateTypesEnum[json_payload['state']].value
-        is_social = marketing_source_value in [
-            'LINKEDIN',
-            'FACEBOOK'
-        ]
-        upload_type = 'SOCIAL' if is_social else 'PARTNER'
-        enquiryString = "[# Updated from {} Upload #]".format(upload_type)
-        enquiryString += "\r\n{}: {}".format(upload_type, marketing_source_value)
-        enquiryString += "\r\nUpdated: " + datetime.date.today().strftime('%d/%m/%Y')
+        enquiryString = self.process_notes(json_payload)
         if json_payload.get('notes'): 
             enquiryString += '\n'+ json_payload.get('notes')
         enquiries_to_assign = []
