@@ -217,6 +217,13 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
 
         if self.object.owner:
             if self.object.owner.profile.calendlyInterviewUrl:
+                name = "{} {}".format(
+                    self.object.firstname_1 or '',
+                    self.object.surname_1 or ''
+                )
+                paramStr = "?name=" + (name or '') + "&email=" + \
+                   (self.object.email or '')
+                context['calendlyDiscoveryUrl'] = self.object.owner.profile.calendlyUrl + paramStr
                 context['calendlyUrl'] = self.object.owner.profile.calendlyInterviewUrl + paramStr
                 context['calendlyMainUrl'] = self.object.owner.profile.calendlyUrl[
                                              :len(self.object.owner.profile.calendlyUrl) - 24]  # Refactor
