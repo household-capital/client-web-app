@@ -314,12 +314,18 @@ class propensityCategoriesEnum(Enum):
     A = 1
     B = 2
     C = 3
+    D = 4
+    E = 5
+    F = 6
 
 
 propensityChoices = [
     (propensityCategoriesEnum.A.value, 'A'),
     (propensityCategoriesEnum.B.value, 'B'),
     (propensityCategoriesEnum.C.value, 'C'),
+    (propensityCategoriesEnum.D.value, 'D'),
+    (propensityCategoriesEnum.E.value, 'E'),
+    (propensityCategoriesEnum.F.value, 'F'),
 ]
 
 propensityChoicesReverseDict = {
