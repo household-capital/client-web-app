@@ -124,7 +124,12 @@
                             <a class="dropdown-item" data-toggle="modal" href="#deleteModal">
                                 &nbsp;<i class="far fa-trash-alt fa-fw"></i>&nbsp;&nbsp;Delete Enquiry
                             </a>
-
+                            {% if obj.summaryDocument %}
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{% url 'enquiry:enqSummaryMove' uid=obj.enqUID %}">
+                                    &nbsp;<i class="fas fa-arrow-right"></i>&nbsp;&nbsp; Move Summary To Lead
+                                </a>
+                            {% endif %}
                             {% if status.status == 'Ok' %}
                                 <div class="dropdown-divider"></div>
 
