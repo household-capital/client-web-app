@@ -28,10 +28,12 @@ from apps.case.models import Case
 from .models import Facility, FacilityTransactions, FacilityRoles, FacilityProperty, FacilityPropertyVal, \
     FacilityPurposes, FacilityEvents
 
+from apps.operational.decorators import email_admins_on_failure
 
 # SERVICING TASKS
 
 @app.task(name="AMAL_Funded_Data")
+@email_admins_on_failure(name="AMAL_Funded_Data")
 def fundedData(*arg, **kwargs):
     """Task to updated funded information from AMALs XChange API"""
 
@@ -136,6 +138,7 @@ def fundedData(*arg, **kwargs):
 
 
 @app.task(name="Servicing_Synch")
+@email_admins_on_failure(task_name='Servicing_Synch')
 def sfSynch():
     """Updates Facility with Salesforce Loan Object Information"""
 
@@ -173,6 +176,7 @@ def sfSynch():
 
 
 @app.task(name="Servicing_Detail_Synch")
+@email_admins_on_failure(task_name='Servicing_Detail_Synch')
 def sfDetailSynch():
     """Updates related Facility objects with Salesforce Loan Object Information"""
 
@@ -288,6 +292,7 @@ def sfDetailSynch():
 
 
 @app.task(name="SF_AMAL_Synch")
+@email_admins_on_failure(task_name="SF_AMAL_Synch")
 def sfAMALData():
     sfAPI = apiSalesforce()
     statusResult = sfAPI.openAPI(True)
@@ -330,6 +335,7 @@ def sfCreateTask(payload):
 
 
 @app.task(name="Annual_Review_Notification")
+@email_admins_on_failure(task_name='Annual_Review_Notification')
 def sfAnnualReviewNotification():
     write_applog("INFO", 'Servicing', 'sfAnnualReviewNotification',
                  "Starting Annual Review SF notifications")
