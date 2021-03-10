@@ -315,18 +315,38 @@ def sfAMALData():
 def sfCreateTask(payload):
     sfAPI = apiSalesforce()
     statusResult = sfAPI.openAPI(True)
+    owner_email = payload.pop('owner_email')
 
     if statusResult['status'] != 'Ok':
         raiseTaskAdminError("Servicing Task not created",
                             "{0} task was not created for {1}".format(payload['Subject'],payload['Description']))
+        if owner_email: 
+            raiseTaskAdminError(
+                "Servicing Task not created",
+                "{0} task was not created for {1}".format(
+                    payload['Subject'],
+                    payload['Description']
+                ),
+                owner_email
+            )
+
         write_applog("ERROR", 'Servicing', 'sfCreateTask',
                      "Task not created -" + payload['Subject'] + " " + json.dumps(statusResult['responseText']))
         return "Task failed - could not open SF API"
-
+    
     result = sfAPI.createTask(**payload)
     if result['status'] != 'Ok':
         raiseTaskAdminError("Servicing Task not created",
                             "{0} task was not created for {1}".format(payload['Subject'],payload['Description']))
+        if owner_email: 
+            raiseTaskAdminError(
+                "Servicing Task not created",
+                "{0} task was not created for {1}".format(
+                    payload['Subject'],
+                    payload['Description']
+                ),
+                owner_email
+            )
         write_applog("ERROR", 'Servicing', 'sfCreateTask',
                      "Task not created -" + payload['Subject'] + " " + json.dumps(result['responseText']))
         return "Task failed - could not create task"
