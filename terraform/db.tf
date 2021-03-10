@@ -32,6 +32,8 @@ resource "aws_db_instance" "rds_env_instance" {
   backup_window               = "16:00-19:00" # must be outside maintenance window.
   skip_final_snapshot         = true
   backup_retention_period     = var.environment == "prod" ? 35 : 0
+
+  tags = merge(local.schedule_tags)
 }
 
 resource "aws_db_subnet_group" "db_subnet_group" {

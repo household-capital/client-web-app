@@ -224,6 +224,7 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
     value = 1
   }
 
+  tags = merge(local.schedule_tags)
 }
 # current terraform support for eb env and eb versions cannot be linked using any resources available
 # only possible through the aws cli.
