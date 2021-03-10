@@ -304,6 +304,7 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Upd
         context['obj'] = obj
         context['isUpdate'] = True
         context['productTypesEnum'] = productTypesEnum
+        context['leadClosed'] = obj.case.caseStage == caseStagesEnum.CLOSED.value
 
         # Pass Calendly information
         paramStr = "?name=" + (obj.name if obj.name else '') + "&email=" + \

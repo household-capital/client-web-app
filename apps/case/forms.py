@@ -218,27 +218,31 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
         ))
 
     def clean(self):
-        loanType = self.cleaned_data['loanType']
-        clientType_2 = self.cleaned_data['clientType2']
+        pass
+        # NOTE: Should Case Saving be more loose ? 
+        # Leaving this as commented out incase we want to refine this logic @Matt, @Sue, @Chris
 
-        if not self.errors:
+        # loanType = self.cleaned_data['loanType']
+        # clientType_2 = self.cleaned_data['clientType2']
 
-            if self.cleaned_data['birthdate_1'] == None and self.cleaned_data['age_1'] == None:
-                raise forms.ValidationError("Please enter age or birthdate for Borrower 1")
+        # if not self.errors:
 
-            if clientType_2 != None:
+        #     if self.cleaned_data['birthdate_1'] == None and self.cleaned_data['age_1'] == None:
+        #         raise forms.ValidationError("Please enter age or birthdate for Borrower 1")
 
-                if self.cleaned_data['birthdate_2'] == None and self.cleaned_data['age_2'] == None:
-                    raise forms.ValidationError("Please enter age or birthdate for Borrower/Role 2")
+        #     if clientType_2 != None:
 
-            if self.cleaned_data['postcode'] != None:
-                if self.cleaned_data['dwellingType'] == None:
-                    raise forms.ValidationError("Enter property type")
-                if self.cleaned_data['valuation'] == None:
-                    raise forms.ValidationError("Please enter property valuation estimate")
+        #         if self.cleaned_data['birthdate_2'] == None and self.cleaned_data['age_2'] == None:
+        #             raise forms.ValidationError("Please enter age or birthdate for Borrower/Role 2")
 
-            if self.cleaned_data['salesChannel'] == None:
-                raise forms.ValidationError("Please enter a sales channel")
+        #     if self.cleaned_data['postcode'] != None:
+        #         if self.cleaned_data['dwellingType'] == None:
+        #             raise forms.ValidationError("Enter property type")
+        #         if self.cleaned_data['valuation'] == None:
+        #             raise forms.ValidationError("Please enter property valuation estimate")
+
+        #     if self.cleaned_data['salesChannel'] == None:
+        #         raise forms.ValidationError("Please enter a sales channel")
 
 
 class LossDetailsForm(forms.ModelForm):
