@@ -1284,45 +1284,11 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                           directTypesEnum.ADVISER.value]
 
         # Try find existing enquiry
-        existingUID = self.findEnquiry(email, phoneNumber)
-
-        if existingUID:
-            write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Found existing enquiry')
-
-            # preserve_owners is just a query flag I put in so I could safely rerun a file
-            # without stealing ownership of leads for myself ;) -- but it might be removable,
-            # probably no one using it any more. (mattc)
-            preserve_owners = int(self.request.GET.get("preserve_owners", 0))
-
-            qs = Enquiry.objects.queryset_byUID(existingUID)
-            obj = qs.get()
-
-            if obj.actioned != 0:
-                write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Skipping converted enquiry')
-            elif obj.marketingSource == marketingSource:
-                write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Skipping enquiry from same marketing source')
-            else:
-                # Only update if a new marketing source and not converted
-
-                if (not updateNonDirect) and (obj.referrer in nonDirectTypes):
-                    # Don't update non-direct items (if specified)
-                    write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Skipping update on existing non-direct enquiry')
-                    pass
-                else:
-                    write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Updating existing enquiry')
-                    qs.update(**payload)
-                    obj = qs.get()
-                    updateNotes = "".join(filter(None, (obj.enquiryNotes, "\r\n\r\n" + enquiryString)))
-                    obj.enquiryNotes = updateNotes
-                    obj.save(should_sync=True)
-                    if not preserve_owners:
-                        write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Overwriting owner')
-                        enquiries_to_assign.append(obj)
-        else:
-            write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Creating new enquiry')
-            payload["enquiryNotes"] = enquiryString
-            new_enq = Enquiry.objects.create(**payload)
-            enquiries_to_assign.append(new_enq)
+        # No special logic needed to handle enquiry duplicates 
+        write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Creating new enquiry')
+        payload["enquiryNotes"] = enquiryString
+        new_enq = Enquiry.objects.create(**payload)
+        enquiries_to_assign.append(new_enq)
 
     def findEnquiry(self, email, phoneNumber):
         enqUID = Enquiry.objects.find_duplicates_QS(email, phoneNumber).order_by("-updated").values_list('enqUID', flat=True).first()
