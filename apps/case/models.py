@@ -667,22 +667,26 @@ class ModelSetting(models.Model):
 
 
 class LossData(models.Model):
-
     closeReasonTypes=(
-        (closeReasonEnum.AGE_RESTRICTION.value, 'Age Restriction'),
-        (closeReasonEnum.POSTCODE_RESTRICTION.value, 'Postcode Restriction'),
-        (closeReasonEnum.MINIMUM_LOAN_AMOUNT.value, 'Below minimum loan amount'),
-        (closeReasonEnum.CREDIT.value, 'Credit History'),
-        (closeReasonEnum.MORTGAGE.value, 'Mortgage too Large'),
-        (closeReasonEnum.SHORT_TERM.value, 'Short-term / Bridging Requirement'),
-        (closeReasonEnum.TENANTS.value, 'Tenants in common'),
-        (closeReasonEnum.UNSUITABLE_PROPERTY.value, 'Unsuitable Property'),
-        (closeReasonEnum.UNSUITABLE_PURPOSE.value, 'Unsuitable Purpose'),
-        (closeReasonEnum.ALTERNATIVE_SOLUTION.value, 'Client Pursuing Alternative'),
-        (closeReasonEnum.COMPETITOR.value, 'Client went to Competitor'),
-        (closeReasonEnum.NO_CLIENT_ACTION.value, 'No further action by client'),
-        (closeReasonEnum.OTHER.value , 'Other')
+        (closeReasonEnumUpdated.BELOW_MIN_AGE.value, 'Below minimum age'),
+        (closeReasonEnumUpdated.INVALID_REFER_POSTCODE.value, 'Invalid or rejected refer postcode'),
+        (closeReasonEnumUpdated.BELOW_MIN_LOAN_AMOUNT.value, 'Below minimum loan amount'),
+        (closeReasonEnumUpdated.ABOVE_MAX_LOAN_AMOUNT.value, 'Above maximum loan amount'),
+        (closeReasonEnumUpdated.REFI_TOO_LARGE.value, 'Refinance too large'),
+        (closeReasonEnumUpdated.UNSUITABLE_PURPOSE.value, 'Unsuitable purpose'),
+        (closeReasonEnumUpdated.UNSUITABLE_PROPERTY.value, 'Unsuitable property'),
+        (closeReasonEnumUpdated.UNSUITABLE_TITLE_OWNERSHIP.value, 'Unsuitable title ownership'),
+        (closeReasonEnumUpdated.DECEASED_BORROWER.value, 'Deceased borrower'),
+        (closeReasonEnumUpdated.NOT_PROCEEDING.value, 'Not proceeding'),
+        (closeReasonEnumUpdated.OTHER.value, 'Other'),
     )
+
+    notProceedingTypes = (
+        (notProceedingReasonEnum.NO_ACTION_BY_CLIENT.value, "No further action by client"),
+        (notProceedingReasonEnum.DOES_NOT_LIKE_REV_MORTGAGES.value, "Doesn’t like Reverse Mortgages"),
+        (notProceedingReasonEnum.FEES_INTEREST_TOO_HIGH.value, "Fees or interest rate too high"),
+        (notProceedingReasonEnum.OTHER.value, "Other"),
+    ) 
 
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
 
@@ -690,6 +694,7 @@ class LossData(models.Model):
 
     closeDate = models.DateField(blank=True, null=True)
     closeReason = models.IntegerField(blank=True, null=True, choices=closeReasonTypes)
+    notProceedingReason = models.IntegerField(blank=True, null=True, choices=notProceedingTypes)
 
     followUpDate=models.DateField(blank=True, null=True)
     followUpNotes = models.TextField(blank=True, null=True)

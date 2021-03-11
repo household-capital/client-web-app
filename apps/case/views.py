@@ -29,7 +29,7 @@ from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.site_DataMapping import serialisePurposes
 from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, appTypesEnum, purposeCategoryEnum, \
-    purposeIntentionEnum, incomeFrequencyEnum, productTypesEnum, clientTypesEnum
+    purposeIntentionEnum, incomeFrequencyEnum, productTypesEnum, clientTypesEnum, closeReasonEnumUpdated
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Logging import write_applog
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
@@ -501,12 +501,20 @@ class CaseCloseView(HouseholdLoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(CaseCloseView, self).get_context_data(**kwargs)
         context['title'] = 'Close Lead'
+        context['not_proceeding_value'] = closeReasonEnumUpdated.NOT_PROCEEDING.value
         return context
 
     def form_valid(self, form):
+        should_realign = False
+        reason = form['closeReason'].value() 
+        not_proceeding = form['notProceedingReason'].value()
+        if reason and int(reason) != closeReasonEnumUpdated.NOT_PROCEEDING.value and not_proceeding:
+            should_realign = True
         obj = form.save(commit=False)
         if form.cleaned_data['closeReason']:
             obj.closeDate = timezone.now()
+        if should_realign: 
+            obj.notProceedingReason = None
         obj.save()
 
         caseObj = Case.objects.filter(caseUID=str(self.kwargs.get('uid'))).get()

@@ -251,7 +251,8 @@ class LossDetailsForm(forms.ModelForm):
     class Meta:
         model = LossData
         fields = ['closeReason',
-                  'followUpDate', 'followUpNotes'
+                  'followUpDate', 'followUpNotes',
+                  'notProceedingReason'
                   ]
 
         widgets = {
@@ -259,6 +260,9 @@ class LossDetailsForm(forms.ModelForm):
             'followUpNotes': forms.Textarea(attrs={'rows': 5, 'cols': 100}),
 
         }
+    
+    def __init__(self, *args, **kwargs):
+        super(LossDetailsForm, self).__init__(*args, **kwargs)
 
     # Form Layout
     helper = FormHelper()
@@ -274,6 +278,8 @@ class LossDetailsForm(forms.ModelForm):
                 Div(
                     Div(Div(HTML("Close Reason"), css_class='form-label'),
                         Div(Field('closeReason'))),
+                    Div(Div(HTML("Not Proceeding Reason"), css_class='form-label'),
+                        Div(Field('notProceedingReason')), id="notProceedingReason_widget"),
                     Div(Div(HTML("<br>"))),
                 ),
                 css_class="col-lg-4"),

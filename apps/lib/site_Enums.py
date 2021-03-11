@@ -179,6 +179,45 @@ class closeReasonEnum(Enum):
     OTHER = 12
 
 
+# Below minimum age
+# Invalid or rejected refer postcode
+# Below minimum loan amount
+# Above maximum loan amount
+# Refinance too large
+# Unsuitable purpose
+# Unsuitable property
+# Unsuitable title ownership
+# Deceased borrower
+# Not proceeding
+# Other
+@accessInTemplate
+class closeReasonEnumUpdated(Enum): 
+    BELOW_MIN_AGE = 1
+    INVALID_REFER_POSTCODE = 2
+    BELOW_MIN_LOAN_AMOUNT = 3
+    ABOVE_MAX_LOAN_AMOUNT = 4
+    REFI_TOO_LARGE = 5
+    UNSUITABLE_PURPOSE = 6
+    UNSUITABLE_PROPERTY = 7
+    UNSUITABLE_TITLE_OWNERSHIP = 8
+    DECEASED_BORROWER = 9
+    NOT_PROCEEDING = 10
+    OTHER = 11
+
+# No further action by client
+# Doesn’t like Reverse Mortgages
+# Fees or interest rate too high
+# Other
+@accessInTemplate
+class notProceedingReasonEnum(Enum): 
+    NO_ACTION_BY_CLIENT = 1 
+    DOES_NOT_LIKE_REV_MORTGAGES = 2 
+    FEES_INTEREST_TOO_HIGH = 3 
+    OTHER = 4
+
+
+
+
 @accessInTemplate
 class salutationEnum(Enum):
     MR = 1

@@ -71,5 +71,23 @@
 
 
 {% block javascript %}
+<script> 
+
+function show_fn(){
+    var selectedValue = $('#id_closeReason').val();
+    var not_proceeding = "{{ not_proceeding_value }}"
+    if (selectedValue === not_proceeding) {
+        $('#notProceedingReason_widget').show()
+    } else {
+        $('#notProceedingReason_widget').hide()
+    }
+}
+$(document).ready(function () {
+    show_fn()
+    $('#id_closeReason').change(
+        show_fn
+    )
+});
+</script>
 
 {% endblock %}
