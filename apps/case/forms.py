@@ -49,7 +49,12 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
         }
 
     caseStages = (
-        (caseStagesEnum.DISCOVERY.value, "Discovery"),
+        (caseStagesEnum.UNQUALIFIED_CREATED.value,"Unqualified / Lead created"),
+        (caseStagesEnum.MARKETING_QUALIFIED.value,"Marketing Qualified"),
+        (caseStagesEnum.SQ_GENERAL_INFO.value,"SQ - General Info"),
+        (caseStagesEnum.SQ_BROCHURE_SENT.value,"SQ - Brochure sent"),
+        (caseStagesEnum.SQ_CUSTOMER_SUMMARY_SENT.value,"SQ - Customer summary sent"),
+        (caseStagesEnum.SQ_FUTURE_CALL.value,"SQ - Future call"),
         (caseStagesEnum.MEETING_HELD.value, "Meeting Held"),
         (caseStagesEnum.APPLICATION.value, "Application"),
     )

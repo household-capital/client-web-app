@@ -67,12 +67,19 @@ class Case(AbstractAddressModel):
     )
 
     caseStages=(
+                  (caseStagesEnum.UNQUALIFIED_CREATED.value,"Unqualified / Lead created"),
+                  (caseStagesEnum.MARKETING_QUALIFIED.value,"Marketing Qualified"),
+                  (caseStagesEnum.SQ_GENERAL_INFO.value,"SQ - General Info"),
+                  (caseStagesEnum.SQ_BROCHURE_SENT.value,"SQ - Brochure sent"),
+                  (caseStagesEnum.SQ_CUSTOMER_SUMMARY_SENT.value,"SQ - Customer summary sent"),
+                  (caseStagesEnum.SQ_FUTURE_CALL.value,"SQ - Future call"),
                   (caseStagesEnum.DISCOVERY.value,"Discovery"),
                   (caseStagesEnum.MEETING_HELD.value, "Meeting Held"),
                   (caseStagesEnum.APPLICATION.value, "Application"),
                   (caseStagesEnum.DOCUMENTATION.value, "Documentation"),
                   (caseStagesEnum.FUNDED.value, "Funded"),
-                  (caseStagesEnum.CLOSED.value, "Closed"),    )
+                  (caseStagesEnum.CLOSED.value, "Closed"),    
+        )
 
     clientTypes=(
         (clientTypesEnum.BORROWER.value, 'Borrower'),
@@ -278,8 +285,6 @@ class Case(AbstractAddressModel):
     marketing_campaign = models.ForeignKey('enquiry.MarketingCampaign', null=True, blank=True, on_delete=models.SET_NULL)
     
     doNotMarket = models.BooleanField(default=False)
-
-    leadStatus = models.IntegerField(choices=propensityChoices, blank=True, null=True)
 
     objects=CaseManager()
 

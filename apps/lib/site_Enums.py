@@ -24,6 +24,21 @@ class caseStagesEnum(Enum):
     APPLICATION=4
     DOCUMENTATION=5
     FUNDED = 6
+    # Breakdown of discovery stage
+    UNQUALIFIED_CREATED = 7 
+    MARKETING_QUALIFIED = 8 
+    SQ_GENERAL_INFO = 9 
+    SQ_BROCHURE_SENT = 10
+    SQ_CUSTOMER_SUMMARY_SENT = 11 
+    SQ_FUTURE_CALL = 12 
+    
+
+# Unqualified / Lead created (automatic state when a lead is created through any channel)
+# Marketing Qualified (set when we know the lead is eligible, i.e. not ineligible)
+# SQ - General Info
+# SQ - Brochure sent
+# SQ - Customer summary sent
+# SQ - Future call
 
 @accessInTemplate
 class clientSexEnum(Enum):
