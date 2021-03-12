@@ -54,6 +54,14 @@ class DataIngestion(APIView):
             enquiryString += "\r\nYear of Birth: {}".format(
                 json_payload.get('age_status', '')
             )
+            if json_payload.get('age_over_60'):
+                enquiryString += "\r\nOver 60?: {}".format(
+                    json_payload.get('age_over_60')
+                )
+            if json_payload.get('property_range'):
+                enquiryString += "\r\nValuation: {}".format(
+                    json_payload.get('property_range')
+                )
         return enquiryString
 
     def process_payload(self, json_payload):
