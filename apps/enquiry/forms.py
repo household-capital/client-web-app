@@ -189,8 +189,8 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
 
             Div(
                 Div(
-                    Div(HTML("Enquiry Status"), css_class='form-label'),
-                    Div(Field('enquiryStage')),
+                    # Div(HTML("Enquiry Status"), css_class='form-label'),
+                    # Div(Field('enquiryStage')),
                     Div(HTML("Propensity Score"), css_class='form-label'),
                     Div(Field('propensityCategory')),
                     Div(HTML("Marketing Campaign"), css_class='form-label'),

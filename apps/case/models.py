@@ -279,6 +279,8 @@ class Case(AbstractAddressModel):
     
     doNotMarket = models.BooleanField(default=False)
 
+    leadStatus = models.IntegerField(choices=propensityChoices, blank=True, null=True)
+
     objects=CaseManager()
 
     def __str__(self):
