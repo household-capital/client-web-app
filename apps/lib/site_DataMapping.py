@@ -204,7 +204,7 @@ def mapFacilityToCase(facilityObj):
 
     # Data map
     payload = {
-        'caseStage': caseStagesEnum.DISCOVERY.value,
+        'caseStage': caseStagesEnum.UNQUALIFIED_CREATED.value,
         'appType': appTypesEnum.VARIATION.value,
         'caseDescription': roleDict['borrowers'][0]['lastName'] + " - " + str(propertyObj.postcode) + " - Variation",
         'owner': facilityObj.owner,

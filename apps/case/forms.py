@@ -59,7 +59,7 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
         (caseStagesEnum.APPLICATION.value, "Application"),
     )
 
-    caseStage = forms.TypedChoiceField(choices=caseStages, coerce=int, initial=caseStagesEnum.DISCOVERY.value)
+    caseStage = forms.TypedChoiceField(choices=caseStages, coerce=int, initial=caseStagesEnum.UNQUALIFIED_CREATED.value)
 
     # Form Layout
     helper = FormHelper()

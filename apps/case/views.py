@@ -429,7 +429,7 @@ class CaseCreateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Create
             obj.phoneNumber = cleanPhoneNumber(form.cleaned_data['phoneNumber'])
 
         # Set fields manually
-        obj.caseStage = caseStagesEnum.DISCOVERY.value
+        obj.caseStage = caseStagesEnum.UNQUALIFIED_CREATED.value
         obj.owner = self.request.user
 
         obj.save()
@@ -541,7 +541,7 @@ class CaseCloseView(HouseholdLoginRequiredMixin, UpdateView):
 class CaseUncloseView(HouseholdLoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         obj = Case.objects.filter(caseUID=kwargs['uid']).get()
-        obj.caseStage = caseStagesEnum.DISCOVERY.value
+        obj.caseStage = caseStagesEnum.UNQUALIFIED_CREATED.value
         obj.save(update_fields=['caseStage'])
         messages.success(self.request, "Lead restored")
         return HttpResponseRedirect(reverse_lazy('case:caseList'))

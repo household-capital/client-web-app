@@ -63,7 +63,7 @@ def create_case_from_enquiry(enquiry, attach_to_case=True):
     caseDict = {} 
     caseDict['firstname_1'] = firstname
     caseDict['surname_1'] = surname
-    caseDict['caseStage'] = caseStagesEnum.DISCOVERY.value
+    caseDict['caseStage'] = caseStagesEnum.UNQUALIFIED_CREATED.value
     caseDict['caseDescription'] = surname + " - " + str(enquiry.postcode)
     for field in copyFields: 
         caseDict[field] = getattr(enquiry, field)

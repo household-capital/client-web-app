@@ -689,6 +689,7 @@ class EnquiryEmailEligibility(HouseholdLoginRequiredMixin, TemplateView):
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': obj.enqUID}))
 
 
+## DEPRECATED 
 class EnquiryConvert(HouseholdLoginRequiredMixin, View):
     # This view does not render it creates a case from an enquiry and marks it actioned
     context_object_name = 'object_list'
