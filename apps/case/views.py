@@ -28,7 +28,7 @@ from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.site_DataMapping import serialisePurposes
-from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, appTypesEnum, purposeCategoryEnum, \
+from apps.lib.site_Enums import caseStagesEnum, EDITABLE_STAGES, PRE_MEETING_STAGES, loanTypesEnum, appTypesEnum, purposeCategoryEnum, \
     purposeIntentionEnum, incomeFrequencyEnum, productTypesEnum, clientTypesEnum, closeReasonEnumUpdated
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Logging import write_applog
@@ -187,6 +187,7 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
         context['title'] = 'Lead Detail'
         context['isUpdate'] = True
         context['caseStagesEnum'] = caseStagesEnum
+        context['preMeetingStages'] = [caseStagesEnum[_stage].value for _stage in  PRE_MEETING_STAGES]
         context['appTypesEnum'] = appTypesEnum
         context['productTypesEnum'] = productTypesEnum
 
@@ -277,8 +278,10 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
         loan_obj = Loan.objects.queryset_byUID(str(self.kwargs['uid'])).get()
 
         # Don't allow later stages to be updated in the GUI
-        if initialcaseStage not in [caseStagesEnum.DISCOVERY.value, caseStagesEnum.MEETING_HELD.value,
-                                    caseStagesEnum.APPLICATION.value, caseStagesEnum.CLOSED.value]:
+        if initialcaseStage not in [
+            caseStagesEnum[stage_].value
+            for stage_ in EDITABLE_STAGES
+        ]:
             messages.error(self.request, "You can no longer update this Case ")
             return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': self.kwargs.get('uid')}))
 
@@ -619,7 +622,7 @@ class CaseOwnView(HouseholdLoginRequiredMixin, View):
         return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
 
-class CaseAssignView(HouseholdLoginRequiredMixin, UpdateView):
+class CaseAssignView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, UpdateView):
     template_name = 'case/caseDetail.html'
     email_template_name = 'case/email/assignEmail.html'
     form_class = CaseAssignForm
