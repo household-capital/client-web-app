@@ -30,7 +30,7 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
                 # we start this one.
                 write_applog("INFO", 'calculator.util', 'attempt_sync', "Pausing for 20 secs to allow duplicate to settle")
                 time.sleep(20)
-            app.send_task('Create_SF_Lead', kwargs={'enqUID': str(enq_obj.enqUID)})
+            app.send_task('Update_SF_Enquiry', kwargs={'enqUID': str(enq_obj.enqUID)})
         except Exception as ex:
             try:
                 write_applog("ERROR", 'calculator.util', 'convert_calc', "Failed to sync " + str(enq_obj.enqUID), is_exception=True)

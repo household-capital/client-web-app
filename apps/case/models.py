@@ -14,7 +14,6 @@ from django.urls import reverse_lazy
 from apps.lib.site_Enums import *
 
 from apps.accounts.models import Referer
-from apps.enquiry.models import MarketingCampaign
 from urllib.parse import urljoin
 
 from apps.base.model_utils import AbstractAddressModel
@@ -276,8 +275,10 @@ class Case(AbstractAddressModel):
     # Scoring
     propensityCategory = models.IntegerField(choices=propensityChoices, blank=True, null=True)
 
-    marketing_campaign = models.ForeignKey(MarketingCampaign, null=True, blank=True, on_delete=models.SET_NULL)
+    marketing_campaign = models.ForeignKey('enquiry.MarketingCampaign', null=True, blank=True, on_delete=models.SET_NULL)
     
+    doNotMarket = models.BooleanField(default=False)
+
     objects=CaseManager()
 
     def __str__(self):
@@ -291,21 +292,21 @@ class Case(AbstractAddressModel):
         verbose_name_plural = "Case"
 
     def enumCaseStage(self):
-        return dict(self.caseStages)[self.caseStage]
+        return dict(self.caseStages).get(self.caseStage)
 
     def enumLoanType(self):
         if self.loanType is not None:
-            return dict(self.loanTypes)[self.loanType]
+            return dict(self.loanTypes).get(self.loanType)
 
     def enumStateType(self):
         if self.state is not None:
-            return dict(self.stateTypes)[self.state]
+            return dict(self.stateTypes).get(self.state)
 
     def enumDwellingType(self):
-        return dict(self.dwellingTypes)[self.dwellingType]
+        return dict(self.dwellingTypes).get(self.dwellingType)
 
     def enumProductType(self):
-        return dict(self.productTypes)[self.productType]
+        return dict(self.productTypes).get(self.productType)
 
     def enumSex(self):
         if self.clientType2 == None:
@@ -368,6 +369,11 @@ class Case(AbstractAddressModel):
             return urljoin(
                 os.getenv('SALESFORCE_BASE_URL'),
                 "lightning/r/Opportunity/{0}/view".format(self.sfOpportunityID)
+            )
+        if self.sfLeadID:
+            return urljoin(
+                os.getenv('SALESFORCE_BASE_URL'),
+                "lightning/r/Lead/{0}/view".format(self.sfLeadID)
             )
 
 
@@ -687,7 +693,7 @@ class LossData(models.Model):
 
     followUpDate=models.DateField(blank=True, null=True)
     followUpNotes = models.TextField(blank=True, null=True)
-    doNotMarket = models.BooleanField(default=False)
+    doNotMarket = models.BooleanField(default=False) # NOTE: Migrate values to case Object once deployed 
 
     objects = CaseManager()
 

@@ -1,5 +1,5 @@
 #Python Imports
-import uuid, os
+import uuid, os, reversion
 from datetime import datetime, timedelta
 
 #Django Imports
@@ -13,12 +13,14 @@ from django.utils.encoding import smart_text
 from django.urls import reverse_lazy
 from django.db.models import Q
 
+from apps.helpers.model_utils import ReversionModel
+
 from urllib.parse import urljoin
 #Local Imports
 from apps.lib.site_Enums import *
+from apps.case.model_utils import get_existing_case, create_case_from_enquiry
 from config.celery import app
 from apps.base.model_utils import AbstractAddressModel
-
 
 class EnquiryManager(models.Manager):
 
@@ -76,7 +78,8 @@ class MarketingCampaign(models.Model):
     def __str__(self):
         return smart_text(self.campaign_name)
 
-class Enquiry(AbstractAddressModel):
+@reversion.register()
+class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
 
     productTypes = (
         (productTypesEnum.LUMP_SUM.value, "Lump Sum"),
@@ -106,6 +109,18 @@ class Enquiry(AbstractAddressModel):
         (directTypesEnum.BROKER.value, 'Broker'),
         (directTypesEnum.ADVISER.value, 'Adviser'),
         (directTypesEnum.OTHER.value,'Other'),
+    )
+
+    refferTypesHTML = (
+        (directTypesEnum.PHONE.value, '<i class="fas fa-mobile"></i> Phone'),
+        (directTypesEnum.EMAIL.value, '<i class="fas fa-envelope"></i> Email'),
+        (directTypesEnum.WEB_ENQUIRY.value,'<i class="fas fa-mouse-pointer"></i> Web'),
+        (directTypesEnum.SOCIAL.value, '<i class="fas fa-thumbs-up"></i> Social'),
+        (directTypesEnum.WEB_CALCULATOR.value, '<i class="fas fa-calculator"></i> Calculator'),
+        (directTypesEnum.PARTNER.value, '<i class="fas fa-handshake"></i> Partner'),
+        (directTypesEnum.BROKER.value, '<i class="fas fa-user-tie"></i> Broker'),
+        (directTypesEnum.ADVISER.value, '<i class="fas fa-comments"></i> Adviser'),
+        (directTypesEnum.OTHER.value,'<i class="fas fa-question"></i> Other'),
     )
 
 
@@ -189,6 +204,7 @@ class Enquiry(AbstractAddressModel):
     referrerID=models.CharField(max_length=200,blank= True,null=True)
     referralUser=models.ForeignKey(settings.AUTH_USER_MODEL, related_name='referralUser', null=True, blank=True, on_delete=models.SET_NULL)
     sfLeadID = models.CharField(max_length=20, null=True, blank=True)
+    sfEnqID = models.CharField(max_length=20, null=True, blank=True)
     marketingSource = models.IntegerField(blank=True, null=True, choices=marketingTypes )
     submissionOrigin = models.CharField(max_length=200, blank=True, null=True)
 
@@ -244,7 +260,7 @@ class Enquiry(AbstractAddressModel):
     closeReason=models.IntegerField(blank=True, null=True, choices=closeReasons)
     followUpDate=models.DateField(blank=True, null=True)
     followUpNotes = models.TextField(blank=True, null=True)
-    doNotMarket = models.BooleanField(default=False)
+    doNotMarket = models.BooleanField(default=False) # TODO: REMOVE THIS FIELD AFTER this value has been propagated to CASE after new data models are taken into effect
     enquiryStage = models.IntegerField(blank=True, null=True, choices=enquiryStageTypes)
     requestedCallback = models.BooleanField(default=False, blank=False, null=False)
 
@@ -269,11 +285,25 @@ class Enquiry(AbstractAddressModel):
     
     objects = EnquiryManager()
 
+
+    case = models.ForeignKey(
+        'case.Case',
+        related_name='enquiries',
+        blank=True, 
+        null=True,  # Forward migration to fix some of these: Loosely constraining this to allow selective migration 
+        on_delete=models.CASCADE 
+    )
+
     @property
     def get_absolute_url(self):
         return reverse_lazy("enquiry:enquiryDetail", kwargs={"uid":self.enqUID})
 
     def get_SF_url(self):
+        if self.sfEnqID: 
+            return urljoin(
+                os.getenv('SALESFORCE_BASE_URL'),
+                "lightning/r/Enquiry__c/{0}/view".format(self.sfEnqID)
+            )
         if self.sfLeadID:
             return urljoin(
                 os.getenv('SALESFORCE_BASE_URL'),
@@ -284,6 +314,11 @@ class Enquiry(AbstractAddressModel):
     def enumReferrerType(self):
         if self.referrer is not None:
             return dict(self.referrerTypes)[self.referrer]
+
+    def enumReferrerTypeHTML(self): 
+        if self.referrer is not None: 
+            return dict(self.refferTypesHTML)[self.referrer]
+        return 'N/A'
 
     def enumLoanType(self):
         if self.loanType is not None:
@@ -325,16 +360,38 @@ class Enquiry(AbstractAddressModel):
         return smart_text(self.email)
     
     def save(self, should_sync=False, *args, **kwargs):
-        if self.pk is None: 
+
+        is_create = self.pk is None
+         
+        if is_create: 
             # attempt sync on create
             should_sync = bool(
-                self.email and 
-                self.phoneNumber and 
+                (self.email or self.phoneNumber)  and  
                 self.user and 
                 self.postcode
             )
-        super(Enquiry, self).save()
+        
+        super(Enquiry, self).save(*args, **kwargs)
+        self.refresh_from_db()
+        # Case Wasnt passed in save kwarg / Or doesnt exist
+        if not self.case_id: 
+            existing_case = get_existing_case(self.phoneNumber, self.email)
+            if existing_case is not None: 
+                existing_case.enquiries.add(self)
+            else: 
+                create_case_from_enquiry(self)
+                should_sync = False 
+                # no need to re-trigger sync as current job already takes care of it.
+
         if should_sync:
-            app.send_task('Update_SF_Lead', kwargs={'enqUID': str(self.enqUID)})
+            # if this is a should_sync which comes from user assignment
+            if self.user and self.case.owner is None: 
+                case = self.case 
+                case.owner = self.user 
+                case.save()
+                # if user didnt exist then sync never passed 
+                app.send_task('sfEnquiryLeadSync', kwargs={'enqUID': str(self.enqUID)})
+            else:
+                app.send_task('Update_SF_Enquiry', kwargs={'enqUID': str(self.enqUID)})
     class Meta:
         ordering = ('-updated',)

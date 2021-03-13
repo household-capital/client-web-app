@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'django_celery_results',
     'storages',
     'corsheaders',
+    'reversion',
     # my apps
     'apps.accounts',
     'apps.application',
@@ -69,7 +70,8 @@ INSTALLED_APPS = [
     'apps.site_tags',
     'apps.settings',
     'apps.operational',
-    'apps.base'
+    'apps.base',
+    'apps.helpers'
 ]
 
 MIDDLEWARE = [

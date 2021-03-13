@@ -104,7 +104,7 @@ class CalendlyWebhook(View):
                 # Update enquiry object and Synch with SF
                 if enqObj:
                     self.updateEnquiry(enqObj, meeting_name, customer_phone)
-                    app.send_task('Update_SF_Lead', kwargs={'enqUID': str(enqObj.enqUID)})
+                    app.send_task('Update_SF_Enquiry', kwargs={'enqUID': str(enqObj.enqUID)})
 
                 write_applog("INFO", 'Calendly', 'post', "Discovery Call Created:" + customer_email )
 
