@@ -39,7 +39,7 @@ from .models import Enquiry
 from apps.lib.site_Utilities import getEnquiryProjections, updateNavQueue, \
     cleanPhoneNumber, validateEnquiry
 from apps.lib.mixins import HouseholdLoginRequiredMixin, AddressLookUpFormMixin 
-from .util import assign_enquiry, auto_assign_enquiries
+from .util import assign_unassigned_cases
 
 from urllib.parse import urljoin
 from apps.base.model_utils import address_model_fields
@@ -812,36 +812,6 @@ class EnquiryOwnView(HouseholdLoginRequiredMixin, View):
 
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
 
-
-class EnquiryAssignView(HouseholdLoginRequiredMixin, UpdateView):
-    template_name = 'enquiry/enquiryOther.html'
-    form_class = EnquiryAssignForm
-    model = Enquiry
-
-    def get_object(self, queryset=None):
-        if "uid" in self.kwargs:
-            enqUID = str(self.kwargs['uid'])
-            queryset = Enquiry.objects.queryset_byUID(str(enqUID))
-            obj = queryset.get()
-            return obj
-
-    def get_context_data(self, **kwargs):
-        context = super(EnquiryAssignView, self).get_context_data(**kwargs)
-        context['title'] = 'Assign Enquiry'
-
-        return context
-
-    def form_valid(self, form):
-        preObj = Enquiry.objects.queryset_byUID(str(self.kwargs['uid'])).get()
-        enq_obj = form.save(commit=False)
-        # NB: we must send down the "preObj" so the user switch gets documented correctly in the enquiry notes
-        # during reassignment.
-        assign_enquiry(preObj, enq_obj.user)
-
-        messages.success(self.request, "Enquiry assigned to " + enq_obj.user.username)
-        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
-
-
 # UNAUTHENTICATED VIEWS
 class EnqSummaryPdfView(TemplateView):
     # Produce Summary Report View (called by Api2Pdf)
@@ -921,12 +891,12 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
             result = self._form_valid(form, enquiries_to_assign)
         except Exception as ex:
             try:
-                auto_assign_enquiries(enquiries_to_assign, force=True)
+                assign_unassigned_cases(enquiries_to_assign, force=True)
             except Exception as ex:
                 write_applog("ERROR", 'Enquiry', 'EnquiryPartnerUpload', 'Error in auto assignments', is_exception=True)
             raise
         else:
-            auto_assign_enquiries(enquiries_to_assign, force=True)
+            assign_unassigned_cases(enquiries_to_assign, force=True)
             return result
 
     def _form_valid(self, form, enquiries_to_assign):
@@ -1288,6 +1258,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
         # No special logic needed to handle enquiry duplicates 
         write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Creating new enquiry')
         payload["enquiryNotes"] = enquiryString
+        payload['user'] = self.request.user
         new_enq = Enquiry.objects.create(**payload)
         enquiries_to_assign.append(new_enq)
 

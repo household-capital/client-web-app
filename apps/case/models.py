@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.db import models
+from django.db.models import Q
 from django.utils.encoding import smart_text
 from django.utils import timezone
 from django.urls import reverse_lazy
@@ -17,6 +18,8 @@ from apps.accounts.models import Referer
 from urllib.parse import urljoin
 
 from apps.base.model_utils import AbstractAddressModel
+
+from config.celery import app
 
 class FundDetail(models.Model):
     #Model for Fund Names/Images
@@ -57,6 +60,21 @@ class CaseManager(models.Manager):
     def queueCount(self):
         return Case.objects.filter(owner__isnull=True).count()
 
+
+    def find_duplicates_QS(self, email, phoneNumber):
+        if email and phoneNumber:
+            query = (Q(email__iexact=email) | Q(phoneNumber=phoneNumber))
+        elif email:
+            query = Q(email__iexact=email)
+        elif phoneNumber:
+            query = Q(phoneNumber=phoneNumber)
+        else:
+            raise Exception('email or phone must be present')
+
+        return Case.objects.filter(query)
+
+    def find_duplicates(self, email, phoneNumber, order_by="-updated"):
+        return self.find_duplicates_QS(email, phoneNumber).order_by(order_by)
 
 class Case(AbstractAddressModel):
     # Main model - extended by Loan, ModelSettings and LossData
@@ -382,6 +400,12 @@ class Case(AbstractAddressModel):
                 os.getenv('SALESFORCE_BASE_URL'),
                 "lightning/r/Lead/{0}/view".format(self.sfLeadID)
             )
+    
+    def save(self, should_sync=False, *args, **kwargs):
+        super(Case, self).save(*args, **kwargs)
+        if should_sync: 
+            app.send_task('Update_SF_Case_Lead', kwargs={'caseUID': str(self.caseUID)})
+
 
 
 # Pre-save function to extend Case

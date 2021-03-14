@@ -545,12 +545,11 @@ def createSFLeadCase(caseUID, sfAPIInstance=None):
         return {"status": "Error", "responseText": "No email or phone number"}
 
 def update_all_unsycned_enquiries(case): 
-    for enq in case.enquiries.all(): 
-        if enq.sfEnqID:
-            app.send_task(
-                'Update_SF_Enquiry',
-                kwargs={'enqUID': str(enq.enqUID)}
-            )
+    for enq in case.enquiries.all():
+        app.send_task(
+            'Update_SF_Enquiry',
+            kwargs={'enqUID': str(enq.enqUID)}
+        )
 
 def updateSFLead(caseUID):
     '''Updates a SF Lead from a case using the SF Rest API.'''
@@ -565,10 +564,8 @@ def updateSFLead(caseUID):
     # Get object
     qs = Case.objects.queryset_byUID(caseUID)
     caseObj = qs.get()
-    created_lead_case = False
     if not caseObj.sfLeadID:
         result = createSFLeadCase(caseUID)
-        created_lead_case = True
         if result['status'] != "Ok":
             write_applog("ERROR", 'Case', 'Tasks-updateSFLead', "No SF ID for: " + str(caseUID))
             return {"status": "Error"}
@@ -580,8 +577,7 @@ def updateSFLead(caseUID):
     # Update SF Lead
     payload = __buildLeadCasePayload(caseObj)
     result = sfAPI.updateLead(str(caseObj.sfLeadID), payload)
-    if not created_lead_case: 
-        update_all_unsycned_enquiries(caseObj) 
+    update_all_unsycned_enquiries(caseObj) 
     if result['status'] == "Ok":
         return {'status': 'Ok'}
     else:

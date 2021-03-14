@@ -14,7 +14,8 @@ from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 
 from apps.enquiry.models import Enquiry
 from .models import WebCalculator
-from apps.enquiry.util import auto_assign_enquiries, assign_enquiry
+
+from apps.case.assignment import auto_assign_leads, assign_lead
 
 
 class ProcessingError(Exception):
@@ -63,11 +64,13 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
         enq_obj = Enquiry.objects.create(
             user=None, referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer, **calc_dict
         )
+        lead_obj = enq_obj.case
 
-        if proposed_owner is None:
-            auto_assign_enquiries([enq_obj], notify=False)
-        else:
-            assign_enquiry(enq_obj, proposed_owner, notify=False)
+        if lead_obj.owner is None:
+            if proposed_owner is None:
+                auto_assign_leads([lead_obj], notify=False)
+            else:
+                assign_lead(lead_obj, proposed_owner, notify=False)
 
         return enq_obj
 

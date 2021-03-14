@@ -126,7 +126,13 @@ class CaseListView(HouseholdLoginRequiredMixin, ListView):
 
         elif not self.request.GET.get('search'):
             queryset = queryset.filter(
-                Q(caseStage=caseStagesEnum.DISCOVERY.value))
+                Q(
+                    caseStage__in=[
+                        caseStagesEnum[_stage].value
+                        for _stage in PRE_MEETING_STAGES
+                    ]
+                )
+            )
 
         # ...and orderby.....
         if self.request.GET.get('order') == None or self.request.GET.get('order') == "":
@@ -377,6 +383,8 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
         return
 
     def checkFields(self, caseObj):
+        if caseObj.caseStage in [caseStagesEnum[_stage].value for _stage in EDITABLE_STAGES]:
+            return True
         requiredFields = ['loanType', 'clientType1', 'salutation_1', 'maritalStatus_1', 'surname_1',
                           'firstname_1', 'birthdate_1', 'sex_1', 'street', 'suburb', 'state',
                           'valuation', 'dwellingType']

@@ -78,7 +78,7 @@ def mapEnquiryForSF(enqUID):
     payload['Lead_Source__c'] = enquiry.enumReferrerType()
     payload['Marketing_Source__c'] = enquiry.enumMarketingSource()
     payload['State__c'] = sfStateEnum(enquiry.state)
-    payload['Enquiry_Status__c'] = enquiry.enumEnquiryStage()
+    # payload['Enquiry_Status__c'] = enquiry.enumEnquiryStage()
     payload['Propensity_Score__c'] = enquiry.enumPropensityCategory()
     payload['Marketing_Campaign__c'] = ''
     if enquiry.marketing_campaign: 
