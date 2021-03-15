@@ -380,8 +380,9 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
                 existing_case.enquiries.add(self)
                 # if do not market status is set, unset it since new enquiry arrived. 
                 if existing_case.doNotMarket:
-                    existing_case.doNotMarket = False
-                    existing_case.save()
+                    if self.referrer in [directTypesEnum.WEB_CALCULATOR.value, directTypesEnum.WEB_ENQUIRY.value]:
+                        existing_case.doNotMarket = False
+                        existing_case.save()
             else: 
                 create_case_from_enquiry(self)
                 should_sync = False 
