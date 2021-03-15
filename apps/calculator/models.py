@@ -67,7 +67,12 @@ class WebCalculator(AbstractAddressModel):
 
     calcUID = models.UUIDField(default=uuid.uuid4, editable=False)
     productType = models.IntegerField(choices=productTypes, null=True, blank=True, default=0)
-    referrer = models.URLField(blank=True, null=True)
+    referrer = models.URLField(blank=True, null=True) # Deprecated - not populated
+
+    # Origin
+    submissionOrigin = models.CharField(max_length=200, blank=True, null=True) # which page
+    origin_timestamp = models.DateTimeField(null=True, blank=True, auto_now_add=False, auto_now=False)
+    origin_id = models.CharField(max_length=36, null=True, blank=True)
 
     # Client Data
     name = models.CharField(max_length=121, blank=True, null=True)
@@ -104,16 +109,12 @@ class WebCalculator(AbstractAddressModel):
     calcLumpSum = models.IntegerField(blank=True, null=True)
     calcIncome = models.IntegerField(blank=True, null=True)
 
-    # Analytics fields
-    submissionOrigin = models.CharField(max_length=200, blank=True, null=True)
-
     # Workflow
     application = models.BooleanField(default=False, blank=False, null=False)
     actioned=models.IntegerField(default=0,blank=True, null=True)
     actionedBy=models.CharField(max_length=40,blank= True,null=True)
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
-    sourceID = models.CharField(max_length=36, null=True, blank=True)
     requestedCallback = models.BooleanField(default=False, blank=False, null=False)
 
     # Other
@@ -157,19 +158,22 @@ class WebContactManager(models.Manager):
 
 class WebContact(models.Model):
     contUID = models.UUIDField(default=uuid.uuid4, editable=False)
-    name=models.CharField(max_length=50,null=False, blank=False)
-    email=models.EmailField(null=True,blank=True)
-    phone=models.CharField(max_length=15,null=True,blank=True)
+    name = models.CharField(max_length=50,null=False, blank=False)
+    email = models.EmailField(null=True,blank=True)
+    phone = models.CharField(max_length=15,null=True,blank=True)
     age_1 = models.IntegerField(blank=True, null=True)
     postcode = models.IntegerField(blank=True, null=True)
-    message=models.CharField(max_length=1000,null=False,blank=False)
+    message = models.CharField(max_length=1000,null=False,blank=False)
     actioned = models.IntegerField(default=0, blank=True, null=True)
-    actionNotes=models.CharField(max_length=1000,null=True,blank=True)
-    actionedBy=models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
-    actionDate=models.DateField(blank=True, null=True)
-    sourceID = models.CharField(max_length=36, null=True, blank=True)
+    actionNotes = models.CharField(max_length=1000,null=True,blank=True)
+    actionedBy = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    actionDate = models.DateField(blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+    submissionOrigin = models.CharField(max_length=200, blank=True, null=True) # which page
+    origin_timestamp = models.DateTimeField(null=True, blank=True, auto_now_add=False, auto_now=False)
+    origin_id = models.CharField(max_length=36, null=True, blank=True)
 
     objects = WebContactManager()
 

@@ -47,9 +47,8 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
         # Create enquiry using WebCalculator Data
         # Remove certain items from the dictionary
         referrer = calc_dict['referrer']
-        referrer_id = calc_dict['sourceID']
 
-        pop_list = ['calcUID', 'actionedBy', 'id', 'sourceID', 'referrer', 'updated', 'timestamp', 'actioned', 'application']
+        pop_list = ['calcUID', 'actionedBy', 'id', 'referrer', 'updated', 'timestamp', 'actioned', 'application']
         for item in pop_list:
             calc_dict.pop(item)
 

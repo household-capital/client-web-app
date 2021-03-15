@@ -143,6 +143,9 @@ class EnquiryCreateView(HouseholdLoginRequiredMixin, CreateView):
     def form_valid(self, form):
         clientDict = form.cleaned_data
         obj = form.save()
+        obj.submissionOrigin = 'Client App'
+        obj.origin_timestamp = timezone.now()
+        obj.origin_id = obj.enqUID
 
         if obj.phoneNumber:
             obj.phoneNumber = cleanPhoneNumber(form.cleaned_data['phoneNumber'])
@@ -454,6 +457,9 @@ class EnquiryCallView(HouseholdLoginRequiredMixin, CreateView):
         obj = form.save(commit=False)
         obj.status = 0
         obj.referrer = directTypesEnum.PHONE.value
+        obj.submissionOrigin = 'Client App'
+        obj.origin_timestamp = timezone.now()
+        obj.origin_id = obj.enqUID
 
         if obj.phoneNumber:
             obj.phoneNumber = cleanPhoneNumber(form.cleaned_data['phoneNumber'])
@@ -1039,8 +1045,9 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": partner_value,
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "referrer": directTypesEnum.PARTNER.value,
-                        "state":  None ,
-                        "marketing_campaign": marketing_campaign
+                        "state":  None,
+                        "marketing_campaign": marketing_campaign,
+                        'origin_timestamp': row[0],
                     }
                     
                     updateCreateEnquiry(
@@ -1102,7 +1109,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "state": stateTypesEnum[row[10]].value if row[10] else None ,
                         'dwellingType': dwellingTypesEnum.APARTMENT.value if row[8] == "Strata Property" else dwellingTypesEnum.HOUSE.value,
                         "enquiryStage": enquiryStagesEnum.GENERAL_INFORMATION.value if row[4] == "Closed Lost" else enquiryStagesEnum.FOLLOW_UP_NO_ANSWER.value,
-                        "marketing_campaign": marketing_campaign
+                        "marketing_campaign": marketing_campaign,
+                        'origin_timestamp': row[11],
                     }
 
                     updateCreateEnquiry(

@@ -6,6 +6,7 @@ API model serialisers
 
 # Django Imports
 from rest_framework import serializers
+from django.utils.timezone import utc
 
 # Local Import
 from .models import Application
@@ -21,13 +22,21 @@ class IncomeApplicationSeraliser(serializers.ModelSerializer):
     valuation = serializers.IntegerField()
     postcode = serializers.IntegerField()
 
+    # TO DO - add these fields to the web site submission
+    submissionOrigin = serializers.CharField(source='origin', required=False)
+    origin_timestamp = serializers.DateTimeField(source='timestamp', required=False, default_timezone=utc)
+    origin_id = serializers.CharField(source='uuid', required=False)
+
     class Meta:
         model = Application
 
-        fields=[ 'productType', 'loanType','age_1', 'age_2', 'dwellingType', 'valuation',
-                'streetAddress', 'suburb', 'state', 'postcode']
+        fields = [
+            'productType', 'loanType','age_1', 'age_2', 'dwellingType', 'valuation',
+            'streetAddress', 'suburb', 'state', 'postcode',
+            'submissionOrigin', 'origin_timestamp', 'origin_id',
+        ]
 
-    def validate(self,data):
+    def validate(self, data):
         loanType = data.get('loanType')
         if loanType == loanTypesEnum.JOINT_BORROWER.value:
             if not data.get("age_2"):

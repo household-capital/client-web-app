@@ -221,12 +221,17 @@ class Application(models.Model):
     signingName_1 = models.CharField(max_length=50, null=True, blank=True)
     signingName_2 = models.CharField(max_length=50, null=True, blank=True)
     signingDate = models.DateTimeField(blank=True, null=True)
-    ip_address =  models.CharField(max_length=60, null=True, blank=True)
+    ip_address = models.CharField(max_length=60, null=True, blank=True)
     user_agent = models.CharField(max_length=200, null=True, blank=True)
     followUpEmail = models.DateTimeField(null=True, blank=True)
 
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+    # Origin
+    submissionOrigin = models.CharField(max_length=200, blank=True, null=True) # which page
+    origin_timestamp = models.DateTimeField(null=True, blank=True, auto_now_add=False, auto_now=False)
+    origin_id = models.CharField(max_length=36, null=True, blank=True)
 
     objects = ApplicationManager()
 

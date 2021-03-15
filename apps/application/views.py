@@ -202,9 +202,9 @@ class ConvertEnquiry(HouseholdLoginRequiredMixin, View):
             email=obj.email,
             phoneNumber=obj.mobile,
             enquiryNotes=message,
-            streetAddress = obj.streetAddress,
-            suburb = obj.suburb,
-            state = obj.state,
+            streetAddress=obj.streetAddress,
+            suburb=obj.suburb,
+            state=obj.state,
             postcode=obj.postcode,
             loanType=obj.loanType,
             age_1=obj.age_1,
@@ -212,7 +212,10 @@ class ConvertEnquiry(HouseholdLoginRequiredMixin, View):
             dwellingType=obj.dwellingType,
             valuation=obj.valuation,
             referrer=directTypesEnum.WEB_ENQUIRY.value,
-            productType = obj.productType
+            productType=obj.productType,
+            submissionOrigin=obj.submissionOrigin,
+            origin_timestamp=obj.origin_timestamp,
+            origin_id=obj.origin_id
         )
 
         obj.appStatus = appStatusEnum.CLOSED.value
@@ -853,7 +856,10 @@ class ContactView(SessionRequiredMixin, ApplicationHelper, TemplateView):
             dwellingType=obj.dwellingType,
             valuation=obj.valuation,
             referrer=directTypesEnum.WEB_ENQUIRY.value,
-            productType = obj.productType
+            productType=obj.productType,
+            submissionOrigin=obj.submissionOrigin,
+            origin_timestamp=obj.origin_timestamp,
+            origin_id=obj.origin_id
         )
 
         obj.appStatus = appStatusEnum.CONTACT.value

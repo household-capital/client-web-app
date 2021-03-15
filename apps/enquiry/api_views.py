@@ -85,7 +85,10 @@ class DataIngestion(APIView):
                 "referred_by": "Luke Sharam",
                 "postcode_type": True,
                 "grading": "A",
-                "stream" : "YOUR_LIFE_CHOICES"
+                "stream" : "YOUR_LIFE_CHOICES",
+                "origin" : "web page X",
+                "origin_timestamp": "1/02/2021 9:00 AM",
+                "origin_id": "ASDASD-1ASDQ23-ZXCZCZ-1231",
             }
         """
         for req_field in REQUIRED_FIELDS: 
@@ -112,7 +115,10 @@ class DataIngestion(APIView):
             'base_specificity': json_payload.get('unit'),
             'street_number': json_payload.get('street_number'),
             'street_name': json_payload.get('street_name'),
-            'street_type': json_payload.get('street_type')
+            'street_type': json_payload.get('street_type'),
+            'submissionOrigin': json_payload.get('origin'),
+            'origin_timestamp': json_payload.get('origin_timestamp'),
+            'origin_id': json_payload.get('origin_id'),
         }
         if json_payload.get('state'): 
             payload['state'] = stateTypesEnum[json_payload['state']].value
