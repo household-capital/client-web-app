@@ -191,10 +191,6 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
             Div(
                 Div(
                     Div(
-                        Div(HTML("Enquiry Status"), css_class='form-label'),
-                        Div(Field('enquiryStage')),
-                    ),
-                    Div(
                         Div(HTML("Propensity Score"), css_class='form-label'),
                         Div(Field('propensityCategory')),
                     )
@@ -297,9 +293,6 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
 
                 Div(Div(HTML("Existing Mortgage Debt"), css_class='form-label'),
                     Div(Field('mortgageDebt'))),
-
-                Div(HTML("<p class='small pt-2'><i class='far fa-file-pdf'></i>&nbsp;&nbsp;</i>Auto Valuation</p>"),
-                    Field('valuationDocument')),
 
                 Div(HTML("<br>")),
 

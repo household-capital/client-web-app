@@ -189,7 +189,7 @@ class CaseDetailView(ReferrerLoginRequiredMixin, UpdateView):
 
         obj.save()
 
-        messages.success(self.request, "Case has been updated")
+        messages.success(self.request, "Lead has been updated")
 
         return HttpResponseRedirect(reverse_lazy('referrer:caseDetail', kwargs={'uid': obj.caseUID}))
 
@@ -223,7 +223,7 @@ class CaseCreateView(ReferrerLoginRequiredMixin, CreateView):
             obj.age_2 = datetime.date.today().year - obj.birthdate_2.year
 
         # Set fields manually
-        obj.caseStage = caseStagesEnum.DISCOVERY.value
+        obj.caseStage = caseStagesEnum.UNQUALIFIED_CREATED.value
         obj.user = self.request.user
         obj.referralCompany = self.request.user.profile.referrer
         obj.salesChannel = channelTypesEnum.BROKER.value

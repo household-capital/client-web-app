@@ -1,10 +1,11 @@
 import datetime, logging
+from django.contrib.auth.models import User
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated  # <-- Here
 
-from apps.enquiry.util import updateCreateEnquiry, auto_assign_enquiries
+from apps.enquiry.util import updateCreateEnquiry, assign_unassigned_cases
 from apps.lib.site_Utilities import cleanPhoneNumber, cleanValuation, calcAge
 from apps.lib.site_Enums import (
     marketingTypesEnum, 
@@ -97,12 +98,12 @@ class DataIngestion(APIView):
         
         marketing_source_value = json_payload['stream']
         marketingSource = marketingTypesEnum[marketing_source_value].value
+        integration_user = User.objects.get(username='integration_user')
         payload = {
             'name': "{} {}".format(
                 json_payload.get('first', ''),
                 json_payload.get('last', '')
-            )
-            ,
+            ),
             'phoneNumber': cleanPhoneNumber(json_payload['phone']),
             'postcode': json_payload.get('postcode'),
             'propensityCategory': propensityChoicesReverseDict.get(json_payload['grading']),
@@ -119,6 +120,7 @@ class DataIngestion(APIView):
             'submissionOrigin': json_payload.get('origin'),
             'origin_timestamp': json_payload.get('origin_timestamp'),
             'origin_id': json_payload.get('origin_id'),
+            'user': integration_user,
         }
         if json_payload.get('state'): 
             payload['state'] = stateTypesEnum[json_payload['state']].value
@@ -132,10 +134,9 @@ class DataIngestion(APIView):
             payload,
             enquiryString,
             payload.get('marketingSource'),
-            enquiries_to_assign,
-            False,
+            enquiries_to_assign
         )
-        auto_assign_enquiries(enquiries_to_assign, force=True)
+        assign_unassigned_cases(enquiries_to_assign, force=True)
 
     def post(self, request):
         content = {'status': 'Success'}

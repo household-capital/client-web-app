@@ -50,12 +50,17 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
         }
 
     caseStages = (
-        (caseStagesEnum.DISCOVERY.value, "Discovery"),
+        (caseStagesEnum.UNQUALIFIED_CREATED.value,"Unqualified / Lead created"),
+        (caseStagesEnum.MARKETING_QUALIFIED.value,"Marketing Qualified"),
+        (caseStagesEnum.SQ_GENERAL_INFO.value,"SQ - General Info"),
+        (caseStagesEnum.SQ_BROCHURE_SENT.value,"SQ - Brochure sent"),
+        (caseStagesEnum.SQ_CUSTOMER_SUMMARY_SENT.value,"SQ - Customer summary sent"),
+        (caseStagesEnum.SQ_FUTURE_CALL.value,"SQ - Future call"),
         (caseStagesEnum.MEETING_HELD.value, "Meeting Held"),
         (caseStagesEnum.APPLICATION.value, "Application"),
     )
 
-    caseStage = forms.TypedChoiceField(choices=caseStages, coerce=int, initial=caseStagesEnum.DISCOVERY.value)
+    caseStage = forms.TypedChoiceField(choices=caseStages, coerce=int, initial=caseStagesEnum.UNQUALIFIED_CREATED.value)
 
     # Form Layout
     helper = FormHelper()
@@ -76,7 +81,7 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
             Div(HTML("<i class='far fa-address-card'></i>&nbsp;&nbsp;Case Notes"), css_class='form-header'),
             Div(
                 Div(
-                    Div(HTML("Case Description"), css_class='form-label'),
+                    Div(HTML("Lead Description"), css_class='form-label'),
                     Div(Field('caseDescription')),
                     css_class="col-lg-6"
                 ),
@@ -101,7 +106,7 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                 css_class="row"
             ),
             Div(
-                Div(HTML("Case Notes"), css_class='form-label'),
+                Div(HTML("Lead Notes"), css_class='form-label'),
                 Div(Field('caseNotes'))),
             Div(
                 Div(Field('doNotMarket')),
@@ -234,27 +239,31 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
         ))
 
     def clean(self):
-        loanType = self.cleaned_data['loanType']
-        clientType_2 = self.cleaned_data['clientType2']
+        pass
+        # NOTE: Should Case Saving be more loose ? 
+        # Leaving this as commented out incase we want to refine this logic @Matt, @Sue, @Chris
 
-        if not self.errors:
+        # loanType = self.cleaned_data['loanType']
+        # clientType_2 = self.cleaned_data['clientType2']
 
-            if self.cleaned_data['birthdate_1'] == None and self.cleaned_data['age_1'] == None:
-                raise forms.ValidationError("Please enter age or birthdate for Borrower 1")
+        # if not self.errors:
 
-            if clientType_2 != None:
+        #     if self.cleaned_data['birthdate_1'] == None and self.cleaned_data['age_1'] == None:
+        #         raise forms.ValidationError("Please enter age or birthdate for Borrower 1")
 
-                if self.cleaned_data['birthdate_2'] == None and self.cleaned_data['age_2'] == None:
-                    raise forms.ValidationError("Please enter age or birthdate for Borrower/Role 2")
+        #     if clientType_2 != None:
 
-            if self.cleaned_data['postcode'] != None:
-                if self.cleaned_data['dwellingType'] == None:
-                    raise forms.ValidationError("Enter property type")
-                if self.cleaned_data['valuation'] == None:
-                    raise forms.ValidationError("Please enter property valuation estimate")
+        #         if self.cleaned_data['birthdate_2'] == None and self.cleaned_data['age_2'] == None:
+        #             raise forms.ValidationError("Please enter age or birthdate for Borrower/Role 2")
 
-            if self.cleaned_data['salesChannel'] == None:
-                raise forms.ValidationError("Please enter a sales channel")
+        #     if self.cleaned_data['postcode'] != None:
+        #         if self.cleaned_data['dwellingType'] == None:
+        #             raise forms.ValidationError("Enter property type")
+        #         if self.cleaned_data['valuation'] == None:
+        #             raise forms.ValidationError("Please enter property valuation estimate")
+
+        #     if self.cleaned_data['salesChannel'] == None:
+        #         raise forms.ValidationError("Please enter a sales channel")
 
 
 class LossDetailsForm(forms.ModelForm):
@@ -263,7 +272,8 @@ class LossDetailsForm(forms.ModelForm):
     class Meta:
         model = LossData
         fields = ['closeReason',
-                  'followUpDate', 'followUpNotes'
+                  'followUpDate', 'followUpNotes',
+                  'notProceedingReason'
                   ]
 
         widgets = {
@@ -271,6 +281,9 @@ class LossDetailsForm(forms.ModelForm):
             'followUpNotes': forms.Textarea(attrs={'rows': 5, 'cols': 100}),
 
         }
+    
+    def __init__(self, *args, **kwargs):
+        super(LossDetailsForm, self).__init__(*args, **kwargs)
 
     # Form Layout
     helper = FormHelper()
@@ -286,6 +299,8 @@ class LossDetailsForm(forms.ModelForm):
                 Div(
                     Div(Div(HTML("Close Reason"), css_class='form-label'),
                         Div(Field('closeReason'))),
+                    Div(Div(HTML("Not Proceeding Reason"), css_class='form-label'),
+                        Div(Field('notProceedingReason')), id="notProceedingReason_widget"),
                     Div(Div(HTML("<br>"))),
                 ),
                 css_class="col-lg-4"),

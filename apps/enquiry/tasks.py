@@ -355,8 +355,6 @@ def createSFEnquiry(enqUID, sfAPIInstance=None):
     # Check for an email or phoneNumber as well as a user
     if not (enquiry.email or enquiry.phoneNumber):
         missing_data.append('No email or phone number')
-    if not enquiry.user:
-        missing_data.append('No user assigned')
     if not enquiry.postcode:
         missing_data.append('No postcode set')
     if missing_data:

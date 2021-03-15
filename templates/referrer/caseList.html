@@ -65,7 +65,7 @@
                                 <label class="d-none d-sm-table-cell" for="search" class="col-form-label"><i class="fas fa-search fa-lg"></i></label>
 
                                 <div class="col-lg-5 pb-3">
-                                    <input class='form-control' type='text' name='search' placeholder='Search cases'
+                                    <input class='form-control' type='text' name='search' placeholder='Search leads'
                                            value='{{ request.GET.search }}'/>
                                 </div>
 
@@ -74,7 +74,7 @@
 
                                     <a href="{% url 'referrer:caseCreate' %}">
                                         <div class="btn btn-outline-secondary" data-toggle="tooltip" data-placement="top"
-                                             title="Open new case"><i class="fas fa-plus fa-fw"></i></div>
+                                             title="Open new lead"><i class="fas fa-plus fa-fw"></i></div>
                                     </a>
 
                                 </div>
@@ -91,7 +91,7 @@
                     <thead>
                     <tr>
                         <th scope="col" class="d-none d-sm-table-cell"><a href="?order=-caseStage&search={{ search }}">
-                            {% if order == '-caseStage' %}<i class="fas fa-sort-down"></i>{% endif %}&nbsp;Case Status</a></th>
+                            {% if order == '-caseStage' %}<i class="fas fa-sort-down"></i>{% endif %}&nbsp;Lead Status</a></th>
                         <th scope="col"><a href="?order=caseDescription&search={{ search }}">
                             {% if order == 'caseDescription' %}<i class="fas fa-sort-down"></i>{% endif %}&nbsp;Description</a></th>
                         <th scope="col"><a href="?order=user&search={{ search }}">

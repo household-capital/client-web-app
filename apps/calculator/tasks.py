@@ -15,7 +15,7 @@ from apps.lib.site_Logging import write_applog
 from apps.lib.site_Utilities import raiseTaskAdminError, cleanPhoneNumber, parse_api_datetime
 from apps.lib.site_Enums import *
 from .util import convert_calc, ProcessingError
-from apps.enquiry.util import find_auto_assignee
+from apps.case.assignment import find_auto_assignee
 
 
 # TASKS

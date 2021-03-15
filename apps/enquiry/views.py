@@ -38,8 +38,9 @@ from .forms import EnquiryForm, EnquiryDetailForm, EnquiryAssignForm, EnquiryCal
 from .models import Enquiry
 from apps.lib.site_Utilities import getEnquiryProjections, updateNavQueue, \
     cleanPhoneNumber, validateEnquiry, cleanValuation, calcAge
-from apps.lib.mixins import HouseholdLoginRequiredMixin, AddressLookUpFormMixin 
-from .util import assign_enquiry, auto_assign_enquiries, updateCreateEnquiry
+from apps.lib.mixins import HouseholdLoginRequiredMixin, AddressLookUpFormMixin
+from .util import assign_unassigned_cases, updateCreateEnquiry
+
 
 from urllib.parse import urljoin
 from apps.base.model_utils import address_model_fields
@@ -307,6 +308,7 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Upd
         context['obj'] = obj
         context['isUpdate'] = True
         context['productTypesEnum'] = productTypesEnum
+        context['leadClosed'] = obj.case.caseStage == caseStagesEnum.CLOSED.value
 
         # Pass Calendly information
         paramStr = "?name=" + (obj.name if obj.name else '') + "&email=" + \
@@ -585,6 +587,31 @@ class SendEnquirySummary(HouseholdLoginRequiredMixin, UpdateView):
                 return False
         return True
 
+class SummaryMove(HouseholdLoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        if "uid" in kwargs:
+            try:
+                enquiry = Enquiry.objects.get(enqUID=kwargs['uid'])
+            except Enquiry.DoesNotExist: 
+                messages.error(self.request, "Enquiry Doesnt exist")
+                return HttpResponseRedirect(reverse_lazy('enquiry:enquiryList'))
+            
+            case = enquiry.case
+            if case is None: 
+                messages.error(self.request, "Enquiry has no lead")
+                return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enquiry.enqUID}))
+
+            case.enquiryDocument = enquiry.summaryDocument
+            case.save()
+            messages.success(self.request, "Enquiry Summary Doccument Successfully Moved To Lead")
+            return HttpResponseRedirect(
+                reverse_lazy(
+                    'case:caseDetail', 
+                    kwargs={'uid': case.caseUID}
+                )
+            )
+        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryList'))
 
 class CreateEnquirySummary(HouseholdLoginRequiredMixin, UpdateView):
     # This view does not render it creates an enquiry
@@ -669,6 +696,7 @@ class EnquiryEmailEligibility(HouseholdLoginRequiredMixin, TemplateView):
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': obj.enqUID}))
 
 
+## DEPRECATED 
 class EnquiryConvert(HouseholdLoginRequiredMixin, View):
     # This view does not render it creates a case from an enquiry and marks it actioned
     context_object_name = 'object_list'
@@ -791,36 +819,6 @@ class EnquiryOwnView(HouseholdLoginRequiredMixin, View):
 
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
 
-
-class EnquiryAssignView(HouseholdLoginRequiredMixin, UpdateView):
-    template_name = 'enquiry/enquiryOther.html'
-    form_class = EnquiryAssignForm
-    model = Enquiry
-
-    def get_object(self, queryset=None):
-        if "uid" in self.kwargs:
-            enqUID = str(self.kwargs['uid'])
-            queryset = Enquiry.objects.queryset_byUID(str(enqUID))
-            obj = queryset.get()
-            return obj
-
-    def get_context_data(self, **kwargs):
-        context = super(EnquiryAssignView, self).get_context_data(**kwargs)
-        context['title'] = 'Assign Enquiry'
-
-        return context
-
-    def form_valid(self, form):
-        preObj = Enquiry.objects.queryset_byUID(str(self.kwargs['uid'])).get()
-        enq_obj = form.save(commit=False)
-        # NB: we must send down the "preObj" so the user switch gets documented correctly in the enquiry notes
-        # during reassignment.
-        assign_enquiry(preObj, enq_obj.user)
-
-        messages.success(self.request, "Enquiry assigned to " + enq_obj.user.username)
-        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
-
-
 # UNAUTHENTICATED VIEWS
 class EnqSummaryPdfView(TemplateView):
     # Produce Summary Report View (called by Api2Pdf)
@@ -900,12 +898,12 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
             result = self._form_valid(form, enquiries_to_assign)
         except Exception as ex:
             try:
-                auto_assign_enquiries(enquiries_to_assign, force=True)
+                assign_unassigned_cases(enquiries_to_assign, force=True)
             except Exception as ex:
                 write_applog("ERROR", 'Enquiry', 'EnquiryPartnerUpload', 'Error in auto assignments', is_exception=True)
             raise
         else:
-            auto_assign_enquiries(enquiries_to_assign, force=True)
+            assign_unassigned_cases(enquiries_to_assign, force=True)
             return result
 
     def _form_valid(self, form, enquiries_to_assign):
@@ -949,7 +947,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": marketingTypesEnum.STARTS_AT_60.value,
                         "referrer": directTypesEnum.PARTNER.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "marketing_campaign": marketing_campaign
+                        "marketing_campaign": marketing_campaign,
+                        "user": self.request.user
                     }
 
                     updateCreateEnquiry(
@@ -958,9 +957,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         payload,
                         enquiryString,
                         marketingTypesEnum.STARTS_AT_60.value,
-                        enquiries_to_assign,
-                        False,
-                        int(self.request.GET.get("preserve_owners", 0))
+                        enquiries_to_assign 
                     )
 
             messages.success(self.request, "Success - enquiries imported")
@@ -995,7 +992,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": marketingTypesEnum.CARE_ABOUT.value,
                         "referrer": directTypesEnum.PARTNER.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "marketing_campaign": marketing_campaign
+                        "marketing_campaign": marketing_campaign,
+                        "user": self.request.user
                     }
 
                     updateCreateEnquiry(
@@ -1004,9 +1002,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         payload,
                         enquiryString,
                         marketingTypesEnum.CARE_ABOUT.value,
-                        enquiries_to_assign,
-                        False,
-                        int(self.request.GET.get("preserve_owners", 0))
+                        enquiries_to_assign
                     )
 
             messages.success(self.request, "Success - enquiries imported")
@@ -1045,8 +1041,9 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": partner_value,
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "referrer": directTypesEnum.PARTNER.value,
-                        "state":  None,
+                        "state":  None ,
                         "marketing_campaign": marketing_campaign,
+                        "user": self.request.user,
                         'origin_timestamp': row[0],
                     }
                     
@@ -1056,9 +1053,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         payload,
                         enquiryString, 
                         partner_value,
-                        enquiries_to_assign,
-                        False,
-                        int(self.request.GET.get("preserve_owners", 0))
+                        enquiries_to_assign
                     )
 
             messages.success(self.request, "Success - enquiries imported") 
@@ -1110,6 +1105,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         'dwellingType': dwellingTypesEnum.APARTMENT.value if row[8] == "Strata Property" else dwellingTypesEnum.HOUSE.value,
                         "enquiryStage": enquiryStagesEnum.GENERAL_INFORMATION.value if row[4] == "Closed Lost" else enquiryStagesEnum.FOLLOW_UP_NO_ANSWER.value,
                         "marketing_campaign": marketing_campaign,
+                        "user": self.request.user,
                         'origin_timestamp': row[11],
                     }
 
@@ -1119,9 +1115,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         payload,
                         enquiryString,
                         partner_value,
-                        enquiries_to_assign,
-                        False,
-                        int(self.request.GET.get("preserve_owners", 0))
+                        enquiries_to_assign
                     )
                 else:
                     write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'ignoring - NO EMAIL ADDRESS')
@@ -1155,7 +1149,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": marketingTypesEnum.FACEBOOK.value,
                         "referrer": directTypesEnum.SOCIAL.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "marketing_campaign": marketing_campaign
+                        "marketing_campaign": marketing_campaign,
+                        "user": self.request.user
                     }
                     updateCreateEnquiry(
                         email,
@@ -1163,8 +1158,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         payload,
                         enquiryString,
                         marketingTypesEnum.FACEBOOK.value,
-                        enquiries_to_assign,
-                        False
+                        enquiries_to_assign
                     )
 
             messages.success(self.request, "Success - enquiries imported")
@@ -1201,7 +1195,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": marketingTypesEnum.FACEBOOK.value,
                         "referrer": directTypesEnum.SOCIAL.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "marketing_campaign": marketing_campaign
+                        "marketing_campaign": marketing_campaign,
+                        "user": self.request.user
                     }
 
                     updateCreateEnquiry(
@@ -1210,9 +1205,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         payload,
                         enquiryString,
                         marketingTypesEnum.FACEBOOK.value,
-                        enquiries_to_assign,
-                        False,
-                        int(self.request.GET.get("preserve_owners", 0))
+                        enquiries_to_assign
                     )
 
             messages.success(self.request, "Success - enquiries imported")
@@ -1249,7 +1242,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": marketingTypesEnum.LINKEDIN.value,
                         "referrer": directTypesEnum.SOCIAL.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "marketing_campaign": marketing_campaign
+                        "marketing_campaign": marketing_campaign,
+                        "user": self.request.user
                     }
 
                     updateCreateEnquiry(
@@ -1258,11 +1252,10 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         payload,
                         enquiryString,
                         marketingTypesEnum.LINKEDIN.value,
-                        enquiries_to_assign,
-                        False,
-                        int(self.request.GET.get("preserve_owners", 0))
+                        enquiries_to_assign
                     )
 
             messages.success(self.request, "Success - enquiries imported")
 
         return HttpResponseRedirect(self.request.path_info)
+

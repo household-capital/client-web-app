@@ -1786,7 +1786,7 @@ def createCase(appUID):
     # CREATE CASE
     casePayload = {
         'appUID': appObj.appUID,
-        'caseStage': caseStagesEnum.DISCOVERY.value,
+        'caseStage': caseStagesEnum.UNQUALIFIED_CREATED.value, 
         'appType': appTypesEnum.NEW_APPLICATION.value,
         'caseDescription': appObj.surname_1 + " - " + str(appObj.postcode),
         'caseNotes': '[# ONLINE APPLICATION #]',
