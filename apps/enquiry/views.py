@@ -941,7 +941,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": marketingTypesEnum.STARTS_AT_60.value,
                         "referrer": directTypesEnum.PARTNER.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "marketing_campaign": marketing_campaign
+                        "marketing_campaign": marketing_campaign,
+                        "user": self.request.user
                     }
 
                     updateCreateEnquiry(
@@ -950,9 +951,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         payload,
                         enquiryString,
                         marketingTypesEnum.STARTS_AT_60.value,
-                        enquiries_to_assign,
-                        False,
-                        int(self.request.GET.get("preserve_owners", 0))
+                        enquiries_to_assign 
                     )
 
             messages.success(self.request, "Success - enquiries imported")
@@ -987,7 +986,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": marketingTypesEnum.CARE_ABOUT.value,
                         "referrer": directTypesEnum.PARTNER.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "marketing_campaign": marketing_campaign
+                        "marketing_campaign": marketing_campaign,
+                        "user": self.request.user
                     }
 
                     updateCreateEnquiry(
@@ -996,9 +996,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         payload,
                         enquiryString,
                         marketingTypesEnum.CARE_ABOUT.value,
-                        enquiries_to_assign,
-                        False,
-                        int(self.request.GET.get("preserve_owners", 0))
+                        enquiries_to_assign
                     )
 
             messages.success(self.request, "Success - enquiries imported")
@@ -1038,7 +1036,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "referrer": directTypesEnum.PARTNER.value,
                         "state":  None ,
-                        "marketing_campaign": marketing_campaign
+                        "marketing_campaign": marketing_campaign,
+                        "user": self.request.user
                     }
                     
                     updateCreateEnquiry(
@@ -1047,9 +1046,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         payload,
                         enquiryString, 
                         partner_value,
-                        enquiries_to_assign,
-                        False,
-                        int(self.request.GET.get("preserve_owners", 0))
+                        enquiries_to_assign
                     )
 
             messages.success(self.request, "Success - enquiries imported") 
@@ -1100,7 +1097,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "state": stateTypesEnum[row[10]].value if row[10] else None ,
                         'dwellingType': dwellingTypesEnum.APARTMENT.value if row[8] == "Strata Property" else dwellingTypesEnum.HOUSE.value,
                         "enquiryStage": enquiryStagesEnum.GENERAL_INFORMATION.value if row[4] == "Closed Lost" else enquiryStagesEnum.FOLLOW_UP_NO_ANSWER.value,
-                        "marketing_campaign": marketing_campaign
+                        "marketing_campaign": marketing_campaign,
+                        "user": self.request.user
                     }
 
                     updateCreateEnquiry(
@@ -1109,9 +1107,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         payload,
                         enquiryString,
                         partner_value,
-                        enquiries_to_assign,
-                        False,
-                        int(self.request.GET.get("preserve_owners", 0))
+                        enquiries_to_assign
                     )
                 else:
                     write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'ignoring - NO EMAIL ADDRESS')
@@ -1145,7 +1141,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": marketingTypesEnum.FACEBOOK.value,
                         "referrer": directTypesEnum.SOCIAL.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "marketing_campaign": marketing_campaign
+                        "marketing_campaign": marketing_campaign,
+                        "user": self.request.user
                     }
                     updateCreateEnquiry(
                         email,
@@ -1153,8 +1150,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         payload,
                         enquiryString,
                         marketingTypesEnum.FACEBOOK.value,
-                        enquiries_to_assign,
-                        False
+                        enquiries_to_assign
                     )
 
             messages.success(self.request, "Success - enquiries imported")
@@ -1191,7 +1187,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": marketingTypesEnum.FACEBOOK.value,
                         "referrer": directTypesEnum.SOCIAL.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "marketing_campaign": marketing_campaign
+                        "marketing_campaign": marketing_campaign,
+                        "user": self.request.user
                     }
 
                     updateCreateEnquiry(
@@ -1200,9 +1197,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         payload,
                         enquiryString,
                         marketingTypesEnum.FACEBOOK.value,
-                        enquiries_to_assign,
-                        False,
-                        int(self.request.GET.get("preserve_owners", 0))
+                        enquiries_to_assign
                     )
 
             messages.success(self.request, "Success - enquiries imported")
@@ -1239,7 +1234,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketingSource": marketingTypesEnum.LINKEDIN.value,
                         "referrer": directTypesEnum.SOCIAL.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
-                        "marketing_campaign": marketing_campaign
+                        "marketing_campaign": marketing_campaign,
+                        "user": self.request.user
                     }
 
                     updateCreateEnquiry(
@@ -1248,9 +1244,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         payload,
                         enquiryString,
                         marketingTypesEnum.LINKEDIN.value,
-                        enquiries_to_assign,
-                        False,
-                        int(self.request.GET.get("preserve_owners", 0))
+                        enquiries_to_assign
                     )
 
             messages.success(self.request, "Success - enquiries imported")

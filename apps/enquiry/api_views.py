@@ -1,4 +1,5 @@
 import datetime, logging
+from django.contrib.auth.models import User
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -94,6 +95,7 @@ class DataIngestion(APIView):
         
         marketing_source_value = json_payload['stream']
         marketingSource = marketingTypesEnum[marketing_source_value].value
+        integration_user = User.objects.get(username='integration_user')
         payload = {
             'name': "{} {}".format(
                 json_payload.get('first', ''),
@@ -112,7 +114,8 @@ class DataIngestion(APIView):
             'base_specificity': json_payload.get('unit'),
             'street_number': json_payload.get('street_number'),
             'street_name': json_payload.get('street_name'),
-            'street_type': json_payload.get('street_type')
+            'street_type': json_payload.get('street_type'),
+            'user': integration_user
         }
         if json_payload.get('state'): 
             payload['state'] = stateTypesEnum[json_payload['state']].value
@@ -126,8 +129,7 @@ class DataIngestion(APIView):
             payload,
             enquiryString,
             payload.get('marketingSource'),
-            enquiries_to_assign,
-            False,
+            enquiries_to_assign
         )
         assign_unassigned_cases(enquiries_to_assign, force=True)
 

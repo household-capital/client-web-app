@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.template.loader import get_template
 from django.core.mail import EmailMultiAlternatives
+from django.db.models import Q
 
 from apps.settings.models import GlobalSettings
 from apps.lib.site_Enums import *
@@ -230,7 +231,13 @@ def assign_unassigned_cases(enquiries, force=False, notify=True):
     auto_assign_leads(leads, force=True)
 
 
-def updateCreateEnquiry(self, email, phoneNumber, payload, enquiryString, marketingSource, enquiries_to_assign, updateNonDirect=True):
+def updateCreateEnquiry(
+    email, 
+    phoneNumber, 
+    payload, 
+    enquiryString, 
+    marketingSource, 
+    enquiries_to_assign, updateNonDirect=True):
 
     nonDirectTypes = [directTypesEnum.PARTNER.value, directTypesEnum.BROKER.value,
                       directTypesEnum.ADVISER.value]
@@ -239,6 +246,19 @@ def updateCreateEnquiry(self, email, phoneNumber, payload, enquiryString, market
     # No special logic needed to handle enquiry duplicates
     write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Creating new enquiry')
     payload["enquiryNotes"] = enquiryString
-    payload['user'] = self.request.user
-    new_enq = Enquiry.objects.create(**payload)
-    enquiries_to_assign.append(new_enq)
+
+    prev_sources = Enquiry.objects.find_duplicates(email, phoneNumber).values_list(
+        'marketingSource', flat=True
+    ) 
+    if marketingSource not in prev_sources: 
+        new_enq = Enquiry.objects.create(**payload)
+        enquiries_to_assign.append(new_enq)
+    else:
+        write_applog(
+            "INFO", 'Enquiry', 'EnquiryPartnerUpload',
+            'Enquiry from marketing source {} already exists. Email = {}, Phone={}'.format(
+                marketingSource,
+                email,
+                phoneNumber
+            )
+        )
