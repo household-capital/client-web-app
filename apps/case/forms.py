@@ -44,6 +44,7 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                   'superAmount', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email', 'productType', 'channelDetail',
                   'doNotMarket', 'propensityCategory',
                 ] + address_model_fields
+
         widgets = {
             'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
         }
