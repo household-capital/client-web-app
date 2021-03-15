@@ -165,7 +165,7 @@ class ContactDeleteView(HouseholdLoginRequiredMixin, View):
         return HttpResponseRedirect(reverse_lazy('calculator:contactList'))
 
 # Convert Contact
-class ContractConvertView(HouseholdLoginRequiredMixin, View):
+class ContactConvertView(HouseholdLoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
 
@@ -189,7 +189,8 @@ class ContractConvertView(HouseholdLoginRequiredMixin, View):
             enquiryNotes=enquiryNotes,
             submissionOrigin=contObj.submissionOrigin,
             origin_timestamp=contObj.origin_timestamp,
-            origin_id=contObj.origin_id
+            origin_id=contObj.origin_id,
+            requestedCallback=True
         )
         enq_obj.save()
 
