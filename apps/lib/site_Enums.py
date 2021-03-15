@@ -392,10 +392,44 @@ class propensityCategoriesEnum(Enum):
     A = 1
     B = 2
     C = 3
+    D = 4
+    E = 5
+    F = 6
 
 
 propensityChoices = [
     (propensityCategoriesEnum.A.value, 'A'),
     (propensityCategoriesEnum.B.value, 'B'),
     (propensityCategoriesEnum.C.value, 'C'),
+    (propensityCategoriesEnum.D.value, 'D'),
+    (propensityCategoriesEnum.E.value, 'E'),
+    (propensityCategoriesEnum.F.value, 'F'),
 ]
+
+propensityChoicesReverseDict = {
+    y:x 
+    for x,y in propensityChoices
+}
+
+marketingReferrerDict = {
+    "TV_ADVERT":"OTHER",
+    "TV_ADVERTORIAL": "OTHER", 
+    "RADIO": "OTHER",
+    "WORD_OF_MOUTH": "OTHER", 
+    "ADVISER": "ADVISOR",
+    "COMPETITOR": "OTHER", 
+    "DIRECT_MAIL": "OTHER", 
+    "WEB_SEARCH": "WEB_ENQUIRY", 
+    "DIRECT_EMAIL": "EMAIL", 
+    "FACEBOOK": "SOCIAL", 
+    "LINKEDIN": "SOCIAL",
+    "YOUR_LIFE_CHOICES": "PARTNER", 
+    "STARTS_AT_60": "PARTNER", 
+    "CARE_ABOUT": "PARTNER", 
+    "BROKER_SPECIALIST": "BROKER", 
+    "BROKER_REFERRAL": "BROKER", 
+    "FINANCIAL_ADVISER": "ADVISOR", 
+    "AGED_CARE_ADVISER": "ADVISOR", 
+    "NATIONAL_SENIORS": "PARTNER", 
+    "OTHER": "OTHER" 
+}

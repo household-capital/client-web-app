@@ -102,8 +102,8 @@ def mapEnquiryToLead(enqUID):
         'dwellingType': 'Dwelling_Type__c',
         'valuation': 'Estimated_Home_Value__c',
         'streetAddress': 'Street',
-        'suburb': 'City',
-        'postcode': 'PostalCode',
+        'suburb': 'Suburb__c',
+        'postcode': 'PostCode__c',
         'isTopUp': 'IsTopUp__c',
         'isRefi': 'IsRefi__c',
         'isLive': 'IsLive__c',
@@ -163,7 +163,7 @@ def mapEnquiryToLead(enqUID):
     payload['Dwelling_Type__c'] = enquiry.enumDwellingType()
     payload['LeadSource'] = enquiry.enumReferrerType()
     payload['Marketing_Source__c'] = enquiry.enumMarketingSource()
-    payload['State'] = sfStateEnum(enquiry.state)
+    payload['State__c'] = sfStateEnum(enquiry.state)
     payload['Status__c'] = enquiry.enumEnquiryStage()
     payload['Propensity_Category__c'] = enquiry.enumPropensityCategory()
     payload['Marketing_Campaign__c'] = ''

@@ -42,8 +42,8 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                   'street', 'suburb', 'postcode', 'valuation', 'dwellingType', 'propertyImage', 'mortgageDebt',
                   'superFund', 'valuationDocument', 'state', 'investmentLabel',
                   'superAmount', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email', 'productType', 'channelDetail',
-                  'doNotMarket'
-                ] + address_model_fields
+                  'doNotMarket', 'propensityCategory'] + address_model_fields
+
         widgets = {
             'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
         }
@@ -70,25 +70,40 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
     helper.form_show_errors = True
     helper.layout = Layout(
         Div(
-            Div(HTML("<i class='far fa-address-card'></i>&nbsp;&nbsp;Lead Notes"), css_class='form-header'),
+            Div(
+                Div(
+                    Div(Submit('submit', 'Update', css_class='btn btn-outline-secondary')),
+                    css_class='text-right pt-4'
+                ),
+                css_class='col-lg-12'
+            ),
+            Div(HTML("<i class='far fa-address-card'></i>&nbsp;&nbsp;Case Notes"), css_class='form-header'),
             Div(
                 Div(
                     Div(HTML("Lead Description"), css_class='form-label'),
-                    Div(Field('caseDescription')), css_class="col-lg-6"),
+                    Div(Field('caseDescription')),
+                    css_class="col-lg-6"
+                ),
                 Div(
-                    Div(Submit('submit', 'Update Lead ', css_class='btn btn-outline-secondary')),
-                    css_class="col-lg-4 text-left"),
-                Div(css_class="col-lg-6"),
-                css_class="row align-items-center"),
+                    Div(HTML("Current Status"), css_class='form-label'),
+                    Div(Field('caseStage')),
+                    css_class="col-lg-6"
+                ),
+                css_class="row"
+            ),
             Div(
                 Div(
                     Div(HTML("Channel"), css_class='form-label'),
-                    Div(Field('salesChannel')), css_class="col-lg-6"),
+                    Div(Field('salesChannel')),
+                    css_class="col-lg-6"
+                ),
                 Div(
-                    Div(HTML("Current Status"), css_class='form-label'),
-                    Div(Field('caseStage')), css_class="col-lg-6"),
-                css_class="row"),
-
+                    Div(HTML("Propensity Score"), css_class='form-label'),
+                    Div(Field('propensityCategory')),
+                    css_class="col-lg-6"
+                ),
+                css_class="row"
+            ),
             Div(
                 Div(HTML("Lead Notes"), css_class='form-label'),
                 Div(Field('caseNotes'))),

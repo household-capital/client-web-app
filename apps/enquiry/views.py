@@ -37,9 +37,10 @@ from .forms import EnquiryForm, EnquiryDetailForm, EnquiryAssignForm, EnquiryCal
     AddressForm, PartnerForm
 from .models import Enquiry
 from apps.lib.site_Utilities import getEnquiryProjections, updateNavQueue, \
-    cleanPhoneNumber, validateEnquiry
-from apps.lib.mixins import HouseholdLoginRequiredMixin, AddressLookUpFormMixin 
-from .util import assign_unassigned_cases
+    cleanPhoneNumber, validateEnquiry, cleanValuation, calcAge
+from apps.lib.mixins import HouseholdLoginRequiredMixin, AddressLookUpFormMixin
+from .util import assign_unassigned_cases, updateCreateEnquiry
+
 
 from urllib.parse import urljoin
 from apps.base.model_utils import address_model_fields
@@ -935,22 +936,23 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "postcode": row[2],
                         "email": email,
                         "phoneNumber": phoneNumber,
-                        "valuation": self.cleanValuation(row[6]),
-                        "age_1": self.calcAge(row[9]),
+                        "valuation": cleanValuation(row[6]),
+                        "age_1": calcAge(row[9]),
                         "marketingSource": marketingTypesEnum.STARTS_AT_60.value,
                         "referrer": directTypesEnum.PARTNER.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "marketing_campaign": marketing_campaign
                     }
 
-                    self.updateCreateEnquiry(
+                    updateCreateEnquiry(
                         email,
                         phoneNumber,
                         payload,
                         enquiryString,
                         marketingTypesEnum.STARTS_AT_60.value,
                         enquiries_to_assign,
-                        False
+                        False,
+                        int(self.request.GET.get("preserve_owners", 0))
                     )
 
             messages.success(self.request, "Success - enquiries imported")
@@ -977,7 +979,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
 
                     payload = {
                         "name": (row[3] + " " + row[2]),
-                        "postcode": self.cleanValuation(row[15]),
+                        "postcode": cleanValuation(row[15]),
                         "email": email,
                         "phoneNumber": phoneNumber,
                         "valuation": None,
@@ -988,14 +990,15 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketing_campaign": marketing_campaign
                     }
 
-                    self.updateCreateEnquiry(
+                    updateCreateEnquiry(
                         email,
                         phoneNumber,
                         payload,
                         enquiryString,
                         marketingTypesEnum.CARE_ABOUT.value,
                         enquiries_to_assign,
-                        False
+                        False,
+                        int(self.request.GET.get("preserve_owners", 0))
                     )
 
             messages.success(self.request, "Success - enquiries imported")
@@ -1030,21 +1033,23 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "email": email,
                         "phoneNumber": phonenumber,
                         "valuation": None,
-                        "age_1": self.calcAge(row[9]),
+                        "age_1": calcAge(row[9]),
                         "marketingSource": partner_value,
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "referrer": directTypesEnum.PARTNER.value,
                         "state":  None ,
                         "marketing_campaign": marketing_campaign
                     }
-                    self.updateCreateEnquiry(
+                    
+                    updateCreateEnquiry(
                         email, 
                         phonenumber, 
                         payload,
                         enquiryString, 
                         partner_value,
                         enquiries_to_assign,
-                        False
+                        False,
+                        int(self.request.GET.get("preserve_owners", 0))
                     )
 
             messages.success(self.request, "Success - enquiries imported") 
@@ -1087,7 +1092,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "postcode": row[6],
                         "email": email,
                         "phoneNumber": phoneNumber,
-                        "valuation": self.cleanValuation(row[9]) if row[9] else None,
+                        "valuation": cleanValuation(row[9]) if row[9] else None,
                         "age_1": None,
                         "marketingSource": partner_value,
                         "referrer": directTypesEnum.PARTNER.value,
@@ -1098,14 +1103,15 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketing_campaign": marketing_campaign
                     }
 
-                    self.updateCreateEnquiry(
+                    updateCreateEnquiry(
                         email,
                         phoneNumber,
                         payload,
                         enquiryString,
                         partner_value,
                         enquiries_to_assign,
-                        False
+                        False,
+                        int(self.request.GET.get("preserve_owners", 0))
                     )
                 else:
                     write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'ignoring - NO EMAIL ADDRESS')
@@ -1141,7 +1147,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "marketing_campaign": marketing_campaign
                     }
-                    self.updateCreateEnquiry(
+                    updateCreateEnquiry(
                         email,
                         phoneNumber,
                         payload,
@@ -1188,14 +1194,15 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketing_campaign": marketing_campaign
                     }
 
-                    self.updateCreateEnquiry(
+                    updateCreateEnquiry(
                         email,
                         phoneNumber,
                         payload,
                         enquiryString,
                         marketingTypesEnum.FACEBOOK.value,
                         enquiries_to_assign,
-                        False
+                        False,
+                        int(self.request.GET.get("preserve_owners", 0))
                     )
 
             messages.success(self.request, "Success - enquiries imported")
@@ -1235,55 +1242,18 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketing_campaign": marketing_campaign
                     }
 
-                    self.updateCreateEnquiry(
+                    updateCreateEnquiry(
                         email,
                         phoneNumber,
                         payload,
                         enquiryString,
                         marketingTypesEnum.LINKEDIN.value,
                         enquiries_to_assign,
-                        False
+                        False,
+                        int(self.request.GET.get("preserve_owners", 0))
                     )
 
             messages.success(self.request, "Success - enquiries imported")
 
         return HttpResponseRedirect(self.request.path_info)
 
-    def updateCreateEnquiry(self, email, phoneNumber, payload, enquiryString, marketingSource, enquiries_to_assign, updateNonDirect=True):
-
-        nonDirectTypes = [directTypesEnum.PARTNER.value, directTypesEnum.BROKER.value,
-                          directTypesEnum.ADVISER.value]
-
-        # Try find existing enquiry
-        # No special logic needed to handle enquiry duplicates 
-        write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Creating new enquiry')
-        payload["enquiryNotes"] = enquiryString
-        payload['user'] = self.request.user
-        new_enq = Enquiry.objects.create(**payload)
-        enquiries_to_assign.append(new_enq)
-
-    def findEnquiry(self, email, phoneNumber):
-        enqUID = Enquiry.objects.find_duplicates_QS(email, phoneNumber).order_by("-updated").values_list('enqUID', flat=True).first()
-        if enqUID:
-            return str(enqUID)
-
-    def cleanValuation(self, valString):
-
-        val = valString.replace("$", "").replace(",", "").replace("Million", "M"). \
-            replace("m", "M").replace("k", "K").replace("M", "000000").replace("K", "000")
-        try:
-            val = int(val)
-            if val > 5000000:
-                return None
-            elif val < 1000:
-                return val * 1000
-            else:
-                return val
-        except:
-            return None
-
-    def calcAge(self, DOBString, date_format='%m/%d/%Y'):
-
-        age = int((datetime.date.today() - datetime.datetime.strptime(DOBString, date_format).date()).days / 365.25)
-        if age > 50 and age < 100:
-            return age

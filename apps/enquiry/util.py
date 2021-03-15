@@ -1,6 +1,7 @@
 
 import random
 import logging
+import datetime
 
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -227,3 +228,17 @@ def assign_unassigned_cases(enquiries, force=False, notify=True):
             unassigned_cases = unassigned_cases | {enq.case.caseUID}
     leads = list(Case.objects.filter(caseUID__in=unassigned_cases))
     auto_assign_leads(leads, force=True)
+
+
+def updateCreateEnquiry(self, email, phoneNumber, payload, enquiryString, marketingSource, enquiries_to_assign, updateNonDirect=True):
+
+    nonDirectTypes = [directTypesEnum.PARTNER.value, directTypesEnum.BROKER.value,
+                      directTypesEnum.ADVISER.value]
+
+    # Try find existing enquiry
+    # No special logic needed to handle enquiry duplicates
+    write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Creating new enquiry')
+    payload["enquiryNotes"] = enquiryString
+    payload['user'] = self.request.user
+    new_enq = Enquiry.objects.create(**payload)
+    enquiries_to_assign.append(new_enq)
