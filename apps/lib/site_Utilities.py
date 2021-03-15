@@ -1,4 +1,5 @@
 import magic
+import datetime
 
 # Django Imports
 from django.conf import settings
@@ -601,6 +602,7 @@ def createCaseModelSettings(caseUID):
 
 
 def cleanPhoneNumber(phone):
+    phone = str(phone) if phone is not None else None 
     if phone:
         number = phone.replace(" ", "").replace("(", "").replace(")", "").replace("+61", "0").replace("-", "")
         number = remove_prefix(number,"61")
@@ -627,6 +629,29 @@ def checkMobileNumber(number):
 def chkNone(arg):
     return arg if arg else ''
 
+def cleanValuation(valuation):
+    if type(valuation) == str:
+        val = valuation.replace("$", "").replace(",", "").replace("Million", "M"). \
+            replace("m", "M").replace("k", "K").replace("M", "000000").replace("K", "000")
+    else:
+        val = valuation
+    try:
+        val = int(val)
+        if val > 5000000:
+            return None
+        elif val < 1000:
+            return val * 1000
+        else:
+            return val
+    except:
+        return None
+
+def calcAge(DOBString, date_format='%m/%d/%Y'):
+    if DOBString is None: 
+        return 
+    age = int((datetime.date.today() - datetime.datetime.strptime(DOBString, date_format).date()).days / 365.25)
+    if age > 50 and age < 100:
+        return age
 
 class SingletonModel(models.Model):
 
