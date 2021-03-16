@@ -48,12 +48,14 @@ class DataIngestion(APIView):
                 ).strftime('%d/%m/%Y')
             )
         if is_social: 
-            enquiryString += "\r\nMonth of Birth: {}".format(
-                json_payload.get('month_of_birth', '')
-            )
-            enquiryString += "\r\nYear of Birth: {}".format(
-                json_payload.get('age_status', '')
-            )
+            if json_payload.get('month_of_birth', ''):
+                enquiryString += "\r\nMonth of Birth: {}".format(
+                    json_payload.get('month_of_birth', '')
+                )
+            if json_payload.get('age_status', ''):
+                enquiryString += "\r\nYear of Birth: {}".format(
+                    json_payload.get('age_status', '')
+                )
             if json_payload.get('age_over_60'):
                 enquiryString += "\r\nOver 60?: {}".format(
                     json_payload.get('age_over_60')
