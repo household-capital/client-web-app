@@ -42,8 +42,8 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                   'street', 'suburb', 'postcode', 'valuation', 'dwellingType', 'propertyImage', 'mortgageDebt',
                   'superFund', 'valuationDocument', 'state', 'investmentLabel',
                   'superAmount', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email', 'productType', 'channelDetail',
-                  'doNotMarket', 'propensityCategory',
-                ] + address_model_fields
+                  'doNotMarket', 'propensityCategory', 'referrer'
+                  ] + address_model_fields
 
         widgets = {
             'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
@@ -101,6 +101,19 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                 Div(
                     Div(HTML("Propensity Score"), css_class='form-label'),
                     Div(Field('propensityCategory')),
+                    css_class="col-lg-6"
+                ),
+                css_class="row"
+            ),
+            Div(
+                Div(
+                    Div(HTML("Lead Source"), css_class='form-label'),
+                    Div(Field('referrer')),
+                    css_class="col-lg-6"
+                ),
+                Div(
+                    Div(HTML("Marketing Source"), css_class='form-label'),
+                    Div(Field('channelDetail')),
                     css_class="col-lg-6"
                 ),
                 css_class="row"

@@ -44,7 +44,8 @@ def create_case_from_enquiry(enquiry, attach_to_case=True):
         'referPostcodeStatus', 
         'valuationDocument',
         'enqUID',
-        'propensityCategory'
+        'propensityCategory',
+        'referrer'
     ]
     # enq to case
     map_fields = {

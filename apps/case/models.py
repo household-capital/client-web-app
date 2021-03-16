@@ -84,6 +84,19 @@ class Case(AbstractAddressModel):
         (appTypesEnum.VARIATION.value, "Variation"),
     )
 
+    referrerTypes = (
+        (-1, 'Unassigned'),
+        (directTypesEnum.PHONE.value,'Phone'),
+        (directTypesEnum.EMAIL.value, 'Email'),
+        (directTypesEnum.WEB_ENQUIRY.value,'Web'),
+        (directTypesEnum.SOCIAL.value, 'Social'),
+        (directTypesEnum.WEB_CALCULATOR.value, 'Calculator'),
+        (directTypesEnum.PARTNER.value, 'Partner'),
+        (directTypesEnum.BROKER.value, 'Broker'),
+        (directTypesEnum.ADVISER.value, 'Adviser'),
+        (directTypesEnum.OTHER.value,'Other'),
+    )
+
     caseStages=(
                   (caseStagesEnum.UNQUALIFIED_CREATED.value,"Unqualified / Lead created"),
                   (caseStagesEnum.MARKETING_QUALIFIED.value,"Marketing Qualified"),
@@ -304,6 +317,10 @@ class Case(AbstractAddressModel):
     
     doNotMarket = models.BooleanField(default=False)
 
+    # new fields to move from lead
+    referrer = models.IntegerField(blank=False, null=False, choices=referrerTypes, default=-1)
+    # default to unassigned to allow migration and not break the null/blank = False
+
     objects=CaseManager()
 
     def __str__(self):
@@ -315,6 +332,10 @@ class Case(AbstractAddressModel):
     class Meta:
         ordering = ('-updated',)
         verbose_name_plural = "Case"
+
+    def enumReferrerType(self):
+        if self.referrer is not None:
+            return dict(self.referrerTypes)[self.referrer]
 
     def enumCaseStage(self):
         return dict(self.caseStages).get(self.caseStage)

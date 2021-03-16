@@ -379,15 +379,16 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
         
         super(Enquiry, self).save(*args, **kwargs)
         self.refresh_from_db()
-        # Case Wasnt passed in save kwarg / Or doesnt exist
+        # Case Wasnt passed in save kwarg / Or doesnt exist\
         if not self.case_id: 
             existing_case = get_existing_case(self.phoneNumber, self.email)
             if existing_case is not None: 
                 existing_case.enquiries.add(self)
                 # if do not market status is set, unset it since new enquiry arrived. 
                 if existing_case.doNotMarket:
-                    existing_case.doNotMarket = False
-                    existing_case.save()
+                    if self.referrer in RESET_DO_NOT_MARKET:
+                        existing_case.doNotMarket = False
+                        existing_case.save()
             else: 
                 create_case_from_enquiry(self)
                 should_sync = False 
