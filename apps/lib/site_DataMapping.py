@@ -35,10 +35,9 @@ def mapEnquiryForSF(enqUID):
         'isCare': 'IsCare__c',
         'enquiryNotes': 'External_Notes__c',
         'payIntPeriod': 'Pay_Interest_Period__c',
-        'status': 'HHC_Loan_Eligible__c',
         'maxLoanAmount': 'Maximum_Loan__c',
         'maxLVR': 'Maximum_LVR__c',
-        'referrerID': 'Referral_UserID__c',
+       # 'referrerID': 'Referral_UserID__c',
         'mortgageDebt': 'Mortgage_Debt__c',
         'mortgageRepayment': 'Mortgage_Repayment__c',
         'base_specificity': 'Unit__c',
@@ -71,13 +70,14 @@ def mapEnquiryForSF(enqUID):
         payload['Last_Name__c'] = enquiryDict['name']
 
     payload['External_Id__c'] = str(enquiryDict['enqUID'])
-    payload['OwnerID'] = enquiry.user.profile.salesforceID
+    if enquiry.user and enquiry.user.profile and enquiry.user.profile.salesforceID:
+        payload['CreatedById'] = enquiry.user.profile.salesforceID
     payload['Loan_Type__c'] = enquiry.enumLoanType()
     payload['Dwelling_Type__c'] = enquiry.enumDwellingType()
     payload['Lead_Source__c'] = enquiry.enumReferrerType()
     payload['Marketing_Source__c'] = enquiry.enumMarketingSource()
     payload['State__c'] = sfStateEnum(enquiry.state)
-    payload['Enquiry_Status__c'] = enquiry.enumEnquiryStage()
+    # payload['Enquiry_Status__c'] = enquiry.enumEnquiryStage()
     payload['Propensity_Score__c'] = enquiry.enumPropensityCategory()
     payload['Marketing_Campaign__c'] = ''
     if enquiry.marketing_campaign: 
