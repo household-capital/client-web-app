@@ -28,7 +28,12 @@ from .models import Case, LossData, Loan, ModelSetting
 from apps.application.models import ApplicationDocuments
 from urllib.parse import urljoin
 
+from apps.operational.decorators import email_admins_on_failure
+
+
 # CASE TASKS
+
+
 
 @app.task(name="Create_SF_Case_Lead")
 def createSFLeadCaseTask(caseUID):
@@ -57,6 +62,7 @@ def updateSFLeadTask(caseUID):
 
 
 @app.task(name="Catchall_SF_Case_Lead")
+@email_admins_on_failure(task_name='Catchall_SF_Case_Lead')
 def catchallSFLeadTask():
     '''Task wrapper to to create lead for all cases without sfLeadID '''
     write_applog("INFO", 'Case', 'Tasks-catchallSFLead', "Starting")
@@ -190,6 +196,7 @@ def amalDocs(caseUID):
 
 
 @app.task(name='SF_Stage_Synch')
+@email_admins_on_failure(task_name='SF_Stage_Synch')
 def stageSynch():
     '''Reverse synch SF -> clientApp'''
 
@@ -236,6 +243,7 @@ def stageSynch():
 
 
 @app.task(name='SF_Integrity_Check')
+@email_admins_on_failure(task_name='SF_Integrity_Check')
 def integrityCheck():
     '''Compare Amounts between Salesforce and ClientApp'''
 

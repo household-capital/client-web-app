@@ -23,6 +23,7 @@ from apps.lib.site_DataMapping import mapEnquiryToLead
 from .models import Enquiry
 from urllib.parse import urljoin
 
+from apps.operational.decorators import email_admins_on_failure
 
 # TASKS
 @app.task(name="Create_SF_Lead")
@@ -52,6 +53,7 @@ def updateSFLeadTask(enqUID):
 
 
 @app.task(name="Catchall_SF_Lead")
+@email_admins_on_failure(task_name="Catchall_SF_Lead")
 def catchallSFLeadTask():
     write_applog("INFO", 'Enquiry', 'Tasks-catchallSFLead', "Starting")
 
@@ -70,6 +72,7 @@ def catchallSFLeadTask():
 
 
 @app.task(name="EnquiryFollowUp")
+@email_admins_on_failure(task_name="EnquiryFollowUp")
 def updateToday():
     write_applog("INFO", 'Enquiry', 'FollowUpEmail', "Starting")
 
@@ -100,6 +103,7 @@ def updateToday():
 
 
 @app.task(name="SF_Refer_Postcode")
+@email_admins_on_failure(task_name='SF_Refer_Postcode')
 def getReferPostcodeStatus():
     """Retrieve postcode status from SF"""
     write_applog("INFO", 'Enquiry', 'Tasks-getReferPostcodeStatus', "Starting")
