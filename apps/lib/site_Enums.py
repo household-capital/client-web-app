@@ -355,3 +355,10 @@ marketingReferrerDict = {
     "NATIONAL_SENIORS": "PARTNER", 
     "OTHER": "OTHER" 
 }
+
+RESET_DO_NOT_MARKET = [
+    directTypesEnum.PARTNER.value,
+    directTypesEnum.SOCIAL.value,
+    directTypesEnum.WEB_CALCULATOR.value,
+    directTypesEnum.WEB_ENQUIRY.value
+]
