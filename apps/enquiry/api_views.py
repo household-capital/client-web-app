@@ -88,7 +88,7 @@ class DataIngestion(APIView):
                 "grading": "A",
                 "stream" : "YOUR_LIFE_CHOICES",
                 "origin" : "web page X",
-                "origin_timestamp": "1/02/2021 9:00 AM",
+                "origin_timestamp": "????????????????",
                 "origin_id": "ASDASD-1ASDQ23-ZXCZCZ-1231",
             }
         """
@@ -118,7 +118,7 @@ class DataIngestion(APIView):
             'street_name': json_payload.get('street_name'),
             'street_type': json_payload.get('street_type'),
             'submissionOrigin': json_payload.get('origin'),
-            'origin_timestamp': json_payload.get('origin_timestamp'),
+            #'origin_timestamp': json_payload.get('origin_timestamp'),
             'origin_id': json_payload.get('origin_id'),
             'user': integration_user,
         }
