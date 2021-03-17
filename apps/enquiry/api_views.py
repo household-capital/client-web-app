@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated  # <-- Here
 
-from apps.enquiry.util import updateCreateEnquiry, assign_unassigned_cases
+from apps.enquiry.util import updateCreateEnquiry, assign_enquiry_leads
 from apps.lib.site_Utilities import cleanPhoneNumber, cleanValuation, calcAge
 from apps.lib.site_Enums import (
     marketingTypesEnum, 
@@ -141,7 +141,7 @@ class DataIngestion(APIView):
             payload.get('marketingSource'),
             enquiries_to_assign
         )
-        assign_unassigned_cases(enquiries_to_assign, force=True)
+        assign_enquiry_leads(enquiries_to_assign, force=True)
 
     def post(self, request):
         content = {'status': 'Success'}
