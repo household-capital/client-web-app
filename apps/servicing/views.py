@@ -1071,7 +1071,9 @@ class LoanAdditionalConfirm(SessionRequiredMixin, UpdateView):
                    'Description' : description,
                    'Priority': 'High',
                    'WhatId' : obj.facility.sfID,
-                   'WhoId' : obj.identifiedContact.sfContactID }
+                   'WhoId' : obj.identifiedContact.sfContactID,
+                   'owner': obj.facility.owner 
+                   }
 
         app.send_task('SF_Create_Task', kwargs={'payload': payload})
 

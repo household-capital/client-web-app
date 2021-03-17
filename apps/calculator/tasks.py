@@ -16,10 +16,12 @@ from apps.lib.site_Enums import *
 from .util import convert_calc, ProcessingError
 from apps.case.assignment import find_auto_assignee
 
+from apps.operational.decorators import email_admins_on_failure
 
 # TASKS
 
 @app.task(name="Wordpress_Data")
+@email_admins_on_failure(task_name='Wordpress_Data')
 def getWordpressData():
     ''' Task to retrieve calculator and contact data from Wordpress Website'''
 
