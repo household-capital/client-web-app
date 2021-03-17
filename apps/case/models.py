@@ -730,15 +730,10 @@ class LossData(models.Model):
         (closeReasonEnumUpdated.UNSUITABLE_TITLE_OWNERSHIP.value, 'Unsuitable title ownership'),
         (closeReasonEnumUpdated.DECEASED_BORROWER.value, 'Deceased borrower'),
         (closeReasonEnumUpdated.NOT_PROCEEDING.value, 'Not proceeding'),
+        (closeReasonEnumUpdated.DOESNT_LIKE_REV_MORTGAGES.value, 'Doesn’t like Reverse Mortgages'),
+        (closeReasonEnumUpdated.FEE_INTEREST_TOO_HIGH.value, 'Fees or interest rate too high'),
         (closeReasonEnumUpdated.OTHER.value, 'Other'),
     )
-
-    notProceedingTypes = (
-        (notProceedingReasonEnum.NO_ACTION_BY_CLIENT.value, "No further action by client"),
-        (notProceedingReasonEnum.DOES_NOT_LIKE_REV_MORTGAGES.value, "Doesn’t like Reverse Mortgages"),
-        (notProceedingReasonEnum.FEES_INTEREST_TOO_HIGH.value, "Fees or interest rate too high"),
-        (notProceedingReasonEnum.OTHER.value, "Other"),
-    ) 
 
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
 
@@ -746,7 +741,6 @@ class LossData(models.Model):
 
     closeDate = models.DateField(blank=True, null=True)
     closeReason = models.IntegerField(blank=True, null=True, choices=closeReasonTypes)
-    notProceedingReason = models.IntegerField(blank=True, null=True, choices=notProceedingTypes)
 
     followUpDate=models.DateField(blank=True, null=True)
     followUpNotes = models.TextField(blank=True, null=True)
