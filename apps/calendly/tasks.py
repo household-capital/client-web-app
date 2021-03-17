@@ -21,10 +21,13 @@ from apps.case.models import Case
 from apps.lib.site_Enums import enquiryStagesEnum
 from apps.lib.site_Utilities import chkNone
 
+from apps.operational.decorators import email_admins_on_failure
+
 
 # CALENDLY TASKS
 
 @app.task(name="Synch_Calendly_Discovery")
+@email_admins_on_failure(task_name='Synch_Calendly_Discovery')
 def synchCalendly():
     """Attempt to synch unmatched Calendly entries"""
 
