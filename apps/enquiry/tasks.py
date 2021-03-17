@@ -370,7 +370,7 @@ def createSFEnquiry(enqUID, sfAPIInstance=None):
 
     lead_id = enquiry.case.sfLeadID
     if lead_id is not None:
-        payload = mapEnquiryForSF(enqUID)
+        payload = mapEnquiryForSF(enqUID, True)
         payload['CreatedDate'] = enquiry.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
         payload['Lead__c'] = lead_id
         result = sfAPI.createEnquiry(payload)
