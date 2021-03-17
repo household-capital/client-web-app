@@ -33,7 +33,7 @@ from apps.operational.decorators import email_admins_on_failure
 # SERVICING TASKS
 
 @app.task(name="AMAL_Funded_Data")
-@email_admins_on_failure(name="AMAL_Funded_Data")
+@email_admins_on_failure(task_name="AMAL_Funded_Data")
 def fundedData(*arg, **kwargs):
     """Task to updated funded information from AMALs XChange API"""
 
