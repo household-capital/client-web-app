@@ -187,8 +187,8 @@ def auto_assign_leads(leads, force=False, notify=True):
         # Use first enquiry to base all assignments 
         first_enq = lead.enquiries.earliest('timestamp')
         user = find_auto_assignee(
-            referrer=first_enq.referrer,
-            marketing_source=first_enq.marketingSource,
+            referrer=lead.referrer,
+            marketing_source=lead.channelDetail,
             email=(lead.email if not force else None),
             phoneNumber=(lead.phoneNumber if not force else None),
             global_settings=global_settings
