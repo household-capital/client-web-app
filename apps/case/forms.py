@@ -56,6 +56,7 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
         (caseStagesEnum.SQ_BROCHURE_SENT.value,"SQ - Brochure sent"),
         (caseStagesEnum.SQ_CUSTOMER_SUMMARY_SENT.value,"SQ - Customer summary sent"),
         (caseStagesEnum.SQ_FUTURE_CALL.value,"SQ - Future call"),
+        (caseStagesEnum.SALES_ACTIVE.value, "Sales Active"),
         (caseStagesEnum.MEETING_HELD.value, "Meeting Held"),
         (caseStagesEnum.APPLICATION.value, "Application"),
     )
