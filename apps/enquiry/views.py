@@ -1020,7 +1020,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
             for row in reader: 
                 firstname, lastname, _ignore = parse_api_name(row[2])
 
-                write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'processing %s' % name)
+                write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'processing %s %s' % (firstname, lastname))
                 email = row[3]  
                 phonenumber = cleanPhoneNumber(row[5])
                 if email and email != "Email": 
