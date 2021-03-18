@@ -49,11 +49,10 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
         # Remove certain items from the dictionary
         referrer = calc_dict['referrer']
 
-        pop_list = ['calcUID', 'actionedBy', 'id', 'referrer', 'updated', 'timestamp', 'actioned', 'application']
+        pop_list = ['calcUID', 'actionedBy', 'id', 'referrer', 'updated', 'timestamp', 'actioned', 'application', 'raw_name']
         for item in pop_list:
             calc_dict.pop(item)
 
-        calc_dict['name'] = calc_dict['name'][:29] if calc_dict['name'] else None
         calc_dict['streetAddress'] = calc_dict['streetAddress'][:79] if calc_dict['streetAddress'] else None
         calc_dict['suburb'] = calc_dict['suburb'][:39] if calc_dict['suburb'] else None
         calc_dict['enquiryNotes'] = '[# Website Calculator #]'
@@ -107,18 +106,7 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
 
         email_context = {}
 
-        #  Strip name
-        if calculator.name:
-            if " " in calculator.name:
-                customer_first_name, surname = calculator.name.split(" ", 1)
-            else:
-                customer_first_name = calculator.name
-            if len(customer_first_name) < 2:
-                customer_first_name = None
-        else:
-            customer_first_name = None
-
-        email_context['customerFirstName'] = customer_first_name
+        email_context['customerFirstName'] = calculator.firstname
 
         #  Get Rates
         email_context['loanRate'] = round(ECONOMIC['interestRate'] + ECONOMIC['lendingMargin'], 2)

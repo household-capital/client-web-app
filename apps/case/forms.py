@@ -42,7 +42,8 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                   'street', 'suburb', 'postcode', 'valuation', 'dwellingType', 'propertyImage', 'mortgageDebt',
                   'superFund', 'valuationDocument', 'state', 'investmentLabel',
                   'superAmount', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email', 'productType', 'channelDetail',
-                  'doNotMarket', 'propensityCategory', 'referrer'
+                  'doNotMarket', 'propensityCategory', 'referrer',
+                  'firstname', 'lastname',
                   ] + address_model_fields
 
         widgets = {
@@ -128,10 +129,15 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
             Div(
                 Div(Div(HTML("<i class='far fa-address-card'></i>&nbsp;&nbsp;Contact Details"),
                         css_class='form-header'),
-                    Div(Div(HTML("Client Phone Number"), css_class='form-label'),
+                    Div(Div(HTML("First Name"), css_class='form-label'),
+                        Div(Field('firstname'))),
+                    Div(Div(HTML("Last Name"), css_class='form-label'),
+                        Div(Field('lastname'))),
+                    Div(Div(HTML("Phone Number"), css_class='form-label'),
                         Div(Field('phoneNumber'))),
-                    Div(Div(HTML("Client Email"), css_class='form-label'),
+                    Div(Div(HTML("Email"), css_class='form-label'),
                         Div(Field('email'))),
+
                     Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Borrower(s)"), css_class='form-header pt-2'),
                     Div(Div(HTML("Single or Joint Calculation (inc: Nominated Occupant)"), css_class='form-label'),
                         Div(Field('loanType'))),
@@ -151,7 +157,7 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                     Div(Div(HTML("Surname*"), css_class='form-label'),
                         Div(Field('surname_1'))),
                     Row(
-                        Column(Div(Div(HTML("Salutation*"), css_class='form-label pt-1'),
+                        Column(Div(Div(HTML("Title*"), css_class='form-label pt-1'),
                                    Div(Field('salutation_1'))), css_class='col-6'),
                         Column(Div(Div(HTML("Gender"), css_class='form-label pt-1'),
                                    Div(Field('sex_1'))), css_class='col-6')),
@@ -175,7 +181,7 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                     Div(Div(HTML("Surname*"), css_class='form-label'),
                         Div(Field('surname_2'))),
                     Row(
-                        Column(Div(Div(HTML("Salutation*"), css_class='form-label'),
+                        Column(Div(Div(HTML("Title*"), css_class='form-label'),
                                    Div(Field('salutation_2'))), css_class='col-6'),
                         Column(Div(Div(HTML("Gender"), css_class='form-label'),
                                    Div(Field('sex_2'))), css_class='col-6')),

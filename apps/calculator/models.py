@@ -14,6 +14,7 @@ from django.db.models.fields import DateField
 from django.utils.timezone import get_current_timezone
 
 from apps.base.model_utils import AbstractAddressModel
+from apps.lib.site_Utilities import join_name
 
 from apps.lib.site_Enums import *
 
@@ -75,7 +76,9 @@ class WebCalculator(AbstractAddressModel):
     origin_id = models.CharField(max_length=36, null=True, blank=True)
 
     # Client Data
-    name = models.CharField(max_length=121, blank=True, null=True)
+    raw_name = models.CharField(max_length=256, blank=True, null=True)
+    firstname = models.CharField(max_length=40, blank=True, null=True)
+    lastname = models.CharField(max_length=80, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     phoneNumber = models.CharField(max_length=15, blank=True, null=True)
     loanType = models.BooleanField(default=True, blank=False, null=False)
@@ -142,6 +145,10 @@ class WebCalculator(AbstractAddressModel):
     def enumProductType(self):
         return dict(self.productTypes)[self.productType]
 
+    @property
+    def name(self):
+        return join_name(self.firstname, None, self.lastname)
+
 
 # WebContact
 
@@ -158,7 +165,9 @@ class WebContactManager(models.Manager):
 
 class WebContact(models.Model):
     contUID = models.UUIDField(default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=50,null=False, blank=False)
+    raw_name = models.CharField(max_length=256,null=False, blank=False) # raw name from web input
+    firstname = models.CharField(max_length=40, blank=True, null=True)
+    lastname = models.CharField(max_length=80, blank=True, null=True)
     email = models.EmailField(null=True,blank=True)
     phone = models.CharField(max_length=15,null=True,blank=True)
     age_1 = models.IntegerField(blank=True, null=True)
@@ -191,3 +200,7 @@ class WebContact(models.Model):
 
     def get_absolute_url(self):
         return reverse_lazy("calculator:contactDetail", kwargs={"uid":self.contUID})
+
+    @property
+    def name(self):
+        return join_name(self.firstname, None, self.lastname)

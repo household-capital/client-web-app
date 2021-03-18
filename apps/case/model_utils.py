@@ -25,8 +25,11 @@ def get_existing_case(phoneNumber, email):
         ).order_by('-updated').first()
     return None 
 
+
 def create_case_from_enquiry(enquiry, attach_to_case=True): 
     copyFields = [
+        'firstname',
+        'lastname',
         'loanType', 
         'age_1', 
         'age_2', 
@@ -55,15 +58,14 @@ def create_case_from_enquiry(enquiry, attach_to_case=True):
         'timestamp': 'enquiryCreateDate',
         'marketingSource': 'channelDetail'
     }
-    # Create dictionary of Case fields from Enquiry fields
-    if ' ' in enquiry.name:
-        firstname, surname = enquiry.name.split(' ', 1)
+
+    if not enquiry.lastname:
+        surname = 'Unknown'
     else:
-        firstname = ""
-        surname = enquiry.name
-    caseDict = {} 
-    caseDict['firstname_1'] = firstname
-    caseDict['surname_1'] = surname
+        surname = enquiry.lastname
+
+    # Create dictionary of Case fields from Enquiry fields
+    caseDict = {}
     caseDict['caseStage'] = caseStagesEnum.UNQUALIFIED_CREATED.value
     caseDict['caseDescription'] = surname + " - " + str(enquiry.postcode)
     for field in copyFields: 
@@ -79,5 +81,3 @@ def create_case_from_enquiry(enquiry, attach_to_case=True):
     app.send_task('sfEnquiryLeadSync', kwargs={'enqUID': str(enquiry.enqUID)})
     # TBC for exisitng documents
     return case_obj
-    
-    

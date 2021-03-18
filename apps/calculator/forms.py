@@ -15,7 +15,7 @@ from .models import WebCalculator, WebContact
 class WebContactDetail(forms.ModelForm):
     class Meta:
         model = WebContact
-        fields = ['name', 'email', 'phone', 'message','actionNotes']
+        fields = ['lastname', 'firstname', 'email', 'phone', 'message','actionNotes']
 
         widgets = {'message': forms.Textarea(attrs={'rows': 9, 'cols': 50}),'actionNotes': forms.Textarea(attrs={'rows': 8, 'cols': 50}) }
 
@@ -31,7 +31,8 @@ class WebContactDetail(forms.ModelForm):
         Div(
             Div(
                 Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;<small>Client Information</small>")),
-                Div(Field('name', placeholder='Enter your name'), css_class="form-group"),
+                Div(Field('firstname', placeholder='Enter your first name'), css_class="form-group"),
+                Div(Field('lastname', placeholder='Enter your last name'), css_class="form-group"),
                 Div(Field('email', placeholder='Enter your email'), css_class="form-group"),
                 Div(Field('phone', placeholder='Enter your phone number'), css_class="form-group"),
                 Div(Field('message', placeholder='Tell us how me might be able to assist you'),

@@ -232,6 +232,8 @@ class Case(AbstractAddressModel):
     phoneNumber=models.CharField(max_length=20, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     loanType=models.IntegerField(choices=loanTypes,null=True, blank=True)
+    firstname = models.CharField(max_length=40, blank=True, null=True)
+    lastname = models.CharField(max_length=80, blank=True, null=True)
 
     #- Borrower 1
     clientType1=models.IntegerField(choices=clientTypes,null=True, blank=True)

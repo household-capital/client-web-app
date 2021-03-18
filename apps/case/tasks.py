@@ -18,7 +18,8 @@ from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
 from apps.lib.site_Enums import caseStagesEnum, channelTypesEnum
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Utilities import raiseTaskAdminError, sendTemplateEmail
+from apps.lib.site_Utilities import raiseTaskAdminError
+from apps.lib.site_EmailUtils import sendTemplateEmail
 from apps.lib.site_DataMapping import mapCaseToOpportunity
 from apps.lib.site_Globals import ECONOMIC
 from apps.lib.hhc_LoanValidator import LoanValidator
@@ -429,14 +430,16 @@ SF_LEAD_CASE_MAPPING = {'phoneNumber': 'Phone',
                         'valuation': 'Estimated_Home_Value__c',
                         'postcode': 'PostalCode',
                         'caseNotes': 'External_Notes__c',
-                        'firstname_1': 'Firstname',
-                        'surname_1': 'Lastname',
+                        'firstname_1': 'Borrower_1_First_Name__c',
+                        'surname_1': 'Borrower_1_Last_Name__c',
                         'isZoomMeeting': 'isZoom__c',
                         'base_specificity': 'Unit__c',
                         'street_number': 'Street_Number__c',
                         'street_name': 'Street_Name__c',
                         'street_type': 'Street_Type__c',
-                        'suburb': 'Suburb__c'
+                        'suburb': 'Suburb__c',
+                        'firstname': 'Firstname',
+                        'lastname': 'Lastname',
                         }
 
 

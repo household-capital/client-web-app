@@ -19,7 +19,7 @@ from apps.case.models import Case
 class EnquiryForm(forms.ModelForm):
     class Meta:
         model = Enquiry
-        fields = ['loanType', 'name', 'age_1', 'age_2', 'dwellingType', 'postcode',
+        fields = ['loanType', 'firstname', 'lastname', 'age_1', 'age_2', 'dwellingType', 'postcode',
                   'email', 'phoneNumber', 'enquiryNotes']
 
     enquiryNotes = forms.CharField(required=True, widget=forms.Textarea(attrs={'rows': 9, 'cols': 50}))
@@ -36,8 +36,13 @@ class EnquiryForm(forms.ModelForm):
             Div(
                 Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Client Details"), css_class='form-header'),
                 Div(
-                    Div(HTML("Client Name"), css_class='form-label'),
-                    Div(Field('name'))),
+                    Div(HTML("First Name"), css_class='form-label'),
+                    Div(Field('firstname'))
+                ),
+                Div(
+                    Div(HTML("Last Name"), css_class='form-label'),
+                    Div(Field('lastname'))
+                ),
                 Div(
                     Div(HTML("Client Phone Number"), css_class='form-label'),
                     Div(Field('phoneNumber'))),

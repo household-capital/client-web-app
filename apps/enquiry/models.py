@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 #Django Imports
 from django.conf import settings
 from django.db import models
-from django.db.models.functions import TruncDate,TruncDay, Cast
+from django.db.models.functions import TruncDate, TruncDay, Cast
 from django.db.models import Count
 from django.db.models.fields import DateField
 from django.utils.timezone import get_current_timezone
@@ -14,6 +14,7 @@ from django.urls import reverse_lazy
 from django.db.models import Q
 
 from apps.helpers.model_utils import ReversionModel
+from apps.lib.site_Utilities import join_name
 
 from urllib.parse import urljoin
 #Local Imports
@@ -21,6 +22,7 @@ from apps.lib.site_Enums import *
 from apps.case.model_utils import get_existing_case, create_case_from_enquiry
 from config.celery import app
 from apps.base.model_utils import AbstractAddressModel
+
 
 class EnquiryManager(models.Manager):
 
@@ -222,7 +224,10 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
     # Enquiry Inputs
     productType = models.IntegerField(choices=productTypes, null=True, blank=True, default=0)
     loanType = models.IntegerField(choices=loanTypes, null=True, blank=True)
-    name = models.CharField(max_length=121, blank=True, null=True) # 40 chars firstname, 80 chars surname plus ' '
+    DEPRECATED_name = models.CharField(max_length=121, blank=True, null=True) # 40 chars firstname, 80 chars surname plus ' '
+    firstname = models.CharField(max_length=40, blank=True, null=True)
+    lastname = models.CharField(max_length=80, blank=True, null=True)
+
     age_1=models.IntegerField(blank=True, null=True)
     age_2 = models.IntegerField(blank=True, null=True)
     dwellingType=models.IntegerField(blank=True, null=True, choices=dwellingTypes)
@@ -361,6 +366,10 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
             return True
 
         return False
+
+    @property
+    def name(self):
+        return join_name(self.firstname, None, self.lastname)
 
     def __str__(self):
         return smart_text(self.email)

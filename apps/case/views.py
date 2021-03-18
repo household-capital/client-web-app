@@ -33,8 +33,10 @@ from apps.lib.site_Enums import caseStagesEnum, EDITABLE_STAGES, PRE_MEETING_STA
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Logging import write_applog
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
-from apps.lib.site_Utilities import validateLoanGetContext, \
-    updateNavQueue, getProjectionResults, cleanPhoneNumber, sendTemplateEmail
+from apps.lib.site_Utilities import cleanPhoneNumber
+from apps.lib.site_EmailUtils import sendTemplateEmail
+from apps.lib.site_ViewUtils import updateNavQueue
+from apps.lib.site_LoanUtils import validateLoanGetContext, getProjectionResults
 from apps.lib.mixins import HouseholdLoginRequiredMixin, AddressLookUpFormMixin
 from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignForm, \
     lumpSumPurposeForm, drawdownPurposeForm, purposeAddForm, smsForm

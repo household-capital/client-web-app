@@ -21,10 +21,12 @@ from .models import Enquiry
 class EnquiryForm(AddressFormMixin, forms.ModelForm):
     class Meta:
         model = Enquiry
-        fields = ['loanType', 'name', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
+        fields = ['loanType', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
                   'streetAddress', 'suburb', 'state', 'mortgageDebt',
                   'referrer', 'email', 'phoneNumber', 'enquiryNotes',
-                  'marketingSource', 'propensityCategory', 'marketing_campaign']  + address_model_fields
+                  'marketingSource', 'propensityCategory', 'marketing_campaign',
+                  'firstname', 'lastname',
+                ] + address_model_fields
 
         widgets = {
             'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
@@ -41,8 +43,13 @@ class EnquiryForm(AddressFormMixin, forms.ModelForm):
             Div(
                 Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Client Details"), css_class='form-header'),
                 Div(
-                    Div(HTML("Client Name"), css_class='form-label'),
-                    Div(Field('name'))),
+                    Div(HTML("First Name"), css_class='form-label'),
+                    Div(Field('firstname'))
+                ),
+                Div(
+                    Div(HTML("Last Name"), css_class='form-label'),
+                    Div(Field('lastname'))
+                ),
                 Div(
                     Div(HTML("Client Phone Number"), css_class='form-label'),
                     Div(Field('phoneNumber'))),
@@ -137,9 +144,13 @@ class EnquiryForm(AddressFormMixin, forms.ModelForm):
 
         return self.cleaned_data
 
-    def clean_name(self):
-        if self.cleaned_data['name']:
-            return self.cleaned_data['name']
+    def clean_firstname(self):
+        if self.cleaned_data['firstname']:
+            return self.cleaned_data['firstname']
+
+    def clean_lastname(self):
+        if self.cleaned_data['lastname']:
+            return self.cleaned_data['lastname']
 
     def clean_phoneNumber(self):
         if self.cleaned_data['phoneNumber']:
@@ -156,12 +167,13 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
         model = Enquiry
 
         fields = [
-            'loanType', 'name', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
+            'loanType', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
             'streetAddress', 'suburb', 'state', 'mortgageDebt',
             'email', 'phoneNumber', 'enquiryNotes', 'calcLumpSum', 'calcIncome',
             'productType', 'enquiryStage', 'valuationDocument', 'propensityCategory',
             'requestedCallback',
             'referrer', 'marketing_campaign', 'marketingSource',
+            'firstname', 'lastname',
         ] + address_model_fields
 
         widgets = {
@@ -200,15 +212,19 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
 
                 Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Contact Details"), css_class='form-header'),
                 Div(
-                    Div(HTML("Client Name"), css_class='form-label'),
-                    Div(Field('name'))
+                    Div(HTML("First Name"), css_class='form-label'),
+                    Div(Field('firstname'))
                 ),
                 Div(
-                    Div(HTML("Client Phone Number"), css_class='form-label'),
+                    Div(HTML("Last Name"), css_class='form-label'),
+                    Div(Field('lastname'))
+                ),
+                Div(
+                    Div(HTML("Phone Number"), css_class='form-label'),
                     Div(Field('phoneNumber'))
                 ),
                 Div(
-                    Div(HTML("Client Email"), css_class='form-label'),
+                    Div(HTML("Email"), css_class='form-label'),
                     Div(Field('email'))
                 ),
                 Div(HTML("<br>")),
@@ -324,9 +340,13 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
 
         return self.cleaned_data
 
-    def clean_name(self):
-        if self.cleaned_data['name']:
-            return self.cleaned_data['name']
+    def clean_firstname(self):
+        if self.cleaned_data['firstname']:
+            return self.cleaned_data['firstname']
+
+    def clean_lastname(self):
+        if self.cleaned_data['lastname']:
+            return self.cleaned_data['lastname']
 
     def clean_phoneNumber(self):
         if self.cleaned_data['phoneNumber']:
@@ -340,7 +360,7 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
 class EnquiryCallForm(forms.ModelForm):
     class Meta:
         model = Enquiry
-        fields = ['name', 'postcode', 'phoneNumber', 'marketingSource', 'enquiryNotes', 'propensityCategory', 'marketing_campaign']
+        fields = ['firstname', 'lastname', 'postcode', 'phoneNumber', 'marketingSource', 'enquiryNotes', 'propensityCategory', 'marketing_campaign']
 
         widgets = {
             'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
@@ -358,8 +378,13 @@ class EnquiryCallForm(forms.ModelForm):
             Div(
                 Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Client Details"), css_class='form-header'),
                 Div(
-                    Div(HTML("Client Name"), css_class='form-label'),
-                    Div(Field('name'))),
+                    Div(HTML("First Name"), css_class='form-label'),
+                    Div(Field('firstname'))
+                ),
+                Div(
+                    Div(HTML("Last Name"), css_class='form-label'),
+                    Div(Field('lastname'))
+                ),
                 Div(
                     Div(HTML("Phone Number"), css_class='form-label'),
                     Div(Field('phoneNumber'))),
@@ -400,9 +425,13 @@ class EnquiryCallForm(forms.ModelForm):
 
         return self.cleaned_data
 
-    def clean_name(self):
-        if self.cleaned_data['name']:
-            return self.cleaned_data['name']
+    def clean_firstname(self):
+        if self.cleaned_data['firstname']:
+            return self.cleaned_data['firstname']
+
+    def clean_lastname(self):
+        if self.cleaned_data['lastname']:
+            return self.cleaned_data['lastname']
 
     def clean_phoneNumber(self):
         if self.cleaned_data['phoneNumber']:

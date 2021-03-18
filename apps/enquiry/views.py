@@ -34,11 +34,13 @@ from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.site_Enums import *
 from apps.lib.site_Logging import write_applog
 from apps.lib.api_Pdf import pdfGenerator
+from apps.lib.site_Utilities import parse_api_name, parse_api_names
 from .forms import EnquiryForm, EnquiryDetailForm, EnquiryAssignForm, EnquiryCallForm, \
     AddressForm, PartnerForm
 from .models import Enquiry
-from apps.lib.site_Utilities import getEnquiryProjections, updateNavQueue, \
-    cleanPhoneNumber, validateEnquiry, cleanValuation, calcAge
+from apps.lib.site_Utilities import cleanPhoneNumber, cleanValuation, calcAge
+from apps.lib.site_ViewUtils import updateNavQueue
+from apps.lib.site_LoanUtils import validateEnquiry, getEnquiryProjections
 from apps.lib.mixins import HouseholdLoginRequiredMixin, AddressLookUpFormMixin
 from .util import assign_unassigned_cases, updateCreateEnquiry
 
@@ -312,10 +314,8 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Upd
         context['leadClosed'] = obj.case.caseStage == caseStagesEnum.CLOSED.value
 
         # Pass Calendly information
-        paramStr = "?name=" + (obj.name if obj.name else '') + "&email=" + \
-                   (obj.email if obj.email else '')
+        paramStr = "?name=" + obj.name + "&email=" + (obj.email if obj.email else '')
         if obj.user:
-
             if obj.user.profile.calendlyUrl:
                 context['calendlyUrl'] = obj.user.profile.calendlyUrl + paramStr
         else:
@@ -712,22 +712,17 @@ class EnquiryConvert(HouseholdLoginRequiredMixin, View):
         enq_obj = queryset.get()
         enqDict = Enquiry.objects.dictionary_byUID(enqUID)
 
-        if enqDict['name'] == None:
-            enqDict['name'] = "Unknown"
-
-        # Create dictionary of Case fields from Enquiry fields
-        if ' ' in enqDict['name']:
-            firstname, surname = enqDict['name'].split(' ', 1)
+        if not (enqDict['firstname'] or enqDict['surname']):
+            surname = 'Unknown'
         else:
-            firstname = ""
-            surname = enqDict['name']
+            surname = enqDict['surname']
 
         caseDict = {}
         caseDict['caseStage'] = caseStagesEnum.DISCOVERY.value
         caseDict['caseDescription'] = surname + " - " + str(enqDict['postcode'])
         caseDict['enquiryDocument'] = enqDict['summaryDocument']
         caseDict['caseNotes'] = enqDict['enquiryNotes']
-        caseDict['firstname_1'] = firstname
+        caseDict['firstname_1'] = enqDict['firstname']
         caseDict['surname_1'] = surname
         caseDict['enqUID'] = enq_obj.enqUID
         caseDict['enquiryCreateDate'] = enq_obj.timestamp
@@ -934,12 +929,12 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                     enquiryString = "[# Updated from Partner Upload #]"
                     enquiryString += "\r\nPartner: Starts at 60"
                     enquiryString += "\r\nUpdated: " + datetime.date.today().strftime('%d/%m/%Y')
-                    enquiryString += "\r\nCustomer Date of birth: " + datetime.datetime.strptime(row[9],
-                                                                                                 '%m/%d/%Y').strftime(
-                        '%d/%m/%Y')
+                    enquiryString += "\r\nCustomer Date of birth: " + datetime.datetime.strptime(row[9], '%m/%d/%Y').strftime('%d/%m/%Y')
 
+                    firstname, lastname, _ignore = parse_api_names(row[0], row[5])
                     payload = {
-                        "name": (row[0] + " " + row[5]),
+                        "firstname": firstname,
+                        "lastname": lastname,
                         "postcode": row[2],
                         "email": email,
                         "phoneNumber": phoneNumber,
@@ -984,8 +979,10 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                     enquiryString += "\r\nUpdated: " + datetime.date.today().strftime('%d/%m/%Y')
                     enquiryString += "\r\nWho needs help: " + row[16]
 
+                    firstname, lastname, _ignore = parse_api_names(row[3], row[2])
                     payload = {
-                        "name": (row[3] + " " + row[2]),
+                        "firstname": firstname,
+                        "lastname": lastname,
                         "postcode": cleanValuation(row[15]),
                         "email": email,
                         "phoneNumber": phoneNumber,
@@ -1021,7 +1018,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
 
             processed_count = 0 
             for row in reader: 
-                name = row[2]
+                firstname, lastname, _ignore = parse_api_name(row[2])
+
                 write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'processing %s' % name)
                 email = row[3]  
                 phonenumber = cleanPhoneNumber(row[5])
@@ -1035,7 +1033,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                     enquiryString += "\r\nCustomer Date of birth: " + row[9]
                     
                     payload = {
-                        "name": name,
+                        "firstname": firstname,
+                        "lastname": lastname,
                         "postcode": row[4],
                         "email": email,
                         "phoneNumber": phonenumber,
@@ -1077,11 +1076,9 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
             processed_count = 0
 
             for row in reader:
-                name = row[0]
-                if row[1]:
-                    name += " " + row[1]
+                firstname, lastname, _ignore = parse_api_names(row[0], row[1])
 
-                write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'processing %s' % name)
+                write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'processing %s %s' % (firstname, lastname))
 
                 email = row[2]
                 phoneNumber = cleanPhoneNumber(row[5])
@@ -1096,7 +1093,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                     enquiryString += "\r\nCreate Date: " + row[11]
 
                     payload = {
-                        "name": name,
+                        "firstname": firstname,
+                        "lastname": lastname,
                         "postcode": row[6],
                         "email": email,
                         "phoneNumber": phoneNumber,
@@ -1143,8 +1141,10 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                     enquiryString += "\r\nOver 60?: " + row[1]
                     enquiryString += "\r\nValuation: " + row[6]
 
+                    firstname, lastname, _ignore = parse_api_name(row[2])
                     payload = {
-                        "name": row[2],
+                        "firstname": firstname,
+                        "lastname": lastname,
                         "postcode": row[4],
                         "email": email,
                         "phoneNumber": phoneNumber,
@@ -1192,9 +1192,10 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                     enquiryString += "\r\nMonth of Birth: " + row[9]
                     enquiryString += "\r\nYear of Birth: " + row[10]
 
+                    firstname, lastname, _ignore = parse_api_name(row[2])
                     payload = {
-                        "name": row[2],
-                        "postcode": row[4],
+                        "firstname": firstname,
+                        "lastname": lastname,
                         "email": email,
                         "phoneNumber": phoneNumber,
                         "valuation": None,
@@ -1240,8 +1241,11 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                     enquiryString += "\r\nMonth of Birth: " + row[10]
                     enquiryString += "\r\nYear of Birth: " + row[11]
 
+                    firstname, lastname, _ignore = parse_api_names(row[2], row[3])
+
                     payload = {
-                        "name": row[2] + " " + row[3],
+                        "firstname": firstname,
+                        "lastname": lastname,
                         "postcode": row[5],
                         "email": email,
                         "phoneNumber": phoneNumber,

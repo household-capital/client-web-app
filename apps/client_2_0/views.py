@@ -30,8 +30,10 @@ from apps.lib.hhc_LoanProjection import LoanProjection
 from apps.lib.site_DataMapping import serialisePurposes
 from apps.lib.site_Globals import ECONOMIC, APP_SETTINGS, LOAN_LIMITS
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Utilities import  validateLoanGetContext, getProjectionResults,\
-    updateNavQueue, firstNameSplit, populateDrawdownPurpose, createCaseModelSettings
+from apps.lib.site_Utilities import firstNameSplit
+from apps.case.utils import createCaseModelSettings
+from apps.lib.site_ViewUtils import updateNavQueue
+from apps.lib.site_LoanUtils import validateLoanGetContext, getProjectionResults, populateDrawdownPurpose
 from apps.lib.mixins import HouseholdLoginRequiredMixin
 from .forms import ClientDetailsForm, SettingsForm, IntroChkBoxForm, lumpSumPurposeForm, drawdownPurposeForm, \
     DetailedChkBoxForm,  protectedEquityForm, interestPaymentForm
