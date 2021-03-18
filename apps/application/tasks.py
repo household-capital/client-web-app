@@ -26,6 +26,8 @@ from apps.case.models import Case
 
 from urllib.parse import urljoin
 
+from apps.operational.decorators import email_admins_on_failure
+
 # CASE TASKS
 
 @app.task(name="Email_App_Link")
@@ -273,6 +275,7 @@ def next_steps_email(appUID, caseUID):
 
 
 @app.task(name="ApplicationFollowUp")
+@email_admins_on_failure(task_name='ApplicationFollowUp')
 def appFollowUp():
     """Send in-progress application customers a reminder email"""
     write_applog("INFO", 'Application', 'FollowUpEmail', "Starting")

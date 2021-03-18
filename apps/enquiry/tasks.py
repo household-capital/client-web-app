@@ -26,6 +26,7 @@ from apps.lib.site_DataMapping import mapEnquiryToLead, mapEnquiryForSF
 from .models import Enquiry
 from urllib.parse import urljoin
 
+from apps.operational.decorators import email_admins_on_failure
 
 # TASKS
 @app.task(name="Create_SF_Lead")
@@ -66,6 +67,7 @@ def updateSFEnquiryTask(enqUID):
 
 
 @app.task(name="Catchall_SF_Lead")
+@email_admins_on_failure(task_name="Catchall_SF_Lead")
 def catchallSFLeadTask():
     write_applog("INFO", 'Enquiry', 'Tasks-catchallSFLead', "Starting")
 
@@ -84,6 +86,7 @@ def catchallSFLeadTask():
 
 
 @app.task(name="EnquiryFollowUp")
+@email_admins_on_failure(task_name="EnquiryFollowUp")
 def updateToday():
     write_applog("INFO", 'Enquiry', 'FollowUpEmail', "Starting")
 
@@ -114,6 +117,7 @@ def updateToday():
 
 
 @app.task(name="SF_Refer_Postcode")
+@email_admins_on_failure(task_name='SF_Refer_Postcode')
 def getReferPostcodeStatus():
     """Retrieve postcode status from SF"""
     write_applog("INFO", 'Enquiry', 'Tasks-getReferPostcodeStatus', "Starting")
@@ -361,7 +365,7 @@ def createSFEnquiry(enqUID, sfAPIInstance=None):
 
     lead_id = enquiry.case.sfLeadID
     if lead_id is not None:
-        payload = mapEnquiryForSF(enqUID)
+        payload = mapEnquiryForSF(enqUID, True)
         payload['CreatedDate'] = enquiry.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
         payload['Lead__c'] = lead_id
         result = sfAPI.createEnquiry(payload)

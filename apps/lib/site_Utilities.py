@@ -19,11 +19,12 @@ def raiseAdminError(title, body):
     return
 
 
-def raiseTaskAdminError(title, body):
+def raiseTaskAdminError(title, body, to=None):
     """Error raising utility for task errors"""
     msg_title = "[Django] ERROR (Celery Task): " + title
     from_email = settings.DEFAULT_FROM_EMAIL
-    to = settings.ADMINS[0][1]
+    if to is None:
+        to = settings.ADMINS[0][1]
     msg = EmailMultiAlternatives(msg_title, body, from_email, [to])
     msg.send()
     return

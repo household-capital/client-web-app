@@ -31,6 +31,7 @@ class caseStagesEnum(Enum):
     SQ_BROCHURE_SENT = 10
     SQ_CUSTOMER_SUMMARY_SENT = 11 
     SQ_FUTURE_CALL = 12 
+    SALES_ACTIVE = 13
 
 PRE_MEETING_STAGES = [
     'UNQUALIFIED_CREATED',
@@ -39,6 +40,7 @@ PRE_MEETING_STAGES = [
     'SQ_BROCHURE_SENT',
     'SQ_CUSTOMER_SUMMARY_SENT',
     'SQ_FUTURE_CALL', 
+    'SALES_ACTIVE',
     
     'DISCOVERY',
 ]
@@ -242,18 +244,11 @@ class closeReasonEnumUpdated(Enum):
     DECEASED_BORROWER = 9
     NOT_PROCEEDING = 10
     OTHER = 11
+    DOESNT_LIKE_REV_MORTGAGES = 12
+    FEE_INTEREST_TOO_HIGH = 13
 
-# No further action by client
-# Doesn’t like Reverse Mortgages
-# Fees or interest rate too high
-# Other
-@accessInTemplate
-class notProceedingReasonEnum(Enum): 
-    NO_ACTION_BY_CLIENT = 1 
-    DOES_NOT_LIKE_REV_MORTGAGES = 2 
-    FEES_INTEREST_TOO_HIGH = 3 
-    OTHER = 4
-
+    #Doesn’t like Reverse Mortgages
+    #Fees or interest rate too high
 
 
 

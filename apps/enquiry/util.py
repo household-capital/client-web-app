@@ -222,13 +222,12 @@ from .models import Enquiry
 #         return _assign_enquiries(assignments, notify)
 
 
-def assign_unassigned_cases(enquiries, force=False, notify=True):
-    unassigned_cases = set() 
+def assign_enquiry_leads(enquiries, force=False, notify=True):
+    case_uids = set() 
     for enq in enquiries:
-        if enq.case.owner is None: 
-            unassigned_cases = unassigned_cases | {enq.case.caseUID}
-    leads = list(Case.objects.filter(caseUID__in=unassigned_cases))
-    auto_assign_leads(leads, force=True)
+        case_uids |= {enq.case.caseUID}
+    leads = list(Case.objects.filter(caseUID__in=case_uids))
+    auto_assign_leads(leads, force=force, notify=notify)
 
 
 def updateCreateEnquiry(
