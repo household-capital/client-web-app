@@ -14,6 +14,7 @@ from apps.lib.site_Enums import *
 from apps.lib.site_Logging import write_applog
 from apps.case.models import Case
 from apps.case.assignment import auto_assign_leads
+from apps.case.helpers import should_lead_owner_update
 from .models import Enquiry
 
 # DEPRECATE COMMENTED
@@ -251,7 +252,8 @@ def updateCreateEnquiry(
     ) 
     if marketingSource not in prev_sources: 
         new_enq = Enquiry.objects.create(**payload)
-        enquiries_to_assign.append(new_enq)
+        if should_lead_owner_update(new_enq.case):
+            enquiries_to_assign.append(new_enq)
     else:
         write_applog(
             "INFO", 'Enquiry', 'EnquiryPartnerUpload',

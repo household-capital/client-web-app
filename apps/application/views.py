@@ -215,11 +215,11 @@ class ConvertEnquiry(HouseholdLoginRequiredMixin, View):
             productType = obj.productType
         )
 
-        lead = enqObj.case
-        if should_lead_owner_update(lead): 
-            user = request.user
-            lead.owner = user 
-            lead.save(should_sync=True) 
+        # lead = enqObj.case
+        # if should_lead_owner_update(lead): 
+        #     user = request.user
+        #     lead.owner = user 
+        #     lead.save(should_sync=True) 
 
 
         obj.appStatus = appStatusEnum.CLOSED.value
@@ -863,11 +863,11 @@ class ContactView(SessionRequiredMixin, ApplicationHelper, TemplateView):
             productType = obj.productType
         )
 
-        lead = enqObj.case
-        if should_lead_owner_update(lead): 
-            user = self.request.user
-            lead.owner = user 
-            lead.save(should_sync=True) 
+        # lead = enqObj.case
+        # if should_lead_owner_update(lead): 
+        #     user = self.request.user
+        #     lead.owner = user 
+        #     lead.save(should_sync=True) 
 
         obj.appStatus = appStatusEnum.CONTACT.value
         obj.save(update_fields=['appStatus'])
