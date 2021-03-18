@@ -28,7 +28,12 @@ from .models import Case, LossData, Loan, ModelSetting
 from apps.application.models import ApplicationDocuments
 from urllib.parse import urljoin
 
+from apps.operational.decorators import email_admins_on_failure
+
+
 # CASE TASKS
+
+
 
 @app.task(name="Create_SF_Case_Lead")
 def createSFLeadCaseTask(caseUID):
@@ -56,6 +61,7 @@ def updateSFLeadTask(caseUID):
 
 
 @app.task(name="Catchall_SF_Case_Lead")
+@email_admins_on_failure(task_name='Catchall_SF_Case_Lead')
 def catchallSFLeadTask():
     '''Task wrapper to to create lead for all cases without sfLeadID '''
     write_applog("INFO", 'Case', 'Tasks-catchallSFLead', "Starting")
@@ -189,6 +195,7 @@ def amalDocs(caseUID):
 
 
 @app.task(name='SF_Stage_Synch')
+@email_admins_on_failure(task_name='SF_Stage_Synch')
 def stageSynch():
     '''Reverse synch SF -> clientApp'''
 
@@ -235,6 +242,7 @@ def stageSynch():
 
 
 @app.task(name='SF_Integrity_Check')
+@email_admins_on_failure(task_name='SF_Integrity_Check')
 def integrityCheck():
     '''Compare Amounts between Salesforce and ClientApp'''
 
@@ -421,23 +429,24 @@ def mailLoanSummary(caseUID):
 
 # UTILITIES
 
-SF_LEAD_CASE_MAPPING = {'phoneNumber': 'Phone',
-                        'email': 'Email',
-                        'age_1': 'Age_of_1st_Applicant__c',
-                        'age_2': 'Age_of_2nd_Applicant__c',
-                        'dwellingType': 'Dwelling_Type__c',
-                        'valuation': 'Estimated_Home_Value__c',
-                        'postcode': 'PostalCode',
-                        'caseNotes': 'External_Notes__c',
-                        'firstname_1': 'Firstname',
-                        'surname_1': 'Lastname',
-                        'isZoomMeeting': 'isZoom__c',
-                        'base_specificity': 'Unit__c',
-                        'street_number': 'Street_Number__c',
-                        'street_name': 'Street_Name__c',
-                        'street_type': 'Street_Type__c',
-                        'suburb': 'Suburb__c'
-                        }
+SF_LEAD_CASE_MAPPING = {
+    'phoneNumber': 'Phone',
+    'email': 'Email',
+    'age_1': 'Age_of_1st_Applicant__c',
+    'age_2': 'Age_of_2nd_Applicant__c',
+    'dwellingType': 'Dwelling_Type__c',
+    'valuation': 'Estimated_Home_Value__c',
+    'postcode': 'PostalCode',
+    'caseNotes': 'External_Notes__c',
+    'firstname_1': 'Firstname',
+    'surname_1': 'Lastname',
+    'isZoomMeeting': 'isZoom__c',
+    'base_specificity': 'Unit__c',
+    'street_number': 'Street_Number__c',
+    'street_name': 'Street_Name__c',
+    'street_type': 'Street_Type__c',
+    'suburb': 'Suburb__c'
+}
 
 
 def createSFLeadCase(caseUID, sfAPIInstance=None):

@@ -20,6 +20,8 @@ from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Utilities import getEnquiryProjections, updateNavQueue
 from apps.lib.mixins import HouseholdLoginRequiredMixin
 
+from apps.case.helpers import should_lead_owner_update
+
 from apps.enquiry.models import Enquiry
 from .models import WebCalculator, WebContact
 from .forms import WebContactDetail
@@ -193,7 +195,10 @@ class ContactConvertView(HouseholdLoginRequiredMixin, View):
             requestedCallback=True
         )
         enq_obj.save()
-
+        lead = enq_obj.case
+        if should_lead_owner_update(lead):
+            lead.owner = userRef
+            lead.save(should_sync=True)
         # Mark contact as closed
         contObj.actioned = True
         contObj.actionedBy = request.user

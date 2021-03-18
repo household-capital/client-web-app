@@ -17,7 +17,7 @@ from apps.base.model_utils import db_to_sf_map
 
 # INTERNAL MAPPING
 
-def mapEnquiryForSF(enqUID): 
+def mapEnquiryForSF(enqUID, is_create=False): 
     # mock function, however as the data model evolves, the mappings will begin to differ. 
     SF_LEAD_MAPPING = {
         'phoneNumber': 'Phone__c',
@@ -91,7 +91,7 @@ def mapEnquiryForSF(enqUID):
         payload['Last_Name__c'] = enquiryDict['name']
 
     payload['External_Id__c'] = str(enquiryDict['enqUID'])
-    if enquiry.user and enquiry.user.profile and enquiry.user.profile.salesforceID:
+    if is_create and enquiry.user and enquiry.user.profile and enquiry.user.profile.salesforceID:
         payload['CreatedById'] = enquiry.user.profile.salesforceID
     payload['Loan_Type__c'] = enquiry.enumLoanType()
     payload['Dwelling_Type__c'] = enquiry.enumDwellingType()

@@ -40,7 +40,7 @@ from .models import Enquiry
 from apps.lib.site_Utilities import getEnquiryProjections, updateNavQueue, \
     cleanPhoneNumber, validateEnquiry, cleanValuation, calcAge
 from apps.lib.mixins import HouseholdLoginRequiredMixin, AddressLookUpFormMixin
-from .util import assign_unassigned_cases, updateCreateEnquiry
+from .util import assign_enquiry_leads, updateCreateEnquiry
 
 
 from urllib.parse import urljoin
@@ -899,12 +899,12 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
             result = self._form_valid(form, enquiries_to_assign)
         except Exception as ex:
             try:
-                assign_unassigned_cases(enquiries_to_assign, force=True)
+                assign_enquiry_leads(enquiries_to_assign, force=True)
             except Exception as ex:
                 write_applog("ERROR", 'Enquiry', 'EnquiryPartnerUpload', 'Error in auto assignments', is_exception=True)
             raise
         else:
-            assign_unassigned_cases(enquiries_to_assign, force=True)
+            assign_enquiry_leads(enquiries_to_assign, force=True)
             return result
 
     def _form_valid(self, form, enquiries_to_assign):

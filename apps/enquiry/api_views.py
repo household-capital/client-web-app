@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated  # <-- Here
 
-from apps.enquiry.util import updateCreateEnquiry, assign_unassigned_cases
+from apps.enquiry.util import updateCreateEnquiry, assign_enquiry_leads
 from apps.lib.site_Utilities import cleanPhoneNumber, cleanValuation, calcAge
 from apps.lib.site_Enums import (
     marketingTypesEnum, 
@@ -49,12 +49,22 @@ class DataIngestion(APIView):
                 ).strftime('%d/%m/%Y')
             )
         if is_social: 
-            enquiryString += "\r\nMonth of Birth: {}".format(
-                json_payload.get('month_of_birth', '')
-            )
-            enquiryString += "\r\nYear of Birth: {}".format(
-                json_payload.get('age_status', '')
-            )
+            if json_payload.get('month_of_birth', ''):
+                enquiryString += "\r\nMonth of Birth: {}".format(
+                    json_payload.get('month_of_birth', '')
+                )
+            if json_payload.get('age_status', ''):
+                enquiryString += "\r\nYear of Birth: {}".format(
+                    json_payload.get('age_status', '')
+                )
+            if json_payload.get('age_over_60'):
+                enquiryString += "\r\nOver 60?: {}".format(
+                    json_payload.get('age_over_60')
+                )
+            if json_payload.get('property_range'):
+                enquiryString += "\r\nValuation: {}".format(
+                    json_payload.get('property_range')
+                )
         return enquiryString
 
     def process_payload(self, json_payload):
@@ -136,7 +146,7 @@ class DataIngestion(APIView):
             payload.get('marketingSource'),
             enquiries_to_assign
         )
-        assign_unassigned_cases(enquiries_to_assign, force=True)
+        assign_enquiry_leads(enquiries_to_assign, force=True)
 
     def post(self, request):
         content = {'status': 'Success'}

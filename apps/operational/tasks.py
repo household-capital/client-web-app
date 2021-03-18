@@ -9,6 +9,7 @@ from apps.lib.api_CloudWatch import CloudWatchWrapper
 from config.celery import app
 
 from apps.operational.utils import get_task_count, get_namespace
+from apps.operational.decorators import email_admins_on_failure
 
 
 def generic_stat_poll(task_name, delta):
@@ -38,6 +39,7 @@ def generic_stat_poll(task_name, delta):
     )
 
 @app.task(name="CW_Wordpress_Data_stats")
+@email_admins_on_failure(task_name="CW_Wordpress_Data_stats")
 def cloud_watch_wordpress_poll_stats():
     # CW wordpress poll stats <- poll every 15minutes  
     # Run task every 15minutes
@@ -48,6 +50,7 @@ def cloud_watch_wordpress_poll_stats():
 
 
 @app.task(name="CW_Catchall_SF_Lead_stats")
+@email_admins_on_failure(task_name="CW_Catchall_SF_Lead_stats")
 def cloud_watch_sf_enquiry_sync():
     # CW Catchall_SF_Lead stats <- poll everyday at 4 AM
     # Run task always at 4 AM 
@@ -58,6 +61,7 @@ def cloud_watch_sf_enquiry_sync():
 
 
 @app.task(name="CW_Catchall_SF_Case_Lead_stats")
+@email_admins_on_failure(task_name="CW_Catchall_SF_Case_Lead_stats")
 def cloud_watch_sf_case_sync():
     # CW Catchall_SF_Lead stats <- poll everyday at 4 AM
     # Run task always at 4 AM 
