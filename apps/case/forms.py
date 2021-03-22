@@ -42,7 +42,7 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                   'street', 'suburb', 'postcode', 'valuation', 'dwellingType', 'propertyImage', 'mortgageDebt',
                   'superFund', 'valuationDocument', 'state', 'investmentLabel',
                   'superAmount', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email', 'productType', 'channelDetail',
-                  'doNotMarket', 'propensityCategory', 'referrer'
+                  'doNotMarket', 'propensityCategory', 'referrer', 'marketing_campaign'
                   ] + address_model_fields
 
         widgets = {
@@ -115,6 +115,14 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                 Div(
                     Div(HTML("Marketing Source"), css_class='form-label'),
                     Div(Field('channelDetail')),
+                    css_class="col-lg-6"
+                ),
+                css_class="row"
+            ),
+            Div(
+                Div(
+                    Div(HTML("Marketing Campaign"), css_class='form-label'),
+                    Div(Field('marketing_campaign')),
                     css_class="col-lg-6"
                 ),
                 css_class="row"
