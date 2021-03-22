@@ -35,7 +35,8 @@ urlpatterns = [
     path('referrer/', include('apps.referrer.urls')),
     path('servicing/', include('apps.servicing.urls')),
     path('settings/', include('apps.settings.urls')),
-
+    path('comments/', include('django_comments.urls')),
+    path('comments/', include("comments_extension.urls")),
 ]
 
 urlpatterns+=static('/static/', document_root=settings.STATIC_ROOT)

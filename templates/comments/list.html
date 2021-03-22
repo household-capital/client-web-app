@@ -1,0 +1,18 @@
+
+<div>
+    {% for comment in comment_list %}
+        <div class="card pt-2">
+
+            <div class="card-header">
+                {{ comment.submit_date }} - {{ comment.name }}
+            </div>
+            <div class="card-body">
+                <p class="card-text" style="white-space: pre-wrap;">{{ comment.comment }}</p>
+            </div>
+            <div class="card-footer text-right pt-2">
+                <a href="{% url 'comments-edit' comment_id=comment.id %}?next={{ obj.get_absolute_url|urlencode:"" }}" class="btn btn-outline-secondary pt-1 pb-1" style="width:80px">Edit</a>
+                <a href="{% url 'comments-delete' comment_id=comment.id %}?next={{ obj.get_absolute_url|urlencode:"" }}" class="btn btn-outline-secondary pt-1 pb-1" style="width:80px">Delete</a>
+            </div>
+        </div>
+    {% endfor %}
+</div>

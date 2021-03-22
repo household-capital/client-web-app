@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     # third-party apps
     'crispy_forms',
     'rest_framework',
@@ -55,6 +56,8 @@ INSTALLED_APPS = [
     'storages',
     'corsheaders',
     'reversion',
+    'django_comments',
+    'comments_extension',
     # my apps
     'apps.accounts',
     'apps.application',
@@ -102,6 +105,8 @@ TEMPLATES = [
         },
     },
 ]
+
+SITE_ID = 1
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/

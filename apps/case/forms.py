@@ -246,10 +246,6 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                     Div(Div(HTML("Product Type"), css_class='form-label'),
                         Div(Field('productType'))),
 
-                    Div(HTML("<i class='fas fa-filter'></i>&nbsp;&nbsp;Channel Detail"), css_class='form-header'),
-                    Div(Div(HTML("Channel Detail"), css_class='form-label'),
-                        Div(Field('channelDetail'))),
-
                     Div(HTML("<p class='small pt-2'><i class='fa fa-camera fa-fw'>&nbsp;&nbsp;</i>Property Image</p>"),
                         Field('propertyImage')),
                     Div(HTML("<p class='small pt-2'><i class='far fa-file-pdf'></i>&nbsp;&nbsp;</i>Auto Valuation</p>"),

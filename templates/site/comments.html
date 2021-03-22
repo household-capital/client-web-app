@@ -1,0 +1,24 @@
+{% load comments %}
+
+<div class="row">
+    <div class="col-lg-8 col-md-12 pr-1 pl-1">
+        <br/>
+        {% render_comment_list for obj %}
+    </div>
+    <div class="col-lg-4 col-md-12 pr-1 pl-1">
+        <br/>
+        {% get_comment_form for obj as form %}
+        <form action="{% comment_form_target %}" method="POST">
+            {% csrf_token %}
+            {{ form.comment }}
+            {{ form.content_type }}
+            {{ form.object_pk }}
+            {{ form.timestamp }}
+            {{ form.security_hash }}
+            <input type="hidden" name="next" value="{{ obj.get_absolute_url }}" />
+            <div class="text-center">
+                <input class="btn btn-outline-secondary" type="submit" value="Add Note" id="id_submit" />
+            </div>
+        </form>
+    </div>
+</div>
