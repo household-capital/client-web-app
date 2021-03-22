@@ -12,7 +12,6 @@ from apps.lib.site_Enums import *
 from apps.lib.site_Logging import write_applog
 
 from apps.case.models import Case
-from apps.case.helpers import should_lead_owner_update
 
 def _assign_leads(assignments, notify): 
     def send_summary_email(user, cases):
@@ -182,8 +181,7 @@ def auto_assign_leads(leads, force=False, notify=True):
         # if we aren't forcing an assignment, may as well keep existing user
         if not force and (old_user is not None) and old_user.is_active:
             continue
-        if not should_lead_owner_update(lead):
-            continue
+        
         # find a user, but if not forcing we can use the user from a duplicate enquiry
         # Use first enquiry to base all assignments 
         user = find_auto_assignee(

@@ -103,6 +103,12 @@ def mapEnquiryForSF(enqUID, is_create=False):
     payload['Marketing_Campaign__c'] = ''
     if enquiry.marketing_campaign: 
         payload['Marketing_Campaign__c'] = enquiry.marketing_campaign.campaign_name
+    payload['Product_Type__c'] = dict(Enquiry.productTypes).get(
+        enquiry.productType,
+        ''
+    )
+    payload['Funding_Amount__c'] = enquiry.calcLumpSum
+    payload['Funding_Amount_monthly__c'] = enquiry.calcIncome
 
     # Map / create other fields
     if enquiry.referralUser:

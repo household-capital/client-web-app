@@ -44,7 +44,7 @@ from .forms import InitiateForm, TwoFactorForm, ObjectivesForm, ApplicantForm, A
 
 from .serialisers import IncomeApplicationSeraliser
 from .models import Application, ApplicationPurposes, ApplicationDocuments
-from apps.case.helpers import should_lead_owner_update
+
 
 ## Authenticated Views ##
 
@@ -218,11 +218,11 @@ class ConvertEnquiry(HouseholdLoginRequiredMixin, View):
             origin_id=obj.origin_id
         )
 
-        lead = enqObj.case
-        if should_lead_owner_update(lead): 
-            user = request.user
-            lead.owner = user 
-            lead.save(should_sync=True) 
+        # lead = enqObj.case
+        # if should_lead_owner_update(lead): 
+        #     user = request.user
+        #     lead.owner = user 
+        #     lead.save(should_sync=True) 
 
 
         obj.appStatus = appStatusEnum.CLOSED.value
@@ -869,11 +869,11 @@ class ContactView(SessionRequiredMixin, ApplicationHelper, TemplateView):
             origin_id=obj.origin_id
         )
 
-        lead = enqObj.case
-        if should_lead_owner_update(lead): 
-            user = self.request.user
-            lead.owner = user 
-            lead.save(should_sync=True) 
+        # lead = enqObj.case
+        # if should_lead_owner_update(lead): 
+        #     user = self.request.user
+        #     lead.owner = user 
+        #     lead.save(should_sync=True) 
 
         obj.appStatus = appStatusEnum.CONTACT.value
         obj.save(update_fields=['appStatus'])

@@ -40,7 +40,7 @@ from .models import Enquiry
 from apps.lib.site_Utilities import getEnquiryProjections, updateNavQueue, \
     cleanPhoneNumber, validateEnquiry, cleanValuation, calcAge
 from apps.lib.mixins import HouseholdLoginRequiredMixin, AddressLookUpFormMixin
-from .util import assign_enquiry_leads, updateCreateEnquiry
+from .util import assign_enquiry_leads, updateCreatePartnerEnquiry
 
 
 from urllib.parse import urljoin
@@ -951,16 +951,10 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketing_campaign": marketing_campaign,
                         "user": self.request.user,
                         # FIX ME - do they have timestamps?
+                        "enquiryNotes": enquiryString,
                     }
 
-                    updateCreateEnquiry(
-                        email,
-                        phoneNumber,
-                        payload,
-                        enquiryString,
-                        marketingTypesEnum.STARTS_AT_60.value,
-                        enquiries_to_assign 
-                    )
+                    updateCreatePartnerEnquiry(payload, enquiries_to_assign)
 
             messages.success(self.request, "Success - enquiries imported")
 
@@ -997,16 +991,10 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketing_campaign": marketing_campaign,
                         "user": self.request.user,
                         # FIX ME - do they have timestamps?
+                        "enquiryNotes": enquiryString,
                     }
 
-                    updateCreateEnquiry(
-                        email,
-                        phoneNumber,
-                        payload,
-                        enquiryString,
-                        marketingTypesEnum.CARE_ABOUT.value,
-                        enquiries_to_assign
-                    )
+                    updateCreatePartnerEnquiry(payload, enquiries_to_assign)
 
             messages.success(self.request, "Success - enquiries imported")
 
@@ -1049,16 +1037,10 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "user": self.request.user,
                         # FIX ME - IS THE BELOW UTC?
                         #'origin_timestamp': datetime.datetime.strptime(row[0], '%m/%d/%y, %I:%M %p') if row[0] else None,
+                        "enquiryNotes": enquiryString,
                     }
 
-                    updateCreateEnquiry(
-                        email, 
-                        phonenumber, 
-                        payload,
-                        enquiryString, 
-                        partner_value,
-                        enquiries_to_assign
-                    )
+                    updateCreatePartnerEnquiry(payload, enquiries_to_assign)
 
             messages.success(self.request, "Success - enquiries imported") 
 
@@ -1111,16 +1093,10 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketing_campaign": marketing_campaign,
                         "user": self.request.user,
                         #'origin_timestamp': datetime.datetime.strptime(row[0], '%d/%m/%y') if row[0] else None,
+                        "enquiryNotes": enquiryString,
                     }
 
-                    updateCreateEnquiry(
-                        email,
-                        phoneNumber,
-                        payload,
-                        enquiryString,
-                        partner_value,
-                        enquiries_to_assign
-                    )
+                    updateCreatePartnerEnquiry(payload, enquiries_to_assign)
                 else:
                     write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'ignoring - NO EMAIL ADDRESS')
 
@@ -1157,16 +1133,10 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "user": self.request.user,
                         # FIX ME - is this UTC?
                         #'origin_timestamp': parse_date(row[0]) if row[0] else None,
+                        "enquiryNotes": enquiryString,
                     }
 
-                    updateCreateEnquiry(
-                        email,
-                        phoneNumber,
-                        payload,
-                        enquiryString,
-                        marketingTypesEnum.FACEBOOK.value,
-                        enquiries_to_assign
-                    )
+                    updateCreatePartnerEnquiry(payload, enquiries_to_assign)
 
             messages.success(self.request, "Success - enquiries imported")
 
@@ -1205,16 +1175,10 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "marketing_campaign": marketing_campaign,
                         "user": self.request.user,
                         # FIX ME - I CAN'T FIND WHERE TO SOURCE TIMESTAMP - IT LOOKS LIKE THE DOC FORMAT MIGHT HAVE CHANGED
+                        "enquiryNotes": enquiryString,
                     }
 
-                    updateCreateEnquiry(
-                        email,
-                        phoneNumber,
-                        payload,
-                        enquiryString,
-                        marketingTypesEnum.FACEBOOK.value,
-                        enquiries_to_assign
-                    )
+                    updateCreatePartnerEnquiry(payload, enquiries_to_assign)
 
             messages.success(self.request, "Success - enquiries imported")
 
@@ -1254,16 +1218,10 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "user": self.request.user,
                         # FIX ME - is this UTC?
                         #'origin_timestamp': parse_date(row[0]) if row[0] else None,
+                        "enquiryNotes": enquiryString,
                     }
 
-                    updateCreateEnquiry(
-                        email,
-                        phoneNumber,
-                        payload,
-                        enquiryString,
-                        marketingTypesEnum.LINKEDIN.value,
-                        enquiries_to_assign
-                    )
+                    updateCreatePartnerEnquiry(payload, enquiries_to_assign)
 
             messages.success(self.request, "Success - enquiries imported")
 
