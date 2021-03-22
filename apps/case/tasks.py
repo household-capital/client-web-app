@@ -20,7 +20,7 @@ from apps.lib.site_Enums import caseStagesEnum, channelTypesEnum
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Utilities import raiseTaskAdminError
 from apps.lib.site_EmailUtils import sendTemplateEmail
-from apps.lib.site_DataMapping import mapCaseToOpportunity
+from apps.lib.site_DataMapping import mapCaseToOpportunity, sfStateEnum
 from apps.lib.site_Globals import ECONOMIC
 from apps.lib.hhc_LoanValidator import LoanValidator
 
@@ -431,24 +431,42 @@ def mailLoanSummary(caseUID):
 # UTILITIES
 
 SF_LEAD_CASE_MAPPING = {
-    'phoneNumber': 'Phone',
-    'email': 'Email',
-    'age_1': 'Age_of_1st_Applicant__c',
-    'age_2': 'Age_of_2nd_Applicant__c',
+    'caseNotes': 'External_Notes__c',
+    'isZoomMeeting': 'isZoom__c',
+
+    # Property Detail
     'dwellingType': 'Dwelling_Type__c',
     'valuation': 'Estimated_Home_Value__c',
-    'postcode': 'PostalCode',
-    'caseNotes': 'External_Notes__c',
-    'firstname_1': 'Borrower_1_First_Name__c',
-    'surname_1': 'Borrower_1_Last_Name__c',
-    'isZoomMeeting': 'isZoom__c',
+    'mortgageDebt': 'Mortgage_debt__c',
     'base_specificity': 'Unit__c',
     'street_number': 'Street_Number__c',
     'street_name': 'Street_Name__c',
     'street_type': 'Street_Type__c',
     'suburb': 'Suburb__c',
+    'postcode': 'PostCode__c',
+
+    # Contact
     'firstname': 'Firstname',
     'lastname': 'Lastname',
+    'phoneNumber': 'Phone',
+    'email': 'Email',
+
+    # Borrower 1
+    'age_1': 'Age_of_1st_Applicant__c',
+    'firstname_1': 'Borrower_1_First_Name__c',
+    'middlename_1': 'Borrower_1_Middle_Name__c',
+    'surname_1': 'Borrower_1_Last_Name__c',
+    'preferredName_1': 'Borrower_1_Preferred_Name__c',
+
+    # Borrower 2
+    'age_2': 'Age_of_2nd_Applicant__c',
+    'firstname_2': 'Borrower2_First_Name__c',
+    'middlename_2': 'Borrower_2_Middle_Name__c',
+    'surname_2': 'Borrower2_Last_Name__c',
+    'preferredName_2': 'Borrower_2_Preferred_Name__c',
+
+    # misc
+    'pensionAmount': 'Pension_Value_Fortnightly__c',
 }
 
 
@@ -611,6 +629,17 @@ def __buildLeadCasePayload(case):
     if not payload['Lastname']:
         payload['Lastname'] = "Unknown"
 
+    client_types = case.enumClientType()
+    salutation_types = case.enumSalutation()
+    if client_types[0]:
+        payload['Type__c'] = client_types[0]
+    if client_types[1]:
+        payload['Borrower_2_Type__c'] = client_types[1]
+    if salutation_types[0]:
+        payload['Borrower1_Title__c'] = salutation_types[0]
+    if salutation_types[1]:
+        payload['Borrower_2_Title__c'] = salutation_types[1]
+    
     payload['External_ID__c'] = str(caseDict['caseUID'])
     payload['OwnerID'] = case.owner.profile.salesforceID
     payload['Loan_Type__c'] = case.enumLoanType()
@@ -638,6 +667,17 @@ def __buildLeadCasePayload(case):
 
     payload['Sales_Channel__c'] = case.enumChannelType()
 
+    payload['Status__c'] = case.enumCaseStage()
+    # TODO: Uncomment this later 
+
+    payload['Loan_Type__c'] = case.enumLoanType()
+    payload['Product_Type__c'] = case.enumProductType()
+    payload['State__c'] = sfStateEnum(case.state)
+
+    payload['Marketing_Source__c'] = case.enumChannelDetailType()
+    payload['LeadSource'] = case.enumReferrerType()
+    if case.marketing_campaign:
+        payload['Marketing_Campaign__c'] = case.marketing_campaign.campaign_name
     return payload
 
 

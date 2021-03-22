@@ -34,17 +34,18 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
 
     class Meta:
         model = Case
-        fields = ['caseDescription', 'adviser', 'referralCompany', 'caseNotes', 'loanType', 'caseStage',
-                  'clientType1', 'surname_1', 'firstname_1', 'preferredName_1', 'birthdate_1', 'age_1', 'sex_1',
-                  'salutation_1', 'middlename_1', 'maritalStatus_1',
-                  'clientType2', 'surname_2', 'firstname_2', 'preferredName_2', 'birthdate_2', 'age_2', 'sex_2',
-                  'salutation_2', 'middlename_2', 'maritalStatus_2',
-                  'street', 'suburb', 'postcode', 'valuation', 'dwellingType', 'propertyImage', 'mortgageDebt',
-                  'superFund', 'valuationDocument', 'state', 'investmentLabel',
-                  'superAmount', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email', 'productType', 'channelDetail',
-                  'doNotMarket', 'propensityCategory', 'referrer',
-                  'firstname', 'lastname',
-                  ] + address_model_fields
+        fields = [
+            'caseDescription', 'adviser', 'referralCompany', 'caseNotes', 'loanType', 'caseStage',
+            'clientType1', 'surname_1', 'firstname_1', 'preferredName_1', 'birthdate_1', 'age_1', 'sex_1',
+            'salutation_1', 'middlename_1', 'maritalStatus_1',
+            'clientType2', 'surname_2', 'firstname_2', 'preferredName_2', 'birthdate_2', 'age_2', 'sex_2',
+            'salutation_2', 'middlename_2', 'maritalStatus_2',
+            'street', 'suburb', 'postcode', 'valuation', 'dwellingType', 'propertyImage', 'mortgageDebt',
+            'superFund', 'valuationDocument', 'state', 'investmentLabel',
+            'superAmount', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email', 'productType', 'channelDetail',
+            'doNotMarket', 'propensityCategory', 'referrer', 'marketing_campaign',
+            'firstname', 'lastname',
+        ] + address_model_fields
 
         widgets = {
             'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
@@ -116,6 +117,14 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                 Div(
                     Div(HTML("Marketing Source"), css_class='form-label'),
                     Div(Field('channelDetail')),
+                    css_class="col-lg-6"
+                ),
+                css_class="row"
+            ),
+            Div(
+                Div(
+                    Div(HTML("Marketing Campaign"), css_class='form-label'),
+                    Div(Field('marketing_campaign')),
                     css_class="col-lg-6"
                 ),
                 css_class="row"

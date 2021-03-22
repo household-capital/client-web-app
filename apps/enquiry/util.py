@@ -15,6 +15,7 @@ from apps.lib.site_Logging import write_applog
 from apps.case.models import Case
 from apps.case.assignment import auto_assign_leads
 from .models import Enquiry
+from apps.lib.site_Enums import caseStagesEnum
 
 # DEPRECATE COMMENTED
 
@@ -230,34 +231,65 @@ def assign_enquiry_leads(enquiries, force=False, notify=True):
     auto_assign_leads(leads, force=force, notify=notify)
 
 
-def updateCreateEnquiry(
-    email, 
-    phoneNumber, 
-    payload, 
-    enquiryString, 
-    marketingSource, 
-    enquiries_to_assign, updateNonDirect=True):
+def updateCreatePartnerEnquiry(payload, enquiries_to_assign):
 
-    nonDirectTypes = [directTypesEnum.PARTNER.value, directTypesEnum.BROKER.value,
-                      directTypesEnum.ADVISER.value]
+    def should_lead_update(lead, new_enq):
 
-    # Try find existing enquiry
-    # No special logic needed to handle enquiry duplicates
+        nonDirectTypes = [directTypesEnum.PARTNER.value, directTypesEnum.BROKER.value, directTypesEnum.ADVISER.value]
+
+        if lead.caseStage in [
+            caseStagesEnum.SALES_ACTIVE.value,
+            caseStagesEnum.MEETING_HELD.value,
+            caseStagesEnum.APPLICATION.value,
+            caseStagesEnum.DOCUMENTATION.value,
+            caseStagesEnum.APPLICATION.value,
+            caseStagesEnum.FUNDED.value,
+            caseStagesEnum.CLOSED.value,
+        ]:
+            write_applog(
+                "INFO", 'Enquiry', 'EnquiryPartnerUpload',
+                'Lead stage too late to allow a Lead update. Email = {}, Phone={}'.format(
+                    new_enq.email,
+                    new_enq.phoneNumber
+                )
+            )
+            return False
+
+        if lead.channelDetail == new_enq.marketingSource:
+            write_applog(
+                "INFO", 'Enquiry', 'EnquiryPartnerUpload',
+                'Lead already set to desired marketing source ({}), so we will not update the lead. Email = {}, Phone={}'.format(
+                    new_enq.marketingSource,
+                    new_enq.email,
+                    new_enq.phoneNumber
+                )
+            )
+            return False
+
+        if lead.referrer not in nonDirectTypes:
+            write_applog(
+                "INFO", 'Enquiry', 'EnquiryPartnerUpload',
+                'Lead set to a direct lead source, so we will not update the lead. Email = {}, Phone={}'.format(
+                    new_enq.email,
+                    new_enq.phoneNumber
+                )
+            )
+            return False
+
+        return True
+
+
     write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Creating new enquiry')
     payload["enquiryNotes"] = enquiryString
+    new_enq = Enquiry.objects.create(**payload)
+    lead = new_enq.case
 
-    prev_sources = Enquiry.objects.find_duplicates(email, phoneNumber).values_list(
-        'marketingSource', flat=True
-    ) 
-    if marketingSource not in prev_sources: 
-        new_enq = Enquiry.objects.create(**payload)
+    if should_lead_update(lead, new_enq):
+        # reset source info
+        lead.referrer = new_enq.referrer
+        lead.channelDetail = new_enq.marketingSource
+        lead.marketing_campaign = new_enq.marketing_campaign
+
+        # assign new owner
         enquiries_to_assign.append(new_enq)
-    else:
-        write_applog(
-            "INFO", 'Enquiry', 'EnquiryPartnerUpload',
-            'Enquiry from marketing source {} already exists. Email = {}, Phone={}'.format(
-                marketingSource,
-                email,
-                phoneNumber
-            )
-        )
+
