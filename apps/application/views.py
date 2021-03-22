@@ -44,7 +44,7 @@ from .forms import InitiateForm, TwoFactorForm, ObjectivesForm, ApplicantForm, A
 
 from .serialisers import IncomeApplicationSeraliser
 from .models import Application, ApplicationPurposes, ApplicationDocuments
-from apps.case.helpers import should_lead_owner_update
+
 
 ## Authenticated Views ##
 

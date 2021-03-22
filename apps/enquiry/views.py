@@ -39,7 +39,7 @@ from .models import Enquiry
 from apps.lib.site_Utilities import getEnquiryProjections, updateNavQueue, \
     cleanPhoneNumber, validateEnquiry, cleanValuation, calcAge
 from apps.lib.mixins import HouseholdLoginRequiredMixin, AddressLookUpFormMixin
-from .util import assign_enquiry_leads, updateCreateEnquiry
+from .util import assign_enquiry_leads, updateCreatePartnerEnquiry
 
 
 from urllib.parse import urljoin
@@ -942,17 +942,11 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "referrer": directTypesEnum.PARTNER.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "marketing_campaign": marketing_campaign,
-                        "user": self.request.user
+                        "user": self.request.user,
+                        "enquiryNotes": enquiryString,
                     }
 
-                    updateCreateEnquiry(
-                        email,
-                        phoneNumber,
-                        payload,
-                        enquiryString,
-                        marketingTypesEnum.STARTS_AT_60.value,
-                        enquiries_to_assign 
-                    )
+                    updateCreatePartnerEnquiry(payload, enquiries_to_assign)
 
             messages.success(self.request, "Success - enquiries imported")
 
@@ -987,17 +981,11 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "referrer": directTypesEnum.PARTNER.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "marketing_campaign": marketing_campaign,
-                        "user": self.request.user
+                        "user": self.request.user,
+                        "enquiryNotes": enquiryString,
                     }
 
-                    updateCreateEnquiry(
-                        email,
-                        phoneNumber,
-                        payload,
-                        enquiryString,
-                        marketingTypesEnum.CARE_ABOUT.value,
-                        enquiries_to_assign
-                    )
+                    updateCreatePartnerEnquiry(payload, enquiries_to_assign)
 
             messages.success(self.request, "Success - enquiries imported")
 
@@ -1037,17 +1025,11 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "referrer": directTypesEnum.PARTNER.value,
                         "state":  None ,
                         "marketing_campaign": marketing_campaign,
-                        "user": self.request.user
+                        "user": self.request.user,
+                        "enquiryNotes": enquiryString,
                     }
-                    
-                    updateCreateEnquiry(
-                        email, 
-                        phonenumber, 
-                        payload,
-                        enquiryString, 
-                        partner_value,
-                        enquiries_to_assign
-                    )
+
+                    updateCreatePartnerEnquiry(payload, enquiries_to_assign)
 
             messages.success(self.request, "Success - enquiries imported") 
 
@@ -1098,17 +1080,11 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         'dwellingType': dwellingTypesEnum.APARTMENT.value if row[8] == "Strata Property" else dwellingTypesEnum.HOUSE.value,
                         "enquiryStage": enquiryStagesEnum.GENERAL_INFORMATION.value if row[4] == "Closed Lost" else enquiryStagesEnum.FOLLOW_UP_NO_ANSWER.value,
                         "marketing_campaign": marketing_campaign,
-                        "user": self.request.user
+                        "user": self.request.user,
+                        "enquiryNotes": enquiryString,
                     }
 
-                    updateCreateEnquiry(
-                        email,
-                        phoneNumber,
-                        payload,
-                        enquiryString,
-                        partner_value,
-                        enquiries_to_assign
-                    )
+                    updateCreatePartnerEnquiry(payload, enquiries_to_assign)
                 else:
                     write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'ignoring - NO EMAIL ADDRESS')
 
@@ -1142,16 +1118,10 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "referrer": directTypesEnum.SOCIAL.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "marketing_campaign": marketing_campaign,
-                        "user": self.request.user
+                        "user": self.request.user,
+                        "enquiryNotes": enquiryString,
                     }
-                    updateCreateEnquiry(
-                        email,
-                        phoneNumber,
-                        payload,
-                        enquiryString,
-                        marketingTypesEnum.FACEBOOK.value,
-                        enquiries_to_assign
-                    )
+                    updateCreatePartnerEnquiry(payload, enquiries_to_assign)
 
             messages.success(self.request, "Success - enquiries imported")
 
@@ -1188,17 +1158,11 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "referrer": directTypesEnum.SOCIAL.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "marketing_campaign": marketing_campaign,
-                        "user": self.request.user
+                        "user": self.request.user,
+                        "enquiryNotes": enquiryString,
                     }
 
-                    updateCreateEnquiry(
-                        email,
-                        phoneNumber,
-                        payload,
-                        enquiryString,
-                        marketingTypesEnum.FACEBOOK.value,
-                        enquiries_to_assign
-                    )
+                    updateCreatePartnerEnquiry(payload, enquiries_to_assign)
 
             messages.success(self.request, "Success - enquiries imported")
 
@@ -1235,17 +1199,11 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "referrer": directTypesEnum.SOCIAL.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "marketing_campaign": marketing_campaign,
-                        "user": self.request.user
+                        "user": self.request.user,
+                        "enquiryNotes": enquiryString,
                     }
 
-                    updateCreateEnquiry(
-                        email,
-                        phoneNumber,
-                        payload,
-                        enquiryString,
-                        marketingTypesEnum.LINKEDIN.value,
-                        enquiries_to_assign
-                    )
+                    updateCreatePartnerEnquiry(payload, enquiries_to_assign)
 
             messages.success(self.request, "Success - enquiries imported")
 
