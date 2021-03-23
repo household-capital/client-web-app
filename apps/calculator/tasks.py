@@ -4,6 +4,7 @@ import base64
 
 # Third-party Imports
 from config.celery import app
+from django.core.serializers.json import DjangoJSONEncoder
 
 # Local Application Imports
 
@@ -11,7 +12,7 @@ from apps.calculator.models import WebCalculator, WebContact
 from apps.enquiry.models import Enquiry
 from apps.lib.api_Wordpress import apiWordpress
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Utilities import raiseTaskAdminError, cleanPhoneNumber
+from apps.lib.site_Utilities import raiseTaskAdminError, cleanPhoneNumber, parse_api_datetime
 from apps.lib.site_Enums import *
 from .util import convert_calc, ProcessingError
 from apps.case.assignment import find_auto_assignee
@@ -37,6 +38,8 @@ def getWordpressData():
         for item in result['data']['response']:
             #Map website data to WebCalculator
 
+            sourceUID = item['uuid']
+
             mapList = {
                 'age1': 'age_1',
                 'age2': 'age_2',
@@ -44,16 +47,16 @@ def getWordpressData():
                 'mortgage': 'mortgageDebt',
                 'repayment': 'mortgageRepayment',
                 'origin': 'submissionOrigin',
+                'uuid': 'origin_id',
             }
 
-            popList = ['id', 'retrieved', 'retrievedDate', 'timestamp', 'uuid', 'phone', 'contactDetails', 'isEnquiry']
-
-            sourceUID = item['uuid']
+            popList = ['id', 'retrieved', 'retrievedDate', 'phone', 'contactDetails', 'isEnquiry', 'timestamp']
 
             srcData = item.copy()
 
             srcData['phoneNumber'] = cleanPhoneNumber(srcData['phone'])
-            srcData['sourceID'] = sourceUID
+            if srcData['timestamp']:
+                srcData['origin_timestamp'] = parse_api_datetime(srcData['timestamp'])
 
             # map fields
             for key, value in mapList.items():
@@ -87,15 +90,17 @@ def getWordpressData():
             if not srcData['name']:
                 srcData['name'] = None
 
-            write_applog("INFO", 'API', 'Tasks-getWordpressData', "Item data: " + json.dumps(srcData))
-            if srcData.get('requestedCallback') is None: 
+            if srcData.get('requestedCallback') is None:
                 srcData['requestedCallback'] = False
+
+            write_applog("INFO", 'API', 'Tasks-getWordpressData', "Item data: " + json.dumps(srcData, cls=DjangoJSONEncoder))
+
             # Create and save new WebCalculator object
             try:
                 web_obj = WebCalculator.objects.create(**srcData)
             except BaseException as e:
                 write_applog("ERROR", 'Api', 'Tasks-getWordpressData', "Could not save calculator entry")
-                raiseTaskAdminError("Could not save calculator entry", json.dumps(srcData))
+                raiseTaskAdminError("Could not save calculator entry", json.dumps(srcData, cls=DjangoJSONEncoder))
                 raise e
 
             # Mark items as retrieved on Wordpress
@@ -105,7 +110,7 @@ def getWordpressData():
 
             if result['status'] != 'Ok':
                 write_applog("ERROR", 'Api', 'Tasks-getWordpressData', "Could not mark retrieved")
-                raiseTaskAdminError("Could not mark calculator entry retrieved", json.dumps(srcData))
+                raiseTaskAdminError("Could not mark calculator entry retrieved", json.dumps(srcData, cls=DjangoJSONEncoder))
                 raise Exception('Could not mark calculator entry retrieved')
 
             proposed_owner = find_auto_assignee(
@@ -135,13 +140,18 @@ def getWordpressData():
 
             if 'Contact Us' in srcData['origin']:
                 #Map website data to WebContact
+                mapList = {
+                    'age': 'age_1',
+                    'origin': 'submissionOrigin',
+                    'uuid': 'origin_id',
+                }
 
-                mapList = {'age': 'age_1'}
-
-                popList = ['id', 'retrieved', 'retrievedDate', 'timestamp', 'uuid', 'firstname',
-                           'lastname', 'origin', 'resource', 'description']
+                popList = ['id', 'retrieved', 'retrievedDate', 'timestamp', 'firstname',
+                           'lastname', 'resource', 'description']
 
                 srcData['phone'] = cleanPhoneNumber(srcData['phone'])
+                if srcData['timestamp']:
+                    srcData['origin_timestamp'] = parse_api_datetime(srcData['timestamp'])
 
                 firstname = srcData.get('firstname')
                 lastname = srcData.get('lastname')
@@ -151,8 +161,6 @@ def getWordpressData():
                 else:
                     # reduces to None if neither are present
                     srcData['name'] = firstname or lastname
-                    
-                srcData['sourceID'] = sourceUID
 
                 # map fields
                 for key, value in mapList.items():
@@ -163,27 +171,32 @@ def getWordpressData():
                 for item in popList:
                     srcData.pop(item)
 
-                write_applog("INFO", 'API', 'Tasks-getWordpressData', "Item data: " + json.dumps(srcData))
+                write_applog("INFO", 'API', 'Tasks-getWordpressData', "Item data: " + json.dumps(srcData, cls=DjangoJSONEncoder))
 
                 # Create and save new WebContact object
                 try:
                     web_obj = WebContact.objects.create(**srcData)
                 except:
                     write_applog("ERROR", 'Api', 'Tasks-getWordpressData', 'Could not save "contact us" entry')
-                    raise raiseTaskAdminError('Could not save "contact us" entry', json.dumps(srcData))
+                    raise raiseTaskAdminError('Could not save "contact us" entry', json.dumps(srcData, cls=DjangoJSONEncoder))
 
             else:
                 #Map website data to Enquiry
 
-                mapList = {'age': 'age_1',
-                           'uuid': 'referrerID'}
+                mapList = {
+                    'age': 'age_1',
+                    'origin': 'submissionOrigin',
+                    'uuid': 'origin_id',
+                }
 
                 popList = ['id', 'retrieved', 'retrievedDate', 'timestamp', 'firstname', 'lastname',
-                           'origin', 'resource', 'phone', 'message', 'description']
+                           'resource', 'phone', 'message', 'description']
 
                 srcData['referrer'] = directTypesEnum.WEB_ENQUIRY.value
                 srcData['enquiryStage'] = enquiryStagesEnum.BROCHURE_SENT.value
                 srcData['phoneNumber'] = cleanPhoneNumber(srcData['phone'])
+                if srcData['timestamp']:
+                    srcData['origin_timestamp'] = parse_api_datetime(srcData['timestamp'])
                 srcData['name'] = srcData['firstname'] if srcData['firstname'] else None
                 if srcData['lastname']:
                     srcData['name'] += " " + \
@@ -192,7 +205,6 @@ def getWordpressData():
                 srcData['enquiryNotes'] += '\r\n' + srcData['origin']
                 if srcData.get('description') is not None:
                     srcData['enquiryNotes'] += '\r\n' + 'Description: {}'.format(srcData['description'])
-                srcData['referrerID'] = sourceUID
 
                 # map fields
                 for key, value in mapList.items():
@@ -203,21 +215,21 @@ def getWordpressData():
                 for item in popList:
                     srcData.pop(item)
 
-                write_applog("INFO", 'API', 'Tasks-getWordpressData', "Item data: " + json.dumps(srcData))
+                write_applog("INFO", 'API', 'Tasks-getWordpressData', "Item data: " + json.dumps(srcData, cls=DjangoJSONEncoder))
 
                 # Create and save new Enquiry object
                 try:
                     web_obj = Enquiry.objects.create(**srcData)
                 except:
                     write_applog("ERROR", 'Api', 'Tasks-getWordpressData', 'Could not save "web enquiry" entry')
-                    raise raiseTaskAdminError('Could not save "web enquiry" entry', json.dumps(srcData))
+                    raise raiseTaskAdminError('Could not save "web enquiry" entry', json.dumps(srcData, cls=DjangoJSONEncoder))
 
             # Mark items as retrieved on Wordpress
             result = wp.markContactRetrieved(sourceUID)
 
             if result['status'] != 'Ok':
                 write_applog("ERROR", 'Api', 'Tasks-getWordpressData', "Could not mark retrieved")
-                raise raiseTaskAdminError("Could not mark contact entry retrieved", json.dumps(srcData))
+                raise raiseTaskAdminError("Could not mark contact entry retrieved", json.dumps(srcData, cls=DjangoJSONEncoder))
 
     write_applog("INFO", 'API', 'Tasks-getWordpresData', 'Finishing Retrieving Data')
     return 'Task completed successfully'

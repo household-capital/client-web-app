@@ -45,9 +45,15 @@ def mapEnquiryForSF(enqUID, is_create=False):
         'street_name': 'Street_Name__c',
         'street_type': 'Street_Type__c',
         # gnaf not stored in uat
+        'origin_timestamp': 'Origin_Timestamp__c',
+        'origin_id': 'External_Origin_Id__c',
+        'enqUID': 'External_Id__c',
     }
 
-    BooleanList = ['isTopUp', 'isRefi', 'isLive', 'isGive', 'isCare', 'doNotMarket']
+    SF_BOOLEAN_FIELDS = ['isTopUp', 'isRefi', 'isLive', 'isGive', 'isCare', 'doNotMarket']
+    SF_DATE_FIELDS = []
+    SF_DATE_TIME_FIELDS = ['origin_timestamp']
+    SF_UUID_FIELDS = ['origin_id', 'enqUID']
 
     qs = Enquiry.objects.queryset_byUID(enqUID)
     enquiry = qs.get()
@@ -57,9 +63,24 @@ def mapEnquiryForSF(enqUID, is_create=False):
 
     for app_field, sf_field in SF_LEAD_MAPPING.items():
         payload[sf_field] = enquiryDict[app_field]
-        # Ensure Boolean fields are not null
-        if app_field in BooleanList and not enquiryDict[app_field]:
-            payload[sf_field] = False
+
+        if app_field in SF_BOOLEAN_FIELDS:
+            # Ensure Boolean fields are not null
+            if not enquiryDict[app_field]:
+                payload[sf_field] = False
+        elif app_field in SF_DATE_FIELDS:
+            if payload[sf_field]:
+                payload[sf_field] = payload[sf_field].strftime("%Y-%m-%d")
+            else:
+                payload[sf_field] = None
+        elif app_field in SF_DATE_TIME_FIELDS:
+            if payload[sf_field]:
+                payload[sf_field] = payload[sf_field].strftime("%Y-%m-%dT%H:%M:%SZ")
+            else:
+                payload[sf_field] = None
+        elif app_field in SF_UUID_FIELDS:
+            if payload[sf_field]:
+                payload[sf_field] = str(payload[sf_field])
 
     # Ensure name fields populated
     if not enquiryDict['name']:

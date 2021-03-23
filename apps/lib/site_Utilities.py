@@ -1,5 +1,6 @@
 import magic
 import datetime
+import pytz
 
 # Django Imports
 from django.conf import settings
@@ -11,6 +12,7 @@ from django.http import HttpResponseRedirect
 from django.template.loader import get_template
 from django.urls import reverse_lazy
 from django.db import models
+from django.utils.timezone import is_naive
 
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.hhc_LoanProjection import LoanProjection
@@ -494,6 +496,7 @@ def raiseAdminError(title, body):
     msg.send()
     return
 
+
 def raiseTaskAdminError(title, body, to=None):
     """Error raising utility for task errors"""
     msg_title = "[Django] ERROR (Celery Task): " + title
@@ -503,7 +506,6 @@ def raiseTaskAdminError(title, body, to=None):
     msg = EmailMultiAlternatives(msg_title, body, from_email, [to])
     msg.send()
     return
-
 
 
 def updateNavQueue(request):
@@ -556,6 +558,7 @@ def sendTemplateEmail(template_name, email_context, subject, from_email, to, cc=
     except:
         return False
 
+
 def attachFile(msg, filename, fileLocation, isStatic=False):
 
     if isStatic:
@@ -584,7 +587,6 @@ def getFileFieldMimeType(fieldObj):
     return mime_type
 
 
-
 def ensureList(sourceItem):
     return [sourceItem] if type(sourceItem) is str else sourceItem
 
@@ -601,7 +603,6 @@ def createCaseModelSettings(caseUID):
     return
 
 
-
 def cleanPhoneNumber(phone):
     phone = str(phone) if phone is not None else None 
     if phone:
@@ -612,10 +613,12 @@ def cleanPhoneNumber(phone):
         else:
             return number
 
+
 def remove_prefix(text, prefix):
     if text.startswith(prefix):
         text = text.replace(prefix, "", 1)
     return text
+
 
 def checkMobileNumber(number):
     result = cleanPhoneNumber(number)
@@ -629,6 +632,7 @@ def checkMobileNumber(number):
 
 def chkNone(arg):
     return arg if arg else ''
+
 
 def cleanValuation(valuation):
     if type(valuation) == str:
@@ -647,11 +651,13 @@ def cleanValuation(valuation):
     except:
         return None
 
+
 def calcAge(DOBString, date_format='%m/%d/%Y'):
     if DOBString is None: 
         return 
     age = int((datetime.date.today() - datetime.datetime.strptime(DOBString, date_format).date()).days / 365.25)
     if age > 50 and age < 100:
+
         return age
 
 class SingletonModel(models.Model):
@@ -670,3 +676,10 @@ class SingletonModel(models.Model):
     def load(cls):
         obj, created = cls.objects.get_or_create(pk=1)
         return obj
+
+
+def parse_api_datetime(dtstring):
+    dt = datetime.datetime.fromisoformat(dtstring)
+    if is_naive(dt):
+        dt = pytz.utc.localize(dt)
+    return dt

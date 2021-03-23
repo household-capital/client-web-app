@@ -200,13 +200,19 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
     # Identifiers
     enqUID = models.UUIDField(default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
-    referrer=models.IntegerField(blank=False,null=False,choices=referrerTypes)
-    referrerID=models.CharField(max_length=200,blank= True,null=True)
-    referralUser=models.ForeignKey(settings.AUTH_USER_MODEL, related_name='referralUser', null=True, blank=True, on_delete=models.SET_NULL)
     sfLeadID = models.CharField(max_length=20, null=True, blank=True)
     sfEnqID = models.CharField(max_length=20, null=True, blank=True)
-    marketingSource = models.IntegerField(blank=True, null=True, choices=marketingTypes )
+
+    # Origin
+    # Person:
+    referrerID = models.CharField(max_length=200,blank= True,null=True)
+    referralUser = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='referralUser', null=True, blank=True, on_delete=models.SET_NULL)
+    # Not a person:
+    referrer = models.IntegerField(blank=False,null=False,choices=referrerTypes)  # "Lead Source" - not a person!
+    marketingSource = models.IntegerField(blank=True, null=True, choices=marketingTypes)
     submissionOrigin = models.CharField(max_length=200, blank=True, null=True)
+    origin_timestamp = models.DateTimeField(null=True, blank=True, auto_now_add=False, auto_now=False)
+    origin_id = models.CharField(max_length=36, null=True, blank=True)
 
     # Client Data
     email=models.EmailField(blank=True, null=True)

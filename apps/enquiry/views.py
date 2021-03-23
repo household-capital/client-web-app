@@ -20,6 +20,7 @@ from django.template.loader import get_template
 from django.utils import timezone
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, UpdateView, ListView, TemplateView, View, FormView
+from django.utils.dateparse import parse_date
 
 # Third-party Imports
 from config.celery import app
@@ -144,6 +145,9 @@ class EnquiryCreateView(HouseholdLoginRequiredMixin, CreateView):
     def form_valid(self, form):
         clientDict = form.cleaned_data
         obj = form.save()
+        obj.submissionOrigin = 'Client App'
+        obj.origin_timestamp = timezone.now()
+        obj.origin_id = obj.enqUID
 
         if obj.phoneNumber:
             obj.phoneNumber = cleanPhoneNumber(form.cleaned_data['phoneNumber'])
@@ -456,6 +460,9 @@ class EnquiryCallView(HouseholdLoginRequiredMixin, CreateView):
         obj = form.save(commit=False)
         obj.status = 0
         obj.referrer = directTypesEnum.PHONE.value
+        obj.submissionOrigin = 'Client App'
+        obj.origin_timestamp = timezone.now()
+        obj.origin_id = obj.enqUID
 
         if obj.phoneNumber:
             obj.phoneNumber = cleanPhoneNumber(form.cleaned_data['phoneNumber'])
@@ -943,6 +950,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "marketing_campaign": marketing_campaign,
                         "user": self.request.user,
+                        # FIX ME - do they have timestamps?
                         "enquiryNotes": enquiryString,
                     }
 
@@ -982,6 +990,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "marketing_campaign": marketing_campaign,
                         "user": self.request.user,
+                        # FIX ME - do they have timestamps?
                         "enquiryNotes": enquiryString,
                     }
 
@@ -1026,6 +1035,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "state":  None ,
                         "marketing_campaign": marketing_campaign,
                         "user": self.request.user,
+                        # FIX ME - IS THE BELOW UTC?
+                        #'origin_timestamp': datetime.datetime.strptime(row[0], '%m/%d/%y, %I:%M %p') if row[0] else None,
                         "enquiryNotes": enquiryString,
                     }
 
@@ -1081,6 +1092,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "enquiryStage": enquiryStagesEnum.GENERAL_INFORMATION.value if row[4] == "Closed Lost" else enquiryStagesEnum.FOLLOW_UP_NO_ANSWER.value,
                         "marketing_campaign": marketing_campaign,
                         "user": self.request.user,
+                        #'origin_timestamp': datetime.datetime.strptime(row[0], '%d/%m/%y') if row[0] else None,
                         "enquiryNotes": enquiryString,
                     }
 
@@ -1119,8 +1131,11 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "marketing_campaign": marketing_campaign,
                         "user": self.request.user,
+                        # FIX ME - is this UTC?
+                        #'origin_timestamp': parse_date(row[0]) if row[0] else None,
                         "enquiryNotes": enquiryString,
                     }
+
                     updateCreatePartnerEnquiry(payload, enquiries_to_assign)
 
             messages.success(self.request, "Success - enquiries imported")
@@ -1159,6 +1174,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "marketing_campaign": marketing_campaign,
                         "user": self.request.user,
+                        # FIX ME - I CAN'T FIND WHERE TO SOURCE TIMESTAMP - IT LOOKS LIKE THE DOC FORMAT MIGHT HAVE CHANGED
                         "enquiryNotes": enquiryString,
                     }
 
@@ -1200,6 +1216,8 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "marketing_campaign": marketing_campaign,
                         "user": self.request.user,
+                        # FIX ME - is this UTC?
+                        #'origin_timestamp': parse_date(row[0]) if row[0] else None,
                         "enquiryNotes": enquiryString,
                     }
 

@@ -158,9 +158,10 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
         fields = [
             'loanType', 'name', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
             'streetAddress', 'suburb', 'state', 'mortgageDebt',
-            'referrer', 'email', 'phoneNumber', 'enquiryNotes', 'calcLumpSum', 'calcIncome',
-            'marketingSource', 'productType', 'enquiryStage', 'valuationDocument', 'propensityCategory',
-            'marketing_campaign', 'requestedCallback',
+            'email', 'phoneNumber', 'enquiryNotes', 'calcLumpSum', 'calcIncome',
+            'productType', 'enquiryStage', 'valuationDocument', 'propensityCategory',
+            'requestedCallback',
+            'referrer', 'marketing_campaign', 'marketingSource',
         ] + address_model_fields
 
         widgets = {
@@ -189,37 +190,64 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
 
             Div(
                 Div(
-                    # Div(HTML("Enquiry Status"), css_class='form-label'),
-                    # Div(Field('enquiryStage')),
-                    Div(HTML("Propensity Score"), css_class='form-label'),
-                    Div(Field('propensityCategory')),
-                    Div(HTML("Marketing Campaign"), css_class='form-label'),
-                    Div(Field('marketing_campaign')),
+                    Div(
+                        Div(HTML("Propensity Score"), css_class='form-label'),
+                        Div(Field('propensityCategory')),
+                    )
                 ),
 
                 Div(HTML("<br>")),
 
-                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Client Details"), css_class='form-header'),
+                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Contact Details"), css_class='form-header'),
                 Div(
                     Div(HTML("Client Name"), css_class='form-label'),
-                    Div(Field('name'))),
+                    Div(Field('name'))
+                ),
                 Div(
                     Div(HTML("Client Phone Number"), css_class='form-label'),
-                    Div(Field('phoneNumber'))),
+                    Div(Field('phoneNumber'))
+                ),
                 Div(
                     Div(HTML("Client Email"), css_class='form-label'),
-                    Div(Field('email'))),
-                Div(
-                    Div(HTML("Enquiry Notes"), css_class='form-label'),
-                    Div(Field('enquiryNotes'))),
-                Div(
-                    Div(HTML("Enquiry Source"), css_class='form-label'),
-                    Div(Field('referrer'))),
-                Div(
-                    Div(HTML("Source Detail"), css_class='form-label'),
-                    Div(Field('marketingSource'))),
-                css_class='col-lg-6'),
+                    Div(Field('email'))
+                ),
+                Div(HTML("<br>")),
+                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Enquiry Notes"), css_class='form-header'),
+                Div(Field('enquiryNotes')),
 
+                Div(HTML("<br>")),
+                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Enquiry Source"), css_class='form-header'),
+                Div(
+                    Div(HTML("Lead Source"), css_class='form-label'),
+                    Div(Field('referrer'))
+                ),
+                Div(
+                    Div(HTML("Marketing Source"), css_class='form-label'),
+                    Div(Field('marketingSource'))
+                ),
+                Div(
+                    Div(HTML("Marketing Campaign"), css_class='form-label'),
+                    Div(Field('marketing_campaign')),
+                ),
+
+                HTML('<div class="jumbotron">'),
+                Div(
+                    Div(HTML("Submission Origin"), css_class='form-label'),
+                    Div(HTML("{{ obj.submissionOrigin }}"), css_class='pl-2'),
+                ),
+                Div(
+                    Div(HTML("Origin Timestamp"), css_class='form-label'),
+                    Div(HTML("{% if obj.origin_timestamp %}{{ obj.origin_timestamp|date }} - {{ obj.origin_timestamp|time }}{% else %}None{% endif %}"), css_class='pl-2'),
+                    css_class='pt-2'
+                ),
+                Div(
+                    Div(HTML("Origin ID"), css_class='form-label'),
+                    Div(HTML("{{ obj.origin_id }}"), css_class='pl-2'),
+                    css_class='pt-2'
+                ),
+                HTML('</div>'),
+
+                css_class='col-lg-6'),
             Div(
                 Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Borrower(s)"), css_class='form-header pt-2'),
                 Div(
@@ -239,6 +267,8 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
                     Column(Div(Div(HTML(
                         "<button id='lookup_dialogue' type='button' class='btn btn-sm btn-light'><i class='fas fa-search'></i> Find</button> ")),
                         css_class='text-right'), css_class='col-6')),
+                Div(Div(HTML("Dwelling Type*"), css_class='form-label'),
+                    Div(Field('dwellingType'))),
                 Div(Div(HTML("Street Address"), css_class='form-label'),
                     Div(Field('streetAddress', readonly=True))),
                 Div(Div(HTML("Unit / Apartment / Lot"), css_class='form-label'),
@@ -257,8 +287,6 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
                                Div(Field('state'))), css_class='col-6'),
                     Column(Div(Div(HTML("Postcode*"), css_class='form-label'),
                                Div(Field('postcode'))), css_class='col-6')),
-                Div(Div(HTML("Dwelling Type*"), css_class='form-label'),
-                    Div(Field('dwellingType'))),
 
                 Div(Div(HTML("Valuation*"), css_class='form-label'),
                     Div(Field('valuation'))),

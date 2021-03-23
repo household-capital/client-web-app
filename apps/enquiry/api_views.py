@@ -96,7 +96,10 @@ class DataIngestion(APIView):
                 "referred_by": "Luke Sharam",
                 "postcode_type": True,
                 "grading": "A",
-                "stream" : "YOUR_LIFE_CHOICES"
+                "stream" : "YOUR_LIFE_CHOICES",
+                "origin" : "web page X",
+                "origin_timestamp": "????????????????",
+                "origin_id": "ASDASD-1ASDQ23-ZXCZCZ-1231",
             }
         """
         for req_field in REQUIRED_FIELDS: 
@@ -110,8 +113,7 @@ class DataIngestion(APIView):
             'name': "{} {}".format(
                 json_payload.get('first', ''),
                 json_payload.get('last', '')
-            )
-            ,
+            ),
             'phoneNumber': cleanPhoneNumber(json_payload['phone']),
             'postcode': json_payload.get('postcode'),
             'propensityCategory': propensityChoicesReverseDict.get(json_payload['grading']),
@@ -125,6 +127,9 @@ class DataIngestion(APIView):
             'street_number': json_payload.get('street_number'),
             'street_name': json_payload.get('street_name'),
             'street_type': json_payload.get('street_type'),
+            'submissionOrigin': json_payload.get('origin'),
+            #'origin_timestamp': json_payload.get('origin_timestamp'),
+            'origin_id': json_payload.get('origin_id'),
             'user': integration_user,
         }
         if json_payload.get('state'): 

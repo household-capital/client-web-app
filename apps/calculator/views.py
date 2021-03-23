@@ -166,7 +166,7 @@ class ContactDeleteView(HouseholdLoginRequiredMixin, View):
         return HttpResponseRedirect(reverse_lazy('calculator:contactList'))
 
 # Convert Contact
-class ContractConvertView(HouseholdLoginRequiredMixin, View):
+class ContactConvertView(HouseholdLoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
 
@@ -181,12 +181,18 @@ class ContractConvertView(HouseholdLoginRequiredMixin, View):
         enquiryNotes = ''.join(filter(None,[contObj.message, chr(13), contObj.actionNotes]))
 
         #Create enquiry
-        enq_obj = Enquiry.objects.create(user=userRef,
-                                         referrer=directTypesEnum.WEB_ENQUIRY.value,
-                                         name = contObj.name,
-                                         email = contObj.email,
-                                         phoneNumber = contObj.phone,
-                                         enquiryNotes = enquiryNotes)
+        enq_obj = Enquiry.objects.create(
+            user=userRef,
+            referrer=directTypesEnum.WEB_ENQUIRY.value,
+            name=contObj.name,
+            email=contObj.email,
+            phoneNumber=contObj.phone,
+            enquiryNotes=enquiryNotes,
+            submissionOrigin=contObj.submissionOrigin,
+            origin_timestamp=contObj.origin_timestamp,
+            origin_id=contObj.origin_id,
+            requestedCallback=True
+        )
         enq_obj.save()
         lead = enq_obj.case
         if not lead.owner:
