@@ -319,6 +319,23 @@ class apiSalesforce():
         except SalesforceGeneralError as err:
             return {'status': 'Error', 'responseText': err.content[0]}
 
+    def createNote(self, noteDict):
+        try:
+            result=self.sf.Note.create(noteDict)
+            return {'status':'Ok','data':result}
+        except SalesforceMalformedRequest as err:
+            return {'status':'Error', 'responseText':err.content[0]}
+        except:
+            return {'status':'Error','responseText':'Unknown' }
+
+    def deleteNote(self, id):
+        try:
+            result=self.sf.Note.delete(id)
+            return {'status':'Ok','data':result}
+        except SalesforceMalformedRequest as err:
+            return {'status':'Error', 'responseText':err.content[0]}
+        except:
+            return {'status':'Error','responseText':'Unknown'}
 
     # SF Opportunity Extract
 

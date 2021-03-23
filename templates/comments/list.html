@@ -3,7 +3,7 @@
 
 <div>
     {% for comment in comment_list %}
-        <div class="card pt-2">
+        <div class="card pt-3">
 
             <div class="card-header">
                 {{ comment.submit_date }} - {{ comment.name }}
@@ -11,7 +11,7 @@
             <div class="card-body">
                 <p class="card-text" style="white-space: pre-wrap;">{{ comment.comment }}</p>
             </div>
-            <div class="card-footer text-right pt-2">
+            <div class="card-footer text-right pt-1 pb-1">
                 <form method="POST">
                     {% get_comment_edit_form for comment as form %}
                     {% csrf_token %}
@@ -19,7 +19,6 @@
                     {{ form.timestamp }}
                     {{ form.security_hash }}
                     <input type="hidden" name="next" value="{{ obj.get_absolute_url }}" />
-                    <input class="btn btn-outline-secondary" type="submit" value="Edit" formaction="{% url 'comments_extension:comments-edit' comment_id=comment.id %}"/>
                     <input class="btn btn-outline-secondary" type="submit" value="Delete" formaction="{% url 'comments-delete' comment_id=comment.id %}"/>
                 </form>
             </div>
