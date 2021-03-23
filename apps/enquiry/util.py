@@ -280,7 +280,6 @@ def updateCreatePartnerEnquiry(payload, enquiries_to_assign):
 
 
     write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Creating new enquiry')
-    payload["enquiryNotes"] = enquiryString
     new_enq = Enquiry.objects.create(**payload)
     lead = new_enq.case
 
