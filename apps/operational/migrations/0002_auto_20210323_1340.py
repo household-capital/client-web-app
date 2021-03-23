@@ -20,7 +20,7 @@ def forwards_func(apps, schema_editor):
         else:
             salesforceID = ''
         profile = Profile.objects.create(
-            user=user,
+            user_id=user.id,
             salesforceID=salesforceID
         ) 
 
