@@ -24,6 +24,47 @@ class caseStagesEnum(Enum):
     APPLICATION=4
     DOCUMENTATION=5
     FUNDED = 6
+    # Breakdown of discovery stage
+    UNQUALIFIED_CREATED = 7 
+    MARKETING_QUALIFIED = 8 
+    SQ_GENERAL_INFO = 9 
+    SQ_BROCHURE_SENT = 10
+    SQ_CUSTOMER_SUMMARY_SENT = 11 
+    SQ_FUTURE_CALL = 12 
+    SALES_ACTIVE = 13
+
+PRE_MEETING_STAGES = [
+    'UNQUALIFIED_CREATED',
+    'MARKETING_QUALIFIED',
+    'SQ_GENERAL_INFO',
+    'SQ_BROCHURE_SENT',
+    'SQ_CUSTOMER_SUMMARY_SENT',
+    'SQ_FUTURE_CALL', 
+    'SALES_ACTIVE',
+    
+    'DISCOVERY',
+]
+
+EDITABLE_STAGES = [
+    'UNQUALIFIED_CREATED',
+    'MARKETING_QUALIFIED',
+    'SQ_GENERAL_INFO',
+    'SQ_BROCHURE_SENT',
+    'SQ_CUSTOMER_SUMMARY_SENT',
+    'SQ_FUTURE_CALL', 
+    
+    'DISCOVERY',
+    'MEETING_HELD',
+    'APPLICATION',
+    'CLOSED'
+]
+
+# Unqualified / Lead created (automatic state when a lead is created through any channel)
+# Marketing Qualified (set when we know the lead is eligible, i.e. not ineligible)
+# SQ - General Info
+# SQ - Brochure sent
+# SQ - Customer summary sent
+# SQ - Future call
 
 @accessInTemplate
 class clientSexEnum(Enum):
@@ -177,6 +218,38 @@ class closeReasonEnum(Enum):
     FEES = 15
     DUPLICATE = 16
     OTHER = 12
+
+
+# Below minimum age
+# Invalid or rejected refer postcode
+# Below minimum loan amount
+# Above maximum loan amount
+# Refinance too large
+# Unsuitable purpose
+# Unsuitable property
+# Unsuitable title ownership
+# Deceased borrower
+# Not proceeding
+# Other
+@accessInTemplate
+class closeReasonEnumUpdated(Enum): 
+    BELOW_MIN_AGE = 1
+    INVALID_REFER_POSTCODE = 2
+    BELOW_MIN_LOAN_AMOUNT = 3
+    ABOVE_MAX_LOAN_AMOUNT = 4
+    REFI_TOO_LARGE = 5
+    UNSUITABLE_PURPOSE = 6
+    UNSUITABLE_PROPERTY = 7
+    UNSUITABLE_TITLE_OWNERSHIP = 8
+    DECEASED_BORROWER = 9
+    NOT_PROCEEDING = 10
+    OTHER = 11
+    DOESNT_LIKE_REV_MORTGAGES = 12
+    FEE_INTEREST_TOO_HIGH = 13
+
+    #Doesn’t like Reverse Mortgages
+    #Fees or interest rate too high
+
 
 
 @accessInTemplate

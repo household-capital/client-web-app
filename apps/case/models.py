@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.db import models
+from django.db.models import Q
 from django.utils.encoding import smart_text
 from django.utils import timezone
 from django.urls import reverse_lazy
@@ -17,6 +18,8 @@ from apps.accounts.models import Referer
 from urllib.parse import urljoin
 
 from apps.base.model_utils import AbstractAddressModel
+
+from config.celery import app
 
 class FundDetail(models.Model):
     #Model for Fund Names/Images
@@ -58,6 +61,21 @@ class CaseManager(models.Manager):
         return Case.objects.filter(owner__isnull=True).count()
 
 
+    def find_duplicates_QS(self, email, phoneNumber):
+        if email and phoneNumber:
+            query = (Q(email__iexact=email) | Q(phoneNumber=phoneNumber))
+        elif email:
+            query = Q(email__iexact=email)
+        elif phoneNumber:
+            query = Q(phoneNumber=phoneNumber)
+        else:
+            raise Exception('email or phone must be present')
+
+        return Case.objects.filter(query)
+
+    def find_duplicates(self, email, phoneNumber, order_by="-updated"):
+        return self.find_duplicates_QS(email, phoneNumber).order_by(order_by)
+
 class Case(AbstractAddressModel):
     # Main model - extended by Loan, ModelSettings and LossData
 
@@ -66,13 +84,34 @@ class Case(AbstractAddressModel):
         (appTypesEnum.VARIATION.value, "Variation"),
     )
 
+    referrerTypes = (
+        (-1, 'Unassigned'),
+        (directTypesEnum.PHONE.value,'Phone'),
+        (directTypesEnum.EMAIL.value, 'Email'),
+        (directTypesEnum.WEB_ENQUIRY.value,'Web'),
+        (directTypesEnum.SOCIAL.value, 'Social'),
+        (directTypesEnum.WEB_CALCULATOR.value, 'Calculator'),
+        (directTypesEnum.PARTNER.value, 'Partner'),
+        (directTypesEnum.BROKER.value, 'Broker'),
+        (directTypesEnum.ADVISER.value, 'Adviser'),
+        (directTypesEnum.OTHER.value,'Other'),
+    )
+
     caseStages=(
+                  (caseStagesEnum.UNQUALIFIED_CREATED.value,"Unqualified / Lead created"),
+                  (caseStagesEnum.MARKETING_QUALIFIED.value,"Marketing Qualified"),
+                  (caseStagesEnum.SQ_GENERAL_INFO.value,"SQ - General Info"),
+                  (caseStagesEnum.SQ_BROCHURE_SENT.value,"SQ - Brochure sent"),
+                  (caseStagesEnum.SQ_CUSTOMER_SUMMARY_SENT.value,"SQ - Customer summary sent"),
+                  (caseStagesEnum.SQ_FUTURE_CALL.value,"SQ - Future call"),
+                  (caseStagesEnum.SALES_ACTIVE.value, "Sales Active"),
                   (caseStagesEnum.DISCOVERY.value,"Discovery"),
                   (caseStagesEnum.MEETING_HELD.value, "Meeting Held"),
                   (caseStagesEnum.APPLICATION.value, "Application"),
                   (caseStagesEnum.DOCUMENTATION.value, "Documentation"),
                   (caseStagesEnum.FUNDED.value, "Funded"),
-                  (caseStagesEnum.CLOSED.value, "Closed"),    )
+                  (caseStagesEnum.CLOSED.value, "Closed"),    
+        )
 
     clientTypes=(
         (clientTypesEnum.BORROWER.value, 'Borrower'),
@@ -279,6 +318,10 @@ class Case(AbstractAddressModel):
     
     doNotMarket = models.BooleanField(default=False)
 
+    # new fields to move from lead
+    referrer = models.IntegerField(blank=False, null=False, choices=referrerTypes, default=-1)
+    # default to unassigned to allow migration and not break the null/blank = False
+
     objects=CaseManager()
 
     def __str__(self):
@@ -290,6 +333,10 @@ class Case(AbstractAddressModel):
     class Meta:
         ordering = ('-updated',)
         verbose_name_plural = "Case"
+
+    def enumReferrerType(self):
+        if self.referrer is not None:
+            return dict(self.referrerTypes)[self.referrer]
 
     def enumCaseStage(self):
         return dict(self.caseStages).get(self.caseStage)
@@ -375,6 +422,12 @@ class Case(AbstractAddressModel):
                 os.getenv('SALESFORCE_BASE_URL'),
                 "lightning/r/Lead/{0}/view".format(self.sfLeadID)
             )
+    
+    def save(self, should_sync=False, *args, **kwargs):
+        super(Case, self).save(*args, **kwargs)
+        if should_sync: 
+            app.send_task('Update_SF_Case_Lead', kwargs={'caseUID': str(self.caseUID)})
+
 
 
 # Pre-save function to extend Case
@@ -667,21 +720,20 @@ class ModelSetting(models.Model):
 
 
 class LossData(models.Model):
-
     closeReasonTypes=(
-        (closeReasonEnum.AGE_RESTRICTION.value, 'Age Restriction'),
-        (closeReasonEnum.POSTCODE_RESTRICTION.value, 'Postcode Restriction'),
-        (closeReasonEnum.MINIMUM_LOAN_AMOUNT.value, 'Below minimum loan amount'),
-        (closeReasonEnum.CREDIT.value, 'Credit History'),
-        (closeReasonEnum.MORTGAGE.value, 'Mortgage too Large'),
-        (closeReasonEnum.SHORT_TERM.value, 'Short-term / Bridging Requirement'),
-        (closeReasonEnum.TENANTS.value, 'Tenants in common'),
-        (closeReasonEnum.UNSUITABLE_PROPERTY.value, 'Unsuitable Property'),
-        (closeReasonEnum.UNSUITABLE_PURPOSE.value, 'Unsuitable Purpose'),
-        (closeReasonEnum.ALTERNATIVE_SOLUTION.value, 'Client Pursuing Alternative'),
-        (closeReasonEnum.COMPETITOR.value, 'Client went to Competitor'),
-        (closeReasonEnum.NO_CLIENT_ACTION.value, 'No further action by client'),
-        (closeReasonEnum.OTHER.value , 'Other')
+        (closeReasonEnumUpdated.BELOW_MIN_AGE.value, 'Below minimum age'),
+        (closeReasonEnumUpdated.INVALID_REFER_POSTCODE.value, 'Invalid or rejected refer postcode'),
+        (closeReasonEnumUpdated.BELOW_MIN_LOAN_AMOUNT.value, 'Below minimum loan amount'),
+        (closeReasonEnumUpdated.ABOVE_MAX_LOAN_AMOUNT.value, 'Above maximum loan amount'),
+        (closeReasonEnumUpdated.REFI_TOO_LARGE.value, 'Refinance too large'),
+        (closeReasonEnumUpdated.UNSUITABLE_PURPOSE.value, 'Unsuitable purpose'),
+        (closeReasonEnumUpdated.UNSUITABLE_PROPERTY.value, 'Unsuitable property'),
+        (closeReasonEnumUpdated.UNSUITABLE_TITLE_OWNERSHIP.value, 'Unsuitable title ownership'),
+        (closeReasonEnumUpdated.DECEASED_BORROWER.value, 'Deceased borrower'),
+        (closeReasonEnumUpdated.NOT_PROCEEDING.value, 'Not proceeding'),
+        (closeReasonEnumUpdated.DOESNT_LIKE_REV_MORTGAGES.value, 'Doesn’t like Reverse Mortgages'),
+        (closeReasonEnumUpdated.FEE_INTEREST_TOO_HIGH.value, 'Fees or interest rate too high'),
+        (closeReasonEnumUpdated.OTHER.value, 'Other'),
     )
 
     case = models.OneToOneField(Case, on_delete=models.CASCADE)

@@ -28,8 +28,8 @@ from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.site_DataMapping import serialisePurposes
-from apps.lib.site_Enums import caseStagesEnum, loanTypesEnum, appTypesEnum, purposeCategoryEnum, \
-    purposeIntentionEnum, incomeFrequencyEnum, productTypesEnum, clientTypesEnum
+from apps.lib.site_Enums import caseStagesEnum, EDITABLE_STAGES, PRE_MEETING_STAGES, loanTypesEnum, appTypesEnum, purposeCategoryEnum, \
+    purposeIntentionEnum, incomeFrequencyEnum, productTypesEnum, clientTypesEnum, closeReasonEnumUpdated
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Logging import write_applog
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
@@ -126,7 +126,13 @@ class CaseListView(HouseholdLoginRequiredMixin, ListView):
 
         elif not self.request.GET.get('search'):
             queryset = queryset.filter(
-                Q(caseStage=caseStagesEnum.DISCOVERY.value))
+                Q(
+                    caseStage__in=[
+                        caseStagesEnum[_stage].value
+                        for _stage in PRE_MEETING_STAGES
+                    ]
+                )
+            )
 
         # ...and orderby.....
         if self.request.GET.get('order') == None or self.request.GET.get('order') == "":
@@ -146,7 +152,7 @@ class CaseListView(HouseholdLoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(CaseListView, self).get_context_data(**kwargs)
-        context['title'] = 'Cases'
+        context['title'] = 'Leads'
 
         if self.request.GET.get('search'):
             context['search'] = self.request.GET.get('search')
@@ -184,9 +190,10 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
 
     def get_context_data(self, **kwargs):
         context = super(CaseDetailView, self).get_context_data(**kwargs)
-        context['title'] = 'Case Detail'
+        context['title'] = 'Lead Detail'
         context['isUpdate'] = True
         context['caseStagesEnum'] = caseStagesEnum
+        context['preMeetingStages'] = [caseStagesEnum[_stage].value for _stage in  PRE_MEETING_STAGES]
         context['appTypesEnum'] = appTypesEnum
         context['productTypesEnum'] = productTypesEnum
 
@@ -217,6 +224,13 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
 
         if self.object.owner:
             if self.object.owner.profile.calendlyInterviewUrl:
+                name = "{} {}".format(
+                    self.object.firstname_1 or '',
+                    self.object.surname_1 or ''
+                )
+                paramStr = "?name=" + (name or '') + "&email=" + \
+                   (self.object.email or '')
+                context['calendlyDiscoveryUrl'] = self.object.owner.profile.calendlyUrl + paramStr
                 context['calendlyUrl'] = self.object.owner.profile.calendlyInterviewUrl + paramStr
                 context['calendlyMainUrl'] = self.object.owner.profile.calendlyUrl[
                                              :len(self.object.owner.profile.calendlyUrl) - 24]  # Refactor
@@ -270,8 +284,10 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
         loan_obj = Loan.objects.queryset_byUID(str(self.kwargs['uid'])).get()
 
         # Don't allow later stages to be updated in the GUI
-        if initialcaseStage not in [caseStagesEnum.DISCOVERY.value, caseStagesEnum.MEETING_HELD.value,
-                                    caseStagesEnum.APPLICATION.value, caseStagesEnum.CLOSED.value]:
+        if initialcaseStage not in [
+            caseStagesEnum[stage_].value
+            for stage_ in EDITABLE_STAGES
+        ]:
             messages.error(self.request, "You can no longer update this Case ")
             return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': self.kwargs.get('uid')}))
 
@@ -343,7 +359,7 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
         else:
             # Salesforce Synch
             self.salesforceSynch(obj)
-            messages.success(self.request, "Case has been updated")
+            messages.success(self.request, "Lead has been updated")
 
         return super(CaseDetailView, self).form_valid(form)
 
@@ -367,6 +383,8 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
         return
 
     def checkFields(self, caseObj):
+        if caseObj.caseStage in [caseStagesEnum[_stage].value for _stage in EDITABLE_STAGES]:
+            return True
         requiredFields = ['loanType', 'clientType1', 'salutation_1', 'maritalStatus_1', 'surname_1',
                           'firstname_1', 'birthdate_1', 'sex_1', 'street', 'suburb', 'state',
                           'valuation', 'dwellingType']
@@ -397,7 +415,7 @@ class CaseCreateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Create
 
     def get_context_data(self, **kwargs):
         context = super(CaseCreateView, self).get_context_data(**kwargs)
-        context['title'] = 'New Case'
+        context['title'] = 'New Lead'
 
         return context
 
@@ -419,11 +437,11 @@ class CaseCreateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Create
             obj.phoneNumber = cleanPhoneNumber(form.cleaned_data['phoneNumber'])
 
         # Set fields manually
-        obj.caseStage = caseStagesEnum.DISCOVERY.value
+        obj.caseStage = caseStagesEnum.UNQUALIFIED_CREATED.value
         obj.owner = self.request.user
 
         obj.save()
-        messages.success(self.request, "Case Created")
+        messages.success(self.request, "Lead Created")
 
         # Background task to update SF
         app.send_task('Create_SF_Case_Lead', kwargs={'caseUID': str(obj.caseUID)})
@@ -437,7 +455,7 @@ class CaseDeleteView(HouseholdLoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         if "uid" in kwargs:
             Case.objects.filter(caseUID=kwargs['uid']).delete()
-            messages.success(self.request, "Case deleted")
+            messages.success(self.request, "Lead deleted")
 
         return HttpResponseRedirect(reverse_lazy('case:caseList'))
 
@@ -493,10 +511,11 @@ class CaseCloseView(HouseholdLoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(CaseCloseView, self).get_context_data(**kwargs)
-        context['title'] = 'Close Case'
+        context['title'] = 'Close Lead'
         return context
 
     def form_valid(self, form):
+        reason = form['closeReason'].value() 
         obj = form.save(commit=False)
         if form.cleaned_data['closeReason']:
             obj.closeDate = timezone.now()
@@ -506,7 +525,7 @@ class CaseCloseView(HouseholdLoginRequiredMixin, UpdateView):
         caseObj.caseStage = caseStagesEnum.CLOSED.value
         caseObj.save(update_fields=['caseStage'])
 
-        messages.success(self.request, "Case closed or marked as followed-up")
+        messages.success(self.request, "Lead closed or marked as followed-up")
 
         try:
             caseObj = Case.objects.filter(caseUID=str(self.kwargs.get('uid'))).get()
@@ -523,9 +542,9 @@ class CaseCloseView(HouseholdLoginRequiredMixin, UpdateView):
 class CaseUncloseView(HouseholdLoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         obj = Case.objects.filter(caseUID=kwargs['uid']).get()
-        obj.caseStage = caseStagesEnum.DISCOVERY.value
+        obj.caseStage = caseStagesEnum.UNQUALIFIED_CREATED.value
         obj.save(update_fields=['caseStage'])
-        messages.success(self.request, "Case restored")
+        messages.success(self.request, "Lead restored")
         return HttpResponseRedirect(reverse_lazy('case:caseList'))
 
 
@@ -604,7 +623,7 @@ class CaseOwnView(HouseholdLoginRequiredMixin, View):
         return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
 
-class CaseAssignView(HouseholdLoginRequiredMixin, UpdateView):
+class CaseAssignView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, UpdateView):
     template_name = 'case/caseDetail.html'
     email_template_name = 'case/email/assignEmail.html'
     form_class = CaseAssignForm

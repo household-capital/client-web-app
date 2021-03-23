@@ -33,8 +33,13 @@ def synchCalendly():
 
     write_applog("INFO", 'Calendly', 'Tasks-synchCalendly', "Start synch Calendly to Enquiries/Cases")
 
-    tracked_meeting_set = {'discovery', 'callback', 'phone'}
-    zoom_meeting_set = {'zoom'}
+
+    lead_meeting_set = { 
+        'discovery', 
+        'callback', 
+        'phone',
+        'zoom'
+    } 
 
     fromDate = timezone.now() - datetime.timedelta(days=30)
     qs = Calendly.objects.filter(startTime__gte=fromDate, isCalendlyLive=True)\
@@ -43,27 +48,7 @@ def synchCalendly():
     for obj in qs:
 
         meeting_set = set(obj.meetingName.lower().split())
-
-        if meeting_set & tracked_meeting_set:
-
-            if not obj.enqUID:
-                enqObj = Enquiry.objects.filter(Q(email__iexact=obj.customerEmail, email__isnull=False) |
-                                                Q(phoneNumber__iexact=obj.customerPhone,phoneNumber__isnull=False ))\
-                    .order_by("-timestamp").first()
-
-                if enqObj:
-
-                    write_applog("INFO", 'Calendly', 'Tasks-synchCalendly', "Updating Enquiry -" + chkNone(enqObj.name))
-
-                    obj.enqUID = enqObj.enqUID
-                    obj.save()
-                    updateEnquiry(enqObj.enqUID, obj.meetingName, obj.customerPhone)
-
-                    if not enqObj.closeDate:
-                        app.send_task('Update_SF_Enquiry', kwargs={'enqUID': str(enqObj.enqUID)})
-
-        elif meeting_set & zoom_meeting_set:
-
+        if meeting_set & lead_meeting_set: 
             if not obj.caseUID:
 
                 caseObj = Case.objects.filter(Q(email__iexact=obj.customerEmail, email__isnull=False) |

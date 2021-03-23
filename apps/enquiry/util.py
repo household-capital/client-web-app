@@ -7,264 +7,288 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.template.loader import get_template
 from django.core.mail import EmailMultiAlternatives
+from django.db.models import Q
 
 from apps.settings.models import GlobalSettings
 from apps.lib.site_Enums import *
 from apps.lib.site_Logging import write_applog
+from apps.case.models import Case
+from apps.case.assignment import auto_assign_leads
 from .models import Enquiry
+from apps.lib.site_Enums import caseStagesEnum
+
+# DEPRECATE COMMENTED
+
+# def _assign_enquiries(assignments, notify):
+
+#     def send_summary_email(user, enquiries):
+#         if not enquiries:
+#             return
+#         subject = "Enquiry(s) Assigned to You"
+#         from_email = "noreply@householdcapital.app"
+#         to = user.email
+#         text_content = "Text Message"
+#         email_context = {
+#             'user': user,
+#             'enquiries': enquiries,
+#             'base_url': settings.SITE_URL,
+#         }
+#         html = get_template(email_template_name)
+#         html_content = html.render(email_context)
+#         msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+#         msg.attach_alternative(html_content, "text/html")
+#         msg.send()
+
+#     email_template_name = 'enquiry/email/email_assign.html'
+
+#     for user_id, enquiries in assignments.items():
+
+#         if user_id is not None:
+#             user = User.objects.get(id=user_id)
+#             username = user.username
+#         else:
+#             user = None
+#             username = "Unassigned"
+
+#         processed = []
+#         try:
+#             for enquiry in enquiries:
+#                 write_applog('INFO', 'enquiry.util', 'assign_enquiries', 'Assigning enquiry (%s) to user %s' % (enquiry.enqUID, username))
+
+#                 if enquiry.user:
+#                     enquiry.enquiryNotes = (enquiry.enquiryNotes or '') + '\r\n[# Enquiry assigned from ' + enquiry.user.username + ' to ' + username + ' #]'
+#                 elif enquiry.referrer == directTypesEnum.BROKER.value:
+#                     enquiry.enquiryNotes = (enquiry.enquiryNotes or '') + '\r\n[# Enquiry assigned from ' + enquiry.referralUser.profile.referrer.companyName + ' to ' + username + ' #]'
+
+#                 enquiry.user = user
+#                 enquiry.save(should_sync=True)
+#                 processed.append(enquiry)
+#                 write_applog('INFO', 'enquiry.util', 'assign_enquiries', 'Succeeded')
+#         except Exception as ex:
+#             if notify and (user is not None):
+#                 try:
+#                     write_applog('INFO', 'enquiry.util', 'assign_enquiries', 'Sending summary email')
+#                     send_summary_email(user, processed)
+#                     write_applog('INFO', 'enquiry.util', 'assign_enquiries', 'Summary email sent')
+#                 except Exception as ex:
+#                     write_applog('ERROR', 'enquiry.util', 'assign_enquiries', 'Could not send email', is_exception=True)
+#             raise
+
+#         if notify and (user is not None):
+#             write_applog('INFO', 'enquiry.util', 'assign_enquiries', 'Sending summary email')
+#             send_summary_email(user, processed)
+#             write_applog('INFO', 'enquiry.util', 'assign_enquiries', 'Summary email sent')
 
 
-def _assign_enquiries(assignments, notify):
-
-    def send_summary_email(user, enquiries):
-        if not enquiries:
-            return
-        subject = "Enquiry(s) Assigned to You"
-        from_email = "noreply@householdcapital.app"
-        to = user.email
-        text_content = "Text Message"
-        email_context = {
-            'user': user,
-            'enquiries': enquiries,
-            'base_url': settings.SITE_URL,
-        }
-        html = get_template(email_template_name)
-        html_content = html.render(email_context)
-        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-        msg.attach_alternative(html_content, "text/html")
-        msg.send()
-
-    email_template_name = 'enquiry/email/email_assign.html'
-
-    for user_id, enquiries in assignments.items():
-
-        if user_id is not None:
-            user = User.objects.get(id=user_id)
-            username = user.username
-        else:
-            user = None
-            username = "Unassigned"
-
-        processed = []
-        try:
-            for enquiry in enquiries:
-                write_applog('INFO', 'enquiry.util', 'assign_enquiries', 'Assigning enquiry (%s) to user %s' % (enquiry.enqUID, username))
-
-                if enquiry.user:
-                    enquiry.enquiryNotes = (enquiry.enquiryNotes or '') + '\r\n[# Enquiry assigned from ' + enquiry.user.username + ' to ' + username + ' #]'
-                elif enquiry.referrer == directTypesEnum.BROKER.value:
-                    enquiry.enquiryNotes = (enquiry.enquiryNotes or '') + '\r\n[# Enquiry assigned from ' + enquiry.referralUser.profile.referrer.companyName + ' to ' + username + ' #]'
-
-                enquiry.user = user
-                enquiry.save(should_sync=True)
-                processed.append(enquiry)
-                write_applog('INFO', 'enquiry.util', 'assign_enquiries', 'Succeeded')
-        except Exception as ex:
-            if notify and (user is not None):
-                try:
-                    write_applog('INFO', 'enquiry.util', 'assign_enquiries', 'Sending summary email')
-                    send_summary_email(user, processed)
-                    write_applog('INFO', 'enquiry.util', 'assign_enquiries', 'Summary email sent')
-                except Exception as ex:
-                    write_applog('ERROR', 'enquiry.util', 'assign_enquiries', 'Could not send email', is_exception=True)
-            raise
-
-        if notify and (user is not None):
-            write_applog('INFO', 'enquiry.util', 'assign_enquiries', 'Sending summary email')
-            send_summary_email(user, processed)
-            write_applog('INFO', 'enquiry.util', 'assign_enquiries', 'Summary email sent')
+# def assign_enquiry(enquiry, user, notify=True):
+#     return _assign_enquiries({user.id: [enquiry]}, notify)
 
 
-def assign_enquiry(enquiry, user, notify=True):
-    return _assign_enquiries({user.id: [enquiry]}, notify)
+# def _filter_calc_assignees(assignees):
+#     return [
+#         assignee for assignee in assignees
+#         if assignee.profile.isCreditRep and assignee.profile.calendlyUrl
+#     ]
 
 
-def _filter_calc_assignees(assignees):
-    return [
-        assignee for assignee in assignees
-        if assignee.profile.isCreditRep and assignee.profile.calendlyUrl
-    ]
+# def _filter_partner_assignees(assignees):
+#     return [
+#         assignee for assignee in assignees
+#         #if assignee.profile.isCreditRep
+#     ]
 
 
-def _filter_partner_assignees(assignees):
-    return [
-        assignee for assignee in assignees
-        #if assignee.profile.isCreditRep
-    ]
+# def _filter_social_assignees(assignees):
+#     return [
+#         assignee for assignee in assignees
+#         #if assignee.profile.isCreditRep
+#     ]
+
+# _AUTO_ASSIGN_LEADSOURCE_LOOKUP = {
+#     directTypesEnum.WEB_CALCULATOR.value: {
+#         'settings_assignee_field': 'autoassignees_calculators',
+#         'choice_filter': _filter_calc_assignees,
+#     },
+# }
+
+# _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP = {
+#     marketingTypesEnum.STARTS_AT_60.value: {
+#         'settings_assignee_field': 'autoassignees_STARTS_AT_60',
+#         'choice_filter': _filter_partner_assignees,
+#     },
+#     marketingTypesEnum.CARE_ABOUT.value: {
+#         'settings_assignee_field': 'autoassignees_CARE_ABOUT',
+#         'choice_filter': _filter_partner_assignees,
+#     },
+#     marketingTypesEnum.NATIONAL_SENIORS.value: {
+#         'settings_assignee_field': 'autoassignees_NATIONAL_SENIORS',
+#         'choice_filter': _filter_partner_assignees,
+#     },
+#     marketingTypesEnum.YOUR_LIFE_CHOICES.value: {
+#         'settings_assignee_field': 'autoassignees_YOUR_LIFE_CHOICES',
+#         'choice_filter': _filter_partner_assignees,
+#     },
+#     marketingTypesEnum.FACEBOOK.value: {
+#         'settings_assignee_field': 'autoassignees_FACEBOOK',
+#         'choice_filter': _filter_social_assignees,
+#     },
+#     marketingTypesEnum.LINKEDIN.value: {
+#         'settings_assignee_field': 'autoassignees_LINKEDIN',
+#         'choice_filter': _filter_social_assignees,
+#     },
+# }
 
 
-def _filter_social_assignees(assignees):
-    return [
-        assignee for assignee in assignees
-        #if assignee.profile.isCreditRep
-    ]
+# def find_auto_assignee(referrer=None, marketing_source=None, email=None, phoneNumber=None, global_settings=None):
 
-_AUTO_ASSIGN_LEADSOURCE_LOOKUP = {
-    directTypesEnum.WEB_CALCULATOR.value: {
-        'settings_assignee_field': 'autoassignees_calculators',
-        'choice_filter': _filter_calc_assignees,
-    },
-}
+#     def load_options():
+#         options = None
 
-_AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP = {
-    marketingTypesEnum.STARTS_AT_60.value: {
-        'settings_assignee_field': 'autoassignees_STARTS_AT_60',
-        'choice_filter': _filter_partner_assignees,
-    },
-    marketingTypesEnum.CARE_ABOUT.value: {
-        'settings_assignee_field': 'autoassignees_CARE_ABOUT',
-        'choice_filter': _filter_partner_assignees,
-    },
-    marketingTypesEnum.NATIONAL_SENIORS.value: {
-        'settings_assignee_field': 'autoassignees_NATIONAL_SENIORS',
-        'choice_filter': _filter_partner_assignees,
-    },
-    marketingTypesEnum.YOUR_LIFE_CHOICES.value: {
-        'settings_assignee_field': 'autoassignees_YOUR_LIFE_CHOICES',
-        'choice_filter': _filter_partner_assignees,
-    },
-    marketingTypesEnum.FACEBOOK.value: {
-        'settings_assignee_field': 'autoassignees_FACEBOOK',
-        'choice_filter': _filter_social_assignees,
-    },
-    marketingTypesEnum.LINKEDIN.value: {
-        'settings_assignee_field': 'autoassignees_LINKEDIN',
-        'choice_filter': _filter_social_assignees,
-    },
-}
+#         if options is None and referrer in _AUTO_ASSIGN_LEADSOURCE_LOOKUP:
+#             options = _AUTO_ASSIGN_LEADSOURCE_LOOKUP[referrer]
 
+#         if options is None and marketing_source in _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP:
+#             options = _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP[marketing_source]
 
-def find_auto_assignee(referrer=None, marketing_source=None, email=None, phoneNumber=None, global_settings=None):
+#         return options or {}
 
-    def load_options():
-        options = None
+#     write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'BEGIN')
 
-        if options is None and referrer in _AUTO_ASSIGN_LEADSOURCE_LOOKUP:
-            options = _AUTO_ASSIGN_LEADSOURCE_LOOKUP[referrer]
+#     if global_settings is None:
+#         global_settings = GlobalSettings.load()
 
-        if options is None and marketing_source in _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP:
-            options = _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP[marketing_source]
+#     options = load_options()
 
-        return options or {}
+#     # First we honour using the same owner as a existing duplicate enquiry
+#     if email or phoneNumber:
+#         write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Checking duplicates for (%s, %s)' % (phoneNumber, email))
+#         duplicates = Enquiry.objects.find_duplicates(email, phoneNumber, order_by="-updated")
+#         potential_owners = [duplicate.user for duplicate in duplicates if (duplicate.user is not None and duplicate.user.is_active)]
+#         if 'choice_filter' in options:
+#             potential_owners = options['choice_filter'](potential_owners)
+#         if potential_owners:
+#             write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Using duplicate assignee')
+#             return potential_owners[0]
 
-    write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'BEGIN')
+#     # next try to use the system settings to find an active assignee
+#     if 'settings_assignee_field' in options:
+#         write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Checking system settings')
+#         potential_owners = [user for user in getattr(global_settings, options['settings_assignee_field']).all() if user.is_active]
+#         if 'choice_filter' in options:
+#             potential_owners = options['choice_filter'](potential_owners)
+#         if potential_owners:
+#             write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Using settings assignee')
+#             return random.choice(potential_owners)
 
-    if global_settings is None:
-        global_settings = GlobalSettings.load()
-
-    options = load_options()
-
-    # First we honour using the same owner as a existing duplicate enquiry
-    if email or phoneNumber:
-        write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Checking duplicates for (%s, %s)' % (phoneNumber, email))
-        duplicates = Enquiry.objects.find_duplicates(email, phoneNumber, order_by="-updated")
-        potential_owners = [duplicate.user for duplicate in duplicates if (duplicate.user is not None and duplicate.user.is_active)]
-        if 'choice_filter' in options:
-            potential_owners = options['choice_filter'](potential_owners)
-        if potential_owners:
-            write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Using duplicate assignee')
-            return potential_owners[0]
-
-    # next try to use the system settings to find an active assignee
-    if 'settings_assignee_field' in options:
-        write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Checking system settings')
-        potential_owners = [user for user in getattr(global_settings, options['settings_assignee_field']).all() if user.is_active]
-        if 'choice_filter' in options:
-            potential_owners = options['choice_filter'](potential_owners)
-        if potential_owners:
-            write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Using settings assignee')
-            return random.choice(potential_owners)
-
-    write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Failed to locate potential assignee')
-    return None
+#     write_applog('INFO', 'enquiry.util', 'find_auto_assignee', 'Failed to locate potential assignee')
+#     return None
 
 
-def auto_assign_enquiries(enquiries, force=False, notify=True):
-    global_settings = GlobalSettings.load()
-    assignments = {}
+# def auto_assign_enquiries(enquiries, force=False, notify=True):
+#     global_settings = GlobalSettings.load()
+#     assignments = {}
 
-    for enquiry in enquiries:
-        old_user = enquiry.user
+#     for enquiry in enquiries:
+#         old_user = enquiry.user
 
-        # if we aren't forcing an assignment, may as well keep existing user
-        if not force and (old_user is not None) and old_user.is_active:
-            continue
+#         # if we aren't forcing an assignment, may as well keep existing user
+#         if not force and (old_user is not None) and old_user.is_active:
+#             continue
 
-        # find a user, but if not forcing we can use the user from a duplicate enquiry
-        user = find_auto_assignee(
-            referrer=enquiry.referrer,
-            marketing_source=enquiry.marketingSource,
-            email=(enquiry.email if not force else None),
-            phoneNumber=(enquiry.phoneNumber if not force else None),
-            global_settings=global_settings
-        )
+#         # find a user, but if not forcing we can use the user from a duplicate enquiry
+#         user = find_auto_assignee(
+#             referrer=enquiry.referrer,
+#             marketing_source=enquiry.marketingSource,
+#             email=(enquiry.email if not force else None),
+#             phoneNumber=(enquiry.phoneNumber if not force else None),
+#             global_settings=global_settings
+#         )
 
-        if user is not None:
-            if (old_user is not None) and (user.username == old_user.username):
-                # nothing to do, same user as before
-                continue
-        else:
-            if old_user is None:
-                # nothing to do, same user as before
-                continue
+#         if user is not None:
+#             if (old_user is not None) and (user.username == old_user.username):
+#                 # nothing to do, same user as before
+#                 continue
+#         else:
+#             if old_user is None:
+#                 # nothing to do, same user as before
+#                 continue
 
-        if user:
-            assignments.setdefault(user.id, []).append(enquiry)
-        elif force:
-            # if forcing and no user available, set the owner to None
-            assignments.setdefault(None, []).append(enquiry)
+#         if user:
+#             assignments.setdefault(user.id, []).append(enquiry)
+#         elif force:
+#             # if forcing and no user available, set the owner to None
+#             assignments.setdefault(None, []).append(enquiry)
 
-    if assignments:
-        return _assign_enquiries(assignments, notify)
+#     if assignments:
+#         return _assign_enquiries(assignments, notify)
 
-def findEnquiry(email, phoneNumber): 
-    enqUID = Enquiry.objects.find_duplicates_QS(email, phoneNumber).order_by("-updated").values_list('enqUID', flat=True).first()
-    if enqUID:
-        return str(enqUID)
 
-def updateCreateEnquiry(email, phoneNumber, payload, enquiryString, marketingSource, enquiries_to_assign, updateNonDirect=True, preserve_owners=0):
-    
-    nonDirectTypes = [
-        directTypesEnum.PARTNER.value, 
-        directTypesEnum.BROKER.value,
-        directTypesEnum.ADVISER.value
-    ]
+def assign_enquiry_leads(enquiries, force=False, notify=True):
+    case_uids = set() 
+    for enq in enquiries:
+        case_uids |= {enq.case.caseUID}
+    leads = list(Case.objects.filter(caseUID__in=case_uids))
+    auto_assign_leads(leads, force=force, notify=notify)
 
-    existingUID = findEnquiry(email, phoneNumber)
 
-    if existingUID:
-        write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Found existing enquiry')
+def updateCreatePartnerEnquiry(payload, enquiries_to_assign):
 
-        # preserve_owners is just a query flag I put in so I could safely rerun a file
-        # without stealing ownership of leads for myself ;) -- but it might be removable,
-        # probably no one using it any more. (mattc)
+    def should_lead_update(lead, new_enq):
 
-        qs = Enquiry.objects.queryset_byUID(existingUID)
-        obj = qs.get()
+        nonDirectTypes = [directTypesEnum.PARTNER.value, directTypesEnum.BROKER.value, directTypesEnum.ADVISER.value]
 
-        if obj.actioned != 0:
-            write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Skipping converted enquiry')
-        elif obj.marketingSource == marketingSource:
-            write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Skipping enquiry from same marketing source')
-        else:
-            # Only update if a new marketing source and not converted
+        if lead.caseStage in [
+            caseStagesEnum.SALES_ACTIVE.value,
+            caseStagesEnum.MEETING_HELD.value,
+            caseStagesEnum.APPLICATION.value,
+            caseStagesEnum.DOCUMENTATION.value,
+            caseStagesEnum.APPLICATION.value,
+            caseStagesEnum.FUNDED.value,
+            caseStagesEnum.CLOSED.value,
+        ]:
+            write_applog(
+                "INFO", 'Enquiry', 'EnquiryPartnerUpload',
+                'Lead stage too late to allow a Lead update. Email = {}, Phone={}'.format(
+                    new_enq.email,
+                    new_enq.phoneNumber
+                )
+            )
+            return False
 
-            if (not updateNonDirect) and (obj.referrer in nonDirectTypes):
-                # Don't update non-direct items (if specified)
-                write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Skipping update on existing non-direct enquiry')
-                pass
-            else:
-                write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Updating existing enquiry')
-                qs.update(**payload)
-                obj = qs.get()
-                updateNotes = "".join(filter(None, (obj.enquiryNotes, "\r\n\r\n" + enquiryString)))
-                obj.enquiryNotes = updateNotes
-                obj.save(should_sync=True)
-                if not preserve_owners:
-                    write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Overwriting owner')
-                    enquiries_to_assign.append(obj)
-    else:
-        write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Creating new enquiry')
-        payload["enquiryNotes"] = enquiryString
-        new_enq = Enquiry.objects.create(**payload)
+        if lead.channelDetail == new_enq.marketingSource:
+            write_applog(
+                "INFO", 'Enquiry', 'EnquiryPartnerUpload',
+                'Lead already set to desired marketing source ({}), so we will not update the lead. Email = {}, Phone={}'.format(
+                    new_enq.marketingSource,
+                    new_enq.email,
+                    new_enq.phoneNumber
+                )
+            )
+            return False
+
+        if lead.referrer not in nonDirectTypes:
+            write_applog(
+                "INFO", 'Enquiry', 'EnquiryPartnerUpload',
+                'Lead set to a direct lead source, so we will not update the lead. Email = {}, Phone={}'.format(
+                    new_enq.email,
+                    new_enq.phoneNumber
+                )
+            )
+            return False
+
+        return True
+
+
+    write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'Creating new enquiry')
+    new_enq = Enquiry.objects.create(**payload)
+    lead = new_enq.case
+
+    if should_lead_update(lead, new_enq):
+        # reset source info
+        lead.referrer = new_enq.referrer
+        lead.channelDetail = new_enq.marketingSource
+        lead.marketing_campaign = new_enq.marketing_campaign
+
+        # assign new owner
         enquiries_to_assign.append(new_enq)
+

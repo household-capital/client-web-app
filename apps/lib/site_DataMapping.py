@@ -17,7 +17,7 @@ from apps.base.model_utils import db_to_sf_map
 
 # INTERNAL MAPPING
 
-def mapEnquiryForSF(enqUID): 
+def mapEnquiryForSF(enqUID, is_create=False): 
     # mock function, however as the data model evolves, the mappings will begin to differ. 
     SF_LEAD_MAPPING = {
         'phoneNumber': 'Phone__c',
@@ -70,7 +70,7 @@ def mapEnquiryForSF(enqUID):
         payload['Last_Name__c'] = enquiryDict['name']
 
     payload['External_Id__c'] = str(enquiryDict['enqUID'])
-    if enquiry.user and enquiry.user.profile and enquiry.user.profile.salesforceID:
+    if is_create and enquiry.user and enquiry.user.profile and enquiry.user.profile.salesforceID:
         payload['CreatedById'] = enquiry.user.profile.salesforceID
     payload['Loan_Type__c'] = enquiry.enumLoanType()
     payload['Dwelling_Type__c'] = enquiry.enumDwellingType()
@@ -82,7 +82,12 @@ def mapEnquiryForSF(enqUID):
     payload['Marketing_Campaign__c'] = ''
     if enquiry.marketing_campaign: 
         payload['Marketing_Campaign__c'] = enquiry.marketing_campaign.campaign_name
-
+    payload['Product_Type__c'] = dict(Enquiry.productTypes).get(
+        enquiry.productType,
+        ''
+    )
+    payload['Funding_Amount__c'] = enquiry.calcLumpSum
+    payload['Funding_Amount_monthly__c'] = enquiry.calcIncome
 
     # Map / create other fields
     if enquiry.referralUser:
@@ -203,7 +208,7 @@ def mapFacilityToCase(facilityObj):
 
     # Data map
     payload = {
-        'caseStage': caseStagesEnum.DISCOVERY.value,
+        'caseStage': caseStagesEnum.UNQUALIFIED_CREATED.value,
         'appType': appTypesEnum.VARIATION.value,
         'caseDescription': roleDict['borrowers'][0]['lastName'] + " - " + str(propertyObj.postcode) + " - Variation",
         'owner': facilityObj.owner,

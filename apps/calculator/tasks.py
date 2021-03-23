@@ -14,7 +14,7 @@ from apps.lib.site_Logging import write_applog
 from apps.lib.site_Utilities import raiseTaskAdminError, cleanPhoneNumber
 from apps.lib.site_Enums import *
 from .util import convert_calc, ProcessingError
-from apps.enquiry.util import find_auto_assignee
+from apps.case.assignment import find_auto_assignee
 
 from apps.operational.decorators import email_admins_on_failure
 

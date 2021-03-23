@@ -1,10 +1,11 @@
 import datetime, logging
+from django.contrib.auth.models import User
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated  # <-- Here
 
-from apps.enquiry.util import updateCreateEnquiry, auto_assign_enquiries
+from apps.enquiry.util import updateCreatePartnerEnquiry, assign_enquiry_leads
 from apps.lib.site_Utilities import cleanPhoneNumber, cleanValuation, calcAge
 from apps.lib.site_Enums import (
     marketingTypesEnum, 
@@ -104,6 +105,7 @@ class DataIngestion(APIView):
         
         marketing_source_value = json_payload['stream']
         marketingSource = marketingTypesEnum[marketing_source_value].value
+        integration_user = User.objects.get(username='integration_user')
         payload = {
             'name': "{} {}".format(
                 json_payload.get('first', ''),
@@ -122,24 +124,19 @@ class DataIngestion(APIView):
             'base_specificity': json_payload.get('unit'),
             'street_number': json_payload.get('street_number'),
             'street_name': json_payload.get('street_name'),
-            'street_type': json_payload.get('street_type')
+            'street_type': json_payload.get('street_type'),
+            'user': integration_user,
         }
         if json_payload.get('state'): 
             payload['state'] = stateTypesEnum[json_payload['state']].value
-        enquiryString = self.process_notes(json_payload)
-        if json_payload.get('notes'): 
-            enquiryString += '\n'+ json_payload.get('notes')
+
+        payload['enquiryNotes'] = self.process_notes(json_payload)
+        if json_payload.get('notes'):
+            payload['enquiryNotes'] += '\n' + json_payload.get('notes')
+
         enquiries_to_assign = []
-        updateCreateEnquiry(
-            payload.get('email'),
-            payload.get('phoneNumber'),
-            payload,
-            enquiryString,
-            payload.get('marketingSource'),
-            enquiries_to_assign,
-            False,
-        )
-        auto_assign_enquiries(enquiries_to_assign, force=True)
+        updateCreatePartnerEnquiry(payload, enquiries_to_assign)
+        assign_enquiry_leads(enquiries_to_assign, force=True)
 
     def post(self, request):
         content = {'status': 'Success'}

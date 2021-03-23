@@ -362,7 +362,7 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
     def save(self, should_sync=False, *args, **kwargs):
 
         is_create = self.pk is None
-         
+        lead_obj_created = False
         if is_create: 
             # attempt sync on create
             should_sync = bool(
@@ -386,17 +386,17 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
             else: 
                 create_case_from_enquiry(self)
                 should_sync = False 
+                lead_obj_created = True
                 # no need to re-trigger sync as current job already takes care of it.
 
         if should_sync:
             # if this is a should_sync which comes from user assignment
-            if self.user and self.case.owner is None: 
-                case = self.case 
-                case.owner = self.user 
-                case.save()
+            if not self.case.sfLeadID: 
                 # if user didnt exist then sync never passed 
                 app.send_task('sfEnquiryLeadSync', kwargs={'enqUID': str(self.enqUID)})
             else:
                 app.send_task('Update_SF_Enquiry', kwargs={'enqUID': str(self.enqUID)})
+
+    
     class Meta:
         ordering = ('-updated',)

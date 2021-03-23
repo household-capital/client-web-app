@@ -70,13 +70,6 @@
                             </div>
                         </div>
                     </div>
-
-                {% comment %} {% elif obj.sfLeadID %}
-                    <p class="larger">
-                        <a style="color:deepskyblue" href="{{ obj.get_SF_url }}" target="_blank"><i
-                                class="fas fa-external-link-alt"></i>&nbsp;
-                            Salesforce </a>
-                    </p> {% endcomment %}
                 {% elif obj.sfEnqID %}
                     <p class="larger">
                         <a style="color:deepskyblue" href="{{ obj.get_SF_url }}" target="_blank"><i
@@ -86,6 +79,22 @@
                 {% endif %}
             </div>
         </div>
+
+        {% if leadClosed %}
+        <div class="row pt-1">
+            <div class="col-lg-8 text-left">
+                    <div class="row">
+                        <div class="col-lg-6 text-left">
+                            <div class="alert alert-danger" role="alert">
+                                <p><i class="fas fa-exclamation-triangle"></i>&nbsp;&nbsp;
+                                    The parent lead has been closed
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+        {% endif %}
 
         <div class="row justify-content-left pt-1">
             <div class="col-6">
@@ -112,31 +121,15 @@
                         </button>
                         <div class="dropdown-menu">
 
-                            <a class="dropdown-item pb-3"
-                               href="{% url 'enquiry:enquiryOwn' uid=obj.enqUID %}">
-                                &nbsp;<i class="fas fa-crown"></i>&nbsp;&nbsp;Take Ownership
-                            </a>
-
-                            <a class="dropdown-item"
-                               href="{% url 'enquiry:enqAssign' uid=obj.enqUID %}">
-                                &nbsp;<i class="fas fa-fw fa-hand-point-right"></i>&nbsp;&nbsp;Assign Ownership
-                            </a>
-
-                            {% if status.data.postcode == 'Refer' %}
-                                <div class="dropdown-divider"></div>
-
-                                <a class="dropdown-item" href="{% url 'enquiry:enqReview' uid=obj.enqUID %}">
-                                    &nbsp;<i class="fas fa-fw fa-map-marked-alt"></i>&nbsp;&nbsp;Refer Postcode Review
-                                    &nbsp;
-                                </a>
-                            {% endif %}
-
-                            <div class="dropdown-divider"></div>
-
                             <a class="dropdown-item" data-toggle="modal" href="#deleteModal">
                                 &nbsp;<i class="far fa-trash-alt fa-fw"></i>&nbsp;&nbsp;Delete Enquiry
                             </a>
-
+                            {% if obj.summaryDocument %}
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{% url 'enquiry:enqSummaryMove' uid=obj.enqUID %}">
+                                    &nbsp;<i class="fas fa-arrow-right"></i>&nbsp;&nbsp; Move Summary To Lead
+                                </a>
+                            {% endif %}
                             {% if status.status == 'Ok' %}
                                 <div class="dropdown-divider"></div>
 
@@ -162,19 +155,8 @@
                                     </a>
                                 {% endif %}
 
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="{{ calendlyUrl }}" target="_blank">
-                                    &nbsp;<i class="fas fa-headset fa-fw"></i>&nbsp;&nbsp;Book Discovery
-                                </a>
-
                             {% endif %}
 
-
-                            <div class="dropdown-divider"></div>
-
-                            <a class="dropdown-item" href="{% url 'enquiry:enqConvert' uid=obj.enqUID %}">
-                                &nbsp;<i class="far fa-folder-open"></i>&nbsp;&nbsp;Convert to Case
-                            </a>
                         </div>
                     </div>
 
@@ -268,11 +250,6 @@
                                 </p>
                             {% endif %}
 
-                            {% if obj.valuationDocument %}
-                                <p class="small"><a href="{{ obj.valuationDocument.url }}">Auto
-                                    Val
-                                    Document </a></p>
-                            {% endif %}
                         </div>
 
                     {% endif %}
