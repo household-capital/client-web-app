@@ -48,6 +48,8 @@ def mapEnquiryForSF(enqUID, is_create=False):
         'origin_timestamp': 'Origin_Timestamp__c',
         'origin_id': 'External_Origin_Id__c',
         'enqUID': 'External_Id__c',
+        'firstname': 'First_Name__c',
+        'lastname': 'Last_Name__c',
     }
 
     SF_BOOLEAN_FIELDS = ['isTopUp', 'isRefi', 'isLive', 'isGive', 'isCare', 'doNotMarket']
@@ -81,14 +83,6 @@ def mapEnquiryForSF(enqUID, is_create=False):
         elif app_field in SF_UUID_FIELDS:
             if payload[sf_field]:
                 payload[sf_field] = str(payload[sf_field])
-
-    # Ensure name fields populated
-    if not enquiryDict['name']:
-        payload['Last_Name__c'] = 'Unknown'
-    elif " " in enquiryDict['name']:
-        payload['First_Name__c'], payload['Last_Name__c'] = enquiryDict['name'].split(" ", 1)
-    else:
-        payload['Last_Name__c'] = enquiryDict['name']
 
     payload['External_Id__c'] = str(enquiryDict['enqUID'])
     if is_create and enquiry.user and enquiry.user.profile and enquiry.user.profile.salesforceID:

@@ -17,7 +17,8 @@ from apps.lib.site_Enums import directTypesEnum, enquiryStagesEnum
 from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
-from apps.lib.site_Utilities import getEnquiryProjections, updateNavQueue
+from apps.lib.site_ViewUtils import updateNavQueue
+from apps.lib.site_LoanUtils import getEnquiryProjections
 from apps.lib.mixins import HouseholdLoginRequiredMixin
 
 
@@ -165,6 +166,7 @@ class ContactDeleteView(HouseholdLoginRequiredMixin, View):
 
         return HttpResponseRedirect(reverse_lazy('calculator:contactList'))
 
+
 # Convert Contact
 class ContactConvertView(HouseholdLoginRequiredMixin, View):
 
@@ -184,7 +186,8 @@ class ContactConvertView(HouseholdLoginRequiredMixin, View):
         enq_obj = Enquiry.objects.create(
             user=userRef,
             referrer=directTypesEnum.WEB_ENQUIRY.value,
-            name=contObj.name,
+            firstname=contObj.firstname,
+            lastname=contObj.lastname,
             email=contObj.email,
             phoneNumber=contObj.phone,
             enquiryNotes=enquiryNotes,

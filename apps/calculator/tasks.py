@@ -12,7 +12,7 @@ from apps.calculator.models import WebCalculator, WebContact
 from apps.enquiry.models import Enquiry
 from apps.lib.api_Wordpress import apiWordpress
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Utilities import raiseTaskAdminError, cleanPhoneNumber, parse_api_datetime
+from apps.lib.site_Utilities import raiseTaskAdminError, cleanPhoneNumber, parse_api_datetime, parse_api_names
 from apps.lib.site_Enums import *
 from .util import convert_calc, ProcessingError
 from apps.case.assignment import find_auto_assignee
@@ -58,6 +58,9 @@ def getWordpressData():
             if srcData['timestamp']:
                 srcData['origin_timestamp'] = parse_api_datetime(srcData['timestamp'])
 
+            srcData['raw_name'] = srcData['firstname'] + ' ' + srcData['lastname']
+            srcData['firstname'], srcData['lastname'], _ignore = parse_api_names(srcData['firstname'], srcData['lastname'])
+
             # map fields
             for key, value in mapList.items():
                 if key in srcData:
@@ -73,22 +76,6 @@ def getWordpressData():
             for key, value in srcData.items():
                 if value == "":
                     srcData[key] = None
-            
-            # concatinate firstname and lastname fields from wordpress
-            # Old API produces "name" field only, new API will produce "firstname" and "lastname"
-            if 'firstname' in srcData:
-                # truncate at salesforce limit of 40 chars
-                srcData['name'] = srcData['firstname'][:40]
-                srcData.pop('firstname')
-
-            if 'lastname' in srcData:
-                if srcData['lastname']:
-                    # truncate at salesforce limit of 80 chars
-                    srcData['name'] += " " + srcData['lastname'][:80]
-                srcData.pop('lastname')
-            
-            if not srcData['name']:
-                srcData['name'] = None
 
             if srcData.get('requestedCallback') is None:
                 srcData['requestedCallback'] = False
@@ -146,21 +133,14 @@ def getWordpressData():
                     'uuid': 'origin_id',
                 }
 
-                popList = ['id', 'retrieved', 'retrievedDate', 'timestamp', 'firstname',
-                           'lastname', 'resource', 'description']
+                popList = ['id', 'retrieved', 'retrievedDate', 'timestamp', 'resource', 'description']
 
                 srcData['phone'] = cleanPhoneNumber(srcData['phone'])
                 if srcData['timestamp']:
                     srcData['origin_timestamp'] = parse_api_datetime(srcData['timestamp'])
 
-                firstname = srcData.get('firstname')
-                lastname = srcData.get('lastname')
-
-                if firstname and lastname:
-                    srcData['name'] = "{} {}".format(firstname, lastname)
-                else:
-                    # reduces to None if neither are present
-                    srcData['name'] = firstname or lastname
+                srcData['raw_name'] = srcData['firstname'] + ' ' + srcData['lastname']
+                srcData['firstname'], srcData['lastname'], _ignore = parse_api_names(srcData['firstname'], srcData['lastname'])
 
                 # map fields
                 for key, value in mapList.items():
@@ -189,7 +169,7 @@ def getWordpressData():
                     'uuid': 'origin_id',
                 }
 
-                popList = ['id', 'retrieved', 'retrievedDate', 'timestamp', 'firstname', 'lastname',
+                popList = ['id', 'retrieved', 'retrievedDate', 'timestamp',
                            'resource', 'phone', 'message', 'description']
 
                 srcData['referrer'] = directTypesEnum.WEB_ENQUIRY.value
@@ -197,10 +177,7 @@ def getWordpressData():
                 srcData['phoneNumber'] = cleanPhoneNumber(srcData['phone'])
                 if srcData['timestamp']:
                     srcData['origin_timestamp'] = parse_api_datetime(srcData['timestamp'])
-                srcData['name'] = srcData['firstname'] if srcData['firstname'] else None
-                if srcData['lastname']:
-                    srcData['name'] += " " + \
-                        srcData['lastname'] if srcData['firstname'] else ""
+                srcData['firstname'], srcData['lastname'], _ignore = parse_api_names(srcData['firstname'], srcData['lastname'])
                 srcData['enquiryNotes'] = '[# Website Enquiry #]'
                 srcData['enquiryNotes'] += '\r\n' + srcData['origin']
                 if srcData.get('description') is not None:

@@ -19,7 +19,8 @@ from apps.case.tasks import createSFLeadCase
 from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Enums import directTypesEnum, marketingTypesEnum
-from apps.lib.site_Utilities import sendTemplateEmail, raiseTaskAdminError
+from apps.lib.site_Utilities import raiseTaskAdminError
+from apps.lib.site_EmailUtils import sendTemplateEmail
 from apps.lib.site_DataMapping import mapEnquiryToLead, mapEnquiryForSF 
 
 from .models import Enquiry
@@ -172,17 +173,7 @@ def FollowUpEmail(enqUID):
     # Build context
     email_context = {}
 
-    #  Strip name
-    if enqObj.name:
-        if " " in enqObj.name:
-            customerFirstName, surname = enqObj.name.split(" ", 1)
-        else:
-            customerFirstName = enqObj.name
-        if len(customerFirstName) < 2:
-            customerFirstName = None
-
-    email_context['customerFirstName'] = customerFirstName
-
+    email_context['customerFirstName'] = enqObj.firstname
     email_context['obj'] = enqObj
 
     if not enqObj.user:

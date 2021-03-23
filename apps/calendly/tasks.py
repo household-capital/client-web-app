@@ -13,7 +13,8 @@ from config.celery import app
 
 # Local Application Imports
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Utilities import raiseTaskAdminError, sendTemplateEmail
+from apps.lib.site_Utilities import raiseTaskAdminError
+from apps.lib.site_EmailUtils import sendTemplateEmail
 
 from .models import Calendly
 from apps.enquiry.models import Enquiry

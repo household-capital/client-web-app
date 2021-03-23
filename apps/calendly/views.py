@@ -26,7 +26,8 @@ from django.views.decorators.csrf import csrf_exempt
 # Local Application Imports
 from apps.lib.site_Logging import write_applog
 from apps.lib.api_Zoom import apiZoom
-from apps.lib.site_Utilities import sendTemplateEmail, raiseAdminError, cleanPhoneNumber
+from apps.lib.site_Utilities import raiseAdminError, cleanPhoneNumber
+from apps.lib.site_EmailUtils import sendTemplateEmail
 from apps.case.models import Case
 from apps.enquiry.models import Enquiry
 from apps.lib.site_Enums import enquiryStagesEnum

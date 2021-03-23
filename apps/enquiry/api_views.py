@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated  # <-- Here
 
 from apps.enquiry.util import updateCreatePartnerEnquiry, assign_enquiry_leads
-from apps.lib.site_Utilities import cleanPhoneNumber, cleanValuation, calcAge
+from apps.lib.site_Utilities import cleanPhoneNumber, cleanValuation, calcAge, parse_api_names
 from apps.lib.site_Enums import (
     marketingTypesEnum, 
     directTypesEnum, 
@@ -109,11 +109,11 @@ class DataIngestion(APIView):
         marketing_source_value = json_payload['stream']
         marketingSource = marketingTypesEnum[marketing_source_value].value
         integration_user = User.objects.get(username='integration_user')
+
+        firstname, lastname, name = parse_api_names(json_payload.get('first'), json_payload.get('last'))
         payload = {
-            'name': "{} {}".format(
-                json_payload.get('first', ''),
-                json_payload.get('last', '')
-            ),
+            'firstname': firstname,
+            'lastname': lastname,
             'phoneNumber': cleanPhoneNumber(json_payload['phone']),
             'postcode': json_payload.get('postcode'),
             'propensityCategory': propensityChoicesReverseDict.get(json_payload['grading']),

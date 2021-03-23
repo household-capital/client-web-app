@@ -34,16 +34,18 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
 
     class Meta:
         model = Case
-        fields = ['caseDescription', 'adviser', 'referralCompany', 'caseNotes', 'loanType', 'caseStage',
-                  'clientType1', 'surname_1', 'firstname_1', 'preferredName_1', 'birthdate_1', 'age_1', 'sex_1',
-                  'salutation_1', 'middlename_1', 'maritalStatus_1',
-                  'clientType2', 'surname_2', 'firstname_2', 'preferredName_2', 'birthdate_2', 'age_2', 'sex_2',
-                  'salutation_2', 'middlename_2', 'maritalStatus_2',
-                  'street', 'suburb', 'postcode', 'valuation', 'dwellingType', 'propertyImage', 'mortgageDebt',
-                  'superFund', 'valuationDocument', 'state', 'investmentLabel',
-                  'superAmount', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email', 'productType', 'channelDetail',
-                  'doNotMarket', 'propensityCategory', 'referrer', 'marketing_campaign'
-                  ] + address_model_fields
+        fields = [
+            'caseDescription', 'adviser', 'referralCompany', 'caseNotes', 'loanType', 'caseStage',
+            'clientType1', 'surname_1', 'firstname_1', 'preferredName_1', 'birthdate_1', 'age_1', 'sex_1',
+            'salutation_1', 'middlename_1', 'maritalStatus_1',
+            'clientType2', 'surname_2', 'firstname_2', 'preferredName_2', 'birthdate_2', 'age_2', 'sex_2',
+            'salutation_2', 'middlename_2', 'maritalStatus_2',
+            'street', 'suburb', 'postcode', 'valuation', 'dwellingType', 'propertyImage', 'mortgageDebt',
+            'superFund', 'valuationDocument', 'state', 'investmentLabel',
+            'superAmount', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email', 'productType', 'channelDetail',
+            'doNotMarket', 'propensityCategory', 'referrer', 'marketing_campaign',
+            'firstname', 'lastname',
+        ] + address_model_fields
 
         widgets = {
             'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
@@ -137,10 +139,15 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
             Div(
                 Div(Div(HTML("<i class='far fa-address-card'></i>&nbsp;&nbsp;Contact Details"),
                         css_class='form-header'),
-                    Div(Div(HTML("Client Phone Number"), css_class='form-label'),
+                    Div(Div(HTML("First Name"), css_class='form-label'),
+                        Div(Field('firstname'))),
+                    Div(Div(HTML("Last Name"), css_class='form-label'),
+                        Div(Field('lastname'))),
+                    Div(Div(HTML("Phone Number"), css_class='form-label'),
                         Div(Field('phoneNumber'))),
-                    Div(Div(HTML("Client Email"), css_class='form-label'),
+                    Div(Div(HTML("Email"), css_class='form-label'),
                         Div(Field('email'))),
+
                     Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Borrower(s)"), css_class='form-header pt-2'),
                     Div(Div(HTML("Single or Joint Calculation (inc: Nominated Occupant)"), css_class='form-label'),
                         Div(Field('loanType'))),
@@ -160,7 +167,7 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                     Div(Div(HTML("Surname*"), css_class='form-label'),
                         Div(Field('surname_1'))),
                     Row(
-                        Column(Div(Div(HTML("Salutation*"), css_class='form-label pt-1'),
+                        Column(Div(Div(HTML("Title*"), css_class='form-label pt-1'),
                                    Div(Field('salutation_1'))), css_class='col-6'),
                         Column(Div(Div(HTML("Gender"), css_class='form-label pt-1'),
                                    Div(Field('sex_1'))), css_class='col-6')),
@@ -184,7 +191,7 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                     Div(Div(HTML("Surname*"), css_class='form-label'),
                         Div(Field('surname_2'))),
                     Row(
-                        Column(Div(Div(HTML("Salutation*"), css_class='form-label'),
+                        Column(Div(Div(HTML("Title*"), css_class='form-label'),
                                    Div(Field('salutation_2'))), css_class='col-6'),
                         Column(Div(Div(HTML("Gender"), css_class='form-label'),
                                    Div(Field('sex_2'))), css_class='col-6')),

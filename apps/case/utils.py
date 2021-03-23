@@ -11,6 +11,7 @@ from django.forms.models import model_to_dict
 
 
 # Third-party Imports
+from apps.lib.site_Globals import ECONOMIC, LOAN_LIMITS
 from config.celery import app
 
 
@@ -18,7 +19,6 @@ from apps.lib.site_Logging import write_applog
 from apps.lib.site_DataMapping import mapFacilityToCase
 from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.site_Enums import purposeIntentionEnum, purposeCategoryEnum
-from apps.lib.site_Utilities import createCaseModelSettings
 from apps.servicing.models import FacilityPurposes
 from apps.case.models import Case, Loan, LoanPurposes, ModelSetting
 
@@ -78,3 +78,15 @@ def createLoanVariation(facilityObj):
     app.send_task('SF_Create_Variation', kwargs={'newCaseUID': str(newCaseObj.caseUID), 'orgCaseUID': facilityObj.originalCaseUID })
 
     return {'status':'Ok', 'data':{'caseUID':str(newCaseObj.caseUID)}}
+
+
+def createCaseModelSettings(caseUID):
+    # Instantiate model settings if required
+    qs = ModelSetting.objects.queryset_byUID(caseUID)
+    obj = qs.get()
+    if not obj.housePriceInflation:
+        economicSettings = ECONOMIC.copy()
+        economicSettings.pop('defaultMargin')
+        economicSettings['establishmentFeeRate'] = LOAN_LIMITS['establishmentFee']
+        qs.update(**economicSettings)
+    return

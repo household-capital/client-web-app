@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 from django.db import models
 from django.db.models import Q
 
-from apps.lib.site_Utilities import SingletonModel
+from apps.lib.singleton import SingletonModel
 
 
 class GlobalSettings(SingletonModel):

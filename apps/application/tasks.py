@@ -17,7 +17,8 @@ from config.celery import app
 # Local Application Imports
 from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Utilities import raiseTaskAdminError, sendTemplateEmail
+from apps.lib.site_Utilities import raiseTaskAdminError
+from apps.lib.site_EmailUtils import sendTemplateEmail
 from apps.lib.site_Enums import loanTypesEnum, appStatusEnum
 
 from .models import Application, ApplicationDocuments

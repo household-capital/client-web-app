@@ -30,9 +30,10 @@ from apps.lib.hhc_LoanProjection import LoanProjection
 from apps.lib.site_Enums import *
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Utilities import raiseAdminError, getProjectionResults, \
-    validateApplicationGetContext, populateDrawdownPurpose, getFileFieldMimeType, \
-    createCaseModelSettings, updateNavQueue
+from apps.lib.site_Utilities import raiseAdminError, getFileFieldMimeType
+from apps.case.utils import createCaseModelSettings
+from apps.lib.site_ViewUtils import updateNavQueue
+from apps.lib.site_LoanUtils import validateApplicationGetContext, getProjectionResults, populateDrawdownPurpose
 from apps.lib.mixins import HouseholdLoginRequiredMixin
 
 from apps.accounts.models import SessionLog
@@ -198,7 +199,8 @@ class ConvertEnquiry(HouseholdLoginRequiredMixin, View):
         message = "Enquiry created from Online Application journey"
 
         enqObj = Enquiry.objects.create(
-            name=obj.firstname_1 + " " + obj.surname_1,
+            firstname=obj.firstname_1,
+            lastname=obj.surname_1,
             email=obj.email,
             phoneNumber=obj.mobile,
             enquiryNotes=message,
@@ -849,7 +851,8 @@ class ContactView(SessionRequiredMixin, ApplicationHelper, TemplateView):
         message += "Please contact to understand objectives and arrange a meeting with a Credit Representative. \n\r"
 
         enqObj = Enquiry.objects.create(
-            name=obj.firstname_1 + " " + obj.surname_1,
+            firstname=obj.firstname_1,
+            lastname=obj.surname_1,
             email=obj.email,
             phoneNumber=obj.mobile,
             enquiryNotes=message,

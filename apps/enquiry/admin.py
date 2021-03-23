@@ -7,7 +7,7 @@ from .models import Enquiry, MarketingCampaign
 
 
 class EnquiryAdmin(admin.ModelAdmin):
-    list_display = ('user','status','age_1','age_2','postcode','maxLVR','maxLoanAmount','name', 'email','timestamp')
+    list_display = ('user','status','age_1','age_2','postcode','maxLVR','maxLoanAmount', 'lastname', 'firstname', 'email','timestamp')
 
 
 # admin.site.register(Enquiry,EnquiryAdmin)

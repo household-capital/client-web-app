@@ -118,7 +118,9 @@ class Application(models.Model):
     productType = models.IntegerField(choices = productTypes, default=0)
 
     #Client Data
-    name = models.CharField(max_length=30, blank=True, null=True)
+    name = models.CharField(max_length=30, blank=True, null=True)  # UNUSED???
+    #firstname = models.CharField(max_length=40, blank=True, null=True)  # UNUSED???
+    #lastname = models.CharField(max_length=80, blank=True, null=True)  # UNUSED???
     email = models.EmailField(blank=True, null=True)
     mobile = models.CharField(max_length=20, null=True, blank=True)
     loanType = models.IntegerField(default=1, choices=loanTypes)

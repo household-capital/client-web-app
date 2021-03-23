@@ -5,11 +5,11 @@ from django.contrib import admin
 from .models import WebCalculator,WebContact
 
 class WebCalculatorAdmin(admin.ModelAdmin):
-    list_display = ('status','age_1','age_2','postcode','maxLVR','maxLoanAmount','name', 'email','timestamp')
+    list_display = ('status','age_1','age_2','postcode','maxLVR','maxLoanAmount', 'firstname', 'lastname', 'email','timestamp')
 
 
 class WebContactAdmin(admin.ModelAdmin):
-    list_display = ('name', 'email', 'phone', 'timestamp','message')
+    list_display = ('firstname', 'lastname', 'email', 'phone', 'timestamp','message')
 
 
 # Model registration to enable maintenance in the Admin screens
