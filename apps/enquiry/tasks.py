@@ -28,6 +28,17 @@ from urllib.parse import urljoin
 
 from apps.operational.decorators import email_admins_on_failure
 
+
+@app.task(name="Hard_delete_enquiries")
+@email_admins_on_failure(task_name='Hard_delete_enquiries')
+def hard_delete_enquiries():
+    write_applog("INFO", 'Enquiry', 'Hard_delete_enquiries', "Starting")
+    today = timezone.localtime()
+    # hard delete any soft deleted leads from 2 months or prior
+    two_months_ago = today - timedelta(days=60)  
+    Enquiry.objects.filter(deleted_on__lte=two_months_ago).delete()
+    write_applog("INFO", 'Enquiry', 'Hard_delete_enquiries', "Finished")
+
 # TASKS
 @app.task(name="Create_SF_Lead")
 def createSFLeadTask(enqUID):
@@ -78,7 +89,7 @@ def catchallSFLeadTask():
         write_applog("ERROR", 'Enquiry', 'Tasks-createSFLead', result['responseText'])
         return result['responseText']
 
-    qs = Enquiry.objects.filter(sfLeadID__isnull=True, closeDate__isnull=True).exclude(postcode__isnull=True)
+    qs = Enquiry.objects.filter(sfLeadID__isnull=True, closeDate__isnull=True, deleted_on__isnull=True).exclude(postcode__isnull=True)
     for enquiry in qs:
         createSFLead(str(enquiry.enqUID), sfAPI)
     write_applog("INFO", 'Enquiry', 'Tasks-catchallSFLead', "Completed")
@@ -101,6 +112,7 @@ def updateToday():
                                 user__isnull=False,
                                 actioned=0,
                                 status=1,
+                                deleted_on__isnull=True,
                                 closeDate__isnull=True).exclude(isCalendly=True)[:75]
     # should not be more then 75 in a day - ensure no time out
 
@@ -129,7 +141,7 @@ def getReferPostcodeStatus():
         write_applog("ERROR", 'Enquiry', 'Tasks-createSFLead', result['responseText'])
         return result['responseText']
 
-    qs = Enquiry.objects.filter(sfLeadID__isnull=False, isReferPostcode=True, referPostcodeStatus__isnull=True)
+    qs = Enquiry.objects.filter(sfLeadID__isnull=False, deleted_on__isnull=True, isReferPostcode=True, referPostcodeStatus__isnull=True)
     for enquiry in qs:
         result = sfAPI.getLead(enquiry.sfLeadID)
         if result['status'] == 'Ok':
@@ -156,7 +168,7 @@ def getReferPostcodeStatus():
 def updateCaseReferStatus(sfLeadID, status):
     """Update referPostcodeStatus on Case"""
     try:
-        obj = Case.objects.filter(sfLeadID=sfLeadID).get()
+        obj = Case.objects.filter(deleted_on__isnull=True, sfLeadID=sfLeadID).get()
         obj.referPostcodeStatus = status
         obj.save()
     except Case.DoesNotExist:

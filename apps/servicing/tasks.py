@@ -161,7 +161,7 @@ def sfSynch():
         sfOpp = sfListLinkObj.query('Loan__c == "' + loan["Id"] + '"', inplace=False)
         sfOpportunityId = sfOpp['Opportunity__c'].iloc[0]
 
-        caseObj = Case.objects.filter(sfOpportunityID=sfOpportunityId).get()
+        caseObj = Case.objects.filter(deleted_on__isnull=True, sfOpportunityID=sfOpportunityId).get()
 
         # Currently using LoanObj and Case to build Facility
         payload = mapLoanToFacility(caseObj, loan)

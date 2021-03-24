@@ -132,7 +132,7 @@ class GeneratePdf(View):
         dateStr = datetime.now().strftime('%Y-%m-%d-%H:%M:%S%z')
 
         caseUID = str(self.kwargs['uid'])
-        obj = Case.objects.filter(caseUID=caseUID).get()
+        obj = Case.objects.filter(deleted_on__isnull=True, caseUID=caseUID).get()
 
         sourceUrl = urljoin(
             settings.SITE_URL,

@@ -36,10 +36,10 @@ class EnquiryManager(models.Manager):
 
     # Custom data queries
     def queueCount(self):
-        return Enquiry.objects.filter(user__isnull=True,actioned=0).count()
+        return Enquiry.objects.filter(deleted_on__isnull=True, user__isnull=True,actioned=0).count()
 
     def openEnquiries(self):
-        return Enquiry.objects.filter(actioned=0, followUp__isnull=True).exclude(status=False,user__isnull=False)
+        return Enquiry.objects.filter(deleted_on__isnull=True, actioned=0, followUp__isnull=True).exclude(status=False,user__isnull=False)
 
     def __timeSeriesQry(self, qs, length):
         #utility function appended to base time series query
@@ -53,7 +53,7 @@ class EnquiryManager(models.Manager):
 
     def timeSeries(self, seriesType, length, search=None):
 
-        result = self.__timeSeriesQry(Enquiry.objects.filter(referrer=seriesType), length)
+        result = self.__timeSeriesQry(Enquiry.objects.filter(referrer=seriesType, deleted_on__isnull=True), length)
 
         return result if result else {}
 
@@ -66,7 +66,7 @@ class EnquiryManager(models.Manager):
             query = Q(phoneNumber=phoneNumber)
         else:
             raise Exception('email or phone must be present')
-
+        query = Q(deleted_on__isnull=True) & query
         return Enquiry.objects.filter(query)
 
     def find_duplicates(self, email, phoneNumber, order_by="-updated"):
@@ -360,9 +360,9 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
             return dict(propensityChoices)[self.propensityCategory]
 
     def has_duplicate(self):
-        if self.email and (Enquiry.objects.filter(email=self.email).count() > 1):
+        if self.email and (Enquiry.objects.filter(email=self.email, deleted_on__isnull=True).count() > 1):
             return True
-        if self.phoneNumber and (Enquiry.objects.filter(phoneNumber=self.phoneNumber).count() > 1):
+        if self.phoneNumber and (Enquiry.objects.filter(phoneNumber=self.phoneNumber, deleted_on__isnull=True).count() > 1):
             return True
 
         return False

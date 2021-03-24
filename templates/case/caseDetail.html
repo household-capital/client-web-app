@@ -452,7 +452,7 @@
 
                                     <p class="pb- 3"><i class="fas fa-project-diagram"></i>&nbsp;Attached Enquiries</p>
                                     <hr/>
-                                    {% for enq in obj.enquiries.all|dictsortreversed:"timestamp"  %}
+                                    {% for enq in obj.enquiries.all|active_enquiries %}
                                         <a href="{% url 'enquiry:enquiryDetail' enq.enqUID %}" target="_blank">
                                             <p class="small"> {{ enq.enumReferrerTypeHTML |  safe }}</p>
                                         </a>

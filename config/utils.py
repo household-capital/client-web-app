@@ -89,7 +89,17 @@ def get_celery_beat_config():
         'CloudWatch_Task_Poll_Catchall_SF_Case_Lead': {
             'task': 'CW_Catchall_SF_Case_Lead_stats',
             'schedule': crontab(hour=4, minute=0)
-        }
+        },
+
+        'Hard_delete_enquiries': {
+            'task': 'Hard_delete_enquiries',
+            'schedule': crontab(hour=0, minute=0)
+        },
+        'Hard_delete_leads': {
+            'task': 'Hard_delete_leads',
+            'schedule': crontab(hour=0, minute=15)
+        },
+
     }
 
 def secrets_manager_client(region_name):

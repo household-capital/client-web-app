@@ -236,7 +236,7 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Upd
         if obj.actioned != 0:
             if obj.sfLeadID:
                 try:
-                    caseObj = Case.objects.filter(sfLeadID=obj.sfLeadID).get()
+                    caseObj = Case.objects.filter(deleted_on__isnull=True, sfLeadID=obj.sfLeadID).get()
                     messages.warning(self.request, "Enquiry previously converted to case")
                     return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': str(caseObj.caseUID)}))
                 except Case.DoesNotExist:
@@ -434,7 +434,7 @@ class EnquiryCallView(HouseholdLoginRequiredMixin, CreateView):
             existingUrl = None
 
             if form.cleaned_data['phoneNumber']:
-                qs = Enquiry.objects.filter(phoneNumber=form.cleaned_data['phoneNumber']).exclude(actioned=-1).order_by(
+                qs = Enquiry.objects.filter(phoneNumber=form.cleaned_data['phoneNumber'], deleted_on__isnull=True).exclude(actioned=-1).order_by(
                     "-updated")
                 if qs.count() == 1:
                     # url to single enquiry detail page
@@ -490,7 +490,8 @@ class EnquiryDeleteView(HouseholdLoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         if "uid" in kwargs:
-            Enquiry.objects.filter(enqUID=kwargs['uid']).delete()
+            enq = Enquiry.objects.get(enqUID=kwargs['uid'])
+            enq.soft_delete()
             messages.success(self.request, "Enquiry deleted")
 
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryList'))
@@ -593,7 +594,7 @@ class SummaryMove(HouseholdLoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         if "uid" in kwargs:
             try:
-                enquiry = Enquiry.objects.get(enqUID=kwargs['uid'])
+                enquiry = Enquiry.objects.get(enqUID=kwargs['uid'], deleted_on__isnull=True)
             except Enquiry.DoesNotExist: 
                 messages.error(self.request, "Enquiry Doesnt exist")
                 return HttpResponseRedirect(reverse_lazy('enquiry:enquiryList'))

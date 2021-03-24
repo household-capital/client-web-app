@@ -52,8 +52,12 @@ def synchCalendly():
         if meeting_set & lead_meeting_set: 
             if not obj.caseUID:
 
-                caseObj = Case.objects.filter(Q(email__iexact=obj.customerEmail, email__isnull=False) |
-                                                Q(phoneNumber__iexact=obj.customerPhone, phoneNumber__isnull=False ))\
+                caseObj = Case.objects.filter(
+                        Q(deleted_on__isnull=True) & (
+                            Q(email__iexact=obj.customerEmail, email__isnull=False) |
+                            Q(phoneNumber__iexact=obj.customerPhone, phoneNumber__isnull=False )
+                        )
+                    )\
                     .order_by("-timestamp").first()
 
                 if caseObj:
@@ -90,7 +94,7 @@ def updateEnquiry(enqUID, meeting_name, phoneNumber):
 
 def updateCase(caseUID, meeting_name, phoneNumber):
 
-    obj = Case.objects.filter(caseUID=caseUID).first()
+    obj = Case.objects.filter(caseUID=caseUID, deleted_on__isnull=True).first()
 
     if obj:
         if obj.caseNotes:
