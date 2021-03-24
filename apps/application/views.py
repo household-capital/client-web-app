@@ -161,7 +161,7 @@ class SendNextSteps(HouseholdLoginRequiredMixin, View):
         appUID = str(self.kwargs['uid'])
         messages.success(request, "Next Steps emailed")
 
-        caseUID = str(Case.objects.filter(appUID=appUID).get().caseUID)
+        caseUID = str(Case.objects.filter(appUID=appUID, deleted_on__isnull=True).get().caseUID)
 
         app.send_task('Email_Next_Steps', kwargs={'appUID': appUID, 'caseUID': caseUID})
 

@@ -1,5 +1,5 @@
 #Python imports
-import uuid, os
+import uuid, os, reversion
 from datetime import datetime, timedelta
 
 #Django Imports
@@ -18,6 +18,7 @@ from apps.accounts.models import Referer
 from urllib.parse import urljoin
 
 from apps.base.model_utils import AbstractAddressModel
+from apps.helpers.model_utils import ReversionModel
 
 from config.celery import app
 
@@ -58,7 +59,7 @@ class CaseManager(models.Manager):
         return Case.objects.exclude(caseStage__in=closedTypes)
 
     def queueCount(self):
-        return Case.objects.filter(owner__isnull=True).count()
+        return Case.objects.filter(owner__isnull=True, deleted_on__isnull=True).count()
 
 
     def find_duplicates_QS(self, email, phoneNumber):
@@ -70,13 +71,14 @@ class CaseManager(models.Manager):
             query = Q(phoneNumber=phoneNumber)
         else:
             raise Exception('email or phone must be present')
-
+        query = Q(deleted_on__isnull=True) & (query)
         return Case.objects.filter(query)
 
     def find_duplicates(self, email, phoneNumber, order_by="-updated"):
         return self.find_duplicates_QS(email, phoneNumber).order_by(order_by)
 
-class Case(AbstractAddressModel):
+@reversion.register()
+class Case(AbstractAddressModel, ReversionModel, models.Model):
     # Main model - extended by Loan, ModelSettings and LossData
 
     appTypes = (

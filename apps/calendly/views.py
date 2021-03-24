@@ -94,8 +94,9 @@ class CalendlyWebhook(View):
                 obj.customerEmail = customer_email
                 obj.customerPhone = customer_phone
 
-                enqObj = Enquiry.objects.filter(Q(email__iexact=customer_email) |
-                                                Q(phoneNumber__iexact=customer_phone)).order_by("-timestamp").first()
+                enqObj = Enquiry.objects.filter(
+                   Q(deleted_on__isnull=True) &(Q(email__iexact=customer_email) | Q(phoneNumber__iexact=customer_phone))
+                ).order_by("-timestamp").first()
                 if enqObj:
                     obj.enqUID = enqObj.enqUID
 
@@ -133,7 +134,7 @@ class CalendlyWebhook(View):
                 obj.customerPhone = customer_phone
                 obj.isZoomLive = True
 
-                caseObj = Case.objects.filter(email__iexact=customer_email).order_by("-timestamp").first()
+                caseObj = Case.objects.filter(email__iexact=customer_email, deleted_on__isnull=True).order_by("-timestamp").first()
 
                 if caseObj:
                     obj.caseUID = caseObj.caseUID
@@ -229,7 +230,7 @@ class CalendlyWebhook(View):
                         obj.isZoomLive = False
                         obj.save(update_fields=['isZoomLive'])
 
-                    caseObj = Case.objects.filter(email=customer_email).order_by("-timestamp").first()
+                    caseObj = Case.objects.filter(email=customer_email, deleted_on__isnull=True).order_by("-timestamp").first()
                     if caseObj:
                         caseObj.isZoomMeeting = False
                         caseObj.save(update_fields=['isZoomMeeting'])
