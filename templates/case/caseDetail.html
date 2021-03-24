@@ -435,6 +435,11 @@
                                                     {% endif %}">{{ status.data.postcode }} postcode</p>
                                             {% endif %}
 
+                                            {% if obj.deleted_on %}
+                                                <hr/>
+                                                <p class="small"> <b>Deleted On:</b>&nbsp;&nbsp;{{ obj.deleted_on|date }}</p>
+                                            {% endif %}
+
                                         </div>
 
                                     </div>

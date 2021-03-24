@@ -15,7 +15,8 @@ from django.core.files.storage import default_storage
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.mail import EmailMultiAlternatives
 from django.http import HttpResponseRedirect, HttpResponse
-from django.db.models import Q
+from django.db.models import Q, F, Value, CharField
+from django.db.models.functions import Concat
 from django.template.loader import get_template
 from django.utils import timezone
 from django.urls import reverse_lazy, reverse
@@ -64,13 +65,20 @@ class EnquiryListView(HouseholdLoginRequiredMixin, ListView):
         windowDate = timezone.now() - delta
 
         queryset = super(EnquiryListView, self).get_queryset()
-        queryset = queryset.filter(actioned=0, closeDate__isnull=True, updated__gte=windowDate)
+        queryset = queryset.filter(actioned=0, deleted_on__isnull=True, closeDate__isnull=True, updated__gte=windowDate)
 
         if self.request.GET.get('search'):
             search = self.request.GET.get('search')
             queryset = super(EnquiryListView, self).get_queryset()
-            queryset = queryset.filter(
-                Q(name__icontains=search) |
+            queryset = queryset.annotate(
+                fullname=Concat(
+                    F('firstname'),
+                    Value(' '),
+                    F('lastname'),
+                    output_field=CharField()
+                )
+            ).filter(
+                Q(fullname__icontains=search) | 
                 Q(email__icontains=search) |
                 Q(phoneNumber__icontains=search) |
                 Q(postcode__icontains=search) |

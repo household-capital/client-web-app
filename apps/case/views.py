@@ -90,7 +90,7 @@ class CaseListView(HouseholdLoginRequiredMixin, ListView):
     def get_queryset(self, **kwargs):
         # overrides queryset to filter search parameter
         queryset = super(CaseListView, self).get_queryset()
-
+        queryset = queryset.filter(deleted_on__isnull=True)
         if self.request.GET.get('search'):
             search = self.request.GET.get('search')
             queryset = queryset.filter(
