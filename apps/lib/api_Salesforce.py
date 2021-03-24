@@ -286,6 +286,15 @@ class apiSalesforce():
         except:
             return {'status': 'Error', 'responseText': 'Unknown'}
 
+    def genericUploader(self, recId, base64_content, file_name): 
+        fields = {
+            'title': file_name,
+            'FirstPublishLocationId': recId,
+            'VersionData': base64_content,
+            'PathOnClient': file_name # TODO: Check with Vikas if this is fine
+        }
+        try:
+            result = self.sf.ContentVersion.create
 
     def updateLoan(self, loanID, loanDict):
         try:
