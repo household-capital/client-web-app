@@ -367,9 +367,9 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
 
     def enumClientType(self):
         if self.clientType2 == None:
-            return [dict(self.clientTypes)[self.clientType1],None]
+            return [dict(self.clientTypes).get(self.clientType1),None]
         else:
-            return [dict(self.clientTypes)[self.clientType1],dict(self.clientTypes)[self.clientType2]]
+            return [dict(self.clientTypes).get(self.clientType1),dict(self.clientTypes).get(self.clientType2)]
 
     def enumChannelType(self):
         if self.salesChannel is not None:
@@ -394,9 +394,9 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
 
     def enumSalutation(self):
         if self.clientType2 == None:
-            return [dict(self.salutationTypes)[self.salutation_1],None]
+            return [dict(self.salutationTypes).get(self.salutation_1),None]
         else:
-            return [dict(self.salutationTypes)[self.salutation_1],dict(self.salutationTypes)[self.salutation_2]]
+            return [dict(self.salutationTypes).get(self.salutation_1),dict(self.salutationTypes).get(self.salutation_2)]
 
     def enumReferPostcodeStatus(self):
         if self.referPostcodeStatus != None:
