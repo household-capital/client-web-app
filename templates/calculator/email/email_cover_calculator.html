@@ -7,14 +7,17 @@
 
     <p>{% if customerFirstName %}Dear {{ customerFirstName }} {% else %}Hello {% endif %}</p>
     <br>
-    <p>We're pleased to provide your personalised summary following your
+    <p>I'm pleased to provide your personalised summary following your
         recent interaction with our online calculator. It shows how a Household Loan may be able
         to help you meet your retirement objectives, based on the information you provided.</p>
     <br>
     <p>Kind regards</p>
     <br>
-    <p>Household Capital</p>
+    <p>{{ user.first_name }} {{ user.last_name }}</p>
+    <p>{{ user.profile.mobile}}</p>
+    <p>{{ user.email }}</p>
     <br>
+    <img src="{{ user.profile.picture.url }}" width="100px">
 
     <br><br>
     <small>Applications for credit are subject to eligibility and lending criteria.
