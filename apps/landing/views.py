@@ -161,7 +161,7 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
         # MEETING AND SETTLEMENT GRAPH DATA
 
         # - get meeting data
-        qsMeetings = Case.objects.filter(meetingDate__isnull=False)
+        qsMeetings = Case.objects.filter(deleted_on__isnull=True, meetingDate__isnull=False)
         dataQs = qsMeetings \
             .annotate(date=Cast(TruncMonth('meetingDate', tzinfo=tz), DateField())) \
             .values_list('date') \
@@ -172,7 +172,7 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
                                                  default=self.dateParse)
 
         # - get zoom meeting data
-        qsMeetings = Case.objects.filter(meetingDate__isnull=False)
+        qsMeetings = Case.objects.filter(deleted_on__isnull=True, meetingDate__isnull=False)
         dataQs = qsMeetings \
             .annotate(date=Cast(TruncMonth('meetingDate', tzinfo=tz), DateField())) \
             .values_list('date') \
@@ -224,7 +224,7 @@ class DashboardView(HouseholdLoginRequiredMixin, TemplateView):
 
         # CONVERSION  DATA
         # - get meeting conversion
-        qsMeetings = Case.objects.filter(meetingDate__isnull=False)
+        qsMeetings = Case.objects.filter(deleted_on__isnull=True, meetingDate__isnull=False)
         dataQs = qsMeetings \
             .annotate(date=Cast(TruncMonth('meetingDate', tzinfo=tz), DateField())) \
             .values_list('date') \
@@ -301,7 +301,7 @@ class Weekly(HouseholdLoginRequiredMixin, TemplateView):
         tz = get_current_timezone()
 
         # - get ordered list
-        qsDates = Case.objects.filter(meetingDate__isnull=False) \
+        qsDates = Case.objects.filter(deleted_on__isnull=True, meetingDate__isnull=False) \
             .annotate(
             date=Concat(ExtractYear('meetingDate'), Value('-W'), ExtractWeek('meetingDate'), output_field=CharField())) \
             .values('date') \
@@ -325,7 +325,7 @@ class Weekly(HouseholdLoginRequiredMixin, TemplateView):
             .order_by()
 
         # - get meeting data
-        qsMeetings = Case.objects.filter(meetingDate__isnull=False)
+        qsMeetings = Case.objects.filter(deleted_on__isnull=True, meetingDate__isnull=False)
         dataMeetings = qsMeetings \
             .annotate(
             date=Concat(ExtractYear('meetingDate'), Value('-W'), ExtractWeek('meetingDate'), output_field=CharField())) \
@@ -334,7 +334,7 @@ class Weekly(HouseholdLoginRequiredMixin, TemplateView):
             .order_by()
 
         # - get zoom meeting data
-        qsZoom = Case.objects.filter(meetingDate__isnull=False)
+        qsZoom = Case.objects.filter(deleted_on__isnull=True, meetingDate__isnull=False)
         dataZoom = qsZoom \
             .annotate(
             date=Concat(ExtractYear('meetingDate'), Value('-W'), ExtractWeek('meetingDate'), output_field=CharField())) \

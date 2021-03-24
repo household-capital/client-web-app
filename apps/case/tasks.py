@@ -8,6 +8,8 @@ from django.core.files.storage import default_storage
 from django.conf import settings
 from django.utils import timezone
 
+from datetime import timedelta
+
 # Third-party Imports
 from config.celery import app
 
@@ -73,17 +75,27 @@ def catchallSFLeadTask():
         write_applog("ERROR", 'Case', 'Tasks-createSFLead', result['responseText'])
         return "Error - could not open Salesforce"
 
-    qs = Case.objects.filter(sfLeadID__isnull=True, lossdata__closeDate__isnull=True)
+    qs = Case.objects.filter(sfLeadID__isnull=True, deleted_on__isnull=True, lossdata__closeDate__isnull=True)
     for case in qs:
         createSFLeadCase(str(case.caseUID), sfAPI)
     write_applog("INFO", 'Case', 'Tasks-catchallSFLead', "Completed")
     return "Finished - Unsuccessfully"
 
 
+@app.task(name="Hard_delete_leads")
+@email_admins_on_failure(task_name='Hard_delete_leads')
+def hard_delete_leads():
+    write_applog("INFO", 'Case', 'Hard_delete_leads', "Starting")
+    today = timezone.localtime()
+    # hard delete any soft deleted leads from 2 months or prior
+    two_months_ago = today - timedelta(days=60)  
+    Case.objects.filter(deleted_on__lte=two_months_ago).delete()
+    write_applog("INFO", 'Case', 'Hard_delete_leads', "Finished")
+
+
 @app.task(name='SF_Lead_Convert')
 def sfLeadConvert(caseUID):
     '''Task wrapper to to create lead for all cases without sfLeadID '''
-
     # Get object
     qs = Case.objects.queryset_byUID(caseUID)
     case = qs.get()
@@ -229,7 +241,7 @@ def stageSynch():
         # Loop through SF list and update stage of CaseObjects
         for index, row in dataFrame.iterrows():
             try:
-                obj = Case.objects.filter(sfOpportunityID=row['Id']).get()
+                obj = Case.objects.filter(sfOpportunityID=row['Id'], deleted_on__isnull=True).get()
             except Case.DoesNotExist:
                 obj = None
 
@@ -258,7 +270,7 @@ def integrityCheck():
         # Loop through SF list and update stage of CaseObjects
         for index, row in dataFrame.iterrows():
             try:
-                obj = Case.objects.filter(sfOpportunityID=row['Id']).get()
+                obj = Case.objects.filter(sfOpportunityID=row['Id'], deleted_on__isnull=True).get()
                 loanObj = Loan.objects.filter(case__sfOpportunityID=row['Id']).get()
                 modelObj = ModelSetting.objects.filter(case__sfOpportunityID=row['Id']).get()
             except obj.DoesNotExist:
@@ -575,7 +587,7 @@ def createSFLeadCase(caseUID, sfAPIInstance=None):
         return {"status": "Error", "responseText": "No email or phone number"}
 
 def update_all_unsycned_enquiries(case): 
-    for enq in case.enquiries.all():
+    for enq in case.enquiries.filter(deleted_on__isnull=True).all():
         app.send_task(
             'Update_SF_Enquiry',
             kwargs={'enqUID': str(enq.enqUID)}

@@ -244,7 +244,7 @@ class CaseListView(ReferrerLoginRequiredMixin, ListView):
 
     def get_queryset(self, **kwargs):
         # overrides queryset to filter search parameter
-        qs =Case.objects.filter(referralCompany = self.request.user.profile.referrer)
+        qs =Case.objects.filter(deleted_on__isnull=True, referralCompany = self.request.user.profile.referrer)
 
         if self.request.GET.get('search'):
             search = self.request.GET.get('search')

@@ -20,6 +20,7 @@ def get_existing_case(phoneNumber, email):
     elif phoneNumber:
         query = Q(phoneNumber=phoneNumber)
     if query:
+        query = query & Q(deleted_on__isnull=True)
         return Case.objects.filter(
             query
         ).order_by('-updated').first()
