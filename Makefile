@@ -138,3 +138,7 @@ rds-snapshot:
 	sh rds_snapshot.sh $(ENV) $(AWS_PROFILE)
 
 apply-deploy-with-snapshot: rds-snapshot apply-deploy
+
+
+shell_plus: 
+	$(PYTHON) manage.py shell_plus --print-sql

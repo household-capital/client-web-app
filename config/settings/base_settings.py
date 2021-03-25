@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'storages',
     'corsheaders',
     'reversion',
+    'django_extensions',
     # my apps
     'apps.accounts',
     'apps.application',

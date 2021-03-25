@@ -25,7 +25,7 @@ from apps.lib.site_EmailUtils import sendTemplateEmail
 from apps.lib.site_DataMapping import mapCaseToOpportunity, sfStateEnum
 from apps.lib.site_Globals import ECONOMIC
 from apps.lib.hhc_LoanValidator import LoanValidator
-
+from apps.operational.tasks import generic_file_uploader
 
 from .models import Case, LossData, Loan, ModelSetting
 from apps.application.models import ApplicationDocuments
@@ -62,6 +62,27 @@ def updateSFLeadTask(caseUID):
         write_applog("INFO", 'Case', 'Tasks-updateSFLead', "Finished - Unsuccessfully")
         return "Finished - Unsuccessfully"
 
+@app.task(name='Upload_Lead_Files')
+def syncLeadFiles(caseUID):
+    write_applog("INFO", 'Case', 'Tasks-syncLeadFiles', "Updating lead files for:" + str(caseUID))
+    case = Case.objects.get(caseUID=caseUID)
+    DOCUMENT_LIST = {
+        "Automated Valuation": case.valuationDocument,
+        "Responsible Lending Summary": case.responsibleDocument,
+        "Enquiry Document": case.enquiryDocument,
+        "Loan Summary": case.summaryDocument,
+        "Application Received": case.applicationDocument,
+        "Property Image": case.propertyImage
+    }
+    # Retain file extensions
+    DOCUMENT_LIST_MUTATED = {
+        "{}{}".format(x, os.path.splitext(y.name)[1]):y 
+        for x,y in DOCUMENT_LIST.items()
+        if y
+    }
+    if case.sfLeadID:
+        return generic_file_uploader(DOCUMENT_LIST_MUTATED , case.sfLeadID)
+    return "Success - No sf Lead"
 
 @app.task(name="Catchall_SF_Case_Lead")
 @email_admins_on_failure(task_name='Catchall_SF_Case_Lead')
@@ -595,7 +616,6 @@ def update_all_unsycned_enquiries(case):
 
 def updateSFLead(caseUID):
     '''Updates a SF Lead from a case using the SF Rest API.'''
-
     # Open SF API
     sfAPI = apiSalesforce()
     result = sfAPI.openAPI(True)
@@ -613,6 +633,7 @@ def updateSFLead(caseUID):
             return {"status": "Error"}
         else:
             # Update object
+            app.send_task('Upload_Lead_Files', kwargs={'caseUID': caseUID})
             qs = Case.objects.queryset_byUID(caseUID)
             caseObj = qs.get()
 
@@ -621,6 +642,7 @@ def updateSFLead(caseUID):
     result = sfAPI.updateLead(str(caseObj.sfLeadID), payload)
     update_all_unsycned_enquiries(caseObj) 
     if result['status'] == "Ok":
+        app.send_task('Upload_Lead_Files', kwargs={'caseUID': caseUID})
         return {'status': 'Ok'}
     else:
         write_applog("ERROR", 'Case', 'Tasks-updateSFLead', result['status'])
