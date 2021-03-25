@@ -21,7 +21,8 @@ from apps.enquiry.models import Enquiry
 from apps.case.models import Case
 from apps.lib.site_Enums import enquiryStagesEnum
 from apps.lib.site_Utilities import chkNone
-
+from apps.enquiry.note_utils import add_enquiry_note
+from apps.case.note_utils import add_case_note
 from apps.operational.decorators import email_admins_on_failure
 
 
@@ -77,19 +78,13 @@ def updateEnquiry(enqUID, meeting_name, phoneNumber):
     obj = Enquiry.objects.filter(enqUID=enqUID).first()
 
     if obj:
-        if obj.enquiryNotes:
-            obj.enquiryNotes += "\r\n" + "[# Calendly - " + meeting_name + " #]"
-        else:
-            obj.enquiryNotes = "[# Calendly - " + meeting_name + " #]"
-
+        add_enquiry_note(obj,  "[# Calendly - " + meeting_name + " #]", user=None)
         obj.isCalendly = True
-
         obj.enquiryStage = enquiryStagesEnum.DISCOVERY_MEETING.value
-
         if phoneNumber and not obj.phoneNumber:
             obj.phoneNumber = phoneNumber
 
-        obj.save(update_fields=['enquiryNotes', 'isCalendly', 'phoneNumber', 'enquiryStage'])
+        obj.save(update_fields=['isCalendly', 'phoneNumber', 'enquiryStage'])
     return
 
 def updateCase(caseUID, meeting_name, phoneNumber):
@@ -97,15 +92,10 @@ def updateCase(caseUID, meeting_name, phoneNumber):
     obj = Case.objects.filter(caseUID=caseUID, deleted_on__isnull=True).first()
 
     if obj:
-        if obj.caseNotes:
-            obj.caseNotes += "\r\n" + "[# Calendly - " + meeting_name + " #]"
-        else:
-            obj.caseNotes = "[# Calendly - " + meeting_name + " #]"
-
+        add_case_note(obj, "[# Calendly - " + meeting_name + " #]", user=None)
         obj.isZoomMeeting = True
-
         if phoneNumber and not obj.phoneNumber:
             obj.phoneNumber = phoneNumber
 
-        obj.save(update_fields=['caseNotes', 'isZoomMeeting', 'phoneNumber'])
+        obj.save(update_fields=['isZoomMeeting', 'phoneNumber'])
     return

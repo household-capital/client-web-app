@@ -55,7 +55,6 @@ def create_case_from_enquiry(enquiry, attach_to_case=True):
     map_fields = {
         'streetAddress': 'street',
         'enquiryDocument': 'summaryDocument',
-        'enquiryNotes': 'caseNotes',
         'timestamp': 'enquiryCreateDate',
         'marketingSource': 'channelDetail'
     }

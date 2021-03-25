@@ -35,7 +35,7 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
     class Meta:
         model = Case
         fields = [
-            'caseDescription', 'adviser', 'referralCompany', 'caseNotes', 'loanType', 'caseStage',
+            'caseDescription', 'adviser', 'referralCompany', 'loanType', 'caseStage',
             'clientType1', 'surname_1', 'firstname_1', 'preferredName_1', 'birthdate_1', 'age_1', 'sex_1',
             'salutation_1', 'middlename_1', 'maritalStatus_1',
             'clientType2', 'surname_2', 'firstname_2', 'preferredName_2', 'birthdate_2', 'age_2', 'sex_2',
@@ -47,9 +47,7 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
             'firstname', 'lastname',
         ] + address_model_fields
 
-        widgets = {
-            'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
-        }
+        widgets = {}
 
     caseStages = (
         (caseStagesEnum.UNQUALIFIED_CREATED.value,"Unqualified / Lead created"),
@@ -129,9 +127,6 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                 ),
                 css_class="row"
             ),
-            Div(
-                Div(HTML("Lead Notes"), css_class='form-label'),
-                Div(Field('caseNotes'))),
             Div(
                 Div(Field('doNotMarket')),
                 Div(HTML("<p>&nbsp;&nbsp;Do not market</p>"), css_class="pt-1 pl-0 "),

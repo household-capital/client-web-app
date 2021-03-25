@@ -1,21 +1,10 @@
-
-import random
-import logging
-import datetime
-
-from django.contrib.auth.models import User
-from django.conf import settings
-from django.template.loader import get_template
-from django.core.mail import EmailMultiAlternatives
-from django.db.models import Q
-
-from apps.settings.models import GlobalSettings
 from apps.lib.site_Enums import *
 from apps.lib.site_Logging import write_applog
 from apps.case.models import Case
 from apps.case.assignment import auto_assign_leads
 from .models import Enquiry
 from apps.lib.site_Enums import caseStagesEnum
+
 
 # DEPRECATE COMMENTED
 
@@ -291,4 +280,5 @@ def updateCreatePartnerEnquiry(payload, enquiries_to_assign):
 
         # assign new owner
         enquiries_to_assign.append(new_enq)
+
 

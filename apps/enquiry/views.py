@@ -81,8 +81,8 @@ class EnquiryListView(HouseholdLoginRequiredMixin, ListView):
                 Q(fullname__icontains=search) | 
                 Q(email__icontains=search) |
                 Q(phoneNumber__icontains=search) |
-                Q(postcode__icontains=search) |
-                Q(enquiryNotes__icontains=search)
+                Q(postcode__icontains=search) #|
+                #Q(enquiryNotes__icontains=search) # FIX ME - how to search in django comments?
             ).exclude(actioned=-1)
 
         # ...and for open my items
@@ -208,8 +208,8 @@ class EnquiryPartnerList(HouseholdLoginRequiredMixin, ListView):
                 Q(name__icontains=search) |
                 Q(email__icontains=search) |
                 Q(phoneNumber__icontains=search) |
-                Q(postcode__icontains=search) |
-                Q(enquiryNotes__icontains=search)
+                Q(postcode__icontains=search) #|
+                #Q(enquiryNotes__icontains=search) # FIX ME - how to search in django comments?
             ).filter(referrer=directTypesEnum.PARTNER.value).exclude(actioned=-1)
 
         queryset = queryset.order_by('-updated')[:160]
@@ -730,7 +730,6 @@ class EnquiryConvert(HouseholdLoginRequiredMixin, View):
         caseDict['caseStage'] = caseStagesEnum.DISCOVERY.value
         caseDict['caseDescription'] = surname + " - " + str(enqDict['postcode'])
         caseDict['enquiryDocument'] = enqDict['summaryDocument']
-        caseDict['caseNotes'] = enqDict['enquiryNotes']
         caseDict['firstname_1'] = enqDict['firstname']
         caseDict['surname_1'] = surname
         caseDict['enqUID'] = enq_obj.enqUID

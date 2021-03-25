@@ -109,7 +109,6 @@ def updateToday():
 
     qs = Enquiry.objects.filter(followUp__isnull=True,
                                 email__isnull=False,
-                                enquiryNotes__isnull=True,
                                 referrer=directTypesEnum.WEB_CALCULATOR.value,
                                 timestamp__lte=windowDate,
                                 user__isnull=False,
@@ -472,7 +471,7 @@ def createNote(note_id):
     enquiry = note.content_object
 
     if not enquiry.sfEnqID:
-        return {"status": "Error", "responseText": "SF Lead ID missing"}
+        return {"status": "Error", "responseText": "SF Enquiry ID missing"}
     parent_sfid = enquiry.sfEnqID
 
     sfAPI = apiSalesforce()
@@ -505,7 +504,7 @@ def deleteNote(note_id):
 def syncNotes(enqUID):
     enquiry = Enquiry.objects.queryset_byUID(enqUID).get()
     if not enquiry.sfEnqID:
-        return {"status": "Error", "responseText": "SF Lead ID missing"}
+        return {"status": "Error", "responseText": "SF Enquiry ID missing"}
 
     parent_sfid = enquiry.sfEnqID
     notes = Comment.objects.for_model(enquiry)

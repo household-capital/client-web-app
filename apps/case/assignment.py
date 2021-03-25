@@ -12,6 +12,8 @@ from apps.lib.site_Enums import *
 from apps.lib.site_Logging import write_applog
 
 from apps.case.models import Case
+from apps.case.note_utils import add_case_note
+
 
 def _assign_leads(assignments, notify): 
     def send_summary_email(user, cases):
@@ -46,9 +48,8 @@ def _assign_leads(assignments, notify):
         try:
             for lead in leads:
                 write_applog('INFO', 'case.assignments', 'assign_leads', 'Assigning lead (%s) to user %s' % (lead.caseUID, username))
-
                 if lead.owner:
-                    lead.caseNotes = (lead.caseNotes or '') + '\r\n[# Lead assigned from ' + lead.owner.username + ' to ' + username + ' #]'
+                    add_case_note(lead, '[# Lead assigned from ' + lead.owner.username + ' to ' + username + ' #]', user=None)
                 lead.owner = user
                 lead.save(should_sync=True)
                 processed.append(lead)

@@ -122,7 +122,7 @@
                                     href="{{ obj.get_absolute_url }}">{{ obj.updated|timesince|upto }} ago</a></td>
                             <td class="d-none d-sm-table-cell" data-toggle="tooltip" data-placement="top"
                                 title="Comments">
-                                {% if obj.enquiryNotes %} <i class="far fa-comments"></i>{% endif %}</td>
+                                {% if obj.has_notes %} <i class="far fa-comments"></i>{% endif %}</td>
                             <td class="d-none d-sm-table-cell" data-toggle="tooltip" data-placement="top"
                                 title="Summary Document" class="text-center">
                                 <a href="{{ obj.get_absolute_url }}">{% if obj.summaryDocument %}

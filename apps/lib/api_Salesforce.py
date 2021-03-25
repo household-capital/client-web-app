@@ -368,37 +368,61 @@ class apiSalesforce():
             return {'status': 'Error', 'responseText': 'Unknown'}
 
     def syncNotes(self, parent_sfid, notes):
-        soql = "Select ContentDocumentId from ContentDocumentLink where LinkedEntityId=\'{0}\'".format(parent_sfid)
-        soql = soql.encode('unicode_escape') # Need to escape the "" in the SQL statement
+        try:
+            soql = "Select ContentDocumentId from ContentDocumentLink where LinkedEntityId=\'{0}\'".format(parent_sfid)
+            soql = soql.encode('unicode_escape') # Need to escape the "" in the SQL statement
 
-        raw_list = self.sf.query_all(soql)
+            raw_list = self.sf.query_all(soql)
 
-        sf_note_sfids = [record['ContentDocumentId'] for record in raw_list['records']]
-        ca_note_sfids = [note.sf_id for note in notes]
+            sf_note_sfids = [record['ContentDocumentId'] for record in raw_list['records']]
+            ca_note_sfids = [note.sf_id for note in notes]
 
-        for note in notes:
-            if note.is_removed:
-                if not note.sf_id:
-                    pass
-                elif note.sf_id not in sf_note_sfids:
-                    pass
+            write_applog("INFO", 'apiSalesforce', 'syncNotes', "sf_note_sfids = " + json.dumps(sf_note_sfids))
+            write_applog("INFO", 'apiSalesforce', 'syncNotes', "ca_note_sfids = " + json.dumps(ca_note_sfids))
+
+            for note in notes:
+                write_applog("INFO", 'apiSalesforce', 'syncNotes', "processing note %d" % note.id)
+                if note.is_removed:
+                    write_applog("INFO", 'apiSalesforce', 'syncNotes', "note marked for removal")
+                    if not note.sf_id:
+                        write_applog("INFO", 'apiSalesforce', 'syncNotes', "No SFID - skipping")
+                        pass
+                    elif note.sf_id not in sf_note_sfids:
+                        write_applog("INFO", 'apiSalesforce', 'syncNotes', "Not in SF - skipping")
+                        pass
+                    else:
+                        write_applog("INFO", 'apiSalesforce', 'syncNotes', "Deleting...")
+                        self.deleteNote(note)
                 else:
-                    self.deleteNote(note)
-            else:
-                if not note.sf_id:
-                    self.createNote(parent_sfid, note)
-                elif note.sf_id not in sf_note_sfids:
-                    # need to be restored
-                    self.createNote(parent_sfid, note)
-                else:
-                    pass
+                    write_applog("INFO", 'apiSalesforce', 'syncNotes', "note marked for keeping")
+                    if not note.sf_id:
+                        write_applog("INFO", 'apiSalesforce', 'syncNotes', "No SFID - adding")
+                        self.createNote(parent_sfid, note)
+                    elif note.sf_id not in sf_note_sfids:
+                        # need to be restored
+                        write_applog("INFO", 'apiSalesforce', 'syncNotes', "Not in SF - restoring")
+                        self.createNote(parent_sfid, note)
+                    else:
+                        write_applog("INFO", 'apiSalesforce', 'syncNotes', "Already in SF - skipping")
+                        pass
 
-        # FIX ME - this isn't working yet, it isn't hitting an error, but no delete applying in SF.
-        # possibly just an issue with the Type of the sf_id? some issue with string types?
-        #for sfid in sf_note_sfids:
-        #    if sfid not in ca_note_sfids:
-        #        print('deleting')
-        #        self.sf.ContentNote.delete(sfid)
+                # FIX ME - this isn't working yet, it isn't hitting an error, but no delete applying in SF.
+                # possibly just an issue with the Type of the sf_id? some issue with string types?
+                #for sfid in sf_note_sfids:
+                #    if sfid not in ca_note_sfids:
+                #        print('deleting')
+                #        self.sf.ContentNote.delete(sfid)
+            return {'status': 'Ok'}
+        except SalesforceMalformedRequest as err:
+            return {'status': 'Error', 'responseText': err.content[0]}
+        except:
+            write_applog("ERROR", 'apiSalesforce', 'syncNotes', "", is_exception=True)
+            return {'status': 'Error', 'responseText': 'Unknown'}
+
+
+
+
+
 
     # SF Opportunity Extract
 

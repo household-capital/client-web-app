@@ -10,6 +10,7 @@ from django.db.models import Q
 from django.utils.encoding import smart_text
 from django.utils import timezone
 from django.urls import reverse_lazy
+from django_comments.models import Comment
 
 #Local Application Imports
 from apps.lib.site_Enums import *
@@ -21,6 +22,8 @@ from apps.base.model_utils import AbstractAddressModel
 from apps.helpers.model_utils import ReversionModel
 
 from config.celery import app
+from apps.case.note_utils import add_case_note
+
 
 class FundDetail(models.Model):
     #Model for Fund Names/Images
@@ -231,7 +234,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
 
     # Customer Data
-    caseNotes = models.TextField(blank=True, null=True)
+    caseNotes = models.TextField(blank=True, null=True) # Deprecated
     phoneNumber=models.CharField(max_length=20, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     loanType=models.IntegerField(choices=loanTypes,null=True, blank=True)
@@ -426,9 +429,20 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
                 os.getenv('SALESFORCE_BASE_URL'),
                 "lightning/r/Lead/{0}/view".format(self.sfLeadID)
             )
+
+    @property
+    def notes_summary(self):
+        summary = ''
+        for comment in Comment.objects.for_model(self):
+            summary += '\r\n' + comment.comment
+        return summary
     
-    def save(self, should_sync=False, *args, **kwargs):
+    def save(self, should_sync=False, caseNotes=None, *args, **kwargs):
         super(Case, self).save(*args, **kwargs)
+
+        if caseNotes:
+            add_case_note(self, caseNotes, user=None)
+
         if should_sync: 
             app.send_task('Update_SF_Case_Lead', kwargs={'caseUID': str(self.caseUID)})
 
