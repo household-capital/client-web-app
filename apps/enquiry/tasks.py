@@ -22,11 +22,29 @@ from apps.lib.site_Enums import directTypesEnum, marketingTypesEnum
 from apps.lib.site_Utilities import raiseTaskAdminError
 from apps.lib.site_EmailUtils import sendTemplateEmail
 from apps.lib.site_DataMapping import mapEnquiryToLead, mapEnquiryForSF 
+from apps.operational.tasks import generic_file_uploader
 
 from .models import Enquiry
 from urllib.parse import urljoin
 
 from apps.operational.decorators import email_admins_on_failure
+
+@app.task(name='Upload_Enquiry_Files')
+def syncEnquiryFiles(enqUID):
+    enquiry = Enquiry.objects.get(enqUID=enqUID)
+    DOCUMENT_LIST = {
+        "Automated Valuation": enquiry.valuationDocument,
+        "Loan Summary": enquiry.summaryDocument,
+    }
+    # Retain file extensions
+    DOCUMENT_LIST_MUTATED = {
+        "{}{}".format(x, os.path.splitext(y.name)[1]):y 
+        for x,y in DOCUMENT_LIST.items()
+        if y
+    }
+    if enquiry.sfEnqID:
+        return generic_file_uploader(DOCUMENT_LIST_MUTATED , enquiry.sfEnqID)
+    return "Success - No sf Enquiry"
 
 
 @app.task(name="Hard_delete_enquiries")
@@ -336,6 +354,7 @@ def updateSFEnquiry(enqUID, sfAPIInstance=None):
     payload = mapEnquiryForSF(enqUID)
     result = sfAPI.updateEnquiry(enquiry.sfEnqID, payload)
     if result['status'] == "Ok":
+        app.send_task('Upload_Enquiry_Files', kwargs={'enqUID': enqUID})
         return {'status': 'Ok'}
     else: 
         write_applog("ERROR", 'Enquiry', 'Tasks-updateSFEnquiry', json.dumps(result['responseText']))
@@ -385,6 +404,7 @@ def createSFEnquiry(enqUID, sfAPIInstance=None):
             enquiry.sfEnqID = result['data']['id']
             write_applog("INFO", 'Enquiry', 'Tasks-createSFEnquiry', "Created ID" + str(enquiry.sfEnqID))
             enquiry.save(update_fields=['sfEnqID'])
+            app.send_task('Upload_Enquiry_Files', kwargs={'enqUID': enqUID})
             return {"status": "Ok", "responseText": "Enquiry Created"}
         else:
             return {
