@@ -70,8 +70,9 @@ def updateSFLeadTask(enqUID):
 def updateSFEnquiryTask(enqUID): 
     write_applog("INFO", 'Enquiry', 'Tasks-updateSFEnquiryTask', "Updating Enquiry for:" + str(enqUID))
     result = updateSFEnquiry(enqUID)
-    syncNotes(enqUID)
-
+    if result['status'] == "Ok":
+        result = syncNotes(enqUID)
+        
     if result['status'] == "Ok":
         write_applog("INFO", 'Enquiry', 'Tasks-updateSFEnquiryTask', "Finished - Successfully")
         return "Finished - Successfully"

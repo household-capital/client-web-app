@@ -44,7 +44,9 @@ def createSFLeadCaseTask(caseUID):
     '''Task wrapper to create(or retrieve) a SF Lead'''
     write_applog("Info", 'Case', 'Tasks-createSFLead', "Creating lead for:" + str(caseUID))
     result = createSFLeadCase(caseUID)
-    syncNotes(caseUID)
+    if result['status'] == "Ok":
+        result = syncNotes(caseUID)
+
     if result['status'] == "Ok":
         write_applog("INFO", 'Case', 'Tasks-createSFLead', "Finished - Successfully")
         return "Finished - Successfully"
@@ -57,7 +59,8 @@ def updateSFLeadTask(caseUID):
     # Task wrapper to update a SF Lead
     write_applog("INFO", 'Case', 'Tasks-updateSFLead', "Updating lead for:" + str(caseUID))
     result = updateSFLead(caseUID)
-    syncNotes(caseUID)
+    if result['status'] == "Ok":
+        result = syncNotes(caseUID)
     if result['status'] == "Ok":
         write_applog("INFO", 'Case', 'Tasks-updateSFLead', "Finished - Successfully")
         return "Finished - Successfully"
