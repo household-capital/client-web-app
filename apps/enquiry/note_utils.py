@@ -4,8 +4,8 @@ from django_comments.models import Comment
 
 
 def add_enquiry_note(enquiry, content, user=None):
-    user_name = user.profile.username if user else 'Unknown',
-    user_email = user.email if user else '',
+    user_name = user.profile.username if user else 'Unknown'
+    user_email = user.email if user else ''
 
     note = Comment(
         content_type=ContentType.objects.get_for_model(enquiry),
