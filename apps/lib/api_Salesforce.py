@@ -387,24 +387,24 @@ class apiSalesforce():
                     if not note.sf_id:
                         write_applog("INFO", 'apiSalesforce', 'syncNotes', "No SFID - skipping")
                         pass
-                    elif note.sf_id not in sf_note_sfids:
+                    elif note.sf_id in sf_note_sfids:
+                        write_applog("INFO", 'apiSalesforce', 'syncNotes', "In SF - Deleting...")
+                        self.deleteNote(note)
+                    else:
                         write_applog("INFO", 'apiSalesforce', 'syncNotes', "Not in SF - skipping")
                         pass
-                    else:
-                        write_applog("INFO", 'apiSalesforce', 'syncNotes', "Deleting...")
-                        self.deleteNote(note)
                 else:
                     write_applog("INFO", 'apiSalesforce', 'syncNotes', "note marked for keeping")
                     if not note.sf_id:
                         write_applog("INFO", 'apiSalesforce', 'syncNotes', "No SFID - adding")
                         self.createNote(parent_sfid, note)
-                    elif note.sf_id not in sf_note_sfids:
+                    elif note.sf_id in sf_note_sfids:
+                        write_applog("INFO", 'apiSalesforce', 'syncNotes', "In SF - skipping")
+                        pass
+                    else:
                         # need to be restored
                         write_applog("INFO", 'apiSalesforce', 'syncNotes', "Not in SF - restoring")
                         self.createNote(parent_sfid, note)
-                    else:
-                        write_applog("INFO", 'apiSalesforce', 'syncNotes', "Already in SF - skipping")
-                        pass
 
                 # FIX ME - this isn't working yet, it isn't hitting an error, but no delete applying in SF.
                 # possibly just an issue with the Type of the sf_id? some issue with string types?
