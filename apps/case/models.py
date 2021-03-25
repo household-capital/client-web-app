@@ -437,11 +437,13 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
             summary += '\r\n' + comment.comment
         return summary
     
-    def save(self, should_sync=False, caseNotes=None, *args, **kwargs):
+    def save(self, should_sync=False, *args, **kwargs):
+        is_create = self.pk is None
+
         super(Case, self).save(*args, **kwargs)
 
-        if caseNotes:
-            add_case_note(self, caseNotes, user=None)
+        if is_create and self.caseNotes:
+            add_case_note(self, self.caseNotes, user=None)
 
         if should_sync: 
             app.send_task('Update_SF_Case_Lead', kwargs={'caseUID': str(self.caseUID)})

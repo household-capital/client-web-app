@@ -381,7 +381,7 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
     def __str__(self):
         return smart_text(self.email)
     
-    def save(self, should_sync=False, enquiryNotes=None, *args, **kwargs):
+    def save(self, should_sync=False, *args, **kwargs):
 
         is_create = self.pk is None
         lead_obj_created = False
@@ -396,8 +396,8 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
         super(Enquiry, self).save(*args, **kwargs)
         self.refresh_from_db()
 
-        if enquiryNotes:
-            add_enquiry_note(self, enquiryNotes, user=None)
+        if is_create and self.enquiryNotes:
+            add_enquiry_note(self, self.enquiryNotes, user=None)
 
         # Case Wasnt passed in save kwarg / Or doesnt exist\
         if not self.case_id: 
