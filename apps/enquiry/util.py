@@ -227,7 +227,7 @@ def assign_enquiry_leads(enquiries, force=False, notify=True):
     case_uids = set() 
     for enq in enquiries:
         case_uids |= {enq.case.caseUID}
-    leads = list(Case.objects.filter(caseUID__in=case_uids))
+    leads = list(Case.objects.filter(deleted_on__isnull=True, caseUID__in=case_uids))
     auto_assign_leads(leads, force=force, notify=notify)
 
 

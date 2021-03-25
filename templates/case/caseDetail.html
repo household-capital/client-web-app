@@ -455,6 +455,11 @@
                                                         {% endif %}">{{ status.data.postcode }} postcode</p>
                                                 {% endif %}
 
+                                                {% if obj.deleted_on %}
+                                                    <hr/>
+                                                    <p class="small"> <b>Deleted On:</b>&nbsp;&nbsp;{{ obj.deleted_on|date }}</p>
+                                                {% endif %}
+
                                             </div>
 
                                         </div>
@@ -467,13 +472,16 @@
                                 <div class="col-lg-12">
 
                                     <div class="jumbotron">
-
-                                        <p class="pb- 3"><i class="fas fa-project-diagram"></i>&nbsp;Attached Enquiries</p>
-                                        <hr/>
-                                        {% for enq in obj.enquiries.all|dictsortreversed:"timestamp"  %}
-                                            <a href="{% url 'enquiry:enquiryDetail' enq.enqUID %}" target="_blank">
-                                                <p class="small"> {{ enq.enumReferrerTypeHTML |  safe }}</p>
-                                            </a>
+                                    <p class="pb-3"><i class="fas fa-project-diagram"></i>&nbsp;Attached Enquiries</p>
+                                    <hr/>
+                                    {% for enq in obj.enquiries.all|active_enquiries %}
+                                        <a href="{% url 'enquiry:enquiryDetail' enq.enqUID %}" target="_blank">
+                                            <p class="small"> {{ enq.enumReferrerTypeHTML |  safe }}</p>
+                                        </a>
+                                        <p class="pl-4 small">
+                                            Created: {{ enq.timestamp }}
+                                        </p>
+                                        {% if enq.enumMarketingSource %}
                                             <p class="pl-4 small">
                                                 Created: {{ enq.timestamp }}
                                             </p>
@@ -483,8 +491,8 @@
                                                 </p>
                                             {% endif %}
                                             <br/>
-                                        {% endfor %}
-
+                                        {% endif %}
+                                    {% endfor %}
                                     </div>
 
                                 </div>

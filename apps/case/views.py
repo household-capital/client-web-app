@@ -90,7 +90,7 @@ class CaseListView(HouseholdLoginRequiredMixin, ListView):
     def get_queryset(self, **kwargs):
         # overrides queryset to filter search parameter
         queryset = super(CaseListView, self).get_queryset()
-
+        queryset = queryset.filter(deleted_on__isnull=True)
         if self.request.GET.get('search'):
             search = self.request.GET.get('search')
             queryset = queryset.filter(
@@ -281,7 +281,7 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
     def form_valid(self, form):
 
         # Get pre-save object and check whether we can change
-        pre_obj = Case.objects.filter(caseUID=self.kwargs.get('uid')).get()
+        pre_obj = Case.objects.filter(caseUID=self.kwargs.get('uid'), deleted_on__isnull=True).get()
         initialcaseStage = pre_obj.caseStage
         loan_obj = Loan.objects.queryset_byUID(str(self.kwargs['uid'])).get()
 
@@ -456,7 +456,8 @@ class CaseDeleteView(HouseholdLoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         if "uid" in kwargs:
-            Case.objects.filter(caseUID=kwargs['uid']).delete()
+            case = Case.objects.get(caseUID=kwargs['uid'])
+            case.soft_delete()
             messages.success(self.request, "Lead deleted")
 
         return HttpResponseRedirect(reverse_lazy('case:caseList'))
@@ -523,14 +524,14 @@ class CaseCloseView(HouseholdLoginRequiredMixin, UpdateView):
             obj.closeDate = timezone.now()
         obj.save()
 
-        caseObj = Case.objects.filter(caseUID=str(self.kwargs.get('uid'))).get()
+        caseObj = Case.objects.filter(deleted_on__isnull=True, caseUID=str(self.kwargs.get('uid'))).get()
         caseObj.caseStage = caseStagesEnum.CLOSED.value
         caseObj.save(update_fields=['caseStage'])
 
         messages.success(self.request, "Lead closed or marked as followed-up")
 
         try:
-            caseObj = Case.objects.filter(caseUID=str(self.kwargs.get('uid'))).get()
+            caseObj = Case.objects.filter(deleted_on__isnull=True, caseUID=str(self.kwargs.get('uid'))).get()
             if caseObj.sfOpportunityID:
                 messages.info(self.request, "Please close Opportunity in Salesforce also")
         except Case.DoesNotExist:
@@ -543,7 +544,7 @@ class CaseCloseView(HouseholdLoginRequiredMixin, UpdateView):
 
 class CaseUncloseView(HouseholdLoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        obj = Case.objects.filter(caseUID=kwargs['uid']).get()
+        obj = Case.objects.filter(deleted_on__isnull=True, caseUID=kwargs['uid']).get()
         obj.caseStage = caseStagesEnum.UNQUALIFIED_CREATED.value
         obj.save(update_fields=['caseStage'])
         messages.success(self.request, "Lead restored")
@@ -695,7 +696,7 @@ class CaseDataExtract(HouseholdLoginRequiredMixin, SFHelper, FormView):
         return context
 
     def form_valid(self, form):
-        caseObj = Case.objects.filter(caseUID=self.kwargs['uid']).get()
+        caseObj = Case.objects.filter(deleted_on__isnull=True, caseUID=self.kwargs['uid']).get()
         sfAPI = apiSalesforce()
         statusResult = sfAPI.openAPI(True)
 

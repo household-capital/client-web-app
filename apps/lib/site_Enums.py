@@ -45,19 +45,8 @@ PRE_MEETING_STAGES = [
     'DISCOVERY',
 ]
 
-EDITABLE_STAGES = [
-    'UNQUALIFIED_CREATED',
-    'MARKETING_QUALIFIED',
-    'SQ_GENERAL_INFO',
-    'SQ_BROCHURE_SENT',
-    'SQ_CUSTOMER_SUMMARY_SENT',
-    'SQ_FUTURE_CALL', 
-    
-    'DISCOVERY',
-    'MEETING_HELD',
-    'APPLICATION',
-    'CLOSED'
-]
+EDITABLE_STAGES = PRE_MEETING_STAGES + ['MEETING_HELD', 'APPLICATION', 'CLOSED']
+
 
 # Unqualified / Lead created (automatic state when a lead is created through any channel)
 # Marketing Qualified (set when we know the lead is eligible, i.e. not ineligible)
