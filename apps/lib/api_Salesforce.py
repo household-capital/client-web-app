@@ -3,6 +3,7 @@ import logging
 import os
 import io
 import json
+import base64
 from datetime import datetime
 
 from collections import OrderedDict
@@ -86,7 +87,11 @@ class apiSalesforce():
                             "Select Id, Name, Loan__c, Property__c from LoanPropertyLink__c",
 
                       'LoanObjectPurposes':
-                            "select Id, Category__c, Amount__c, Description__c, Drawdown_Amount__c, Drawdown_Frequency__c, Intention__c, Loan__c, Name, Notes__c, Plan_Amount__c, Plan_Period__c, TopUp_Buffer__c, Contract_Drawdowns__c, Plan_Drawdowns__c, Active__c from Loan_Limit__c"
+                            "select Id, Category__c, Amount__c, Description__c, Drawdown_Amount__c, Drawdown_Frequency__c, Intention__c, Loan__c, Name, Notes__c, Plan_Amount__c, Plan_Period__c, TopUp_Buffer__c, Contract_Drawdowns__c, Plan_Drawdowns__c, Active__c from Loan_Limit__c",
+
+                      'Notes':
+                          "Select ContentDocumentId from ContentNote where LinkedEntityId=\'{0}\'",
+
                       }
 
 
@@ -319,23 +324,89 @@ class apiSalesforce():
         except SalesforceGeneralError as err:
             return {'status': 'Error', 'responseText': err.content[0]}
 
-    def createNote(self, noteDict):
-        try:
-            result=self.sf.Note.create(noteDict)
-            return {'status':'Ok','data':result}
-        except SalesforceMalformedRequest as err:
-            return {'status':'Error', 'responseText':err.content[0]}
-        except:
-            return {'status':'Error','responseText':'Unknown' }
+    def createNote(self, parent_sfid, note):
 
-    def deleteNote(self, id):
+        print('createNote')
+
+
+        content = '<p>' + note.comment.replace('\n','</p><p>') + '</p>'
+        content = base64.b64encode(content.encode('ascii')).decode('ascii')
+
+        payload = {
+            'Content': content,
+            'Title': 'Note from ' + note.user_name,
+            'OwnerId': note.user.profile.salesforceID,
+        }
         try:
-            result=self.sf.Note.delete(id)
-            return {'status':'Ok','data':result}
+            result = self.sf.ContentNote.create(payload)
         except SalesforceMalformedRequest as err:
-            return {'status':'Error', 'responseText':err.content[0]}
+            return {'status': 'Error', 'responseText': err.content[0]}
         except:
-            return {'status':'Error','responseText':'Unknown'}
+            return {'status': 'Error','responseText': 'Unknown'}
+
+        payload = {
+            'ContentDocumentId': result['id'],
+            'LinkedEntityId': parent_sfid,
+        }
+        try:
+            result2 = self.sf.ContentDocumentLink.create(payload)
+        except SalesforceMalformedRequest as err:
+            return {'status': 'Error', 'responseText': err.content[0]}
+        except:
+            return {'status': 'Error','responseText': 'Unknown'}
+
+        note.sf_id = result['id']
+        note.save()
+
+        return {'status': 'Ok', 'data': result}
+
+    def deleteNote(self, note):
+
+        print('deleteNote')
+
+        try:
+            result = self.sf.ContentNote.delete(note.sf_id)
+            return {'status': 'Ok', 'data': result}
+        except SalesforceMalformedRequest as err:
+            return {'status': 'Error', 'responseText': err.content[0]}
+        except:
+            return {'status': 'Error', 'responseText': 'Unknown'}
+
+    def syncNotes(self, parent_sfid, notes):
+
+        print('syncNotes')
+
+        soql = "Select ContentDocumentId from ContentDocumentLink where LinkedEntityId=\'{0}\'".format(parent_sfid)
+        soql = soql.encode('unicode_escape') # Need to escape the "" in the SQL statement
+
+        raw_list = self.sf.query_all(soql)
+
+        sf_note_sfids = [record['ContentDocumentId'] for record in raw_list['records']]
+        ca_note_sfids = [note.sf_id for note in notes]
+
+        for note in notes:
+            if note.is_removed:
+                if not note.sf_id:
+                    pass
+                elif note.sf_id not in sf_note_sfids:
+                    pass
+                else:
+                    self.deleteNote(note)
+            else:
+                if not note.sf_id:
+                    self.createNote(parent_sfid, note)
+                elif note.sf_id not in sf_note_sfids:
+                    # need to be restored
+                    self.createNote(parent_sfid, note)
+                else:
+                    pass
+
+        # FIX ME - this isn't working yet, it isn't hitting an error, but no delete applying in SF.
+        # possibly just an issue with the Type of the sf_id? some issue with string types?
+        #for sfid in sf_note_sfids:
+        #    if sfid not in ca_note_sfids:
+        #        print('deleting')
+        #        self.sf.ContentNote.delete(sfid)
 
     # SF Opportunity Extract
 

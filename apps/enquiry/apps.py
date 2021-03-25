@@ -3,7 +3,11 @@ from django.apps import AppConfig
 
 # Application registration - must also be included in SETTINGS list of applications
 class LandingConfig(AppConfig):
-    name = 'enquiry'
+    name = 'apps.enquiry'
+
+    def ready(self):
+        import apps.enquiry.signals
+
 
 # APP NOTES
 # This app managers the 'enquiry' workflow - including customer email communication - based on the original Eligibility app

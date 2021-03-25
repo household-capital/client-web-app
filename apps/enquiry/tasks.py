@@ -11,6 +11,7 @@ from django.utils import timezone
 
 # Third-party Imports
 from config.celery import app
+from django_comments.models import Comment
 
 # Local Application Imports
 from apps.case.models import Case
@@ -58,6 +59,8 @@ def updateSFLeadTask(enqUID):
 def updateSFEnquiryTask(enqUID): 
     write_applog("INFO", 'Enquiry', 'Tasks-updateSFEnquiryTask', "Updating Enquiry for:" + str(enqUID))
     result = updateSFEnquiry(enqUID)
+    syncNotes(enqUID)
+
     if result['status'] == "Ok":
         write_applog("INFO", 'Enquiry', 'Tasks-updateSFEnquiryTask', "Finished - Successfully")
         return "Finished - Successfully"
@@ -450,3 +453,55 @@ def __checkInt(val):
         return 0
 
 
+@app.task(name='SF_Create_Enquiry_Note')
+def createNote(note_id):
+
+    note = Comment.objects.get(pk=note_id)
+    enquiry = note.content_object
+
+    if not enquiry.sfEnqID:
+        return {"status": "Error", "responseText": "SF Lead ID missing"}
+    parent_sfid = enquiry.sfEnqID
+
+    sfAPI = apiSalesforce()
+    result = sfAPI.openAPI(True)
+    if result['status'] != "Ok":
+        write_applog("ERROR", 'Case', 'Tasks-createNote', result['responseText'])
+        return {"status": "Error"}
+
+    result = sfAPI.createNote(parent_sfid, note)
+
+    return result
+
+
+@app.task(name='SF_Delete_Enquiry_Note')
+def deleteNote(note_id):
+    note = Comment.objects.get(pk=note_id)
+    if not note.sf_id:
+        return {'status': 'Ok'}
+
+    sfAPI = apiSalesforce()
+    result = sfAPI.openAPI(True)
+    if result['status'] != "Ok":
+        write_applog("ERROR", 'Case', 'Tasks-deleteNote', result['responseText'])
+        return {"status": "Error"}
+
+    return sfAPI.deleteNote(note)
+
+
+@app.task(name='SF_Sync_Enquiry_Notes')
+def syncNotes(enqUID):
+    enquiry = Enquiry.objects.queryset_byUID(enqUID).get()
+    if not enquiry.sfEnqID:
+        return {"status": "Error", "responseText": "SF Lead ID missing"}
+
+    parent_sfid = enquiry.sfEnqID
+    notes = Comment.objects.for_model(enquiry)
+
+    sfAPI = apiSalesforce()
+    result = sfAPI.openAPI(True)
+    if result['status'] != "Ok":
+        write_applog("ERROR", 'Case', 'Tasks-syncNotes', result['responseText'])
+        return {"status": "Error"}
+
+    return sfAPI.syncNotes(parent_sfid, notes)
