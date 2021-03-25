@@ -325,18 +325,16 @@ class apiSalesforce():
             return {'status': 'Error', 'responseText': err.content[0]}
 
     def createNote(self, parent_sfid, note):
-
-        print('createNote')
-
-
         content = '<p>' + note.comment.replace('\n','</p><p>') + '</p>'
         content = base64.b64encode(content.encode('ascii')).decode('ascii')
 
         payload = {
             'Content': content,
             'Title': 'Note from ' + note.user_name,
-            'OwnerId': note.user.profile.salesforceID,
         }
+        if note.user and note.user.profile.salesforceID:
+            payload['OwnerId'] = note.user.profile.salesforceID
+
         try:
             result = self.sf.ContentNote.create(payload)
         except SalesforceMalformedRequest as err:
@@ -361,9 +359,6 @@ class apiSalesforce():
         return {'status': 'Ok', 'data': result}
 
     def deleteNote(self, note):
-
-        print('deleteNote')
-
         try:
             result = self.sf.ContentNote.delete(note.sf_id)
             return {'status': 'Ok', 'data': result}
@@ -373,9 +368,6 @@ class apiSalesforce():
             return {'status': 'Error', 'responseText': 'Unknown'}
 
     def syncNotes(self, parent_sfid, notes):
-
-        print('syncNotes')
-
         soql = "Select ContentDocumentId from ContentDocumentLink where LinkedEntityId=\'{0}\'".format(parent_sfid)
         soql = soql.encode('unicode_escape') # Need to escape the "" in the SQL statement
 
