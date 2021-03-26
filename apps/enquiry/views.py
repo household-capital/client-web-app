@@ -36,7 +36,7 @@ from apps.lib.site_Enums import *
 from apps.lib.site_Logging import write_applog
 from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.site_Utilities import parse_api_name, parse_api_names
-from .forms import EnquiryForm, EnquiryDetailForm, EnquiryAssignForm, EnquiryCallForm, \
+from .forms import EnquiryForm, EnquiryDetailForm, EnquiryCallForm, \
     AddressForm, PartnerForm
 from .models import Enquiry
 from apps.lib.site_Utilities import cleanPhoneNumber, cleanValuation, calcAge

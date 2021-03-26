@@ -626,8 +626,8 @@ class CaseOwnView(HouseholdLoginRequiredMixin, View):
         return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
 
-class CaseAssignView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, UpdateView):
-    template_name = 'case/caseDetail.html'
+class CaseAssignView(HouseholdLoginRequiredMixin, UpdateView):
+    template_name = 'case/caseAssign.html'
     email_template_name = 'case/email/assignEmail.html'
     form_class = CaseAssignForm
     model = Enquiry
@@ -649,7 +649,8 @@ class CaseAssignView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
         preObj = queryset = Case.objects.queryset_byUID(str(self.kwargs['uid'])).get()
 
         caseObj = form.save(commit=False)
-        caseObj.caseNotes += '\r\n[# Case assigned from ' + preObj.owner.username + ' #]'
+        if preObj.owner:
+            caseObj.caseNotes = (caseObj.caseNotes or '') + '\r\n[# Case assigned from ' + preObj.owner.username + ' #]'
         caseObj.save()
 
         # Email recipient
