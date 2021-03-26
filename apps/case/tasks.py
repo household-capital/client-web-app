@@ -633,7 +633,6 @@ def updateSFLead(caseUID):
             return {"status": "Error"}
         else:
             # Update object
-            app.send_task('Upload_Lead_Files', kwargs={'caseUID': caseUID})
             qs = Case.objects.queryset_byUID(caseUID)
             caseObj = qs.get()
 
