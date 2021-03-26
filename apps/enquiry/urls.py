@@ -16,10 +16,7 @@ urlpatterns = [
     path('enquirySummaryMove/<uuid:uid>',views.SummaryMove.as_view(),name='enqSummaryMove'),
     path('enquirySendDetail/<uuid:uid>', views.SendEnquirySummary.as_view(), name='enqSendDetails'),
     path('enquiryEligibility/<uuid:uid>',views.EnquiryEmailEligibility.as_view(), name='enqEligibility'),
-    path('enquiryConvert/<uuid:uid>', views.EnquiryConvert.as_view(), name='enqConvert'),
-    path('enquiryOwn/<uuid:uid>', views.EnquiryOwnView.as_view(), name='enquiryOwn'),
     path('enquiryDelete/<uuid:uid>', views.EnquiryDeleteView.as_view(), name='enqDelete'),
-    path('enquiryRefer/<uuid:uid>', views.EnquiryReferView.as_view(), name='enqReview'),
     path('enquiryPartnerUpload', views.EnquiryPartnerUpload.as_view(), name='enqPartnerUpload'),
     path('enquiryPartnerList', views.EnquiryPartnerList.as_view(), name='enqPartnerList'),
 
