@@ -4,6 +4,7 @@ import os
 import io
 import json
 import base64
+import hashlib
 from datetime import datetime
 
 from collections import OrderedDict
@@ -286,6 +287,64 @@ class apiSalesforce():
             result = self.sf.Opportunity.update(oppID, oppDict)
             return {'status': 'Ok', 'data': result}
 
+        except SalesforceMalformedRequest as err:
+            return {'status': 'Error', 'responseText': err.content[0]}
+        except:
+            return {'status': 'Error', 'responseText': 'Unknown'}
+
+    def genericUploader(self, recId, file_bytes, file_name):
+        base64_content = base64.b64encode(file_bytes).decode() 
+        md5_chksum = hashlib.md5(file_bytes).hexdigest()
+        
+        fields = {
+            'title': file_name,
+            'FirstPublishLocationId': recId,
+            'VersionData': base64_content,
+            'IsMajorVersion': False, # TODO: Check with Vikas if this is fine - Set to false so file can be update
+            'PathOnClient': file_name # TODO: Check with Vikas if this is fine
+        }
+        try:
+            existing_files_on_record = self.sf.query(
+                "SELECT Id, Checksum, title FROM ContentVersion WHERE FirstPublishLocationId='{}'".format(recId)
+            ).get('records', [])
+            dup_file_exists = any(
+                _file['Checksum'] == md5_chksum
+                for _file in existing_files_on_record
+            )
+            existing_file_id = next(
+                (
+                    _file['Id']
+                    for _file in existing_files_on_record
+                    if _file['Title'] == file_name
+                ),
+                None
+            )
+            if dup_file_exists:
+                # file already exists 
+                return {
+                    'status': 'Ok',
+                    'data': 'File already exists on record {}'.format(recId)
+                }
+            elif existing_file_id:
+                # title exists, needs update with new file  
+                result = self.sf.ContentVersion.update(
+                    existing_file_id,
+                    {
+                        'VersionData': base64_content
+                    }
+                )
+                if result == 204: 
+                    return {
+                        'status': 'Ok', 'data': 'File-Updated for {} for title {}'.format(recId, file_name)
+                    }
+                else:
+                    return {'status': 'Error', 'responseText': 'Unknown-existing-payload'}
+            else:
+                result = self.sf.ContentVersion.create(fields)
+                if result['success']:
+                    return {'status': 'Ok', 'data': result}
+                else: 
+                    return {'status': 'Error', 'responseText': 'Unknown-in-payload'}
         except SalesforceMalformedRequest as err:
             return {'status': 'Error', 'responseText': err.content[0]}
         except:

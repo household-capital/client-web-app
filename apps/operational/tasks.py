@@ -2,9 +2,11 @@ import os
 
 from datetime import timedelta
 from django.utils import timezone as djtimezone
+from django.core.files.storage import default_storage
+
 from pytz import timezone
 from apps.lib.site_Logging import write_applog
-
+from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.api_CloudWatch import CloudWatchWrapper
 from config.celery import app
 
@@ -69,3 +71,27 @@ def cloud_watch_sf_case_sync():
         'Catchall_SF_Case_Lead',
         timedelta(hours=2)
     )
+
+def generic_file_uploader(doc_list, record_id): 
+    """
+        doc_list = {
+            "Doc Title" : FileField
+        }
+    """
+    sfAPI = apiSalesforce()
+    result = sfAPI.openAPI(True)
+    if result['status'] != "Ok":
+        write_applog("ERROR", 'operational', 'Tasks-Generic File-upload', result['responseText'])
+        return "Error - could not open Salesforce"
+    for file_name, file_obj in doc_list.items():
+        write_applog("ERROR", 'operational', 'Tasks-Generic File-upload', 'Attempting to sync {} on {}'.format(file_name, record_id))
+        try:
+            with default_storage.open(file_obj.name, "rb") as f:
+                body = f.read()
+            result = sfAPI.genericUploader(record_id, body, file_name)
+            if result['status'] != 'Ok':
+                write_applog("ERROR", 'operational', 'Tasks-Generic File-upload', result['responseText'])
+                return "Error - Failed to upload docs"
+        except FileNotFoundError:
+            write_applog("ERROR", 'operational', 'Tasks-Generic File-upload', "Document Synch - " + file_name + "- file does not exist")
+    return "Success"

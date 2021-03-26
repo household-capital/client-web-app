@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'reversion',
     'django_comments',
     'comments_extension',
+    'django_extensions',
     # my apps
     'apps.accounts',
     'apps.application',
