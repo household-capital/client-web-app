@@ -1,5 +1,7 @@
 import magic
 import datetime
+import backports.datetime_fromisoformat
+backports.datetime_fromisoformat.MonkeyPatch.patch_fromisoformat()
 import pytz
 
 # Django Imports
