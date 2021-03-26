@@ -5,7 +5,7 @@ from django_comments.models import Comment
 
 
 def add_case_note(case, content, user=None):
-    user_name = user.profile.username if user else 'Unknown'
+    user_name = user.username if user else 'Unknown'
     user_email = user.email if user else ''
 
     note = Comment(
