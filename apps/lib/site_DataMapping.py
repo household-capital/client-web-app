@@ -534,6 +534,7 @@ def mapRolesToFacility(loan, contact, role):
 
     payload = {'facility': loan,
                'sfContactID': contact['Id'],
+               'sfRoleID': role['Id'],
                'role': roleTypes[role['Role__c']],
                # 'isContact': False,  ####
                # 'isInformation:

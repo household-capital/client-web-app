@@ -147,11 +147,6 @@ def sfSynch():
     sfAPI = apiSalesforce()
     statusResult = sfAPI.openAPI(True)
 
-    qsFacility = Facility.objects.all()
-
-    sfAPI = apiSalesforce()
-    statusResult = sfAPI.openAPI(True)
-
     # Get SF Extracts
     sfListObj = sfAPI.getLoanObjList()['data']
     sfListLinkObj = sfAPI.getLoanLinkList()['data']
@@ -207,9 +202,9 @@ def sfDetailSynch():
 
                 payload = mapRolesToFacility(loan, contact, role)
 
-                if qsFacilityRoles.filter(sfContactID__exact=contact['Id']):
-                    payload.pop('sfContactID')
-                    qsFacilityRoles.filter(sfContactID__exact=contact['Id']).update(**payload)
+                if qsFacilityRoles.filter(sfRoleID__exact=role['Id']):
+                    payload.pop('sfRoleID')
+                    qsFacilityRoles.filter(sfRoleID__exact=role['Id']).update(**payload)
                 else:
                     try:
                         FacilityRoles.objects.create(**payload)
