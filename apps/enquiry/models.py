@@ -397,7 +397,8 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
         self.refresh_from_db()
 
         if is_create and self.enquiryNotes:
-            add_enquiry_note(self, self.enquiryNotes, user=None)
+            note_user = self.user if (self.referrer == directTypesEnum.PHONE.value) else None
+            add_enquiry_note(self, self.enquiryNotes, user=note_user)
 
         # Case Wasnt passed in save kwarg / Or doesnt exist\
         if not self.case_id: 
