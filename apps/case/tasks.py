@@ -76,7 +76,6 @@ def syncLeadFiles(caseUID):
     DOCUMENT_LIST = {
         "Automated Valuation": case.valuationDocument,
         "Responsible Lending Summary": case.responsibleDocument,
-        "Enquiry Document": case.enquiryDocument,
         "Loan Summary": case.summaryDocument,
         "Application Received": case.applicationDocument,
         "Property Image": case.propertyImage
@@ -791,7 +790,6 @@ def updateSFDocs(caseUID, sfAPI):
 
     DOCUMENT_LIST = {"Automated Valuation": caseObj.valuationDocument,
                      "Responsible Lending Summary": caseObj.responsibleDocument,
-                     "Enquiry Document": caseObj.enquiryDocument,
                      "Loan Summary": caseObj.summaryDocument,
                      "Application Received": caseObj.applicationDocument,
                      }
