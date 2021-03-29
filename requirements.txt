@@ -95,4 +95,3 @@ ipdb
 git+https://github.com/household-capital/django-contrib-comments.git
 git+https://github.com/household-capital/django-comments-extension.git
 backports-datetime-fromisoformat
-
