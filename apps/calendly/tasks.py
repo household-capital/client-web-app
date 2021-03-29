@@ -73,19 +73,6 @@ def synchCalendly():
 
     return "Finished successfully"
 
-def updateEnquiry(enqUID, meeting_name, phoneNumber):
-
-    obj = Enquiry.objects.filter(enqUID=enqUID).first()
-
-    if obj:
-        add_enquiry_note(obj,  "[# Calendly - " + meeting_name + " #]", user=None)
-        obj.isCalendly = True
-        obj.enquiryStage = enquiryStagesEnum.DISCOVERY_MEETING.value
-        if phoneNumber and not obj.phoneNumber:
-            obj.phoneNumber = phoneNumber
-
-        obj.save(update_fields=['isCalendly', 'phoneNumber', 'enquiryStage'])
-    return
 
 def updateCase(caseUID, meeting_name, phoneNumber):
 

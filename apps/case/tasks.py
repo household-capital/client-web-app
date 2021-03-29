@@ -38,7 +38,6 @@ from apps.operational.decorators import email_admins_on_failure
 # CASE TASKS
 
 
-
 @app.task(name="Create_SF_Case_Lead")
 def createSFLeadCaseTask(caseUID):
     '''Task wrapper to create(or retrieve) a SF Lead'''
@@ -53,7 +52,8 @@ def createSFLeadCaseTask(caseUID):
     else:
         write_applog("INFO", 'Case', 'Tasks-createSFLead', "Finished - Unsuccessfully")
         return "Finished - Unsuccessfully"
-        
+
+
 @app.task(name="Update_SF_Case_Lead")
 def updateSFLeadTask(caseUID):
     # Task wrapper to update a SF Lead
@@ -67,6 +67,7 @@ def updateSFLeadTask(caseUID):
     else:
         write_applog("INFO", 'Case', 'Tasks-updateSFLead', "Finished - Unsuccessfully")
         return "Finished - Unsuccessfully"
+
 
 @app.task(name='Upload_Lead_Files')
 def syncLeadFiles(caseUID):
@@ -89,6 +90,7 @@ def syncLeadFiles(caseUID):
     if case.sfLeadID:
         return generic_file_uploader(DOCUMENT_LIST_MUTATED , case.sfLeadID)
     return "Success - No sf Lead"
+
 
 @app.task(name="Catchall_SF_Case_Lead")
 @email_admins_on_failure(task_name='Catchall_SF_Case_Lead')
@@ -613,12 +615,14 @@ def createSFLeadCase(caseUID, sfAPIInstance=None):
         write_applog("INFO", 'Case', 'Tasks-createSFLead', 'No email or phone number')
         return {"status": "Error", "responseText": "No email or phone number"}
 
+
 def update_all_unsycned_enquiries(case): 
     for enq in case.enquiries.filter(deleted_on__isnull=True).all():
         app.send_task(
             'Update_SF_Enquiry',
             kwargs={'enqUID': str(enq.enqUID)}
         )
+
 
 def updateSFLead(caseUID):
     '''Updates a SF Lead from a case using the SF Rest API.'''

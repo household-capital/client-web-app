@@ -183,8 +183,7 @@ def auto_assign_leads(leads, force=False, notify=True):
         if not force and (old_user is not None) and old_user.is_active:
             continue
         
-        # find a user, but if not forcing we can use the user from a duplicate enquiry
-        # Use first enquiry to base all assignments 
+        # find a user, but if not forcing we can use the user from a duplicate lead
         user = find_auto_assignee(
             referrer=lead.referrer,
             marketing_source=lead.channelDetail,
