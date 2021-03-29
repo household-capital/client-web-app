@@ -28,9 +28,7 @@ class ClientDetailsForm(forms.ModelForm):
                   'clientType2', 'surname_2', 'firstname_2', 'birthdate_2', 'age_2', 'sex_2',
                   'street', 'suburb', 'postcode', 'state', 'valuation', 'dwellingType', 'mortgageDebt', 'superFund',
                   'superAmount', 'investmentLabel', 'pensionAmount']
-        widgets = {
-            'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
-        }
+        widgets = {}
 
     # Form Layout
     helper = FormHelper()

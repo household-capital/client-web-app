@@ -22,6 +22,8 @@ from apps.lib.site_Enums import *
 from apps.case.model_utils import get_existing_case, create_case_from_enquiry
 from config.celery import app
 from apps.base.model_utils import AbstractAddressModel
+from apps.enquiry.note_utils import add_enquiry_note
+from django_comments.models import Comment
 
 
 class EnquiryManager(models.Manager):
@@ -219,7 +221,8 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
     # Client Data
     email=models.EmailField(blank=True, null=True)
     phoneNumber = models.CharField(max_length=15, blank=True, null=True)
-    enquiryNotes = models.TextField(null=True, blank=True)
+    # Deprecated field - just used for form collection now
+    enquiryNotes = models.TextField(null=True, blank=True) # deprecated
 
     # Enquiry Inputs
     productType = models.IntegerField(choices=productTypes, null=True, blank=True, default=0)
@@ -368,6 +371,10 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
         return False
 
     @property
+    def has_notes(self):
+        return Comment.objects.for_model(self).exists()
+
+    @property
     def name(self):
         return join_name(self.firstname, None, self.lastname)
 
@@ -388,6 +395,11 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
         
         super(Enquiry, self).save(*args, **kwargs)
         self.refresh_from_db()
+
+        if is_create and self.enquiryNotes:
+            note_user = self.user if (self.referrer == directTypesEnum.PHONE.value) else None
+            add_enquiry_note(self, self.enquiryNotes, user=note_user)
+
         # Case Wasnt passed in save kwarg / Or doesnt exist\
         if not self.case_id: 
             existing_case = get_existing_case(self.phoneNumber, self.email)

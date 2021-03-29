@@ -36,7 +36,7 @@ from apps.lib.site_Enums import *
 from apps.lib.site_Logging import write_applog
 from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.site_Utilities import parse_api_name, parse_api_names
-from .forms import EnquiryForm, EnquiryDetailForm, EnquiryAssignForm, EnquiryCallForm, \
+from .forms import EnquiryForm, EnquiryDetailForm, EnquiryCallForm, \
     AddressForm, PartnerForm
 from .models import Enquiry
 from apps.lib.site_Utilities import cleanPhoneNumber, cleanValuation, calcAge
@@ -81,8 +81,8 @@ class EnquiryListView(HouseholdLoginRequiredMixin, ListView):
                 Q(fullname__icontains=search) | 
                 Q(email__icontains=search) |
                 Q(phoneNumber__icontains=search) |
-                Q(postcode__icontains=search) |
-                Q(enquiryNotes__icontains=search)
+                Q(postcode__icontains=search) #|
+                #Q(enquiryNotes__icontains=search) # FIX ME - how to search in django comments?
             ).exclude(actioned=-1)
 
         # ...and for open my items
@@ -208,8 +208,8 @@ class EnquiryPartnerList(HouseholdLoginRequiredMixin, ListView):
                 Q(name__icontains=search) |
                 Q(email__icontains=search) |
                 Q(phoneNumber__icontains=search) |
-                Q(postcode__icontains=search) |
-                Q(enquiryNotes__icontains=search)
+                Q(postcode__icontains=search) #|
+                #Q(enquiryNotes__icontains=search) # FIX ME - how to search in django comments?
             ).filter(referrer=directTypesEnum.PARTNER.value).exclude(actioned=-1)
 
         queryset = queryset.order_by('-updated')[:160]
@@ -384,41 +384,6 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Upd
         messages.success(self.request, "Enquiry Saved")
 
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': str(obj.enqUID)}))
-
-# Refer Postcode Request
-class EnquiryReferView(HouseholdLoginRequiredMixin, View):
-
-    def get(self, request, *args, **kwargs):
-
-        enqUID = str(self.kwargs['uid'])
-        sfAPI = apiSalesforce()
-        result = sfAPI.openAPI(True)
-        if result['status'] != "Ok":
-            write_applog("ERROR", 'Enquiry', 'EnquiryReferView', result['responseText'])
-            messages.error(request, "Could not update Salesforce")
-            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
-
-        # Get object
-        qs = Enquiry.objects.queryset_byUID(enqUID)
-        enquiry = qs.get()
-
-        if not enquiry.sfLeadID:
-            messages.error(request, "There is no Salesforce Lead for this enquiry")
-            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
-
-        payload = {"IsReferPostCode__c": True}
-        result = sfAPI.updateLead(enquiry.sfLeadID, payload)
-
-        if result['status'] != 'Ok':
-            messages.error(request, "Could not set status in Salesforce")
-            write_applog("ERROR", 'Enquiry', 'EnquiryReferView', result['responseText'])
-        else:
-            messages.success(request, "Refer postcode review requested")
-            # save Enquiry Field
-            enquiry.isReferPostcode = True
-            enquiry.save()
-
-        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
 
 
 # Enquiry Call View
@@ -597,31 +562,8 @@ class SendEnquirySummary(HouseholdLoginRequiredMixin, UpdateView):
                 return False
         return True
 
-class SummaryMove(HouseholdLoginRequiredMixin, View):
 
-    def get(self, request, *args, **kwargs):
-        if "uid" in kwargs:
-            try:
-                enquiry = Enquiry.objects.get(enqUID=kwargs['uid'], deleted_on__isnull=True)
-            except Enquiry.DoesNotExist: 
-                messages.error(self.request, "Enquiry Doesnt exist")
-                return HttpResponseRedirect(reverse_lazy('enquiry:enquiryList'))
-            
-            case = enquiry.case
-            if case is None: 
-                messages.error(self.request, "Enquiry has no lead")
-                return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enquiry.enqUID}))
 
-            case.enquiryDocument = enquiry.summaryDocument
-            case.save()
-            messages.success(self.request, "Enquiry Summary Doccument Successfully Moved To Lead")
-            return HttpResponseRedirect(
-                reverse_lazy(
-                    'case:caseDetail', 
-                    kwargs={'uid': case.caseUID}
-                )
-            )
-        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryList'))
 
 class CreateEnquirySummary(HouseholdLoginRequiredMixin, UpdateView):
     # This view does not render it creates an enquiry
@@ -705,124 +647,6 @@ class EnquiryEmailEligibility(HouseholdLoginRequiredMixin, TemplateView):
         messages.success(self.request, "A summary email has been sent to you")
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': obj.enqUID}))
 
-
-## DEPRECATED 
-class EnquiryConvert(HouseholdLoginRequiredMixin, View):
-    # This view does not render it creates a case from an enquiry and marks it actioned
-    context_object_name = 'object_list'
-    model = WebCalculator
-
-    def get(self, request, *args, **kwargs):
-
-        enqUID = str(kwargs['uid'])
-
-        # get Enquiry object and dictionary
-        queryset = Enquiry.objects.queryset_byUID(enqUID)
-        enq_obj = queryset.get()
-        enqDict = Enquiry.objects.dictionary_byUID(enqUID)
-
-        if not (enqDict['firstname'] or enqDict['surname']):
-            surname = 'Unknown'
-        else:
-            surname = enqDict['surname']
-
-        caseDict = {}
-        caseDict['caseStage'] = caseStagesEnum.DISCOVERY.value
-        caseDict['caseDescription'] = surname + " - " + str(enqDict['postcode'])
-        caseDict['enquiryDocument'] = enqDict['summaryDocument']
-        caseDict['caseNotes'] = enqDict['enquiryNotes']
-        caseDict['firstname_1'] = enqDict['firstname']
-        caseDict['surname_1'] = surname
-        caseDict['enqUID'] = enq_obj.enqUID
-        caseDict['enquiryCreateDate'] = enq_obj.timestamp
-        caseDict['street'] = enq_obj.streetAddress
-        caseDict['channelDetail'] = enq_obj.marketingSource
-        caseDict['propensityCategory'] = enq_obj.propensityCategory
-
-        # address split 
-        for field in address_model_fields: 
-            caseDict[field] = getattr(enq_obj, field)
-
-        salesChannelMap = {
-            directTypesEnum.PARTNER.value: channelTypesEnum.PARTNER.value,
-            directTypesEnum.ADVISER.value: channelTypesEnum.ADVISER.value,
-            directTypesEnum.BROKER.value: channelTypesEnum.BROKER.value
-        }
-
-        if enq_obj.referrer in salesChannelMap:
-            caseDict['salesChannel'] = salesChannelMap[enq_obj.referrer]
-        else:
-            caseDict['salesChannel'] = channelTypesEnum.DIRECT_ACQUISITION.value
-
-        user = self.request.user
-
-        copyFields = ['loanType', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode', 'suburb', 'state', 'email',
-                      'phoneNumber', 'mortgageDebt',
-                      'sfLeadID', 'productType', 'isReferPostcode', 'referPostcodeStatus', 'valuationDocument']
-
-        for field in copyFields:
-            caseDict[field] = enqDict[field]
-
-        # Create and save new Case
-        case_obj = Case.objects.create(owner=enq_obj.user, **caseDict)
-        case_obj.save()
-
-        # Set enquiry to actioned
-        enq_obj.actioned = -1
-        enq_obj.enquiryStage = enquiryStagesEnum.LOAN_INTERVIEW.value
-        enq_obj.save()
-        app.send_task('Update_SF_Enquiry', kwargs={'enqUID': enqUID})
-
-        # Copy enquiryReport across to customerReport and add to the database
-        self.moveDocument("enquiryDocument", "summaryDocument", 'customerReports', caseDict, enqDict, case_obj)
-
-        # Copy valuationReport across to customerReport and add to the database
-        self.moveDocument("valuationDocument", "valuationDocument", 'customerDocuments', caseDict, enqDict, case_obj)
-
-        messages.success(self.request, "Enquiry converted to a new Case")
-
-        return HttpResponseRedirect(reverse_lazy("case:caseList"))
-
-    def moveDocument(self, caseField, enqField, caseFolder, caseDict, enqDict, case_obj):
-
-        if caseDict[caseField] != None and caseDict[caseField] != "":
-
-            try:
-                old_file = enqDict[enqField]
-                new_file = old_file.replace('enquiryReports', caseFolder)
-
-                movable_file = default_storage.open(old_file)
-                default_storage.save(new_file, movable_file)
-                getattr(case_obj, caseField).name = new_file
-                case_obj.save()
-                movable_file.close()
-                default_storage.delete(old_file)
-
-            except:
-                messages.error(self.request, "Not all documents moved from Enquiry")
-
-        return
-
-
-class EnquiryOwnView(HouseholdLoginRequiredMixin, View):
-    def get(self, request, *args, **kwargs):
-
-        enqUID = str(kwargs['uid'])
-        enqObj = Enquiry.objects.queryset_byUID(enqUID).get()
-
-        if not self.request.user.profile.calendlyUrl:
-
-            messages.error(self.request, "You are not set-up to action this type of enquiry")
-
-        else:
-            enqObj.user = self.request.user
-            enqObj.save(update_fields=['user'])
-            messages.success(self.request, "Ownership Changed")
-
-            # Background task to update SF
-            app.send_task('Update_SF_Enquiry', kwargs={'enqUID': enqUID})
-
-        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
 
 # UNAUTHENTICATED VIEWS
 class EnqSummaryPdfView(TemplateView):

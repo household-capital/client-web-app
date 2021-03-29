@@ -366,7 +366,7 @@ def mapCaseToOpportunity(caseObj, lossObj):
         'establishmentFeeRate': caseObj.modelsetting.establishmentFeeRate,
 
         # Notes/ Fact Find Fields
-        'caseNotes': caseObj.caseNotes,
+        'caseNotes': caseObj.notes_summary,
         'backgroundNotes': caseObj.factfind.backgroundNotes,
         'requirementsNotes': caseObj.factfind.requirementsNotes,
         'topUpNotes': caseObj.factfind.topUpNotes,

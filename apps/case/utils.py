@@ -1,12 +1,6 @@
 # Python Imports
-import datetime
-import json
-import base64
-import os
-import pathlib
 
 # Django Imports
-from django.contrib import messages
 from django.forms.models import model_to_dict
 
 
@@ -14,14 +8,9 @@ from django.forms.models import model_to_dict
 from apps.lib.site_Globals import ECONOMIC, LOAN_LIMITS
 from config.celery import app
 
-
-from apps.lib.site_Logging import write_applog
 from apps.lib.site_DataMapping import mapFacilityToCase
-from apps.lib.api_Salesforce import apiSalesforce
-from apps.lib.site_Enums import purposeIntentionEnum, purposeCategoryEnum
 from apps.servicing.models import FacilityPurposes
 from apps.case.models import Case, Loan, LoanPurposes, ModelSetting
-
 
 
 def createLoanVariation(facilityObj):
@@ -90,3 +79,4 @@ def createCaseModelSettings(caseUID):
         economicSettings['establishmentFeeRate'] = LOAN_LIMITS['establishmentFee']
         qs.update(**economicSettings)
     return
+

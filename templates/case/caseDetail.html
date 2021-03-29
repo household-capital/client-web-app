@@ -3,6 +3,20 @@
 {% load crispy_forms_tags %}
 {% load humanize %}
 {% load site_tags %}
+{% load comments %}
+
+
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12 title">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
 
 {% block message_display %}
 
@@ -27,435 +41,434 @@
 
 {% endblock %}
 
-{% block jumbotron %}
-    <div class="jumbotron">
-        <div class="container">
-
-            <div class="row">
-                <div class="col-lg-12 title">{{ title }}</div>
-            </div>
-        </div>
-    </div>
-{% endblock %}
 
 {% block content %}
 
     <div class="container">
 
+        <br>
+
         <div class="row pt-1">
     
-            <div class="col-lg-8">
+            <div class="col-lg-8 text-left">
                 {% if obj.sfOpportunityID %}
-                    <p class="larger pt-3 pl-3">
+                    <p class="larger">
                         <a style="color:deepskyblue" href="{{ obj.get_SF_url }}" target="_blank">
                             <i class="fas fa-external-link-alt"></i>&nbsp;
-                            Salesforce {{ obj.sfLoanID }}</a></p>
+                            Salesforce {{ obj.sfLoanID }}
+                        </a>
+                    </p>
                 {% elif obj.sfLeadID %}
-                    <p class="larger pt-3 pl-3">
+                    <p class="larger">
                         <a style="color:deepskyblue" href="{{ obj.get_SF_url }}" target="_blank">
                             <i class="fas fa-external-link-alt"></i>&nbsp;
-                            Salesforce Lead </a></p>
+                            Salesforce Lead
+                        </a>
+                    </p>
+                {% else %}
+                    <div class="row">
+                        <div class="col-lg-6 text-left">
+                            <div class="alert alert-primary" role="alert">
+                                <p><i class="fas fa-info-circle"></i>&nbsp;&nbsp;
+                                    No Salesforce Enquiry
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 {% endif %}
             </div>
 
-        </div>
+            {% if isUpdate %}
+                <div class="btn-group pb-3">
+                    <button type="button" class="btn btn-outline-secondary dropdown-toggle"
+                            data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false" id="btnCaseActions">
+                        Lead Actions
+                    </button>
+                    <div class="dropdown-menu">
 
-        <div class="row pt-4">
+                        <!-- All -->
+                        <a class="dropdown-item"
+                           href="{% url 'case:caseOwn' uid=obj.caseUID %}">
+                            &nbsp;<i class="fas fa-crown"></i>&nbsp;&nbsp;Take Ownership
+                        </a>
 
-            <div class="col-lg-8">
+                        <div class="dropdown-divider"></div>
 
-                {% crispy form %}
-
-
-            </div>
-
-            <div class="col-lg-4">
-
-
-                <div class="row">
-                    <div class="col-lg-12">
-
-                        <br>
-                        <div class="padding-15px">
-
-                            {% if isUpdate %}
-                                <div class="btn-group">
-                                <button type="button" class="btn btn-outline-secondary dropdown-toggle"
-                                        data-toggle="dropdown"
-                                        aria-haspopup="true" aria-expanded="false" id="btnCaseActions">
-                                    Lead Actions
-                                </button>
-                                <div class="dropdown-menu">
-
-                                    <!-- All -->
-                                    <a class="dropdown-item"
-                                       href="{% url 'case:caseOwn' uid=obj.caseUID %}">
-                                        &nbsp;<i class="fas fa-crown"></i>&nbsp;&nbsp;Take Ownership
-                                    </a>
-
-                                    <div class="dropdown-divider"></div>
-
-                                    <a class="dropdown-item"
-                                       href="{% url 'case:caseAssign' uid=obj.caseUID %}">
-                                        &nbsp;<i class="fas fa-fw fa-hand-point-right"></i>&nbsp;&nbsp;Assign Ownership&nbsp;&nbsp;
-                                    </a>
+                        <a class="dropdown-item"
+                           href="{% url 'case:caseAssign' uid=obj.caseUID %}">
+                            &nbsp;<i class="fas fa-fw fa-hand-point-right"></i>&nbsp;&nbsp;Assign Ownership&nbsp;&nbsp;
+                        </a>
 
 
-                                    <!-- DISCOVERY -->
-                                    {% if obj.caseStage in  preMeetingStages %}
+                        <!-- DISCOVERY -->
+                        {% if obj.caseStage in  preMeetingStages %}
 
-                                        <div class="dropdown-divider"></div>
+                            <div class="dropdown-divider"></div>
 
-                                        <a class="dropdown-item"
-                                           href="{% url 'case:caseClose' uid=obj.caseUID %}">
-                                            &nbsp;<i class="far fa-fw fa-window-close"></i>&nbsp;&nbsp;Close Lead&nbsp;&nbsp;
-                                        </a>
+                            <a class="dropdown-item"
+                               href="{% url 'case:caseClose' uid=obj.caseUID %}">
+                                &nbsp;<i class="far fa-fw fa-window-close"></i>&nbsp;&nbsp;Close Lead&nbsp;&nbsp;
+                            </a>
 
-                                        <div class="dropdown-divider"></div>
+                            <div class="dropdown-divider"></div>
 
-                                        <a class="dropdown-item" data-toggle="modal" href="#deleteModal">
-                                            &nbsp;<i class="far fa-trash-alt fa-fw"></i>&nbsp;&nbsp;Delete
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="{{ calendlyDiscoveryUrl }}" target="_blank">
-                                            &nbsp;<i class="fas fa-headset fa-fw"></i>&nbsp;&nbsp;Book Discovery
-                                        </a>
+                            <a class="dropdown-item" data-toggle="modal" href="#deleteModal">
+                                &nbsp;<i class="far fa-trash-alt fa-fw"></i>&nbsp;&nbsp;Delete
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{{ calendlyDiscoveryUrl }}" target="_blank">
+                                &nbsp;<i class="fas fa-headset fa-fw"></i>&nbsp;&nbsp;Book Discovery
+                            </a>
 
-                                        <div class="dropdown-divider"></div>
+                            <div class="dropdown-divider"></div>
 
-                                        <a class="dropdown-item" href="{{ calendlyUrl }}" target="_blank">
-                                            &nbsp;<i class="fas fa-video fa-fw"></i>&nbsp;&nbsp;Book Zoom
-                                        </a>
+                            <a class="dropdown-item" href="{{ calendlyUrl }}" target="_blank">
+                                &nbsp;<i class="fas fa-video fa-fw"></i>&nbsp;&nbsp;Book Zoom
+                            </a>
 
-                                        <div class="dropdown-divider"></div>
+                            <div class="dropdown-divider"></div>
 
-                                        <a class="dropdown-item" href="{{ calendlyMainUrl }}" target="_blank">
-                                            &nbsp;<i class="far fa-calendar-alt fa-fw"></i>&nbsp;&nbsp;Book Other
-                                        </a>
+                            <a class="dropdown-item" href="{{ calendlyMainUrl }}" target="_blank">
+                                &nbsp;<i class="far fa-calendar-alt fa-fw"></i>&nbsp;&nbsp;Book Other
+                            </a>
 
-                                        {% if status.data.postcode == 'Refer' %}
-                                            <div class="dropdown-divider"></div>
+                            {% if status.data.postcode == 'Refer' %}
+                                <div class="dropdown-divider"></div>
 
-                                            <a class="dropdown-item"
-                                               href="{% url 'case:caseReview' uid=obj.caseUID %}">
-                                                &nbsp;<i class="fas fa-fw fa-map-marked-alt"></i>&nbsp;&nbsp;Refer
-                                                Postcode Review &nbsp;
-                                            </a>
-                                        {% endif %}
-
-                                        {% if obj.appType == appTypesEnum.VARIATION.value %}
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item"
-                                               href="{% url 'case:caseVariation' uid=obj.caseUID %}">
-                                                &nbsp;<i class="fas fa-edit fa-fw"></i>&nbsp;&nbsp;Variation
-                                            </a>
-                                        {% else %}
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="{% url 'client2:meeting' uid=obj.caseUID %}">
-                                                &nbsp;<i class="fas fa-users fa-fw"></i>&nbsp;&nbsp;Meeting
-                                            </a>
-                                        {% endif %}
-
-                                    {% endif %}
-
-
-                                    <!-- MEETING HELD -->
-                                    {% if obj.caseStage == caseStagesEnum.MEETING_HELD.value %}
-
-                                        <div class="dropdown-divider"></div>
-
-                                        <a class="dropdown-item"
-                                           href="{% url 'case:caseClose' uid=obj.caseUID %}">
-                                            &nbsp;<i class="far fa-fw fa-window-close"></i>&nbsp;&nbsp;Close Lead&nbsp;&nbsp;
-                                        </a>
-
-                                        {% if obj.summaryDocument and obj.email %}
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item pb-3" data-toggle="modal" href="#clientModal2">
-                                                &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Loan
-                                                Summary
-                                                &nbsp;</a>
-                                        {% endif %}
-
-                                        {% if obj.summaryDocument and obj.email %}
-                                            <a class="dropdown-item pb-3" data-toggle="modal" href="#clientModal3">
-                                                &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Updated
-                                                Summary
-                                                &nbsp;</a>
-                                        {% endif %}
-
-                                        {% if obj.summaryDocument %}
-                                            <a class="dropdown-item" data-toggle="modal" href="#clientModal1">
-                                                &nbsp;<i class="far fa-mailbox fa-fw"></i>&nbsp;&nbsp;Mail Loan
-                                                Summary&nbsp;</a>
-                                        {% endif %}
-
-                                        <div class="dropdown-divider"></div>
-
-                                        <a class="dropdown-item"
-                                           href="{% url 'fact_find:factfind' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-user-edit  fa-fw"></i>&nbsp;&nbsp;Lead Summary&nbsp;&nbsp;
-                                        </a>
-
-                                    {% endif %}
-
-                                    <!-- Application -->
-                                    {% if obj.caseStage == caseStagesEnum.APPLICATION.value %}
-                                        <div class="dropdown-divider"></div>
-
-                                        <a class="dropdown-item"
-                                           href="{% url 'fact_find:factfind' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-user-edit  fa-fw"></i>&nbsp;&nbsp;Lead Summary&nbsp;&nbsp;
-                                        </a>
-
-
-                                    {% endif %}
-
-                                    <!-- DOCUMENTATION -->
-                                    {% if obj.caseStage == caseStagesEnum.DOCUMENTATION.value %}
-
-                                        <div class="dropdown-divider"></div>
-
-                                        <a class="dropdown-item" href="{% url 'case:cloudBridge' uid=obj.caseUID %}">
-                                            &nbsp;<i class="fas fa-code fa-fw"></i>&nbsp;&nbsp;Send to AMAL&nbsp;&nbsp;
-                                        </a>
-                                    {% endif %}
-
-
-                                    <!-- CLOSED -->
-                                    {% if obj.caseStage == caseStagesEnum.CLOSED.value %}
-
-                                        <div class="dropdown-divider"></div>
-
-                                        <a class="dropdown-item" href="{% url 'case:caseClose' uid=obj.caseUID %}">
-                                            &nbsp;<i class="far fa-folder"></i>&nbsp;&nbsp;Show Close Information&nbsp;&nbsp;
-                                        </a>
-
-                                        <div class="dropdown-divider"></div>
-
-                                        <a class="dropdown-item"
-                                           href="{% url 'case:caseUnclose' uid=obj.caseUID %}">
-                                            &nbsp;<i class="far fa-fw fa-check-square"></i>&nbsp;&nbsp;Reopen Lead&nbsp;&nbsp;
-                                        </a>
-
-                                    {% endif %}
-
-                                </div>
+                                <a class="dropdown-item"
+                                   href="{% url 'case:caseReview' uid=obj.caseUID %}">
+                                    &nbsp;<i class="fas fa-fw fa-map-marked-alt"></i>&nbsp;&nbsp;Refer
+                                    Postcode Review &nbsp;
+                                </a>
                             {% endif %}
 
-                            </div>
+                            {% if obj.appType == appTypesEnum.VARIATION.value %}
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item"
+                                   href="{% url 'case:caseVariation' uid=obj.caseUID %}">
+                                    &nbsp;<i class="fas fa-edit fa-fw"></i>&nbsp;&nbsp;Variation
+                                </a>
+                            {% else %}
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{% url 'client2:meeting' uid=obj.caseUID %}">
+                                    &nbsp;<i class="fas fa-users fa-fw"></i>&nbsp;&nbsp;Meeting
+                                </a>
+                            {% endif %}
+
+                        {% endif %}
+
+
+                        <!-- MEETING HELD -->
+                        {% if obj.caseStage == caseStagesEnum.MEETING_HELD.value %}
+
+                            <div class="dropdown-divider"></div>
+
+                            <a class="dropdown-item"
+                               href="{% url 'case:caseClose' uid=obj.caseUID %}">
+                                &nbsp;<i class="far fa-fw fa-window-close"></i>&nbsp;&nbsp;Close Lead&nbsp;&nbsp;
+                            </a>
+
+                            {% if obj.summaryDocument and obj.email %}
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item pb-3" data-toggle="modal" href="#clientModal2">
+                                    &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Loan
+                                    Summary
+                                    &nbsp;</a>
+                            {% endif %}
+
+                            {% if obj.summaryDocument and obj.email %}
+                                <a class="dropdown-item pb-3" data-toggle="modal" href="#clientModal3">
+                                    &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Updated
+                                    Summary
+                                    &nbsp;</a>
+                            {% endif %}
+
+                            {% if obj.summaryDocument %}
+                                <a class="dropdown-item" data-toggle="modal" href="#clientModal1">
+                                    &nbsp;<i class="far fa-mailbox fa-fw"></i>&nbsp;&nbsp;Mail Loan
+                                    Summary&nbsp;</a>
+                            {% endif %}
+
+                            <div class="dropdown-divider"></div>
+
+                            <a class="dropdown-item"
+                               href="{% url 'fact_find:factfind' uid=obj.caseUID %}">
+                                &nbsp;<i class="fas fa-user-edit  fa-fw"></i>&nbsp;&nbsp;Lead Summary&nbsp;&nbsp;
+                            </a>
+
+                        {% endif %}
+
+                        <!-- Application -->
+                        {% if obj.caseStage == caseStagesEnum.APPLICATION.value %}
+                            <div class="dropdown-divider"></div>
+
+                            <a class="dropdown-item"
+                               href="{% url 'fact_find:factfind' uid=obj.caseUID %}">
+                                &nbsp;<i class="fas fa-user-edit  fa-fw"></i>&nbsp;&nbsp;Lead Summary&nbsp;&nbsp;
+                            </a>
+
+
+                        {% endif %}
+
+                        <!-- DOCUMENTATION -->
+                        {% if obj.caseStage == caseStagesEnum.DOCUMENTATION.value %}
+
+                            <div class="dropdown-divider"></div>
+
+                            <a class="dropdown-item" href="{% url 'case:cloudBridge' uid=obj.caseUID %}">
+                                &nbsp;<i class="fas fa-code fa-fw"></i>&nbsp;&nbsp;Send to AMAL&nbsp;&nbsp;
+                            </a>
+                        {% endif %}
+
+
+                        <!-- CLOSED -->
+                        {% if obj.caseStage == caseStagesEnum.CLOSED.value %}
+
+                            <div class="dropdown-divider"></div>
+
+                            <a class="dropdown-item" href="{% url 'case:caseClose' uid=obj.caseUID %}">
+                                &nbsp;<i class="far fa-folder"></i>&nbsp;&nbsp;Show Close Information&nbsp;&nbsp;
+                            </a>
+
+                            <div class="dropdown-divider"></div>
+
+                            <a class="dropdown-item"
+                               href="{% url 'case:caseUnclose' uid=obj.caseUID %}">
+                                &nbsp;<i class="far fa-fw fa-check-square"></i>&nbsp;&nbsp;Reopen Lead&nbsp;&nbsp;
+                            </a>
+
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+
+        <div class="row pb-5 pt-1">
+
+            <div class="col-lg-12 text-left">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" style="padding: 0.5rem 1rem 0.5rem 1rem;" data-toggle="tab" href="#details-tab" role="tab" aria-controls="details" aria-selected="true">Details</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" style="padding: 0.5rem 1rem 0.5rem 1rem;" data-toggle="tab" href="#notes-tab" role="tab" aria-controls="notes" aria-selected="false">Notes</a>
+                    </li>
+                </ul>
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="details-tab" role="tabpanel" aria-labelledby="details-tab">
+
+                    <div class="row">
+
+                        <div class="col-lg-8 text-left">
+                            {% crispy form %}
                         </div>
 
+                        <div class="col-lg-4 pt-4">
 
-                        {% if status.status == 'Ok' %}
-
-                            <div class="row">
-                                <div class="col-lg-12">
-
-                                    <div class="jumbotron">
-
-                                        {% if obj.appType == appTypesEnum.VARIATION.value %}
-                                            <p class="badge badge-danger">
-                                                Variation</p>
-                                        {% endif %}
-
-                                        {% if obj.productType == productTypesEnum.INCOME.value %}
-                                            <p class="badge badge-info">
-                                                Income</p>
-
-                                        {% elif obj.productType == productTypesEnum.CONTINGENCY_20K.value %}
-                                            <p class="badge badge-info">
-                                                Contingency20K</p>
-
-                                        {% elif obj.productType == productTypesEnum.COMBINATION.value %}
-                                            <p class="badge badge-info">
-                                                Combination</p>
-                                        {% else %}
-                                            <p class="badge badge-dark">
-                                                Lump Sum</p>
-                                        {% endif %}
-
-                                        {% if isLowLVR %}
-                                            <p class="badge badge-warning">
-                                                Low LVR</p>
-                                        {% endif %}
-
-                                        <p class="small pt-2 pb-2">Create Date: {{ obj.timestamp | date:'d M y' }}</p>
-
-
-                                        <p class="small pt-4 pb-2"><i class="fas fa-users-cog fa-fw"></i>&nbsp;
-                                            Validation</p>
-
-                                        {% if status.errors %}
-                                            <p class="text-danger"><i
-                                                    class="far fa-times-circle fa-lg btn-outline-danger"></i>&nbsp;Validation
-                                                error - please re-open meeting
-                                            <p>
-                                                {% else %}
-                                            <p class="text-success"><i
-                                                    class="far fa-check-circle fa-lg btn-outline-success"></i>&nbsp;Eligible
-                                                Loan
-                                            </p>
-
-                                        {% endif %}
-
-                                        {% if obj.isReferPostcode %}
-                                            {% if obj.referPostcodeStatus == True %}
-                                                <p class="badge badge-success">Refer postcode approved</p>
-                                            {% elif obj.referPostcodeStatus == False %}
-                                                <p class="badge badge-danger">Refer postcode declined</p>
-                                            {% else %}
-                                                <p class="badge badge-warning">Postcode review requested</p>
-                                            {% endif %}
-                                            <br>
-                                        {% elif status.data.postcode == 'Refer' %}
-                                            <p class="text-warning"><i class="fas fa-fw fa-exclamation-triangle"></i>&nbsp;Refer
-                                                Postcode - get full address
-                                            </p>
-                                        {% endif %}
-
-
-                                        <p class="small pt-4"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
-                                        <p class="small">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
-
-                                        <p class="small">Max Loan is: ${{ status.data.maxLoan|intcomma }} (incl
-                                            establishment fee)</p>
-                                        <p class="small">
-                                            {% if status.data.maxLoan > status.data.maxTopUp %}
-                                                Max for
-                                                Super Top Up is: ${{ status.data.maxTopUp|intcomma }}
-                                                </p>{% endif %}
-                                        <p class="small">
-                                            {% if status.data.maxLoan > status.data.maxCare %}
-                                                Max for
-                                                Age Care is: ${{ status.data.maxCare|intcomma }}</p>{% endif %}
-                                        <p class="small">Max for Refinance is:
-                                            ${{ status.data.maxRefi|intcomma }}</p>
-                                        <p class="small">
-                                            {% if status.data.maxLoan > status.data.maxReno %}
-                                                Max for
-                                                Renovations is: ${{ status.data.maxReno|intcomma }}
-                                                </p>{% endif %}
-                                        <p class="small">Max for Giving is:
-                                            ${{ status.data.maxGive|intcomma }}</p>
-                                        <p class="small">Max for Transport and Travel is:
-                                            ${{ status.data.maxTravel|intcomma }}</p>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="jumbotron">
-                                <p class="small"><i class='fa fa-camera fa-fw'></i>&nbsp;&nbsp;Images</p>
-                                <div class="row pt-1">
-                                    <div class="col-lg-6">
-                                        {% if obj.propertyImage %}
-                                            <img class="img-fluid" src='{{ obj.propertyImage.url }}'>
-                                        {% endif %}&nbsp;&nbsp;
-                                    </div>
-                                    <div class="col-lg-6">
-                                        {% if obj.superFund %}
-                                            <img class="img-fluid" src='{{ obj.superFund.fundImage.url }}'>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <div class="jumbotron">
-                                <p class="small pb-1"><i class="far fa-file-pdf"></i>&nbsp;&nbsp;Documents</p>
-                                {% if obj.summaryDocument %}
-                                    <p><a href="{{ obj.summaryDocument.url }}">Loan
-                                        Summary</a>
-                                    </p>{% endif %}
-                                {% if obj.applicationDocument %}
-                                    <p><a href="{{ obj.applicationDocument.url }}">Application
-                                        Summary</a></p>{% endif %}
-                                {% if obj.responsibleDocument %}
-                                    <p><a href="{{ obj.responsibleDocument.url}}">Lead
-                                        Summary</a></p>{% endif %}
-                                {% if obj.dataCSV %}
-                                    <p><a href="{{ obj.dataCSV.url}}">Document
-                                        Data File</a></p>{% endif %}
-                                {% if obj.enquiryDocument %}
-                                    <p><a href="{{ obj.enquiryDocument.url }}">Enquiry
-                                        Document </a></p>
-                                {% endif %}
-                                {% if obj.valuationDocument %}
-                                    <p><a href="{{ obj.valuationDocument.url }}">Auto
-                                        Val
-                                        Document </a></p>
-                                {% endif %}
-                                {% if obj.titleDocument %}
-                                    <p><a href="{{ obj.titleDocument.url }}">Title
-                                        Search </a></p>
-                                {% endif %}
-                                {% if obj.solicitorInstruction %}
-                                    <p><a href="{{ obj.solicitorInstruction.url }}">Solicitors
-                                        Instruction </a></p>
-                                {% endif %}
-                                {% if obj.valuerInstruction %}
-                                    <p><a href="{{ obj.valuerInstruction.url }}">Valuer
-                                        Instruction </a></p>
-                                {% endif %}
-                                {% if obj.lixiFile %}
-                                    <p><a href="{{ obj.lixiFile.url }}">Lixi File </a>
-                                    </p>
-                                {% endif %}
-                                <br>
-                                {% if obj.appUID %}
-                                    <p class="small"><i class="fas fa-file-upload"></i>&nbsp;Documents Uploaded</p>
-                                    {% for doc in docList %}
-                                        <p><a href="{{ doc.document.url }}">
-                                            {{ doc.enumDocumentType }}</a></p>
-                                    {% endfor %}
-                                {% endif %}
-
-                            </div>
-
-                        {% else %}
-
-                            {% if isUpdate %}
+                            {% if status.status == 'Ok' %}
 
                                 <div class="row">
                                     <div class="col-lg-12">
 
                                         <div class="jumbotron">
 
-                                            <p class="pb-3 small"><i class="fas fa-users-cog fa-fw"></i>&nbsp;Initial
-                                                Validation</p>
-                                            <p class="text-danger"><i
-                                                    class="far fa-times-circle fa-lg btn-outline-danger"></i>&nbsp;Ineligible
-                                            <p>
-                                            <p class="pl-4 text-danger small"> {{ status.responseText }}</p>
-                                            {% if status.responseText != "Invalid Postcode" %}
-                                                <p class="pl-4 small
-                                                    {% if status.data.postcode == "Valid" %}text-success
-                                                    {% elif status.data.postcode == "Invalid" %}text-danger
-                                                    {% elif status.data.postcode == "Refer" %}text-warning
-                                                    {% endif %}">{{ status.data.postcode }} postcode</p>
+                                            {% if obj.appType == appTypesEnum.VARIATION.value %}
+                                                <p class="badge badge-danger">
+                                                    Variation</p>
                                             {% endif %}
 
-                                            {% if obj.deleted_on %}
-                                                <hr/>
-                                                <p class="small"> <b>Deleted On:</b>&nbsp;&nbsp;{{ obj.deleted_on|date }}</p>
+                                            {% if obj.productType == productTypesEnum.INCOME.value %}
+                                                <p class="badge badge-info">
+                                                    Income</p>
+
+                                            {% elif obj.productType == productTypesEnum.CONTINGENCY_20K.value %}
+                                                <p class="badge badge-info">
+                                                    Contingency20K</p>
+
+                                            {% elif obj.productType == productTypesEnum.COMBINATION.value %}
+                                                <p class="badge badge-info">
+                                                    Combination</p>
+                                            {% else %}
+                                                <p class="badge badge-dark">
+                                                    Lump Sum</p>
                                             {% endif %}
+
+                                            {% if isLowLVR %}
+                                                <p class="badge badge-warning">
+                                                    Low LVR</p>
+                                            {% endif %}
+
+                                            <p class="small pt-2 pb-2">Create Date: {{ obj.timestamp | date:'d M y' }}</p>
+
+
+                                            <p class="small pt-4 pb-2"><i class="fas fa-users-cog fa-fw"></i>&nbsp;
+                                                Validation</p>
+
+                                            {% if status.errors %}
+                                                <p class="text-danger"><i
+                                                        class="far fa-times-circle fa-lg btn-outline-danger"></i>&nbsp;Validation
+                                                    error - please re-open meeting
+                                                <p>
+                                                    {% else %}
+                                                <p class="text-success"><i
+                                                        class="far fa-check-circle fa-lg btn-outline-success"></i>&nbsp;Eligible
+                                                    Loan
+                                                </p>
+
+                                            {% endif %}
+
+                                            {% if obj.isReferPostcode %}
+                                                {% if obj.referPostcodeStatus == True %}
+                                                    <p class="badge badge-success">Refer postcode approved</p>
+                                                {% elif obj.referPostcodeStatus == False %}
+                                                    <p class="badge badge-danger">Refer postcode declined</p>
+                                                {% else %}
+                                                    <p class="badge badge-warning">Postcode review requested</p>
+                                                {% endif %}
+                                                <br>
+                                            {% elif status.data.postcode == 'Refer' %}
+                                                <p class="text-warning"><i class="fas fa-fw fa-exclamation-triangle"></i>&nbsp;Refer
+                                                    Postcode - get full address
+                                                </p>
+                                            {% endif %}
+
+
+                                            <p class="small pt-4"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
+                                            <p class="small">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
+
+                                            <p class="small">Max Loan is: ${{ status.data.maxLoan|intcomma }} (incl
+                                                establishment fee)</p>
+                                            <p class="small">
+                                                {% if status.data.maxLoan > status.data.maxTopUp %}
+                                                    Max for
+                                                    Super Top Up is: ${{ status.data.maxTopUp|intcomma }}
+                                                    </p>{% endif %}
+                                            <p class="small">
+                                                {% if status.data.maxLoan > status.data.maxCare %}
+                                                    Max for
+                                                    Age Care is: ${{ status.data.maxCare|intcomma }}</p>{% endif %}
+                                            <p class="small">Max for Refinance is:
+                                                ${{ status.data.maxRefi|intcomma }}</p>
+                                            <p class="small">
+                                                {% if status.data.maxLoan > status.data.maxReno %}
+                                                    Max for
+                                                    Renovations is: ${{ status.data.maxReno|intcomma }}
+                                                    </p>{% endif %}
+                                            <p class="small">Max for Giving is:
+                                                ${{ status.data.maxGive|intcomma }}</p>
+                                            <p class="small">Max for Transport and Travel is:
+                                                ${{ status.data.maxTravel|intcomma }}</p>
 
                                         </div>
-
                                     </div>
                                 </div>
-                            {% endif %}
+                                <div class="jumbotron">
+                                    <p class="small"><i class='fa fa-camera fa-fw'></i>&nbsp;&nbsp;Images</p>
+                                    <div class="row pt-1">
+                                        <div class="col-lg-6">
+                                            {% if obj.propertyImage %}
+                                                <img class="img-fluid" src='{{ obj.propertyImage.url }}'>
+                                            {% endif %}&nbsp;&nbsp;
+                                        </div>
+                                        <div class="col-lg-6">
+                                            {% if obj.superFund %}
+                                                <img class="img-fluid" src='{{ obj.superFund.fundImage.url }}'>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
 
-
-
-                        {% endif %}
-                        <br/>
-                        <div class="row">
-                            <div class="col-lg-12">
 
                                 <div class="jumbotron">
+                                    <p class="small pb-1"><i class="far fa-file-pdf"></i>&nbsp;&nbsp;Documents</p>
+                                    {% if obj.summaryDocument %}
+                                        <p><a href="{{ obj.summaryDocument.url }}">Loan
+                                            Summary</a>
+                                        </p>{% endif %}
+                                    {% if obj.applicationDocument %}
+                                        <p><a href="{{ obj.applicationDocument.url }}">Application
+                                            Summary</a></p>{% endif %}
+                                    {% if obj.responsibleDocument %}
+                                        <p><a href="{{ obj.responsibleDocument.url}}">Lead
+                                            Summary</a></p>{% endif %}
+                                    {% if obj.dataCSV %}
+                                        <p><a href="{{ obj.dataCSV.url}}">Document
+                                            Data File</a></p>{% endif %}
+                                    {% if obj.valuationDocument %}
+                                        <p><a href="{{ obj.valuationDocument.url }}">Auto
+                                            Val
+                                            Document </a></p>
+                                    {% endif %}
+                                    {% if obj.titleDocument %}
+                                        <p><a href="{{ obj.titleDocument.url }}">Title
+                                            Search </a></p>
+                                    {% endif %}
+                                    {% if obj.solicitorInstruction %}
+                                        <p><a href="{{ obj.solicitorInstruction.url }}">Solicitors
+                                            Instruction </a></p>
+                                    {% endif %}
+                                    {% if obj.valuerInstruction %}
+                                        <p><a href="{{ obj.valuerInstruction.url }}">Valuer
+                                            Instruction </a></p>
+                                    {% endif %}
+                                    {% if obj.lixiFile %}
+                                        <p><a href="{{ obj.lixiFile.url }}">Lixi File </a>
+                                        </p>
+                                    {% endif %}
+                                    <br>
+                                    {% if obj.appUID %}
+                                        <p class="small"><i class="fas fa-file-upload"></i>&nbsp;Documents Uploaded</p>
+                                        {% for doc in docList %}
+                                            <p><a href="{{ doc.document.url }}">
+                                                {{ doc.enumDocumentType }}</a></p>
+                                        {% endfor %}
+                                    {% endif %}
 
-                                    <p class="pb- 3"><i class="fas fa-project-diagram"></i>&nbsp;Attached Enquiries</p>
+                                </div>
+
+                            {% else %}
+
+                                {% if isUpdate %}
+
+                                    <div class="row">
+                                        <div class="col-lg-12">
+
+                                            <div class="jumbotron">
+
+                                                <p class="pb-3 small"><i class="fas fa-users-cog fa-fw"></i>&nbsp;Initial
+                                                    Validation</p>
+                                                <p class="text-danger"><i
+                                                        class="far fa-times-circle fa-lg btn-outline-danger"></i>&nbsp;Ineligible
+                                                <p>
+                                                <p class="pl-4 text-danger small"> {{ status.responseText }}</p>
+                                                {% if status.responseText != "Invalid Postcode" %}
+                                                    <p class="pl-4 small
+                                                        {% if status.data.postcode == "Valid" %}text-success
+                                                        {% elif status.data.postcode == "Invalid" %}text-danger
+                                                        {% elif status.data.postcode == "Refer" %}text-warning
+                                                        {% endif %}">{{ status.data.postcode }} postcode</p>
+                                                {% endif %}
+
+                                                {% if obj.deleted_on %}
+                                                    <hr/>
+                                                    <p class="small"> <b>Deleted On:</b>&nbsp;&nbsp;{{ obj.deleted_on|date }}</p>
+                                                {% endif %}
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                            {% endif %}
+                            <br/>
+                            <div class="row">
+                                <div class="col-lg-12">
+
+                                    <div class="jumbotron">
+                                    <p class="pb-3"><i class="fas fa-project-diagram"></i>&nbsp;Attached Enquiries</p>
                                     <hr/>
                                     {% for enq in obj.enquiries.all|active_enquiries %}
                                         <a href="{% url 'enquiry:enquiryDetail' enq.enqUID %}" target="_blank">
@@ -466,23 +479,28 @@
                                         </p>
                                         {% if enq.enumMarketingSource %}
                                             <p class="pl-4 small">
-                                                Marketing Source: {{ enq.enumMarketingSource }}
+                                                Created: {{ enq.timestamp }}
                                             </p>
+                                            {% if enq.enumMarketingSource %}
+                                                <p class="pl-4 small">
+                                                    Marketing Source: {{ enq.enumMarketingSource }}
+                                                </p>
+                                            {% endif %}
+                                            <br/>
                                         {% endif %}
-                                        <br/> 
                                     {% endfor %}
+                                    </div>
 
                                 </div>
-
                             </div>
                         </div>
                     </div>
-
-
                 </div>
 
+                <div class="tab-pane fade" id="notes-tab" role="tabpanel" aria-labelledby="notes-tab">
+                    {% include "site/comments.html" with obj=obj %}
+                </div>
             </div>
-
         </div>
     </div>
 
@@ -766,6 +784,16 @@
                 e.preventDefault();
                 $(':focus').blur();
                 return false;
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            $('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
+                localStorage.setItem('caseActiveTab', $(e.target).attr('href'));
+            });
+            var activeTab = localStorage.getItem('caseActiveTab');
+            if(activeTab){
+                $('#myTab a[href="' + activeTab + '"]').tab('show');
             }
         });
 

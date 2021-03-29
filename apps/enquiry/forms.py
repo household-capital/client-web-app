@@ -23,14 +23,12 @@ class EnquiryForm(AddressFormMixin, forms.ModelForm):
         model = Enquiry
         fields = ['loanType', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
                   'streetAddress', 'suburb', 'state', 'mortgageDebt',
-                  'referrer', 'email', 'phoneNumber', 'enquiryNotes',
+                  'referrer', 'email', 'phoneNumber',
                   'marketingSource', 'propensityCategory', 'marketing_campaign',
                   'firstname', 'lastname',
                 ] + address_model_fields
 
-        widgets = {
-            'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
-        }
+        widgets = {}
 
     helper = FormHelper()
     helper.form_method = 'POST'
@@ -56,9 +54,6 @@ class EnquiryForm(AddressFormMixin, forms.ModelForm):
                 Div(
                     Div(HTML("Client Email"), css_class='form-label'),
                     Div(Field('email'))),
-                Div(
-                    Div(HTML("Enquiry Notes"), css_class='form-label'),
-                    Div(Field('enquiryNotes'))),
                 Div(
                     Div(HTML("Propensity Score"), css_class='form-label'),
                     Div(Field('propensityCategory'))),
@@ -169,16 +164,14 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
         fields = [
             'loanType', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
             'streetAddress', 'suburb', 'state', 'mortgageDebt',
-            'email', 'phoneNumber', 'enquiryNotes', 'calcLumpSum', 'calcIncome',
+            'email', 'phoneNumber', 'calcLumpSum', 'calcIncome',
             'productType', 'enquiryStage', 'valuationDocument', 'propensityCategory',
             'requestedCallback',
             'referrer', 'marketing_campaign', 'marketingSource',
             'firstname', 'lastname',
         ] + address_model_fields
 
-        widgets = {
-            'enquiryNotes': forms.Textarea(attrs={'rows': 9, 'cols': 50}),
-        }
+        widgets = {}
 
         valuationDocument = forms.FileField(required=False, widget=forms.FileInput)
 
@@ -227,9 +220,7 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
                     Div(HTML("Email"), css_class='form-label'),
                     Div(Field('email'))
                 ),
-                Div(HTML("<br>")),
-                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Enquiry Notes"), css_class='form-header'),
-                Div(Field('enquiryNotes')),
+
 
                 Div(HTML("<br>")),
                 Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Enquiry Source"), css_class='form-header'),
@@ -440,40 +431,6 @@ class EnquiryCallForm(forms.ModelForm):
                 raise ValidationError("Invalid phone number")
             else:
                 return number
-
-
-class EnquiryAssignForm(forms.ModelForm):
-    class Meta:
-        model = Enquiry
-        fields = ['user']
-
-    def __init__(self, *args, **kwargs):
-        super(EnquiryAssignForm, self).__init__(*args, **kwargs)
-        self.fields['user'].queryset = User.objects.filter(profile__isCreditRep=True)
-
-    helper = FormHelper()
-    helper.form_method = 'POST'
-    helper.field_class = 'col-lg-12'
-    helper.form_class = 'form-horizontal'
-    helper.form_show_labels = False
-    helper.form_show_errors = False
-    helper.layout = Layout(
-        Div(
-            Div(
-                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Assign enquiry"), css_class='form-header'),
-                Div(
-                    Div(HTML("Credit Representative"), css_class='form-label'),
-                    Div(Field('user'))),
-                Div(Div(Submit('submit', 'Assign', css_class='btn btn-outline-secondary')), css_class='text-right'),
-                Div(HTML("<br>")),
-
-                css_class='col-lg-6'),
-            css_class="row ")
-    )
-
-    def clean(self):
-        if not self.cleaned_data['user']:
-            raise ValidationError("Please select Credit Representative")
 
 
 class AddressForm(forms.Form):

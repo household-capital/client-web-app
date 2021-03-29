@@ -90,5 +90,8 @@ webencodings==0.5.1
 django-reversion==3.0.9
 Willow==1.1
 jedi==0.17.2
+django-extensions==3.1.1
 ipdb
+git+https://github.com/household-capital/django-contrib-comments.git
+git+https://github.com/household-capital/django-comments-extension.git
 backports-datetime-fromisoformat

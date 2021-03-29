@@ -12,6 +12,8 @@ from apps.lib.site_Enums import *
 from apps.lib.site_Logging import write_applog
 
 from apps.case.models import Case
+from apps.case.note_utils import add_case_note
+
 
 def _assign_leads(assignments, notify): 
     def send_summary_email(user, cases):
@@ -46,9 +48,8 @@ def _assign_leads(assignments, notify):
         try:
             for lead in leads:
                 write_applog('INFO', 'case.assignments', 'assign_leads', 'Assigning lead (%s) to user %s' % (lead.caseUID, username))
-
                 if lead.owner:
-                    lead.caseNotes = (lead.caseNotes or '') + '\r\n[# Lead assigned from ' + lead.owner.username + ' to ' + username + ' #]'
+                    add_case_note(lead, '[# Lead assigned from ' + lead.owner.username + ' to ' + username + ' #]', user=None)
                 lead.owner = user
                 lead.save(should_sync=True)
                 processed.append(lead)
@@ -182,8 +183,7 @@ def auto_assign_leads(leads, force=False, notify=True):
         if not force and (old_user is not None) and old_user.is_active:
             continue
         
-        # find a user, but if not forcing we can use the user from a duplicate enquiry
-        # Use first enquiry to base all assignments 
+        # find a user, but if not forcing we can use the user from a duplicate lead
         user = find_auto_assignee(
             referrer=lead.referrer,
             marketing_source=lead.channelDetail,
