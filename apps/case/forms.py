@@ -523,7 +523,7 @@ class CaseAssignForm(forms.ModelForm):
     helper.layout = Layout(
         Div(
             Div(
-                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Assign case"), css_class='form-header'),
+                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Assign Lead"), css_class='form-header'),
                 Div(
                     Div(HTML("Credit Representative"), css_class='form-label'),
                     Div(Field('owner'))),
