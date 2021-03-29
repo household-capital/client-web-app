@@ -31,6 +31,8 @@ from apps.lib.site_EmailUtils import sendTemplateEmail
 from apps.case.models import Case
 from apps.enquiry.models import Enquiry
 from apps.lib.site_Enums import enquiryStagesEnum
+from apps.enquiry.note_utils import add_enquiry_note
+from apps.case.note_utils import add_case_note
 from .models import Calendly
 from urllib.parse import urljoin
 
@@ -178,13 +180,8 @@ class CalendlyWebhook(View):
 
                     if caseObj:
                         caseObj.isZoomMeeting = True
-
-                        if caseObj.caseNotes:
-                            caseObj.caseNotes += "\r\n" + "[# Calendly - " + meeting_name + " #]"
-                        else:
-                            caseObj.caseNotes = "[# Calendly - " + meeting_name + " #]"
-
-                        caseObj.save(update_fields=['isZoomMeeting', 'caseNotes'])
+                        add_case_note(caseObj, "[# Calendly - " + meeting_name + " #]", user=None)
+                        caseObj.save(update_fields=['isZoomMeeting'])
 
                     write_applog("INFO", 'Calendly', 'post', "Loan Interview Zoom Created: " + customer_email)
 
@@ -250,19 +247,13 @@ class CalendlyWebhook(View):
 
     def updateEnquiry(self, obj, meeting_name, phoneNumber):
         if obj:
-            if obj.enquiryNotes:
-                obj.enquiryNotes += "\r\n" + "[# Calendly - " + meeting_name + " #]"
-            else:
-                obj.enquiryNotes = "[# Calendly - " + meeting_name + " #]"
-
+            add_enquiry_note(obj,  "[# Calendly - " + meeting_name + " #]", user=None)
             obj.isCalendly = True
-
             obj.enquiryStage = enquiryStagesEnum.DISCOVERY_MEETING.value
-
             if phoneNumber and not obj.phoneNumber:
                 obj.phoneNumber = phoneNumber
 
-            obj.save(update_fields=['enquiryNotes', 'isCalendly', 'phoneNumber', 'enquiryStage'])
+            obj.save(update_fields=['isCalendly', 'phoneNumber', 'enquiryStage'])
 
 
     def getPhoneNumber(self, data):

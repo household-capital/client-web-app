@@ -391,6 +391,7 @@ def sfAnnualReviewNotification():
                    'Description' : description,
                    'Priority': 'Normal',
                    'WhatId' : obj.sfID,
+                   'owner_email': obj.owner.email
                    }
 
         result = sfCreateTask(payload)

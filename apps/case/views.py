@@ -44,6 +44,8 @@ from .models import Case, LossData, Loan, ModelSetting, LoanPurposes
 from apps.application.models import ApplicationDocuments
 from apps.lib.api_Mappify import apiMappify
 from urllib.parse import urljoin
+from .note_utils import add_case_note
+
 
 # // UTILITIES
 
@@ -99,7 +101,6 @@ class CaseListView(HouseholdLoginRequiredMixin, ListView):
                 Q(email__icontains=search) |
                 Q(phoneNumber__icontains=search) |
                 Q(owner__last_name__icontains=search) |
-                Q(caseNotes__icontains=search) |
                 Q(street__icontains=search) |
                 Q(postcode__icontains=search) |
                 Q(surname_1__icontains=search) |
@@ -626,8 +627,8 @@ class CaseOwnView(HouseholdLoginRequiredMixin, View):
         return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
 
-class CaseAssignView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, UpdateView):
-    template_name = 'case/caseDetail.html'
+class CaseAssignView(HouseholdLoginRequiredMixin, UpdateView):
+    template_name = 'case/caseAssign.html'
     email_template_name = 'case/email/assignEmail.html'
     form_class = CaseAssignForm
     model = Enquiry
@@ -649,8 +650,9 @@ class CaseAssignView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
         preObj = queryset = Case.objects.queryset_byUID(str(self.kwargs['uid'])).get()
 
         caseObj = form.save(commit=False)
-        caseObj.caseNotes += '\r\n[# Case assigned from ' + preObj.owner.username + ' #]'
-        caseObj.save()
+        if preObj.owner:
+            add_case_note(caseObj, '[# Case assigned from ' + preObj.owner.username + ' #]')
+        caseObj.save(should_sync=True)
 
         # Email recipient
         subject, from_email, to = "Case Assigned to You", "noreply@householdcapital.app", caseObj.owner.email

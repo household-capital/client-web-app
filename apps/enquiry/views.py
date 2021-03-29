@@ -36,7 +36,7 @@ from apps.lib.site_Enums import *
 from apps.lib.site_Logging import write_applog
 from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.site_Utilities import parse_api_name, parse_api_names
-from .forms import EnquiryForm, EnquiryDetailForm, EnquiryAssignForm, EnquiryCallForm, \
+from .forms import EnquiryForm, EnquiryDetailForm, EnquiryCallForm, \
     AddressForm, PartnerForm
 from .models import Enquiry
 from apps.lib.site_Utilities import cleanPhoneNumber, cleanValuation, calcAge
@@ -81,8 +81,8 @@ class EnquiryListView(HouseholdLoginRequiredMixin, ListView):
                 Q(fullname__icontains=search) | 
                 Q(email__icontains=search) |
                 Q(phoneNumber__icontains=search) |
-                Q(postcode__icontains=search) |
-                Q(enquiryNotes__icontains=search)
+                Q(postcode__icontains=search) #|
+                #Q(enquiryNotes__icontains=search) # FIX ME - how to search in django comments?
             ).exclude(actioned=-1)
 
         # ...and for open my items
@@ -208,8 +208,8 @@ class EnquiryPartnerList(HouseholdLoginRequiredMixin, ListView):
                 Q(name__icontains=search) |
                 Q(email__icontains=search) |
                 Q(phoneNumber__icontains=search) |
-                Q(postcode__icontains=search) |
-                Q(enquiryNotes__icontains=search)
+                Q(postcode__icontains=search) #|
+                #Q(enquiryNotes__icontains=search) # FIX ME - how to search in django comments?
             ).filter(referrer=directTypesEnum.PARTNER.value).exclude(actioned=-1)
 
         queryset = queryset.order_by('-updated')[:160]
@@ -730,7 +730,6 @@ class EnquiryConvert(HouseholdLoginRequiredMixin, View):
         caseDict['caseStage'] = caseStagesEnum.DISCOVERY.value
         caseDict['caseDescription'] = surname + " - " + str(enqDict['postcode'])
         caseDict['enquiryDocument'] = enqDict['summaryDocument']
-        caseDict['caseNotes'] = enqDict['enquiryNotes']
         caseDict['firstname_1'] = enqDict['firstname']
         caseDict['surname_1'] = surname
         caseDict['enqUID'] = enq_obj.enqUID

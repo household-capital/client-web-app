@@ -11,6 +11,7 @@ from django.utils import timezone
 from datetime import timedelta
 
 # Third-party Imports
+from django_comments.models import Comment
 from config.celery import app
 
 # Local Application Imports
@@ -44,6 +45,9 @@ def createSFLeadCaseTask(caseUID):
     write_applog("Info", 'Case', 'Tasks-createSFLead', "Creating lead for:" + str(caseUID))
     result = createSFLeadCase(caseUID)
     if result['status'] == "Ok":
+        result = syncNotes(caseUID)
+
+    if result['status'] == "Ok":
         write_applog("INFO", 'Case', 'Tasks-createSFLead', "Finished - Successfully")
         return "Finished - Successfully"
     else:
@@ -55,6 +59,8 @@ def updateSFLeadTask(caseUID):
     # Task wrapper to update a SF Lead
     write_applog("INFO", 'Case', 'Tasks-updateSFLead', "Updating lead for:" + str(caseUID))
     result = updateSFLead(caseUID)
+    if result['status'] == "Ok":
+        result = syncNotes(caseUID)
     if result['status'] == "Ok":
         write_applog("INFO", 'Case', 'Tasks-updateSFLead', "Finished - Successfully")
         return "Finished - Successfully"
@@ -835,3 +841,73 @@ def updateSFDocs(caseUID, sfAPI):
     return {'status': 'Ok', "responseText": "Salesforce Doc Synch!"}
 
 
+@app.task(name='SF_Create_Case_Note')
+def createNote(note_id):
+    write_applog("INFO", 'Case', 'createNote', "Creating note for note_id " + note_id)
+    note = Comment.objects.get(pk=note_id)
+    case = note.content_object
+
+    if not case.sfLeadID:
+        write_applog("INFO", 'Case', 'createNote', "No SFID - skipping")
+        return {"status": "Error", "responseText": "SF Lead ID missing"}
+    parent_sfid = case.sfLeadID
+
+    sfAPI = apiSalesforce()
+    result = sfAPI.openAPI(True)
+    if result['status'] != "Ok":
+        write_applog("ERROR", 'Case', 'Tasks-createNote', result['responseText'])
+        return {"status": "Error"}
+
+    result = sfAPI.createNote(parent_sfid, note)
+
+    if result['status'] != 'Ok':
+        write_applog("ERROR", 'Case', 'createNote', "Create note -" + json.dumps(result['responseText']))
+        return {'status': 'Error', 'responseText': case.caseDescription + " - " + json.dumps(result['responseText'])}
+
+    return {'status': 'Ok', "responseText": "Salesforce Create Note!"}
+
+
+@app.task(name='SF_Delete_Case_Note')
+def deleteNote(note_id):
+    write_applog("INFO", 'Case', 'deleteNote', "Deleting note_id " + note_id)
+    note = Comment.objects.get(pk=note_id)
+
+    sfAPI = apiSalesforce()
+    result = sfAPI.openAPI(True)
+    if result['status'] != "Ok":
+        write_applog("ERROR", 'Case', 'Tasks-deleteNote', result['responseText'])
+        return {"status": "Error"}
+
+    result = sfAPI.deleteNote(note)
+
+    if result['status'] != 'Ok':
+        write_applog("ERROR", 'Case', 'deleteNote', "Delete note -" + json.dumps(result['responseText']))
+        return {'status': 'Error', 'responseText': json.dumps(result['responseText'])}
+
+    return {'status': 'Ok', "responseText": "Salesforce Delete Note!"}
+
+
+@app.task(name='SF_Sync_Case_Notes')
+def syncNotes(caseUID):
+    write_applog("INFO", 'Case', 'syncNotes', "Syncing notes for caseUID " + caseUID)
+
+    case = Case.objects.queryset_byUID(caseUID).get()
+    if not case.sfLeadID:
+        return {"status": "Error", "responseText": "SF Lead ID missing"}
+
+    parent_sfid = case.sfLeadID
+    notes = Comment.objects.for_model(case)
+
+    sfAPI = apiSalesforce()
+    result = sfAPI.openAPI(True)
+    if result['status'] != "Ok":
+        write_applog("ERROR", 'Case', 'Tasks-syncNotes', result['responseText'])
+        return {"status": "Error"}
+
+    result = sfAPI.syncNotes(parent_sfid, notes)
+
+    if result['status'] != 'Ok':
+        write_applog("ERROR", 'Case', 'deleteNote', "Sync notes -" + json.dumps(result['responseText']))
+        return {'status': 'Error', 'responseText': json.dumps(result['responseText'])}
+
+    return {'status': 'Ok', "responseText": "Salesforce Sync Notes!"}

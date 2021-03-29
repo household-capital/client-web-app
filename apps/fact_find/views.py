@@ -78,7 +78,7 @@ class Main(HouseholdLoginRequiredMixin, ContextHelper,  UpdateView):
 
         #Check if empty
         if not obj.backgroundNotes:
-            obj.backgroundNotes = case.caseNotes
+            obj.backgroundNotes = case.notes_summary
         obj.save(update_fields=['backgroundNotes'])
 
         return obj
@@ -118,7 +118,7 @@ class PdfCaseSummary(ContextHelper,  TemplateView):
             #Create object
             case = Case.objects.queryset_byUID(str(self.kwargs['uid'])).get()
             obj = FactFind(case = case)
-            obj.backgroundNotes = case.caseNotes
+            obj.backgroundNotes = case.notes_summary
             obj.save()
         else:
             obj = queryset.get()

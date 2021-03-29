@@ -35,7 +35,7 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
     class Meta:
         model = Case
         fields = [
-            'caseDescription', 'adviser', 'referralCompany', 'caseNotes', 'loanType', 'caseStage',
+            'caseDescription', 'adviser', 'referralCompany', 'loanType', 'caseStage',
             'clientType1', 'surname_1', 'firstname_1', 'preferredName_1', 'birthdate_1', 'age_1', 'sex_1',
             'salutation_1', 'middlename_1', 'maritalStatus_1',
             'clientType2', 'surname_2', 'firstname_2', 'preferredName_2', 'birthdate_2', 'age_2', 'sex_2',
@@ -47,9 +47,7 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
             'firstname', 'lastname',
         ] + address_model_fields
 
-        widgets = {
-            'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
-        }
+        widgets = {}
 
     caseStages = (
         (caseStagesEnum.UNQUALIFIED_CREATED.value,"Unqualified / Lead created"),
@@ -77,141 +75,238 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
             Div(
                 Div(
                     Div(Submit('submit', 'Update', css_class='btn btn-outline-secondary')),
-                    css_class='text-right pt-4'
+                    css_class='text-right pt-3'
                 ),
                 css_class='col-lg-12'
             ),
-            Div(HTML("<i class='far fa-address-card'></i>&nbsp;&nbsp;Case Notes"), css_class='form-header'),
-            Div(
-                Div(
-                    Div(HTML("Lead Description"), css_class='form-label'),
-                    Div(Field('caseDescription')),
-                    css_class="col-lg-6"
-                ),
-                Div(
-                    Div(HTML("Current Status"), css_class='form-label'),
-                    Div(Field('caseStage')),
-                    css_class="col-lg-6"
-                ),
-                css_class="row"
-            ),
-            Div(
-                Div(
-                    Div(HTML("Channel"), css_class='form-label'),
-                    Div(Field('salesChannel')),
-                    css_class="col-lg-6"
-                ),
-                Div(
-                    Div(HTML("Propensity Score"), css_class='form-label'),
-                    Div(Field('propensityCategory')),
-                    css_class="col-lg-6"
-                ),
-                css_class="row"
-            ),
-            Div(
-                Div(
-                    Div(HTML("Lead Source"), css_class='form-label'),
-                    Div(Field('referrer')),
-                    css_class="col-lg-6"
-                ),
-                Div(
-                    Div(HTML("Marketing Source"), css_class='form-label'),
-                    Div(Field('channelDetail')),
-                    css_class="col-lg-6"
-                ),
-                css_class="row"
-            ),
-            Div(
-                Div(
-                    Div(HTML("Marketing Campaign"), css_class='form-label'),
-                    Div(Field('marketing_campaign')),
-                    css_class="col-lg-6"
-                ),
-                css_class="row"
-            ),
-            Div(
-                Div(HTML("Lead Notes"), css_class='form-label'),
-                Div(Field('caseNotes'))),
-            Div(
-                Div(Field('doNotMarket')),
-                Div(HTML("<p>&nbsp;&nbsp;Do not market</p>"), css_class="pt-1 pl-0 "),
-                css_class="row "),
-            Div(
-                Div(Div(HTML("<i class='far fa-address-card'></i>&nbsp;&nbsp;Contact Details"),
-                        css_class='form-header'),
-                    Div(Div(HTML("First Name"), css_class='form-label'),
-                        Div(Field('firstname'))),
-                    Div(Div(HTML("Last Name"), css_class='form-label'),
-                        Div(Field('lastname'))),
-                    Div(Div(HTML("Phone Number"), css_class='form-label'),
-                        Div(Field('phoneNumber'))),
-                    Div(Div(HTML("Email"), css_class='form-label'),
-                        Div(Field('email'))),
 
-                    Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Borrower(s)"), css_class='form-header pt-2'),
-                    Div(Div(HTML("Single or Joint Calculation (inc: Nominated Occupant)"), css_class='form-label'),
-                        Div(Field('loanType'))),
+            Div(
+                Div(
+                    Div(
+                        Div(HTML("Lead Description"), css_class='form-label'),
+                        Div(Field('caseDescription'))
+                    ),
+                    Div(
+                        Div(HTML("Propensity Score"), css_class='form-label'),
+                        Div(Field('propensityCategory'))
+                    ),
+                    Div(
+                        Div(HTML("Product Type"), css_class='form-label'),
+                        Div(Field('productType'))
+                    ),
+                    css_class="col-lg-6"
+                ),
+                Div(
+                    Div(
+                        Div(HTML("Current Status"), css_class='form-label'),
+                        Div(Field('caseStage'))
+                    ),
+                    Div(
+                        Div(HTML("Do Not Market"), css_class='form-label'),
+                        Div(Field('doNotMarket'))
+                    ),
+                    css_class="col-lg-6"
+                ),
+                css_class="row"
+            ),
+
+            HTML("<hr/>"),
+            Div(
+                Div(
+                    HTML("<i class='far fa-address-card'></i>&nbsp;&nbsp;Contact Details"),
+                    css_class='form-header col-lg-12'
+                ),
+                Div(
+                    Div(
+                        Div(HTML("First Name"), css_class='form-label'),
+                        Div(Field('firstname'))
+                    ),
+                    Div(
+                        Div(HTML("Last Name"), css_class='form-label'),
+                        Div(Field('lastname'))
+                    ),
+                    css_class="col-lg-6"
+                ),
+                Div(
+                    Div(
+                        Div(HTML("Phone Number"), css_class='form-label'),
+                        Div(Field('phoneNumber'))
+                    ),
+                    Div(
+                        Div(HTML("Email"), css_class='form-label'),
+                        Div(Field('email'))
+                    ),
+                    css_class="col-lg-6"
+                ),
+                css_class="row pt-3"
+            ),
+
+            HTML("<hr/>"),
+            Div(
+                Div(
+                    HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Borrower(s)"),
+                    css_class='form-header col-lg-12'
+                ),
+                Div(
+                    Div(HTML("Single or Joint Calculation (inc: Nominated Occupant)"), css_class='form-label'),
+                    Div(Field('loanType')),
+                    css_class='col-lg-6'
+                ),
+                css_class="row pt-3"
+            ),
+            Div(
+                Div(
                     HTML("<i class='fas fa-user'></i>&nbsp;&nbsp;<small>Borrower 1</small>"),
                     Row(
-                        Column(Div(Div(HTML("Birthdate*"), css_class='form-label'),
-                            Div(Field('birthdate_1'))),css_class='col-6'),
-                        Column(Div(Div(HTML("Age"), css_class='form-label'),
-                            Div(Field('age_1'))),css_class='col-6')),
-                    Div(Div(HTML("Firstname*"), css_class='form-label'),
-                        Div(Field('firstname_1'))),
+                        Column(
+                            Div(
+                                Div(HTML("Birthdate*"), css_class='form-label'),
+                                Div(Field('birthdate_1'))
+                            ),
+                            css_class='col-6'
+                        ),
+                        Column(
+                            Div(
+                                Div(HTML("Age"), css_class='form-label'),
+                                Div(Field('age_1'))
+                            ),
+                            css_class='col-6'
+                        )
+                    ),
+                    Div(
+                        Div(HTML("Firstname*"), css_class='form-label'),
+                        Div(Field('firstname_1'))
+                    ),
                     Row(
-                        Column(Div(Div(HTML("Preferred Name*"), css_class='form-label pt-1'),
-                                   Div(Field('preferredName_1'))), css_class='col-6'),
-                        Column(Div(Div(HTML("Middlename"), css_class='form-label pt-1'),
-                                   Div(Field('middlename_1'))), css_class='col-6')),
-                    Div(Div(HTML("Surname*"), css_class='form-label'),
-                        Div(Field('surname_1'))),
+                        Column(
+                            Div(
+                                Div(HTML("Preferred Name*"), css_class='form-label pt-1'),
+                                Div(Field('preferredName_1'))),
+                            css_class='col-6'
+                        ),
+                        Column(
+                            Div(
+                                Div(HTML("Middlename"), css_class='form-label pt-1'),
+                                Div(Field('middlename_1'))),
+                            css_class='col-6'
+                        )
+                    ),
+                    Div(
+                        Div(HTML("Surname*"), css_class='form-label'),
+                        Div(Field('surname_1'))
+                    ),
                     Row(
-                        Column(Div(Div(HTML("Title*"), css_class='form-label pt-1'),
-                                   Div(Field('salutation_1'))), css_class='col-6'),
-                        Column(Div(Div(HTML("Gender"), css_class='form-label pt-1'),
-                                   Div(Field('sex_1'))), css_class='col-6')),
-                    Div(Div(HTML("Borrower Role*"), css_class='form-label'),
-                        Div(Field('clientType1'))),
-                    Div(Div(HTML("Marital Status*"), css_class='form-label'),
-                        Div(Field('maritalStatus_1'))),
+                        Column(
+                            Div(
+                                Div(HTML("Title*"), css_class='form-label pt-1'),
+                                Div(Field('salutation_1'))),
+                            css_class='col-6'
+                        ),
+                        Column(
+                            Div(
+                                Div(HTML("Gender"), css_class='form-label pt-1'),
+                                   Div(Field('sex_1'))),
+                            css_class='col-6'
+                        )
+                    ),
+                    Div(
+                        Div(HTML("Borrower Role*"), css_class='form-label'),
+                        Div(Field('clientType1'))
+                    ),
+                    Div(
+                        Div(HTML("Marital Status*"), css_class='form-label'),
+                        Div(Field('maritalStatus_1'))
+                    ),
+                    css_class="col-lg-6"
+                ),
+                Div(
                     HTML("<i class='far fa-user'></i>&nbsp;&nbsp;<small>Borrower 2</small>"),
                     Row(
-                        Column(Div(Div(HTML("Birthdate*"), css_class='form-label pt-1'),
-                                   Div(Field('birthdate_2'))), css_class='col-6'),
-                        Column(Div(Div(HTML("Age"), css_class='form-label pt-1'),
-                                   Div(Field('age_2'))), css_class='col-6')),
-                    Div(Div(HTML("Firstname*"), css_class='form-label'),
-                        Div(Field('firstname_2'))),
+                        Column(
+                            Div(
+                                Div(HTML("Birthdate*"), css_class='form-label pt-1'),
+                                Div(Field('birthdate_2'))
+                            ),
+                            css_class='col-6'
+                        ),
+                        Column(
+                            Div(
+                                Div(HTML("Age"), css_class='form-label pt-1'),
+                                Div(Field('age_2'))
+                            ),
+                            css_class='col-6'
+                        )
+                    ),
+                    Div(
+                        Div(HTML("Firstname*"), css_class='form-label'),
+                        Div(Field('firstname_2'))
+                    ),
                     Row(
-                        Column(Div(Div(HTML("Preferred Name*"), css_class='form-label pt-1'),
-                                   Div(Field('preferredName_2'))), css_class='col-6'),
-                        Column(Div(Div(HTML("Middlename"), css_class='form-label pt-1'),
-                                   Div(Field('middlename_2'))), css_class='col-6')),
-                    Div(Div(HTML("Surname*"), css_class='form-label'),
-                        Div(Field('surname_2'))),
+                        Column(
+                            Div(
+                                Div(HTML("Preferred Name*"), css_class='form-label pt-1'),
+                                Div(Field('preferredName_2'))
+                            ),
+                            css_class='col-6'
+                        ),
+                        Column(
+                            Div(
+                                Div(HTML("Middlename"), css_class='form-label pt-1'),
+                                Div(Field('middlename_2'))
+                            ),
+                            css_class='col-6'
+                        )
+                    ),
+                    Div(
+                        Div(HTML("Surname*"), css_class='form-label'),
+                        Div(Field('surname_2'))
+                    ),
                     Row(
-                        Column(Div(Div(HTML("Title*"), css_class='form-label'),
-                                   Div(Field('salutation_2'))), css_class='col-6'),
-                        Column(Div(Div(HTML("Gender"), css_class='form-label'),
-                                   Div(Field('sex_2'))), css_class='col-6')),
-                    Div(Div(HTML("Borrower Role*"), css_class='form-label'),
-                        Div(Field('clientType2'))),
-                    Div(Div(HTML("Marital Status*"), css_class='form-label'),
-                        Div(Field('maritalStatus_2'))),
-                    css_class="col-lg-6"),
+                        Column(
+                            Div(
+                                Div(HTML("Title*"), css_class='form-label'),
+                                Div(Field('salutation_2'))
+                            ),
+                            css_class='col-6'
+                        ),
+                        Column(
+                            Div(
+                                Div(HTML("Gender"), css_class='form-label'),
+                                Div(Field('sex_2'))
+                            ),
+                            css_class='col-6'
+                        )
+                    ),
+                    Div(
+                        Div(HTML("Borrower Role*"), css_class='form-label'),
+                        Div(Field('clientType2'))
+                    ),
+                    Div(
+                        Div(HTML("Marital Status*"), css_class='form-label'),
+                        Div(Field('maritalStatus_2'))
+                    ),
+                    css_class="col-lg-6"
+                ),
+                css_class="row"
+            ),
 
-                Div(Div(HTML("&nbsp;"), css_class='form-header'),
-                    Div(Div(HTML("Specific Broker / Adviser"), css_class='form-label'),
-                        Div(Field('referralCompany'))),
-                    Div(Div(HTML("Introducer or Advisor"), css_class='form-label'),
-                        Div(Field('adviser'))),
-
-                     Row(
-                    Column(Div(HTML("<i class='fas fa-home'> </i>&nbsp;&nbsp;Property")), css_class='col-6'),
-                    Column(Div(Div(HTML(
-                        "<button id='lookup_dialogue' type='button' class='btn btn-sm btn-light'><i class='fas fa-search'></i> Find</button> ")),
-                               css_class='text-right'), css_class='col-6')),
+            HTML("<hr/>"),
+            Div(
+                Div(
+                    Div(HTML("<i class='fas fa-home'> </i>&nbsp;&nbsp;Property")),
+                    css_class='col-lg-12'
+                ),
+                Div(
+                    Row(
+                        Column(Div(), css_class='col-6'),
+                        Column(
+                            Div(
+                                Div(HTML("<button id='lookup_dialogue' type='button' class='btn btn-sm btn-light'><i class='fas fa-search'></i> Find</button> ")),
+                                css_class='text-right'
+                            ),
+                            css_class='col-6'
+                        )
+                    ),
                     Div(Div(HTML("Dwelling Type*"), css_class='form-label'),
                         Div(Field('dwellingType'))),
 
@@ -233,11 +328,25 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                                    Div(Field('state'))), css_class='col-6'),
                         Column(Div(Div(HTML("Postcode"), css_class='form-label'),
                                    Div(Field('postcode'))), css_class='col-6')),
+                    css_class="col-lg-6"
+                ),
+                Div(
                     Div(Div(HTML("Valuation*"), css_class='form-label'),
                         Div(Field('valuation'))),
                     Div(Div(HTML("Mortgage Debt"), css_class='form-label'),
                         Div(Field('mortgageDebt'))),
+                    Div(HTML("<p class='small pt-2'><i class='fa fa-camera fa-fw'>&nbsp;&nbsp;</i>Property Image</p>"),
+                        Field('propertyImage')),
+                    Div(HTML("<p class='small pt-2'><i class='far fa-file-pdf'></i>&nbsp;&nbsp;</i>Auto Valuation</p>"),
+                        Field('valuationDocument')),
+                    css_class="col-lg-6"
+                ),
+                css_class="row pt-3"
+            ),
 
+            HTML("<hr/>"),
+            Div(
+                Div(
                     Div(HTML("<i class='fas fa-piggy-bank'></i>&nbsp;&nbsp;Super/Investments"),
                         css_class='form-header'),
                     Div(Div(HTML("Investment Description"), css_class='form-label'),
@@ -246,26 +355,57 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                         Div(Field('superFund'))),
                     Div(Div(HTML("Amount"), css_class='form-label'),
                         Div(Field('superAmount'))),
-
+                    css_class="col-lg-6"
+                ),
+                Div(
                     Div(HTML("<i class='fas fa-hand-holding-usd'></i>&nbsp;&nbsp;Pension"), css_class='form-header'),
                     Div(Div(HTML("Pension Amount"), css_class='form-label'),
                         Div(Field('pensionAmount'))),
+                    css_class="col-lg-6"
+                ),
+                css_class="row pt-3"
+            ),
 
-                    Div(HTML("<i class='fas fa-barcode'></i>&nbsp;&nbsp;Product Type"), css_class='form-header'),
-                    Div(Div(HTML("Product Type"), css_class='form-label'),
-                        Div(Field('productType'))),
-
-                    Div(HTML("<i class='fas fa-filter'></i>&nbsp;&nbsp;Channel Detail"), css_class='form-header'),
-                    Div(Div(HTML("Channel Detail"), css_class='form-label'),
-                        Div(Field('channelDetail'))),
-
-                    Div(HTML("<p class='small pt-2'><i class='fa fa-camera fa-fw'>&nbsp;&nbsp;</i>Property Image</p>"),
-                        Field('propertyImage')),
-                    Div(HTML("<p class='small pt-2'><i class='far fa-file-pdf'></i>&nbsp;&nbsp;</i>Auto Valuation</p>"),
-                        Field('valuationDocument')),
-                    css_class="col-lg-6"),
-                css_class="row")
-        ))
+            HTML("<hr/>"),
+            Div(
+                Div(
+                    Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Lead Source"), css_class='form-header'),
+                    css_class='col-lg-12'
+                ),
+                Div(
+                    Div(
+                        Div(HTML("Channel"), css_class='form-label'),
+                        Div(Field('salesChannel'))
+                    ),
+                    Div(
+                        Div(HTML("Lead Source"), css_class='form-label'),
+                        Div(Field('referrer'))
+                    ),
+                    Div(
+                        Div(HTML("Marketing Source"), css_class='form-label'),
+                        Div(Field('channelDetail'))
+                    ),
+                    Div(
+                        Div(HTML("Marketing Campaign"), css_class='form-label'),
+                        Div(Field('marketing_campaign'))
+                    ),
+                    css_class="col-lg-6"
+                ),
+                Div(
+                    Div(
+                        Div(HTML("Specific Broker / Adviser"), css_class='form-label'),
+                        Div(Field('referralCompany'))
+                    ),
+                    Div(
+                        Div(HTML("Introducer or Advisor"), css_class='form-label'),
+                        Div(Field('adviser'))
+                    ),
+                    css_class="col-lg-6"
+                ),
+                css_class="row pt-3"
+            ),
+        ),
+    )
 
     def clean(self):
         pass
