@@ -562,31 +562,7 @@ class SendEnquirySummary(HouseholdLoginRequiredMixin, UpdateView):
                 return False
         return True
 
-class SummaryMove(HouseholdLoginRequiredMixin, View):
 
-    def get(self, request, *args, **kwargs):
-        if "uid" in kwargs:
-            try:
-                enquiry = Enquiry.objects.get(enqUID=kwargs['uid'], deleted_on__isnull=True)
-            except Enquiry.DoesNotExist: 
-                messages.error(self.request, "Enquiry Doesnt exist")
-                return HttpResponseRedirect(reverse_lazy('enquiry:enquiryList'))
-            
-            case = enquiry.case
-            if case is None: 
-                messages.error(self.request, "Enquiry has no lead")
-                return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enquiry.enqUID}))
-
-            case.enquiryDocument = enquiry.summaryDocument
-            case.save()
-            messages.success(self.request, "Enquiry Summary Doccument Successfully Moved To Lead")
-            return HttpResponseRedirect(
-                reverse_lazy(
-                    'case:caseDetail', 
-                    kwargs={'uid': case.caseUID}
-                )
-            )
-        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryList'))
 
 
 class CreateEnquirySummary(HouseholdLoginRequiredMixin, UpdateView):

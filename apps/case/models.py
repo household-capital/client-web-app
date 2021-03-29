@@ -290,8 +290,8 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
     summaryDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='customerReports')
     summarySentDate = models.DateTimeField(blank=True, null=True)
     summarySentRef = models.CharField(max_length=30, null=True, blank=True)
-    responsibleDocument= models.FileField(max_length=150,null=True, blank=True, upload_to='customerReports')
-    enquiryDocument = models.FileField(max_length=150,null=True, blank=True)
+    responsibleDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='customerReports')
+    enquiryDocument = models.FileField(max_length=150,null=True, blank=True) # deprecated
     valuationDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='customerDocuments')
     titleDocument = models.FileField(max_length=150,null=True, blank=True, upload_to='customerDocuments') # deprecated
     titleRequest = models.BooleanField(null=True, blank=True)
