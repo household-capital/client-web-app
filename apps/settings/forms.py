@@ -32,6 +32,12 @@ class GlobalSettingsForm(forms.ModelForm):
             'autoassignees_YOUR_LIFE_CHOICES',
             'autoassignees_FACEBOOK',
             'autoassignees_LINKEDIN',
+            'autocampaigns_STARTS_AT_60',
+            'autocampaigns_CARE_ABOUT',
+            'autocampaigns_NATIONAL_SENIORS',
+            'autocampaigns_YOUR_LIFE_CHOICES',
+            'autocampaigns_FACEBOOK',
+            'autocampaigns_LINKEDIN',
         ]
 
     helper = FormHelper()
@@ -99,6 +105,50 @@ class GlobalSettingsForm(forms.ModelForm):
                 ),
                 css_class='col-lg-10'
             ),
-            css_class="row "
+            Div(
+                HTML('<hr/>'),
+                Div(
+                    HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Auto Campaigns for Enquiries"),
+                    css_class='form-header mb-3 border-bottom'
+                ),
+                Div(
+                    Div(HTML("Partner Channels:"), css_class='form-label pb-1'),
+                    Div(
+                        Div(
+                            Div(HTML("Starts at 60:"), css_class='form-label pb-1'),
+                            Div(Field('autocampaigns_STARTS_AT_60'), css_class='pb-3')
+                        ),
+                        Div(
+                            Div(HTML("Care About:"), css_class='form-label pb-1'),
+                            Div(Field('autocampaigns_CARE_ABOUT'), css_class='pb-3')
+                        ),
+                        Div(
+                            Div(HTML("National Seniors:"), css_class='form-label pb-1'),
+                            Div(Field('autocampaigns_NATIONAL_SENIORS'), css_class='pb-3')
+                        ),
+                        Div(
+                            Div(HTML("Your  Life Choices:"), css_class='form-label pb-1'),
+                            Div(Field('autocampaigns_YOUR_LIFE_CHOICES'), css_class='pb-3')
+                        ),
+                        css_class='pl-5 col-lg-7'
+                    )
+                ),
+                Div(
+                    Div(HTML("Social Channels:"), css_class='form-label pb-1'),
+                    Div(
+                        Div(
+                            Div(HTML("Facebook:"), css_class='form-label pb-1'),
+                            Div(Field('autocampaigns_FACEBOOK'), css_class='pb-3')
+                        ),
+                        Div(
+                            Div(HTML("LinkedIn:"), css_class='form-label pb-1'),
+                            Div(Field('autocampaigns_LINKEDIN'), css_class='pb-3')
+                        ),
+                        css_class='pl-5 col-lg-7'
+                    )
+                ),
+                css_class='col-lg-10'
+            ),
+            css_class="row"
         )
     )
