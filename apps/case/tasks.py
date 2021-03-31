@@ -301,7 +301,7 @@ def integrityCheck():
                 obj = Case.objects.filter(sfOpportunityID=row['Id'], deleted_on__isnull=True).get()
                 loanObj = Loan.objects.filter(case__sfOpportunityID=row['Id']).get()
                 modelObj = ModelSetting.objects.filter(case__sfOpportunityID=row['Id']).get()
-            except obj.DoesNotExist:
+            except (Case.DoesNotExist, Loan.DoesNotExist, ModelSetting.DoesNotExist):
                 obj = None
 
             if obj:
