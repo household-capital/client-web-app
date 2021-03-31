@@ -7,6 +7,7 @@ import os
 from django.core.files.storage import default_storage
 from django.conf import settings
 from django.utils import timezone
+from django.db.models import F, Max
 
 from datetime import timedelta
 
@@ -19,7 +20,7 @@ from apps.lib.api_AMAL import apiAMAL
 from apps.lib.api_Docsaway import apiDocsAway
 from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
-from apps.lib.site_Enums import caseStagesEnum, channelTypesEnum
+from apps.lib.site_Enums import caseStagesEnum, channelTypesEnum, directTypesEnum
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Utilities import raiseTaskAdminError
 from apps.lib.site_EmailUtils import sendTemplateEmail
@@ -36,6 +37,72 @@ from apps.operational.decorators import email_admins_on_failure
 
 
 # CASE TASKS
+
+
+def FollowUpEmail(caseUID):
+    template_name = 'case/email/email_followup.html'
+    try: 
+        lead = Case.objects.get(caseUID=caseUID)
+    except Case.DoesNotExist: 
+        write_applog("ERROR", 'Case', 'Tasks-FollowUpEmail', "Lead Object doesnt exist: caseUID={}".format(caseUID))
+        return {
+            'statis': "ERROR",
+            'responseText': "Lead Object doesnt exist"
+        }
+    email_context = {
+        'customerFirstName': lead.firstname, 
+        'obj': lead
+    }
+    if not lead.owner:
+        write_applog("ERROR", 'Case', 'Tasks-FollowUpEmail', "No associated user")
+        return {"status": "ERROR", 'responseText': "No associated user"}
+
+    bcc = lead.owner.email
+    subject, from_email, to = "Household Capital: Lead Follow-up", lead.owner.email, lead.email
+
+    sentEmail = sendTemplateEmail(template_name, email_context, subject, from_email, to, bcc=bcc)
+    if sentEmail:
+        lead.followUp = timezone.now()
+        lead.save(should_sync=True)
+
+        write_applog("INFO", 'Case', 'Tasks-FollowUpEmail', "Follow-up Email Sent: " + "{} {}".format(lead.firstname, lead.lastname))
+        return {"status": "Ok", 'responseText': "Follow-up Email Sent"}
+    else:
+        write_applog("ERROR", 'Case', 'Tasks-FollowUpEmail',
+                     "Failed to email follow-up:" + caseUID)
+        return {"status": "ERROR", 'responseText': "Failed to email follow-up:" + caseUID}
+
+
+@app.task(name="LeadFollowUp")
+@email_admins_on_failure(task_name="LeadFollowUp")
+def lead_follow_up():
+    write_applog("INFO", 'Case', 'LeadFollowUp', "Starting")
+
+    delta = timedelta(days=21)
+    windowDate = timezone.now() - delta
+
+    qs = Case.objects.annotate(
+        latest_enq_timestamp=Max('enquiries__timestamp')
+    ).filter(
+        followUp__isnull=True,
+        email__isnull=False,
+        enquiries__referrer=directTypesEnum.WEB_CALCULATOR.value,
+        timestamp__lte=windowDate,
+        owner__isnull=False,
+        enquiries__timestamp=F('latest_enq_timestamp'), 
+        enquiries__status=True,
+        caseStage=caseStagesEnum.UNQUALIFIED_CREATED.value,
+        deleted_on__isnull=True,
+        lossdata__closeDate__isnull=True   
+    ).exclude(
+        enquiries__isCalendly=True
+    )[:75]
+    for lead in qs:
+        result = FollowUpEmail(str(lead.caseUID))
+        if result['status'] == "Ok":
+            write_applog("INFO", 'Case', 'LeadFollowUp', "Sent -" + "{} {}".format(lead.firstname, lead.lastname))
+        else:
+            write_applog("ERROR", 'Case', 'LeadFollowUp', "Failed -" + "{} {}".format(lead.firstname, lead.lastname))
 
 
 @app.task(name="Create_SF_Case_Lead")

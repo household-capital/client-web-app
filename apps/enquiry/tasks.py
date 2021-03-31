@@ -227,38 +227,6 @@ def syncNotes(enqUID):
 ######################################################################################
 
 # FIX ME - MOVE TO LEAD TASKS
-@app.task(name="EnquiryFollowUp")
-@email_admins_on_failure(task_name="EnquiryFollowUp")
-def updateToday():
-    write_applog("INFO", 'Enquiry', 'FollowUpEmail', "Starting")
-
-    delta = timedelta(days=21)
-    windowDate = timezone.now() - delta
-
-    qs = Enquiry.objects.filter(followUp__isnull=True,
-                                email__isnull=False,
-                                referrer=directTypesEnum.WEB_CALCULATOR.value,
-                                timestamp__lte=windowDate,
-                                user__isnull=False,
-                                actioned=0,
-                                status=1,
-                                deleted_on__isnull=True,
-                                closeDate__isnull=True).exclude(isCalendly=True)[:75]
-    # should not be more then 75 in a day - ensure no time out
-
-    for enquiry in qs:
-        result = FollowUpEmail(str(enquiry.enqUID))
-        if result['status'] == "Ok":
-            write_applog("INFO", 'Enquiry', 'FollowUpEmail', "Sent -" + enquiry.name)
-            updateSFLead(str(enquiry.enqUID))
-        else:
-            write_applog("ERROR", 'Enquiry', 'FollowUpEmail', "Failed -" + enquiry.name)
-
-    write_applog("INFO", 'Enquiry', 'FollowUpEmail', "Finished")
-    return "Finished - Successfully"
-
-
-# FIX ME - MOVE TO LEAD TASKS
 @app.task(name="SF_Refer_Postcode")
 @email_admins_on_failure(task_name='SF_Refer_Postcode')
 def getReferPostcodeStatus():
