@@ -15,6 +15,7 @@ from apps.lib.site_Enums import (
     marketingReferrerDict
 )
 from apps.enquiry.exceptions import MissingRequiredFields
+from apps.enquiry.models import MarketingCampaign
 
 
 REQUIRED_FIELDS = [
@@ -104,6 +105,13 @@ class DataIngestion(APIView):
         
         marketing_source_value = json_payload['stream']
         marketingSource = marketingTypesEnum[marketing_source_value].value
+        marketing_campaign = None
+        if marketingSource == marketingTypesEnum.STARTS_AT_60.value:
+            try:
+                marketing_campaign = MarketingCampaign.objects.get(campaign_name='Masterclass').id
+            except MarketingCampaign.DoesNotExist as ex:
+                pass
+
         payload = {
             'name': "{} {}".format(
                 json_payload.get('first', ''),
@@ -124,7 +132,7 @@ class DataIngestion(APIView):
             'street_name': json_payload.get('street_name'),
             'street_type': json_payload.get('street_type'),
             # 6 == "Masterclass" in prod...
-            'marketing_campaign': 6 if (marketingSource == marketingTypesEnum.STARTS_AT_60.value) else None,
+            'marketing_campaign': marketing_campaign,
         }
         if json_payload.get('state'): 
             payload['state'] = stateTypesEnum[json_payload['state']].value
