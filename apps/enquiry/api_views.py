@@ -122,7 +122,9 @@ class DataIngestion(APIView):
             'base_specificity': json_payload.get('unit'),
             'street_number': json_payload.get('street_number'),
             'street_name': json_payload.get('street_name'),
-            'street_type': json_payload.get('street_type')
+            'street_type': json_payload.get('street_type'),
+            # 6 == "Masterclass" in prod...
+            'marketing_campaign': 6 if (marketingSource == marketingTypesEnum.STARTS_AT_60.value) else None,
         }
         if json_payload.get('state'): 
             payload['state'] = stateTypesEnum[json_payload['state']].value
