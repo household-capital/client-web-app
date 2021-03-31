@@ -131,6 +131,8 @@ class DataIngestion(APIView):
             #'origin_timestamp': json_payload.get('origin_timestamp'),
             'origin_id': json_payload.get('origin_id'),
             'user': integration_user,
+            # 6 == "Masterclass" in prod...
+            'marketing_campaign': 6 if (marketingSource == marketingTypesEnum.STARTS_AT_60.value) else None,
         }
         if json_payload.get('state'): 
             payload['state'] = stateTypesEnum[json_payload['state']].value
