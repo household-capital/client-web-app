@@ -61,8 +61,8 @@ def get_celery_beat_config():
             'task': 'Wordpress_Data', # custom task (?)
             'schedule': schedule(run_every=timedelta(minutes=5))
         },
-        'EnquiryFollowupEmail':{
-            'task': 'EnquiryFollowUp', # custom task (?)
+        'LeadFollowUpEmail':{
+            'task': 'LeadFollowUp', # custom task (?)
             'schedule': crontab(hour=7, minute=30)
         },
         'Case SF Catchall - Nightly':{

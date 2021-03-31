@@ -342,7 +342,8 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
     # new fields to move from lead
     referrer = models.IntegerField(blank=False, null=False, choices=referrerTypes, default=-1)
     # default to unassigned to allow migration and not break the null/blank = False
-
+    followUp = models.DateTimeField(auto_now_add=False, auto_now=False, blank=True, null=True)
+    
     objects=CaseManager()
 
     def __str__(self):
@@ -884,7 +885,7 @@ class FactFind(models.Model):
     additionalNotes = models.TextField(blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
-
+    
 
     #meeting data
     all_applications_are_engaged = models.BooleanField(blank=True, null=True)
