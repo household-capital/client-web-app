@@ -22,7 +22,7 @@ def updateCreatePartnerEnquiry(payload, enquiries_to_assign):
 
         if lead.caseStage in [
             caseStagesEnum.SALES_ACTIVE.value,
-            caseStagesEnum.MEETING_HELD.value,
+            caseStagesEnum.CONVERTED.value,
             caseStagesEnum.APPLICATION.value,
             caseStagesEnum.DOCUMENTATION.value,
             caseStagesEnum.APPLICATION.value,
