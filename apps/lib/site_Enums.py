@@ -20,6 +20,7 @@ class caseStagesEnum(Enum):
     DISCOVERY=0
     PRE_MEETING= 1
     MEETING_HELD= 2
+    CONVERTED = 2
     CLOSED=3
     APPLICATION=4
     DOCUMENTATION=5
@@ -45,7 +46,7 @@ PRE_MEETING_STAGES = [
     'DISCOVERY',
 ]
 
-EDITABLE_STAGES = PRE_MEETING_STAGES + ['MEETING_HELD', 'APPLICATION', 'CLOSED']
+EDITABLE_STAGES = PRE_MEETING_STAGES + ['CONVERTED', 'APPLICATION', 'CLOSED']
 
 
 # Unqualified / Lead created (automatic state when a lead is created through any channel)

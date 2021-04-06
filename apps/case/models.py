@@ -111,7 +111,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
                   (caseStagesEnum.SQ_FUTURE_CALL.value,"SQ - Future call"),
                   (caseStagesEnum.SALES_ACTIVE.value, "Sales Active"),
                   (caseStagesEnum.DISCOVERY.value,"Discovery"),
-                  (caseStagesEnum.MEETING_HELD.value, "Meeting Held"),
+                  (caseStagesEnum.CONVERTED.value, "Converted"),
                   (caseStagesEnum.APPLICATION.value, "Application"),
                   (caseStagesEnum.DOCUMENTATION.value, "Documentation"),
                   (caseStagesEnum.FUNDED.value, "Funded"),

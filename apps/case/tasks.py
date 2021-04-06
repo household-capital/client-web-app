@@ -241,7 +241,7 @@ def stageSynch():
     '''Reverse synch SF -> clientApp'''
 
     stageMapping = {
-        "Meeting Held": caseStagesEnum.MEETING_HELD.value,
+        "Converted": caseStagesEnum.CONVERTED.value,
         "Application Sent": caseStagesEnum.APPLICATION.value,
         "Approval": caseStagesEnum.APPLICATION.value,
         "Assess": caseStagesEnum.APPLICATION.value,
