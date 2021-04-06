@@ -160,7 +160,7 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
             'streetAddress', 'suburb', 'state', 'mortgageDebt',
             'referrer', 'email', 'phoneNumber', 'enquiryNotes', 'calcLumpSum', 'calcIncome',
             'marketingSource', 'productType', 'enquiryStage', 'valuationDocument', 'propensityCategory',
-            'marketing_campaign', 'requestedCallback',
+            'marketing_campaign',
         ] + address_model_fields
 
         widgets = {

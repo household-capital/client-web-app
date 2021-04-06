@@ -176,15 +176,17 @@
                         </div>
                     </div>
 
+                    {% if obj.requestedCallback %}
+                        <div>
+                            <span class="badge badge-info">Callback Requested!</span>
+                        </div>
+                    {% endif %}
+                    
                     {% if status.status == 'Ok' %}
                         <div class="jumbotron">
 
                             {% if obj.closeDate %}
                                 <span class="badge badge-danger">Enquiry Closed</span>
-                            {% endif %}
-
-                            {% if obj.requestedCallback %}
-                                <span class="badge badge-info">Callback Requested!</span>
                             {% endif %}
 
                             {% if obj.productType == productTypesEnum.INCOME.value %}
