@@ -5,6 +5,7 @@ from django.db import models
 from django.db.models import Q
 
 from apps.lib.singleton import SingletonModel
+from apps.enquiry.models import MarketingCampaign
 
 
 class GlobalSettings(SingletonModel):
@@ -83,6 +84,13 @@ class GlobalSettings(SingletonModel):
             #Q(profile__isCreditRep=True)
         )
     )
+
+    autocampaigns_STARTS_AT_60 = models.ForeignKey(MarketingCampaign, related_name='autocampaigns_STARTS_AT_60', null=True, blank=True, on_delete=models.SET_NULL)
+    autocampaigns_CARE_ABOUT = models.ForeignKey(MarketingCampaign, related_name='autocampaigns_CARE_ABOUT', null=True, blank=True, on_delete=models.SET_NULL)
+    autocampaigns_NATIONAL_SENIORS = models.ForeignKey(MarketingCampaign, related_name='autocampaigns_NATIONAL_SENIORS', null=True, blank=True, on_delete=models.SET_NULL)
+    autocampaigns_YOUR_LIFE_CHOICES = models.ForeignKey(MarketingCampaign, related_name='autocampaigns_YOUR_LIFE_CHOICES', null=True, blank=True, on_delete=models.SET_NULL)
+    autocampaigns_FACEBOOK = models.ForeignKey(MarketingCampaign, related_name='autocampaigns_FACEBOOK', null=True, blank=True, on_delete=models.SET_NULL)
+    autocampaigns_LINKEDIN = models.ForeignKey(MarketingCampaign, related_name='autocampaigns_LINKEDIN', null=True, blank=True, on_delete=models.SET_NULL)
 
     @property
     def get_absolute_url(self):

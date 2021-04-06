@@ -4,6 +4,7 @@ from apps.case.models import Case
 from apps.case.assignment import auto_assign_leads
 from .models import Enquiry
 from apps.lib.site_Enums import caseStagesEnum
+from apps.settings.models import GlobalSettings
 
 
 def assign_enquiry_leads(enquiries, force=False, notify=True):
@@ -74,3 +75,34 @@ def updateCreatePartnerEnquiry(payload, enquiries_to_assign):
 
         # assign new owner
         enquiries_to_assign.append(new_enq)
+
+
+_AUTO_CAMPAIGN_MARKETINGSOURCE_LOOKUP = {
+    marketingTypesEnum.STARTS_AT_60.value: "autocampaigns_STARTS_AT_60",
+    marketingTypesEnum.CARE_ABOUT.value: "autocampaigns_CARE_ABOUT",
+    marketingTypesEnum.NATIONAL_SENIORS.value: "autocampaigns_NATIONAL_SENIORS",
+    marketingTypesEnum.YOUR_LIFE_CHOICES.value: "autocampaigns_YOUR_LIFE_CHOICES",
+    marketingTypesEnum.FACEBOOK.value: "autocampaigns_FACEBOOK",
+    marketingTypesEnum.LINKEDIN.value: "autocampaigns_LINKEDIN",
+}
+
+
+def find_auto_campaign(marketing_source, global_settings=None):
+
+    write_applog('INFO', 'enquiry.util', 'find_auto_campaign', 'BEGIN')
+
+    if global_settings is None:
+        global_settings = GlobalSettings.load()
+
+    setting_field = _AUTO_CAMPAIGN_MARKETINGSOURCE_LOOKUP.get(marketing_source)
+    if not setting_field:
+        return None
+
+    setting = getattr(global_settings, setting_field)
+    if setting:
+        write_applog('INFO', 'enquiry.util', 'find_auto_campaign', 'Using settings campaign')
+        return setting
+    else:
+        write_applog('INFO', 'enquiry.util', 'find_auto_campaign', 'Failed to locate potential campaign')
+        return None
+

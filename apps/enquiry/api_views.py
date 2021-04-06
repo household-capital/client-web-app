@@ -16,6 +16,7 @@ from apps.lib.site_Enums import (
     marketingReferrerDict
 )
 from apps.enquiry.exceptions import MissingRequiredFields
+from apps.enquiry.util import find_auto_campaign
 
 
 REQUIRED_FIELDS = [
@@ -111,6 +112,7 @@ class DataIngestion(APIView):
         integration_user = User.objects.get(username='integration_user')
 
         firstname, lastname, name = parse_api_names(json_payload.get('first'), json_payload.get('last'))
+
         payload = {
             'firstname': firstname,
             'lastname': lastname,
@@ -131,6 +133,7 @@ class DataIngestion(APIView):
             #'origin_timestamp': json_payload.get('origin_timestamp'),
             'origin_id': json_payload.get('origin_id'),
             'user': integration_user,
+            'marketing_campaign_id': find_auto_campaign(marketingSource),
         }
         if json_payload.get('state'): 
             payload['state'] = stateTypesEnum[json_payload['state']].value
