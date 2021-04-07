@@ -409,7 +409,7 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
                 if existing_case.doNotMarket:
                     if self.referrer in RESET_DO_NOT_MARKET:
                         existing_case.doNotMarket = False
-                        existing_case.save()
+                        existing_case.save(should_sync=True)
             else: 
                 create_case_from_enquiry(self)
                 should_sync = False 
