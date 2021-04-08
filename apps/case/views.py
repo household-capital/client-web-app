@@ -143,12 +143,12 @@ class CaseListView(HouseholdLoginRequiredMixin, ListView):
         else:
             orderBy = [self.request.GET.get('order'), '-updated']
 
-        queryset = queryset.order_by(*orderBy)[:160]
+        queryset = queryset.filter(deleted_on__isnull=True).order_by(*orderBy)[:160]
 
         # Temporary hidden filter
         if self.request.GET.get('filter') == "Funded":
             queryset = super(CaseListView, self).get_queryset().filter(
-                Q(caseStage=caseStagesEnum.FUNDED.value)).exclude(appType=appTypesEnum.VARIATION.value).order_by(
+                Q(caseStage=caseStagesEnum.FUNDED.value) & Q(deleted_on__isnull=True)).exclude(appType=appTypesEnum.VARIATION.value).order_by(
                 'surname_1')
 
         return queryset

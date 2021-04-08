@@ -60,7 +60,7 @@ class EnquiryListView(HouseholdLoginRequiredMixin, ListView):
 
     def get_queryset(self, **kwargs):
         # overrides queryset to filter search paramater
-
+        
         delta = timedelta(weeks=4)
         windowDate = timezone.now() - delta
 
@@ -92,7 +92,7 @@ class EnquiryListView(HouseholdLoginRequiredMixin, ListView):
         if self.request.GET.get('action') == "True":
             queryset = super(EnquiryListView, self).get_queryset().filter(user__isnull=True)
 
-        queryset = queryset.order_by('-updated')[:160]
+        queryset = queryset.filter(deleted_on__isnull=True).order_by('-updated')[:160]
 
         if self.request.GET.get('recent') == "True":
             queryset = super(EnquiryListView, self).get_queryset().order_by('-updated')[:100]
