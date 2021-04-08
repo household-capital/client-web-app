@@ -325,7 +325,9 @@ class Enquiry(AbstractAddressModel):
         return smart_text(self.email)
     
     def save(self, should_sync=False, *args, **kwargs):
-        if self.pk is None: 
+        is_create = self.pk is None
+
+        if is_create:
             # attempt sync on create
             should_sync = bool(
                 self.email and 
@@ -333,7 +335,23 @@ class Enquiry(AbstractAddressModel):
                 self.user and 
                 self.postcode
             )
-        super(Enquiry, self).save()
+
+        super(Enquiry, self).save(*args, **kwargs)
+        self.refresh_from_db()
+
+        if is_create and self.propensityCategory is None:
+            if self.referrer == directTypesEnum.PHONE.value:
+                self.propensityCategory = propensityCategoriesEnum.D.value
+
+            elif self.referrer == directTypesEnum.WEB_ENQUIRY.value:
+                self.propensityCategory = propensityCategoriesEnum.D.value
+
+            elif self.referrer == directTypesEnum.WEB_CALCULATOR.value:
+                self.propensityCategory = propensityCategoriesEnum.D.value
+
+            if self.propensityCategory is not None:
+                super(Enquiry, self).save()
+
         if should_sync:
             app.send_task('Update_SF_Lead', kwargs={'enqUID': str(self.enqUID)})
     class Meta:
