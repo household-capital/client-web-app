@@ -56,7 +56,7 @@ def createLoanSummary(caseUID):
         # SAVE TO DATABASE
 
         qsCase.update(summaryDocument=targetFileName)
-
+        app.send_task('Upload_Lead_Files', kwargs={'caseUID': caseUID})
         return "Loan Summary generated"
 
     except:
