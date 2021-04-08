@@ -308,7 +308,7 @@ class apiSalesforce():
                 "SELECT Id, Checksum, title FROM ContentVersion WHERE FirstPublishLocationId='{}'".format(recId)
             ).get('records', [])
             dup_file_exists = any(
-                _file['Checksum'] == md5_chksum
+                _file['Checksum'] == md5_chksum and _file['Title'] == file_name
                 for _file in existing_files_on_record
             )
             existing_file_id = next(
