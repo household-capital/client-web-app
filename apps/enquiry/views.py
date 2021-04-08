@@ -516,6 +516,7 @@ class SendEnquirySummary(HouseholdLoginRequiredMixin, UpdateView):
             enq_obj.summaryDocument = targetFileName
             enq_obj.enquiryStage = enquiryStagesEnum.SUMMARY_SENT.value
             enq_obj.save(update_fields=['summaryDocument', 'enquiryStage'])
+            app.send_task('Upload_Enquiry_Files', kwargs={'enqUID': enqUID})
 
         except:
             write_applog("ERROR", 'SendEnquirySummary', 'get',
@@ -601,6 +602,7 @@ class CreateEnquirySummary(HouseholdLoginRequiredMixin, UpdateView):
 
             enq_obj.summaryDocument = targetFileName
             enq_obj.save(update_fields=['summaryDocument'])
+            app.send_task('Upload_Enquiry_Files', kwargs={'enqUID': enqUID})
             messages.success(self.request, "Summary has been created")
 
         except:
