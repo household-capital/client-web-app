@@ -383,7 +383,7 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
 
         is_create = self.pk is None
         lead_obj_created = False
-        if is_create: 
+        if is_create:
             # attempt sync on create
             should_sync = bool(
                 (self.email or self.phoneNumber)  and  
@@ -394,11 +394,24 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
         super(Enquiry, self).save(*args, **kwargs)
         self.refresh_from_db()
 
-        if is_create and self.enquiryNotes:
-            note_user = self.user if (self.referrer == directTypesEnum.PHONE.value) else None
-            add_enquiry_note(self, self.enquiryNotes, user=note_user)
+        if is_create and self.propensityCategory is None:
+            if self.referrer == directTypesEnum.PHONE.value:
+                self.propensityCategory = propensityCategoriesEnum.D.value
 
-        # Case Wasnt passed in save kwarg / Or doesnt exist\
+            elif self.referrer == directTypesEnum.WEB_ENQUIRY.value:
+                self.propensityCategory = propensityCategoriesEnum.D.value
+
+            elif self.referrer == directTypesEnum.WEB_CALCULATOR.value:
+                self.propensityCategory = propensityCategoriesEnum.D.value
+
+            if self.propensityCategory is not None:
+                super(Enquiry, self).save()
+
+            if is_create and self.enquiryNotes:
+                note_user = self.user if (self.referrer == directTypesEnum.PHONE.value) else None
+                add_enquiry_note(self, self.enquiryNotes, user=note_user)
+
+        # Case Wasnt passed in save kwarg / Or doesnt exist
         if not self.case_id: 
             existing_case = get_existing_case(self.phoneNumber, self.email)
             if existing_case is not None: 
