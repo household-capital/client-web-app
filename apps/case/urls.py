@@ -23,6 +23,7 @@ urlpatterns = [
     path('caseAssign/<uuid:uid>', views.CaseAssignView.as_view(), name='caseAssign'),
     path('caseData/<uuid:uid>',views.CaseDataExtract.as_view(),name='caseData'),
     path('caseRefer/<uuid:uid>', views.CaseReferView.as_view(), name='caseReview'),
+    path('notes/<uuid:uid>', views.CaseNotesView.as_view(), name='caseNotes'),
 
     path('cloudBridge/<uuid:uid>', views.CloudbridgeView.as_view(), name='cloudBridge'),
 

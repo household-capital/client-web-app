@@ -18,6 +18,7 @@ urlpatterns = [
     path('enquiryDelete/<uuid:uid>', views.EnquiryDeleteView.as_view(), name='enqDelete'),
     path('enquiryPartnerUpload', views.EnquiryPartnerUpload.as_view(), name='enqPartnerUpload'),
     path('enquiryPartnerList', views.EnquiryPartnerList.as_view(), name='enqPartnerList'),
+    path('notes/<uuid:uid>', views.EnquiryNotesView.as_view(), name='enquiryNotes'),
 
     # Ajax Views
     path('addressComplete', views.AddressComplete.as_view(), name='addressComplete'),

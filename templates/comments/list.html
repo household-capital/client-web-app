@@ -10,7 +10,7 @@
                 {{ form.object_pk }}
                 {{ form.timestamp }}
                 {{ form.security_hash }}
-                <input type="hidden" name="next" value="{{ obj.get_absolute_url }}" />
+                <input type="hidden" name="next" value="{{ request.get_full_path }}" />
 
             <div class="card-header pt-1" style="vertical-align: middle">
                 {{ comment.submit_date }} - {{ comment.name }}

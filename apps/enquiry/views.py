@@ -1066,3 +1066,17 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
 
         return HttpResponseRedirect(self.request.path_info)
 
+
+class EnquiryNotesView(HouseholdLoginRequiredMixin, TemplateView):
+    template_name = "site/comments.html"
+
+    def get_object(self):
+        enqUID = str(self.kwargs['uid'])
+        queryset = Enquiry.objects.queryset_byUID(str(enqUID))
+        obj = queryset.get()
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(EnquiryNotesView, self).get_context_data(**kwargs)
+        context['obj'] = self.get_object()
+        return context
