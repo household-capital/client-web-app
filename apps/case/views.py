@@ -98,8 +98,8 @@ class CaseListView(HouseholdLoginRequiredMixin, ListView):
             queryset = queryset.filter(
                 Q(caseDescription__icontains=search) |
                 Q(adviser__icontains=search) |
-                Q(email__icontains=search) |
-                Q(phoneNumber__icontains=search) |
+                Q(email_1__icontains=search) |
+                Q(phoneNumber_1__icontains=search) |
                 Q(owner__last_name__icontains=search) |
                 Q(street__icontains=search) |
                 Q(postcode__icontains=search) |
@@ -300,8 +300,8 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
         if not obj.pensionAmount:
             obj.pensionAmount = 0
 
-        if obj.phoneNumber:
-            obj.phoneNumber = cleanPhoneNumber(form.cleaned_data['phoneNumber'])
+        if obj.phoneNumber_1:
+            obj.phoneNumber_1 = cleanPhoneNumber(form.cleaned_data['phoneNumber_1'])
 
         # Update age if birthdate present and owner
         if obj.birthdate_1 != None:
@@ -436,8 +436,8 @@ class CaseCreateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Create
         if obj.birthdate_2 != None:
             obj.age_2 = datetime.date.today().year - obj.birthdate_2.year
 
-        if obj.phoneNumber:
-            obj.phoneNumber = cleanPhoneNumber(form.cleaned_data['phoneNumber'])
+        if obj.phoneNumber_1:
+            obj.phoneNumber_1 = cleanPhoneNumber(form.cleaned_data['phoneNumber_1'])
 
         # Set fields manually
         obj.caseStage = caseStagesEnum.UNQUALIFIED_CREATED.value

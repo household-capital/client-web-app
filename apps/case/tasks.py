@@ -485,18 +485,14 @@ SF_LEAD_CASE_MAPPING = {
     'suburb': 'Suburb__c',
     'postcode': 'PostCode__c',
 
-    # Contact
-    'firstname': 'Firstname',
-    'lastname': 'Lastname',
-    'phoneNumber': 'Phone',
-    'email': 'Email',
-
     # Borrower 1
     'age_1': 'Age_of_1st_Applicant__c',
     'firstname_1': 'Borrower_1_First_Name__c',
     'middlename_1': 'Borrower_1_Middle_Name__c',
     'surname_1': 'Borrower_1_Last_Name__c',
     'preferredName_1': 'Borrower_1_Preferred_Name__c',
+    'phoneNumber_1': 'Phone',
+    'email_1': 'Email',
 
     # Borrower 2
     'age_2': 'Age_of_2nd_Applicant__c',
@@ -668,6 +664,12 @@ def __buildLeadCasePayload(case):
 
     # Ensure name fields populated
 
+    if not payload['Borrower_1_Last_Name__c']:
+        payload['Borrower_1_Last_Name__c'] = "Unknown"
+
+    # Contact  - DEPRECATED! Just syncing because otherwise SF seems to vomit :(
+    payload['Firstname'] = caseDict['firstname_1']
+    payload['Lastname'] = caseDict['surname_1']
     if not payload['Lastname']:
         payload['Lastname'] = "Unknown"
 
@@ -704,9 +706,7 @@ def __buildLeadCasePayload(case):
 
     payload['Reason_for_Parking_Lead__c'] = case.lossdata.enumCloseReason()
 
-
     payload['DoNotMarket__c'] = case.doNotMarket
-    
 
     payload['Sales_Channel__c'] = case.enumChannelType()
 

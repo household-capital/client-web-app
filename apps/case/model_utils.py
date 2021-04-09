@@ -14,11 +14,11 @@ from apps.lib.site_Enums import (
 def get_existing_case(phoneNumber, email):
     query = Q() 
     if email and phoneNumber:
-        query = (Q(email__iexact=email) | Q(phoneNumber=phoneNumber))
+        query = (Q(email_1__iexact=email) | Q(phoneNumber_1=phoneNumber))
     elif email:
-        query = Q(email__iexact=email)
+        query = Q(email_1__iexact=email)
     elif phoneNumber:
-        query = Q(phoneNumber=phoneNumber)
+        query = Q(phoneNumber_1=phoneNumber)
     if query:
         query = query & Q(deleted_on__isnull=True)
         return Case.objects.filter(
@@ -29,8 +29,6 @@ def get_existing_case(phoneNumber, email):
 
 def create_case_from_enquiry(enquiry, attach_to_case=True): 
     copyFields = [
-        'firstname',
-        'lastname',
         'loanType', 
         'age_1', 
         'age_2', 
@@ -38,9 +36,7 @@ def create_case_from_enquiry(enquiry, attach_to_case=True):
         'valuation', 
         'postcode', 
         'suburb', 
-        'state', 
-        'email',
-        'phoneNumber', 
+        'state',
         'mortgageDebt',
         'sfLeadID', 
         'productType', 
@@ -55,7 +51,11 @@ def create_case_from_enquiry(enquiry, attach_to_case=True):
     map_fields = {
         'streetAddress': 'street',
         'timestamp': 'enquiryCreateDate',
-        'marketingSource': 'channelDetail'
+        'marketingSource': 'channelDetail',
+        'firstname': 'firstname_1',
+        'lastname': 'surname_1',
+        'email': 'email_1',
+        'phoneNumber': 'phoneNumber_1',
     }
 
     salesChannelMap = {

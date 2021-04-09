@@ -67,11 +67,11 @@ class CaseManager(models.Manager):
 
     def find_duplicates_QS(self, email, phoneNumber):
         if email and phoneNumber:
-            query = (Q(email__iexact=email) | Q(phoneNumber=phoneNumber))
+            query = (Q(email_1__iexact=email) | Q(phoneNumber_1=phoneNumber))
         elif email:
-            query = Q(email__iexact=email)
+            query = Q(email_1__iexact=email)
         elif phoneNumber:
-            query = Q(phoneNumber=phoneNumber)
+            query = Q(phoneNumber_1=phoneNumber)
         else:
             raise Exception('email or phone must be present')
         query = Q(deleted_on__isnull=True) & (query)
@@ -240,42 +240,40 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
 
     # Customer Data
     caseNotes = models.TextField(blank=True, null=True) # Deprecated
-    phoneNumber=models.CharField(max_length=20, null=True, blank=True)
-    email = models.EmailField(null=True, blank=True)
-    loanType=models.IntegerField(choices=loanTypes,null=True, blank=True)
-    firstname = models.CharField(max_length=40, blank=True, null=True)
-    lastname = models.CharField(max_length=80, blank=True, null=True)
+    loanType = models.IntegerField(choices=loanTypes,null=True, blank=True)
 
     #- Borrower 1
-    clientType1=models.IntegerField(choices=clientTypes,null=True, blank=True)
+    clientType1 = models.IntegerField(choices=clientTypes,null=True, blank=True)
     salutation_1 = models.IntegerField(choices=salutationTypes,null=True, blank=True)
     middlename_1 = models.CharField(max_length=40, null=True, blank=True)
     maritalStatus_1 = models.IntegerField(choices=maritalTypes,null=True, blank=True)
-    surname_1=models.CharField(max_length=80, null=True, blank=True)
-    firstname_1=models.CharField(max_length=40, null=True, blank=True)
-    preferredName_1=models.CharField(max_length=40, null=True, blank=True)
-    birthdate_1=models.DateField(null=True, blank=True)
-    age_1=models.IntegerField(null=True, blank=True)
-    sex_1=models.IntegerField(choices=clientSex,null=True, blank=True)
+    surname_1 = models.CharField(max_length=80, null=True, blank=True)
+    firstname_1 = models.CharField(max_length=40, null=True, blank=True)
+    preferredName_1 = models.CharField(max_length=40, null=True, blank=True)
+    birthdate_1 = models.DateField(null=True, blank=True)
+    age_1 = models.IntegerField(null=True, blank=True)
+    sex_1 = models.IntegerField(choices=clientSex,null=True, blank=True)
+    phoneNumber_1 = models.CharField(max_length=20, null=True, blank=True)
+    email_1 = models.EmailField(null=True, blank=True)
 
     #- Borrower 2
     clientType2 = models.IntegerField(choices=clientTypes, null=True, blank=True)
     salutation_2 = models.IntegerField(choices=salutationTypes,null=True, blank=True)
     middlename_2 = models.CharField(max_length=40, null=True, blank=True)
     maritalStatus_2 = models.IntegerField(choices=maritalTypes,null=True, blank=True)
-    surname_2=models.CharField(max_length=80, null=True, blank=True)
-    firstname_2=models.CharField(max_length=40, null=True, blank=True)
-    preferredName_2=models.CharField(max_length=40, null=True, blank=True)
-    birthdate_2=models.DateField(null=True, blank=True)
-    age_2=models.IntegerField(null=True, blank=True)
-    sex_2=models.IntegerField(choices=clientSex,null=True, blank=True)
+    surname_2 = models.CharField(max_length=80, null=True, blank=True)
+    firstname_2 = models.CharField(max_length=40, null=True, blank=True)
+    preferredName_2 = models.CharField(max_length=40, null=True, blank=True)
+    birthdate_2 = models.DateField(null=True, blank=True)
+    age_2 = models.IntegerField(null=True, blank=True)
+    sex_2 = models.IntegerField(choices=clientSex,null=True, blank=True)
 
     #- Additional Data
-    superFund=models.ForeignKey(FundDetail,null=True, blank=True, on_delete=models.SET_NULL)
-    superAmount=models.IntegerField(null=True, blank=True)
+    superFund = models.ForeignKey(FundDetail,null=True, blank=True, on_delete=models.SET_NULL)
+    superAmount = models.IntegerField(null=True, blank=True)
     investmentLabel = models.IntegerField(choices=investmentTypes,default=0)
-    pensionType=models.IntegerField(choices=pensionTypes,default=2) # deprecated
-    pensionAmount=models.IntegerField(default=0)
+    pensionType = models.IntegerField(choices=pensionTypes,default=2) # deprecated
+    pensionAmount = models.IntegerField(default=0)
     mortgageDebt = models.IntegerField(null=True, blank=True)
 
     # Property Data
@@ -313,9 +311,9 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
     #Third Party Identifiers / Workflow
     sfLeadID = models.CharField(max_length=20, null=True, blank=True)
     sfOpportunityID = models.CharField(max_length=20, null=True, blank=True)
-    sfLoanID=models.CharField(max_length=20, null=True, blank=True)
-    amalIdentifier=models.CharField(max_length=40, null=True, blank=True)
-    amalLoanID=models.CharField(max_length=40, null=True, blank=True)
+    sfLoanID = models.CharField(max_length=20, null=True, blank=True)
+    amalIdentifier = models.CharField(max_length=40, null=True, blank=True)
+    amalLoanID = models.CharField(max_length=40, null=True, blank=True)
 
     enquiryCreateDate = models.DateTimeField(null=True, blank=True)
     enqUID = models.UUIDField(null=True, blank=True)
@@ -441,6 +439,14 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
         for comment in Comment.objects.for_model(self):
             summary += '\r\n' + comment.comment
         return summary
+
+    @property
+    def email(self):
+        return self.email_1
+
+    @property
+    def phoneNumber(self):
+        return self.phoneNumber_1
     
     def save(self, should_sync=False, *args, **kwargs):
         is_create = self.pk is None

@@ -189,126 +189,176 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
                 css_class='col-lg-12'
             ),
 
+
             Div(
-                Div(HTML("<br>")),
+                Div(
+                    Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Contact Details")),
+                    css_class='col-lg-12'
+                ),
+                Div(
+                    Div(
+                        Div(HTML("First Name"), css_class='form-label'),
+                        Div(Field('firstname'))
+                    ),
+                    Div(
+                        Div(HTML("Last Name"), css_class='form-label'),
+                        Div(Field('lastname'))
+                    ),
+                    css_class="col-lg-6"
+                ),
+                Div(
+                    Div(
+                        Div(HTML("Phone Number"), css_class='form-label'),
+                        Div(Field('phoneNumber'))
+                    ),
+                    Div(
+                        Div(HTML("Email"), css_class='form-label'),
+                        Div(Field('email'))
+                    ),
+                    css_class="col-lg-6"
+                ),
+                css_class="row"
+            ),
 
-                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Contact Details"), css_class='form-header'),
-                Div(
-                    Div(HTML("First Name"), css_class='form-label'),
-                    Div(Field('firstname'))
-                ),
-                Div(
-                    Div(HTML("Last Name"), css_class='form-label'),
-                    Div(Field('lastname'))
-                ),
-                Div(
-                    Div(HTML("Phone Number"), css_class='form-label'),
-                    Div(Field('phoneNumber'))
-                ),
-                Div(
-                    Div(HTML("Email"), css_class='form-label'),
-                    Div(Field('email'))
-                ),
-
-
-                Div(HTML("<br>")),
-                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Enquiry Source"), css_class='form-header'),
-                Div(
-                    Div(HTML("Lead Source"), css_class='form-label'),
-                    Div(Field('referrer'))
-                ),
-                Div(
-                    Div(HTML("Marketing Source"), css_class='form-label'),
-                    Div(Field('marketingSource'))
-                ),
-                Div(
-                    Div(HTML("Marketing Campaign"), css_class='form-label'),
-                    Div(Field('marketing_campaign')),
-                ),
-
-                HTML('<div class="jumbotron">'),
-                Div(
-                    Div(HTML("Submission Origin"), css_class='form-label'),
-                    Div(HTML("{{ obj.submissionOrigin }}"), css_class='pl-2'),
-                ),
-                Div(
-                    Div(HTML("Origin Timestamp"), css_class='form-label'),
-                    Div(HTML("{% if obj.origin_timestamp %}{{ obj.origin_timestamp|date }} - {{ obj.origin_timestamp|time }}{% else %}None{% endif %}"), css_class='pl-2'),
-                    css_class='pt-2'
-                ),
-                Div(
-                    Div(HTML("Origin ID"), css_class='form-label'),
-                    Div(HTML("{{ obj.origin_id }}"), css_class='pl-2'),
-                    css_class='pt-2'
-                ),
-                HTML('</div>'),
-
-                css_class='col-lg-6'),
+            HTML("<hr/>"),
             Div(
-                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Borrower(s)"), css_class='form-header pt-2'),
                 Div(
-                    Div(HTML("Single or Joint Borrowers"), css_class='form-label'),
-                    Div(Field('loanType'))),
+                    Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Borrower(s)")),
+                    css_class='col-lg-12'
+                ),
                 Div(
-                    Div(HTML("Age Borrower 1"), css_class='form-label'),
-                    Div(Field('age_1'))),
+                    Div(
+                        Div(HTML("Single or Joint Borrowers"), css_class='form-label'),
+                        Div(Field('loanType'))),
+                    css_class="col-lg-6"
+                ),
                 Div(
-                    Div(HTML("Age Borrower 2"), css_class='form-label'),
-                    Div(Field('age_2'))),
+                    Div(
+                        Div(HTML("Age Borrower 1"), css_class='form-label'),
+                        Div(Field('age_1'))),
+                    Div(
+                        Div(HTML("Age Borrower 2"), css_class='form-label'),
+                        Div(Field('age_2'))),
+                    css_class="col-lg-6"
+                ),
+                css_class="row"
+            ),
 
-                Div(HTML("<br>")),
-
-                Row(
-                    Column(Div(HTML("<i class='fas fa-home'> </i>&nbsp;&nbsp;Property")), css_class='col-6'),
-                    Column(Div(Div(HTML(
-                        "<button id='lookup_dialogue' type='button' class='btn btn-sm btn-light'><i class='fas fa-search'></i> Find</button> ")),
-                        css_class='text-right'), css_class='col-6')),
-                Div(Div(HTML("Dwelling Type*"), css_class='form-label'),
-                    Div(Field('dwellingType'))),
-                Div(Div(HTML("Street Address"), css_class='form-label'),
-                    Div(Field('streetAddress', readonly=True))),
-                Div(Div(HTML("Unit / Apartment / Lot"), css_class='form-label'),
-                    Div(Field('base_specificity', readonly=True))),
-                Div(Div(HTML("Street Number"), css_class='form-label'),
-                    Div(Field('street_number', readonly=True))),
-                Div(Div(HTML("Street Name"), css_class='form-label'),
-                    Div(Field('street_name', readonly=True))),
-                Div(Div(HTML("Street Type e.g Avenue, Lane, etc"), css_class='form-label'),
-                    Div(Field('street_type', readonly=True))),
-                Div(Div(Field('gnaf_id'))),
-                Div(Div(HTML("Suburb"), css_class='form-label'),
-                    Div(Field('suburb'))),
-                Row(
-                    Column(Div(Div(HTML("State"), css_class='form-label'),
-                               Div(Field('state'))), css_class='col-6'),
-                    Column(Div(Div(HTML("Postcode*"), css_class='form-label'),
-                               Div(Field('postcode'))), css_class='col-6')),
-
-                Div(Div(HTML("Valuation*"), css_class='form-label'),
-                    Div(Field('valuation'))),
-
-                Div(Div(HTML("Existing Mortgage Debt"), css_class='form-label'),
-                    Div(Field('mortgageDebt'))),
-
-                Div(HTML("<br>")),
-
-                Div(HTML(
-                    "<i class='fas fa-search-dollar'></i>&nbsp;&nbsp;Requirements <span>&nbsp;<button type='button' class='btn btn-sm infoBtn' data-toggle='modal' data-target='#productModal'><i class='fas fa-info'></i></button></span></p>"),
-                    css_class='form-header'),
+            HTML("<hr/>"),
+            Div(
                 Div(
-                    Div(HTML("Funding Amount (lump sum)"), css_class='form-label'),
-                    Div(Field('calcLumpSum'))),
+                    Div(HTML("<i class='fas fa-search-dollar'></i>&nbsp;&nbsp;Requirements <span>&nbsp;<button type='button' class='btn btn-sm infoBtn' data-toggle='modal' data-target='#productModal'><i class='fas fa-info'></i></button></span></p>")),
+                    css_class='col-lg-12'
+                ),
                 Div(
-                    Div(HTML("Funding Amount ($ per month)"), css_class='form-label'),
-                    Div(Field('calcIncome'))),
+                    Div(
+                        Div(HTML("Product Type"), css_class='form-label'),
+                        Div(Field('productType'))),
+                    css_class="col-lg-6"
+                ),
                 Div(
-                    Div(HTML("Product Type"), css_class='form-label'),
-                    Div(Field('productType'))),
-                Div(css_class="row"),
+                    Div(
+                        Div(HTML("Funding Amount (lump sum)"), css_class='form-label'),
+                        Div(Field('calcLumpSum'))),
+                    Div(
+                        Div(HTML("Funding Amount ($ per month)"), css_class='form-label'),
+                        Div(Field('calcIncome'))),
+                    css_class="col-lg-6"
+                ),
+                css_class="row"
+            ),
 
-                css_class='col-lg-6'),
+            HTML("<hr/>"),
+            Div(
+                Div(
+                    Div(HTML("<i class='fas fa-home'> </i>&nbsp;&nbsp;Property")),
+                    css_class='col-lg-12'
+                ),
+                Div(
+                    Row(
+                        Column(Div(), css_class='col-6'),
+                        Column(
+                            Div(
+                                Div(HTML("<button id='lookup_dialogue' type='button' class='btn btn-sm btn-light'><i class='fas fa-search'></i> Find</button> ")),
+                                css_class='text-right'
+                            ),
+                            css_class='col-6'
+                        )
+                    ),
+                    Div(Div(HTML("Dwelling Type*"), css_class='form-label'),
+                        Div(Field('dwellingType'))),
+                    Div(Div(HTML("Street Address"), css_class='form-label'),
+                        Div(Field('streetAddress', readonly=True))),
+                    Div(Div(HTML("Unit / Apartment / Lot"), css_class='form-label'),
+                        Div(Field('base_specificity', readonly=True))),
+                    Div(Div(HTML("Street Number"), css_class='form-label'),
+                        Div(Field('street_number', readonly=True))),
+                    Div(Div(HTML("Street Name"), css_class='form-label'),
+                        Div(Field('street_name', readonly=True))),
+                    Div(Div(HTML("Street Type e.g Avenue, Lane, etc"), css_class='form-label'),
+                        Div(Field('street_type', readonly=True))),
+                    Div(Div(Field('gnaf_id'))),
+                    Div(Div(HTML("Suburb"), css_class='form-label'),
+                        Div(Field('suburb'))),
+                    Row(
+                        Column(Div(Div(HTML("State"), css_class='form-label'),
+                                   Div(Field('state'))), css_class='col-6'),
+                        Column(Div(Div(HTML("Postcode*"), css_class='form-label'),
+                                   Div(Field('postcode'))), css_class='col-6')),
+                    css_class="col-lg-6"
+                ),
+                Div(
+                    Div(Div(HTML("Valuation*"), css_class='form-label'),
+                        Div(Field('valuation'))),
+                    Div(Div(HTML("Existing Mortgage Debt"), css_class='form-label'),
+                        Div(Field('mortgageDebt'))),
+                    css_class="col-lg-6"
+                ),
+                css_class="row pt-3"
+            ),
 
-            css_class="row ")
+
+            HTML("<hr/>"),
+            Div(
+                Div(
+                    Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Enquiry Source")),
+                    css_class='col-lg-12'
+                ),
+                Div(
+                    Div(
+                        Div(HTML("Lead Source"), css_class='form-label'),
+                        Div(Field('referrer'))
+                    ),
+                    Div(
+                        Div(HTML("Marketing Source"), css_class='form-label'),
+                        Div(Field('marketingSource'))
+                    ),
+                    Div(
+                        Div(HTML("Marketing Campaign"), css_class='form-label'),
+                        Div(Field('marketing_campaign')),
+                    ),
+                    css_class="col-lg-6"
+                ),
+                Div(
+                    Div(
+                        Div(HTML("Submission Origin"), css_class='form-label'),
+                        Div(HTML("{{ obj.submissionOrigin }}"), css_class='pl-2'),
+                    ),
+                    Div(
+                        Div(HTML("Origin Timestamp"), css_class='form-label'),
+                        Div(HTML("{% if obj.origin_timestamp %}{{ obj.origin_timestamp|date }} - {{ obj.origin_timestamp|time }}{% else %}None{% endif %}"), css_class='pl-2'),
+                        css_class='pt-2'
+                    ),
+                    Div(
+                        Div(HTML("Origin ID"), css_class='form-label'),
+                        Div(HTML("{{ obj.origin_id }}"), css_class='pl-2'),
+                        css_class='pt-2'
+                    ),
+                    css_class="col-lg-6 jumbotron"
+                ),
+                css_class="row"
+            ),
+        )
     )
 
     def clean(self):
