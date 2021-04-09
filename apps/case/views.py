@@ -122,7 +122,7 @@ class CaseListView(HouseholdLoginRequiredMixin, ListView):
 
         elif self.request.GET.get('filter') == "Meet":
             queryset = queryset.filter(
-                Q(caseStage=caseStagesEnum.CONVERTED.value))
+                Q(caseStage=caseStagesEnum.MEETING_HELD.value))
 
         elif self.request.GET.get('filter') == "Me":
             queryset = queryset.filter(owner=self.request.user)
@@ -367,7 +367,7 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
         return super(CaseDetailView, self).form_valid(form)
 
     def salesforceSynch(self, caseObj):
-        if caseObj.caseStage == caseStagesEnum.CONVERTED.value and caseObj.sfOpportunityID is None:
+        if caseObj.caseStage == caseStagesEnum.MEETING_HELD.value and caseObj.sfOpportunityID is None:
             # Background task to update SF and synch
             app.send_task('SF_Lead_Convert', kwargs={'caseUID': str(caseObj.caseUID)})
 

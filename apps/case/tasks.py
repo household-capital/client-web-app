@@ -241,7 +241,7 @@ def stageSynch():
     '''Reverse synch SF -> clientApp'''
 
     stageMapping = {
-        "Converted": caseStagesEnum.CONVERTED.value,
+        "Meeting Held": caseStagesEnum.MEETING_HELD.value,
         "Application Sent": caseStagesEnum.APPLICATION.value,
         "Approval": caseStagesEnum.APPLICATION.value,
         "Assess": caseStagesEnum.APPLICATION.value,
@@ -710,7 +710,10 @@ def __buildLeadCasePayload(case):
 
     payload['Sales_Channel__c'] = case.enumChannelType()
 
+    # TODO: Status is for Kanban, Status__c is seperate for dropdown
     payload['Status__c'] = case.enumCaseStage()
+    payload['Status'] = case.enumCaseStage()
+
     # TODO: Uncomment this later 
 
     payload['Loan_Type__c'] = case.enumLoanType()

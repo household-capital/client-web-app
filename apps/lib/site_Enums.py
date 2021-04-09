@@ -20,7 +20,6 @@ class caseStagesEnum(Enum):
     DISCOVERY=0
     PRE_MEETING= 1
     MEETING_HELD= 2
-    CONVERTED = 2
     CLOSED=3
     APPLICATION=4
     DOCUMENTATION=5
@@ -32,6 +31,13 @@ class caseStagesEnum(Enum):
     SQ_BROCHURE_SENT = 10
     SQ_CUSTOMER_SUMMARY_SENT = 11 
     SQ_FUTURE_CALL = 12 
+
+    SQ_NO_ANSWER = 14 
+    SQ_VOICEMAIL = 15 
+    SQ_EMAIL_SENT = 16
+
+    MEETING_BOOKED = 17
+
     SALES_ACTIVE = 13
 
 PRE_MEETING_STAGES = [
@@ -42,11 +48,16 @@ PRE_MEETING_STAGES = [
     'SQ_CUSTOMER_SUMMARY_SENT',
     'SQ_FUTURE_CALL', 
     'SALES_ACTIVE',
+
+    'SQ_NO_ANSWER',
+    'SQ_VOICEMAIL',
+    'SQ_EMAIL_SENT',
+    'MEETING_BOOKED',
     
     'DISCOVERY',
 ]
 
-EDITABLE_STAGES = PRE_MEETING_STAGES + ['CONVERTED', 'APPLICATION', 'CLOSED']
+EDITABLE_STAGES = PRE_MEETING_STAGES + ['MEETING_HELD', 'APPLICATION', 'CLOSED']
 
 
 # Unqualified / Lead created (automatic state when a lead is created through any channel)
