@@ -24,7 +24,7 @@ class EnquiryForm(AddressFormMixin, forms.ModelForm):
         fields = ['loanType', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
                   'streetAddress', 'suburb', 'state', 'mortgageDebt',
                   'referrer', 'email', 'phoneNumber',
-                  'marketingSource', 'propensityCategory', 'marketing_campaign',
+                  'marketingSource', 'marketing_campaign',
                   'firstname', 'lastname',
                 ] + address_model_fields
 
@@ -54,9 +54,6 @@ class EnquiryForm(AddressFormMixin, forms.ModelForm):
                 Div(
                     Div(HTML("Client Email"), css_class='form-label'),
                     Div(Field('email'))),
-                Div(
-                    Div(HTML("Propensity Score"), css_class='form-label'),
-                    Div(Field('propensityCategory'))),
                 Div(
                     Div(HTML("Marketing Campaign"), css_class='form-label'),
                     Div(Field('marketing_campaign'))),
@@ -165,7 +162,7 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
             'loanType', 'age_1', 'age_2', 'dwellingType', 'valuation', 'postcode',
             'streetAddress', 'suburb', 'state', 'mortgageDebt',
             'email', 'phoneNumber', 'calcLumpSum', 'calcIncome',
-            'productType', 'enquiryStage', 'valuationDocument', 'propensityCategory',
+            'productType', 'enquiryStage', 'valuationDocument',
             'referrer', 'marketing_campaign', 'marketingSource',
             'firstname', 'lastname',
         ] + address_model_fields
@@ -193,13 +190,6 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
             ),
 
             Div(
-                Div(
-                    Div(
-                        Div(HTML("Propensity Score"), css_class='form-label'),
-                        Div(Field('propensityCategory')),
-                    )
-                ),
-
                 Div(HTML("<br>")),
 
                 Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Contact Details"), css_class='form-header'),

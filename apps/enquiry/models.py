@@ -221,7 +221,7 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
     # Client Data
     email=models.EmailField(blank=True, null=True)
     phoneNumber = models.CharField(max_length=15, blank=True, null=True)
-    # Deprecated field - just used for form collection now
+    # Deprecated field - just used for form collection now (phone enquiry) before being passed on to the real notes system
     enquiryNotes = models.TextField(null=True, blank=True) # deprecated
 
     # Enquiry Inputs
@@ -293,6 +293,8 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
     lossNotes=models.TextField(blank=True, null=True)  # deprecated
 
     # Scoring
+    # THIS IS ACTUALLY A LEAD LEVEL FIELD, WE HAVE THIS HERE PURELY TO HELP CAPTURE IT FROM THE
+    # PHONE ENQUIRY FORM AND PASS THROUGH TO THE LEAD IN OUR SAVE BELOW.
     propensityCategory = models.IntegerField(choices=propensityChoices, blank=True, null=True)
     
     marketing_campaign = models.ForeignKey(MarketingCampaign, null=True, blank=True, on_delete=models.SET_NULL)
@@ -357,10 +359,6 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
     def enumEnquiryStage(self):
         if self.enquiryStage is not None:
             return dict(self.enquiryStageTypes)[self.enquiryStage]
-
-    def enumPropensityCategory(self):
-        if self.propensityCategory is not None:
-            return dict(propensityChoices)[self.propensityCategory]
 
     def has_duplicate(self):
         if self.email and (Enquiry.objects.filter(email=self.email, deleted_on__isnull=True).count() > 1):
