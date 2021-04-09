@@ -55,8 +55,8 @@ def synchCalendly():
 
                 caseObj = Case.objects.filter(
                         Q(deleted_on__isnull=True) & (
-                            Q(email__iexact=obj.customerEmail, email__isnull=False) |
-                            Q(phoneNumber__iexact=obj.customerPhone, phoneNumber__isnull=False )
+                            Q(email_1__iexact=obj.customerEmail, email_1__isnull=False) |
+                            Q(phoneNumber_1__iexact=obj.customerPhone, phoneNumber_1__isnull=False )
                         )
                     )\
                     .order_by("-timestamp").first()

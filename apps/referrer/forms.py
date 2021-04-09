@@ -101,14 +101,18 @@ class CaseDetailsForm(forms.ModelForm):
 
     class Meta:
         model = Case
-        fields = ['caseDescription', 'adviser', 'caseNotes', 'loanType',
-                  'clientType1', 'surname_1', 'firstname_1', 'preferredName_1','birthdate_1', 'age_1', 'sex_1',
-                  'salutation_1','middlename_1','maritalStatus_1', 'referralRepNo',
-                  'clientType2', 'surname_2', 'firstname_2', 'preferredName_2','birthdate_2', 'age_2', 'sex_2',
-                  'salutation_2', 'middlename_2', 'maritalStatus_2',
-                  'street', 'suburb', 'postcode', 'valuation', 'dwellingType', 'mortgageDebt',
-                   'state',
-                   'phoneNumber', 'email']
+        fields = [
+            'caseDescription', 'adviser', 'caseNotes', 'loanType',
+
+            'clientType1', 'surname_1', 'firstname_1', 'preferredName_1','birthdate_1', 'age_1', 'sex_1',
+            'salutation_1','middlename_1', 'maritalStatus_1', 'phoneNumber_1', 'email_1',
+
+            'clientType2', 'surname_2', 'firstname_2', 'preferredName_2','birthdate_2', 'age_2', 'sex_2',
+            'salutation_2', 'middlename_2', 'maritalStatus_2',
+
+            'street', 'suburb', 'postcode', 'valuation',  'state', 'dwellingType', 'mortgageDebt',
+            'referralRepNo',
+        ]
         widgets = {
             'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
         }

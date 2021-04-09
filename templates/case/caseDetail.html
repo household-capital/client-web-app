@@ -70,7 +70,7 @@
                         <div class="col-lg-6 text-left">
                             <div class="alert alert-primary" role="alert">
                                 <p><i class="fas fa-info-circle"></i>&nbsp;&nbsp;
-                                    No Salesforce Enquiry
+                                    No Salesforce Lead
                                 </p>
                             </div>
                         </div>
@@ -267,182 +267,180 @@
 
                         <div class="col-lg-4 pt-4">
 
+                            <div class="row">
+                                <div class="col-lg-12">
+
+                                    <div class="jumbotron">
+
+                                        {% if obj.appType == appTypesEnum.VARIATION.value %}
+                                            <p class="badge badge-danger">
+                                                Variation</p>
+                                        {% endif %}
+
+                                        {% if obj.productType == productTypesEnum.INCOME.value %}
+                                            <p class="badge badge-info">
+                                                Income</p>
+
+                                        {% elif obj.productType == productTypesEnum.CONTINGENCY_20K.value %}
+                                            <p class="badge badge-info">
+                                                Contingency20K</p>
+
+                                        {% elif obj.productType == productTypesEnum.COMBINATION.value %}
+                                            <p class="badge badge-info">
+                                                Combination</p>
+                                        {% else %}
+                                            <p class="badge badge-dark">
+                                                Lump Sum</p>
+                                        {% endif %}
+
+                                        {% if isLowLVR %}
+                                            <p class="badge badge-warning">
+                                                Low LVR</p>
+                                        {% endif %}
+
+                                        <p class="small pt-2 pb-2">Create Date: {{ obj.timestamp | date:'d M y' }}</p>
 
 
-                                <div class="row">
-                                    <div class="col-lg-12">
+                                        <p class="small pt-4 pb-2"><i class="fas fa-users-cog fa-fw"></i>&nbsp;
+                                            Validation</p>
 
-                                        <div class="jumbotron">
 
-                                            {% if obj.appType == appTypesEnum.VARIATION.value %}
-                                                <p class="badge badge-danger">
-                                                    Variation</p>
+                                        {% if status.status != 'Ok' %}
+                                            <p class="text-danger"><i
+                                                    class="far fa-times-circle fa-lg btn-outline-danger"></i>&nbsp;Ineligible
+                                            <p>
+                                            <p class="pl-4 text-danger small"> {{ status.responseText }}</p>
+                                            {% if status.responseText != "Invalid Postcode" %}
+                                                <p class="pl-4 small
+                                                        {% if status.data.postcode == "Valid" %}text-success
+                                                        {% elif status.data.postcode == "Invalid" %}text-danger
+                                                        {% elif status.data.postcode == "Refer" %}text-warning
+                                                        {% endif %}">{{ status.data.postcode }} postcode</p>
                                             {% endif %}
 
-                                            {% if obj.productType == productTypesEnum.INCOME.value %}
-                                                <p class="badge badge-info">
-                                                    Income</p>
+                                        {% elif status.errors %}
+                                            <p class="text-danger"><i
+                                                    class="far fa-times-circle fa-lg btn-outline-danger"></i>&nbsp;Validation
+                                                error - please re-open meeting
+                                            <p>
+                                        {% else %}
+                                            <p class="text-success"><i
+                                                    class="far fa-check-circle fa-lg btn-outline-success"></i>&nbsp;Eligible
+                                                Loan
+                                            </p>
 
-                                            {% elif obj.productType == productTypesEnum.CONTINGENCY_20K.value %}
-                                                <p class="badge badge-info">
-                                                    Contingency20K</p>
+                                        {% endif %}
 
-                                            {% elif obj.productType == productTypesEnum.COMBINATION.value %}
-                                                <p class="badge badge-info">
-                                                    Combination</p>
+                                        {% if obj.isReferPostcode %}
+                                            {% if obj.referPostcodeStatus == True %}
+                                                <p class="badge badge-success">Refer postcode approved</p>
+                                            {% elif obj.referPostcodeStatus == False %}
+                                                <p class="badge badge-danger">Refer postcode declined</p>
                                             {% else %}
-                                                <p class="badge badge-dark">
-                                                    Lump Sum</p>
+                                                <p class="badge badge-warning">Postcode review requested</p>
                                             {% endif %}
+                                            <br>
+                                        {% elif status.data.postcode == 'Refer' %}
+                                            <p class="text-warning"><i class="fas fa-fw fa-exclamation-triangle"></i>&nbsp;Refer
+                                                Postcode - get full address
+                                            </p>
+                                        {% endif %}
 
-                                            {% if isLowLVR %}
-                                                <p class="badge badge-warning">
-                                                    Low LVR</p>
-                                            {% endif %}
+                                        {% if status.status == 'Ok' %}
+                                            <p class="small pt-4"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
+                                            <p class="small">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
 
-                                            <p class="small pt-2 pb-2">Create Date: {{ obj.timestamp | date:'d M y' }}</p>
-
-
-                                            <p class="small pt-4 pb-2"><i class="fas fa-users-cog fa-fw"></i>&nbsp;
-                                                Validation</p>
-
-
-                                            {% if status.status != 'Ok' %}
-                                                <p class="text-danger"><i
-                                                        class="far fa-times-circle fa-lg btn-outline-danger"></i>&nbsp;Ineligible
-                                                <p>
-                                                <p class="pl-4 text-danger small"> {{ status.responseText }}</p>
-                                                {% if status.responseText != "Invalid Postcode" %}
-                                                    <p class="pl-4 small
-                                                            {% if status.data.postcode == "Valid" %}text-success
-                                                            {% elif status.data.postcode == "Invalid" %}text-danger
-                                                            {% elif status.data.postcode == "Refer" %}text-warning
-                                                            {% endif %}">{{ status.data.postcode }} postcode</p>
-                                                {% endif %}
-
-                                            {% elif status.errors %}
-                                                <p class="text-danger"><i
-                                                        class="far fa-times-circle fa-lg btn-outline-danger"></i>&nbsp;Validation
-                                                    error - please re-open meeting
-                                                <p>
-                                            {% else %}
-                                                <p class="text-success"><i
-                                                        class="far fa-check-circle fa-lg btn-outline-success"></i>&nbsp;Eligible
-                                                    Loan
-                                                </p>
-
-                                            {% endif %}
-
-                                            {% if obj.isReferPostcode %}
-                                                {% if obj.referPostcodeStatus == True %}
-                                                    <p class="badge badge-success">Refer postcode approved</p>
-                                                {% elif obj.referPostcodeStatus == False %}
-                                                    <p class="badge badge-danger">Refer postcode declined</p>
-                                                {% else %}
-                                                    <p class="badge badge-warning">Postcode review requested</p>
-                                                {% endif %}
-                                                <br>
-                                            {% elif status.data.postcode == 'Refer' %}
-                                                <p class="text-warning"><i class="fas fa-fw fa-exclamation-triangle"></i>&nbsp;Refer
-                                                    Postcode - get full address
+                                            <p class="small">Max Loan is: ${{ status.data.maxLoan|intcomma }} (incl establishment fee)</p>
+                                            {% if status.data.maxLoan > status.data.maxTopUp %}
+                                                <p class="small">
+                                                    Max for Super Top Up is: ${{ status.data.maxTopUp|intcomma }}
                                                 </p>
                                             {% endif %}
-
-                                            {% if status.status == 'Ok' %}
-                                                <p class="small pt-4"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
-                                                <p class="small">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
-
-                                                <p class="small">Max Loan is: ${{ status.data.maxLoan|intcomma }} (incl establishment fee)</p>
-                                                {% if status.data.maxLoan > status.data.maxTopUp %}
-                                                    <p class="small">
-                                                        Max for Super Top Up is: ${{ status.data.maxTopUp|intcomma }}
-                                                    </p>
-                                                {% endif %}
-                                                {% if status.data.maxLoan > status.data.maxCare %}
-                                                    <p class="small">
-                                                        Max for Age Care is: ${{ status.data.maxCare|intcomma }}
-                                                    </p>
-                                                {% endif %}
-                                                <p class="small">Max for Refinance is: ${{ status.data.maxRefi|intcomma }}</p>
-                                                {% if status.data.maxLoan > status.data.maxReno %}
-                                                    <p class="small">
-                                                        Max for Renovations is: ${{ status.data.maxReno|intcomma }}
-                                                    </p>
-                                                {% endif %}
-                                                <p class="small">Max for Giving is: ${{ status.data.maxGive|intcomma }}</p>
-                                                <p class="small">Max for Transport and Travel is: ${{ status.data.maxTravel|intcomma }}</p>
+                                            {% if status.data.maxLoan > status.data.maxCare %}
+                                                <p class="small">
+                                                    Max for Age Care is: ${{ status.data.maxCare|intcomma }}
+                                                </p>
                                             {% endif %}
-                                        </div>
+                                            <p class="small">Max for Refinance is: ${{ status.data.maxRefi|intcomma }}</p>
+                                            {% if status.data.maxLoan > status.data.maxReno %}
+                                                <p class="small">
+                                                    Max for Renovations is: ${{ status.data.maxReno|intcomma }}
+                                                </p>
+                                            {% endif %}
+                                            <p class="small">Max for Giving is: ${{ status.data.maxGive|intcomma }}</p>
+                                            <p class="small">Max for Transport and Travel is: ${{ status.data.maxTravel|intcomma }}</p>
+                                        {% endif %}
                                     </div>
                                 </div>
-                                <div class="jumbotron">
-                                    <p class="small"><i class='fa fa-camera fa-fw'></i>&nbsp;&nbsp;Images</p>
-                                    <div class="row pt-1">
-                                        <div class="col-lg-6">
-                                            {% if obj.propertyImage %}
-                                                <img class="img-fluid" src='{{ obj.propertyImage.url }}'>
-                                            {% endif %}&nbsp;&nbsp;
-                                        </div>
-                                        <div class="col-lg-6">
-                                            {% if obj.superFund %}
-                                                <img class="img-fluid" src='{{ obj.superFund.fundImage.url }}'>
-                                            {% endif %}
-                                        </div>
+                            </div>
+                            <div class="jumbotron">
+                                <p class="small"><i class='fa fa-camera fa-fw'></i>&nbsp;&nbsp;Images</p>
+                                <div class="row pt-1">
+                                    <div class="col-lg-6">
+                                        {% if obj.propertyImage %}
+                                            <img class="img-fluid" src='{{ obj.propertyImage.url }}'>
+                                        {% endif %}&nbsp;&nbsp;
+                                    </div>
+                                    <div class="col-lg-6">
+                                        {% if obj.superFund %}
+                                            <img class="img-fluid" src='{{ obj.superFund.fundImage.url }}'>
+                                        {% endif %}
                                     </div>
                                 </div>
+                            </div>
 
 
-                                <div class="jumbotron">
-                                    <p class="small pb-1"><i class="far fa-file-pdf"></i>&nbsp;&nbsp;Documents</p>
-                                    {% if obj.summaryDocument %}
-                                        <p><a href="{{ obj.summaryDocument.url }}">Loan
-                                            Summary</a>
-                                        </p>{% endif %}
-                                    {% if obj.applicationDocument %}
-                                        <p><a href="{{ obj.applicationDocument.url }}">Application
-                                            Summary</a></p>{% endif %}
-                                    {% if obj.responsibleDocument %}
-                                        <p><a href="{{ obj.responsibleDocument.url}}">Lead
-                                            Summary</a></p>{% endif %}
-                                    {% if obj.dataCSV %}
-                                        <p><a href="{{ obj.dataCSV.url}}">Document
-                                            Data File</a></p>{% endif %}
-                                    {% if obj.valuationDocument %}
-                                        <p><a href="{{ obj.valuationDocument.url }}">Auto
-                                            Val
-                                            Document </a></p>
-                                    {% endif %}
-                                    {% if obj.titleDocument %}
-                                        <p><a href="{{ obj.titleDocument.url }}">Title
-                                            Search </a></p>
-                                    {% endif %}
-                                    {% if obj.solicitorInstruction %}
-                                        <p><a href="{{ obj.solicitorInstruction.url }}">Solicitors
-                                            Instruction </a></p>
-                                    {% endif %}
-                                    {% if obj.valuerInstruction %}
-                                        <p><a href="{{ obj.valuerInstruction.url }}">Valuer
-                                            Instruction </a></p>
-                                    {% endif %}
-                                    {% if obj.lixiFile %}
-                                        <p><a href="{{ obj.lixiFile.url }}">Lixi File </a>
-                                        </p>
-                                    {% endif %}
-                                    <br>
-                                    {% if obj.appUID %}
-                                        <p class="small"><i class="fas fa-file-upload"></i>&nbsp;Documents Uploaded</p>
-                                        {% for doc in docList %}
-                                            <p><a href="{{ doc.document.url }}">
-                                                {{ doc.enumDocumentType }}</a></p>
-                                        {% endfor %}
-                                    {% endif %}
+                            <div class="jumbotron">
+                                <p class="small pb-1"><i class="far fa-file-pdf"></i>&nbsp;&nbsp;Documents</p>
+                                {% if obj.summaryDocument %}
+                                    <p><a href="{{ obj.summaryDocument.url }}">Loan
+                                        Summary</a>
+                                    </p>{% endif %}
+                                {% if obj.applicationDocument %}
+                                    <p><a href="{{ obj.applicationDocument.url }}">Application
+                                        Summary</a></p>{% endif %}
+                                {% if obj.responsibleDocument %}
+                                    <p><a href="{{ obj.responsibleDocument.url}}">Lead
+                                        Summary</a></p>{% endif %}
+                                {% if obj.dataCSV %}
+                                    <p><a href="{{ obj.dataCSV.url}}">Document
+                                        Data File</a></p>{% endif %}
+                                {% if obj.valuationDocument %}
+                                    <p><a href="{{ obj.valuationDocument.url }}">Auto
+                                        Val
+                                        Document </a></p>
+                                {% endif %}
+                                {% if obj.titleDocument %}
+                                    <p><a href="{{ obj.titleDocument.url }}">Title
+                                        Search </a></p>
+                                {% endif %}
+                                {% if obj.solicitorInstruction %}
+                                    <p><a href="{{ obj.solicitorInstruction.url }}">Solicitors
+                                        Instruction </a></p>
+                                {% endif %}
+                                {% if obj.valuerInstruction %}
+                                    <p><a href="{{ obj.valuerInstruction.url }}">Valuer
+                                        Instruction </a></p>
+                                {% endif %}
+                                {% if obj.lixiFile %}
+                                    <p><a href="{{ obj.lixiFile.url }}">Lixi File </a>
+                                    </p>
+                                {% endif %}
+                                <br>
+                                {% if obj.appUID %}
+                                    <p class="small"><i class="fas fa-file-upload"></i>&nbsp;Documents Uploaded</p>
+                                    {% for doc in docList %}
+                                        <p><a href="{{ doc.document.url }}">
+                                            {{ doc.enumDocumentType }}</a></p>
+                                    {% endfor %}
+                                {% endif %}
 
-                                    {% if obj.deleted_on %}
-                                        <hr/>
-                                        <p class="small"> <b>Deleted On:</b>&nbsp;&nbsp;{{ obj.deleted_on|date }}</p>
-                                    {% endif %}
+                                {% if obj.deleted_on %}
+                                    <hr/>
+                                    <p class="small"> <b>Deleted On:</b>&nbsp;&nbsp;{{ obj.deleted_on|date }}</p>
+                                {% endif %}
 
-                                </div>
+                            </div>
                             <br/>
                             <div class="row">
                                 <div class="col-lg-12">

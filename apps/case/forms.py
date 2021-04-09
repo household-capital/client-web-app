@@ -35,16 +35,22 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
     class Meta:
         model = Case
         fields = [
-            'caseDescription', 'adviser', 'referralCompany', 'loanType', 'caseStage',
+            'caseDescription', 'adviser', 'referralCompany', 'loanType', 'caseStage', 'productType', 'propensityCategory',
+
             'clientType1', 'surname_1', 'firstname_1', 'preferredName_1', 'birthdate_1', 'age_1', 'sex_1',
-            'salutation_1', 'middlename_1', 'maritalStatus_1',
+            'salutation_1', 'middlename_1', 'maritalStatus_1', 'phoneNumber_1', 'email_1',
+
             'clientType2', 'surname_2', 'firstname_2', 'preferredName_2', 'birthdate_2', 'age_2', 'sex_2',
             'salutation_2', 'middlename_2', 'maritalStatus_2',
+
             'street', 'suburb', 'postcode', 'valuation', 'dwellingType', 'propertyImage', 'mortgageDebt',
+
             'superFund', 'valuationDocument', 'state', 'investmentLabel',
-            'superAmount', 'pensionAmount', 'salesChannel', 'phoneNumber', 'email', 'productType', 'channelDetail',
-            'doNotMarket', 'propensityCategory', 'referrer', 'marketing_campaign',
-            'firstname', 'lastname',
+            'superAmount', 'pensionAmount',
+
+            'salesChannel', 'channelDetail', 'referrer', 'marketing_campaign',
+
+            'doNotMarket',
         ] + address_model_fields
 
         widgets = {}
@@ -119,37 +125,6 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
             HTML("<hr/>"),
             Div(
                 Div(
-                    HTML("<i class='far fa-address-card'></i>&nbsp;&nbsp;Contact Details"),
-                    css_class='form-header col-lg-12'
-                ),
-                Div(
-                    Div(
-                        Div(HTML("First Name"), css_class='form-label'),
-                        Div(Field('firstname'))
-                    ),
-                    Div(
-                        Div(HTML("Last Name"), css_class='form-label'),
-                        Div(Field('lastname'))
-                    ),
-                    css_class="col-lg-6"
-                ),
-                Div(
-                    Div(
-                        Div(HTML("Phone Number"), css_class='form-label'),
-                        Div(Field('phoneNumber'))
-                    ),
-                    Div(
-                        Div(HTML("Email"), css_class='form-label'),
-                        Div(Field('email'))
-                    ),
-                    css_class="col-lg-6"
-                ),
-                css_class="row pt-3"
-            ),
-
-            HTML("<hr/>"),
-            Div(
-                Div(
                     HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Borrower(s)"),
                     css_class='form-header col-lg-12'
                 ),
@@ -163,21 +138,14 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
             Div(
                 Div(
                     HTML("<i class='fas fa-user'></i>&nbsp;&nbsp;<small>Borrower 1</small>"),
-                    Row(
-                        Column(
-                            Div(
-                                Div(HTML("Birthdate*"), css_class='form-label'),
-                                Div(Field('birthdate_1'))
-                            ),
-                            css_class='col-6'
-                        ),
-                        Column(
-                            Div(
-                                Div(HTML("Age"), css_class='form-label'),
-                                Div(Field('age_1'))
-                            ),
-                            css_class='col-6'
-                        )
+
+                    Div(
+                        Div(HTML("Phone Number"), css_class='form-label'),
+                        Div(Field('phoneNumber_1'))
+                    ),
+                    Div(
+                        Div(HTML("Email"), css_class='form-label'),
+                        Div(Field('email_1'))
                     ),
                     Div(
                         Div(HTML("Firstname*"), css_class='form-label'),
@@ -204,6 +172,22 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                     Row(
                         Column(
                             Div(
+                                Div(HTML("Birthdate*"), css_class='form-label'),
+                                Div(Field('birthdate_1'))
+                            ),
+                            css_class='col-6'
+                        ),
+                        Column(
+                            Div(
+                                Div(HTML("Age"), css_class='form-label'),
+                                Div(Field('age_1'))
+                            ),
+                            css_class='col-6'
+                        )
+                    ),
+                    Row(
+                        Column(
+                            Div(
                                 Div(HTML("Title*"), css_class='form-label pt-1'),
                                 Div(Field('salutation_1'))),
                             css_class='col-6'
@@ -223,26 +207,11 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                         Div(HTML("Marital Status*"), css_class='form-label'),
                         Div(Field('maritalStatus_1'))
                     ),
+
                     css_class="col-lg-6"
                 ),
                 Div(
                     HTML("<i class='far fa-user'></i>&nbsp;&nbsp;<small>Borrower 2</small>"),
-                    Row(
-                        Column(
-                            Div(
-                                Div(HTML("Birthdate*"), css_class='form-label pt-1'),
-                                Div(Field('birthdate_2'))
-                            ),
-                            css_class='col-6'
-                        ),
-                        Column(
-                            Div(
-                                Div(HTML("Age"), css_class='form-label pt-1'),
-                                Div(Field('age_2'))
-                            ),
-                            css_class='col-6'
-                        )
-                    ),
                     Div(
                         Div(HTML("Firstname*"), css_class='form-label'),
                         Div(Field('firstname_2'))
@@ -266,6 +235,22 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                     Div(
                         Div(HTML("Surname*"), css_class='form-label'),
                         Div(Field('surname_2'))
+                    ),
+                    Row(
+                        Column(
+                            Div(
+                                Div(HTML("Birthdate*"), css_class='form-label pt-1'),
+                                Div(Field('birthdate_2'))
+                            ),
+                            css_class='col-6'
+                        ),
+                        Column(
+                            Div(
+                                Div(HTML("Age"), css_class='form-label pt-1'),
+                                Div(Field('age_2'))
+                            ),
+                            css_class='col-6'
+                        )
                     ),
                     Row(
                         Column(
