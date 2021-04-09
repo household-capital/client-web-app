@@ -622,16 +622,6 @@
             }
         });
 
-        document.addEventListener('DOMContentLoaded', function () {
-            $('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
-                localStorage.setItem('enquiryActiveTab', $(e.target).attr('href'));
-            });
-            var activeTab = localStorage.getItem('enquiryActiveTab');
-            if(activeTab){
-                $('#myTab a[href="' + activeTab + '"]').tab('show');
-            }
-        });
-
 
     </script>
 

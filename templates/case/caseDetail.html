@@ -767,16 +767,6 @@
             }
         });
 
-        document.addEventListener('DOMContentLoaded', function () {
-            $('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
-                localStorage.setItem('caseActiveTab', $(e.target).attr('href'));
-            });
-            var activeTab = localStorage.getItem('caseActiveTab');
-            if(activeTab){
-                $('#myTab a[href="' + activeTab + '"]').tab('show');
-            }
-        });
-
     </script>
 
 
