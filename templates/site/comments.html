@@ -1,6 +1,8 @@
 {% load comments %}
 {% load comments_extension %}
 
+{% include 'site/base.css.html' %}
+
 <div class="row">
     <div class="col-lg-8 col-md-12 pr-1 pl-1">
         <br/>
@@ -16,7 +18,7 @@
             {{ form.object_pk }}
             {{ form.timestamp }}
             {{ form.security_hash }}
-            <input type="hidden" name="next" value="{{ obj.get_absolute_url }}" />
+            <input type="hidden" name="next" value="{{ request.get_full_path }}" />
             <div class="text-center">
                 <input class="btn btn-outline-secondary" type="submit" value="Add Note" id="id_submit" />
             </div>

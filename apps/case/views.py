@@ -1148,3 +1148,18 @@ class CreateLoanVariationSummary(HouseholdLoginRequiredMixin, View):
             messages.error(self.request, "Could not save Loan Variation Summary")
 
         return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseUID}))
+
+
+class CaseNotesView(HouseholdLoginRequiredMixin, TemplateView):
+    template_name = "site/comments.html"
+
+    def get_object(self):
+        caseUID = str(self.kwargs['uid'])
+        queryset = Case.objects.queryset_byUID(str(caseUID))
+        obj = queryset.get()
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(CaseNotesView, self).get_context_data(**kwargs)
+        context['obj'] = self.get_object()
+        return context
