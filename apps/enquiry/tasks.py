@@ -121,17 +121,6 @@ def createSFEnquiry(enqUID, sfAPIInstance=None):
         return {"status": "ERROR", 'responseText': 'Enquiry {} does not exist'.format(enqUID)}
     # get lead ID from case
 
-    missing_data = []
-    # Check for an email or phoneNumber as well as a user
-    if not (enquiry.email or enquiry.phoneNumber):
-        missing_data.append('No email or phone number')
-    if not enquiry.postcode:
-        missing_data.append('No postcode set')
-    if missing_data:
-        message = ', '.join(missing_data)
-        write_applog("INFO", 'Enquiry', 'Tasks-createSFEnquiry', message)
-        return {"status": "ERROR", "responseText": message}
-
     if enquiry.email:
         if (os.environ.get('ENV') == 'prod') and ('householdcapital.com' in enquiry.email):
             # Don't create LeadID

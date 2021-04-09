@@ -527,7 +527,7 @@ def createSFLeadCase(caseUID, sfAPIInstance=None):
             return {"status": "Error"}
 
     # Check for an email or phoneNumber as well as a user
-    if (case.email or case.phoneNumber) and case.owner:
+    if (case.email or case.phoneNumber):
         # Check for Household email address
         if case.email:
             if (os.environ.get('ENV') == 'prod') and ('householdcapital.com' in case.email):
