@@ -56,8 +56,14 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
         (caseStagesEnum.SQ_BROCHURE_SENT.value,"SQ - Brochure sent"),
         (caseStagesEnum.SQ_CUSTOMER_SUMMARY_SENT.value,"SQ - Customer summary sent"),
         (caseStagesEnum.SQ_FUTURE_CALL.value,"SQ - Future call"),
-        (caseStagesEnum.SALES_ACTIVE.value, "Sales Active"),
-        (caseStagesEnum.CONVERTED.value, "Converted"),
+
+        (caseStagesEnum.SQ_NO_ANSWER.value, "SQ - No Answer"),
+        (caseStagesEnum.SQ_VOICEMAIL.value, "SQ - Voicemail"),
+        (caseStagesEnum.SQ_EMAIL_SENT.value, "SQ - Email Sent"),
+        (caseStagesEnum.MEETING_BOOKED.value, "Meeting Booked"),
+
+
+        (caseStagesEnum.MEETING_HELD.value, "Meeting Held"),
         (caseStagesEnum.APPLICATION.value, "Application"),
     )
 

@@ -109,9 +109,14 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
                   (caseStagesEnum.SQ_BROCHURE_SENT.value,"SQ - Brochure sent"),
                   (caseStagesEnum.SQ_CUSTOMER_SUMMARY_SENT.value,"SQ - Customer summary sent"),
                   (caseStagesEnum.SQ_FUTURE_CALL.value,"SQ - Future call"),
-                  (caseStagesEnum.SALES_ACTIVE.value, "Sales Active"),
+
+                  (caseStagesEnum.SQ_NO_ANSWER.value, "SQ - No Answer"),
+                  (caseStagesEnum.SQ_VOICEMAIL.value, "SQ - Voicemail"),
+                  (caseStagesEnum.SQ_EMAIL_SENT.value, "SQ - Email Sent"),
+                  (caseStagesEnum.MEETING_BOOKED.value, "Meeting Booked"),
+
                   (caseStagesEnum.DISCOVERY.value,"Discovery"),
-                  (caseStagesEnum.CONVERTED.value, "Converted"),
+                  (caseStagesEnum.MEETING_HELD.value, "Meeting Held"),
                   (caseStagesEnum.APPLICATION.value, "Application"),
                   (caseStagesEnum.DOCUMENTATION.value, "Documentation"),
                   (caseStagesEnum.FUNDED.value, "Funded"),
