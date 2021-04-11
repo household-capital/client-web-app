@@ -15,6 +15,8 @@ from django.db.models import Q
 
 from apps.helpers.model_utils import ReversionModel
 from apps.lib.site_Utilities import join_name
+from apps.lib.hhc_LoanValidator import LoanValidator
+
 
 from urllib.parse import urljoin
 #Local Imports
@@ -390,9 +392,6 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
                 self.user and 
                 self.postcode
             )
-        
-        super(Enquiry, self).save(*args, **kwargs)
-        self.refresh_from_db()
 
         if is_create and self.propensityCategory is None:
             if self.referrer == directTypesEnum.PHONE.value:
@@ -404,12 +403,31 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
             elif self.referrer == directTypesEnum.WEB_CALCULATOR.value:
                 self.propensityCategory = propensityCategoriesEnum.D.value
 
-            if self.propensityCategory is not None:
-                super(Enquiry, self).save()
+        my_dict = self.__dict__
+        validator = LoanValidator(my_dict)
+        validation_result = validator.validateLoan()
 
-            if is_create and self.enquiryNotes:
-                note_user = self.user if (self.referrer == directTypesEnum.PHONE.value) else None
-                add_enquiry_note(self, self.enquiryNotes, user=note_user)
+        if validation_result['status'] == "Error":
+            self.status = 0
+            self.errorText = validation_result['responseText']
+            self.maxLoanAmount = None
+            self.maxLVR = None
+            self.maxDrawdownAmount = None
+            self.maxDrawdownMonthly = None
+        else:
+            self.status = 1
+            self.errorText = None
+            self.maxLoanAmount = validation_result['data']['maxLoan']
+            self.maxLVR = validation_result['data']['maxLVR']
+            self.maxDrawdownAmount = validation_result['data']['maxDrawdown']
+            self.maxDrawdownMonthly = validation_result['data']['maxDrawdownMonthly']
+        
+        super(Enquiry, self).save(*args, **kwargs)
+        self.refresh_from_db()
+
+        if is_create and self.enquiryNotes:
+            note_user = self.user if (self.referrer == directTypesEnum.PHONE.value) else None
+            add_enquiry_note(self, self.enquiryNotes, user=note_user)
 
         # Case Wasnt passed in save kwarg / Or doesnt exist
         if not self.case_id: 

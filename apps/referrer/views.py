@@ -73,14 +73,8 @@ class EnquiryView(ReferrerLoginRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-
-        clientDict = form.cleaned_data
         obj = form.save(commit=False)
         obj.valuation = 1000000
-        clientDict['valuation'] = obj.valuation
-
-        loanObj = LoanValidator(clientDict)
-        chkOpp = loanObj.validateLoan()
 
         obj.referralUser = self.request.user
         obj.referrer = directTypesEnum.BROKER.value
@@ -88,15 +82,7 @@ class EnquiryView(ReferrerLoginRequiredMixin, UpdateView):
                          self.request.user.first_name + \
                          " " + self.request.user.last_name
 
-        if chkOpp['status'] == "Error":
-            obj.status = 0
-            obj.errorText = chkOpp['responseText']
-            obj.save()
-        else:
-            obj.status = 1
-            obj.maxLoanAmount = chkOpp['data']['maxLoan']
-            obj.maxLVR = chkOpp['data']['maxLVR']
-            obj.save()
+        obj.save()
 
         # Background task to update SF
         app.send_task('Update_SF_Enquiry', kwargs={'enqUID': str(obj.enqUID)})

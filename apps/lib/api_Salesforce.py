@@ -231,16 +231,14 @@ class apiSalesforce():
         except:
             return {'status':'Error','responseText':'Unknown' }
 
-
-    def updateLead(self,leadID,leadDict):
+    def updateLead(self, leadID, leadDict):
         try:
-            result=self.sf.Lead.update(leadID,leadDict)
-            return {'status':'Ok','data':result}
-
+            result = self.sf.Lead.update(leadID, leadDict)
+            return {'status': 'Ok', 'data': result}
         except SalesforceMalformedRequest as err:
-            return {'status':'Error', 'responseText':err.content[0]}
+            return {'status':'Error', 'responseText': err.content[0]}
         except:
-            return {'status':'Error','responseText':'Unknown' }
+            return {'status':'Error','responseText':'Unknown'}
 
     def updateOpportunity(self,opportunityID,oppDict):
         try:

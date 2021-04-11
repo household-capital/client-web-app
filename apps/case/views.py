@@ -296,18 +296,8 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
 
         obj = form.save(commit=False)
 
-        # Prior Nullable field
-        if not obj.pensionAmount:
-            obj.pensionAmount = 0
-
         if obj.phoneNumber_1:
             obj.phoneNumber_1 = cleanPhoneNumber(form.cleaned_data['phoneNumber_1'])
-
-        # Update age if birthdate present and owner
-        if obj.birthdate_1 != None:
-            obj.age_1 = int((datetime.date.today() - obj.birthdate_1).days / 365.25)
-        if obj.birthdate_2 != None:
-            obj.age_2 = int((datetime.date.today() - obj.birthdate_2).days / 365.25)
 
         obj.save()
 

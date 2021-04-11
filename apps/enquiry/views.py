@@ -162,23 +162,10 @@ class EnquiryCreateView(HouseholdLoginRequiredMixin, CreateView):
         if obj.phoneNumber:
             obj.phoneNumber = cleanPhoneNumber(form.cleaned_data['phoneNumber'])
 
-        loanObj = LoanValidator(clientDict)
-        chkOpp = loanObj.validateLoan()
-
         if obj.user == None and self.request.user.profile.calendlyUrl:
             obj.user = self.request.user
 
-        if chkOpp['status'] == "Error":
-            obj.status = 0
-            obj.errorText = chkOpp['responseText']
-            obj.save()
-        else:
-            obj.status = 1
-            obj.maxLoanAmount = chkOpp['data']['maxLoan']
-            obj.maxLVR = chkOpp['data']['maxLVR']
-            obj.maxDrawdownAmount = chkOpp['data']['maxDrawdown']
-            obj.maxDrawdownMonthly = chkOpp['data']['maxDrawdownMonthly']
-            obj.save()
+        obj.save()
 
         # Background task to update SF
 
@@ -331,29 +318,13 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Upd
         return context
 
     def form_valid(self, form):
-        clientDict = form.cleaned_data
         obj = form.save(commit=False)
 
         if obj.phoneNumber:
             obj.phoneNumber = cleanPhoneNumber(form.cleaned_data['phoneNumber'])
 
-        loanObj = LoanValidator(clientDict)
-        chkOpp = loanObj.validateLoan()
         if obj.user == None and self.request.user.profile.calendlyUrl:
             obj.user = self.request.user
-
-        # Simple validation
-        if chkOpp['status'] == "Error":
-            obj.status = 0
-            obj.errorText = chkOpp['responseText']
-            obj.save()
-        else:
-            obj.status = 1
-            obj.maxLoanAmount = chkOpp['data']['maxLoan']
-            obj.maxLVR = chkOpp['data']['maxLVR']
-            obj.maxDrawdownAmount = chkOpp['data']['maxDrawdown']
-            obj.maxDrawdownMonthly = chkOpp['data']['maxDrawdownMonthly']
-            obj.save()
 
         # Renames and moves the autoVal file if present
         if 'valuationDocument' in self.request.FILES:
