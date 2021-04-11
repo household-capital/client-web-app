@@ -21,7 +21,7 @@ from apps.lib.hhc_LoanValidator import LoanValidator
 from urllib.parse import urljoin
 #Local Imports
 from apps.lib.site_Enums import *
-from apps.case.model_utils import get_existing_case, create_case_from_enquiry
+from apps.case.model_utils import get_existing_case, create_case_from_enquiry, update_case_from_enquiry
 from config.celery import app
 from apps.base.model_utils import AbstractAddressModel
 from apps.enquiry.note_utils import add_enquiry_note
@@ -444,6 +444,9 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
                 should_sync = False 
                 lead_obj_created = True
                 # no need to re-trigger sync as current job already takes care of it.
+
+        if not lead_obj_created:
+            update_case_from_enquiry(self, self.case)
 
         if should_sync:
             # if this is a should_sync which comes from user assignment
