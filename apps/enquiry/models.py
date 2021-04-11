@@ -336,9 +336,6 @@ class Enquiry(AbstractAddressModel):
                 self.postcode
             )
 
-        super(Enquiry, self).save(*args, **kwargs)
-        self.refresh_from_db()
-
         if is_create and self.propensityCategory is None:
             if self.referrer == directTypesEnum.PHONE.value:
                 self.propensityCategory = propensityCategoriesEnum.D.value
@@ -349,8 +346,8 @@ class Enquiry(AbstractAddressModel):
             elif self.referrer == directTypesEnum.WEB_CALCULATOR.value:
                 self.propensityCategory = propensityCategoriesEnum.D.value
 
-            if self.propensityCategory is not None:
-                super(Enquiry, self).save()
+        super(Enquiry, self).save(*args, **kwargs)
+        self.refresh_from_db()
 
         if should_sync:
             app.send_task('Update_SF_Lead', kwargs={'enqUID': str(self.enqUID)})
