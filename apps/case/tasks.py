@@ -471,7 +471,6 @@ def mailLoanSummary(caseUID):
 # UTILITIES
 
 SF_LEAD_CASE_MAPPING = {
-    'caseNotes': 'External_Notes__c',
     'isZoomMeeting': 'isZoom__c',
 
     # Property Detail
@@ -503,6 +502,15 @@ SF_LEAD_CASE_MAPPING = {
 
     # misc
     'pensionAmount': 'Pension_Value_Fortnightly__c',
+
+    # eligibility
+    'is_eligible' : 'HCC_Loan_Eligible__c',
+    'ineligible_reason': 'Ineligibility_Reason__c',
+    'maxLoanAmount': 'Maximum_Loan__c',
+    'maxLVR': 'Maximum_LVR__c',
+    'maxDrawdownAmount': 'Max_Drawdown_Amount__c',
+    'maxDrawdownMonthly': 'Max_Drawdown_Monthly__c',
+
 }
 
 
@@ -644,12 +652,12 @@ def updateSFLead(caseUID):
     # Update SF Lead
     payload = __buildLeadCasePayload(caseObj)
     result = sfAPI.updateLead(str(caseObj.sfLeadID), payload)
-    update_all_unsycned_enquiries(caseObj) 
+    update_all_unsycned_enquiries(caseObj)
     if result['status'] == "Ok":
         app.send_task('Upload_Lead_Files', kwargs={'caseUID': caseUID})
         return {'status': 'Ok'}
     else:
-        write_applog("ERROR", 'Case', 'Tasks-updateSFLead', result['status'])
+        write_applog("ERROR", 'Case', 'Tasks-updateSFLead', result['responseText']['message'])
         return {'status': 'Error'}
 
 

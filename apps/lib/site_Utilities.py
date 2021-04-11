@@ -157,3 +157,7 @@ def parse_api_name(name):
 
 def join_name(firstname=None, middlename=None, lastname=None):
     return (firstname or '') + ((' ' + middlename) if middlename else '') + ((' ' + lastname) if lastname else '')
+
+
+def calc_age(dob):
+    return int((datetime.date.today() - dob).days / 365.25)

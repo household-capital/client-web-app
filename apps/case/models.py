@@ -14,6 +14,8 @@ from django_comments.models import Comment
 
 #Local Application Imports
 from apps.lib.site_Enums import *
+from apps.lib.hhc_LoanValidator import LoanValidator
+from apps.lib.site_Utilities import calc_age
 
 from apps.accounts.models import Referer
 from urllib.parse import urljoin
@@ -304,6 +306,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
     # Referral / Channel Data
     salesChannel = models.IntegerField(choices=channelTypes,null=True, blank=True)
     channelDetail = models.IntegerField(choices=channelDetailTypes, null=True, blank=True)
+    marketing_campaign = models.ForeignKey('enquiry.MarketingCampaign', null=True, blank=True, on_delete=models.SET_NULL)
     adviser = models.CharField(max_length=60, null=True, blank=True)
     referralCompany = models.ForeignKey(Referer ,null=True, blank=True, on_delete=models.SET_NULL)
     referralRepNo = models.CharField(max_length=60, null=True, blank=True)
@@ -324,9 +327,17 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
     # Scoring
     propensityCategory = models.IntegerField(choices=propensityChoices, blank=True, null=True)
 
-    marketing_campaign = models.ForeignKey('enquiry.MarketingCampaign', null=True, blank=True, on_delete=models.SET_NULL)
     
     doNotMarket = models.BooleanField(default=False)
+
+    # eligibility
+    is_eligible = models.BooleanField(default=True, blank=False, null=False)
+    ineligible_reason = models.CharField(max_length=40, blank=True, null=True)
+    maxLoanAmount = models.IntegerField(blank=True, null=True)
+    maxDrawdownAmount = models.IntegerField(blank=True, null=True)
+    maxDrawdownMonthly = models.IntegerField(blank=True, null=True)
+    maxLVR = models.FloatField(blank=True, null=True)
+
 
     # new fields to move from lead
     referrer = models.IntegerField(blank=False, null=False, choices=referrerTypes, default=-1)
@@ -451,7 +462,39 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
     def save(self, should_sync=False, *args, **kwargs):
         is_create = self.pk is None
 
+        my_dict = self.__dict__
+        validator = LoanValidator(my_dict)
+        validation_result = validator.validateLoan()
+
+        if validation_result['status'] == "Error":
+            self.is_eligible = 0
+            self.ineligible_reason = validation_result['responseText']
+            self.maxLoanAmount = None
+            self.maxLVR = None
+            self.maxDrawdownAmount = None
+            self.maxDrawdownMonthly = None
+        else:
+            self.is_eligible = 1
+            self.ineligible_reason = None
+            self.maxLoanAmount = validation_result['data']['maxLoan']
+            self.maxLVR = validation_result['data']['maxLVR']
+            self.maxDrawdownAmount = validation_result['data']['maxDrawdown']
+            self.maxDrawdownMonthly = validation_result['data']['maxDrawdownMonthly']
+
+        # Prior Nullable field
+        if not self.pensionAmount:
+            self.pensionAmount = 0
+
+        # Update age if birthdate present
+        # FIX ME - age is a silly field, it will keep needing to be updated!
+        if self.birthdate_1 is not None:
+            self.age_1 = calc_age(self.birthdate_1)
+        if self.birthdate_2 is not None:
+            self.age_2 = calc_age(self.birthdate_2)
+
+
         super(Case, self).save(*args, **kwargs)
+        self.refresh_from_db()
 
         if is_create and self.caseNotes:
             add_case_note(self, self.caseNotes, user=None)
@@ -487,25 +530,25 @@ class Loan(models.Model):
 
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
     localLoanID = models.AutoField(primary_key=True)
-    maxLVR=models.FloatField(null=False, blank=False,default=0)
+    maxLVR = models.FloatField(null=False, blank=False,default=0)
     actualLVR = models.FloatField(null=True, blank=True, default=0)
-    protectedEquity=models.IntegerField(default=0, choices=protectedChoices)
+    protectedEquity = models.IntegerField(default=0, choices=protectedChoices)
     detailedTitle = models.BooleanField(default=False)
     isLowLVR = models.BooleanField(default=False)
 
     # Contract Amounts
-    purposeAmount =models.IntegerField(default=0)
-    establishmentFee=models.IntegerField(default=0)
-    totalLoanAmount=models.IntegerField(default=0)
+    purposeAmount = models.IntegerField(default=0)
+    establishmentFee = models.IntegerField(default=0)
+    totalLoanAmount = models.IntegerField(default=0)
 
     # Plan Amounts
-    planPurposeAmount =models.IntegerField(default=0)
-    planEstablishmentFee=models.IntegerField(default=0)
-    totalPlanAmount=models.IntegerField(default=0)
+    planPurposeAmount = models.IntegerField(default=0)
+    planEstablishmentFee = models.IntegerField(default=0)
+    totalPlanAmount = models.IntegerField(default=0)
 
-    interestPayAmount=models.IntegerField(default=0)
-    interestPayPeriod=models.IntegerField(default=0)
-    annualPensionIncome=models.IntegerField(default=0)
+    interestPayAmount = models.IntegerField(default=0)
+    interestPayPeriod = models.IntegerField(default=0)
+    annualPensionIncome = models.IntegerField(default=0)
 
     # Customer Selections
     choiceRetireAtHome = models.BooleanField(default=False)
