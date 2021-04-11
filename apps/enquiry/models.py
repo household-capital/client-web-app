@@ -347,8 +347,7 @@ class Enquiry(AbstractAddressModel):
                 self.propensityCategory = propensityCategoriesEnum.D.value
 
         super(Enquiry, self).save(*args, **kwargs)
-        self.refresh_from_db()
-
+        
         if should_sync:
             app.send_task('Update_SF_Lead', kwargs={'enqUID': str(self.enqUID)})
     class Meta:
