@@ -26,7 +26,7 @@ def get_celery_beat_config():
             'schedule': crontab(hour=7, minute=30)
         },
         'SF Refer Postcode': {
-            'task': 'SF_Refer_Postcode', # custom task (?)
+            'task': 'SF_Refer_Postcode_Lead', # custom task (?)
             'schedule': crontab(hour=1)
         },
         'Clear_Session': {
