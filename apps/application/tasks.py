@@ -240,9 +240,10 @@ def next_steps_email(appUID, caseUID):
     attachments.append(('ApplicationSummary.pdf', appObj.applicationDocument.name))
 
     # Save document to Case
-    qsCase = Case.objects.queryset_byUID(caseUID)
-    qsCase.update(applicationDocument=appObj.applicationDocument.name)
-
+    qsCase = Case.objects.get(caseUID=caseUID)
+    qsCase.applicationDocument = appObj.applicationDocument.name
+    qsCase.save(should_sync=True)
+    
     # 4. Australia Post Attachments
     filePath = 'img/document/AustraliaPostVOI.pdf'
     if appObj.loanType == loanTypesEnum.JOINT_BORROWER.value:

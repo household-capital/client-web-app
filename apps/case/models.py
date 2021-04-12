@@ -499,8 +499,12 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
         if is_create and self.caseNotes:
             add_case_note(self, self.caseNotes, user=None)
 
-        if should_sync: 
-            app.send_task('Update_SF_Case_Lead', kwargs={'caseUID': str(self.caseUID)})
+        if should_sync or is_create: 
+            if self.sfOpportunityID:
+                app.send_task('SF_Opp_Synch', kwargs={'caseUID': str(self.caseUID)})
+                app.send_task('SF_Doc_Synch', kwargs={'caseUID': str(self.caseUID)})
+            else:
+                app.send_task('Update_SF_Case_Lead', kwargs={'caseUID': str(self.caseUID)})
 
 
 

@@ -1128,8 +1128,9 @@ class CreateLoanVariationSummary(HouseholdLoginRequiredMixin, View):
 
         try:
             # SAVE TO DATABASE
-            qsCase = Case.objects.queryset_byUID(caseUID)
-            qsCase.update(summaryDocument=targetFileName)
+            case_obj = Case.objects.get(caseUID=caseUID)
+            case_obj.summaryDocument = targetFileName
+            case_obj.save(should_sync=True)
             messages.success(self.request, "Loan Variation Summary generated")
 
         except:

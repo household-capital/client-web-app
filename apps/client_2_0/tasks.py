@@ -20,8 +20,9 @@ from urllib.parse import urljoin
 @app.task(name="Create_Loan_Summary")
 def createLoanSummary(caseUID):
 
-    qsCase = Case.objects.queryset_byUID(caseUID)
-    qsCase.update(summaryDocument=None)
+    qsCase = Case.objects.get(caseUID=caseUID)
+    qsCase.summaryDocument = None
+    qsCase.save()
 
     dateStr = datetime.now().strftime('%Y-%m-%d-%H:%M:%S%z')
 
@@ -55,8 +56,8 @@ def createLoanSummary(caseUID):
     try:
         # SAVE TO DATABASE
 
-        qsCase.update(summaryDocument=targetFileName)
-        app.send_task('Upload_Lead_Files', kwargs={'caseUID': caseUID})
+        qsCase.summaryDocument = targetFileName
+        qsCase.save(should_sync=True)
         return "Loan Summary generated"
 
     except:
