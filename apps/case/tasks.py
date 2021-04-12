@@ -72,6 +72,35 @@ def FollowUpEmail(caseUID):
                      "Failed to email follow-up:" + caseUID)
         return {"status": "ERROR", 'responseText': "Failed to email follow-up:" + caseUID}
 
+@app.task(name="SF_Refer_Postcode_Lead")
+@email_admins_on_failure(task_name='SF_Refer_Postcode_Lead')
+def getReferPostOcdeStatus():
+    write_applog("INFO", 'Case', 'Tasks-getReferPostOcdeStatus', "Starting")
+    sfAPI = apiSalesforce()
+    result = sfAPI.openAPI(True)
+
+    if result['status'] != "Ok":
+        write_applog("ERROR", 'Case', 'Tasks-getReferPostOcdeStatus', result['responseText'])
+        return result['responseText']
+
+    leads = Case.objects.filter(
+        sfLeadID__isnull=False,
+        deleted_on__isnull=True,
+        isReferPostcode=True,
+        referPostcodeStatus__isnull=True
+    )
+    for lead in leads.iterator():
+        result = sfAPI.getLead(lead.sfLeadID)
+        if result['status'] == 'Ok':
+            status = result['data']['ReferPostCodeStatus__c']
+            if status == 'Approved': 
+                lead.referPostcodeStatus = True
+                lead.save(should_sync=True)
+            elif status == 'Rejected': 
+                lead.referPostcodeStatus = False
+                lead.save(should_sync=True)
+    write_applog("INFO", 'Case', 'Tasks-getReferPostOcdeStatus', "Completed")
+    return "Finished - Successfully"
 
 @app.task(name="LeadFollowUp")
 @email_admins_on_failure(task_name="LeadFollowUp")
