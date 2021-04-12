@@ -1821,7 +1821,7 @@ def createCase(appUID):
 
     # Copy Loan Summary Reference
     caseObj.summaryDocument = appObj.summaryDocument.name
-    caseObj.save()
+    caseObj.save(should_sync=True)
 
     # CREATE CASE LOAN
 
