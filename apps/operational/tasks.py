@@ -51,17 +51,6 @@ def cloud_watch_wordpress_poll_stats():
     )
 
 
-@app.task(name="CW_Catchall_SF_Lead_stats")
-@email_admins_on_failure(task_name="CW_Catchall_SF_Lead_stats")
-def cloud_watch_sf_enquiry_sync():
-    # CW Catchall_SF_Lead stats <- poll everyday at 4 AM
-    # Run task always at 4 AM 
-    generic_stat_poll(
-        'Catchall_SF_Lead',
-        timedelta(hours=2)
-    )
-
-
 @app.task(name="CW_Catchall_SF_Case_Lead_stats")
 @email_admins_on_failure(task_name="CW_Catchall_SF_Case_Lead_stats")
 def cloud_watch_sf_case_sync():

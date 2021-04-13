@@ -69,10 +69,6 @@ def get_celery_beat_config():
             'task': 'Catchall_SF_Case_Lead', # custom task (?)
             'schedule': crontab(hour=2, minute=0)
         },
-        'Enquiry SF Catchall - Nightly':{
-            'task': 'Catchall_SF_Lead', # custom task (?)
-            'schedule': crontab(hour=2, minute=0)
-        },
         'AMAL_FUNDED_DATA - Nightly':{
             'task': 'AMAL_Funded_Data', # custom task (?)
             'schedule': crontab(hour=3, minute=0)
