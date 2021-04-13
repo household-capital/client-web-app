@@ -29,7 +29,6 @@ from apps.lib.api_Zoom import apiZoom
 from apps.lib.site_Utilities import raiseAdminError, cleanPhoneNumber
 from apps.lib.site_EmailUtils import sendTemplateEmail
 from apps.case.models import Case
-from apps.enquiry.models import Enquiry
 from apps.lib.site_Enums import enquiryStagesEnum
 from apps.enquiry.note_utils import add_enquiry_note
 from apps.case.note_utils import add_case_note
@@ -96,19 +95,19 @@ class CalendlyWebhook(View):
                 obj.customerEmail = customer_email
                 obj.customerPhone = customer_phone
 
-                enqObj = Enquiry.objects.filter(
-                   Q(deleted_on__isnull=True) &(Q(email__iexact=customer_email) | Q(phoneNumber__iexact=customer_phone))
+                case_obj = Case.objects.filter(
+                    Q(deleted_on__isnull=True) &(Q(email__iexact=customer_email) | Q(phoneNumber__iexact=customer_phone))
                 ).order_by("-timestamp").first()
-                if enqObj:
-                    obj.enqUID = enqObj.enqUID
+                if case_obj:
+                    obj.caseUID = case_obj.caseUID
 
-                obj.save(update_fields=['user', 'meetingName', 'startTime', 'timeZone','customerName','customerEmail',
-                                        'customerPhone','enqUID'])
+                
 
                 # Update enquiry object and Synch with SF
-                if enqObj:
-                    self.updateEnquiry(enqObj, meeting_name, customer_phone)
-                    app.send_task('Update_SF_Enquiry', kwargs={'enqUID': str(enqObj.enqUID)})
+                if case_obj:
+                    self.updateLead(case_obj, meeting_name, customer_phone)
+                
+                obj.save(should_sync=True)
 
                 write_applog("INFO", 'Calendly', 'post', "Discovery Call Created:" + customer_email )
 
@@ -244,17 +243,12 @@ class CalendlyWebhook(View):
 
         return HttpResponse(status=200)
 
-
-    def updateEnquiry(self, obj, meeting_name, phoneNumber):
+    def updateLead(self, obj, meeting_name, phoneNumber):
         if obj:
-            add_enquiry_note(obj,  "[# Calendly - " + meeting_name + " #]", user=None)
-            obj.isCalendly = True
-            obj.enquiryStage = enquiryStagesEnum.DISCOVERY_MEETING.value
+            add_case_note(obj, "[# Calendly - " + meeting_name + " #]", user=None)
             if phoneNumber and not obj.phoneNumber:
                 obj.phoneNumber = phoneNumber
-
-            obj.save(update_fields=['isCalendly', 'phoneNumber', 'enquiryStage'])
-
+            obj.save(update_fields=['phoneNumber'])
 
     def getPhoneNumber(self, data):
         phoneNumber = None
