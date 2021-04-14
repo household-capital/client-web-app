@@ -96,7 +96,7 @@ class CalendlyWebhook(View):
                 obj.customerPhone = customer_phone
 
                 case_obj = Case.objects.filter(
-                    Q(deleted_on__isnull=True) &(Q(email__iexact=customer_email) | Q(phoneNumber__iexact=customer_phone))
+                    Q(deleted_on__isnull=True) &(Q(email_1__iexact=customer_email) | Q(phoneNumber_1__iexact=customer_phone))
                 ).order_by("-timestamp").first()
                 if case_obj:
                     obj.caseUID = case_obj.caseUID
@@ -135,7 +135,7 @@ class CalendlyWebhook(View):
                 obj.customerPhone = customer_phone
                 obj.isZoomLive = True
 
-                caseObj = Case.objects.filter(email__iexact=customer_email, deleted_on__isnull=True).order_by("-timestamp").first()
+                caseObj = Case.objects.filter(email_1__iexact=customer_email, deleted_on__isnull=True).order_by("-timestamp").first()
 
                 if caseObj:
                     obj.caseUID = caseObj.caseUID
@@ -226,7 +226,7 @@ class CalendlyWebhook(View):
                         obj.isZoomLive = False
                         obj.save(update_fields=['isZoomLive'])
 
-                    caseObj = Case.objects.filter(email=customer_email, deleted_on__isnull=True).order_by("-timestamp").first()
+                    caseObj = Case.objects.filter(email_1=customer_email, deleted_on__isnull=True).order_by("-timestamp").first()
                     if caseObj:
                         caseObj.isZoomMeeting = False
                         caseObj.save(update_fields=['isZoomMeeting'])
@@ -246,8 +246,8 @@ class CalendlyWebhook(View):
     def updateLead(self, obj, meeting_name, phoneNumber):
         if obj:
             add_case_note(obj, "[# Calendly - " + meeting_name + " #]", user=None)
-            if phoneNumber and not obj.phoneNumber:
-                obj.phoneNumber = phoneNumber
+            if phoneNumber and not obj.phoneNumber_1:
+                obj.phoneNumber_1 = phoneNumber
             obj.save(update_fields=['phoneNumber'])
 
     def getPhoneNumber(self, data):
