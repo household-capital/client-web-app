@@ -81,8 +81,8 @@ def updateCase(caseUID, meeting_name, phoneNumber):
     if obj:
         add_case_note(obj, "[# Calendly - " + meeting_name + " #]", user=None)
         obj.isZoomMeeting = True
-        if phoneNumber and not obj.phoneNumber:
-            obj.phoneNumber = phoneNumber
+        if phoneNumber and not obj.phoneNumber_1:
+            obj.phoneNumber_1 = phoneNumber
 
-        obj.save(update_fields=['isZoomMeeting', 'phoneNumber'])
+        obj.save(update_fields=['isZoomMeeting', 'phoneNumber_1'])
     return

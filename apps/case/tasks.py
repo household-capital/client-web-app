@@ -50,7 +50,7 @@ def FollowUpEmail(caseUID):
             'responseText': "Lead Object doesnt exist"
         }
     email_context = {
-        'customerFirstName': lead.firstname, 
+        'customerFirstName': lead.firstname_1, 
         'obj': lead
     }
     if not lead.owner:
@@ -65,7 +65,7 @@ def FollowUpEmail(caseUID):
         lead.followUp = timezone.now()
         lead.save(should_sync=True)
 
-        write_applog("INFO", 'Case', 'Tasks-FollowUpEmail', "Follow-up Email Sent: " + "{} {}".format(lead.firstname, lead.lastname))
+        write_applog("INFO", 'Case', 'Tasks-FollowUpEmail', "Follow-up Email Sent: " + "{} {}".format(lead.firstname_1, lead.surname_1))
         return {"status": "Ok", 'responseText': "Follow-up Email Sent"}
     else:
         write_applog("ERROR", 'Case', 'Tasks-FollowUpEmail',
@@ -114,7 +114,7 @@ def lead_follow_up():
         latest_enq_timestamp=Max('enquiries__timestamp')
     ).filter(
         followUp__isnull=True,
-        email__isnull=False,
+        email_1__isnull=False,
         enquiries__referrer=directTypesEnum.WEB_CALCULATOR.value,
         timestamp__lte=windowDate,
         owner__isnull=False,
@@ -129,9 +129,9 @@ def lead_follow_up():
     for lead in qs:
         result = FollowUpEmail(str(lead.caseUID))
         if result['status'] == "Ok":
-            write_applog("INFO", 'Case', 'LeadFollowUp', "Sent -" + "{} {}".format(lead.firstname, lead.lastname))
+            write_applog("INFO", 'Case', 'LeadFollowUp', "Sent -" + "{} {}".format(lead.firstname_1, lead.surname_1))
         else:
-            write_applog("ERROR", 'Case', 'LeadFollowUp', "Failed -" + "{} {}".format(lead.firstname, lead.lastname))
+            write_applog("ERROR", 'Case', 'LeadFollowUp', "Failed -" + "{} {}".format(lead.firstname_1, lead.surname_1))
 
 
 @app.task(name="Create_SF_Case_Lead")
