@@ -621,7 +621,9 @@ def __buildLeadCasePayload(case):
         payload['DoNotMarket__c'] = True
 
     payload['Sales_Channel__c'] = case.enumChannelType()
-
+    # HM-2418 Apply this across leads only on this stage
+    if case.enumCaseStage() == 'Wait List': 
+        payload['Status__c'] = "Wait List"
     return payload
 
 

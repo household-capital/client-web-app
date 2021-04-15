@@ -271,7 +271,7 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
 
         # Don't allow later stages to be updated in the GUI
         if initialcaseStage not in [caseStagesEnum.DISCOVERY.value, caseStagesEnum.MEETING_HELD.value,
-                                    caseStagesEnum.APPLICATION.value, caseStagesEnum.CLOSED.value]:
+                                    caseStagesEnum.APPLICATION.value, caseStagesEnum.CLOSED.value, caseStagesEnum.WAIT_LIST.value]:
             messages.error(self.request, "You can no longer update this Case ")
             return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': self.kwargs.get('uid')}))
 
