@@ -48,6 +48,7 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
         }
 
     caseStages = (
+        (caseStagesEnum.WAIT_LIST.value, "Wait List"),
         (caseStagesEnum.DISCOVERY.value, "Discovery"),
         (caseStagesEnum.MEETING_HELD.value, "Meeting Held"),
         (caseStagesEnum.APPLICATION.value, "Application"),

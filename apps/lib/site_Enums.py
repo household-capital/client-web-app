@@ -24,6 +24,7 @@ class caseStagesEnum(Enum):
     APPLICATION=4
     DOCUMENTATION=5
     FUNDED = 6
+    WAIT_LIST = 7
 
 @accessInTemplate
 class clientSexEnum(Enum):
@@ -157,6 +158,7 @@ class enquiryStagesEnum(Enum):
     INITIAL_NO_ANSWER = 13
     NVN_EMAIL_SENT = 14
     MORE_TIME_TO_THINK = 15
+    WAIT_LIST = 16
 
 @accessInTemplate
 class closeReasonEnum(Enum):
