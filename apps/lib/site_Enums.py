@@ -24,7 +24,7 @@ class caseStagesEnum(Enum):
     APPLICATION=4
     DOCUMENTATION=5
     FUNDED = 6
-    WAIT_LIST = 7
+    WAIT_LIST = 18
 
 @accessInTemplate
 class clientSexEnum(Enum):
