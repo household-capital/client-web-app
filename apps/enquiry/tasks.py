@@ -1,10 +1,13 @@
 # Python Imports
 import json
-from datetime import timedelta
+import time
+import random
+from datetime import timedelta, datetime
 import os
 
 # Django Imports
 from django.utils import timezone
+
 
 # Third-party Imports
 from config.celery import app
@@ -132,11 +135,23 @@ def createSFEnquiry(enqUID, sfAPIInstance=None):
         payload = mapEnquiryForSF(enqUID, True)
         payload['CreatedDate'] = enquiry.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
         payload['Lead__c'] = lead_id
+        
         result = sfAPI.createEnquiry(payload)
         if result['status'] == "Ok":
-            enquiry.sfEnqID = result['data']['id']
+            sf_enq_id = result['data']['id']
+            enquiry.refresh_from_db()
+            enquiry.sfEnqID = sf_enq_id
             write_applog("INFO", 'Enquiry', 'Tasks-createSFEnquiry', "Created ID" + str(enquiry.sfEnqID))
             enquiry.save(update_fields=['sfEnqID'])
+            time.sleep(0.3)
+            result = sfAPI.sf.query(
+                "Select Id, CreatedDate from Enquiry__c where External_Origin_Id__c=\'{0}\'".format(str(enqUID))
+            )
+            if result['totalSize'] > 1: 
+                records = [
+                    (rec['Id'], datetime.strptime(rec['CreatedDate'], "%Y-%m-%dT%H:%M:%S.%f%z"))
+                    for rec in result['records']
+                ]
             app.send_task('Upload_Enquiry_Files', kwargs={'enqUID': enqUID})
             return {"status": "Ok", "responseText": "Enquiry Created"}
         else:
