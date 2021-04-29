@@ -29,6 +29,7 @@ def get_existing_case(phoneNumber, email):
 
 
 def _build_case_data_update(enquiry, case=None):
+    is_create = case is None 
     copyFields = [
         'loanType',
         'age_1',
@@ -47,7 +48,7 @@ def _build_case_data_update(enquiry, case=None):
         'gnaf_id',
 
         'mortgageDebt',
-        'sfLeadID',
+        #'sfLeadID',
         'productType',
         'isReferPostcode',
         'referPostcodeStatus',
@@ -76,28 +77,31 @@ def _build_case_data_update(enquiry, case=None):
 
     if not enquiry.lastname:
         surname = 'Unknown'
+        if not is_create and case.surname_1 not in [None, 'Unknown']:
+            surname = case.surname_1
     else:
         surname = enquiry.lastname
 
     # Create dictionary of Case fields from Enquiry fields
     caseDict = {}
     caseDict['caseStage'] = caseStagesEnum.UNQUALIFIED_CREATED.value
-    if not (case and (case.caseDescription is not None) and (not case.caseDescription.startswith('Unknown'))):
-        caseDict['caseDescription'] = surname + " - " + str(enquiry.postcode)
 
-    if not (case and (case.salesChannel is not None)):
-        if enquiry.referrer in salesChannelMap:
-            caseDict['salesChannel'] = salesChannelMap[enquiry.referrer]
-        else:
-            caseDict['salesChannel'] = channelTypesEnum.DIRECT_ACQUISITION.value
+    caseDict['caseDescription'] = surname + " - " + str(enquiry.postcode)
+
+    if enquiry.referrer in salesChannelMap:
+        caseDict['salesChannel'] = salesChannelMap[enquiry.referrer]
+    else:
+        caseDict['salesChannel'] = channelTypesEnum.DIRECT_ACQUISITION.value
 
     for field in copyFields:
-        if not (case and (getattr(case, field) is not None)):
-            caseDict[field] = getattr(enquiry, field)
+        field_val = getattr(enquiry, field)
+        if field_val is not None and field_val != '':
+            caseDict[field] = field_val
 
     for enq_field, case_field in map_fields.items():
-        if not (case and (getattr(case, case_field) is not None)):
-            caseDict[case_field] = getattr(enquiry, enq_field, None)
+        field_val = getattr(enquiry, enq_field)
+        if field_val is not None and field_val != '':
+            caseDict[case_field] = field_val
 
     return caseDict
 
