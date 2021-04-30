@@ -7,6 +7,8 @@ from apps.lib.site_Enums import (
     channelTypesEnum,
     caseStagesEnum
 )
+from django_comments.models import Comment
+from apps.case.note_utils import add_case_note
 from apps.lib.site_Enums import PRE_MEETING_STAGES
 
 # UTILS TO SUPPORT NEW DATA MODEL 
@@ -105,6 +107,12 @@ def _build_case_data_update(enquiry, case=None):
 
     return caseDict
 
+def move_notes_to_lead(enquiry, case):
+    notes = Comment.objects.for_model(enquiry)
+    for note in notes:
+        add_case_note(case, note.comment, enquiry.user)
+
+
 
 def create_case_from_enquiry(enquiry, attach_to_case=True):
     print('create_case_from_enquiry')
@@ -117,6 +125,7 @@ def create_case_from_enquiry(enquiry, attach_to_case=True):
 
     if attach_to_case: 
         case_obj.enquiries.add(enquiry)
+        move_notes_to_lead(enquiry, case_obj)
     app.send_task('sfEnquiryLeadSync', kwargs={'enqUID': str(enquiry.enqUID)})
     # TBC for exisitng documents
 
@@ -132,3 +141,4 @@ def update_case_from_enquiry(enquiry, case):
     for key, value in caseDict.items():
         setattr(case, key, value)
     case.save()
+    move_notes_to_lead(enquiry, case)
