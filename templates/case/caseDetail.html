@@ -466,6 +466,12 @@
                                             {% endif %}
                                             <br/>
                                         {% endif %}
+                                        {% if  enq.requestedCallback %}
+                                            <p class="pl-4 small">
+                                                <span class="badge badge-info">Callback Requested!</span>
+                                            </p>
+                                            <br/>
+                                        {% endif %}
                                     {% endfor %}
                                     </div>
 

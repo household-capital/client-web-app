@@ -29,7 +29,7 @@ from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.site_DataMapping import serialisePurposes
 from apps.lib.site_Enums import caseStagesEnum, EDITABLE_STAGES, PRE_MEETING_STAGES, loanTypesEnum, appTypesEnum, purposeCategoryEnum, \
-    purposeIntentionEnum, incomeFrequencyEnum, productTypesEnum, clientTypesEnum, closeReasonEnumUpdated
+    purposeIntentionEnum, incomeFrequencyEnum, productTypesEnum, clientTypesEnum, closeReasonEnumUpdated, directTypesEnum
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Logging import write_applog
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
@@ -199,6 +199,7 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
         context['preMeetingStages'] = [caseStagesEnum[_stage].value for _stage in  PRE_MEETING_STAGES]
         context['appTypesEnum'] = appTypesEnum
         context['productTypesEnum'] = productTypesEnum
+        context['directTypes'] = directTypesEnum
 
         clientDict = {}
         caseObj = self.object
