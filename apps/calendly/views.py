@@ -79,6 +79,10 @@ class CalendlyWebhook(View):
             write_applog("ERROR", 'Calendly', 'post', "Not processed - unknown user: " + user_email)
             return HttpResponse(status=200)
 
+        if 'test' in meeting_name and os.environ.get('ENV') == 'prod':
+            write_applog("ERROR", 'Calendly', 'post', "Ignore all test based events in production" )
+            return HttpResponse(status=200)
+
 
         if meeting_set & tracked_meeting_set:
 
