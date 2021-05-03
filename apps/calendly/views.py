@@ -85,6 +85,9 @@ class CalendlyWebhook(View):
             write_applog("ERROR", 'Calendly', 'post', "Ignore all test based events in production" )
             return HttpResponse(status=200)
 
+        if not 'test' in meeting_name and os.environ.get('ENV') != 'prod': 
+            write_applog("ERROR", 'Calendly', 'post', "Ignore all non-test based events in non-prod environments" )
+            return HttpResponse(status=200)
 
         if meeting_set & tracked_meeting_set:
 
