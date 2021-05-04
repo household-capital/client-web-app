@@ -114,7 +114,7 @@ class CalendlyWebhook(View):
                 if case_obj:
                     self.updateLead(case_obj, meeting_name, customer_phone)
                 
-                obj.save(should_sync=True)
+                obj.save()
 
                 write_applog("INFO", 'Calendly', 'post', "Discovery Call Created:" + customer_email )
 
@@ -255,7 +255,7 @@ class CalendlyWebhook(View):
             add_case_note(obj, "[# Calendly - " + meeting_name + " #]", user=None)
             if phoneNumber and not obj.phoneNumber_1:
                 obj.phoneNumber_1 = phoneNumber
-            obj.save(update_fields=['phoneNumber_1'])
+            obj.save(should_sync=True)
 
     def getPhoneNumber(self, data):
         phoneNumber = None
