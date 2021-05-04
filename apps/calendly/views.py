@@ -255,7 +255,7 @@ class CalendlyWebhook(View):
             add_case_note(obj, "[# Calendly - " + meeting_name + " #]", user=None)
             if phoneNumber and not obj.phoneNumber_1:
                 obj.phoneNumber_1 = phoneNumber
-            obj.save(update_fields=['phoneNumber'])
+            obj.save(update_fields=['phoneNumber_1'])
 
     def getPhoneNumber(self, data):
         phoneNumber = None
