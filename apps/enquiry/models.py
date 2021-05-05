@@ -188,6 +188,7 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
         (enquiryStagesEnum.FOLLOW_UP_VOICEMAIL.value,"Follow-up: Voicemail"),
         (enquiryStagesEnum.INITIAL_NO_ANSWER.value, "Initial: No Answer"),
         (enquiryStagesEnum.NVN_EMAIL_SENT.value, "NVN: Email Sent"),
+        (enquiryStagesEnum.WAIT_LIST.value, "Wait List"),
 
     )
 

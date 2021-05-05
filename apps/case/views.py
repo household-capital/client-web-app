@@ -618,8 +618,8 @@ class CaseOwnView(HouseholdLoginRequiredMixin, View):
         return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
 
-class CaseAssignView(HouseholdLoginRequiredMixin, UpdateView):
-    template_name = 'case/caseAssign.html'
+class CaseAssignView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, UpdateView):
+    template_name = 'case/caseDetail.html'
     email_template_name = 'case/email/assignEmail.html'
     form_class = CaseAssignForm
     model = Enquiry

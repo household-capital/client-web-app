@@ -195,7 +195,7 @@ class FacilityRoles(models.Model):
         (clientSexEnum.MALE.value, 'Male'))
 
     facility = models.ForeignKey(Facility, on_delete=models.CASCADE)
-    sfContactID = models.CharField(max_length=20, null=False, blank=False, unique=True)
+    sfContactID = models.CharField(max_length=20, null=False, blank=False) # Dropped uniqueness constraint
     role = models.IntegerField(choices=roleTypes)
     isContact = models.BooleanField(default=False)
     isInformation = models.BooleanField(default=False)
@@ -216,6 +216,7 @@ class FacilityRoles(models.Model):
     state  = models.IntegerField(choices=stateTypes, null=True, blank=True)
     postcode = models.CharField(max_length=4, null=True, blank=True)
     roleNotes = models.TextField(blank=True, null=True)
+    sfRoleID = models.CharField(max_length=20, null=True, blank=True) # NOTE: Post deploy and migration add seperate constraint for uniqueness
 
     @property
     def enumRole(self):

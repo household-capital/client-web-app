@@ -118,6 +118,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
                   (caseStagesEnum.MEETING_BOOKED.value, "Meeting Booked"),
 
                   (caseStagesEnum.DISCOVERY.value,"Discovery"),
+                  (caseStagesEnum.WAIT_LIST.value, "Wait List"),
                   (caseStagesEnum.MEETING_HELD.value, "Meeting Held"),
                   (caseStagesEnum.APPLICATION.value, "Application"),
                   (caseStagesEnum.DOCUMENTATION.value, "Documentation"),

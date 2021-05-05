@@ -25,6 +25,9 @@ class caseStagesEnum(Enum):
     DOCUMENTATION=5
     FUNDED = 6
     # Breakdown of discovery stage
+    
+    WAIT_LIST = 18
+
     UNQUALIFIED_CREATED = 7 
     MARKETING_QUALIFIED = 8 
     SQ_GENERAL_INFO = 9 
@@ -199,6 +202,7 @@ class enquiryStagesEnum(Enum):
     INITIAL_NO_ANSWER = 13
     NVN_EMAIL_SENT = 14
     MORE_TIME_TO_THINK = 15
+    WAIT_LIST = 16
 
 @accessInTemplate
 class closeReasonEnum(Enum):
