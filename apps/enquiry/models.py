@@ -443,7 +443,8 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
                 lead_obj_created = True
                 # no need to re-trigger sync as current job already takes care of it.
 
-        if not lead_obj_created:
+        if not lead_obj_created and is_create:
+            # only update if this a new enquiry being attached.
             update_case_from_enquiry(self, self.case)
 
         if should_sync:
