@@ -382,7 +382,7 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
     def __str__(self):
         return smart_text(self.email)
     
-    def save(self, should_sync=False, *args, **kwargs):
+    def save(self, should_sync=False, ignore_case_creation=False, *args, **kwargs):
 
         is_create = self.pk is None
         lead_obj_created = False
@@ -438,10 +438,11 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
                 if self.referrer in RESET_DO_NOT_MARKET:
                     existing_case.doNotMarket = False
                     existing_case.save(should_sync=True)
-            else: 
-                create_case_from_enquiry(self)
-                should_sync = False 
-                lead_obj_created = True
+            else:
+                if not ignore_case_creation: # Special kwarg to prevent case creation [During Migration]
+                    create_case_from_enquiry(self)
+                    should_sync = False 
+                    lead_obj_created = True
                 # no need to re-trigger sync as current job already takes care of it.
 
         if not lead_obj_created:
