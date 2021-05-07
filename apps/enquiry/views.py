@@ -306,8 +306,10 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Upd
         context['obj'] = obj
         context['isUpdate'] = True
         context['productTypesEnum'] = productTypesEnum
-        context['leadClosed'] = obj.case.caseStage == caseStagesEnum.CLOSED.value
-
+        if obj.case: 
+            context['leadClosed'] = obj.case.caseStage == caseStagesEnum.CLOSED.value
+        else: 
+            context['leadClosed'] = False
         # Pass Calendly information
         paramStr = "?name=" + obj.name + "&email=" + (obj.email if obj.email else '')
         if obj.user:
@@ -400,7 +402,6 @@ class EnquiryCallView(HouseholdLoginRequiredMixin, CreateView):
                                    'existingUrl': existingUrl}}
 
             return HttpResponse(json.dumps(payload), content_type='application/json', status=200)
-
         obj = form.save(commit=False)
         obj.status = 0
         obj.referrer = directTypesEnum.PHONE.value
