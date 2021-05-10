@@ -813,6 +813,19 @@ class LossData(models.Model):
         (closeReasonEnumUpdated.DOESNT_LIKE_REV_MORTGAGES.value, 'Doesn’t like Reverse Mortgages'),
         (closeReasonEnumUpdated.FEE_INTEREST_TOO_HIGH.value, 'Fees or interest rate too high'),
         (closeReasonEnumUpdated.OTHER.value, 'Other'),
+
+
+        # OLD VALUES -> Remove after migration
+        (closeReasonEnumUpdated.AGE_RESTRICTION.value, 'Age Restriction'),
+        (closeReasonEnumUpdated.POSTCODE_RESTRICTION.value, 'Postcode Restriction'),
+        (closeReasonEnumUpdated.MINIMUM_LOAN_AMOUNT.value, 'Below minimum loan amount'),
+        (closeReasonEnumUpdated.CREDIT.value, 'Credit History'),
+        (closeReasonEnumUpdated.MORTGAGE.value, 'Mortgage too Large'),
+        (closeReasonEnumUpdated.SHORT_TERM.value, 'Short-term / Bridging Requirement'),
+        (closeReasonEnumUpdated.TENANTS.value, 'Tenants in common'),
+        (closeReasonEnumUpdated.ALTERNATIVE_SOLUTION.value, 'Client Pursuing Alternative'),
+        (closeReasonEnumUpdated.COMPETITOR.value, 'Client went to Competitor'),
+        (closeReasonEnumUpdated.NO_CLIENT_ACTION.value, 'No further action by client'),
     )
 
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
