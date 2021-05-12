@@ -10,6 +10,7 @@ from apps.lib.site_Enums import (
 from django_comments.models import Comment
 from apps.case.note_utils import add_case_note
 from apps.lib.site_Enums import PRE_MEETING_STAGES
+from apps.lib.site_Enums import appTypesEnum
 
 # UTILS TO SUPPORT NEW DATA MODEL 
 
@@ -26,7 +27,7 @@ def get_existing_case(phoneNumber, email):
         query = query & Q(deleted_on__isnull=True)
         return Case.objects.filter(
             query
-        ).order_by('-updated').first()
+        ).exclude(appType=appTypesEnum.VARIATION.value).order_by('-updated').first()
     return None 
 
 
