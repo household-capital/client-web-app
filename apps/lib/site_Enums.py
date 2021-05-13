@@ -17,6 +17,7 @@ class appTypesEnum(Enum):
 
 @accessInTemplate
 class caseStagesEnum(Enum):
+    WAIT_LIST = 18
     DISCOVERY=0
     PRE_MEETING= 1
     MEETING_HELD= 2
@@ -199,6 +200,7 @@ class enquiryStagesEnum(Enum):
     INITIAL_NO_ANSWER = 13
     NVN_EMAIL_SENT = 14
     MORE_TIME_TO_THINK = 15
+    WAIT_LIST = 16
 
 @accessInTemplate
 class closeReasonEnum(Enum):
