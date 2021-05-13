@@ -21,7 +21,7 @@ def forwards_func(apps, schema_editor):
             user_name='Unknown',
             user_email='',
             user_url='',
-            comment=enquiry.enquiryNotes,
+            comment=enquiry.enquiryNotes if enquiry.enquiryNotes else '',
             submit_date=timezone.now(),
             site_id=1,
             is_public=True,

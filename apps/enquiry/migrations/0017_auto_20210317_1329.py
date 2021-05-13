@@ -13,8 +13,9 @@ def forwards_func(apps, schema_editor):
 
     enquiries = Enquiry.objects.using(db_alias).all()
     for enquiry in enquiries:
-        enquiry.firstname, enquiry.lastname = split_name(enquiry.name)
-        enquiry.save(ignore_case_creation=True)
+        firstname, lastname = split_name(enquiry.name)
+        Enquiry.objects.filter(pk=enquiry.pk).update(firstname=firstname, lastname=lastname)
+        # enquiry.save(ignore_case_creation=True)
         #app.send_task('Update_SF_Enquiry', kwargs={'enqUID': str(enquiry.enqUID)})
 
 
@@ -24,8 +25,8 @@ def reverse_func(apps, schema_editor):
 
     enquiries = Enquiry.objects.using(db_alias).all()
     for enquiry in enquiries:
-        enquiry.firstname, enquiry.lastname = None, None
-        enquiry.save(ignore_case_creation=True)
+        firstname, lastname = None, None
+        Enquiry.objects.filter(pk=enquiry.pk).update(firstname=firstname, lastname=lastname)
         #app.send_task('Update_SF_Enquiry', kwargs={'enqUID': str(enquiry.enqUID)})
 
 

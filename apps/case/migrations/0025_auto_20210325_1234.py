@@ -23,14 +23,14 @@ def forwards_func(apps, schema_editor):
             user_name='Unknown',
             user_email='',
             user_url='',
-            comment=case.caseNotes,
+            comment=case.caseNotes if case.caseNotes else '',
             submit_date=timezone.now(),
             site_id=1,
             is_public=True,
-            is_removed=False
+            is_removed=False 
         )
         note.save()
-        app.send_task('SF_Sync_Case_Notes', kwargs={'caseUID': str(case.caseUID)})
+        #app.send_task('SF_Sync_Case_Notes', kwargs={'caseUID': str(case.caseUID)})
 
 
 def reverse_func(apps, schema_editor):
