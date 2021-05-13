@@ -500,6 +500,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
 
         if is_create and self.caseNotes:
             add_case_note(self, self.caseNotes, user=None)
+        
 
         if should_sync or is_create: 
             if self.sfOpportunityID:

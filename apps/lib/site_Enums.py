@@ -42,6 +42,7 @@ class caseStagesEnum(Enum):
     SALES_ACTIVE = 13
 
 PRE_MEETING_STAGES = [
+    'WAIT_LIST',
     'UNQUALIFIED_CREATED',
     'MARKETING_QUALIFIED',
     'SQ_GENERAL_INFO',
