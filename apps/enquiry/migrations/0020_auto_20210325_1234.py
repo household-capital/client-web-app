@@ -28,7 +28,7 @@ def forwards_func(apps, schema_editor):
             is_removed=False
         )
         note.save()
-        app.send_task('SF_Sync_Enquiry_Notes', kwargs={'enqUID': str(enquiry.enqUID)})
+        # app.send_task('SF_Sync_Enquiry_Notes', kwargs={'enqUID': str(enquiry.enqUID)})
 
 
 def reverse_func(apps, schema_editor):
@@ -39,7 +39,7 @@ def reverse_func(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('enquiry', '0018_enquiry_deleted_on'),
+        ('enquiry', '0019_enquiry_deleted_on'),
     ]
 
     operations = [

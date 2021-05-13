@@ -6,12 +6,12 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('case', '0021_merge_20210319_2340'),
+        ('enquiry', '0018_auto_20210318_2115'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='case',
+            model_name='enquiry',
             name='deleted_on',
             field=models.DateTimeField(blank=True, null=True),
         ),

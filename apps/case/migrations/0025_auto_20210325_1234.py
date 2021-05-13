@@ -41,7 +41,7 @@ def reverse_func(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('case', '0022_case_deleted_on'),
+        ('case', '0024_case_deleted_on'),
     ]
 
     operations = [
