@@ -435,7 +435,7 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
             existing_case = get_existing_case(self.phoneNumber, self.email)
             if existing_case is not None: 
                 existing_case.enquiries.add(self)
-                if self.referrer in RESET_DO_NOT_MARKET:
+                if is_create and self.referrer in RESET_DO_NOT_MARKET:
                     existing_case.doNotMarket = False
                     existing_case.save(should_sync=True)
             else:

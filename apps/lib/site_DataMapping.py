@@ -35,8 +35,8 @@ def mapEnquiryForSF(enqUID, is_create=False):
         'isCare': 'IsCare__c',
         'payIntPeriod': 'Pay_Interest_Period__c',
 
-        'status': 'HCC_Loan_Eligible__c',
-        'errorText': 'Ineligibility_Reason__c',
+        # 'status': 'HCC_Loan_Eligible__c',
+        # 'errorText': 'Ineligibility_Reason__c',
         'maxLoanAmount': 'Maximum_Loan__c',
         'maxLVR': 'Maximum_LVR__c',
         'maxDrawdownAmount': 'Max_Drawdown_Amount__c',

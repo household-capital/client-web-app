@@ -49,12 +49,19 @@ def handle_all_enqs():
         if enq_to_case_dict.get(enq.enqUID) is not None:
             # case exists 
             enq.case_id = enq_to_case_dict.get(enq.enqUID)
-        enq.save() # save will create or fetch the associated case Obj
+        enq.save(should_sync=False) # save will create or fetch the associated case Obj
         # this will attach but will not propagate values of fields onto leads 
 
 def update_lead_stage():
-    for enq in Enquiry.objects.order_by('-timestamp').exclude(enqUID__in=ENQS_TO_IGNORE_CONSIDER).iterator():
-        update_lead_stages_from_enquiry(enq)
+    enquiries = list(Enquiry.objects.order_by('-timestamp').exclude(enqUID__in=ENQS_TO_IGNORE_CONSIDER))
+    for chunked_enqs in chunks(enquiries, 500):
+        to_update = []
+        for enq in chunked_enqs:
+            case_obj = update_lead_stages_from_enquiry(enq)
+            if case_obj is not None: 
+                to_update.append(case_obj)
+        Case.objects.bulk_update(to_update, ['caseStage'])
+
 
 
 def update_lead_stages_from_enquiry(enquiry):
@@ -87,8 +94,7 @@ def update_lead_stages_from_enquiry(enquiry):
     if chkOpp['status'] != 'Ok': 
         print('Case uid {} set to Marketing Qualified'.format(case_obj.caseUID))
         case_obj.caseStage = caseStagesEnum.MARKETING_QUALIFIED.value
-        case_obj.save()
-        return
+        return case_obj
 
     stage_mapping = {
         enquiryStagesEnum.GENERAL_INFORMATION.value: caseStagesEnum.SQ_GENERAL_INFO.value,
@@ -104,8 +110,7 @@ def update_lead_stages_from_enquiry(enquiry):
     lead_stage = stage_mapping.get(enquiry.enquiryStage)
     if lead_stage is not None: 
         case_obj.caseStage = lead_stage
-        case_obj.save() 
-        return 
+        return case_obj
     """ 
         Unhandled for enquiries in stages  Loan Interview, or
         Live transfer, or
@@ -130,11 +135,28 @@ def update_lead_stages_from_enquiry(enquiry):
 
     if enquiry.closeDate and enquiry.closeReason is not None: 
         case_obj.caseStage = old_to_new_close_map.get(enquiry.closeReason, closeReasonEnumUpdated.OTHER.value)
-        case_obj.save() 
-        return 
+        return case_obj
 
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
 
+def handle_do_not_market():
+    all_leads_pre_meet = list(Case.objects.exclude(sfOpportunityID__isnull=False).order_by('timestamp'))
+    PARTITION_SIZE = 300
+    for lead_chunk in chunks(all_leads_pre_meet, PARTITION_SIZE):
+        objects_to_update = [] 
+        for lead in lead_chunk:
+            lead.doNotMarket = any(lead.enquiries.values_list('doNotMarket', flat=True)) or lead.lossdata.doNotMarket
+            objects_to_update.append(lead)
+        Case.objects.bulk_update(objects_to_update, ['doNotMarket'])
+    # faster/efficient
+    
 
+def handle_edge_fields():
+    handle_do_not_market()
+    pass
 
 def run_script(): 
     handle_all_enqs()
