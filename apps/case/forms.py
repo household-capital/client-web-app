@@ -72,6 +72,7 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
 
         (caseStagesEnum.MEETING_HELD.value, "Meeting Held"),
         (caseStagesEnum.APPLICATION.value, "Application"),
+        (caseStagesEnum.CLOSED.value, "Closed"),
     )
 
     caseStage = forms.TypedChoiceField(choices=caseStages, coerce=int, initial=caseStagesEnum.UNQUALIFIED_CREATED.value)

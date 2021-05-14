@@ -134,7 +134,11 @@ def update_lead_stages_from_enquiry(enquiry):
     }
 
     if enquiry.closeDate and enquiry.closeReason is not None: 
-        case_obj.caseStage = old_to_new_close_map.get(enquiry.closeReason, closeReasonEnumUpdated.OTHER.value)
+        case_obj.caseStage = caseStagesEnum.CLOSED.value
+        lossdata = case_obj.lossdata
+        lossdata.closeReason = old_to_new_close_map.get(enquiry.closeReason, closeReasonEnumUpdated.OTHER.value)
+        lossdata.closeDate = enquiry.closeDate
+        lossdata.save()
         return case_obj
 
 def chunks(lst, n):
@@ -149,7 +153,7 @@ def handle_do_not_market_and_followup():
         objects_to_update = [] 
         for lead in lead_chunk:
             lead.doNotMarket = any(lead.enquiries.values_list('doNotMarket', flat=True)) or lead.lossdata.doNotMarket
-            if lead.enquiries.exist(): 
+            if lead.enquiries.exists(): 
                 latest_enq = lead.enquiries.latest('timestamp')
                 if latest_enq.followUp is not None: 
                     lead.followUp = latest_enq.followUp

@@ -438,6 +438,9 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
                 if is_create and self.referrer in RESET_DO_NOT_MARKET:
                     existing_case.doNotMarket = False
                     existing_case.save(should_sync=True)
+                if existing_case.caseStage == caseStagesEnum.CLOSED.value: 
+                    existing_case.caseStage = caseStagesEnum.UNQUALIFIED_CREATED.value
+                    existing_case.save()#should_sync=True)
             else:
                 if not ignore_case_creation: # Special kwarg to prevent case creation [During Migration]
                     create_case_from_enquiry(self)
