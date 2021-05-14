@@ -142,26 +142,34 @@ def chunks(lst, n):
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
 
-def handle_do_not_market():
+def handle_do_not_market_and_followup():
     all_leads_pre_meet = list(Case.objects.exclude(sfOpportunityID__isnull=False).order_by('timestamp'))
     PARTITION_SIZE = 300
     for lead_chunk in chunks(all_leads_pre_meet, PARTITION_SIZE):
         objects_to_update = [] 
         for lead in lead_chunk:
             lead.doNotMarket = any(lead.enquiries.values_list('doNotMarket', flat=True)) or lead.lossdata.doNotMarket
+            if lead.enquiries.exist(): 
+                latest_enq = lead.enquiries.latest('timestamp')
+                if latest_enq.followUp is not None: 
+                    lead.followUp = latest_enq.followUp
             objects_to_update.append(lead)
-        Case.objects.bulk_update(objects_to_update, ['doNotMarket'])
+        Case.objects.bulk_update(objects_to_update, ['doNotMarket', 'followUp'])
     # faster/efficient
-    
 
-def handle_edge_fields():
-    handle_do_not_market()
-    pass
+            
 
-def run_script(): 
+def run_script():
+    print('.......Moving enqs to lead.......') 
     handle_all_enqs()
+    print('.......# ***** 1. COMPLETED ***** # Moving enqs to lead.......') 
+    print('.......Updating stages from enqs to lead.......') 
     update_lead_stage()
-    print('yay - All done')
+    print('.......# ***** 2. COMPLETED ***** # Updating stages from enqs to lead.......') 
+    print('.......Moving donotmarket and followup from enqs to lead.......') 
+    handle_do_not_market_and_followup()
+    print('.......# ***** 3. COMPLETED ***** #  Moving donotmarket and followup from enqs to lead.......') 
+    print("$$$ DONE $$$$")
 
 #######
 def sync_to_sf(): 
