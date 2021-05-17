@@ -355,6 +355,10 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
             self.salesforceSynch(obj)
             messages.success(self.request, "Lead has been updated")
 
+        if obj.caseStage == caseStagesEnum.CLOSED.value: 
+            return HttpResponseRedirect(
+                reverse_lazy('case:caseClose', kwargs={'uid': str(obj.caseUID)})
+            )
         return super(CaseDetailView, self).form_valid(form)
 
     def salesforceSynch(self, caseObj):
