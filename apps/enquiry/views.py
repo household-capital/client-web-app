@@ -1073,7 +1073,7 @@ class EnquiryAssignView(HouseholdLoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         preObj = Enquiry.objects.queryset_byUID(str(self.kwargs['uid'])).get()
-        enq_obj = form.save(commit=False)
+        enq_obj = form.save()
         # NB: we must send down the "preObj" so the user switch gets documented correctly in the enquiry notes
         # during reassignment.
 
