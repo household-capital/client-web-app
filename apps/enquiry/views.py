@@ -1079,3 +1079,23 @@ class EnquiryAssignView(HouseholdLoginRequiredMixin, UpdateView):
 
         messages.success(self.request, "Enquiry assigned to " + enq_obj.user.username)
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
+
+
+class EnquiryOwnView(HouseholdLoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+
+        enqUID = str(kwargs['uid'])
+        enqObj = Enquiry.objects.queryset_byUID(enqUID).get()
+
+        if not self.request.user.profile.calendlyUrl:
+
+            messages.error(self.request, "You are not set-up to action this type of enquiry")
+
+        else:
+            enqObj.user = self.request.user
+            enqObj.save(should_sync=True)
+            messages.success(self.request, "Ownership Changed")
+
+            # Background task to update SF
+
+        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
