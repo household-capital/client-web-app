@@ -345,6 +345,8 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
     # default to unassigned to allow migration and not break the null/blank = False
     followUp = models.DateTimeField(auto_now_add=False, auto_now=False, blank=True, null=True)
     
+    touched_in_sf_sync = models.BooleanField(default=False, blank=True, null=True)
+
     objects=CaseManager()
 
     def __str__(self):

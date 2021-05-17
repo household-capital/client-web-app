@@ -662,7 +662,7 @@ def createSFLeadCase(caseUID, sfAPIInstance=None):
         else:
 
             if isinstance(result['responseText'], dict):
-                write_applog("INFO", 'Case', 'Tasks-createSFLead', result['responseText']['message'])
+                write_applog("INFO", 'Case', 'Tasks-createSFLead', "caseUID: {} \t{}".format(case.caseUID, result['responseText']['message']))
 
                 # Check for duplicates (as indicated by SF) and attempt to retrieve ID using SOQL
                 if 'existing' in result['responseText']['message']:
@@ -723,20 +723,21 @@ def update_all_unsycned_enquiries(case):
         )
 
 
-def updateSFLead(caseUID):
+def updateSFLead(caseUID, sfAPI=None):
     '''Updates a SF Lead from a case using the SF Rest API.'''
     # Open SF API
-    sfAPI = apiSalesforce()
-    result = sfAPI.openAPI(True)
-    if result['status'] != "Ok":
-        write_applog("ERROR", 'Case', 'Tasks-updateSFLead', result['responseText'])
-        return {"status": "Error"}
+    if sfAPI is None: 
+        sfAPI = apiSalesforce()
+        result = sfAPI.openAPI(True)
+        if result['status'] != "Ok":
+            write_applog("ERROR", 'Case', 'Tasks-updateSFLead', result['responseText'])
+            return {"status": "Error"}
 
     # Get object
     qs = Case.objects.queryset_byUID(caseUID)
     caseObj = qs.get()
     if not caseObj.sfLeadID:
-        result = createSFLeadCase(caseUID)
+        result = createSFLeadCase(caseUID, sfAPI)
         if result['status'] != "Ok":
             write_applog("ERROR", 'Case', 'Tasks-updateSFLead', "No SF ID for: " + str(caseUID))
             return {"status": "Error"}
@@ -815,8 +816,9 @@ def __buildLeadCasePayload(case):
     payload['Sales_Channel__c'] = case.enumChannelType()
 
     # TODO: Status is for Kanban, Status__c is seperate for dropdown
-    payload['Status__c'] = case.enumCaseStage()
-    payload['Status'] = case.enumCaseStage()
+    if case.enumCaseStage() != 'Closed':
+        payload['Status__c'] = case.enumCaseStage()
+        payload['Status'] = case.enumCaseStage()
 
     # TODO: Uncomment this later 
 

@@ -1,3 +1,4 @@
+import datetime
 from apps.enquiry.models import Enquiry
 from apps.case.models import Case
 from apps.lib.site_Enums import caseStagesEnum, enquiryStagesEnum, closeReasonEnum, closeReasonEnumUpdated, PRE_MEETING_STAGES
@@ -174,9 +175,33 @@ def run_script():
     handle_do_not_market_and_followup()
     print('.......# ***** 3. COMPLETED ***** #  Moving donotmarket and followup from enqs to lead.......') 
     print("$$$ DONE $$$$")
+"""
 
-#######
-def sync_to_sf(): 
     all_leads_pre_meet = Case.objects.exclude(sfOpportunityID__isnull=False).order_by('timestamp')
     for i in all_leads_pre_meet:
+        print("SYNCING case uid - {}: {}".format(i.caseUID, i.caseDescription))
         i.save(should_sync=True)
+        """
+
+
+def sync_to_sf(): 
+    leads_to_consider = Case.objects.filter(
+        pk__in=Enquiry.objects.filter(
+            timestamp__gte=(
+                datetime.datetime.now() - datetime.timedelta(days=55)
+            ),
+            timestamp__lte=(
+                datetime.datetime.now() - datetime.timedelta(days=45)
+            )
+            ).values_list('case_id', flat=True)
+        ,sfOpportunityID__isnull=True,
+        )
+    for lead in leads_to_consider: 
+        all_enqs = lead.enquiries.order_by('-timestamp')
+        found = False
+        for enq in all_enqs: 
+            if not found and enq.sfLeadID: 
+                lead.sfLeadID = enq.sfLeadID
+                found = True
+        lead.save(should_sync=False)
+

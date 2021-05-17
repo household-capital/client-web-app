@@ -100,7 +100,7 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name = "InstanceType"
-    value = "t2.small"
+    value = "t3.small" # t3.small
   }
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
