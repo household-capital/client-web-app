@@ -472,6 +472,41 @@ class EnquiryCallForm(forms.ModelForm):
                 return number
 
 
+class EnquiryAssignForm(forms.ModelForm):
+    class Meta:
+        model = Enquiry
+        fields = ['user']
+
+    def __init__(self, *args, **kwargs):
+        super(EnquiryAssignForm, self).__init__(*args, **kwargs)
+        self.fields['user'].queryset = User.objects.filter(profile__isCreditRep=True)
+
+    helper = FormHelper()
+    helper.form_method = 'POST'
+    helper.field_class = 'col-lg-12'
+    helper.form_class = 'form-horizontal'
+    helper.form_show_labels = False
+    helper.form_show_errors = False
+    helper.layout = Layout(
+        Div(
+            Div(
+                Div(HTML("<i class='fas fa-user-friends'></i>&nbsp;&nbsp;Assign enquiry"), css_class='form-header'),
+                Div(
+                    Div(HTML("Credit Representative"), css_class='form-label'),
+                    Div(Field('user'))),
+                Div(Div(Submit('submit', 'Assign', css_class='btn btn-outline-secondary')), css_class='text-right'),
+                Div(HTML("<br>")),
+
+                css_class='col-lg-6'),
+            css_class="row ")
+    )
+
+    def clean(self):
+        if not self.cleaned_data['user']:
+            raise ValidationError("Please select Credit Representative")
+
+
+
 class AddressForm(forms.Form):
     lookup_address = forms.CharField(max_length=60, required=True)
 

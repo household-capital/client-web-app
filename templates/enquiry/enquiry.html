@@ -90,10 +90,13 @@
                     </button>
                     <div class="dropdown-menu">
 
-                        <a class="dropdown-item" data-toggle="modal" href="#deleteModal">
+                        <a class="dropdown-item pb-3" data-toggle="modal" href="#deleteModal">
                             &nbsp;<i class="far fa-trash-alt fa-fw"></i>&nbsp;&nbsp;Delete Enquiry
                         </a>
-
+                        <a class="dropdown-item"
+                            href="{% url 'enquiry:enqAssign' uid=obj.enqUID %}">
+                            &nbsp;<i class="fas fa-fw fa-hand-point-right"></i>&nbsp;&nbsp;Assign Ownership
+                        </a>
                         {% if status.status == 'Ok' %}
                             <div class="dropdown-divider"></div>
 
@@ -120,7 +123,6 @@
                             {% endif %}
 
                         {% endif %}
-
                     </div>
                 </div>
             {% endif %}

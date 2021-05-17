@@ -12,6 +12,7 @@ urlpatterns = [
     path('call', views.EnquiryCallView.as_view(), name='enquiryCall'),
     path('<uuid:uid>', views.EnquiryUpdateView.as_view(), name='enquiryDetail'),
     path('enquiryList', views.EnquiryListView.as_view(), name='enquiryList'),
+    path('enquiryAssign/<uuid:uid>', views.EnquiryAssignView.as_view(), name='enqAssign'),
     path('enquiryCreateSummary/<uuid:uid>',views.CreateEnquirySummary.as_view(),name='enqCreateSummary'),
     path('enquirySendDetail/<uuid:uid>', views.SendEnquirySummary.as_view(), name='enqSendDetails'),
     path('enquiryEligibility/<uuid:uid>',views.EnquiryEmailEligibility.as_view(), name='enqEligibility'),

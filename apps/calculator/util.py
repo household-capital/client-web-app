@@ -69,6 +69,8 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
                 auto_assign_leads([lead_obj], notify=False)
             else:
                 assign_lead(lead_obj, proposed_owner, notify=False)
+        
+        enq_obj.refresh_from_db()
         return enq_obj
 
     def gen_calc_summary(enq_obj, calculator):
