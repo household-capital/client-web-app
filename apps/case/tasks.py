@@ -7,7 +7,7 @@ import os
 from django.core.files.storage import default_storage
 from django.conf import settings
 from django.utils import timezone
-from django.db.models import F, Max
+from django.db.models import F, Max, Q
 
 from datetime import timedelta
 
@@ -124,7 +124,7 @@ def lead_follow_up():
         deleted_on__isnull=True,
         lossdata__closeDate__isnull=True   
     ).exclude(
-        enquiries__isCalendly=True
+        Q(doNotMarket=True) | Q(enquiries__isCalendly=True)
     )[:75]
     for lead in qs:
         result = FollowUpEmail(str(lead.caseUID))
