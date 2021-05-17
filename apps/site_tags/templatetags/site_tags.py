@@ -80,8 +80,8 @@ def roundNum(arg, ndigits):
     return round(arg,n)
 
 
-def active_enquiries(enquries): 
-    return enquries.filter(deleted_on__isnull=True).order_by('-timestamp')
+def active_enquiries(enquries):
+    return enquries.filter(deleted_on__isnull=True).order_by('-timestamp') if enquries else []
 
 
 # REGISTRATION

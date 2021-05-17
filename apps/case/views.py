@@ -619,7 +619,7 @@ class CaseOwnView(HouseholdLoginRequiredMixin, View):
 
 
 class CaseAssignView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, UpdateView):
-    template_name = 'case/caseDetail.html'
+    template_name = 'case/caseAssign.html'
     email_template_name = 'case/email/assignEmail.html'
     form_class = CaseAssignForm
     model = Enquiry
