@@ -18,6 +18,7 @@ from apps.lib.site_Enums import (
 from apps.enquiry.exceptions import MissingRequiredFields
 from apps.enquiry.util import find_auto_campaign
 
+logger = logging.getLogger('myApps')
 
 REQUIRED_FIELDS = [
     'last',
@@ -133,7 +134,7 @@ class DataIngestion(APIView):
             #'origin_timestamp': json_payload.get('origin_timestamp'),
             'origin_id': json_payload.get('origin_id'),
             'user': integration_user,
-            'marketing_campaign_id': find_auto_campaign(marketingSource),
+            'marketing_campaign': find_auto_campaign(marketingSource),
         }
         if json_payload.get('state'): 
             payload['state'] = stateTypesEnum[json_payload['state']].value
@@ -153,7 +154,7 @@ class DataIngestion(APIView):
         try:
             self.process_payload(json_payload)
         except Exception as e:
-            logging.exception("Ingestion Error")
+            logger.exception("Ingestion Error")
             if type(e) is MissingRequiredFields:
                 content = {
                     'status': str(e)
