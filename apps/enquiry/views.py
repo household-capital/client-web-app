@@ -37,7 +37,7 @@ from apps.lib.site_Logging import write_applog
 from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.site_Utilities import parse_api_name, parse_api_names
 from .forms import EnquiryForm, EnquiryDetailForm, EnquiryCallForm, \
-    AddressForm, PartnerForm
+    AddressForm, PartnerForm, EnquiryAssignForm
 from .models import Enquiry
 from apps.lib.site_Utilities import cleanPhoneNumber, cleanValuation, calcAge
 from apps.lib.site_ViewUtils import updateNavQueue
@@ -1051,3 +1051,31 @@ class EnquiryNotesView(HouseholdLoginRequiredMixin, TemplateView):
         context = super(EnquiryNotesView, self).get_context_data(**kwargs)
         context['obj'] = self.get_object()
         return context
+
+
+class EnquiryAssignView(HouseholdLoginRequiredMixin, UpdateView):
+    template_name = 'enquiry/enquiryOther.html'
+    form_class = EnquiryAssignForm
+    model = Enquiry
+
+    def get_object(self, queryset=None):
+        if "uid" in self.kwargs:
+            enqUID = str(self.kwargs['uid'])
+            queryset = Enquiry.objects.queryset_byUID(str(enqUID))
+            obj = queryset.get()
+            return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(EnquiryAssignView, self).get_context_data(**kwargs)
+        context['title'] = 'Assign Enquiry'
+
+        return context
+
+    def form_valid(self, form):
+        preObj = Enquiry.objects.queryset_byUID(str(self.kwargs['uid'])).get()
+        enq_obj = form.save(commit=False)
+        # NB: we must send down the "preObj" so the user switch gets documented correctly in the enquiry notes
+        # during reassignment.
+
+        messages.success(self.request, "Enquiry assigned to " + enq_obj.user.username)
+        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
