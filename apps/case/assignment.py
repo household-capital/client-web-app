@@ -51,6 +51,9 @@ def _assign_leads(assignments, notify):
                 if lead.owner:
                     add_case_note(lead, '[# Lead assigned from ' + lead.owner.username + ' to ' + username + ' #]', user=None)
                 lead.owner = user
+                latest_enq = lead.enquiries.latest('pk')
+                latest_enq.user = user
+                latest_enq.save(should_sync=False)
                 lead.save(should_sync=True)
                 processed.append(lead)
                 write_applog('INFO', 'case.assignments', 'assign_leads', 'Succeeded')
