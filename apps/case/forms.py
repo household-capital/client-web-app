@@ -56,6 +56,7 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
         widgets = {}
 
     caseStages = (
+        (caseStagesEnum.WAIT_LIST.value, "Wait List"),
         (caseStagesEnum.UNQUALIFIED_CREATED.value,"Unqualified / Lead created"),
         (caseStagesEnum.MARKETING_QUALIFIED.value,"Marketing Qualified"),
         (caseStagesEnum.SQ_GENERAL_INFO.value,"SQ - General Info"),
@@ -71,6 +72,7 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
 
         (caseStagesEnum.MEETING_HELD.value, "Meeting Held"),
         (caseStagesEnum.APPLICATION.value, "Application"),
+        (caseStagesEnum.CLOSED.value, "Closed"),
     )
 
     caseStage = forms.TypedChoiceField(choices=caseStages, coerce=int, initial=caseStagesEnum.UNQUALIFIED_CREATED.value)

@@ -188,6 +188,7 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
         (enquiryStagesEnum.FOLLOW_UP_VOICEMAIL.value,"Follow-up: Voicemail"),
         (enquiryStagesEnum.INITIAL_NO_ANSWER.value, "Initial: No Answer"),
         (enquiryStagesEnum.NVN_EMAIL_SENT.value, "NVN: Email Sent"),
+        (enquiryStagesEnum.WAIT_LIST.value, "Wait List"),
 
     )
 
@@ -434,9 +435,12 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
             existing_case = get_existing_case(self.phoneNumber, self.email)
             if existing_case is not None: 
                 existing_case.enquiries.add(self)
-                if self.referrer in RESET_DO_NOT_MARKET:
+                if is_create and self.referrer in RESET_DO_NOT_MARKET:
                     existing_case.doNotMarket = False
                     existing_case.save(should_sync=True)
+                if existing_case.caseStage == caseStagesEnum.CLOSED.value: 
+                    existing_case.caseStage = caseStagesEnum.UNQUALIFIED_CREATED.value
+                    existing_case.save()#should_sync=True)
             else:
                 if not ignore_case_creation: # Special kwarg to prevent case creation [During Migration]
                     create_case_from_enquiry(self)

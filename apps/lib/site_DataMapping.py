@@ -35,8 +35,8 @@ def mapEnquiryForSF(enqUID, is_create=False):
         'isCare': 'IsCare__c',
         'payIntPeriod': 'Pay_Interest_Period__c',
 
-        'status': 'HCC_Loan_Eligible__c',
-        'errorText': 'Ineligibility_Reason__c',
+        # 'status': 'HCC_Loan_Eligible__c',
+        # 'errorText': 'Ineligibility_Reason__c',
         'maxLoanAmount': 'Maximum_Loan__c',
         'maxLVR': 'Maximum_LVR__c',
         'maxDrawdownAmount': 'Max_Drawdown_Amount__c',
@@ -628,6 +628,7 @@ def mapRolesToFacility(loan, contact, role):
 
     payload = {'facility': loan,
                'sfContactID': contact['Id'],
+               'sfRoleID': role['Id'],
                'role': roleTypes[role['Role__c']],
                # 'isContact': False,  ####
                # 'isInformation:

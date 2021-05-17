@@ -78,10 +78,6 @@ def get_celery_beat_config():
             'task': 'CW_Wordpress_Data_stats',
             'schedule': schedule(run_every=timedelta(minutes=5))
         },
-        'CloudWatch_Task_Poll_Catchall_SF_Lead': {
-            'task': 'CW_Catchall_SF_Lead_stats',
-            'schedule': crontab(hour=4, minute=0)
-        },
         'CloudWatch_Task_Poll_Catchall_SF_Case_Lead': {
             'task': 'CW_Catchall_SF_Case_Lead_stats',
             'schedule': crontab(hour=4, minute=0)

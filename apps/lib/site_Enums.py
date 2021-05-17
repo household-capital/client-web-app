@@ -17,6 +17,7 @@ class appTypesEnum(Enum):
 
 @accessInTemplate
 class caseStagesEnum(Enum):
+    WAIT_LIST = 18
     DISCOVERY=0
     PRE_MEETING= 1
     MEETING_HELD= 2
@@ -41,6 +42,7 @@ class caseStagesEnum(Enum):
     SALES_ACTIVE = 13
 
 PRE_MEETING_STAGES = [
+    'WAIT_LIST',
     'UNQUALIFIED_CREATED',
     'MARKETING_QUALIFIED',
     'SQ_GENERAL_INFO',
@@ -199,6 +201,7 @@ class enquiryStagesEnum(Enum):
     INITIAL_NO_ANSWER = 13
     NVN_EMAIL_SENT = 14
     MORE_TIME_TO_THINK = 15
+    WAIT_LIST = 16
 
 @accessInTemplate
 class closeReasonEnum(Enum):

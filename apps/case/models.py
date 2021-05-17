@@ -118,6 +118,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
                   (caseStagesEnum.MEETING_BOOKED.value, "Meeting Booked"),
 
                   (caseStagesEnum.DISCOVERY.value,"Discovery"),
+                  (caseStagesEnum.WAIT_LIST.value, "Wait List"),
                   (caseStagesEnum.MEETING_HELD.value, "Meeting Held"),
                   (caseStagesEnum.APPLICATION.value, "Application"),
                   (caseStagesEnum.DOCUMENTATION.value, "Documentation"),
@@ -344,6 +345,8 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
     # default to unassigned to allow migration and not break the null/blank = False
     followUp = models.DateTimeField(auto_now_add=False, auto_now=False, blank=True, null=True)
     
+    touched_in_sf_sync = models.BooleanField(default=False, blank=True, null=True)
+
     objects=CaseManager()
 
     def __str__(self):
@@ -499,6 +502,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
 
         if is_create and self.caseNotes:
             add_case_note(self, self.caseNotes, user=None)
+        
 
         if should_sync or is_create: 
             if self.sfOpportunityID:
