@@ -143,6 +143,12 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
             raise ProcessingError("Enquiry created - but email not sent")
 
     enq_obj = convert_to_enquiry(calculator, proposed_owner)
+    if enq_obj.user is None: 
+        lead = enq_obj.case
+        lead_owner = lead.owner
+        if lead_owner is not None and lead.channelDetail == enq_obj.marketingSource: 
+            enq_obj.user = lead_owner 
+            enq_obj.save(should_sync=False)
     try:
         calculator.actioned = 1
         calculator.save(update_fields=['actioned'])

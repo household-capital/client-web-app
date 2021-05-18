@@ -40,7 +40,8 @@ def updateCreatePartnerEnquiry(payload, enquiries_to_assign):
 
         if lead.enquiries.count() > 1: 
             # if there are >2 enquiries sitting on the lead this logic applies. Else dynamic ownership wont happen for newly created leads
-            if lead.channelDetail == new_enq.marketingSource:
+            enq_new , enq_pre = lead.enquiries.order_by('-timestamp')[:2]
+            if enq_new.marketingSource == enq_pre.marketingSource:
                 write_applog(
                     "INFO", 'Enquiry', 'EnquiryPartnerUpload',
                     'Lead already set to desired marketing source ({}), so we will not update the lead. Email = {}, Phone={}'.format(
