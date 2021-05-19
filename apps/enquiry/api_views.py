@@ -18,6 +18,11 @@ from apps.lib.site_Enums import (
 from apps.enquiry.exceptions import MissingRequiredFields
 from apps.enquiry.util import find_auto_campaign
 
+from apps.case.assignment import _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP
+
+from apps.settings.models import GlobalSettings
+
+
 logger = logging.getLogger('myApps')
 
 REQUIRED_FIELDS = [
@@ -26,6 +31,10 @@ REQUIRED_FIELDS = [
     'postcode',
     'grading',
     'stream'
+]
+
+UNASSIGN_USER_MARKETING_SOURCE = [
+    'FACEBOOK'
 ]
 
 class DataIngestion(APIView):
@@ -113,6 +122,7 @@ class DataIngestion(APIView):
         integration_user = User.objects.get(username='integration_user')
 
         firstname, lastname, name = parse_api_names(json_payload.get('first'), json_payload.get('last'))
+        global_settings = GlobalSettings.load()
 
         payload = {
             'firstname': firstname,
@@ -133,9 +143,12 @@ class DataIngestion(APIView):
             'submissionOrigin': json_payload.get('origin'),
             #'origin_timestamp': json_payload.get('origin_timestamp'),
             'origin_id': json_payload.get('origin_id'),
-            'user': integration_user,
+            # 'user': integration_user,
             'marketing_campaign': find_auto_campaign(marketingSource),
         }
+        auto_assign_config = _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP.get(marketingSource)
+        if auto_assign_config and getattr(global_settings, auto_assign_config['settings_assignee_field']).count():
+            payload['user'] = integration_user
         if json_payload.get('state'): 
             payload['state'] = stateTypesEnum[json_payload['state']].value
 
