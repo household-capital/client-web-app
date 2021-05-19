@@ -146,7 +146,7 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
     if enq_obj.user is None: 
         lead = enq_obj.case
         lead_owner = lead.owner
-        if lead_owner is not None and lead.channelDetail == enq_obj.marketingSource: 
+        if lead_owner is not None: 
             enq_obj.user = lead_owner 
             enq_obj.save(should_sync=False)
     try:
