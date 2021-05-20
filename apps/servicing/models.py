@@ -165,7 +165,8 @@ class FacilityRoles(models.Model):
         (roleEnum.VALUER.value, "Valuer"),
         (roleEnum.EXECUTOR.value, "Executor"),
         (roleEnum.SOLICITOR.value, "Solicitor"),
-        (roleEnum.BENEFICIAL_OWNER.value, "Beneficial Owner")
+        (roleEnum.BENEFICIAL_OWNER.value, "Beneficial Owner"),
+        (roleEnum.DOCUMENT_CUSTODIAN.value, "Document Custodian")
     )
 
     authorisationTypes = (

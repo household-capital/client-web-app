@@ -314,6 +314,7 @@ class roleEnum(Enum):
     EXECUTOR = 12
     SOLICITOR = 13
     BENEFICIAL_OWNER = 14
+    DOCUMENT_CUSTODIAN = 15
 
 
 @accessInTemplate
