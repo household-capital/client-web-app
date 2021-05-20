@@ -624,7 +624,9 @@ def mapRolesToFacility(loan, contact, role):
                  "Loan Writer": 10,
                  "Valuer": 11,
                  "Executor": 12,
-                 "Solicitor": 13}
+                 "Solicitor": 13,
+                 "Beneficial Owner": 14
+                 }
 
     payload = {'facility': loan,
                'sfContactID': contact['Id'],

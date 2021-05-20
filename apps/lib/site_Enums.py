@@ -313,6 +313,7 @@ class roleEnum(Enum):
     VALUER = 11
     EXECUTOR = 12
     SOLICITOR = 13
+    BENEFICIAL_OWNER = 14
 
 
 @accessInTemplate
