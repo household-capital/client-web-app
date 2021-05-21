@@ -551,7 +551,12 @@ class LoanEnquiry(HouseholdLoginRequiredMixin, CreateView):
         qs = FacilityRoles.objects.filter(facility=context['facilityObj'])
         for role in qs:
             phone = role.mobile if role.mobile is not None else role.phone
-            data.append({"enquirer": role.firstName + " " + role.lastName + " - " + role.enumRole, "email": role.email,
+            description = "{} {} - {}".format(
+                role.firstName or '',
+                role.lastName or '',
+                role.enumRole or ''
+            )
+            data.append({"enquirer": description, "email": role.email,
                          "phone": phone})
         context['dataLookup'] = json.dumps(data)
 
@@ -603,7 +608,12 @@ class LoanEnquiryUpdate(HouseholdLoginRequiredMixin, UpdateView):
         qs = FacilityRoles.objects.filter(facility=context['facilityObj'])
         for role in qs:
             phone = role.mobile if role.mobile is not None else role.phone
-            data.append({"enquirer": role.firstName + " " + role.lastName + " - " + role.enumRole, "email": role.email,
+            description = "{} {} - {}".format(
+                role.firstName or '',
+                role.lastName or '',
+                role.enumRole or ''
+            )
+            data.append({"enquirer": description, "email": role.email,
                          "phone": phone})
         context['dataLookup'] = json.dumps(data)
 
@@ -683,7 +693,12 @@ class LoanAdditionalLink(HouseholdLoginRequiredMixin, FormView):
         qs = FacilityRoles.objects.filter(facility=context['facilityObj'])
         for role in qs:
             phone = role.mobile if role.mobile is not None else role.phone
-            data.append({"contact": role.firstName + " " + role.lastName + " - " + role.enumRole, "email": role.email,
+            description = "{} {} - {}".format(
+                role.firstName or '',
+                role.lastName or '',
+                role.enumRole or ''
+            )
+            data.append({"contact": description, "email": role.email,
                          "phone": phone})
         context['dataLookup'] = json.dumps(data)
 
@@ -813,7 +828,12 @@ class LoanAnnualLink(HouseholdLoginRequiredMixin, FormView):
         qs = FacilityRoles.objects.filter(facility=context['facilityObj'])
         for role in qs:
             phone = role.mobile if role.mobile is not None else role.phone
-            data.append({"contact": role.firstName + " " + role.lastName + " - " + role.enumRole, "email": role.email,
+            description = "{} {} - {}".format(
+                role.firstName or '',
+                role.lastName or '',
+                role.enumRole or ''
+            )
+            data.append({"contact": description, "email": role.email,
                          "phone": phone})
         context['dataLookup'] = json.dumps(data)
 
