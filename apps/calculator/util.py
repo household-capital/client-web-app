@@ -108,11 +108,15 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
         email_context = {}
 
         email_context['customerFirstName'] = calculator.firstname
-
+        name = "{} {}".format(
+            enq_obj.firstname or '',
+            enq_obj.lastname or ''
+        )
+        paramStr = "?name=" + (name or '') + "&email=" + (enq_obj.email or '')
         #  Get Rates
         email_context['loanRate'] = round(ECONOMIC['interestRate'] + ECONOMIC['lendingMargin'], 2)
         email_context['compRate'] = round(email_context['loanRate'] + ECONOMIC['comparisonRateIncrement'], 2)
-
+        email_context['calendlyUrl'] = owner.profile.calendlyUrl + paramStr
         email_context['user'] = owner
         subject = "Household Capital: Your Personal Summary"
         from_email = owner.email
