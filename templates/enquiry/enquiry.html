@@ -307,7 +307,11 @@
                                         <p class="small">Created:&nbsp;&nbsp;&nbsp;&nbsp; {{ obj.timestamp|date }}</p>
                                         <p class="small">Updated: &nbsp;&nbsp;&nbsp;{{ obj.updated|date }}</p>
                                         <p class="small">Follow Up:&nbsp;&nbsp;{{ obj.followUp|date }}</p>
-
+                                        {% if obj.user %}
+                                        <p class="small">Owner:&nbsp;&nbsp;{{ obj.user.username }}</p>
+                                        {% else %}
+                                        <p class="small">No Owner</p>
+                                        {% endif %}
                                         {% if obj.deleted_on %}
                                             <hr/>
                                             <p class="small"> <b>Deleted On:</b>&nbsp;&nbsp;{{ obj.deleted_on|date }}</p>
