@@ -51,6 +51,19 @@ ECONOMIC = {'inflationRate': float(2.50),
             'defaultMargin': float(2.00),
             }
 
+ECONOMIC_PRODUCT_TYPE = {
+    "HHC.RM.2021": {
+        "FEE_TYPE": "FLAT",
+        "ESTABLISHMENT_FEE_AMOUNT": 950,
+        "DRAWDOWN_FEE_TYPE": None
+
+    },
+    "HHC.RM.2021": {
+        "FEE_TYPE": "PERCENTAGE",
+        "ESTABLISHMENT_FEE_AMOUNT": 0.015
+    }
+} 
+
 APP_SETTINGS = {'minProjectionYears': 15,
                 'incomeProjectionYears': 10,
                 'intRateStress': 2,
