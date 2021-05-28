@@ -1,4 +1,4 @@
-import magic
+import magic, requests, os
 import datetime
 import backports.datetime_fromisoformat
 backports.datetime_fromisoformat.MonkeyPatch.patch_fromisoformat()
@@ -8,6 +8,7 @@ import pytz
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.utils.timezone import is_naive
+from urllib.parse import urljoin
 
 # UTILITY FUNCTIONS
 
@@ -158,6 +159,51 @@ def parse_api_name(name):
 def join_name(firstname=None, middlename=None, lastname=None):
     return (firstname or '') + ((' ' + middlename) if middlename else '') + ((' ' + lastname) if lastname else '')
 
+def get_default_product_now():
+    tz = pytz.timezone('Australia/Melbourne')
+    now = datetime.datetime.now(tz)
+    second_before_first_june = datetime.datetime(day=1, month=6, year=2021).replace(tzinfo=tz) - datetime.timedelta(seconds=1)
+    return "HHC.RM.2021" if now > second_before_first_june else "HHC.RM.2018"
 
 def calc_age(dob):
     return int((datetime.date.today() - dob).days / 365.25)
+
+def serialise_payload(payload): 
+    SERIALIZABLE_TYPES = [
+        int,
+        float,
+        str,
+        bool
+    ]
+    payload_type = type(payload)
+    if payload_type in [list, tuple]:  
+        return payload_type([
+            serialise_payload(val)
+            for val in payload
+        ])
+    if payload_type in [dict]:
+        return {
+            x: serialise_payload(y)
+            for x,y in payload.items()
+        } 
+    return payload if (payload_type in SERIALIZABLE_TYPES or payload is None) else str(payload)
+
+
+def loan_api_response(endpoint, payload, params={}, headers={}): 
+    payload = serialise_payload(payload)
+    res = requests.post(
+        urljoin(
+            os.environ.get('HHC_LOAN_API_ENDPOINT'),
+            endpoint
+        ),
+        headers={
+            'x-api-key': os.environ.get('HHC_ENDPOINT_API_KEY'),
+            **headers
+
+        },
+        json=payload,
+        params=params
+    )
+    if res.status_code != 200: 
+        raise Exception(res.content)
+    return res.json()
