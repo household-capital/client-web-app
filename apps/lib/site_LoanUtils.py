@@ -235,11 +235,13 @@ def getProjectionResults(sourceDict, scenarioList, img_url=None):
     
     loanProj = LoanProjection()
     result = loanProj.create(sourceDict)
+    _product_type = sourceDict.get('product_type', 'HHC.RM.2021')
     calcArray = loan_api_response(
         "/api/calc/v1/proj/primary",
         sourceDict,
         {
-            'years': 15
+            'years': 15,
+            "product": _product_type
         }
     )
     result = loanProj.calcProjections()
@@ -355,7 +357,8 @@ def getProjectionResults(sourceDict, scenarioList, img_url=None):
             "/api/calc/v1/proj/primary",
             sourceDict,
             {
-                "hpiStressLevel": APP_SETTINGS['hpiHighStressLevel']
+                "hpiStressLevel": APP_SETTINGS['hpiHighStressLevel'],
+                "product": _product_type
             }
         )
         # result = loanProj.calcProjections(hpiStressLevel=APP_SETTINGS['hpiHighStressLevel'])
@@ -379,7 +382,8 @@ def getProjectionResults(sourceDict, scenarioList, img_url=None):
             "/api/calc/v1/proj/primary",
             sourceDict,
             {
-                "intRateStress": APP_SETTINGS['intRateStress']
+                "intRateStress": APP_SETTINGS['intRateStress'],
+                "product": _product_type
             }
         )
 
@@ -404,7 +408,8 @@ def getProjectionResults(sourceDict, scenarioList, img_url=None):
             "/api/calc/v1/proj/primary",
             sourceDict,
             {
-                "makeIntPayment": True
+                "makeIntPayment": True,
+                "product": _product_type
             }
         )
         context['resultsLoanBalance4'] = getResultsListCalcArray(calcArray, 'BOPLoanValue')['data'] # loanProj.getResultsList('BOPLoanValue')['data']

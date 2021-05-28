@@ -329,7 +329,8 @@ class IntroductionView3(HouseholdLoginRequiredMixin, SessionRequiredMixin, Conte
                 self.extra_context,
                 {
                     'increment': 100,
-                    'years': 15
+                    'years': 15,
+                    "product": self.extra_context.get('product_type', "HHC.RM.2021")
                 }
             )
             context['sliderData'] = json.dumps(proj_data['dataArray'])
