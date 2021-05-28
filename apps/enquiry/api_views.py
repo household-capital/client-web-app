@@ -44,7 +44,9 @@ class DataIngestion(APIView):
         marketing_source_value = json_payload['stream']
         is_social = marketing_source_value in [
             'LINKEDIN',
-            'FACEBOOK'
+            'FACEBOOK',
+            'FACEBOOK_INTERACTIVE',
+            'FACEBOOK_CALCULATOR'
         ]
         upload_type = 'SOCIAL' if is_social else 'PARTNER'
         enquiryString = "[# Updated from {} Upload #]".format(upload_type)

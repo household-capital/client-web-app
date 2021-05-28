@@ -85,6 +85,8 @@ _AUTO_CAMPAIGN_MARKETINGSOURCE_LOOKUP = {
     marketingTypesEnum.NATIONAL_SENIORS.value: "autocampaigns_NATIONAL_SENIORS",
     marketingTypesEnum.YOUR_LIFE_CHOICES.value: "autocampaigns_YOUR_LIFE_CHOICES",
     marketingTypesEnum.FACEBOOK.value: "autocampaigns_FACEBOOK",
+    marketingTypesEnum.FACEBOOK_INTERACTIVE.value: "autocampaigns_FACEBOOK",
+    marketingTypesEnum.FACEBOOK_CALCULATOR.value: "autocampaigns_FACEBOOK",
     marketingTypesEnum.LINKEDIN.value: "autocampaigns_LINKEDIN",
 }
 
