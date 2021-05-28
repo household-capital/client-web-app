@@ -906,7 +906,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
 
             messages.success(self.request, "Success - %s enquiries imported" % processed_count)
 
-        elif partner_value == -1: # pseudo facebook source 
+        elif partner_value == marketingTypesEnum.FACEBOOK_INTERACTIVE.value: # pseudo facebook source 
             # pseudo fb source with different file schema 
             write_applog("INFO", 'Enquiry', 'EnquiryPartnerUpload', 'FACEBOOK INTERACTIVE')
             if header[6] != 'Est. Property value':
@@ -932,7 +932,7 @@ class EnquiryPartnerUpload(HouseholdLoginRequiredMixin, FormView):
                         "phoneNumber": phoneNumber,
                         "valuation": None,
                         "age_1": None,
-                        "marketingSource": marketingTypesEnum.FACEBOOK.value,
+                        "marketingSource": marketingTypesEnum.FACEBOOK_INTERACTIVE.value,
                         "referrer": directTypesEnum.SOCIAL.value,
                         "productType": productTypesEnum.LUMP_SUM.value,
                         "marketing_campaign": marketing_campaign,

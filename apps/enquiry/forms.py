@@ -526,7 +526,9 @@ class PartnerForm(forms.Form):
         (marketingTypesEnum.STARTS_AT_60.value, "Starts at 60"),
         (marketingTypesEnum.CARE_ABOUT.value, "Care About"),
         (marketingTypesEnum.FACEBOOK.value, "Facebook"),
-        (-1, "Facebook Interactive"),
+        (marketingTypesEnum.FACEBOOK_CALCULATOR.value, "Facebook Calculator"),
+        (marketingTypesEnum.FACEBOOK_INTERACTIVE.value, "Facebook Interactive"),
+        # (-1, "Facebook Interactive"),
         (marketingTypesEnum.NATIONAL_SENIORS.value, "National Seniors"),
         (marketingTypesEnum.LINKEDIN.value, "LinkedIn")        
     )

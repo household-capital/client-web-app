@@ -75,6 +75,26 @@ class GlobalSettings(SingletonModel):
         )
     )
 
+    autoassignees_FACEBOOK_INTERACTIVE = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='autoassignees_FACEBOOK_INTERACTIVE',
+        blank=True,
+        limit_choices_to=Q(
+            Q(is_active=True) #&
+            #Q(profile__isCreditRep=True)
+        )
+    )
+
+    autoassignees_FACEBOOK_CALCULATOR = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='autoassignees_FACEBOOK_CALCULATOR',
+        blank=True,
+        limit_choices_to=Q(
+            Q(is_active=True) #&
+            #Q(profile__isCreditRep=True)
+        )
+    )
+
     autoassignees_LINKEDIN = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         related_name='autoassignees_LINKEDIN',

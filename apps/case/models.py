@@ -177,6 +177,8 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
         (marketingTypesEnum.DIRECT_MAIL.value, "Direct mail"),
         (marketingTypesEnum.DIRECT_EMAIL.value, "Direct Email"),
         (marketingTypesEnum.FACEBOOK.value, "Facebook"),
+        (marketingTypesEnum.FACEBOOK_INTERACTIVE.value, "Facebook Interactive"),
+        (marketingTypesEnum.FACEBOOK_CALCULATOR.value, "Facebook Calculator"),
         (marketingTypesEnum.LINKEDIN.value, "LinkedIn"),
         (marketingTypesEnum.YOUR_LIFE_CHOICES.value, "Your Life Choices"),
         (marketingTypesEnum.NATIONAL_SENIORS.value, "National Seniors"),

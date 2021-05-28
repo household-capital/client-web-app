@@ -31,6 +31,8 @@ class GlobalSettingsForm(forms.ModelForm):
             'autoassignees_NATIONAL_SENIORS',
             'autoassignees_YOUR_LIFE_CHOICES',
             'autoassignees_FACEBOOK',
+            'autoassignees_FACEBOOK_INTERACTIVE',
+            'autoassignees_FACEBOOK_CALCULATOR',
             'autoassignees_LINKEDIN',
             'autocampaigns_STARTS_AT_60',
             'autocampaigns_CARE_ABOUT',
@@ -95,6 +97,14 @@ class GlobalSettingsForm(forms.ModelForm):
                         Div(
                             Div(HTML("Facebook:"), css_class='form-label pb-1'),
                             Div(Field('autoassignees_FACEBOOK'), css_class='pb-3')
+                        ),
+                        Div(
+                            Div(HTML("Facebook Interactive:"), css_class='form-label pb-1'),
+                            Div(Field('autoassignees_FACEBOOK_INTERACTIVE'), css_class='pb-3')
+                        ),
+                        Div(
+                            Div(HTML("Facebook Calculator:"), css_class='form-label pb-1'),
+                            Div(Field('autoassignees_FACEBOOK_CALCULATOR'), css_class='pb-3')
                         ),
                         Div(
                             Div(HTML("LinkedIn:"), css_class='form-label pb-1'),
