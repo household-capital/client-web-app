@@ -149,7 +149,7 @@ def getAsicProjectionPeriodsFromSourceDict(sourceDict):
     asicProjAge2 = projectionAge
     return asicProjAge1 - minAge, asicProjAge2 - minAge
 
-def myround(self, val, base=5):
+def myround(val, base=5):
     if val == 100:
         return 100
     else:
@@ -174,7 +174,7 @@ def getResultsListCalcArray(calcArray, keyName, **kwargs):
     * primarily for used to pass to templates in Django views
     * optionally calculates scaling for images
         """
-    def logOrZero(self, val):
+    def logOrZero(val):
         if val <= 0:
             return 0
         return log(val)
@@ -237,8 +237,13 @@ def getProjectionResults(sourceDict, scenarioList, img_url=None):
     result = loanProj.create(sourceDict)
     calcArray = loan_api_response(
         "/api/calc/v1/proj/primary",
-        sourceDict
+        sourceDict,
+        {
+            'years': 15
+        }
     )
+    result = loanProj.calcProjections()
+
     # if result['status'] == "Error":
     #     write_applog("ERROR", 'site_utilities', 'getProjectionResults', result['responseText'])
     #     return

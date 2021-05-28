@@ -191,6 +191,7 @@ def serialise_payload(payload):
 
 def loan_api_response(endpoint, payload, params={}, headers={}): 
     payload = serialise_payload(payload)
+
     res = requests.post(
         urljoin(
             os.environ.get('HHC_LOAN_API_ENDPOINT'),

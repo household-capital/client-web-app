@@ -393,7 +393,7 @@ def mapCaseToOpportunity(caseObj, lossObj):
         'planForCare': caseObj.factfind.plan_for_aged_care,
         'additionalCreditInfo': caseObj.factfind.additional_info_credit,
 
-        
+        'feeType': caseObj.loan.product_type
     }
     # syncing new address fields - hm-2097
     for db_field, sf_name in db_to_sf_map.items(): 
