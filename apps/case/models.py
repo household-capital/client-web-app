@@ -14,8 +14,7 @@ from django_comments.models import Comment
 
 #Local Application Imports
 from apps.lib.site_Enums import *
-from apps.lib.hhc_LoanValidator import LoanValidator
-from apps.lib.site_Utilities import calc_age, get_default_product_now
+from apps.lib.site_Utilities import calc_age, get_default_product_now, validate_loan
 
 from apps.accounts.models import Referer
 from urllib.parse import urljoin
@@ -467,10 +466,12 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
     
     def save(self, should_sync=False, *args, **kwargs):
         is_create = self.pk is None
-
+        if is_create: 
+            product_type = "HHC.RM.2021"
+        else: 
+            product_type = self.loan.product_type
         my_dict = self.__dict__
-        validator = LoanValidator(my_dict)
-        validation_result = validator.validateLoan()
+        validation_result = validate_loan(my_dict, product_type)
 
         if validation_result['status'] == "Error":
             self.is_eligible = 0

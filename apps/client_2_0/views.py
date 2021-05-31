@@ -29,7 +29,7 @@ from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.site_DataMapping import serialisePurposes
 from apps.lib.site_Globals import ECONOMIC, APP_SETTINGS, LOAN_LIMITS
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Utilities import firstNameSplit, loan_api_response
+from apps.lib.site_Utilities import firstNameSplit, loan_api_response, validate_loan
 from apps.case.utils import createCaseModelSettings
 from apps.lib.site_ViewUtils import updateNavQueue
 from apps.lib.site_LoanUtils import validateLoanGetContext, getProjectionResults, populateDrawdownPurpose
@@ -197,9 +197,12 @@ class SetClientView(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHe
         # perform high-level validation of client data
         clientDict = {}
         clientDict = self.get_queryset().values()[0]
-
-        loanObj = LoanValidator([], clientDict)
-        chkResponse = loanObj.validateLoan()
+        case_obj = self.get_object()
+        
+        chkResponse =  validate_loan(
+            clientDict,
+            case_obj.loan.product_type
+        )
 
         if chkResponse['status'] == "Ok":
             # if ok, renders the success_url as normal
@@ -644,7 +647,7 @@ class Care2(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, Up
         context = super(Care2, self).get_context_data(**kwargs)
         context['title'] = 'Care'
         context['titleUrl'] = reverse_lazy('client2:navigation')
-        context['menuPurposes'] = {"display": True, "navigation": True, 'data': {
+    context['menuPurposes'] = {"display": True, "navigation": True, 'data': {
             'care': True}}
 
         return context

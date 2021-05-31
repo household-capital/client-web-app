@@ -28,6 +28,9 @@ from apps.lib.mixins import ReferrerLoginRequiredMixin
 from .forms import EnquiryForm, CaseDetailsForm
 from apps.enquiry.models import Enquiry
 from apps.case.models import Case
+
+from apps.lib.site_Utilities import validate_loan
+
 from urllib.parse import urljoin
 
 
@@ -63,8 +66,7 @@ class EnquiryView(ReferrerLoginRequiredMixin, UpdateView):
 
         if "uid" in self.kwargs:
             clientDict = Enquiry.objects.dictionary_byUID(str(self.kwargs['uid']))
-            loanObj = LoanValidator(clientDict)
-            chkOpp = loanObj.validateLoan()
+            chkOpp = validate_loan(clientDict)
             context['status'] = chkOpp
             queryset = Enquiry.objects.queryset_byUID(str(self.kwargs['uid']))
             obj = queryset.get()
@@ -154,10 +156,9 @@ class CaseDetailView(ReferrerLoginRequiredMixin, UpdateView):
 
         clientDict = {}
         clientObj = self.object
-        clientDict = clientObj.__dict__
-        loanObj = LoanValidator(clientDict)
-        context['status'] = loanObj.validateLoan()
-
+        clientDict = clientObj.__dict__ 
+        context['status'] = validate_loan(clientDict, clientObj.loan.product_type)
+        
         return context
 
     def form_valid(self, form):

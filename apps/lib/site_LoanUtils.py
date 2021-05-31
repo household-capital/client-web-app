@@ -9,11 +9,11 @@ from apps.lib.site_DataMapping import serialisePurposes
 from apps.lib.site_Enums import loanTypesEnum, dwellingTypesEnum, appTypesEnum, productTypesEnum, incomeFrequencyEnum, clientTypesEnum
 from apps.lib.site_Globals import ECONOMIC, APP_SETTINGS, LOAN_LIMITS
 from apps.lib.site_Logging import write_applog
+from apps.lib.site_Utilities import firstNameSplit, loan_api_response, get_loan_status
 
 from apps.application.models import Application
 from apps.case.models import Case, Loan, ModelSetting
 from apps.enquiry.models import Enquiry
-from apps.lib.site_Utilities import firstNameSplit, loan_api_response
 
 from urllib.parse import urljoin
 
@@ -35,8 +35,10 @@ def validateLoanGetContext(caseUID):
     purposes = loanObj.get_purposes()
 
     # 3. Validate loan
-    loanVal = LoanValidator(clientDict, loanDict, modelDict)
-    loanStatus = loanVal.getStatus()
+    # loanVal = LoanValidator(clientDict, loanDict, modelDict)
+    # loanStatus = loanVal.getStatus()
+
+    loanStatus = get_loan_status({**clientDict, **loanDict, **modelDict}, loanDict['product_type'])
 
     # 4. Update Case
     loanQS = Loan.objects.queryset_byUID(caseUID)

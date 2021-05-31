@@ -33,7 +33,7 @@ from apps.lib.site_Enums import caseStagesEnum, EDITABLE_STAGES, PRE_MEETING_STA
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Logging import write_applog
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
-from apps.lib.site_Utilities import cleanPhoneNumber
+from apps.lib.site_Utilities import cleanPhoneNumber, validate_loan 
 from apps.lib.site_EmailUtils import sendTemplateEmail
 from apps.lib.site_ViewUtils import updateNavQueue
 from apps.lib.site_LoanUtils import validateLoanGetContext, getProjectionResults
@@ -211,7 +211,7 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
         # Basic Validation only
         clientDict = caseObj.__dict__
         loanObj = LoanValidator(clientDict)
-        context['status'] = loanObj.validateLoan()
+        context['status'] = validate_loan(clientDict, caseLoanObj.product_type)
 
         if (context['status']['status'] == 'Ok') and (caseLoanObj.totalLoanAmount != 0):
             # Undertake full validation

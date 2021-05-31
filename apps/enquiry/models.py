@@ -14,7 +14,7 @@ from django.urls import reverse_lazy
 from django.db.models import Q
 
 from apps.helpers.model_utils import ReversionModel
-from apps.lib.site_Utilities import join_name
+from apps.lib.site_Utilities import join_name, validate_loan
 from apps.lib.hhc_LoanValidator import LoanValidator
 
 
@@ -407,8 +407,13 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
                 self.propensityCategory = propensityCategoriesEnum.D.value
 
         my_dict = self.__dict__
-        validator = LoanValidator(my_dict)
-        validation_result = validator.validateLoan()
+
+        if is_create and self.case: 
+            product_type = "HHC.RM.2021"
+        else: 
+            product_type = self.case.loan.product_type
+        
+        validation_result = validate_loan(my_dict, product_type)
 
         if validation_result['status'] == "Error":
             self.status = 0

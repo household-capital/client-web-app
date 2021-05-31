@@ -189,7 +189,7 @@ def serialise_payload(payload):
     return payload if (payload_type in SERIALIZABLE_TYPES or payload is None) else str(payload)
 
 
-def loan_api_response(endpoint, payload, params={}, headers={}): 
+def loan_api_response(endpoint, payload, params={}, headers={}, return_raw_res_obj=False): 
     payload = serialise_payload(payload)
 
     res = requests.post(
@@ -205,6 +205,45 @@ def loan_api_response(endpoint, payload, params={}, headers={}):
         json=payload,
         params=params
     )
+    if return_raw_res_obj: 
+        return res
     if res.status_code != 200: 
         raise Exception(res.content)
     return res.json()
+
+def validate_loan(source_dict, product_type="HHC.RM.2021"):
+    response = loan_api_response(
+        "/api/calc/v1/valid/loan",
+        source_dict,
+        {
+            "product":product_type
+        },
+        return_raw_res_obj=True
+    )
+    validation_result = {
+        'data': {},
+        'status': "Ok",
+        'responseText':''
+    }
+    if response.status_code == 400: 
+        validation_result['responseText'] = response.json()['description']
+        validation_result['status'] = 'Error'
+    elif response.status_code == 200: 
+        validation_result['data'] = response.json()
+    else: 
+        validation_result['status'] = 'Error'
+        validation_result['responseText'] = 'API server error. Please retry a update to hit validator API.'
+    return validation_result
+
+
+def get_loan_status(source_dict, product_type="HHC.RM.2021"):
+    return {
+        'data': loan_api_response(
+            "/api/calc/v1/valid/status",
+            source_dict, 
+            {
+                "product": product_type
+            }
+        ),
+        'status': 'Ok'
+    }

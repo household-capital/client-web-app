@@ -30,7 +30,7 @@ from apps.lib.hhc_LoanProjection import LoanProjection
 from apps.lib.site_Enums import *
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Utilities import raiseAdminError, getFileFieldMimeType
+from apps.lib.site_Utilities import raiseAdminError, getFileFieldMimeType, validate_loan
 from apps.case.utils import createCaseModelSettings
 from apps.lib.site_ViewUtils import updateNavQueue
 from apps.lib.site_LoanUtils import validateApplicationGetContext, getProjectionResults, populateDrawdownPurpose
@@ -1133,7 +1133,6 @@ class ProductView(SessionRequiredMixin, ApplicationHelper, TemplateView):
                         1 - (LOAN_LIMITS['establishmentFee'] / (1 + LOAN_LIMITS['establishmentFee'])))
         loanObj = LoanValidator(srcDict)
         loanStatus = loanObj.getStatus()['data']
-
         if loanStatus['errors'] == True:
 
             if loanStatus['minloanAmountStatus'] != "Ok":
