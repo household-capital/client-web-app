@@ -210,7 +210,6 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
 
         # Basic Validation only
         clientDict = caseObj.__dict__
-        loanObj = LoanValidator(clientDict)
         context['status'] = validate_loan(clientDict, caseLoanObj.product_type)
 
         if (context['status']['status'] == 'Ok') and (caseLoanObj.totalLoanAmount != 0):

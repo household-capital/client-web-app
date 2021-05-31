@@ -647,7 +647,7 @@ class Care2(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, Up
         context = super(Care2, self).get_context_data(**kwargs)
         context['title'] = 'Care'
         context['titleUrl'] = reverse_lazy('client2:navigation')
-    context['menuPurposes'] = {"display": True, "navigation": True, 'data': {
+        context['menuPurposes'] = {"display": True, "navigation": True, 'data': {
             'care': True}}
 
         return context
@@ -949,7 +949,6 @@ class pdfLoanSummary(ContextHelper,TemplateView):
 
         #Validate the loan and generate combined context
         context = validateLoanGetContext(caseUID)
-
         # Get projection results (site utility using Loan Projection)
         projectionContext = getProjectionResults(context, ['baseScenario', 'incomeScenario', 'intPayScenario',
                                                                'pointScenario', 'stressScenario' ])

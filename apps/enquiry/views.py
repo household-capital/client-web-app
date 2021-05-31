@@ -649,10 +649,13 @@ class EnqSummaryPdfView(TemplateView):
         context = super(EnqSummaryPdfView, self).get_context_data(**kwargs)
 
         enqUID = str(kwargs['uid'])
-
+        
         # Projection Results (site.utilities)
         projectionContext = getEnquiryProjections(enqUID)
         context.update(projectionContext)
+        obj = Enquiry.objects.get(enqUID=enqUID)
+        context['product_type'] = obj.case.loan.product_type 
+
         return context
 
 

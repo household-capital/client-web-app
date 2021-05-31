@@ -532,7 +532,7 @@
         <div class="row justify-content-center pt-3 ">
             <div class="col-lg-11 text-center">
 
-                <p class="print-text-fine pb-1">* A 1.50% establishment fee is payable and included in the loan amount. The
+                <p class="print-text-fine pb-1">* A {% if product_type == 'HHC.RM.2021'%} $950 {% else %}1.50% {% endif %} establishment fee is payable and included in the loan amount. The
                     Comparison Rate
                     is {{ comparisonRate }}%. This is based on a loan of $150,000 secured
                     for a term of 25 years. Interest is calculated daily and

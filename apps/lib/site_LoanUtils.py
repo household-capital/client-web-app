@@ -100,8 +100,7 @@ def validateApplicationGetContext(appUID):
     purposes = appObj.get_purposes()
 
     # 3. Validate app
-    loanVal = LoanValidator(appDict)
-    loanStatus = loanVal.getStatus()
+    loanStatus = get_loan_status(appDict) 
 
     # 4. Update app
     appQS = Application.objects.queryset_byUID(appUID)
@@ -371,7 +370,7 @@ def getProjectionResults(sourceDict, scenarioList, img_url=None):
         context['resultsHomeEquity2'] = getResultsListCalcArray(calcArray, 'BOPHomeEquity')['data'] # loanProj.getResultsList('BOPHomeEquity')['data']
         context['resultsHomeEquityPC2'] = getResultsListCalcArray(calcArray, 'BOPHomeEquityPC')['data'] #loanProj.getResultsList('BOPHomeEquityPC')['data']
         context['resultsHomeImages2'] = getImageListCalcArray(calcArray, 'BOPHomeEquityPC', img_url)['data'] #loanProj.getImageList('BOPHomeEquityPC', img_url)['data']
-        context['resultsHouseValue2'] = getImageListCalcArray(calcArray,'BOPHouseValue', imageSize=110, imageMethod='lin')['data'] # loanProj.getResultsList('BOPHouseValue', imageSize=110, imageMethod='lin')['data']
+        context['resultsHouseValue2'] = getResultsListCalcArray(calcArray,'BOPHouseValue', imageSize=110, imageMethod='lin')['data'] # loanProj.getResultsList('BOPHouseValue', imageSize=110, imageMethod='lin')['data']
         context['cumLumpSum2'] = getResultsListCalcArray(calcArray, 'CumLumpSum')['data'] # loanProj.getResultsList('CumLumpSum')['data']
         context['cumRegular2'] = getResultsListCalcArray(calcArray, 'CumRegular')['data'] # loanProj.getResultsList('CumRegular')['data']
         context['cumFee2'] = getResultsListCalcArray(calcArray, 'CumFee')['data'] # loanProj.getResultsList('CumFee')['data']
@@ -439,8 +438,7 @@ def validateEnquiry(enqUID):
     context.update(enquiryProductContext(obj))
 
     # Validate loan to get limit amounts
-    loanObj = LoanValidator(context)
-    return loanObj.getStatus()
+    return get_loan_status(context, obj.case.loan.product_type)
 
 
 def getEnquiryProjections(enqUID):
@@ -455,8 +453,8 @@ def getEnquiryProjections(enqUID):
     context["obj"] = obj
 
     # Validate loan to get limit amounts
-    loanObj = LoanValidator(context)
-    loanStatus = loanObj.getStatus()['data']
+    
+    loanStatus = get_loan_status(context, obj.case.loan.product_type)['data']
     context.update(loanStatus)
 
     context["transfer_img"] = staticfiles_storage.url("img/icons/transfer_" + str(
