@@ -545,7 +545,7 @@ class Loan(models.Model):
     )
 
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
-    product_type = models.CharField(null=True, blank=True, max_length=11)
+    product_type = models.CharField(null=True, blank=True, max_length=11, choices=productTypes)
     localLoanID = models.AutoField(primary_key=True)
     maxLVR = models.FloatField(null=False, blank=False,default=0)
     actualLVR = models.FloatField(null=True, blank=True, default=0)
