@@ -407,11 +407,10 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
                 self.propensityCategory = propensityCategoriesEnum.D.value
 
         my_dict = self.__dict__
-
-        if is_create and self.case: 
-            product_type = "HHC.RM.2021"
-        else: 
+        if self.case:
             product_type = self.case.loan.product_type
+        else: 
+            product_type = "HHC.RM.2021"
         
         validation_result = validate_loan(my_dict, product_type)
 
