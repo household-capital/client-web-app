@@ -55,6 +55,8 @@ def mapEnquiryForSF(enqUID, is_create=False):
         'enqUID': 'External_Id__c',
         'firstname': 'First_Name__c',
         'lastname': 'Last_Name__c',
+
+        'product_type': 'Fee_Type__c'
     }
 
     SF_BOOLEAN_FIELDS = ['isTopUp', 'isRefi', 'isLive', 'isGive', 'isCare', 'doNotMarket']

@@ -438,7 +438,7 @@ def validateEnquiry(enqUID):
     context.update(enquiryProductContext(obj))
 
     # Validate loan to get limit amounts
-    return get_loan_status(context, obj.case.loan.product_type)
+    return get_loan_status(context, obj.product_type)
 
 
 def getEnquiryProjections(enqUID):
@@ -454,7 +454,7 @@ def getEnquiryProjections(enqUID):
 
     # Validate loan to get limit amounts
     
-    loanStatus = get_loan_status(context, obj.case.loan.product_type)['data']
+    loanStatus = get_loan_status(context, obj.product_type)['data']
     context.update(loanStatus)
 
     context["transfer_img"] = staticfiles_storage.url("img/icons/transfer_" + str(

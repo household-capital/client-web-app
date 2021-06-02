@@ -16,3 +16,4 @@ second_before_first_june = datetime.datetime(day=1, month=6, year=2021).replace(
 #).exclude(deleted_on__isnull=False)
 Loan.objects.update(product_type="HHC.RM.2018")
 
+Enquiry.objects.filter(timestamp__lte=second_before_first_june).update(product_type="HHC.RM.2018")

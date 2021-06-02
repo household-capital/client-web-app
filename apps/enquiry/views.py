@@ -258,7 +258,7 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Upd
         obj = self.get_object()
         clientDict = Enquiry.objects.dictionary_byUID(str(self.kwargs['uid']))
         
-        chkOpp = validate_loan(clientDict, obj.case.loan.product_type) 
+        chkOpp = validate_loan(clientDict, obj.product_type) 
         context['status'] = chkOpp
 
         # Check for duplicates
@@ -602,7 +602,7 @@ class EnquiryEmailEligibility(HouseholdLoginRequiredMixin, TemplateView):
         obj = queryset.get()
 
         clientDict = queryset.values()[0]
-        email_context['eligibility'] = validate_loan(clientDict, obj.case.loan.product_type)
+        email_context['eligibility'] = validate_loan(clientDict, obj.product_type)
         email_context['obj'] = obj
 
         subject, from_email, to = "Eligibility Summary", settings.DEFAULT_FROM_EMAIL, self.request.user.email
@@ -654,7 +654,7 @@ class EnqSummaryPdfView(TemplateView):
         projectionContext = getEnquiryProjections(enqUID)
         context.update(projectionContext)
         obj = Enquiry.objects.get(enqUID=enqUID)
-        context['product_type'] = obj.case.loan.product_type 
+        context['product_type'] = obj.product_type 
 
         return context
 
