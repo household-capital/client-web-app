@@ -45,7 +45,8 @@ def createLoanVariation(facilityObj):
 
     Loan.objects.filter(case=newCaseObj).update(**orgLoanDict)
     newLoanObj = Loan.objects.filter(case=newCaseObj).get()
-
+    newLoanObj.product_type = facilityObj.product_type
+    newLoanObj.save()
     # 3. Case ModelSetting Object
     settingsDict={}
     settingsDict['establishmentFeeRate'] = facilityObj.establishmentFeeRate

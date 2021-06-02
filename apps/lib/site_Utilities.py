@@ -10,6 +10,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.utils.timezone import is_naive
 from urllib.parse import urljoin
 
+
 # UTILITY FUNCTIONS
 
 def raiseAdminError(title, body):

@@ -607,6 +607,7 @@ def mapLoanToFacility(caseObj, loanDict):
         'bankAccountNumber': loanDict['Account_Number__c'],
         'bsbNumber': loanDict['BSB__c'],
         'meetingDate': caseObj.meetingDate,  # Temporary
+        'product_type': caseObj.loan.product_type
     }
 
     return payload
