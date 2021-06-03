@@ -243,7 +243,7 @@ def sfLeadConvert(caseUID):
     else:
         write_applog("INFO", 'Case', 'Tasks-SF_Lead_Convert', description + "-" + "Lead Converted")
         sfOppSynch(caseUID)
-        #sfDocSynch(caseUID)
+        #sfDocSynch(caseUID) REVERT THIS
         return "Lead converted and synchd!"
 
 
