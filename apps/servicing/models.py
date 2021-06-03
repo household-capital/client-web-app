@@ -25,6 +25,11 @@ stateTypes=(
         (stateTypesEnum.NT.value, "NT"),
     )
 
+FeeProductTypes = (
+    ("HHC.RM.2018", "HHC.RM.2018"),
+    ("HHC.RM.2021", "HHC.RM.2021")
+)
+
 class FacilityManager(models.Manager):
 
     def queueCount(self):
@@ -47,6 +52,8 @@ class Facility(models.Model):
                        (facilityStatusEnum.REPAID.value, "Repaid"),
                        (facilityStatusEnum.SUSPENDED.value, "Suspended")
     )
+
+    product_type = models.CharField(null=True, blank=True, max_length=11, choices=FeeProductTypes)
 
     facilityUID = models.UUIDField(default=uuid.uuid4, editable=False)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)

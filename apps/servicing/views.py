@@ -632,7 +632,6 @@ class LoanCreateVariation(HouseholdLoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         facilityUID = str(self.kwargs['uid'])
         facilityObj = Facility.objects.queryset_byUID(facilityUID).get()
-
         result = createLoanVariation(facilityObj)
 
         if result['status'] == 'Error':
