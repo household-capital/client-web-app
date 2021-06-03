@@ -10,6 +10,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.utils.timezone import is_naive
 from urllib.parse import urljoin
 
+from apps.lib.site_Enums import appTypesEnum
 
 # UTILITY FUNCTIONS
 
@@ -191,6 +192,7 @@ def serialise_payload(payload):
 
 
 def loan_api_response(endpoint, payload, params={}, headers={}, return_raw_res_obj=False): 
+    payload['is_variation'] = payload.get('appType') == appTypesEnum.VARIATION.value
     payload = serialise_payload(payload)
 
     res = requests.post(
