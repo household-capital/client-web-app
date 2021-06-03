@@ -1,3 +1,6 @@
+import pytz
+import datetime
+
 from config.celery import app
 from django.db.models import Q
 
@@ -141,4 +144,14 @@ def update_case_from_enquiry(enquiry, case):
     for key, value in caseDict.items():
         setattr(case, key, value)
     case.save()
+    loan = case.loan 
+
+    tz = pytz.timezone('Australia/Melbourne')
+    now = datetime.datetime.now(tz)
+    second_before_first_june = datetime.datetime(day=1, month=6, year=2021).replace(tzinfo=tz) - datetime.timedelta(seconds=1)
+    if now < second_before_first_june: 
+        loan.product_type = "HHC.RM.2018"
+    else: 
+        loan.product_type = "HHC.RM.2021"
+    loan.save()
     move_notes_to_lead(enquiry, case)

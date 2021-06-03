@@ -25,12 +25,11 @@ from urllib.parse import urljoin
 
 # Local Application Imports
 from apps.lib.api_BurstSMS import apiBurst
-from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.hhc_LoanProjection import LoanProjection
 from apps.lib.site_Enums import *
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Utilities import raiseAdminError, getFileFieldMimeType
+from apps.lib.site_Utilities import raiseAdminError, getFileFieldMimeType, validate_loan, get_loan_status
 from apps.case.utils import createCaseModelSettings
 from apps.lib.site_ViewUtils import updateNavQueue
 from apps.lib.site_LoanUtils import validateApplicationGetContext, getProjectionResults, populateDrawdownPurpose
@@ -1131,9 +1130,8 @@ class ProductView(SessionRequiredMixin, ApplicationHelper, TemplateView):
         if obj.productType == productTypesEnum.CONTINGENCY_20K.value:
             srcDict['topUpAmount'] = 20000 * (
                         1 - (LOAN_LIMITS['establishmentFee'] / (1 + LOAN_LIMITS['establishmentFee'])))
-        loanObj = LoanValidator(srcDict)
-        loanStatus = loanObj.getStatus()['data']
-
+        
+        loanStatus = get_loan_status(srcDict)['data']
         if loanStatus['errors'] == True:
 
             if loanStatus['minloanAmountStatus'] != "Ok":
@@ -1187,9 +1185,8 @@ class ProductView(SessionRequiredMixin, ApplicationHelper, TemplateView):
 
         # Get Loan Data
         obj = self.get_object()
-        loanObj = LoanValidator(obj.__dict__)
         context['obj'] = obj
-        context.update(loanObj.getStatus()['data'])
+        context.update(get_loan_status(obj.__dict__)['data'])
         context['maxIncomeAmount'] = int(
             round(context['maxDrawdownMonthly'] / (1 + LOAN_LIMITS['establishmentFee']), -1))
 

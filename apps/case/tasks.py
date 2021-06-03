@@ -22,11 +22,10 @@ from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
 from apps.lib.site_Enums import caseStagesEnum, channelTypesEnum, directTypesEnum
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Utilities import raiseTaskAdminError
+from apps.lib.site_Utilities import raiseTaskAdminError, get_loan_status
 from apps.lib.site_EmailUtils import sendTemplateEmail
 from apps.lib.site_DataMapping import mapCaseToOpportunity, sfStateEnum
 from apps.lib.site_Globals import ECONOMIC
-from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.operational.tasks import generic_file_uploader
 
 from .models import Case, LossData, Loan, ModelSetting
@@ -452,8 +451,7 @@ def limitCheck():
             srcDict = sfAPI.getOpportunityExtract(row['Id'])
             srcDict.update(ECONOMIC)
 
-            loanObj = LoanValidator(srcDict)
-            loanStatus = loanObj.getStatus()['data']
+            loanStatus = get_loan_status(srcDict)['data']
             print(loanStatus)
 
     return "Success - Limit Check Complete"

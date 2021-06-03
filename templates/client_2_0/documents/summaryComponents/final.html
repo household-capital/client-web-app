@@ -44,7 +44,7 @@
         <p class="print-text">Our current variable rate {{ totalInterestRate }}%</p>
         <p class="print-text">Comparison rate {{ comparisonRate }}% **</p>
         <br>
-        <p class="print-text">A 1.5% establishment fee is charged at the inception of the loan and covers valuation and
+        <p class="print-text">A {% if product_type == 'HHC.RM.2021'%} $950 {% else %}1.5% {% endif %} establishment fee is charged at the inception of the loan and covers valuation and
             conveyancing costs. There are no on-going fees. There are no fees for repayment of the loan (there is an
             administrative fee associated with discharge of mortgage). </p>
 

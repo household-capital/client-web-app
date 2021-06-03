@@ -39,7 +39,7 @@ from apps.lib.site_Utilities import parse_api_name, parse_api_names
 from .forms import EnquiryForm, EnquiryDetailForm, EnquiryCallForm, \
     AddressForm, PartnerForm, EnquiryAssignForm
 from .models import Enquiry
-from apps.lib.site_Utilities import cleanPhoneNumber, cleanValuation, calcAge
+from apps.lib.site_Utilities import cleanPhoneNumber, cleanValuation, calcAge, validate_loan
 from apps.lib.site_ViewUtils import updateNavQueue
 from apps.lib.site_LoanUtils import validateEnquiry, getEnquiryProjections
 from apps.lib.mixins import HouseholdLoginRequiredMixin, AddressLookUpFormMixin
@@ -257,9 +257,8 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Upd
 
         obj = self.get_object()
         clientDict = Enquiry.objects.dictionary_byUID(str(self.kwargs['uid']))
-
-        loanObj = LoanValidator(clientDict)
-        chkOpp = loanObj.validateLoan()
+        
+        chkOpp = validate_loan(clientDict, obj.product_type) 
         context['status'] = chkOpp
 
         # Check for duplicates
@@ -603,8 +602,7 @@ class EnquiryEmailEligibility(HouseholdLoginRequiredMixin, TemplateView):
         obj = queryset.get()
 
         clientDict = queryset.values()[0]
-        loanObj = LoanValidator(clientDict)
-        email_context['eligibility'] = loanObj.validateLoan()
+        email_context['eligibility'] = validate_loan(clientDict, obj.product_type)
         email_context['obj'] = obj
 
         subject, from_email, to = "Eligibility Summary", settings.DEFAULT_FROM_EMAIL, self.request.user.email
@@ -651,10 +649,13 @@ class EnqSummaryPdfView(TemplateView):
         context = super(EnqSummaryPdfView, self).get_context_data(**kwargs)
 
         enqUID = str(kwargs['uid'])
-
+        
         # Projection Results (site.utilities)
         projectionContext = getEnquiryProjections(enqUID)
         context.update(projectionContext)
+        obj = Enquiry.objects.get(enqUID=enqUID)
+        context['product_type'] = obj.product_type 
+
         return context
 
 

@@ -312,6 +312,7 @@
                                         {% else %}
                                         <p class="small">No Owner</p>
                                         {% endif %}
+                                        <p class="small">Fee Type: &nbsp;&nbsp;&nbsp;{{ obj.product_type }}</p>
                                         {% if obj.deleted_on %}
                                             <hr/>
                                             <p class="small"> <b>Deleted On:</b>&nbsp;&nbsp;{{ obj.deleted_on|date }}</p>

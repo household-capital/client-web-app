@@ -55,6 +55,8 @@ def mapEnquiryForSF(enqUID, is_create=False):
         'enqUID': 'External_Id__c',
         'firstname': 'First_Name__c',
         'lastname': 'Last_Name__c',
+
+        'product_type': 'Fee_Type__c'
     }
 
     SF_BOOLEAN_FIELDS = ['isTopUp', 'isRefi', 'isLive', 'isGive', 'isCare', 'doNotMarket']
@@ -393,7 +395,7 @@ def mapCaseToOpportunity(caseObj, lossObj):
         'planForCare': caseObj.factfind.plan_for_aged_care,
         'additionalCreditInfo': caseObj.factfind.additional_info_credit,
 
-        
+        'feeType': caseObj.loan.product_type
     }
     # syncing new address fields - hm-2097
     for db_field, sf_name in db_to_sf_map.items(): 
@@ -605,6 +607,7 @@ def mapLoanToFacility(caseObj, loanDict):
         'bankAccountNumber': loanDict['Account_Number__c'],
         'bsbNumber': loanDict['BSB__c'],
         'meetingDate': caseObj.meetingDate,  # Temporary
+        'product_type': caseObj.loan.product_type
     }
 
     return payload

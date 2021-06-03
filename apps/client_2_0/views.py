@@ -1,6 +1,6 @@
 # Python Imports
 
-import json
+import json, requests, os
 
 
 # Django Imports
@@ -13,7 +13,7 @@ from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import FormView, TemplateView, View, UpdateView
 from django.views.generic.base import TemplateResponseMixin
-
+from urllib.parse import urljoin
 # Third-party Imports
 from config.celery import app
 
@@ -26,11 +26,10 @@ from apps.lib.site_Enums import caseStagesEnum, clientSexEnum, clientTypesEnum, 
 
 from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.hhc_LoanValidator import LoanValidator
-from apps.lib.hhc_LoanProjection import LoanProjection
 from apps.lib.site_DataMapping import serialisePurposes
 from apps.lib.site_Globals import ECONOMIC, APP_SETTINGS, LOAN_LIMITS
 from apps.lib.site_Logging import write_applog
-from apps.lib.site_Utilities import firstNameSplit
+from apps.lib.site_Utilities import firstNameSplit, loan_api_response, validate_loan
 from apps.case.utils import createCaseModelSettings
 from apps.lib.site_ViewUtils import updateNavQueue
 from apps.lib.site_LoanUtils import validateLoanGetContext, getProjectionResults, populateDrawdownPurpose
@@ -198,9 +197,12 @@ class SetClientView(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHe
         # perform high-level validation of client data
         clientDict = {}
         clientDict = self.get_queryset().values()[0]
-
-        loanObj = LoanValidator([], clientDict)
-        chkResponse = loanObj.validateLoan()
+        case_obj = self.get_object()
+        
+        chkResponse =  validate_loan(
+            clientDict,
+            case_obj.loan.product_type
+        )
 
         if chkResponse['status'] == "Ok":
             # if ok, renders the success_url as normal
@@ -325,9 +327,15 @@ class IntroductionView3(HouseholdLoginRequiredMixin, SessionRequiredMixin, Conte
 
         if context['post_id'] == 4:
             # Loan Projections
-            loanProj = LoanProjection()
-            result = loanProj.create(self.extra_context)
-            proj_data = loanProj.getFutureEquityArray(increment=100)['data']
+            proj_data = loan_api_response(
+                "api/calc/v1/slider/equity",
+                self.extra_context,
+                {
+                    'increment': 100,
+                    'years': 15,
+                    "product": self.extra_context.get('product_type', "HHC.RM.2021")
+                }
+            )
             context['sliderData'] = json.dumps(proj_data['dataArray'])
             context['futHomeValue'] = proj_data['futHomeValue']
             context['sliderPoints'] = proj_data['intervals']
@@ -941,7 +949,6 @@ class pdfLoanSummary(ContextHelper,TemplateView):
 
         #Validate the loan and generate combined context
         context = validateLoanGetContext(caseUID)
-
         # Get projection results (site utility using Loan Projection)
         projectionContext = getProjectionResults(context, ['baseScenario', 'incomeScenario', 'intPayScenario',
                                                                'pointScenario', 'stressScenario' ])

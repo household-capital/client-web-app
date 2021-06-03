@@ -14,7 +14,7 @@ from django.urls import reverse_lazy
 from django.db.models import Q
 
 from apps.helpers.model_utils import ReversionModel
-from apps.lib.site_Utilities import join_name
+from apps.lib.site_Utilities import join_name, validate_loan
 from apps.lib.hhc_LoanValidator import LoanValidator
 
 
@@ -205,6 +205,11 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
         (stateTypesEnum.NT.value, "NT"),
     )
 
+    FeeProductTypes = (
+        ("HHC.RM.2018", "HHC.RM.2018"),
+        ("HHC.RM.2021", "HHC.RM.2021")
+    )
+
 
     # Identifiers
     enqUID = models.UUIDField(default=uuid.uuid4, editable=False)
@@ -212,6 +217,9 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
     sfLeadID = models.CharField(max_length=20, null=True, blank=True)
     sfEnqID = models.CharField(max_length=20, null=True, blank=True)
 
+
+    product_type = models.CharField(null=True, blank=True, max_length=11, choices=FeeProductTypes)
+    
     # Origin
     # Person:
     referrerID = models.CharField(max_length=200,blank= True,null=True)
@@ -407,8 +415,11 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
                 self.propensityCategory = propensityCategoriesEnum.D.value
 
         my_dict = self.__dict__
-        validator = LoanValidator(my_dict)
-        validation_result = validator.validateLoan()
+
+        if not self.product_type:
+            self.product_type = "HHC.RM.2021"
+        
+        validation_result = validate_loan(my_dict, self.product_type)
 
         if validation_result['status'] == "Error":
             self.status = 0

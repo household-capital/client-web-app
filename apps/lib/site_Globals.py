@@ -51,6 +51,35 @@ ECONOMIC = {'inflationRate': float(2.50),
             'defaultMargin': float(2.00),
             }
 
+LOAN_LIMITS_PRODUCT_TYPE = {
+    "HHC.RM.2021": {
+        "FEE_TYPE": "FLAT",
+        "ESTABLISHMENT_FEE_AMOUNT": 950,
+        # Drawdowns fees
+        "DRAWDOWN_FEE_TYPE": None,
+        "DRAWDOWN_FEE_AMOUNT": None,
+        # Variations fees
+        "VARIATION_FEE_TYPE": "FLAT",
+        "VARIATION_FEE_AMOUNT": 250,
+        # Discharge fees
+        "DISCHARGE_FEE_TYPE": "FLAT",
+        "DISCHARGE_FEE_AMOUNT": 250
+    },
+    "HHC.RM.2018": {
+        "FEE_TYPE": "PERCENTAGE",
+        "ESTABLISHMENT_FEE_AMOUNT": 0.015,
+        # Drawdowns fees
+        "DRAWDOWN_FEE_TYPE": "PERCENTAGE",
+        "DRAWDOWN_FEE_AMOUNT": 0.015,
+        # Variations fees
+        "VARIATION_FEE_TYPE": None,
+        "VARIATION_FEE_AMOUNT": None,
+        # Discharge fees
+        "DISCHARGE_FEE_TYPE": None,
+        "DISCHARGE_FEE_AMOUNT": None
+    }
+} 
+
 APP_SETTINGS = {'minProjectionYears': 15,
                 'incomeProjectionYears': 10,
                 'intRateStress': 2,

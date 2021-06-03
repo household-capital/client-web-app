@@ -1,5 +1,5 @@
 #Python imports
-import uuid, os, reversion
+import uuid, os, reversion, pytz
 from datetime import datetime, timedelta
 
 #Django Imports
@@ -14,8 +14,7 @@ from django_comments.models import Comment
 
 #Local Application Imports
 from apps.lib.site_Enums import *
-from apps.lib.hhc_LoanValidator import LoanValidator
-from apps.lib.site_Utilities import calc_age
+from apps.lib.site_Utilities import calc_age, get_default_product_now, validate_loan
 
 from apps.accounts.models import Referer
 from urllib.parse import urljoin
@@ -467,10 +466,12 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
     
     def save(self, should_sync=False, *args, **kwargs):
         is_create = self.pk is None
-
+        if is_create: 
+            product_type = "HHC.RM.2021"
+        else: 
+            product_type = self.loan.product_type
         my_dict = self.__dict__
-        validator = LoanValidator(my_dict)
-        validation_result = validator.validateLoan()
+        validation_result = validate_loan(my_dict, product_type)
 
         if validation_result['status'] == "Error":
             self.is_eligible = 0
@@ -538,8 +539,13 @@ class Loan(models.Model):
     drawdownFrequency=(
         (incomeFrequencyEnum.FORTNIGHTLY.value, 'Fortnightly'),
         (incomeFrequencyEnum.MONTHLY.value, 'Monthly'))
+    productTypes = (
+        ("HHC.RM.2018", "HHC.RM.2018"),
+        ("HHC.RM.2021", "HHC.RM.2021")
+    )
 
     case = models.OneToOneField(Case, on_delete=models.CASCADE)
+    product_type = models.CharField(null=True, blank=True, max_length=11, choices=productTypes)
     localLoanID = models.AutoField(primary_key=True)
     maxLVR = models.FloatField(null=False, blank=False,default=0)
     actualLVR = models.FloatField(null=True, blank=True, default=0)
@@ -614,8 +620,13 @@ class Loan(models.Model):
             if purpose.enumCategory == category and purpose.enumIntention == intention:
                 return purpose
 
-
-
+    def save(self, *args, **kwargs):
+        is_create = self.pk is None 
+        if is_create:
+            # default new.
+            self.product_type = get_default_product_now()
+        
+        super(Loan, self).save(*args, **kwargs)
 class LoanPurposes(models.Model):
 
     drawdownFrequencyTypes=(
