@@ -237,9 +237,16 @@ def getProjectionResults(sourceDict, scenarioList, img_url=None):
     loanProj = LoanProjection()
     result = loanProj.create(sourceDict)
     _product_type = sourceDict.get('product_type', 'HHC.RM.2021')
+    _source_dict = sourceDict.copy()
+    _source_dict.update(
+        {
+            'years': 15,
+            "product": _product_type
+        }
+    )
     calcArray = loan_api_response(
         "/api/calc/v1/proj/primary",
-        sourceDict,
+        _source_dict,
         {
             'years': 15,
             "product": _product_type
@@ -354,9 +361,16 @@ def getProjectionResults(sourceDict, scenarioList, img_url=None):
 
     if 'stressScenario' in scenarioList:
         # Stress-2
+        _source_dict = sourceDict.copy()
+        _source_dict.update(
+            {
+                "hpiStressLevel": APP_SETTINGS['hpiHighStressLevel'],
+                "product": _product_type
+            }
+        )
         calcArray = loan_api_response(
             "/api/calc/v1/proj/primary",
-            sourceDict,
+            _source_dict,
             {
                 "hpiStressLevel": APP_SETTINGS['hpiHighStressLevel'],
                 "product": _product_type
@@ -379,9 +393,16 @@ def getProjectionResults(sourceDict, scenarioList, img_url=None):
 
         # Stress-3
         # result = loanProj.calcProjections(intRateStress=APP_SETTINGS['intRateStress'])
+        _source_dict = sourceDict.copy()
+        _source_dict.update(
+            {
+                "intRateStress": APP_SETTINGS['intRateStress'],
+                "product": _product_type
+            }
+        )
         calcArray = loan_api_response(
             "/api/calc/v1/proj/primary",
-            sourceDict,
+            _source_dict,
             {
                 "intRateStress": APP_SETTINGS['intRateStress'],
                 "product": _product_type
@@ -405,9 +426,12 @@ def getProjectionResults(sourceDict, scenarioList, img_url=None):
     if 'intPayScenario' in scenarioList:
         # Stress-4
         # result = loanProj.calcProjections(makeIntPayment=True)
+        # sourceDict['makeIntPayment'] = True
+        _source_dict = sourceDict.copy()
+        _source_dict['makeIntPayment'] = True
         calcArray = loan_api_response(
             "/api/calc/v1/proj/primary",
-            sourceDict,
+            _source_dict,
             {
                 "makeIntPayment": True,
                 "product": _product_type
