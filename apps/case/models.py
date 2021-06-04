@@ -334,7 +334,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
 
     # eligibility
     is_eligible = models.BooleanField(default=True, blank=False, null=False)
-    ineligible_reason = models.CharField(max_length=40, blank=True, null=True)
+    ineligible_reason = models.CharField(max_length=200, blank=True, null=True)
     maxLoanAmount = models.IntegerField(blank=True, null=True)
     maxDrawdownAmount = models.IntegerField(blank=True, null=True)
     maxDrawdownMonthly = models.IntegerField(blank=True, null=True)
