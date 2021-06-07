@@ -149,8 +149,6 @@ class DataIngestion(APIView):
             'marketing_campaign': find_auto_campaign(marketingSource),
         }
         auto_assign_config = _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP.get(marketingSource)
-        if auto_assign_config and getattr(global_settings, auto_assign_config['settings_assignee_field']).count():
-            payload['user'] = integration_user
         if json_payload.get('state'): 
             payload['state'] = stateTypesEnum[json_payload['state']].value
 

@@ -220,7 +220,8 @@ def validate_loan(source_dict, product_type="HHC.RM.2021"):
         "/api/calc/v1/valid/loan",
         source_dict,
         {
-            "product":product_type
+            "product":product_type,
+            "use_refer": 1
         },
         return_raw_res_obj=True
     )

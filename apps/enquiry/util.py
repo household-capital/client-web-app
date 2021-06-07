@@ -19,7 +19,12 @@ def updateCreatePartnerEnquiry(payload, enquiries_to_assign):
 
     def should_lead_update(lead, new_enq):
 
-        nonDirectTypes = [directTypesEnum.PARTNER.value, directTypesEnum.BROKER.value, directTypesEnum.ADVISER.value]
+        nonDirectTypes = [
+            directTypesEnum.PARTNER.value, 
+            directTypesEnum.BROKER.value, 
+            directTypesEnum.ADVISER.value,
+            directTypesEnum.SOCIAL.value
+        ]
 
         if lead.caseStage in [
             caseStagesEnum.MEETING_HELD.value,
