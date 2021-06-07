@@ -215,6 +215,7 @@ def loan_api_response(endpoint, payload, params={}, headers={}, return_raw_res_o
     return res.json()
 
 def validate_loan(source_dict, product_type="HHC.RM.2021"):
+    source_dict['use_refer'] = 1
     response = loan_api_response(
         "/api/calc/v1/valid/loan",
         source_dict,
