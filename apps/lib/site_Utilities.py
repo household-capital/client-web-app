@@ -247,7 +247,8 @@ def get_loan_status(source_dict, product_type="HHC.RM.2021"):
             "/api/calc/v1/valid/status",
             source_dict, 
             {
-                "product": product_type
+                "product": product_type,
+                "use_refer": 1
             }
         ),
         'status': 'Ok'
