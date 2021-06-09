@@ -89,7 +89,26 @@ def _build_case_data_update(enquiry, case=None):
 
     # Create dictionary of Case fields from Enquiry fields
     caseDict = {}
-    caseDict['caseStage'] = caseStagesEnum.UNQUALIFIED_CREATED.value
+    expected_stage = caseStagesEnum.UNQUALIFIED_CREATED.value
+
+    is_mq = (
+        enquiry.referrer in [
+            directTypesEnum.WEB_ENQUIRY.value,
+            directTypesEnum.SOCIAL.value,
+            directTypesEnum.WEB_CALCULATOR.value,
+            directTypesEnum.PARTNER.value
+        ]
+    ) or (
+        (enquiry.firstname or enquiry.lastname) and 
+        (enquiry.phoneNumber or enquiry.email) and 
+        enquiry.postcode and 
+        enquiry.age_1
+    ) # HHC-468
+
+    if is_mq:
+        expected_stage = caseStagesEnum.MARKETING_QUALIFIED.value
+
+    caseDict['caseStage'] = expected_stage
 
     caseDict['caseDescription'] = surname + " - " + str(enquiry.postcode)
 
