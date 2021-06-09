@@ -21,6 +21,7 @@ from apps.lib.site_Enums import (
     dwellingTypesEnum,
     loanTypesEnum
 )
+from apps.lib.site_Logging import write_applog
 from apps.enquiry.exceptions import MissingRequiredFields
 from apps.enquiry.util import find_auto_campaign
 from apps.case.assignment import _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP
@@ -43,6 +44,12 @@ class DataIngestion(APIView):
     permission_classes = (IsAuthenticated,)            
     
     def process_notes(self, json_payload): 
+        write_applog(
+            "INFO",
+            "Enquiry API",
+            "Process Payload", 
+            "API Ingestion - Processing Notes"
+        )
         marketing_source_value = json_payload['stream']
         is_social = marketing_source_value in [
             'LINKEDIN',
@@ -83,6 +90,12 @@ class DataIngestion(APIView):
         return enquiryString
 
     def process_website_entry(self, json_payload): 
+        write_applog(
+            "INFO",
+            "Enquiry API",
+            "Process Payload", 
+            "API Ingestion - Website entry"
+        )
         """
             contact form 
             {
@@ -141,6 +154,12 @@ class DataIngestion(APIView):
         """
         marketing_source_value = json_payload['stream']
         if marketing_source_value == 'WEBSITE_CONTACT': 
+            write_applog(
+                "INFO",
+                "Enquiry API",
+                "Process Payload", 
+                "API Ingestion - Webcontact"
+            )
             # contact us 
             first , last, raw_name = parse_api_names(
                 '' or json_payload['first'],
@@ -158,12 +177,16 @@ class DataIngestion(APIView):
                 'submissionOrigin': json_payload['origin'],
                 'phone': cleanPhoneNumber(json_payload['phone'])
             }
-            try:
-                web_obj = WebContact.objects.create(**srcDict)
-            except:
-                raise raiseTaskAdminError('Could not save "contact us" entry', json.dumps(srcDict, cls=DjangoJSONEncoder))
 
+            web_obj = WebContact.objects.create(**srcDict)
+            
         elif marketing_source_value == 'WEBSITE_LEAD':
+            write_applog(
+                "INFO",
+                "Enquiry API",
+                "Process Payload", 
+                "API Ingestion - web lead"
+            )
             first , last, raw_name = parse_api_names(
                 '' or json_payload['first'],
                 '' or json_payload['last']
@@ -189,6 +212,12 @@ class DataIngestion(APIView):
 
         else: 
             # build web_calc obj
+            write_applog(
+                "INFO",
+                "Enquiry API",
+                "Process Payload", 
+                "API Ingestion - web calc"
+            )
             first , last, raw_name = parse_api_names(
                 '' or json_payload['first'],
                 '' or json_payload['last']
@@ -218,14 +247,19 @@ class DataIngestion(APIView):
                 'postcode': json_payload['postcode'],
                 'valuation':json_payload['property_value'],
                 'submissionOrigin': json_payload['origin'],
-                'requestedCallback': bool(json_payload['requestedCallback']),
+                'requestedCallback': bool(json_payload['requestedCall']),
                 'dwellingType':prop_type  ,
                 'loanType': loan_type 
             }
             try:
                 web_obj = WebCalculator.objects.create(**srcDict)
             except BaseException as e:
-                logger("Could not save calculator entry")
+                write_applog(
+                    "ERROR",
+                    "Enquiry API",
+                    "Webcalc", 
+                    "Could not save calculator entry"
+                )
                 raiseTaskAdminError("Could not save calculator entry", json.dumps(srcDict, cls=DjangoJSONEncoder))
                 raise e
             proposed_owner = find_auto_assignee(
@@ -240,7 +274,6 @@ class DataIngestion(APIView):
                         "Failed to convert web calc - {}".format(str(web_obj.calcUID)),
                         tb
                     )
-                    raise e
 
     def process_payload(self, json_payload):
         # basic payload format 
@@ -282,12 +315,23 @@ class DataIngestion(APIView):
                 raise MissingRequiredFields('Missing field: \'{}\''.format(req_field))
         
         marketing_source_value = json_payload['stream']
-
+        write_applog(
+            "INFO",
+            "Enquiry API",
+            "API", 
+            "API Ingestion - {}".format(marketing_source_value)
+        )
         if marketing_source_value in ["WEBSITE_LEAD", "WEBSITE_CALC", "WEBSITE_CONTACT"]:
             self.process_website_entry(json_payload)
         else:
+            write_applog(
+                "INFO",
+                "Enquiry API",
+                "WebAPI", 
+                "API Ingestion - Non website entry"
+            )
             marketingSource = marketingTypesEnum[marketing_source_value].value
-
+            
             firstname, lastname, name = parse_api_names(json_payload.get('first'), json_payload.get('last'))
             global_settings = GlobalSettings.load()
 
@@ -329,10 +373,23 @@ class DataIngestion(APIView):
         content = {'status': 'Success'}
         status = 200 
         json_payload = request.data
+        write_applog(
+            "INFO",
+            "Enquiry API",
+            "EnqAPI", 
+            'API Ingestion Hit - Payload {}'.format(json.dumps(json_payload, cls=DjangoJSONEncoder))
+        )
         try:
             self.process_payload(json_payload)
         except BaseException as e:
+            tb = traceback.format_exc()
+
+            raiseTaskAdminError(
+                "API Ingestion Error",
+                "{}\n\n\npayload={}".format(tb, json.dumps(json_payload))
+            )
             logger.exception("Ingestion Error")
+            
             if type(e) is MissingRequiredFields:
                 content = {
                     'status': str(e)
