@@ -216,6 +216,16 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                     HTML("<i class='far fa-user'></i>&nbsp;&nbsp;<small>Borrower 2</small>"),
                     Div(
                         Div(HTML("Firstname*"), css_class='form-label'),
+                        Div(Field('firstname_2')),
+                        style="visibility:hidden;"
+                    ),
+                    Div(
+                        Div(HTML("Firstname*"), css_class='form-label'),
+                        Div(Field('firstname_2')),
+                        style="visibility:hidden;"
+                    ),
+                    Div(
+                        Div(HTML("Firstname*"), css_class='form-label'),
                         Div(Field('firstname_2'))
                     ),
                     Row(
