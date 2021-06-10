@@ -455,6 +455,8 @@ class CaseDeleteView(HouseholdLoginRequiredMixin, View):
         if "uid" in kwargs:
             case = Case.objects.get(caseUID=kwargs['uid'])
             case.soft_delete()
+            for enq in case.enquiries.all():
+                enq.soft_delete()
             messages.success(self.request, "Lead deleted")
 
         return HttpResponseRedirect(reverse_lazy('case:caseList'))
