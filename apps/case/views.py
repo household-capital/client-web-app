@@ -1174,41 +1174,41 @@ class SendCustSummary(HouseholdLoginRequiredMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
 
-        enqUID = str(kwargs['uid'])
-        queryset = Enquiry.objects.queryset_byUID(enqUID)
-        enq_obj = queryset.get()
+        caseUID = str(kwargs['uid'])
+        queryset = Case.objects.queryset_byUID(caseUID)
+        case_obj = queryset.get()
 
-        if not enq_obj.user:
+        if not case_obj.owner:
             messages.error(self.request, "No Credit Representative assigned")
-            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
+            return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseUID}))
 
-        if not enq_obj.email:
+        if not case_obj.email_1:
             messages.error(self.request, "No client email")
-            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
+            return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseUID}))
 
-        enqDict = Enquiry.objects.dictionary_byUID(enqUID)
+        caseDict = vars(case_obj)
 
         # PRODUCE PDF REPORT
         sourceUrl = urljoin(
             settings.SITE_URL,
-            reverse('case:custSummaryPdf', kwargs={'uid': enqUID})
+            reverse('case:custSummaryPdf', kwargs={'uid': caseUID})
         )
 
-        targetFileName = "enquiryReports/Enquiry-" + enqUID[-12:] + ".pdf"
+        targetFileName = "enquiryReports/Enquiry-" + caseUID[-12:] + ".pdf"
 
-        pdf = pdfGenerator(enqUID)
+        pdf = pdfGenerator(caseUID)
         created, text = pdf.createPdfFromUrl(sourceUrl, 'CalculatorSummary.pdf', targetFileName)
 
         if not created:
             messages.error(self.request, "PDF not created - email could not be sent")
             write_applog("ERROR", 'SendEnquirySummary', 'get',
-                         "PDF not created: " + str(enq_obj.enqUID))
-            return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
+                         "PDF not created: " + str(caseUID))
+            return HttpResponseRedirect(reverse_lazy("case:caseList"))
 
         try:
             # SAVE TO DATABASE (Enquiry Model)
 
-            enq_obj.summaryDocument = targetFileName
+            case_obj.summaryDocument = targetFileName
             enq_obj.enquiryStage = enquiryStagesEnum.SUMMARY_SENT.value
             enq_obj.save(update_fields=['summaryDocument', 'enquiryStage'])
             app.send_task('Upload_Enquiry_Files', kwargs={'enqUID': enqUID})
@@ -1345,8 +1345,8 @@ class CustSummaryPdfView(TemplateView):
         caseUID = str(kwargs['uid'])
         
         # Projection Results (site.utilities)
-        # projectionContext = getEnquiryProjections(caseUID)
-        # context.update(projectionContext)
+        projectionContext = getEnquiryProjections(caseUID)
+        context.update(projectionContext)
         obj = Case.objects.get(caseUID=caseUID)
         context['product_type'] = obj.product_type 
 
