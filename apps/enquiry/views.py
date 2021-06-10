@@ -419,7 +419,7 @@ class EnquiryCallView(HouseholdLoginRequiredMixin, CreateView):
 
         if 'submit' in form.data:
             # Continue to enquiry
-            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': str(obj.enqUID)}))
+            return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': str(obj.case.caseUID)}))
         else:
             # Mark enquiry closed
             obj.closeReason = closeReasonEnum.CALL_ONLY.value
