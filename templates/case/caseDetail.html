@@ -446,6 +446,24 @@
                                 {% endif %}
 
                             </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                        <br/>
+                                        {% get_comment_form for obj as form %}
+                                        <form action="{% comment_form_target %}" method="POST">
+                                            {% csrf_token %}
+                                            {{ form.comment }}
+                                            {{ form.content_type }}
+                                            {{ form.object_pk }}
+                                            {{ form.timestamp }}
+                                            {{ form.security_hash }}
+                                            <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+                                            <div class="text-right" style="padding:6px;">
+                                                <input class="btn btn-outline-secondary" type="submit" value="Add Note" id="id_submit" />
+                                            </div>
+                                        </form>
+                                </div>
+                            </div>
                             <br/>
                             <div class="row">
                                 <div class="col-lg-12">
