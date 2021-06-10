@@ -348,6 +348,10 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
     
     touched_in_sf_sync = models.BooleanField(default=False, blank=True, null=True)
 
+    # for generating enquriies 
+    calcLumpSum = models.IntegerField(blank=True, null=True)
+    calcIncome = models.IntegerField(blank=True, null=True)
+
     objects=CaseManager()
 
     def __str__(self):

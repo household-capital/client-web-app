@@ -16,6 +16,7 @@ from django.template.loader import get_template
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import ListView, UpdateView, CreateView, TemplateView, View, FormView
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 # Third-party Imports
 from config.celery import app
@@ -29,7 +30,7 @@ from apps.lib.api_Salesforce import apiSalesforce
 from apps.lib.hhc_LoanValidator import LoanValidator
 from apps.lib.site_DataMapping import serialisePurposes
 from apps.lib.site_Enums import caseStagesEnum, EDITABLE_STAGES, PRE_MEETING_STAGES, loanTypesEnum, appTypesEnum, purposeCategoryEnum, \
-    purposeIntentionEnum, incomeFrequencyEnum, productTypesEnum, clientTypesEnum, closeReasonEnumUpdated, directTypesEnum
+    purposeIntentionEnum, incomeFrequencyEnum, productTypesEnum, clientTypesEnum, closeReasonEnumUpdated, directTypesEnum, enquiryStagesEnum
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Logging import write_applog
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
@@ -1162,3 +1163,192 @@ class CaseNotesView(HouseholdLoginRequiredMixin, TemplateView):
         context = super(CaseNotesView, self).get_context_data(**kwargs)
         context['obj'] = self.get_object()
         return context
+
+
+class SendCustSummary(HouseholdLoginRequiredMixin, UpdateView):
+    # This view does not render it creates and enquiry, sends an email, updates the calculator
+    # and redirects to the Enquiry ListView
+    context_object_name = 'object_list'
+    model = WebCalculator
+    template_name = 'enquiry/email/email_cover_enquiry.html'
+
+    def get(self, request, *args, **kwargs):
+
+        enqUID = str(kwargs['uid'])
+        queryset = Enquiry.objects.queryset_byUID(enqUID)
+        enq_obj = queryset.get()
+
+        if not enq_obj.user:
+            messages.error(self.request, "No Credit Representative assigned")
+            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
+
+        if not enq_obj.email:
+            messages.error(self.request, "No client email")
+            return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enqUID}))
+
+        enqDict = Enquiry.objects.dictionary_byUID(enqUID)
+
+        # PRODUCE PDF REPORT
+        sourceUrl = urljoin(
+            settings.SITE_URL,
+            reverse('case:custSummaryPdf', kwargs={'uid': enqUID})
+        )
+
+        targetFileName = "enquiryReports/Enquiry-" + enqUID[-12:] + ".pdf"
+
+        pdf = pdfGenerator(enqUID)
+        created, text = pdf.createPdfFromUrl(sourceUrl, 'CalculatorSummary.pdf', targetFileName)
+
+        if not created:
+            messages.error(self.request, "PDF not created - email could not be sent")
+            write_applog("ERROR", 'SendEnquirySummary', 'get',
+                         "PDF not created: " + str(enq_obj.enqUID))
+            return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
+
+        try:
+            # SAVE TO DATABASE (Enquiry Model)
+
+            enq_obj.summaryDocument = targetFileName
+            enq_obj.enquiryStage = enquiryStagesEnum.SUMMARY_SENT.value
+            enq_obj.save(update_fields=['summaryDocument', 'enquiryStage'])
+            app.send_task('Upload_Enquiry_Files', kwargs={'enqUID': enqUID})
+
+        except:
+            write_applog("ERROR", 'SendEnquirySummary', 'get',
+                         "Failed to save PDF in Database: " + str(enq_obj.enqUID))
+
+        email_context = {}
+        email_context['user'] = enq_obj.user
+        subject, from_email, to, bcc = "Household Loan Enquiry", \
+                                       enq_obj.user.email, \
+                                       enq_obj.email, \
+                                       enq_obj.user.email
+
+        text_content = "Text Message"
+        attachFilename = 'HHC-Summary.pdf'
+        sent = pdf.emailPdf(
+            self.template_name, 
+            email_context, 
+            subject, 
+            from_email, 
+            to, 
+            bcc,
+            text_content, 
+            attachFilename,
+            other_attachments=[
+                {
+                    'name': "HHC-Brochure.pdf",
+                    'type': 'application/pdf',
+                    'content': staticfiles_storage.open('img/document/brochure.pdf', 'rb').read()
+                }
+            ]
+        )
+        if sent:
+            messages.success(self.request, "Client has been emailed")
+        else:
+            messages.error(self.request, "Could not send email")
+            write_applog("ERROR", 'SendEnquirySummary', 'get',
+                         "Could not send email" + str(enq_obj.enqUID))
+
+        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
+
+    def nullOrZero(self, arg):
+        if arg:
+            if arg != 0:
+                return False
+        return True
+
+
+
+
+class CreateCustSummary(HouseholdLoginRequiredMixin, UpdateView):
+    # This view does not render it creates an enquiry
+
+    context_object_name = 'object_list'
+    model = WebCalculator
+    template_name = 'enquiry/email/email_cover_enquiry.html'
+
+    def get(self, request, *args, **kwargs):
+        enqUID = str(kwargs['uid'])
+        queryset = Enquiry.objects.queryset_byUID(enqUID)
+        enq_obj = queryset.get()
+
+        enqDict = Enquiry.objects.dictionary_byUID(enqUID)
+
+        # PRODUCE PDF REPORT
+        sourceUrl = urljoin(
+            settings.SITE_URL,
+            reverse('case:custSummaryPdf', kwargs={'uid': enqUID})
+        )
+
+        targetFileName = "enquiryReports/Enquiry-" + enqUID[-12:] + ".pdf"
+
+        pdf = pdfGenerator(enqUID)
+        created, text = pdf.createPdfFromUrl(sourceUrl, 'CalculatorSummary.pdf', targetFileName)
+
+        if not created:
+            messages.error(self.request, "PDF not created")
+            write_applog("ERROR", 'CreateEnquirySummary', 'get',
+                         "PDF not created: " + str(enq_obj.enqUID))
+            return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
+
+        try:
+            # SAVE TO DATABASE (Enquiry Model)
+
+            enq_obj.summaryDocument = targetFileName
+            enq_obj.save(update_fields=['summaryDocument'])
+            app.send_task('Upload_Enquiry_Files', kwargs={'enqUID': enqUID})
+            messages.success(self.request, "Summary has been created")
+
+        except:
+            write_applog("ERROR", 'CreateEnquirySummary', 'get',
+                         "Failed to save PDF in Database: " + str(enq_obj.enqUID))
+
+            messages.error(self.request, "Could not create summary")
+
+        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
+
+    def nullOrZero(self, arg):
+        if arg:
+            if arg != 0:
+                return False
+        return True
+
+class CustSummaryPdfView(TemplateView):
+    # Produce Summary Report View (called by Api2Pdf)
+    template_name = None
+
+    def get(self, request, *args, **kwargs):
+        caseUID = str(kwargs['uid'])
+        obj = Case.objects.queryset_byUID(caseUID).get()
+
+        if obj.productType == productTypesEnum.INCOME.value:
+            self.template_name = 'enquiry/document/calculator_income_summary.html'
+
+        elif obj.productType == productTypesEnum.CONTINGENCY_20K.value:
+            self.template_name = 'enquiry/document/calculator_summary_single_20K.html'
+
+        elif obj.productType == productTypesEnum.COMBINATION.value:
+            self.template_name = 'enquiry/document/calculator_combination_summary.html'
+
+        elif obj.productType == productTypesEnum.REFINANCE.value:
+            self.template_name = 'enquiry/document/calculator_refinance_summary.html'
+
+        else:
+            self.template_name = 'enquiry/document/calculator_summary.html'
+
+        return super(CustSummaryPdfView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(CustSummaryPdfView, self).get_context_data(**kwargs)
+
+        caseUID = str(kwargs['uid'])
+        
+        # Projection Results (site.utilities)
+        # projectionContext = getEnquiryProjections(caseUID)
+        # context.update(projectionContext)
+        obj = Case.objects.get(caseUID=caseUID)
+        context['product_type'] = obj.product_type 
+
+        return context
+

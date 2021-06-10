@@ -62,6 +62,9 @@ def _build_case_data_update(enquiry, case=None):
         'propensityCategory',
         'referrer',
         'marketing_campaign',
+
+        'calcLumpSum',
+        'calcIncome'
     ]
     # enq to case
     map_fields = {

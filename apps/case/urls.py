@@ -33,7 +33,11 @@ urlpatterns = [
     path('caseVariationAdd/<uuid:uid>', views.CaseVariationAdd.as_view(), name='caseVariationAdd'),
     path('pdfLoanVariationSummary/<uuid:uid>', views.PdfLoanVariationSummary.as_view(), name='pdfLoanVariationSummary'),
     path('createLoanVariationSummary/<uuid:uid>', views.CreateLoanVariationSummary.as_view(), name='createLoanVariationSummary'),
+    
+    path('CreateCustSummary/<uuid:uid>',views.CreateCustSummary.as_view(),name='createCustSummary'),
+    path('SendCustDetail/<uuid:uid>', views.SendCustSummary.as_view(), name='sendCustDetail'),
 
+    path('custSummaryPdf/<uuid:uid>', views.CustSummaryPdfView.as_view(), name='custSummaryPdf'),
 ]
 
 
