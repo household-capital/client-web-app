@@ -465,6 +465,41 @@ def validateEnquiry(enqUID):
     return get_loan_status(context, obj.product_type)
 
 
+def getCaseProjections(caseUID):
+    obj = Case.objects.get(caseUID=caseUID)
+    context = {}
+    context.update(obj.__dict__)
+    obj.user = obj.owner
+    context['obj'] = obj
+
+    loanStatus = get_loan_status(context, obj.loan.product_type)['data']
+    context.update(loanStatus)
+
+    context["transfer_img"] = staticfiles_storage.url("img/icons/transfer_" + str(
+        context['maxLVRPercentile']) + "_icon.png")
+
+    context['loanTypesEnum'] = loanTypesEnum
+    context['dwellingTypesEnum'] = dwellingTypesEnum
+    context['absolute_url'] = urljoin(
+        settings.SITE_URL,
+        settings.STATIC_URL
+    )
+
+    # Set initial values (given this is an under-specified enquiry)
+    context.update(enquiryProductContext(obj))
+
+    context.update(ECONOMIC)
+    context['totalInterestRate'] = round(ECONOMIC['interestRate'] + ECONOMIC['lendingMargin'], 2)
+    context['housePriceInflation'] = ECONOMIC['housePriceInflation']
+    context['comparisonRate'] = round(context['totalInterestRate'] + ECONOMIC['comparisonRateIncrement'], 2)
+
+    # Get Loan Projections
+    results = getProjectionResults(context, ['baseScenario'])
+    context.update(results)
+
+    return context
+
+
 def getEnquiryProjections(enqUID):
     """Wrapper for using enquiries with getProjectionResults
     Given this is based off enquiry information only, need to enhance inputs to Loan Projection as required

@@ -37,7 +37,7 @@ from apps.lib.lixi.lixi_CloudBridge import CloudBridge
 from apps.lib.site_Utilities import cleanPhoneNumber, validate_loan 
 from apps.lib.site_EmailUtils import sendTemplateEmail
 from apps.lib.site_ViewUtils import updateNavQueue
-from apps.lib.site_LoanUtils import validateLoanGetContext, getProjectionResults
+from apps.lib.site_LoanUtils import validateLoanGetContext, getProjectionResults, getCaseProjections
 from apps.lib.mixins import HouseholdLoginRequiredMixin, AddressLookUpFormMixin
 from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignForm, \
     lumpSumPurposeForm, drawdownPurposeForm, purposeAddForm, smsForm
@@ -1208,21 +1208,20 @@ class SendCustSummary(HouseholdLoginRequiredMixin, UpdateView):
         try:
             # SAVE TO DATABASE (Enquiry Model)
 
-            case_obj.summaryDocument = targetFileName
-            enq_obj.enquiryStage = enquiryStagesEnum.SUMMARY_SENT.value
-            enq_obj.save(update_fields=['summaryDocument', 'enquiryStage'])
-            app.send_task('Upload_Enquiry_Files', kwargs={'enqUID': enqUID})
+            case_obj.enquiryDocument = targetFileName
+            case_obj.caseStage = caseStagesEnum.SQ_CUSTOMER_SUMMARY_SENT.value
+            case_obj.save(should_sync=True)
 
         except:
             write_applog("ERROR", 'SendEnquirySummary', 'get',
                          "Failed to save PDF in Database: " + str(enq_obj.enqUID))
 
         email_context = {}
-        email_context['user'] = enq_obj.user
+        email_context['user'] = case_obj.owner
         subject, from_email, to, bcc = "Household Loan Enquiry", \
-                                       enq_obj.user.email, \
-                                       enq_obj.email, \
-                                       enq_obj.user.email
+                                       case_obj.owner.email, \
+                                       case_obj.email_1, \
+                                       case_obj.owner.email
 
         text_content = "Text Message"
         attachFilename = 'HHC-Summary.pdf'
@@ -1248,9 +1247,9 @@ class SendCustSummary(HouseholdLoginRequiredMixin, UpdateView):
         else:
             messages.error(self.request, "Could not send email")
             write_applog("ERROR", 'SendEnquirySummary', 'get',
-                         "Could not send email" + str(enq_obj.enqUID))
+                         "Could not send email" + str(caseUID))
 
-        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
+        return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseUID}))
 
     def nullOrZero(self, arg):
         if arg:
@@ -1269,44 +1268,43 @@ class CreateCustSummary(HouseholdLoginRequiredMixin, UpdateView):
     template_name = 'enquiry/email/email_cover_enquiry.html'
 
     def get(self, request, *args, **kwargs):
-        enqUID = str(kwargs['uid'])
-        queryset = Enquiry.objects.queryset_byUID(enqUID)
-        enq_obj = queryset.get()
+        caseUID = str(kwargs['uid'])
+        queryset = Case.objects.queryset_byUID(caseUID)
+        case_obj = queryset.get()
 
-        enqDict = Enquiry.objects.dictionary_byUID(enqUID)
+        caseDict = vars(case_obj)
 
         # PRODUCE PDF REPORT
         sourceUrl = urljoin(
             settings.SITE_URL,
-            reverse('case:custSummaryPdf', kwargs={'uid': enqUID})
+            reverse('case:custSummaryPdf', kwargs={'uid': caseUID})
         )
 
-        targetFileName = "enquiryReports/Enquiry-" + enqUID[-12:] + ".pdf"
+        targetFileName = "enquiryReports/Enquiry-" + caseUID[-12:] + ".pdf"
 
-        pdf = pdfGenerator(enqUID)
+        pdf = pdfGenerator(caseUID)
         created, text = pdf.createPdfFromUrl(sourceUrl, 'CalculatorSummary.pdf', targetFileName)
 
         if not created:
             messages.error(self.request, "PDF not created")
             write_applog("ERROR", 'CreateEnquirySummary', 'get',
-                         "PDF not created: " + str(enq_obj.enqUID))
-            return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
+                         "PDF not created: " + str(caseUID))
+            return HttpResponseRedirect(reverse_lazy("case:caseList"))
 
         try:
             # SAVE TO DATABASE (Enquiry Model)
 
-            enq_obj.summaryDocument = targetFileName
-            enq_obj.save(update_fields=['summaryDocument'])
-            app.send_task('Upload_Enquiry_Files', kwargs={'enqUID': enqUID})
+            case_obj.enquiryDocument = targetFileName
+            case_obj.save(should_sync=True)
             messages.success(self.request, "Summary has been created")
 
         except:
             write_applog("ERROR", 'CreateEnquirySummary', 'get',
-                         "Failed to save PDF in Database: " + str(enq_obj.enqUID))
+                         "Failed to save PDF in Database: " + str(caseUID))
 
             messages.error(self.request, "Could not create summary")
 
-        return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': enq_obj.enqUID}))
+        return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseUID}))
 
     def nullOrZero(self, arg):
         if arg:
@@ -1345,10 +1343,10 @@ class CustSummaryPdfView(TemplateView):
         caseUID = str(kwargs['uid'])
         
         # Projection Results (site.utilities)
-        projectionContext = getEnquiryProjections(caseUID)
+        projectionContext = getCaseProjections(caseUID)
         context.update(projectionContext)
         obj = Case.objects.get(caseUID=caseUID)
-        context['product_type'] = obj.product_type 
+        context['product_type'] = obj.loan.product_type 
 
         return context
 
