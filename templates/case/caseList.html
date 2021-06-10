@@ -70,6 +70,19 @@
 
 
                                 <div class="col-lg-5 text-center">
+                                    {% if request.GET.filter == "Booked" %}
+                                        <a href="?filter=None&search={{ search }}&order={{ order }}">
+                                            <div class="btn btn-secondary" data-toggle="tooltip" data-placement="top"
+                                                 title="Meeting Booked"><i class="fas fa-calendar-times"></i></div>
+                                        </a>
+                                    {% else %}
+                                        <a href="?filter=Booked&search={{ search }}&order={{ order }}">
+                                            <div class="btn btn-outline-secondary" data-toggle="tooltip"
+                                                 data-placement="top"
+                                                 title="Meeting Booked"><i class="fas fa-calendar-times"></i></div>
+                                        </a>
+
+                                    {% endif %}
                                     {% if request.GET.filter == "Meet" %}
                                         <a href="?filter=None&search={{ search }}&order={{ order }}">
                                             <div class="btn btn-secondary" data-toggle="tooltip" data-placement="top"
@@ -84,19 +97,7 @@
 
                                     {% endif %}
 
-                                    {% if request.GET.filter == "Booked" %}
-                                        <a href="?filter=None&search={{ search }}&order={{ order }}">
-                                            <div class="btn btn-secondary" data-toggle="tooltip" data-placement="top"
-                                                 title="Meeting Booked"><i class="fas fa-calendar-times"></i></div>
-                                        </a>
-                                    {% else %}
-                                        <a href="?filter=Booked&search={{ search }}&order={{ order }}">
-                                            <div class="btn btn-outline-secondary" data-toggle="tooltip"
-                                                 data-placement="top"
-                                                 title="Meeting Booked"><i class="fas fa-calendar-times"></i></div>
-                                        </a>
 
-                                    {% endif %}
 
                                     {% if request.GET.filter == "Apply" %}
                                         <a href="?filter=None&search={{ search }}&order={{ order }}">
