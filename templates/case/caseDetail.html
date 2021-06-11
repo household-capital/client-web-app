@@ -132,7 +132,38 @@
                             <a class="dropdown-item" href="{{ calendlyMainUrl }}" target="_blank">
                                 &nbsp;<i class="far fa-calendar-alt fa-fw"></i>&nbsp;&nbsp;Book Other
                             </a>
+                            {% if status.status == 'Ok' %}
+                                <div class="dropdown-divider"></div>
 
+                                <a class="dropdown-item pb-3" data-toggle="modal" href="#clientModal">
+                                    &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Client Summary&nbsp;&nbsp;
+                                </a>
+
+
+                                <a class="dropdown-item"
+                                   href="{% url 'case:createCustSummary' uid=obj.caseUID %}">
+                                    &nbsp;<i class="far fa-file-pdf fa-fw"></i>&nbsp;&nbsp;Create Client Summary
+                                    &nbsp;&nbsp;
+                                </a>
+
+
+                                {% if obj.referralUser %}
+
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" data-toggle="modal" href="#referrerModal">
+                                        &nbsp;<i class="far fa-envelope fa-fw"></i>&nbsp;&nbsp;Email Referral
+                                        Introduction
+                                        &nbsp;&nbsp;
+                                    </a>
+                                {% endif %}
+
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{{ calendlyUrl }}" target="_blank">
+                                    &nbsp;<i class="fas fa-headset fa-fw"></i>&nbsp;&nbsp;Book Discovery
+                                </a>
+
+                            {% endif %}
+                            
                             {% if status.data.postcode == 'Refer' %}
                                 <div class="dropdown-divider"></div>
 
@@ -244,6 +275,33 @@
             {% endif %}
         </div>
 
+        {% if status.status == 'Ok' %}
+            <!-- Modal -->
+            <div class="modal fade" id="clientModal" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel"
+                    aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="clientModalLabel">Email client?</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>You are about to send the client a summary document via email - are you sure ?</p><br>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <a href="{% url 'case:sendCustDetail' uid=obj.caseUID %}">
+                                <div class=" btn btn-primary">Yes, send summary</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        {% endif %}
 
         <div class="row pb-5 pt-1">
 
@@ -356,6 +414,7 @@
                                             <p class="small">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
 
                                             <p class="small">Max Loan is: ${{ status.data.maxLoan|intcomma }} (incl establishment fee)</p>
+                                            <p class="small">Max Monthly Income is: ${{ status.data.maxDrawdownMonthly|intcomma }} (incl est fee)</p>
                                             {% if status.data.maxLoan > status.data.maxTopUp %}
                                                 <p class="small">
                                                     Max for Super Top Up is: ${{ status.data.maxTopUp|intcomma }}
@@ -397,6 +456,11 @@
 
                             <div class="jumbotron">
                                 <p class="small pb-1"><i class="far fa-file-pdf"></i>&nbsp;&nbsp;Documents</p>
+                                {% if obj.enquiryDocument %}
+                                    <p><a href="{{ obj.enquiryDocument.url }}">Customer
+                                        Summary</a>
+                                    </p>
+                                {% endif %}
                                 {% if obj.summaryDocument %}
                                     <p><a href="{{ obj.summaryDocument.url }}">Loan
                                         Summary</a>

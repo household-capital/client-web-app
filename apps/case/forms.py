@@ -51,6 +51,7 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
             'salesChannel', 'channelDetail', 'referrer', 'marketing_campaign',
 
             'doNotMarket',
+            'calcLumpSum', 'calcIncome'
         ] + address_model_fields
 
         widgets = {}
@@ -107,6 +108,14 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                     Div(
                         Div(HTML("Product Type"), css_class='form-label'),
                         Div(Field('productType'))
+                    ),
+                    Div(
+                        Div(HTML("Funding Amount (lump sum)"), css_class='form-label'),
+                        Div(Field('calcLumpSum'))
+                    ),
+                    Div(
+                        Div(HTML("Funding Amount ($ per month)"), css_class='form-label'),
+                        Div(Field('calcIncome'))
                     ),
                     css_class="col-lg-6"
                 ),
