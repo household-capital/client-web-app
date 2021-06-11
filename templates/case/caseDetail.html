@@ -414,6 +414,7 @@
                                             <p class="small">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
 
                                             <p class="small">Max Loan is: ${{ status.data.maxLoan|intcomma }} (incl establishment fee)</p>
+                                            <p class="small">Max Monthly Income is: ${{ status.data.maxDrawdownMonthly|intcomma }} (incl est fee)</p>
                                             {% if status.data.maxLoan > status.data.maxTopUp %}
                                                 <p class="small">
                                                     Max for Super Top Up is: ${{ status.data.maxTopUp|intcomma }}
@@ -455,6 +456,11 @@
 
                             <div class="jumbotron">
                                 <p class="small pb-1"><i class="far fa-file-pdf"></i>&nbsp;&nbsp;Documents</p>
+                                {% if obj.enquiryDocument %}
+                                    <p><a href="{{ obj.enquiryDocument.url }}">Customer
+                                        Summary</a>
+                                    </p>
+                                {% endif %}
                                 {% if obj.summaryDocument %}
                                     <p><a href="{{ obj.summaryDocument.url }}">Loan
                                         Summary</a>
