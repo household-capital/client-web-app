@@ -1214,7 +1214,7 @@ class SendCustSummary(HouseholdLoginRequiredMixin, UpdateView):
 
         except:
             write_applog("ERROR", 'SendEnquirySummary', 'get',
-                         "Failed to save PDF in Database: " + str(enq_obj.enqUID))
+                         "Failed to save PDF in Database: " + str(case_obj.caseUID))
 
         email_context = {}
         email_context['user'] = case_obj.owner
