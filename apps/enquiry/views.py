@@ -529,11 +529,11 @@ class SendEnquirySummary(HouseholdLoginRequiredMixin, UpdateView):
             text_content, 
             attachFilename,
             other_attachments=[
-                # {
-                #     'name': "HHC-Brochure.pdf",
-                #     'type': 'application/pdf',
-                #     'content': staticfiles_storage.open('img/document/brochure.pdf', 'rb').read()
-                # }
+                {
+                    'name': "HHC-Brochure.pdf",
+                    'type': 'application/pdf',
+                    'content': staticfiles_storage.open('img/document/brochure.pdf', 'rb').read()
+                }
             ]
         )
         if sent:
