@@ -70,6 +70,19 @@
 
 
                                 <div class="col-lg-5 text-center">
+                                    {% if request.GET.filter == "Unactioned" %}
+                                        <a href="?filter=None&search={{ search }}&order={{ order }}">
+                                            <div class="btn btn-secondary" data-toggle="tooltip" data-placement="top"
+                                                 title="Action List"><i class="fas fa-running"></i></div>
+                                        </a>
+                                    {% else %}
+                                        <a href="?filter=Unactioned&search={{ search }}&order={{ order }}">
+                                            <div class="btn btn-outline-secondary" data-toggle="tooltip"
+                                                 data-placement="top"
+                                                 title="Action List"><i class="fas fa-running"></i></div>
+                                        </a>
+
+                                    {% endif %}
                                     {% if request.GET.filter == "Booked" %}
                                         <a href="?filter=None&search={{ search }}&order={{ order }}">
                                             <div class="btn btn-secondary" data-toggle="tooltip" data-placement="top"
@@ -179,6 +192,9 @@
                         <th scope="col"><a href="?order=caseDescription&search={{ search }}">
                             {% if order == 'caseDescription' %}<i class="fas fa-sort-down"></i>{% endif %}&nbsp;Description</a>
                         </th>
+                        <th scope="col"><a href="?order=caseDescription&search={{ search }}">
+                            {% if order == 'caseDescription' %}<i class="fas fa-sort-down"></i>{% endif %}&nbsp;Actioned</a>
+                        </th>
                         <th scope="col"><a href="?order=owner&search={{ search }}">
                             {% if order == 'owner' %}<i class="fas fa-sort-down"></i>{% endif %}&nbsp;Owner</a></th>
                         <th scope="col"><a href="?order=salesChannel&search={{ search }}">
@@ -201,6 +217,21 @@
                                 <a href="{{ obj.get_absolute_url }}">
                                     {{ obj.enumCaseStage }}&nbsp; </a></td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.caseDescription|truncatechars:30 }}</a></td>
+                            <td class="d-none d-sm-table-cell">
+                                <a href="{{ obj.get_absolute_url }}">
+                                    <div style="text-align:center;">
+                                        {% if obj.lead_needs_action %}
+                                            <button class="btn btn-warning btn-sm" data-toggle="tooltip"
+                                                    data-placement="top"
+                                                    title="Assign lead to you"><i class="fas fa-exclamation-circle"></i> New Enquiry
+                                            </button>
+                                        {% else %}
+                                            <i class="far fa-check-circle fa-lg btn-outline-success"></i>
+                                            
+                                        {% endif %}
+                                    </div>
+                                </a>
+                            </td>
                             <td><a href="{{ obj.get_absolute_url }}">
                                 {% if obj.owner %}
                                     {{ obj.owner }}

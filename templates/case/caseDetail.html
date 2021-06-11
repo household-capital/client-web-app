@@ -88,10 +88,19 @@
                     <div class="dropdown-menu">
 
                         <!-- All -->
+                        {% if obj.lead_needs_action %}
+                        <a class="dropdown-item"
+                           href="{% url 'case:caseOwn' uid=obj.caseUID %}">
+                            &nbsp;<i class="fas fa-exclamation-circle"></i>&nbsp;&nbsp; Mark Actioned
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        {% endif %}
+
                         <a class="dropdown-item"
                            href="{% url 'case:caseOwn' uid=obj.caseUID %}">
                             &nbsp;<i class="fas fa-crown"></i>&nbsp;&nbsp;Take Ownership
                         </a>
+                        
 
                         <div class="dropdown-divider"></div>
 

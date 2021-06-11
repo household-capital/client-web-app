@@ -127,6 +127,9 @@ class CaseListView(HouseholdLoginRequiredMixin, ListView):
         elif self.request.GET.get('filter') == "Booked": 
             queryset = queryset.filter(
                 Q(caseStage=caseStagesEnum.MEETING_BOOKED.value))
+        elif self.request.GET.get('filter') == "Unactioned": 
+            queryset = queryset.filter(
+                Q(lead_needs_action=True)|Q(owner__isnull=True))
         elif self.request.GET.get('filter') == "Me":
             queryset = queryset.filter(owner=self.request.user)
 
