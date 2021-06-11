@@ -143,7 +143,8 @@ class pdfGenerator():
             html_content = html.render(email_context)
             msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [bcc])
             msg.attach_alternative(html_content, "text/html")
-            msg.attach(attachFilename, self.pdfContents, 'application/pdf')
+            # msg.attach(attachFilename, self.pdfContents, 'application/pdf')
+            # UNCOMMENT
             for attachment in other_attachments:
                 msg.attach(
                     attachment['name'],

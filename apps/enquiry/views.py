@@ -472,28 +472,31 @@ class SendEnquirySummary(HouseholdLoginRequiredMixin, UpdateView):
         targetFileName = "enquiryReports/Enquiry-" + enqUID[-12:] + ".pdf"
 
         pdf = pdfGenerator(enqUID)
-        created, text = pdf.createPdfFromUrl(sourceUrl, 'CalculatorSummary.pdf', targetFileName)
+        # created, text = pdf.createPdfFromUrl(sourceUrl, 'CalculatorSummary.pdf', targetFileName)
 
-        if not created:
-            messages.error(self.request, "PDF not created - email could not be sent")
-            write_applog("ERROR", 'SendEnquirySummary', 'get',
-                         "PDF not created: " + str(enq_obj.enqUID))
-            return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
+        # if not created:
+        #     messages.error(self.request, "PDF not created - email could not be sent")
+        #     write_applog("ERROR", 'SendEnquirySummary', 'get',
+        #                  "PDF not created: " + str(enq_obj.enqUID))
+        #     return HttpResponseRedirect(reverse_lazy("enquiry:enquiryList"))
 
-        try:
-            # SAVE TO DATABASE (Enquiry Model)
+        # try:
+        #     # SAVE TO DATABASE (Enquiry Model)
 
-            enq_obj.summaryDocument = targetFileName
-            enq_obj.enquiryStage = enquiryStagesEnum.SUMMARY_SENT.value
-            enq_obj.save(update_fields=['summaryDocument', 'enquiryStage'])
-            app.send_task('Upload_Enquiry_Files', kwargs={'enqUID': enqUID})
+        #     enq_obj.summaryDocument = targetFileName
+        #     enq_obj.enquiryStage = enquiryStagesEnum.SUMMARY_SENT.value
+        #     enq_obj.save(update_fields=['summaryDocument', 'enquiryStage'])
+        #     app.send_task('Upload_Enquiry_Files', kwargs={'enqUID': enqUID})
 
-        except:
-            write_applog("ERROR", 'SendEnquirySummary', 'get',
-                         "Failed to save PDF in Database: " + str(enq_obj.enqUID))
+        # except:
+        #     write_applog("ERROR", 'SendEnquirySummary', 'get',
+        #                  "Failed to save PDF in Database: " + str(enq_obj.enqUID))
 
         email_context = {}
         email_context['user'] = enq_obj.user
+        email_context['firstname'] = enq_obj.firstname
+        email_context['max_loan'] = enq_obj.maxLoanAmount
+        email_context['monthly_drawdown'] = enq_obj.maxDrawdownMonthly
         subject, from_email, to, bcc = "Household Loan Enquiry", \
                                        enq_obj.user.email, \
                                        enq_obj.email, \
@@ -511,11 +514,11 @@ class SendEnquirySummary(HouseholdLoginRequiredMixin, UpdateView):
             text_content, 
             attachFilename,
             other_attachments=[
-                {
-                    'name': "HHC-Brochure.pdf",
-                    'type': 'application/pdf',
-                    'content': staticfiles_storage.open('img/document/brochure.pdf', 'rb').read()
-                }
+                # {
+                #     'name': "HHC-Brochure.pdf",
+                #     'type': 'application/pdf',
+                #     'content': staticfiles_storage.open('img/document/brochure.pdf', 'rb').read()
+                # }
             ]
         )
         if sent:
