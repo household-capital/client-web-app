@@ -415,6 +415,10 @@ class EnquiryCallView(HouseholdLoginRequiredMixin, CreateView):
 
         obj.save()
 
+        lead = obj.case
+        lead.lead_needs_action = False
+        lead.save()
+
         # Background task to update SF
 
         if 'submit' in form.data:
@@ -1094,6 +1098,11 @@ class EnquiryAssignView(HouseholdLoginRequiredMixin, UpdateView):
         preObj = Enquiry.objects.queryset_byUID(str(self.kwargs['uid'])).get()
         enq_obj = form.save()
         enq_obj.save(should_sync=True)
+
+        lead = enq_obj.case 
+        lead.enquiries.filter(user__isnull=True, timestamp__lte=enq_obj.timestamp).update(
+            user=enq_obj.user
+        )   
         # NB: we must send down the "preObj" so the user switch gets documented correctly in the enquiry notes
         # during reassignment.
 
@@ -1114,6 +1123,11 @@ class EnquiryOwnView(HouseholdLoginRequiredMixin, View):
         else:
             enqObj.user = self.request.user
             enqObj.save(should_sync=True)
+            lead = enqObj.case 
+            lead.enquiries.filter(user__isnull=True, timestamp__lte=enqObj.timestamp).update(
+                user=enqObj.user
+            )
+        
             messages.success(self.request, "Ownership Changed")
 
             # Background task to update SF

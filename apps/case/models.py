@@ -352,6 +352,9 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
     calcLumpSum = models.IntegerField(blank=True, null=True)
     calcIncome = models.IntegerField(blank=True, null=True)
 
+    lead_needs_action = models.BooleanField(default=False, blank=True, null=True)
+    # True if Action btn shows
+
     objects=CaseManager()
 
     def __str__(self):

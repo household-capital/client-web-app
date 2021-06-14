@@ -127,6 +127,9 @@ class CaseListView(HouseholdLoginRequiredMixin, ListView):
         elif self.request.GET.get('filter') == "Booked": 
             queryset = queryset.filter(
                 Q(caseStage=caseStagesEnum.MEETING_BOOKED.value))
+        elif self.request.GET.get('filter') == "Unactioned": 
+            queryset = queryset.filter(
+                Q(lead_needs_action=True)|Q(owner__isnull=True))
         elif self.request.GET.get('filter') == "Me":
             queryset = queryset.filter(owner=self.request.user)
 
@@ -280,6 +283,10 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
                 result = mappify.checkPostalAddress()
                 if result['status'] == 'Error':
                     messages.error(self.request, "Address validation. Please check address fields, or set address fields with find widget")
+        
+        if caseObj.lead_needs_action: 
+            messages.warning(self.request, "Lead needs to be actioned. Please review any new enquiries and mark lead as actioned")
+        
         return context
 
     def form_valid(self, form):
@@ -1365,4 +1372,20 @@ class CustSummaryPdfView(TemplateView):
         context['product_type'] = obj.loan.product_type 
 
         return context
+
+class MarkActionedView(HouseholdLoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+
+        caseUID = str(kwargs['uid'])
+        caseObj = Case.objects.get(caseUID=caseUID)
+        if caseObj.owner is None: 
+            messages.error(self.request, "Lead must have owner before being actioned")
+        else:
+            if self.request.user.profile.isCreditRep == True:
+                caseObj.lead_needs_action = False
+                caseObj.save(update_fields=['lead_needs_action'])
+            else:
+                messages.error(self.request, "You must be a Credit Representative to mark as actioned")
+
+        return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
 
