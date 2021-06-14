@@ -1369,3 +1369,18 @@ class CustSummaryPdfView(TemplateView):
 
         return context
 
+class MarkActionedView(HouseholdLoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+
+        caseUID = str(kwargs['uid'])
+        caseObj = Case.objects.get(caseUID=caseUID)
+
+        if self.request.user.profile.isCreditRep == True:
+            caseObj.lead_needs_action = False
+            caseObj.save(update_fields=['lead_needs_action'])
+
+        else:
+            messages.error(self.request, "You must be a Credit Representative to mark as actioned")
+
+        return HttpResponseRedirect(reverse_lazy('case:caseDetail', kwargs={'uid': caseObj.caseUID}))
+

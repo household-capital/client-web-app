@@ -38,6 +38,7 @@ urlpatterns = [
     path('SendCustDetail/<uuid:uid>', views.SendCustSummary.as_view(), name='sendCustDetail'),
 
     path('custSummaryPdf/<uuid:uid>', views.CustSummaryPdfView.as_view(), name='custSummaryPdf'),
+    path('markActioned/<uuid:uid>',views.MarkActionedView.as_view(),name='markActioned'),
 ]
 
 
