@@ -368,16 +368,19 @@
                                             <p class="badge badge-primary">
                                                 <i class="fas fa-exclamation-circle"></i> Needs action</p>
                                         {% endif %}
+                                        {% if obj.lead_needs_action %}
+                                        <hr/>
+                                        <p class="small pb-2"><i class="fas fa-exclamation-circle"></i> New Enquiry for this Lead has come through. Mark Lead as actioned from action list after reviewing all new enquiries</p>
+                                        <hr/>
+                                        {% endif %}
                                         <p class="small pt-2">Create Date: {{ obj.timestamp | date:'d M y' }}</p>
+                                        <p class="small pt-2">Last Updated: {{ obj.updated }}</p>
                                         {% if obj.owner %}
                                         <p class="small pt-2 pb-2">Owner: {{ obj.owner.username }}</p>
                                         {% else %}
                                         <p class="small pt-2 pb-2">No Owner</p>
                                         {% endif %}
                                         <p class="small pb-2">Fee Type: {{ obj.loan.product_type }}</p>
-                                        {% if obj.lead_needs_action %}
-                                        <p class="small pb-2"><i class="fas fa-exclamation-circle"></i> New Enquiry for this Lead has come through. Mark Lead as actioned from action list </p>
-                                        {% endif %}
                                         <p class="small pt-4 pb-2"><i class="fas fa-users-cog fa-fw"></i>&nbsp;
                                             Validation</p>
 
