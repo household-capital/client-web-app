@@ -51,7 +51,8 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
             'salesChannel', 'channelDetail', 'referrer', 'marketing_campaign',
 
             'doNotMarket',
-            'calcLumpSum', 'calcIncome'
+            'calcLumpSum', 'calcIncome',
+            'loan_rating'
         ] + address_model_fields
 
         widgets = {}
@@ -123,6 +124,11 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                     Div(
                         Div(HTML("Current Status"), css_class='form-label'),
                         Div(Field('caseStage'))
+                    ),
+                    Div(
+                        Div(
+                            HTML("Loan Rating <a href=\"https://docs.google.com/spreadsheets/d/13Hb86YfwaQuRLCyfMX2fnbYDjWtAHXFPSA6-pO3xpU4/edit#gid=0\" target=\"_blank\"><i class=\"fas fa-link\"></i></a>"), css_class='form-label'),
+                        Div(Field('loan_rating'))
                     ),
                     Div(
                         Div(HTML("Do Not Market"), css_class='form-label'),

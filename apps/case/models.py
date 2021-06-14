@@ -226,6 +226,12 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
         (productTypesEnum.REFINANCE.value, "Refinance"),
     )
 
+    loanRating = (
+        (loanRatingEnum.SIMPLE.value, 'Simple'),
+        (loanRatingEnum.MODERATE.value, 'Moderate'),
+        (loanRatingEnum.COMPLEX.value, 'Complex'),
+    ) 
+
     # ClientApp Identifiers
     caseID = models.AutoField(primary_key=True)
     caseUID = models.UUIDField(default=uuid.uuid4, editable=False)
@@ -354,7 +360,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
 
     lead_needs_action = models.BooleanField(default=False, blank=True, null=True)
     # True if Action btn shows
-
+    loan_rating = models.IntegerField(blank=True, null=True, choices=loanRating)
     objects=CaseManager()
 
     def __str__(self):
@@ -377,6 +383,9 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
     def enumLoanType(self):
         if self.loanType is not None:
             return dict(self.loanTypes).get(self.loanType)
+    
+    def enumLoanRating(self):
+        return dict(self.loanRating).get(self.loan_rating)
 
     def enumStateType(self):
         if self.state is not None:

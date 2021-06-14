@@ -828,6 +828,8 @@ def __buildLeadCasePayload(case):
     payload['LeadSource'] = case.enumReferrerType()
     if case.marketing_campaign:
         payload['Marketing_Campaign__c'] = case.marketing_campaign.campaign_name
+    
+    payload['LoanRating__c'] = case.enumLoanRating()
     return payload
 
 
