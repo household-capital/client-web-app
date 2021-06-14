@@ -5,12 +5,20 @@
 
 {% block email_content %}
 
-<p>Hello and thank you for your enquiry.</p>
+<p>Dear {{ firstname }}</p>
 <br>
-<p>Attached is a brief summary showing how a Household Transfer might be able to help you meet your objectives, based on the information that you provided. </p>
+
+<p>Thank you for your recent enquiry to Household Capital. I am pleased to attach a personalised summary that outlines how our Household Loan could help you meet your retirement objectives. </p>
 <br>
-<p>Please don't hesitate to contact me on {{ user.profile.mobile}} or {{user.email }}</p>
+<p>Based on your age and your estimated of your property value, you can apply for a loan up to the value of ${{ max_loan|intcomma }} as a lump sum (including application fee), or up to ${{ monthly_drawdown|intcomma }} per month as a regular income stream over 10 years.</p>
 <br>
+<p>If appropriate for your situation, you’re able to draw a mix of income and capital. You can apply for funds to be drawn immediately, or that we hold for your later use. We want to provide you with flexibility and choice, so you can determine what mix of retirement funding will best help you meet your objectives.</p>
+<br>
+<p>The attached summary also provides an illustration showing how a {{ loan_text }} would grow over 5, 10 and 15 years if no repayments are made. It also includes the impact of a modest rate of growth in the value of the home over these time periods.</p>
+<br>
+<p>I have also attached a brochure containing more general information about our Household Loan – how it works, important consumer protections and a number of frequently asked questions.</p>
+<br>
+<p>If you’d like any further information or have any questions, please call me on 1300 622 100. I can also help you to book a meeting with one of our retirement specialists for a more personalised discussion about your retirement funding needs.</p>
 <p>Kind regards</p>
 <br>
 <p>{{ user.first_name }}</p>
@@ -20,6 +28,5 @@
 {% endif %}
 <br>
 <img src="{{ user.profile.picture.url }}" width="100px">
-
 
 {% endblock %}

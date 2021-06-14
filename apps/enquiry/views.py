@@ -472,6 +472,7 @@ class SendEnquirySummary(HouseholdLoginRequiredMixin, UpdateView):
         targetFileName = "enquiryReports/Enquiry-" + enqUID[-12:] + ".pdf"
 
         pdf = pdfGenerator(enqUID)
+        # UNCOMMENT THIS 
         created, text = pdf.createPdfFromUrl(sourceUrl, 'CalculatorSummary.pdf', targetFileName)
 
         if not created:
@@ -494,6 +495,23 @@ class SendEnquirySummary(HouseholdLoginRequiredMixin, UpdateView):
 
         email_context = {}
         email_context['user'] = enq_obj.user
+        email_context['firstname'] = enq_obj.firstname
+        email_context['max_loan'] = enq_obj.maxLoanAmount
+        email_context['monthly_drawdown'] = enq_obj.maxDrawdownMonthly
+        projectionContext = getEnquiryProjections(enqUID)
+        email_context['loan_text'] = "Household Loan of ${:,}".format(enq_obj.maxLoanAmount)
+        
+        if enq_obj.productType == productTypesEnum.CONTINGENCY_20K.value:
+            email_context['loan_text'] = "Household Loan of $20,000"
+        
+        if enq_obj.productType == productTypesEnum.INCOME.value: 
+            email_context['loan_text'] = "Household Loan of ${:,}/month".format(enq_obj.maxDrawdownMonthly)
+
+        if enq_obj.productType == productTypesEnum.REFINANCE.value:
+            email_context['loan_text'] = "Household Loan of ${:,}".format(projectionContext['totalLoanAmount'])
+
+
+
         subject, from_email, to, bcc = "Household Loan Enquiry", \
                                        enq_obj.user.email, \
                                        enq_obj.email, \

@@ -1218,6 +1218,22 @@ class SendCustSummary(HouseholdLoginRequiredMixin, UpdateView):
 
         email_context = {}
         email_context['user'] = case_obj.owner
+        email_context['firstname'] = case_obj.firstname_1
+        email_context['max_loan'] = case_obj.maxLoanAmount
+        email_context['monthly_drawdown'] = case_obj.maxDrawdownMonthly
+        projectionContext = getCaseProjections(caseUID)
+        email_context['loan_text'] = "Household Loan of ${:,}".format(case_obj.maxLoanAmount)
+        
+        if case_obj.productType == productTypesEnum.CONTINGENCY_20K.value:
+            email_context['loan_text'] = "Household Loan of $20,000"
+        
+        if case_obj.productType == productTypesEnum.INCOME.value: 
+            email_context['loan_text'] = "Household Loan of ${:,}/month".format(case_obj.maxDrawdownMonthly)
+
+        if case_obj.productType == productTypesEnum.REFINANCE.value:
+            email_context['loan_text'] = "Household Loan of ${:,}".format(projectionContext['totalLoanAmount'])
+
+        email_context['user'] = case_obj.owner
         subject, from_email, to, bcc = "Household Loan Enquiry", \
                                        case_obj.owner.email, \
                                        case_obj.email_1, \
