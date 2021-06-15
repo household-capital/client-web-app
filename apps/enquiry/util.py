@@ -57,7 +57,7 @@ def updateCreatePartnerEnquiry(payload, enquiries_to_assign):
                 )
                 return False
 
-        if lead.referrer not in nonDirectTypes:
+        if lead.enquiries.latest('timestamp').referrer not in nonDirectTypes:
             write_applog(
                 "INFO", 'Enquiry', 'EnquiryPartnerUpload',
                 'Lead set to a direct lead source, so we will not update the lead. Email = {}, Phone={}'.format(
@@ -76,7 +76,6 @@ def updateCreatePartnerEnquiry(payload, enquiries_to_assign):
 
     if should_lead_update(lead, new_enq):
         # reset source info
-        lead.referrer = new_enq.referrer
         lead.channelDetail = new_enq.marketingSource
         lead.marketing_campaign = new_enq.marketing_campaign
 

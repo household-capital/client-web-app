@@ -60,7 +60,7 @@ def _build_case_data_update(enquiry, case=None):
         'valuationDocument',
         'enqUID',
         'propensityCategory',
-        'referrer',
+        # 'referrer',
         'marketing_campaign',
 
         'calcLumpSum',
@@ -130,6 +130,8 @@ def _build_case_data_update(enquiry, case=None):
         if field_val is not None and field_val != '':
             caseDict[case_field] = field_val
     caseDict['lead_needs_action'] = True
+    if is_create: 
+        caseDict['referrer'] = enquiry.referrer
     return caseDict
 
 def move_notes_to_lead(enquiry, case):

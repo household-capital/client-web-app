@@ -196,7 +196,7 @@ def auto_assign_leads(leads, force=False, notify=True):
         
         # find a user, but if not forcing we can use the user from a duplicate lead
         user = find_auto_assignee(
-            referrer=lead.referrer,
+            referrer=lead.enquiries.latest('timestamp').referrer,
             marketing_source=lead.channelDetail,
             email=(lead.email if not force else None),
             phoneNumber=(lead.phoneNumber if not force else None),
