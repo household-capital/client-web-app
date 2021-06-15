@@ -1,12 +1,13 @@
 {% load comments %}
 {% load comments_extension %}
+{% load site_tags %}
 
 {% include 'site/base.css.html' %}
 
 <div class="row">
     <div class="col-lg-8 col-md-12 pr-1 pl-1">
         <br/>
-        {% render_comment_list for obj %}
+        {% render_comment_list_by_latest for obj %}
     </div>
     <div class="col-lg-4 col-md-12 pr-1 pl-1">
         <br/>
