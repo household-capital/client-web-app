@@ -416,6 +416,11 @@ class propensityCategoriesEnum(Enum):
     E = 5
     F = 6
 
+@accessInTemplate
+class loanRatingEnum(Enum):
+    SIMPLE=0
+    MODERATE=1
+    COMPLEX=2
 
 propensityChoices = [
     (propensityCategoriesEnum.A.value, 'A'),
