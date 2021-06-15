@@ -4,7 +4,7 @@ import os
 #Django Imports
 from django import template
 
-
+from django_comments.templatetags.comments import RenderCommentListNode
 # CUSTOM TEMPLATE TAGS
 
 def modelMethod(obj, method_name, *args):
@@ -100,3 +100,14 @@ register.filter('percent', percent)
 register.filter('roundNum', roundNum)
 register.filter('active_enquiries', active_enquiries)
 register.simple_tag(modelMethod, name='modelMethod')
+
+
+
+class CustomerRenderListNode(RenderCommentListNode):
+    def get_queryset(self, context): 
+        return super(CustomerRenderListNode, self).get_queryset(context).order_by('-submit_date')
+
+
+@register.tag 
+def render_comment_list_by_latest(parser, token):
+    return CustomerRenderListNode.handle_token(parser, token)
