@@ -34,10 +34,14 @@ logger = logging.getLogger('myApps')
 
 REQUIRED_FIELDS = [
     'last',
-    'phone',
     'postcode',
     'grading',
     'stream'
+]
+
+OR_FIELDS = [
+    'phone',
+    'email'
 ]
 
 class DataIngestion(APIView):
@@ -313,7 +317,14 @@ class DataIngestion(APIView):
         for req_field in REQUIRED_FIELDS: 
             if json_payload.get(req_field) is None: 
                 raise MissingRequiredFields('Missing field: \'{}\''.format(req_field))
-        
+        meets_or_fields = any( 
+            json_payload.get(req_field) 
+            for req_field in OR_FIELDS
+        )
+        if not meets_or_fields:
+            raise MissingRequiredFields('Missing OR field(s): \'{}\''.format(' or '.join(OR_FIELDS)))
+
+
         marketing_source_value = json_payload['stream']
         write_applog(
             "INFO",
