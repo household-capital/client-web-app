@@ -1,5 +1,4 @@
 from urllib.parse import urljoin
-import time
 
 from django.conf import settings
 from django.urls import reverse_lazy, reverse
@@ -15,6 +14,7 @@ from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.enquiry.models import Enquiry
 from .models import WebCalculator
 
+
 from apps.case.assignment import auto_assign_leads, assign_lead
 
 
@@ -26,11 +26,6 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
 
     def attempt_sync(enq_obj, pause_for_dups):
         try:
-            if pause_for_dups and enq_obj.has_duplicate():
-                # in case the dup was recently created, let's wait to give it time to finish a SF sync before
-                # we start this one.
-                write_applog("INFO", 'calculator.util', 'attempt_sync', "Pausing for 20 secs to allow duplicate to settle")
-                time.sleep(20)
             app.send_task('Update_SF_Enquiry', kwargs={'enqUID': str(enq_obj.enqUID)})
         except Exception as ex:
             try:
@@ -73,79 +68,6 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
         enq_obj.refresh_from_db()
         return enq_obj
 
-    def gen_calc_summary(enq_obj, calculator):
-        # PRODUCE PDF REPORT
-        source_url = urljoin(
-            settings.SITE_URL,
-            reverse('enquiry:enqSummaryPdf', kwargs={'uid': str(enq_obj.enqUID)})
-        )
-        target_file_name = "enquiryReports/Enquiry-" + str(enq_obj.enqUID)[-12:] + ".pdf"
-
-        pdf = pdfGenerator(str(calculator.calcUID))
-        created, text = pdf.createPdfFromUrl(source_url, 'CalculatorSummary.pdf', target_file_name)
-
-        if not created:
-            write_applog(
-                "ERROR", 'calculator.util', 'convert_calc', "Enquiry created - but calc summary could not be generated for enquiry " + str(enq_obj.enqUID)
-            )
-            raise ProcessingError("Enquiry created - but calc summary could not be generated")
-
-        try:
-            # SAVE TO DATABASE (Enquiry Model)
-            qs_enq = Enquiry.objects.queryset_byUID(str(enq_obj.enqUID))
-            qs_enq.update(summaryDocument=target_file_name, enquiryStage=enquiryStagesEnum.SUMMARY_SENT.value)
-        except Exception as ex:
-            write_applog(
-                "ERROR", 'calculator.util', 'convert_calc', "Failed to save Calc Summary in Database: " + str(enq_obj.enqUID), is_exception=True
-            )
-
-        return pdf
-
-    def email_customer(pdf, enq_obj, calculator):
-        template_name = 'calculator/email/email_cover_calculator.html'
-        owner = enq_obj.user
-
-        email_context = {}
-
-        email_context['customerFirstName'] = calculator.firstname
-        name = "{} {}".format(
-            enq_obj.firstname or '',
-            enq_obj.lastname or ''
-        )
-        paramStr = "?name=" + (name or '') + "&email=" + (enq_obj.email or '')
-        #  Get Rates
-        email_context['loanRate'] = round(ECONOMIC['interestRate'] + ECONOMIC['lendingMargin'], 2)
-        email_context['compRate'] = round(email_context['loanRate'] + ECONOMIC['comparisonRateIncrement'], 2)
-        email_context['calendlyUrl'] = owner.profile.calendlyUrl + paramStr
-        email_context['user'] = owner
-        subject = "Household Capital: Your Personal Summary"
-        from_email = owner.email
-        to = calculator.email
-        bcc = owner.email
-        text_content = "Text Message"
-        attach_filename = 'HHC-CalculatorSummary.pdf'
-
-        sent = pdf.emailPdf(
-            template_name, 
-            email_context, 
-            subject, 
-            from_email, 
-            to, 
-            bcc, 
-            text_content, 
-            attach_filename,
-            other_attachments=[
-                {
-                    'name': "HHC-Brochure.pdf",
-                    'type': 'application/pdf',
-                    'content': staticfiles_storage.open('img/document/brochure.pdf', 'rb').read()
-                }
-            ]
-        )
-
-        if not sent:
-            raise ProcessingError("Enquiry created - but email not sent")
-
     enq_obj = convert_to_enquiry(calculator, proposed_owner)
     if enq_obj.user is None: 
         lead = enq_obj.case
@@ -161,7 +83,15 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
             raise ProcessingError("Age or Postcode Restriction - please respond to customer")
 
         if enq_obj.user:
-            pdf = gen_calc_summary(enq_obj, calculator)
-            email_customer(pdf, enq_obj, calculator)
+            app.send_task(
+                'Webcalc_gen_and_email', 
+                kwargs={
+                    'enqUID': str(enq_obj.enqUID),
+                    'calcUID': str(calculator.calcUID)
+                }
+            )
+            #generate_and_email.delay(enq_obj.enqUID, calculator.calcUID)
+            # pdf = gen_calc_summary(enq_obj, calculator)
+            # email_customer(pdf, enq_obj, calculator)
     finally:
         attempt_sync(enq_obj, pause_for_dups)

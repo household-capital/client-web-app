@@ -85,6 +85,25 @@ class CaseManager(models.Manager):
 class Case(AbstractAddressModel, ReversionModel, models.Model):
     # Main model - extended by Loan, ModelSettings and LossData
 
+    class Meta:
+        ordering = ('-updated',)
+        verbose_name_plural = "Case"
+        constraints = [
+            # Ensures constraint on DB level, raises IntegrityError (500 on debug=False)
+            models.UniqueConstraint(
+                fields=[
+                    'phoneNumber_1', 
+                    'email_1'
+                ], 
+                condition=Q(
+                    Q(appType=appTypesEnum.NEW_APPLICATION.value) &
+                    Q(deleted_on__isnull=True)
+                ),
+                name='email_phone_lead_definition_uniqueness'
+            ),
+        ]
+    
+
     appTypes = (
         (appTypesEnum.NEW_APPLICATION.value, "Application"),
         (appTypesEnum.VARIATION.value, "Variation"),
@@ -368,10 +387,6 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
 
     def __unicode__(self):
         return smart_text(self.caseDescription)
-
-    class Meta:
-        ordering = ('-updated',)
-        verbose_name_plural = "Case"
 
     def enumReferrerType(self):
         if self.referrer is not None:

@@ -1,11 +1,16 @@
 # Python Imports
 import json
 import base64
+import traceback
 
 # Third-party Imports
 from config.celery import app
 from django.core.serializers.json import DjangoJSONEncoder
 
+from urllib.parse import urljoin
+from django.conf import settings
+from django.urls import reverse
+from django.contrib.staticfiles.storage import staticfiles_storage
 # Local Application Imports
 
 from apps.calculator.models import WebCalculator, WebContact
@@ -18,8 +23,101 @@ from .util import convert_calc, ProcessingError
 from apps.case.assignment import find_auto_assignee
 
 from apps.operational.decorators import email_admins_on_failure
-
+from apps.lib.api_Pdf import pdfGenerator
+from apps.lib.site_Globals import ECONOMIC
 # TASKS
+
+
+
+@app.task(name="Webcalc_gen_and_email")
+def generate_and_email(enqUID, calcUID):
+    try:
+        enq_obj = Enquiry.objects.get(enqUID=enqUID)
+        calculator = WebCalculator.objects.get(calcUID=calcUID)
+        pdf = gen_calc_summary(enq_obj, calculator)
+        email_customer(pdf, enq_obj, calculator)
+    except Exception as e:
+        tb = traceback.format_exc()
+        raiseTaskAdminError(
+            "Failed Webcalc gen/email - {}".format(str(calcUID)),
+            tb
+        )
+        raise e
+
+
+
+def gen_calc_summary(enq_obj, calculator):
+    # PRODUCE PDF REPORT
+    source_url = urljoin(
+        settings.SITE_URL,
+        reverse('enquiry:enqSummaryPdf', kwargs={'uid': str(enq_obj.enqUID)})
+    )
+    target_file_name = "enquiryReports/Enquiry-" + str(enq_obj.enqUID)[-12:] + ".pdf"
+
+    pdf = pdfGenerator(str(calculator.calcUID))
+    created, text = pdf.createPdfFromUrl(source_url, 'CalculatorSummary.pdf', target_file_name)
+
+    if not created:
+        write_applog(
+            "ERROR", 'calculator.util', 'convert_calc', "Enquiry created - but calc summary could not be generated for enquiry " + str(enq_obj.enqUID)
+        )
+        raise ProcessingError("Enquiry created - but calc summary could not be generated")
+
+    try:
+        # SAVE TO DATABASE (Enquiry Model)
+        qs_enq = Enquiry.objects.queryset_byUID(str(enq_obj.enqUID))
+        qs_enq.update(summaryDocument=target_file_name, enquiryStage=enquiryStagesEnum.SUMMARY_SENT.value)
+    except Exception as ex:
+        write_applog(
+            "ERROR", 'calculator.util', 'convert_calc', "Failed to save Calc Summary in Database: " + str(enq_obj.enqUID), is_exception=True
+        )
+
+    return pdf
+
+def email_customer(pdf, enq_obj, calculator):
+    template_name = 'calculator/email/email_cover_calculator.html'
+    owner = enq_obj.user
+
+    email_context = {}
+
+    email_context['customerFirstName'] = calculator.firstname
+    name = "{} {}".format(
+        enq_obj.firstname or '',
+        enq_obj.lastname or ''
+    )
+    paramStr = "?name=" + (name or '') + "&email=" + (enq_obj.email or '')
+    #  Get Rates
+    email_context['loanRate'] = round(ECONOMIC['interestRate'] + ECONOMIC['lendingMargin'], 2)
+    email_context['compRate'] = round(email_context['loanRate'] + ECONOMIC['comparisonRateIncrement'], 2)
+    email_context['calendlyUrl'] = owner.profile.calendlyUrl + paramStr
+    email_context['user'] = owner
+    subject = "Household Capital: Your Personal Summary"
+    from_email = owner.email
+    to = calculator.email
+    bcc = owner.email
+    text_content = "Text Message"
+    attach_filename = 'HHC-CalculatorSummary.pdf'
+
+    sent = pdf.emailPdf(
+        template_name, 
+        email_context, 
+        subject, 
+        from_email, 
+        to, 
+        bcc, 
+        text_content, 
+        attach_filename,
+        other_attachments=[
+            {
+                'name': "HHC-Brochure.pdf",
+                'type': 'application/pdf',
+                'content': staticfiles_storage.open('img/document/brochure.pdf', 'rb').read()
+            }
+        ]
+    )
+
+    if not sent:
+        raise ProcessingError("Enquiry created - but email not sent")
 
 @app.task(name="Wordpress_Data")
 @email_admins_on_failure(task_name='Wordpress_Data')
