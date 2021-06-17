@@ -5,12 +5,14 @@
 
 {% block email_content %}
 
+{% if firstname %}
 <p>Dear {{ firstname }}</p>
 <br>
+{% endif %}
 
 <p>Thank you for your recent enquiry to Household Capital. I am pleased to attach a personalised summary that outlines how our Household Loan could help you meet your retirement objectives. </p>
 <br>
-<p>Based on your age and your estimated of your property value, you can apply for a loan up to the value of ${{ max_loan|intcomma }} as a lump sum (including application fee), or up to ${{ monthly_drawdown|intcomma }} per month as a regular income stream over 10 years.</p>
+<p>Based on your age and your estimate of your property value, you can apply for a loan up to the value of ${{ max_loan|intcomma }} as a lump sum (including application fee), or up to ${{ monthly_drawdown|intcomma }} per month as a regular income stream over 10 years.</p>
 <br>
 <p>If appropriate for your situation, you’re able to draw a mix of income and capital. You can apply for funds to be drawn immediately, or that we hold for your later use. We want to provide you with flexibility and choice, so you can determine what mix of retirement funding will best help you meet your objectives.</p>
 <br>
