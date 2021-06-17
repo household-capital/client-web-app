@@ -36,6 +36,8 @@ def raiseTaskAdminError(title, body, to=None):
 
 
 def firstNameSplit(str):
+    if not str:
+        return ''
     if " " not in str:
         return str
 
