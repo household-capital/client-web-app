@@ -88,20 +88,21 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
     class Meta:
         ordering = ('-updated',)
         verbose_name_plural = "Case"
-        constraints = [
-            # Ensures constraint on DB level, raises IntegrityError (500 on debug=False)
-            models.UniqueConstraint(
-                fields=[
-                    'phoneNumber_1', 
-                    'email_1'
-                ], 
-                condition=Q(
-                    Q(appType=appTypesEnum.NEW_APPLICATION.value) &
-                    Q(deleted_on__isnull=True)
-                ),
-                name='email_phone_lead_definition_uniqueness'
-            ),
-        ]
+        # TODO RE-ADd this to make it work with multiple properties (N cases for 1 customer)
+        # constraints = [
+        #     # Ensures constraint on DB level, raises IntegrityError (500 on debug=False)
+        #     models.UniqueConstraint(
+        #         fields=[
+        #             'phoneNumber_1', 
+        #             'email_1'
+        #         ], 
+        #         condition=Q(
+        #             Q(appType=appTypesEnum.NEW_APPLICATION.value) &
+        #             Q(deleted_on__isnull=True)
+        #         ),
+        #         name='email_phone_lead_definition_uniqueness'
+        #     ),
+        # ]
     
 
     appTypes = (
