@@ -451,6 +451,19 @@ def getProjectionResults(sourceDict, scenarioList, img_url=None):
     return context
 
 
+def validateLead(caseUID):
+    obj = Case.objects.get(caseUID=caseUID)
+    context = {}
+    context.update(obj.__dict__)
+    context["obj"] = obj
+
+    # Set initial values (given this is an under-specified enquiry) based on product
+    context.update(enquiryProductContext(obj))
+
+    # Validate loan to get limit amounts
+    return get_loan_status(context, obj.loan.product_type)
+
+
 def validateEnquiry(enqUID):
     """Wrapper utility to enable validator to be used with under-specified enquiry """
     obj = Enquiry.objects.queryset_byUID(enqUID).get()
