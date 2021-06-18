@@ -61,7 +61,7 @@ class apiSalesforce():
                       'StageList':
                           "Select Id, Name, StageName from Opportunity where RecordType.Name != \'Distribution\'",
                       'AmountCheckList':
-                           "Select Id, Total_Household_Loan_Amount__c, Total_Plan_Amount__c, Establishment_Fee_Percent__c from Opportunity where Lead_Record_Type__c = 'Household' and StageName in ('Meeting Held', 'Application Sent', 'Build Case', 'Assess')",
+                           "Select Id, Total_Household_Loan_Amount__c, Total_Plan_Amount__c, Establishment_Fee_Percent__c, Establishment_Fee__c from Opportunity where Lead_Record_Type__c = 'Household' and StageName in ('Meeting Held', 'Application Sent', 'Build Case', 'Assess')",
 
                       'LoanObjectList':
                            "Select Id, Status__c, Name, LoanNumber__c, Total_Loan_Amount__c, Total_Limits__c, Total_Establishment_Fee__c, Establishment_Fee_Percent__c, Total_Plan_Purpose_Amount__c, TotalPlanAmount__c, TotalPlanEstablishmentFee__c, Mortgage_Number__c, Account_Number__c, BSB__c from Loan__c where Status__c != \'Inactive\'",
