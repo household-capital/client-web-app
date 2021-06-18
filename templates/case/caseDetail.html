@@ -384,7 +384,6 @@
                                         <p class="small pt-4 pb-2"><i class="fas fa-users-cog fa-fw"></i>&nbsp;
                                             Validation</p>
 
-
                                         {% if status.status != 'Ok' %}
                                             <p class="text-danger"><i
                                                     class="far fa-times-circle fa-lg btn-outline-danger"></i>&nbsp;Ineligible
@@ -409,6 +408,12 @@
                                                 Loan
                                             </p>
 
+                                        {% endif %}
+
+                                        {% if requirementError %}
+                                            <p class="text-danger pt-2">
+                                                <i class="fas fa-lg fa-exclamation-circle"></i>&nbsp;{{ requirementError }}
+                                            </p>
                                         {% endif %}
 
                                         {% if obj.isReferPostcode %}

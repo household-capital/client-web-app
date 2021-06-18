@@ -37,7 +37,7 @@ from apps.lib.lixi.lixi_CloudBridge import CloudBridge
 from apps.lib.site_Utilities import cleanPhoneNumber, validate_loan 
 from apps.lib.site_EmailUtils import sendTemplateEmail
 from apps.lib.site_ViewUtils import updateNavQueue
-from apps.lib.site_LoanUtils import validateLoanGetContext, getProjectionResults, getCaseProjections
+from apps.lib.site_LoanUtils import validateLoanGetContext, getProjectionResults, getCaseProjections, validateLead
 from apps.lib.mixins import HouseholdLoginRequiredMixin, AddressLookUpFormMixin
 from .forms import CaseDetailsForm, LossDetailsForm, SFPasswordForm, CaseAssignForm, \
     lumpSumPurposeForm, drawdownPurposeForm, purposeAddForm, smsForm
@@ -223,6 +223,13 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
             context['status'].update(validateLoanGetContext(str(caseObj.caseUID)))
             if context['status']['errors']:
                 messages.error(self.request, "Loan validation error")
+
+
+        if caseObj.calcLumpSum or caseObj.calcIncome:
+            loanStatus  = validateLead(str(caseObj.caseUID))
+            if loanStatus['status'] == "Ok":
+                if loanStatus['data']['errors']:
+                    context['requirementError'] = 'Invalid requirement amounts'
 
         # Calendly
         context['calendlyUrl'] = ""
