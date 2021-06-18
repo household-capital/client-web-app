@@ -408,9 +408,13 @@ def integrityCheck():
                 if abs(loanObj.totalPlanAmount - row['Total_Plan_Amount__c']) > 1:
                     errorFlag = True
 
-                if modelObj.establishmentFeeRate:
-                    if abs(modelObj.establishmentFeeRate - row['Establishment_Fee_Percent__c'] / 100) > 0.0001:
+                if loanObj.product_type == "HHC.RM.2021":
+                    if row['Establishment_Fee__c'] != 950 :
                         errorFlag = True
+                else:
+                    if modelObj.establishmentFeeRate:
+                        if abs(modelObj.establishmentFeeRate - row['Establishment_Fee_Percent__c'] / 100) > 0.0001:
+                            errorFlag = True
 
                 if errorFlag == True:
                     write_applog("INFO", 'integrityCheck', 'task', "Difference on " + obj.caseDescription)
