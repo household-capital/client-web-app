@@ -227,7 +227,7 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
     # Not a person:
     referrer = models.IntegerField(blank=False,null=False,choices=referrerTypes)  # "Lead Source" - not a person!
     marketingSource = models.IntegerField(blank=True, null=True, choices=marketingTypes)
-    submissionOrigin = models.CharField(max_length=200, blank=True, null=True)
+    submissionOrigin = models.CharField(max_length=800, blank=True, null=True)
     origin_timestamp = models.DateTimeField(null=True, blank=True, auto_now_add=False, auto_now=False)
     origin_id = models.CharField(max_length=36, null=True, blank=True)
 

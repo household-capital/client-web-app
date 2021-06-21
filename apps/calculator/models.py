@@ -71,7 +71,7 @@ class WebCalculator(AbstractAddressModel):
     referrer = models.URLField(blank=True, null=True) # Deprecated - not populated
 
     # Origin
-    submissionOrigin = models.CharField(max_length=200, blank=True, null=True) # which page
+    submissionOrigin = models.CharField(max_length=800, blank=True, null=True) # which page
     origin_timestamp = models.DateTimeField(null=True, blank=True, auto_now_add=False, auto_now=False)
     origin_id = models.CharField(max_length=36, null=True, blank=True)
 
@@ -180,7 +180,7 @@ class WebContact(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
 
-    submissionOrigin = models.CharField(max_length=200, blank=True, null=True) # which page
+    submissionOrigin = models.CharField(max_length=800, blank=True, null=True) # which page
     origin_timestamp = models.DateTimeField(null=True, blank=True, auto_now_add=False, auto_now=False)
     origin_id = models.CharField(max_length=36, null=True, blank=True)
 
