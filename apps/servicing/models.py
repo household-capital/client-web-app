@@ -60,7 +60,7 @@ class Facility(models.Model):
     originalCaseUID = models.UUIDField(null=False, blank=False, unique=True )
     meetingDate = models.DateTimeField(blank=True, null=True)
 
-    sfLoanName = models.CharField(max_length=80, null=False, blank=False)
+    sfLoanName = models.CharField(max_length=100, null=False, blank=False)
     sfID = models.CharField(max_length=20, null=False, blank=False, unique=True)
     sfLoanID = models.CharField(max_length=20, null=True, blank=True)
     sfAccountID = models.CharField(max_length=20, null=False, blank=False)
