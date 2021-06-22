@@ -1243,9 +1243,29 @@ class SendCustSummary(HouseholdLoginRequiredMixin, UpdateView):
         
         if case_obj.productType == productTypesEnum.INCOME.value: 
             email_context['loan_text'] = "Household Loan of ${:,}/month".format(case_obj.maxDrawdownMonthly)
+            if case_obj.calcIncome:
+                email_context['loan_text'] = "Household Loan of ${:,}/month".format(case_obj.calcIncome)
 
         if case_obj.productType == productTypesEnum.REFINANCE.value:
             email_context['loan_text'] = "Household Loan of ${:,}".format(projectionContext['totalLoanAmount'])
+
+        if case_obj.productType == productTypesEnum.LUMP_SUM.value:
+            if case_obj.calcLumpSum: 
+                email_context['loan_text'] = "Household Loan of ${:,}".format(case_obj.calcLumpSum)
+
+        if case_obj.productType == productTypesEnum.COMBINATION.value:
+            calc_income = case_obj.maxDrawdownMonthly
+            if case_obj.calcIncome:
+                calc_income = case_obj.calcIncome
+            
+            calc_lump_sum = case_obj.maxLoanAmount
+            if case_obj.calcLumpSum:
+                calc_lump_sum = case_obj.calcLumpSum
+            email_context['loan_text'] = "Household Loan of ${:,} and ${:,}/month".format(
+                calc_lump_sum,
+                calc_income
+            )
+
 
         email_context['user'] = case_obj.owner
         subject, from_email, to, bcc = "Household Loan Enquiry", \

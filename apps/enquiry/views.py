@@ -510,11 +510,28 @@ class SendEnquirySummary(HouseholdLoginRequiredMixin, UpdateView):
         
         if enq_obj.productType == productTypesEnum.INCOME.value: 
             email_context['loan_text'] = "Household Loan of ${:,}/month".format(enq_obj.maxDrawdownMonthly)
+            if enq_obj.calcIncome:
+                email_context['loan_text'] = "Household Loan of ${:,}/month".format(enq_obj.calcIncome)
 
         if enq_obj.productType == productTypesEnum.REFINANCE.value:
             email_context['loan_text'] = "Household Loan of ${:,}".format(projectionContext['totalLoanAmount'])
 
+        if enq_obj.productType == productTypesEnum.LUMP_SUM.value:
+            if enq_obj.calcLumpSum: 
+                email_context['loan_text'] = "Household Loan of ${:,}".format(enq_obj.calcLumpSum)
 
+        if enq_obj.productType == productTypesEnum.COMBINATION.value:
+            calc_income = enq_obj.maxDrawdownMonthly
+            if enq_obj.calcIncome:
+                calc_income = enq_obj.calcIncome
+            
+            calc_lump_sum = enq_obj.maxLoanAmount
+            if enq_obj.calcLumpSum:
+                calc_lump_sum = enq_obj.calcLumpSum
+            email_context['loan_text'] = "Household Loan of ${:,} and ${:,}/month".format(
+                calc_lump_sum,
+                calc_income
+            )
 
         subject, from_email, to, bcc = "Household Loan Enquiry", \
                                        enq_obj.user.email, \
