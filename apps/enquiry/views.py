@@ -264,11 +264,14 @@ class EnquiryUpdateView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Upd
         # Check for duplicates
         # Validate requirement amounts (if present)
         if obj.calcLumpSum or obj.calcIncome:
-            loanStatus = validateEnquiry(str(self.kwargs['uid']))
-            if loanStatus['status'] == "Ok":
-                if loanStatus['data']['errors']:
-                    context['requirementError'] = 'Invalid requirement amounts'
-
+            try:
+                loanStatus = validateEnquiry(str(self.kwargs['uid']))
+                if loanStatus['status'] == "Ok":
+                    if loanStatus['data']['errors']:
+                        context['requirementError'] = 'Invalid requirement amounts'
+            except:
+                context['requirementError'] = 'API Error. Please ensure all required fields are entered'
+                
         # Validate Address
         mappify  = apiMappify()
         address_fields = [

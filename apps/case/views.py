@@ -226,10 +226,14 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
 
 
         if caseObj.calcLumpSum or caseObj.calcIncome:
-            loanStatus  = validateLead(str(caseObj.caseUID))
-            if loanStatus['status'] == "Ok":
-                if loanStatus['data']['errors']:
-                    context['requirementError'] = 'Invalid requirement amounts'
+            try:
+                loanStatus  = validateLead(str(caseObj.caseUID))
+                if loanStatus['status'] == "Ok":
+                    if loanStatus['data']['errors']:
+                        context['requirementError'] = 'Invalid requirement amounts'
+            except: 
+                context['requirementError'] = 'API Error. Please ensure all required fields are entered'
+            
 
         # Calendly
         context['calendlyUrl'] = ""
