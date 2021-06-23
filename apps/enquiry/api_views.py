@@ -44,6 +44,13 @@ OR_FIELDS = [
     'email'
 ]
 
+WEB_SOURCES = [
+    "WEBSITE_LEAD", 
+    "WEBSITE_CALC", 
+    "WEBSITE_CONTACT",
+    "WEBSITE_PRE_QUAL"    
+]
+
 class DataIngestion(APIView):
     permission_classes = (IsAuthenticated,)            
     
@@ -214,6 +221,8 @@ class DataIngestion(APIView):
             except:
                 raise raiseTaskAdminError('Could not save "web enquiry" entry', json.dumps(srcData, cls=DjangoJSONEncoder))
 
+        elif marketing_source_value == 'WEBSITE_PRE_QUAL':
+            self.process_pre_qual(json_payload)
         else: 
             # build web_calc obj
             write_applog(
@@ -278,6 +287,53 @@ class DataIngestion(APIView):
                         "Failed to convert web calc - {}".format(str(web_obj.calcUID)),
                         tb
                     )
+    
+    def process_pre_qual(self, json_payload):
+        write_applog(
+            "INFO",
+            "Enquiry API",
+            "Process Payload", 
+            "API Ingestion - web pre qual lead"
+        )
+        first , last, raw_name = parse_api_names(
+            '' or json_payload['first'],
+            '' or json_payload['last']
+        )
+        enquiryNotes = '[# Website Enquiry #]'
+        enquiryNotes += '\r\n' + json_payload['origin']
+        if json_payload.get('description') is not None:
+            enquiryNotes += '\r\n' + 'Description: {}'.format(json_payload['description'])
+        is_couple = json_payload['marital_status'] == 'couple'
+        if is_couple: 
+            loan_type = loanTypesEnum.JOINT_BORROWER.value
+        else: 
+            loan_type = loanTypesEnum.SINGLE_BORROWER.value
+       
+        if json_payload['property_type'].lower() == 'house':
+            prop_type = dwellingTypesEnum.HOUSE.value
+        else: 
+            prop_type = dwellingTypesEnum.APARTMENT.value
+        
+        srcDict = {
+            'phoneNumber': cleanPhoneNumber(json_payload['phone']),
+            'origin_timestamp': datetime.datetime.utcnow(),
+            'firstname': first,
+            'lastname': last,
+            'raw_name': raw_name,
+            'age_1': json_payload['age_1'],
+            'age_2': json_payload.get('age_2') if is_couple else None,
+            'email': json_payload['email'],
+            'productType': json_payload.get(
+                'productType', 
+                productTypesEnum.LUMP_SUM.value
+            ),
+            'postcode': json_payload['postcode'],
+            'valuation':json_payload['property_value'],
+            'submissionOrigin': json_payload['origin'],
+            'requestedCallback': bool(json_payload['requestedCall']),
+            'dwellingType':prop_type ,
+            'loanType': loan_type 
+        }
 
     def process_payload(self, json_payload):
         # basic payload format 
@@ -332,7 +388,7 @@ class DataIngestion(APIView):
             "API", 
             "API Ingestion - {}".format(marketing_source_value)
         )
-        if marketing_source_value in ["WEBSITE_LEAD", "WEBSITE_CALC", "WEBSITE_CONTACT"]:
+        if marketing_source_value in WEB_SOURCES:
             self.process_website_entry(json_payload)
         else:
             write_applog(
