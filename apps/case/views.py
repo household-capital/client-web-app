@@ -634,8 +634,12 @@ class CaseOwnView(HouseholdLoginRequiredMixin, View):
         caseObj = Case.objects.queryset_byUID(caseUID).get()
 
         if self.request.user.profile.isCreditRep == True:
-            caseObj.owner = self.request.user
+            owner = self.request.user
+            caseObj.owner = owner
             caseObj.save(update_fields=['owner'])
+            caseObj.enquiries.filter(user__isnull=True).update(
+                user=owner
+            )
             messages.success(self.request, "Ownership Changed")
 
         else:
@@ -670,6 +674,11 @@ class CaseAssignView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
         if preObj.owner:
             add_case_note(caseObj, '[# Case assigned from ' + preObj.owner.username + ' #]')
         caseObj.save(should_sync=True)
+
+        new_owner = caseObj.owner 
+        caseObj.enquiries.filter(user__isnull=True).update(
+            user=new_owner
+        )
 
         # Email recipient
         subject, from_email, to = "Case Assigned to You", "noreply@householdcapital.app", caseObj.owner.email
