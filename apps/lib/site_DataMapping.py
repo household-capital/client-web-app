@@ -56,10 +56,11 @@ def mapEnquiryForSF(enqUID, is_create=False):
         'firstname': 'First_Name__c',
         'lastname': 'Last_Name__c',
 
-        'product_type': 'Fee_Type__c'
+        'product_type': 'Fee_Type__c',
+        'requestedCallback': 'Requested_Callback__c'
     }
 
-    SF_BOOLEAN_FIELDS = ['isTopUp', 'isRefi', 'isLive', 'isGive', 'isCare', 'doNotMarket']
+    SF_BOOLEAN_FIELDS = ['isTopUp', 'isRefi', 'isLive', 'isGive', 'isCare', 'doNotMarket', 'requestedCallback']
     SF_DATE_FIELDS = []
     SF_DATE_TIME_FIELDS = ['origin_timestamp']
     SF_UUID_FIELDS = ['origin_id', 'enqUID']
