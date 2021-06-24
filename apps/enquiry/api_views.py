@@ -27,7 +27,7 @@ from apps.enquiry.util import find_auto_campaign
 from apps.case.assignment import _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP
 from apps.settings.models import GlobalSettings
 from apps.calculator.util import convert_calc, ProcessingError
-from apps.case.assignment import find_auto_assignee
+from apps.case.assignment import find_auto_assignee, auto_assign_leads, assign_lead
 from apps.enquiry.models import Enquiry
 
 logger = logging.getLogger('myApps')
@@ -164,6 +164,7 @@ class DataIngestion(APIView):
 
         """
         marketing_source_value = json_payload['stream']
+        propensity = propensityChoicesReverseDict.get(json_payload.get('grading'))
         if marketing_source_value == 'WEBSITE_CONTACT': 
             write_applog(
                 "INFO",
@@ -213,7 +214,8 @@ class DataIngestion(APIView):
                 'phoneNumber': cleanPhoneNumber(json_payload['phone']),
                 'referrer': directTypesEnum.WEB_ENQUIRY.value,
                 'enquiryStage': enquiryStagesEnum.BROCHURE_SENT.value,
-                'enquiryNotes': enquiryNotes
+                'enquiryNotes': enquiryNotes,
+                'propensityCategory': propensity
             }
             
             try:
@@ -342,7 +344,8 @@ class DataIngestion(APIView):
             'suburb': json_payload.get('suburb'),
             'state': stateTypesEnum[json_payload.get('state')].value if json_payload.get('state') else None,
             'postcode': int(json_payload['postcode']) if json_payload.get('postcode') else None,
-            'mortgageDebt': json_payload['mortgage']
+            'mortgageDebt': json_payload['mortgage'],
+            'propensityCategory':propensityChoicesReverseDict.get(json_payload.get('grading'))
         }
         enquiry_fields_captured = [
             'first',
@@ -365,6 +368,7 @@ class DataIngestion(APIView):
             'property_owing',
             'mortgage',
             'stream',
+            'grading',
             'origin'
         ]
         head_doc = {
@@ -374,6 +378,42 @@ class DataIngestion(APIView):
         }
         srcDict['head_doc'] = head_doc
         enquiry = Enquiry.objects.create(**srcDict)
+        lead = enquiry.case
+        if is_couple: 
+            lead.firstname_2 = json_payload['first_2']
+            lead.surname_2 = json_payload['last_2']
+        lead_captured_fields = enquiry_fields_captured + [
+            'first_2',
+            'last_2',
+            'top_up',
+            'refinance',
+            'live',
+            'give',
+            'care'
+        ]
+        lead.head_doc = {
+            x:y 
+            for x,y in json_payload.items()
+            if x not in lead_captured_fields
+        }
+        lead.save()
+
+        proposed_owner = find_auto_assignee(
+            referrer=directTypesEnum.WEB_PREQUAL.value, 
+            email=enquiry.email, 
+            phoneNumber=enquiry.phoneNumber
+        )
+        if lead.owner is None: 
+            if proposed_owner is None:
+                auto_assign_leads([lead], notify=False)
+            else:
+                assign_lead(lead, proposed_owner, notify=False)
+        
+        lead.refresh_from_db()
+        enquiry.user = lead.owner
+        enquiry.save()
+
+        # send email?
 
     def process_payload(self, json_payload):
         # basic payload format 
@@ -447,7 +487,7 @@ class DataIngestion(APIView):
                 'lastname': lastname,
                 #'phoneNumber': cleanPhoneNumber(json_payload['phone']),
                 'postcode': json_payload.get('postcode'),
-                'propensityCategory': propensityChoicesReverseDict.get(json_payload['grading']),
+                'propensityCategory': propensityChoicesReverseDict.get(json_payload.get('grading')),
                 'marketingSource': marketingSource,
                 'email': json_payload.get('email'),
                 'valuation':  cleanValuation(json_payload.get('property_value')),
