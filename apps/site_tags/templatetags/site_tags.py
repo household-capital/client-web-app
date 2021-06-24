@@ -83,6 +83,13 @@ def roundNum(arg, ndigits):
 def active_enquiries(enquries):
     return enquries.filter(deleted_on__isnull=True).order_by('-timestamp') if enquries else []
 
+def labelise(label):
+    return ' '.join(
+        [
+            i.title()
+            for i in label.split('_')
+        ]
+    )
 
 # REGISTRATION
 register = template.Library()
@@ -98,6 +105,7 @@ register.filter('getDictItem', getDictItem)
 register.filter('yesNo', yesNo)
 register.filter('percent', percent)
 register.filter('roundNum', roundNum)
+register.filter('labelise', labelise)
 register.filter('active_enquiries', active_enquiries)
 register.simple_tag(modelMethod, name='modelMethod')
 

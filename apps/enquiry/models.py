@@ -12,6 +12,7 @@ from django.utils.timezone import get_current_timezone
 from django.utils.encoding import smart_text
 from django.urls import reverse_lazy
 from django.db.models import Q
+from django.contrib.postgres.fields import JSONField
 
 from apps.helpers.model_utils import ReversionModel
 from apps.lib.site_Utilities import join_name, validate_loan
@@ -114,6 +115,7 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
         (directTypesEnum.PARTNER.value, 'Partner'),
         (directTypesEnum.BROKER.value, 'Broker'),
         (directTypesEnum.ADVISER.value, 'Adviser'),
+        (directTypesEnum.WEB_PREQUAL.value, 'Pre Qualification'),
         (directTypesEnum.OTHER.value,'Other'),
     )
 
@@ -126,6 +128,7 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
         (directTypesEnum.PARTNER.value, '<i class="fas fa-handshake"></i> Partner'),
         (directTypesEnum.BROKER.value, '<i class="fas fa-user-tie"></i> Broker'),
         (directTypesEnum.ADVISER.value, '<i class="fas fa-comments"></i> Adviser'),
+        (directTypesEnum.WEB_PREQUAL.value, '<i class="fas fa-user-check"></i> Pre Qualification'),
         (directTypesEnum.OTHER.value,'<i class="fas fa-question"></i> Other'),
     )
 
@@ -312,6 +315,8 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
     
     marketing_campaign = models.ForeignKey(MarketingCampaign, null=True, blank=True, on_delete=models.SET_NULL)
     
+    head_doc = JSONField(default=dict)
+
     objects = EnquiryManager()
 
 

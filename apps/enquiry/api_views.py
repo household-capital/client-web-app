@@ -319,7 +319,6 @@ class DataIngestion(APIView):
             'origin_timestamp': datetime.datetime.utcnow(),
             'firstname': first,
             'lastname': last,
-            'raw_name': raw_name,
             'age_1': json_payload['age_1'],
             'age_2': json_payload.get('age_2') if is_couple else None,
             'email': json_payload['email'],
@@ -330,10 +329,51 @@ class DataIngestion(APIView):
             'postcode': json_payload['postcode'],
             'valuation':json_payload['property_value'],
             'submissionOrigin': json_payload['origin'],
-            'requestedCallback': bool(json_payload['requestedCall']),
+            'requestedCallback': json_payload.get('requestedCall', False),
             'dwellingType':prop_type ,
-            'loanType': loan_type 
+            'loanType': loan_type ,
+            'referrer': directTypesEnum.WEB_PREQUAL.value,
+
+            'streetAddress':json_payload.get('property_address'),
+            'base_specificity': json_payload.get('unit'),
+            'street_number': json_payload.get('street_number'),
+            'street_name': json_payload.get('street_name'),
+            "street_type": json_payload.get('street_type'),
+            'suburb': json_payload.get('suburb'),
+            'state': stateTypesEnum[json_payload.get('state')].value if json_payload.get('state') else None,
+            'postcode': int(json_payload['postcode']) if json_payload.get('postcode') else None,
+            'mortgageDebt': json_payload['mortgage']
         }
+        enquiry_fields_captured = [
+            'first',
+            'last',
+            'age_1',
+            'age_2',
+            'phone',
+            'email',
+            'property_address',
+            'unit',
+            'street_number',
+            'street_name',
+            'street_type',
+            'suburb',
+            'state',
+            'postcode',
+            'country',
+            'property_type',
+            'property_value',
+            'property_owing',
+            'mortgage',
+            'stream',
+            'origin'
+        ]
+        head_doc = {
+            x:y 
+            for x,y in json_payload.items()
+            if x not in enquiry_fields_captured
+        }
+        srcDict['head_doc'] = head_doc
+        enquiry = Enquiry.objects.create(**srcDict)
 
     def process_payload(self, json_payload):
         # basic payload format 
