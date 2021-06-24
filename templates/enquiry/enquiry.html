@@ -347,6 +347,20 @@
                                         </div>
                                     </div>
                                 </div>
+                                <br/>
+                                <div class="row">
+                                    <div class="col-lg-12">
+
+                                        <div class="jumbotron">
+
+                                            <p class="pb- 3"><i class="fas fa-info-circle"></i>&nbsp;Extra fields</p>
+                                            <hr/>
+                                            {% for  key, val in  obj.head_doc.items %}
+                                            <p class="small"><b>{{ key | labelise}}:</b> &nbsp;&nbsp;&nbsp;{{ val }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

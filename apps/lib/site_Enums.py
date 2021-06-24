@@ -138,6 +138,7 @@ class directTypesEnum(Enum):
     PARTNER = 5
     SOCIAL = 6
     ADVISER = 7
+    WEB_PREQUAL = 8
     OTHER=100
 
 

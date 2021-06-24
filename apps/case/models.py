@@ -11,6 +11,7 @@ from django.utils.encoding import smart_text
 from django.utils import timezone
 from django.urls import reverse_lazy
 from django_comments.models import Comment
+from django.contrib.postgres.fields import JSONField
 
 #Local Application Imports
 from apps.lib.site_Enums import *
@@ -120,6 +121,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
         (directTypesEnum.PARTNER.value, 'Partner'),
         (directTypesEnum.BROKER.value, 'Broker'),
         (directTypesEnum.ADVISER.value, 'Adviser'),
+        (directTypesEnum.WEB_PREQUAL.value, 'Pre Qualification'),
         (directTypesEnum.OTHER.value,'Other'),
     )
 
@@ -381,6 +383,9 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
     lead_needs_action = models.BooleanField(default=False, blank=True, null=True)
     # True if Action btn shows
     loan_rating = models.IntegerField(blank=True, null=True, choices=loanRating)
+    
+    head_doc = JSONField(default=dict)
+
     objects=CaseManager()
 
     def __str__(self):
