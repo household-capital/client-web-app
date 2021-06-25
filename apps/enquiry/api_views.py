@@ -402,6 +402,8 @@ class DataIngestion(APIView):
             if x not in lead_captured_fields
         }
         in_pre_meet = caseStagesEnum(lead.caseStage).name in PRE_MEETING_STAGES
+        lead.superAmount = json_payload.get('superannuation', 0)
+        lead.pensionAmount = json_payload.get('pension', 0)
         if in_pre_meet:
             lead.caseStage = caseStagesEnum.SQ_PRE_QUAL.value
 
