@@ -20,7 +20,10 @@ from apps.lib.site_Enums import (
     enquiryStagesEnum,
     dwellingTypesEnum,
     loanTypesEnum,
-    caseStagesEnum
+    caseStagesEnum,
+    PRE_MEETING_STAGES,
+    purposeCategoryEnum,
+    purposeIntentionEnum
 )
 from apps.lib.site_Logging import write_applog
 from apps.enquiry.exceptions import MissingRequiredFields
@@ -30,6 +33,7 @@ from apps.settings.models import GlobalSettings
 from apps.calculator.util import convert_calc, ProcessingError
 from apps.case.assignment import find_auto_assignee, auto_assign_leads, assign_lead
 from apps.enquiry.models import Enquiry
+from apps.case.models import LoanPurposes
 
 logger = logging.getLogger('myApps')
 
@@ -397,7 +401,10 @@ class DataIngestion(APIView):
             for x,y in json_payload.items()
             if x not in lead_captured_fields
         }
-        lead.caseStage = caseStagesEnum.SQ_PRE_QUAL.value
+        in_pre_meet = caseStagesEnum(lead.caseStage).name in PRE_MEETING_STAGES
+        if in_pre_meet:
+            lead.caseStage = caseStagesEnum.SQ_PRE_QUAL.value
+
         lead.save()
 
         proposed_owner = find_auto_assignee(
@@ -416,6 +423,55 @@ class DataIngestion(APIView):
         enquiry.save(should_sync=True)
 
         # send email?
+        loan = lead.loan
+        if in_pre_meet: 
+            if json_payload.get('top_up'):
+                amount = json_payload['top_up']
+                lp, _ = LoanPurposes.objects.get_or_create(
+                    loan=loan,
+                    category=purposeCategoryEnum.TOP_UP.value,
+                    intention=purposeIntentionEnum.LUMP_SUM.value
+                )
+                lp.amount = amount
+                lp.save()
+            if json_payload.get('refinance'):
+                amount = json_payload['refinance']
+                lp, _ = LoanPurposes.objects.get_or_create(
+                        loan=loan,
+                        category=purposeCategoryEnum.REFINANCE.value,
+                        intention=purposeIntentionEnum.MORTGAGE.value
+                    )
+                lp.amount = amount
+                lp.save()
+            if json_payload.get('live'):
+                amount = json_payload['live']
+                lp, _ = LoanPurposes.objects.get_or_create(
+                        loan=loan,
+                        category=purposeCategoryEnum.LIVE.value,
+                        intention=purposeIntentionEnum.RENOVATIONS.value
+                    )
+                lp.amount = amount
+                lp.save()
+
+            if json_payload.get('give'):
+                amount = json_payload['give']
+                lp, _ = LoanPurposes.objects.get_or_create(
+                        loan=loan,
+                        category=purposeCategoryEnum.GIVE.value,
+                        intention=purposeIntentionEnum.GIVE_TO_FAMILY.value
+                    )
+                lp.amount = amount
+                lp.save()
+
+            if json_payload.get('care'):
+                amount = json_payload['care']
+                lp, _ = LoanPurposes.objects.get_or_create(
+                        loan=loan,
+                        category=purposeCategoryEnum.CARE.value,
+                        intention=purposeIntentionEnum.LUMP_SUM.value
+                    )
+                lp.amount = amount
+                lp.save()
 
     def process_payload(self, json_payload):
         # basic payload format 
