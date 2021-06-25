@@ -19,7 +19,8 @@ from apps.lib.site_Enums import (
     marketingReferrerDict,
     enquiryStagesEnum,
     dwellingTypesEnum,
-    loanTypesEnum
+    loanTypesEnum,
+    caseStagesEnum
 )
 from apps.lib.site_Logging import write_applog
 from apps.enquiry.exceptions import MissingRequiredFields
@@ -396,6 +397,7 @@ class DataIngestion(APIView):
             for x,y in json_payload.items()
             if x not in lead_captured_fields
         }
+        lead.caseStage = caseStagesEnum.SQ_PRE_QUAL.value
         lead.save()
 
         proposed_owner = find_auto_assignee(
@@ -411,7 +413,7 @@ class DataIngestion(APIView):
         
         lead.refresh_from_db()
         enquiry.user = lead.owner
-        enquiry.save()
+        enquiry.save(should_sync=True)
 
         # send email?
 

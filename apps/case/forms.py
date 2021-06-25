@@ -69,6 +69,7 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
         (caseStagesEnum.SQ_NO_ANSWER.value, "SQ - No Answer"),
         (caseStagesEnum.SQ_VOICEMAIL.value, "SQ - Voicemail"),
         (caseStagesEnum.SQ_EMAIL_SENT.value, "SQ - Email Sent"),
+        (caseStagesEnum.SQ_PRE_QUAL.value, "SQ - Pre Qual"),
         (caseStagesEnum.MEETING_BOOKED.value, "Meeting Booked"),
 
 
