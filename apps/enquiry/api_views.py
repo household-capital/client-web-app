@@ -192,6 +192,7 @@ class DataIngestion(APIView):
                 'message': json_payload['message'],
                 'age_1': json_payload['age_1'],
                 'submissionOrigin': json_payload['origin'],
+                'origin_id': json_payload.get('origin_id'),
                 'phone': cleanPhoneNumber(json_payload['phone'])
             }
 
@@ -220,6 +221,7 @@ class DataIngestion(APIView):
                 'referrer': directTypesEnum.WEB_ENQUIRY.value,
                 'enquiryStage': enquiryStagesEnum.BROCHURE_SENT.value,
                 'enquiryNotes': enquiryNotes,
+                'origin_id': json_payload.get('origin_id'),
                 'propensityCategory': propensity
             }
             
@@ -269,6 +271,7 @@ class DataIngestion(APIView):
                 'submissionOrigin': json_payload['origin'],
                 'requestedCallback': bool(json_payload['requestedCall']),
                 'dwellingType':prop_type  ,
+                'origin_id': json_payload.get('origin_id'),
                 'loanType': loan_type 
             }
             try:
@@ -350,6 +353,7 @@ class DataIngestion(APIView):
             'state': stateTypesEnum[json_payload.get('state')].value if json_payload.get('state') else None,
             'postcode': int(json_payload['postcode']) if json_payload.get('postcode') else None,
             'mortgageDebt': json_payload['mortgage'],
+            'origin_id': json_payload.get('origin_id'),
             'propensityCategory':propensityChoicesReverseDict.get(json_payload.get('grading'))
         }
         enquiry_fields_captured = [
@@ -407,7 +411,7 @@ class DataIngestion(APIView):
         if in_pre_meet:
             lead.caseStage = caseStagesEnum.SQ_PRE_QUAL.value
 
-        lead.save()
+        lead.save(should_sync=True)
 
         proposed_owner = find_auto_assignee(
             referrer=directTypesEnum.WEB_PREQUAL.value, 
