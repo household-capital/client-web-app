@@ -211,6 +211,9 @@ class DataIngestion(APIView):
             )
             enquiryNotes = '[# Website Enquiry #]'
             enquiryNotes += '\r\n' + json_payload['origin']
+            if json_payload.get('what_describes_you'): 
+                enquiryNotes += '\r\nDescription: ' + json_payload['what_describes_you']
+
             if json_payload.get('description') is not None:
                     enquiryNotes += '\r\n' + 'Description: {}'.format(json_payload['description'])
             srcData = {
@@ -222,6 +225,7 @@ class DataIngestion(APIView):
                 'enquiryStage': enquiryStagesEnum.BROCHURE_SENT.value,
                 'enquiryNotes': enquiryNotes,
                 'origin_id': json_payload.get('origin_id'),
+                'submissionOrigin': json_payload['origin'],
                 'propensityCategory': propensity
             }
             
