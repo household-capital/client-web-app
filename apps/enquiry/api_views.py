@@ -219,6 +219,7 @@ class DataIngestion(APIView):
             srcData = {
                 'firstname': first,
                 'lastname': last,
+                'email': json_payload.get('email'),
                 'origin_timestamp': datetime.datetime.utcnow(),
                 'phoneNumber': cleanPhoneNumber(json_payload['phone']),
                 'referrer': directTypesEnum.WEB_ENQUIRY.value,
