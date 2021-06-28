@@ -1,6 +1,7 @@
 import datetime, logging, json, traceback
 from django.contrib.auth.models import User
 from django.core.serializers.json import DjangoJSONEncoder
+from django.utils import timezone
 
 
 from rest_framework.views import APIView
@@ -220,7 +221,7 @@ class DataIngestion(APIView):
                 'firstname': first,
                 'lastname': last,
                 'email': json_payload.get('email'),
-                'origin_timestamp': datetime.datetime.utcnow(),
+                'origin_timestamp': timezone.localtime(),
                 'phoneNumber': cleanPhoneNumber(json_payload['phone']),
                 'referrer': directTypesEnum.WEB_ENQUIRY.value,
                 'enquiryStage': enquiryStagesEnum.BROCHURE_SENT.value,
@@ -260,7 +261,7 @@ class DataIngestion(APIView):
                 prop_type = dwellingTypesEnum.APARTMENT.value
             srcDict = {
                 'phoneNumber': cleanPhoneNumber(json_payload['phone']),
-                'origin_timestamp': datetime.datetime.utcnow(),
+                'origin_timestamp': timezone.localtime(),
                 'firstname': first,
                 'lastname': last,
                 'raw_name': raw_name,
@@ -331,7 +332,7 @@ class DataIngestion(APIView):
         
         srcDict = {
             'phoneNumber': cleanPhoneNumber(json_payload['phone']),
-            'origin_timestamp': datetime.datetime.utcnow(),
+            'origin_timestamp': timezone.localtime(),
             'firstname': first,
             'lastname': last,
             'age_1': json_payload['age_1'],
@@ -441,7 +442,7 @@ class DataIngestion(APIView):
                 lp, _ = LoanPurposes.objects.get_or_create(
                     loan=loan,
                     category=purposeCategoryEnum.TOP_UP.value,
-                    intention=purposeIntentionEnum.LUMP_SUM.value
+                    intention=purposeIntentionEnum.INVESTMENT.value
                 )
                 lp.amount = amount
                 lp.save()
