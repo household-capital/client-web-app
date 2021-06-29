@@ -55,7 +55,7 @@ def get_celery_beat_config():
         },
         'SF Stage - Hourly':{
             'task': 'SF_Stage_Synch', # custom task (?)
-            'schedule': schedule(run_every=timedelta(hours=1))
+            'schedule': crontab(minute=0, hour='*/2,7-19')
         },
         'Website Poll':{
             'task': 'Wordpress_Data', # custom task (?)
