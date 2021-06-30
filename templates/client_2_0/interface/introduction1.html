@@ -53,12 +53,19 @@
                                                                width="100px"></div>
                                 <p> {{ firstname_1 }}&nbsp;{{ surname_1 }}</p><br>
                                 <p>{{ age_1 }} years old</p>
+                                {{ obj.head_doc }}
+                                {% if  obj.head_doc.emp_status  %}
+                                    <p>{{ obj.head_doc.emp_status }} </p><br>
+                                {%  endif %}
                             {% else %}
                                 <div class="imgContainer"><img src="{% static 'img/icons/couple_icon.png' %}"
                                                                width="100px"></div>
                                 <p> {{ firstname_1 }}&nbsp;{{ surname_1 }}</p>
                                 <p> {{ firstname_2 }}&nbsp;{{ surname_2 }}</p><br>
-                                <p>{{ age_1 }} and {{ age_2 }} years old</p>
+                                <p>{{ age_1 }} and {{ age_2 }} years old</p> <br>
+                                {% if  obj.head_doc.emp_status_1 and obj.head_doc.emp_status_2  %}
+                                    <p>{{ obj.head_doc.emp_status_1 }} and {{ obj.head_doc.emp_status_2 }} years old</p> <br>
+                                {%  endif %}
                             {% endif %}
                         {% else %}
                             <div class="imgContainer"><a href="{% url 'client2:introduction1' %}/1"><img
