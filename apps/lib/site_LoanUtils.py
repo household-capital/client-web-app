@@ -456,7 +456,7 @@ def validateLead(caseUID):
     context = {}
     context.update(obj.__dict__)
     context["obj"] = obj
-
+    obj.product_type = obj.loan.product_type
     # Set initial values (given this is an under-specified enquiry) based on product
     context.update(enquiryProductContext(obj))
 
@@ -497,7 +497,7 @@ def getCaseProjections(caseUID):
         settings.SITE_URL,
         settings.STATIC_URL
     )
-
+    obj.product_type = obj.loan.product_type
     # Set initial values (given this is an under-specified enquiry)
     context.update(enquiryProductContext(obj))
 
@@ -592,7 +592,7 @@ def enquiryProductContext(enqObj):
         context['topUpIncomeAmount'] = topUpIncomeAmount / (1 + LOAN_LIMITS['establishmentFee'])
         context['topUpFrequency'] = incomeFrequencyEnum.MONTHLY.value
         context['topUpPlanDrawdowns'] = APP_SETTINGS['incomeProjectionYears'] * 12
-        context['topUpContractDrawdowns'] = LOAN_LIMITS['maxDrawdownYears'] * 12
+        context['topUpContractDrawdowns'] = LOAN_LIMITS['maxDrawdownYears']* 12
         context["topUpDrawdownAmount"] = int(round(context['topUpIncomeAmount'] * 12, 0))
         context["topUpPlanAmount"] = int(round(context['topUpIncomeAmount'] * context['topUpPlanDrawdowns'], 0))
 
@@ -649,7 +649,7 @@ def populateDrawdownPurpose(purposeObj):
         freqMultiple = 26
     else:
         freqMultiple = 12
-
+        
     # Contract for lower of limit or plan period
     planDrawdowns = purposeObj.planPeriod * freqMultiple
     contractDrawdowns = min(purposeObj.planPeriod * freqMultiple, LOAN_LIMITS['maxDrawdownYears'] * freqMultiple)

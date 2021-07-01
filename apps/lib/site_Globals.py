@@ -10,7 +10,7 @@ LOAN_LIMITS = {
     'minIncomeDrawdown': 500,
 
     # Tenor
-    'maxDrawdownYears': 1,
+    'maxDrawdownYears': 5,
 
     # Purposes
     'maxTopUp': 500000,
