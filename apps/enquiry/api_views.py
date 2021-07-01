@@ -349,7 +349,7 @@ class DataIngestion(APIView):
             payload = {
                 'firstname': firstname,
                 'lastname': lastname,
-                'phoneNumber': cleanPhoneNumber(json_payload['phone']),
+                #'phoneNumber': cleanPhoneNumber(json_payload['phone']),
                 'postcode': json_payload.get('postcode'),
                 'propensityCategory': propensityChoicesReverseDict.get(json_payload['grading']),
                 'marketingSource': marketingSource,
@@ -368,6 +368,8 @@ class DataIngestion(APIView):
                 # 'user': integration_user,
                 'marketing_campaign': find_auto_campaign(marketingSource),
             }
+            if json_payload.get('phone'):
+                payload['phoneNumber'] = cleanPhoneNumber(json_payload['phone'])
             auto_assign_config = _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP.get(marketingSource)
             if json_payload.get('state'): 
                 payload['state'] = stateTypesEnum[json_payload['state']].value
