@@ -415,11 +415,12 @@ class TopUp2(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, U
     def get_context_data(self, **kwargs):
         # Update and add dictionaries to context
         self.extra_context = self.validate_and_get_context()
-
+        case = Case.objects.get(caseUID=self.request.session['caseUID'])
+        product_type = case.loan.product_type
         context = super(TopUp2, self).get_context_data(**kwargs)
         context['title'] = 'Top Up'
         context['titleUrl'] = reverse_lazy('client2:navigation')
-
+        context['drawdownmonths'] = LOAN_LIMITS['maxDrawdownYears'] * 12
         context['menuPurposes'] = {"display": True, "navigation": True, 'data': {
             "topUp": True}}
 
@@ -642,13 +643,14 @@ class Care2(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextHelper, Up
     def get_context_data(self, **kwargs):
         # Update and add to context
         self.extra_context = self.validate_and_get_context()
-
+        case = Case.objects.get(caseUID=self.request.session['caseUID'])
+        product_type = case.loan.product_type
         context = super(Care2, self).get_context_data(**kwargs)
         context['title'] = 'Care'
         context['titleUrl'] = reverse_lazy('client2:navigation')
         context['menuPurposes'] = {"display": True, "navigation": True, 'data': {
             'care': True}}
-
+        context['drawdownmonths'] = LOAN_LIMITS['maxDrawdownYears'] * 12
         return context
 
     def get_object(self, queryset=None):
@@ -971,7 +973,6 @@ class pdfLoanSummary(ContextHelper,TemplateView):
         projectionContext = getProjectionResults(context, ['baseScenario', 'incomeScenario', 'intPayScenario',
                                                                'pointScenario', 'stressScenario' ])
         context.update(projectionContext)
-
 
         return context
 

@@ -30,7 +30,7 @@
                     {% if purposes.TOP_UP.REGULAR_DRAWDOWN.amount %}
                         <p class="print-text pb-2">Draw-down plan:
                             ${{ purposes.TOP_UP.REGULAR_DRAWDOWN.drawdownAmount }} {{ purposes.TOP_UP.REGULAR_DRAWDOWN.enumDrawdownFrequency }}
-                            for {{ purposes.TOP_UP.REGULAR_DRAWDOWN.planPeriod }} years [12 month amount]
+                            for {{ purposes.TOP_UP.REGULAR_DRAWDOWN.planPeriod }} years [{{ purposes.TOP_UP.REGULAR_DRAWDOWN.contractDrawdowns }} month amount]
                         </p>
                     {% endif %}
 
@@ -114,7 +114,7 @@
                     {% if purposes.CARE.REGULAR_DRAWDOWN.amount %}
                         <p class="print-text pb-2">Draw-down plan:
                             ${{ purposes.CARE.REGULAR_DRAWDOWN.drawdownAmount }} {{ purposes.CARE.REGULAR_DRAWDOWN.enumDrawdownFrequency }}
-                            for {{ purposes.CARE.REGULAR_DRAWDOWN.planPeriod }} years [12 month amount]
+                            for {{ purposes.CARE.REGULAR_DRAWDOWN.planPeriod }} years [ {{ purposes.CARE.REGULAR_DRAWDOWN.contractDrawdowns }} month amount]
                         </p>
                     {% endif %}
                 </div>
