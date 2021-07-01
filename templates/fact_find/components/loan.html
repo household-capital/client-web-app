@@ -29,7 +29,7 @@
                 {% if topUpDrawdownAmount != 0 %}
                     <p class="small pb-2">Draw-down plan:
                         ${{ topUpIncomeAmount }} {{ enumTopUpFrequency }}
-                        for {{ topUpPeriod }} years [12 month amount]
+                        for {{ topUpPeriod }} years [{{ topUpContractDrawdowns }} month amount]
                     </p>
                 {% endif %}
             </div>
@@ -120,7 +120,7 @@
 
                 {% if careDrawdownAmount %}
                     <p class="small pb-2">Draw-down plan: ${{ careRegularAmount }} {{ enumCareFrequency }}
-                        for {{ carePeriod }} years [12 month amount]
+                        for {{ carePeriod }} years [{{ careContractDrawdowns }} month amount]
                         {% if careDrawdownDescription %}: {{ careDrawdownDescription }}{% endif %}</p>
                 {% endif %}
             </div>
