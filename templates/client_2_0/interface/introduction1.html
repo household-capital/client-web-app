@@ -54,11 +54,8 @@
                                 <p> {{ firstname_1 }}&nbsp;{{ surname_1 }}</p><br>
                                 <p>{{ age_1 }} years old</p><br>
                                 {% if  obj.head_doc.emp_status  %}
-                                    <p>{{ obj.head_doc.emp_status }} {% if obj.head_doc.age_retire %} - (retiring at {{ obj.head_doc.age_retire }}) {% endif %}</p>
+                                    <p>{{ firstname_1 }}: {{ obj.head_doc.emp_status }} {% if obj.head_doc.age_retire %} - (retiring at {{ obj.head_doc.age_retire }}) {% endif %}</p>
                                     <br>
-                                {%  endif %}
-                                {% if  obj.head_doc.when_access  %}
-                                    <p>Will access funds in: {{ obj.head_doc.when_access }} </p><br>
                                 {%  endif %}
                                 
                             {% else %}
@@ -67,12 +64,12 @@
                                 <p> {{ firstname_1 }}&nbsp;{{ surname_1 }}</p>
                                 <p> {{ firstname_2 }}&nbsp;{{ surname_2 }}</p><br>
                                 <p>{{ age_1 }} and {{ age_2 }} years old</p> <br>
-                                {% if  obj.head_doc.emp_status and obj.head_doc.emp_status_2  %}
-                                    <p>{{ obj.head_doc.emp_status }} {% if obj.head_doc.age_retire %} - (retiring at {{ obj.head_doc.age_retire }}) {% endif %} and {{ obj.head_doc.emp_status_2 }} {% if obj.head_doc.age_retire_2 %} - (retiring at {{ obj.head_doc.age_retire_2 }}) {% endif %} </p> <br>
+                                {% if  obj.head_doc.emp_status %}
+                                    <p> {{ firstname_1 }}: {{ obj.head_doc.emp_status }} {% if obj.head_doc.age_retire %} - (retiring at {{ obj.head_doc.age_retire }}) {% endif %} </p> 
                                 {%  endif %}
-                                {% if  obj.head_doc.when_access  %}
-                                    <p>Will access funds in: {{ obj.head_doc.when_access }} </p><br>
-                                {%  endif %}
+                                {% if obj.head_doc.emp_status_2  %}
+                                    <p>{{ firstname_2 }}: {{ obj.head_doc.emp_status_2 }} {% if obj.head_doc.age_retire_2 %} - (retiring at {{ obj.head_doc.age_retire_2 }}) {% endif %} </p>
+                                {% endif %}
                             {% endif %}
                         {% else %}
                             <div class="imgContainer"><a href="{% url 'client2:introduction1' %}/1"><img
@@ -119,6 +116,11 @@
                             <p> {{ suburb }}</p>
                             <p class="pt-2">Estimated value</p>
                             <p>${{ valuation|intcomma }}</p>
+                            <br/>
+                            {% if obj.mortgageDebt %}
+                                <p class="pt-2">Mortgage Balance</p>
+                                <p>${{ obj.mortgageDebt|intcomma }}</p>
+                            {% endif %}
                         {% else %}
                             <div class="imgContainer"><a href="{% url 'client2:introduction1' %}/3"><img
                                     src="{% static 'img/icons/home_icon.png' %}" width="100px"></a></div>
