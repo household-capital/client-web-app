@@ -367,7 +367,6 @@ class NavigationView(HouseholdLoginRequiredMixin, SessionRequiredMixin, ContextH
             'care': True,
             'options': True
         }}
-
         return context
 
 

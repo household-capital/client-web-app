@@ -91,6 +91,11 @@
                                 {% else %}
                                 * includes plan amounts and establishment fee
                                 {% endif %}
+                                <br/>
+                                
+                                {% if head_doc.needs_other %}
+                                    Other Needs: {{ head_doc.needs_other }}
+                                {% endif %}
                             </p></div>
                         </div>
                     </div>
