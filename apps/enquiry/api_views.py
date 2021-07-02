@@ -24,7 +24,8 @@ from apps.lib.site_Enums import (
     caseStagesEnum,
     PRE_MEETING_STAGES,
     purposeCategoryEnum,
-    purposeIntentionEnum
+    purposeIntentionEnum,
+    clientSexEnum
 )
 from apps.lib.site_Logging import write_applog
 from apps.enquiry.exceptions import MissingRequiredFields
@@ -404,8 +405,15 @@ class DataIngestion(APIView):
             'refinance',
             'live',
             'give',
-            'care'
+            'care',
+            'gender_1',
+            'gender_2'
         ]
+        if json_payload.get('gender_1'):
+            lead.sex_1 = clientSexEnum.MALE.value if json_payload['gender_1'].lower() == 'male' else clientSexEnum.FEMALE.value
+        if json_payload.get('gender_2'):
+            lead.sex_2 = clientSexEnum.MALE.value if json_payload['gender_2'].lower() == 'male' else clientSexEnum.FEMALE.value
+        
         lead.head_doc = {
             x:y 
             for x,y in json_payload.items()
