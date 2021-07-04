@@ -333,7 +333,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
     titleRequest = models.BooleanField(null=True, blank=True)
     lixiFile= models.FileField(max_length=150, null=True, blank=True)
     applicationDocument = models.FileField(max_length=150, null=True, blank=True, upload_to='customerReports')
-
+    preQualDocument = models.FileField(max_length=150,null=True, blank=True)
     # Referral / Channel Data
     salesChannel = models.IntegerField(choices=channelTypes,null=True, blank=True)
     channelDetail = models.IntegerField(choices=channelDetailTypes, null=True, blank=True)

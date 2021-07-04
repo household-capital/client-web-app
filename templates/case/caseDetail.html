@@ -483,6 +483,11 @@
                                         Summary</a>
                                     </p>
                                 {% endif %}
+                                {% if obj.preQualDocument %}
+                                    <p><a href="{{ obj.preQualDocument.url }}">Prequal
+                                        Summary</a>
+                                    </p>
+                                {% endif %}
                                 {% if obj.summaryDocument %}
                                     <p><a href="{{ obj.summaryDocument.url }}">Loan
                                         Summary</a>
