@@ -8,8 +8,16 @@ class LoanPurposesAdmin(admin.ModelAdmin):
     list_display = ('loan', 'category', 'intention', 'amount')
     ordering = ('loan','category')
 
+class CaseAdmin(admin.ModelAdmin):
+    search_fields = [
+        'firstname_1',
+        'surname_1',
+        'email_1',
+        'phoneNumber_1'
+    ]
+
 # Model registration to enable maintenance in the Admin screens
-admin.site.register(Case)
+admin.site.register(Case, CaseAdmin)
 admin.site.register(Loan)
 admin.site.register(FactFind)
 admin.site.register(ModelSetting)

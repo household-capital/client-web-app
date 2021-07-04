@@ -7,9 +7,13 @@ from .models import Enquiry, MarketingCampaign
 
 
 class EnquiryAdmin(admin.ModelAdmin):
-    list_display = ('user','status','age_1','age_2','postcode','maxLVR','maxLoanAmount', 'lastname', 'firstname', 'email','timestamp')
-
-
+    search_fields = [
+        'firstname',
+        'lastname',
+        'email',
+        'phoneNumber'
+    ]
+    
 # admin.site.register(Enquiry,EnquiryAdmin)
-admin.site.register(Enquiry)
+admin.site.register(Enquiry, EnquiryAdmin)
 admin.site.register(MarketingCampaign)
