@@ -74,8 +74,17 @@
 
             {% if loanType == loanTypesEnum.SINGLE_BORROWER.value %}
                 <p class="print-text">{{ age_1 }} years old</p>
+                {% if  obj.head_doc.emp_status  %}
+                    <p class="print-text">{{ firstname_1 }}: {{ obj.head_doc.emp_status }} {% if obj.head_doc.age_retire %} - (retiring at {{ obj.head_doc.age_retire }}) {% endif %}</p>
+                {%  endif %}
             {% else %}
                 <p class="print-text">{{ age_1 }} and {{ age_2 }} years old</p>
+                {% if  obj.head_doc.emp_status %}
+                    <p class="print-text"> {{ firstname_1 }}: {{ obj.head_doc.emp_status }} {% if obj.head_doc.age_retire %} - (retiring at {{ obj.head_doc.age_retire }}) {% endif %} </p> 
+                {%  endif %}
+                {% if obj.head_doc.emp_status_2  %}
+                    <p class="print-text">{{ firstname_2 }}: {{ obj.head_doc.emp_status_2 }} {% if obj.head_doc.age_retire_2 %} - (retiring at {{ obj.head_doc.age_retire_2 }}) {% endif %} </p>
+                {% endif %}
             {% endif %}
 
         </div>
@@ -84,17 +93,39 @@
 
             <p class="print-text">Estimated value</p>
             <p class="print-text">${{ superAmount|intcomma }}</p>
+            {% if loanType == loanTypesEnum.JOINT_BORROWER.value and  obj.head_doc.superannuation_2 %}
+                <p class="print-text">Second Borrower Balance</p>
+                <p class="print-text">${{ obj.head_doc.superannuation_2|intcomma }}</p>
+            {% endif %}
         </div>
 
         <div class="col-lg-3 text-center">
             <p class="print-text">Estimated value</p>
             <p class="print-text">${{ valuation|intcomma }}</p>
+            {% if obj.mortgageDebt %}
+                <p class="print-text">Mortgage Balance</p>
+                <p class="print-text">${{ obj.mortgageDebt|intcomma }}</p>
+            {% endif %}
         </div>
 
         <div class="col-lg-3 text-center">
             <p class="print-text">Annual Payment
             <p>
-            <p class="print-text">${{ annualPensionIncome|intcomma }}</p></div>
+            <p class="print-text">${{ annualPensionIncome|intcomma }}</p>
+            {% if obj.head_doc.pension_2 %}
+                <p class="print-text">Second Borrower Pension<p>  
+                <p class="print-text">${{ obj.head_doc.pension_2|intcomma }}/fortnight</p>
+            {% endif %}
+            {% if obj.head_doc.wages or obj.head_doc.wages_2 %}
+                <p class="print-text">Wages - ${{ obj.head_doc.wages|intcomma }}  {% if obj.head_doc.wages_2 %} and ${{ obj.head_doc.wages_2|intcomma }} {% endif %}</p>
+            {% endif %}
+            {% if obj.head_doc.other_income or obj.head_doc.other_income_2 %}
+                <p class="print-text">Other Income - ${{ obj.head_doc.other_income|intcomma }}  {% if obj.head_doc.other_income_2 %} and ${{ obj.head_doc.other_income_2|intcomma }} {% endif %}</p>
+            {% endif %}
+            {% if obj.head_doc.other_assets or obj.head_doc.other_assets_2 %}
+                <p class="print-text">Other Assets - ${{ obj.head_doc.other_assets|intcomma }}  {% if obj.head_doc.other_assets_2 %} and ${{ obj.head_doc.other_assets_2|intcomma }} {% endif %}</p>
+            {% endif %}
+            </div>
     </div>
 </div>
 <!-- End Include -->
