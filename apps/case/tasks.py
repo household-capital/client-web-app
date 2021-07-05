@@ -119,7 +119,11 @@ def lead_follow_up():
         owner__isnull=False,
         enquiries__timestamp=F('latest_enq_timestamp'), 
         enquiries__status=True,
-        caseStage=caseStagesEnum.UNQUALIFIED_CREATED.value,
+        caseStage__in=[
+            caseStagesEnum.UNQUALIFIED_CREATED.value,
+            caseStagesEnum.WAIT_LIST.value,
+            caseStagesEnum.MARKETING_QUALIFIED.value,
+        ],
         deleted_on__isnull=True,
         lossdata__closeDate__isnull=True   
     ).exclude(
