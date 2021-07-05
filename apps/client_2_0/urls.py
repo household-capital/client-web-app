@@ -53,6 +53,7 @@ urlpatterns = [
     path('finalError', views.FinalErrorView.as_view(), name='finalError'),
 
     path('pdfLoanSummary/<uuid:uid>', views.pdfLoanSummary.as_view(), name='pdfLoanSummary'),
+    path('pdfPreQualSummary/<uuid:uid>', views.pdfPreQualSummary.as_view(), name='pdfPreQualSummary'),
 
 ]
 

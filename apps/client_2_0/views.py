@@ -934,6 +934,25 @@ class FinalPDFView(HouseholdLoginRequiredMixin, SessionRequiredMixin, View):
 
 # REPORT VIEWS
 
+class pdfPreQualSummary(ContextHelper,TemplateView):
+    template_name = "client_2_0/documents/prequalSummary.html"
+
+    def get_context_data(self, **kwargs):
+
+        context = super(pdfPreQualSummary, self).get_context_data(**kwargs)
+
+        caseUID = str(kwargs['uid'])
+
+        #Validate the loan and generate combined context
+        context = validateLoanGetContext(caseUID)
+        # Get projection results (site utility using Loan Projection)
+        projectionContext = getProjectionResults(context, ['baseScenario', 'incomeScenario', 'intPayScenario',
+                                                               'pointScenario', 'stressScenario' ])
+        context.update(projectionContext)
+        context['obj'] = Case.objects.get(caseUID=caseUID)
+
+        return context
+
 class pdfLoanSummary(ContextHelper,TemplateView):
     # This page is not designed to be viewed - it is to be called by the pdf generator
     # It requires a UID to be passed to it
