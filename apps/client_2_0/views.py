@@ -946,6 +946,10 @@ class pdfPreQualSummary(ContextHelper,TemplateView):
         #Validate the loan and generate combined context
         context = validateLoanGetContext(caseUID)
         # Get projection results (site utility using Loan Projection)
+        if context['interestRate'] is None:
+            context['interestRate'] = ECONOMIC['interestRate']
+        if context['lendingMargin'] is None: 
+            context['lendingMargin'] = ECONOMIC['lendingMargin']
         projectionContext = getProjectionResults(context, ['baseScenario', 'incomeScenario', 'intPayScenario',
                                                                'pointScenario', 'stressScenario' ])
         context.update(projectionContext)

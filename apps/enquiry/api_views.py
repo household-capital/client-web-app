@@ -496,7 +496,7 @@ class DataIngestion(APIView):
         if lead.owner: 
             app.send_task(
                 'Webcalc_gen_and_email_pre_ql',
-                {
+                kwargs={
                     'caseUID': lead.caseUID
                 }
             )
