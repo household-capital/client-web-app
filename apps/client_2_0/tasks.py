@@ -1,4 +1,5 @@
 import traceback
+import os 
 # Python Imports
 from datetime import datetime
 
@@ -75,7 +76,11 @@ def generate_and_email_pre_ql(caseUID):
     try:
         case_obj = Case.objects.get(caseUID=caseUID)
         pdf = gen_preql_summary(case_obj)
+        write_applog("INFO", 'PREQLPdfProduction', 'get',
+                     "SENDING EMAIL: " + caseUID)
         email_preql(pdf, case_obj)
+        write_applog("INFO", 'PREQLPdfProduction', 'get',
+                     "SENT EMAI!!!L: " + caseUID)
     except Exception as e:
         tb = traceback.format_exc()
         raiseTaskAdminError(
@@ -118,7 +123,7 @@ def email_preql(pdf, caseObj):
     #  Get Rates
     email_context['loanRate'] = round(ECONOMIC['interestRate'] + ECONOMIC['lendingMargin'], 2)
     email_context['compRate'] = round(email_context['loanRate'] + ECONOMIC['comparisonRateIncrement'], 2)
-    email_context['calendlyUrl'] = owner.profile.calendlyUrl + paramStr
+    email_context['calendlyUrl'] = os.environ.get('HHC_PREQL_ROUNDROBIN')
     email_context['user'] = owner
     subject = "Household Capital: Your Personal Pre Qualification Summary"
     from_email = owner.email

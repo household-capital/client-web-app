@@ -952,6 +952,7 @@ class pdfPreQualSummary(ContextHelper,TemplateView):
             context['interestRate'] = ECONOMIC['interestRate']
         if context['lendingMargin'] is None: 
             context['lendingMargin'] = ECONOMIC['lendingMargin']
+        context.update(ECONOMIC)
         projectionContext = getProjectionResults(context, ['baseScenario', 'incomeScenario', 'intPayScenario',
                                                                'pointScenario', 'stressScenario' ])
         context.update(projectionContext)
