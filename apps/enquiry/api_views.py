@@ -36,6 +36,7 @@ from apps.calculator.util import convert_calc, ProcessingError
 from apps.case.assignment import find_auto_assignee, auto_assign_leads, assign_lead
 from apps.enquiry.models import Enquiry
 from apps.case.models import LoanPurposes
+from config.celery import app 
 
 logger = logging.getLogger('myApps')
 
@@ -492,6 +493,14 @@ class DataIngestion(APIView):
                     )
                 lp.amount = amount
                 lp.save()
+        if lead.owner: 
+            app.send_task(
+                'Webcalc_gen_and_email_pre_ql',
+                {
+                    'caseUID': lead.caseUID
+                }
+            )
+            
 
     def process_payload(self, json_payload):
         # basic payload format 
