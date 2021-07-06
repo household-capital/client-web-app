@@ -44,26 +44,26 @@
     <div class="row">
         <div class="col-lg-3 text-center">
             {% if loanType == loanTypesEnum.SINGLE_BORROWER.value %}
-                <p class="print-text"> {% if preferredName_1 %}{{ preferredName_1 }}{% else %}{{ firstname_1 }}{% endif %}&nbsp;{{ surname_1 }}</p>
+                <p > {% if preferredName_1 %}{{ preferredName_1 }}{% else %}{{ firstname_1 }}{% endif %}&nbsp;{{ surname_1 }}</p>
             {% else %}
-                <p class="print-text"> {% if preferredName_1 %}{{ preferredName_1 }}{% else %}{{ firstname_1 }}{% endif %}&nbsp;{{ surname_1 }}</p>
-                <p class="print-text"> {% if preferredName_2 %}{{ preferredName_2 }}{% else %}{{ firstname_2 }}{% endif %}&nbsp;{{ surname_2 }}</p>
+                <p > {% if preferredName_1 %}{{ preferredName_1 }}{% else %}{{ firstname_1 }}{% endif %}&nbsp;{{ surname_1 }}</p>
+                <p > {% if preferredName_2 %}{{ preferredName_2 }}{% else %}{{ firstname_2 }}{% endif %}&nbsp;{{ surname_2 }}</p>
             {% endif %}
 
         </div>
 
         <div class="col-lg-3 text-center">
-            <p class="print-text">{{ enumInvestmentLabel }} </p>
+            <p >{{ enumInvestmentLabel }} </p>
 
         </div>
 
         <div class="col-lg-3 text-center">
-            <p class="print-text"> {{ street }}</p>
-            <p class="print-text"> {{ suburb }} </p>
+            <p > {{ street }}</p>
+            <p > {{ suburb }} </p>
         </div>
 
         <div class="col-lg-3 text-center">
-            <p class="print-text">Age Pension
+            <p >Age Pension
             <p>
         </div>
     </div>
@@ -73,17 +73,17 @@
         <div class="col-lg-3 text-center">
 
             {% if loanType == loanTypesEnum.SINGLE_BORROWER.value %}
-                <p class="print-text">{{ age_1 }} years old</p>
+                <p >{{ age_1 }} years old</p>
                 {% if  obj.head_doc.emp_status  %}
-                    <p class="print-text">{{ firstname_1 }}: {{ obj.head_doc.emp_status }} {% if obj.head_doc.age_retire %} - (retiring at {{ obj.head_doc.age_retire }}) {% endif %}</p>
+                    <p >{{ firstname_1 }}: {{ obj.head_doc.emp_status }} {% if obj.head_doc.age_retire %} - (retiring at {{ obj.head_doc.age_retire }}) {% endif %}</p>
                 {%  endif %}
             {% else %}
-                <p class="print-text">{{ age_1 }} and {{ age_2 }} years old</p>
+                <p >{{ age_1 }} and {{ age_2 }} years old</p>
                 {% if  obj.head_doc.emp_status %}
-                    <p class="print-text"> {{ firstname_1 }}: {{ obj.head_doc.emp_status }} {% if obj.head_doc.age_retire %} - (retiring at {{ obj.head_doc.age_retire }}) {% endif %} </p> 
+                    <p > {{ firstname_1 }}: {{ obj.head_doc.emp_status }} {% if obj.head_doc.age_retire %} - (retiring at {{ obj.head_doc.age_retire }}) {% endif %} </p> 
                 {%  endif %}
                 {% if obj.head_doc.emp_status_2  %}
-                    <p class="print-text">{{ firstname_2 }}: {{ obj.head_doc.emp_status_2 }} {% if obj.head_doc.age_retire_2 %} - (retiring at {{ obj.head_doc.age_retire_2 }}) {% endif %} </p>
+                    <p >{{ firstname_2 }}: {{ obj.head_doc.emp_status_2 }} {% if obj.head_doc.age_retire_2 %} - (retiring at {{ obj.head_doc.age_retire_2 }}) {% endif %} </p>
                 {% endif %}
             {% endif %}
 
@@ -91,39 +91,39 @@
 
         <div class="col-lg-3 text-center">
 
-            <p class="print-text">Estimated value</p>
-            <p class="print-text">${{ superAmount|intcomma }}</p>
+            <p >Estimated value</p>
+            <p >${{ superAmount|intcomma }}</p>
             {% if loanType == loanTypesEnum.JOINT_BORROWER.value and  obj.head_doc.superannuation_2 %}
-                <p class="print-text">Second Borrower Balance</p>
-                <p class="print-text">${{ obj.head_doc.superannuation_2|intcomma }}</p>
+                <p >Second Borrower Balance</p>
+                <p >${{ obj.head_doc.superannuation_2|intcomma }}</p>
             {% endif %}
         </div>
 
         <div class="col-lg-3 text-center">
-            <p class="print-text">Estimated value</p>
-            <p class="print-text">${{ valuation|intcomma }}</p>
+            <p >Estimated value</p>
+            <p >${{ valuation|intcomma }}</p>
             {% if obj.mortgageDebt %}
-                <p class="print-text">Mortgage Balance</p>
-                <p class="print-text">${{ obj.mortgageDebt|intcomma }}</p>
+                <p >Mortgage Balance</p>
+                <p >${{ obj.mortgageDebt|intcomma }}</p>
             {% endif %}
         </div>
 
         <div class="col-lg-3 text-center">
-            <p class="print-text">Annual Payment
+            <p >Annual Payment
             <p>
-            <p class="print-text">${{ annualPensionIncome|intcomma }}</p>
+            <p >${{ annualPensionIncome|intcomma }}</p>
             {% if obj.head_doc.pension_2 %}
-                <p class="print-text">Second Borrower Pension<p>  
-                <p class="print-text">${{ obj.head_doc.pension_2|intcomma }}/fortnight</p>
+                <p >Second Borrower Pension<p>  
+                <p >${{ obj.head_doc.pension_2|intcomma }}/fortnight</p>
             {% endif %}
             {% if obj.head_doc.wages or obj.head_doc.wages_2 %}
-                <p class="print-text">Wages - ${{ obj.head_doc.wages|intcomma }}  {% if obj.head_doc.wages_2 %} and ${{ obj.head_doc.wages_2|intcomma }} {% endif %}</p>
+                <p >Wages - ${{ obj.head_doc.wages|intcomma }}  {% if obj.head_doc.wages_2 %} and ${{ obj.head_doc.wages_2|intcomma }} {% endif %}</p>
             {% endif %}
             {% if obj.head_doc.other_income or obj.head_doc.other_income_2 %}
-                <p class="print-text">Other Income - ${{ obj.head_doc.other_income|intcomma }}  {% if obj.head_doc.other_income_2 %} and ${{ obj.head_doc.other_income_2|intcomma }} {% endif %}</p>
+                <p >Other Income - ${{ obj.head_doc.other_income|intcomma }}  {% if obj.head_doc.other_income_2 %} and ${{ obj.head_doc.other_income_2|intcomma }} {% endif %}</p>
             {% endif %}
             {% if obj.head_doc.other_assets or obj.head_doc.other_assets_2 %}
-                <p class="print-text">Other Assets - ${{ obj.head_doc.other_assets|intcomma }}  {% if obj.head_doc.other_assets_2 %} and ${{ obj.head_doc.other_assets_2|intcomma }} {% endif %}</p>
+                <p >Other Assets - ${{ obj.head_doc.other_assets|intcomma }}  {% if obj.head_doc.other_assets_2 %} and ${{ obj.head_doc.other_assets_2|intcomma }} {% endif %}</p>
             {% endif %}
             </div>
     </div>

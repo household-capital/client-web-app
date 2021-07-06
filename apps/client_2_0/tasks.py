@@ -12,6 +12,7 @@ from config.celery import app
 
 from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.site_Logging import write_applog
+from apps.lib.site_Utilities import raiseTaskAdminError
 
 from apps.case.models import Case
 from urllib.parse import urljoin
@@ -65,3 +66,23 @@ def createLoanSummary(caseUID):
                      "Failed to save Summary Report in Database: " + caseUID)
         return 'Task Failed'
 
+@app.task(name="Webcalc_gen_and_email_pre_ql")
+def generate_and_email_pre_ql(caseUID):
+    try:
+        case_obj = Case.objects.get(caseUID=caseUID)
+        pdf = gen_preql_summary(case_obj)
+        email_customer(pdf, enq_obj, calculator)
+    except Exception as e:
+        tb = traceback.format_exc()
+        raiseTaskAdminError(
+            "Failed Webcalc gen/email - {}".format(str(calcUID)),
+            tb
+        )
+        raise e
+
+def gen_preql_summary(case_obj):
+    source_url = urljoin(
+        settings.SITE_URL,
+        reverse('client2:pdfPreQualSummary', kwargs={'uid': case_obj.caseUID})
+    )
+    target_file_name = "enquiryReports/PreQL-" + str(case_obj.caseUID)[-12:] + ".pdf"
