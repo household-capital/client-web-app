@@ -729,6 +729,11 @@ class LoanPurposes(models.Model):
         if self.drawdownFrequency:
             return dict(self.drawdownFrequencyTypes)[self.drawdownFrequency]
 
+    @property
+    def enumDrawdownFreqVal(self):
+        if self.drawdownFrequency:
+            return 12 if self.drawdownFrequency == incomeFrequencyEnum.MONTHLY.value else 26
+
     def get_absolute_url(self):
         if self.intention == purposeIntentionEnum.REGULAR_DRAWDOWN.value:
             return reverse_lazy("case:caseVariationDrawdown", kwargs={"purposeUID": self.purposeUID})
