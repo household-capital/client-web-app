@@ -29,7 +29,7 @@
                 {% if topUpDrawdownAmount != 0 %}
                     <p class="small pb-2">Draw-down plan:
                         ${{ topUpIncomeAmount }} {{ enumTopUpFrequency }}
-                        for {{ topUpPeriod }} years [{{ topUpContractDrawdowns }} month amount]
+                        for {{ topUpPeriod }} years {% if show_top_up_drawdown_years %}[ {% widthratio purposes.TOP_UP.REGULAR_DRAWDOWN.contractDrawdowns purposes.TOP_UP.REGULAR_DRAWDOWN.enumDrawdownFreqVal 1 %} year amount] {% endif %}
                     </p>
                 {% endif %}
             </div>
@@ -120,7 +120,7 @@
 
                 {% if careDrawdownAmount %}
                     <p class="small pb-2">Draw-down plan: ${{ careRegularAmount }} {{ enumCareFrequency }}
-                        for {{ carePeriod }} years [{{ careContractDrawdowns }} month amount]
+                        for {{ carePeriod }} years {% if show_care_drawdown_years %}[ {% widthratio purposes.CARE.REGULAR_DRAWDOWN.contractDrawdowns purposes.CARE.REGULAR_DRAWDOWN.enumDrawdownFreqVal 1 %} year amount] {% endif %}
                         {% if careDrawdownDescription %}: {{ careDrawdownDescription }}{% endif %}</p>
                 {% endif %}
             </div>
@@ -153,7 +153,7 @@
         <div class="row">
             <div class="col-lg-12">
                 <p class="small">* Includes establishment fee of: ${{ establishmentFee|intcomma }}</p>
-                {% if topUpDrawdownAmount or careDrawdownAmount %}
+                {% if show_care_drawdown_years or show_top_up_drawdown_years %}
                     <p class="small">&nbsp;&nbsp;The total Plan Amount is ${{ totalPlanAmount|intcomma }} (includes
                         establishment fee of ${{ planEstablishmentFee|intcomma }})</p>
                 {% endif %}
