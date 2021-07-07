@@ -87,11 +87,11 @@ def validateLoanGetContext(caseUID):
     show_top_up_drawdown_years = False
     if getattr(context['purposes'].get('CARE', {}).get('REGULAR_DRAWDOWN'), 'amount' , None): 
         care_reg_drawdown = context['purposes']['CARE']['REGULAR_DRAWDOWN']
-        if care_reg_drawdown.planPeriod > 5:
+        if care_reg_drawdown.planPeriod and care_reg_drawdown.planPeriod > 5:
             show_care_drawdown_years = True
     if getattr(context['purposes'].get('TOP_UP', {}).get('REGULAR_DRAWDOWN'), 'amount' , None): 
         topup_reg_drawdown = context['purposes']['TOP_UP']['REGULAR_DRAWDOWN']
-        if topup_reg_drawdown.planPeriod > 5:
+        if topup_reg_drawdown.planPeriod and topup_reg_drawdown.planPeriod > 5:
             show_top_up_drawdown_years = True
     context['show_care_drawdown_years'] = show_care_drawdown_years
     context['show_top_up_drawdown_years'] = show_top_up_drawdown_years
