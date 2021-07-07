@@ -483,6 +483,11 @@
                                         Summary</a>
                                     </p>
                                 {% endif %}
+                                {% if obj.preQualDocument %}
+                                    <p><a href="{{ obj.preQualDocument.url }}">Prequal
+                                        Summary</a>
+                                    </p>
+                                {% endif %}
                                 {% if obj.summaryDocument %}
                                     <p><a href="{{ obj.summaryDocument.url }}">Loan
                                         Summary</a>
@@ -548,6 +553,20 @@
                                                 <input class="btn btn-outline-secondary" type="submit" value="Add Note" id="id_submit" />
                                             </div>
                                         </form>
+                                </div>
+                            </div>
+                            <br/>
+                            <div class="row">
+                                <div class="col-lg-12">
+
+                                    <div class="jumbotron">
+
+                                        <p class="pb- 3"><i class="fas fa-info-circle"></i>&nbsp;Extra fields</p>
+                                        <hr/>
+                                        {% for  key, val in  obj.head_doc.items %}
+                                        <p class="small"><b>{{ key | labelise}}:</b> &nbsp;&nbsp;&nbsp;{{ val }}</p>
+                                        {% endfor %}
+                                    </div>
                                 </div>
                             </div>
                             <br/>

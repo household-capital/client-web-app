@@ -11,6 +11,7 @@ from django.utils.encoding import smart_text
 from django.utils import timezone
 from django.urls import reverse_lazy
 from django_comments.models import Comment
+from django.contrib.postgres.fields import JSONField
 
 #Local Application Imports
 from apps.lib.site_Enums import *
@@ -120,6 +121,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
         (directTypesEnum.PARTNER.value, 'Partner'),
         (directTypesEnum.BROKER.value, 'Broker'),
         (directTypesEnum.ADVISER.value, 'Adviser'),
+        (directTypesEnum.WEB_PREQUAL.value, 'Pre Qualification'),
         (directTypesEnum.OTHER.value,'Other'),
     )
 
@@ -134,6 +136,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
                   (caseStagesEnum.SQ_NO_ANSWER.value, "SQ - No Answer"),
                   (caseStagesEnum.SQ_VOICEMAIL.value, "SQ - Voicemail"),
                   (caseStagesEnum.SQ_EMAIL_SENT.value, "SQ - Email Sent"),
+                  (caseStagesEnum.SQ_PRE_QUAL.value, "SQ - Pre Qual"),
                   (caseStagesEnum.MEETING_BOOKED.value, "Meeting Booked"),
 
                   (caseStagesEnum.DISCOVERY.value,"Discovery"),
@@ -330,7 +333,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
     titleRequest = models.BooleanField(null=True, blank=True)
     lixiFile= models.FileField(max_length=150, null=True, blank=True)
     applicationDocument = models.FileField(max_length=150, null=True, blank=True, upload_to='customerReports')
-
+    preQualDocument = models.FileField(max_length=150,null=True, blank=True)
     # Referral / Channel Data
     salesChannel = models.IntegerField(choices=channelTypes,null=True, blank=True)
     channelDetail = models.IntegerField(choices=channelDetailTypes, null=True, blank=True)
@@ -381,6 +384,9 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
     lead_needs_action = models.BooleanField(default=False, blank=True, null=True)
     # True if Action btn shows
     loan_rating = models.IntegerField(blank=True, null=True, choices=loanRating)
+    
+    head_doc = JSONField(default=dict)
+
     objects=CaseManager()
 
     def __str__(self):

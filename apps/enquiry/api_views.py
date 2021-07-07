@@ -1,6 +1,7 @@
 import datetime, logging, json, traceback
 from django.contrib.auth.models import User
 from django.core.serializers.json import DjangoJSONEncoder
+from django.utils import timezone
 
 
 from rest_framework.views import APIView
@@ -19,7 +20,12 @@ from apps.lib.site_Enums import (
     marketingReferrerDict,
     enquiryStagesEnum,
     dwellingTypesEnum,
-    loanTypesEnum
+    loanTypesEnum,
+    caseStagesEnum,
+    PRE_MEETING_STAGES,
+    purposeCategoryEnum,
+    purposeIntentionEnum,
+    clientSexEnum
 )
 from apps.lib.site_Logging import write_applog
 from apps.enquiry.exceptions import MissingRequiredFields
@@ -27,8 +33,10 @@ from apps.enquiry.util import find_auto_campaign
 from apps.case.assignment import _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP
 from apps.settings.models import GlobalSettings
 from apps.calculator.util import convert_calc, ProcessingError
-from apps.case.assignment import find_auto_assignee
+from apps.case.assignment import find_auto_assignee, auto_assign_leads, assign_lead
 from apps.enquiry.models import Enquiry
+from apps.case.models import LoanPurposes
+from config.celery import app 
 
 logger = logging.getLogger('myApps')
 
@@ -42,6 +50,13 @@ REQUIRED_FIELDS = [
 OR_FIELDS = [
     'phone',
     'email'
+]
+
+WEB_SOURCES = [
+    "WEBSITE_LEAD", 
+    "WEBSITE_CALC", 
+    "WEBSITE_CONTACT",
+    "WEBSITE_PRE_QUAL"    
 ]
 
 class DataIngestion(APIView):
@@ -157,6 +172,7 @@ class DataIngestion(APIView):
 
         """
         marketing_source_value = json_payload['stream']
+        propensity = propensityChoicesReverseDict.get(json_payload.get('grading'))
         if marketing_source_value == 'WEBSITE_CONTACT': 
             write_applog(
                 "INFO",
@@ -179,6 +195,7 @@ class DataIngestion(APIView):
                 'message': json_payload['message'],
                 'age_1': json_payload['age_1'],
                 'submissionOrigin': json_payload['origin'],
+                'origin_id': json_payload.get('origin_id'),
                 'phone': cleanPhoneNumber(json_payload['phone'])
             }
 
@@ -197,16 +214,23 @@ class DataIngestion(APIView):
             )
             enquiryNotes = '[# Website Enquiry #]'
             enquiryNotes += '\r\n' + json_payload['origin']
+            if json_payload.get('what_describes_you'): 
+                enquiryNotes += '\r\nDescription: ' + json_payload['what_describes_you']
+
             if json_payload.get('description') is not None:
                     enquiryNotes += '\r\n' + 'Description: {}'.format(json_payload['description'])
             srcData = {
                 'firstname': first,
                 'lastname': last,
-                'origin_timestamp': datetime.datetime.utcnow(),
+                'email': json_payload.get('email'),
+                'origin_timestamp': timezone.localtime(),
                 'phoneNumber': cleanPhoneNumber(json_payload['phone']),
                 'referrer': directTypesEnum.WEB_ENQUIRY.value,
                 'enquiryStage': enquiryStagesEnum.BROCHURE_SENT.value,
-                'enquiryNotes': enquiryNotes
+                'enquiryNotes': enquiryNotes,
+                'origin_id': json_payload.get('origin_id'),
+                'submissionOrigin': json_payload['origin'],
+                'propensityCategory': propensity
             }
             
             try:
@@ -214,6 +238,8 @@ class DataIngestion(APIView):
             except:
                 raise raiseTaskAdminError('Could not save "web enquiry" entry', json.dumps(srcData, cls=DjangoJSONEncoder))
 
+        elif marketing_source_value == 'WEBSITE_PRE_QUAL':
+            self.process_pre_qual(json_payload)
         else: 
             # build web_calc obj
             write_applog(
@@ -237,7 +263,7 @@ class DataIngestion(APIView):
                 prop_type = dwellingTypesEnum.APARTMENT.value
             srcDict = {
                 'phoneNumber': cleanPhoneNumber(json_payload['phone']),
-                'origin_timestamp': datetime.datetime.utcnow(),
+                'origin_timestamp': timezone.localtime(),
                 'firstname': first,
                 'lastname': last,
                 'raw_name': raw_name,
@@ -253,6 +279,7 @@ class DataIngestion(APIView):
                 'submissionOrigin': json_payload['origin'],
                 'requestedCallback': bool(json_payload['requestedCall']),
                 'dwellingType':prop_type  ,
+                'origin_id': json_payload.get('origin_id'),
                 'loanType': loan_type 
             }
             try:
@@ -278,6 +305,202 @@ class DataIngestion(APIView):
                         "Failed to convert web calc - {}".format(str(web_obj.calcUID)),
                         tb
                     )
+    
+    def process_pre_qual(self, json_payload):
+        write_applog(
+            "INFO",
+            "Enquiry API",
+            "Process Payload", 
+            "API Ingestion - web pre qual lead"
+        )
+        first , last, raw_name = parse_api_names(
+            '' or json_payload['first'],
+            '' or json_payload['last']
+        )
+        enquiryNotes = '[# Website Enquiry #]'
+        enquiryNotes += '\r\n' + json_payload['origin']
+        if json_payload.get('description') is not None:
+            enquiryNotes += '\r\n' + 'Description: {}'.format(json_payload['description'])
+        is_couple = json_payload['marital_status'] == 'couple'
+        if is_couple: 
+            loan_type = loanTypesEnum.JOINT_BORROWER.value
+        else: 
+            loan_type = loanTypesEnum.SINGLE_BORROWER.value
+       
+        if json_payload['property_type'].lower() == 'house':
+            prop_type = dwellingTypesEnum.HOUSE.value
+        else: 
+            prop_type = dwellingTypesEnum.APARTMENT.value
+        
+        srcDict = {
+            'phoneNumber': cleanPhoneNumber(json_payload['phone']),
+            'origin_timestamp': timezone.localtime(),
+            'firstname': first,
+            'lastname': last,
+            'age_1': json_payload['age_1'],
+            'age_2': json_payload.get('age_2') if is_couple else None,
+            'email': json_payload['email'],
+            'productType': json_payload.get(
+                'productType', 
+                productTypesEnum.LUMP_SUM.value
+            ),
+            'postcode': json_payload['postcode'],
+            'valuation':json_payload['property_value'],
+            'submissionOrigin': json_payload['origin'],
+            'requestedCallback': json_payload.get('requestedCall', False),
+            'dwellingType':prop_type ,
+            'loanType': loan_type ,
+            'referrer': directTypesEnum.WEB_PREQUAL.value,
+
+            'streetAddress':json_payload.get('property_address'),
+            'base_specificity': json_payload.get('unit'),
+            'street_number': json_payload.get('street_number'),
+            'street_name': json_payload.get('street_name'),
+            "street_type": json_payload.get('street_type'),
+            'suburb': json_payload.get('suburb'),
+            'state': stateTypesEnum[json_payload.get('state')].value if json_payload.get('state') else None,
+            'postcode': int(json_payload['postcode']) if json_payload.get('postcode') else None,
+            'mortgageDebt': json_payload['mortgage'],
+            'origin_id': json_payload.get('origin_id'),
+            'propensityCategory':propensityChoicesReverseDict.get(json_payload.get('grading'))
+        }
+        enquiry_fields_captured = [
+            'first',
+            'last',
+            'age_1',
+            'age_2',
+            'phone',
+            'email',
+            'property_address',
+            'unit',
+            'street_number',
+            'street_name',
+            'street_type',
+            'suburb',
+            'state',
+            'postcode',
+            'country',
+            'property_type',
+            'property_value',
+            'property_owing',
+            'mortgage',
+            'stream',
+            'grading',
+            'origin'
+        ]
+        head_doc = {
+            x:y 
+            for x,y in json_payload.items()
+            if x not in enquiry_fields_captured
+        }
+        srcDict['head_doc'] = head_doc
+        enquiry = Enquiry.objects.create(**srcDict)
+        lead = enquiry.case
+        if is_couple: 
+            lead.firstname_2 = json_payload['first_2']
+            lead.surname_2 = json_payload['last_2']
+        lead_captured_fields = enquiry_fields_captured + [
+            'first_2',
+            'last_2',
+            'top_up',
+            'refinance',
+            'live',
+            'give',
+            'care',
+            'gender_1',
+            'gender_2'
+        ]
+        if json_payload.get('gender_1'):
+            lead.sex_1 = clientSexEnum.MALE.value if json_payload['gender_1'].lower() == 'male' else clientSexEnum.FEMALE.value
+        if json_payload.get('gender_2'):
+            lead.sex_2 = clientSexEnum.MALE.value if json_payload['gender_2'].lower() == 'male' else clientSexEnum.FEMALE.value
+        
+        lead.head_doc = {
+            x:y 
+            for x,y in json_payload.items()
+            if x not in lead_captured_fields
+        }
+        in_pre_meet = caseStagesEnum(lead.caseStage).name in PRE_MEETING_STAGES
+        lead.superAmount = json_payload.get('superannuation', 0)
+        lead.pensionAmount = json_payload.get('pension', 0)
+        if in_pre_meet:
+            lead.caseStage = caseStagesEnum.SQ_PRE_QUAL.value
+
+        lead.save(should_sync=True)
+
+        proposed_owner = find_auto_assignee(
+            referrer=directTypesEnum.WEB_PREQUAL.value, 
+            email=enquiry.email, 
+            phoneNumber=enquiry.phoneNumber
+        )
+        if lead.owner is None: 
+            if proposed_owner is None:
+                auto_assign_leads([lead], notify=False)
+            else:
+                assign_lead(lead, proposed_owner, notify=False)
+        
+        lead.refresh_from_db()
+        enquiry.user = lead.owner
+        enquiry.save(should_sync=True)
+
+        # send email?
+        loan = lead.loan
+        if in_pre_meet: 
+            if json_payload.get('top_up'):
+                amount = json_payload['top_up']
+                lp, _ = LoanPurposes.objects.get_or_create(
+                    loan=loan,
+                    category=purposeCategoryEnum.TOP_UP.value,
+                    intention=purposeIntentionEnum.INVESTMENT.value
+                )
+                lp.amount = amount
+                lp.save()
+            if json_payload.get('refinance'):
+                amount = json_payload['refinance']
+                lp, _ = LoanPurposes.objects.get_or_create(
+                        loan=loan,
+                        category=purposeCategoryEnum.REFINANCE.value,
+                        intention=purposeIntentionEnum.MORTGAGE.value
+                    )
+                lp.amount = amount
+                lp.save()
+            if json_payload.get('live'):
+                amount = json_payload['live']
+                lp, _ = LoanPurposes.objects.get_or_create(
+                        loan=loan,
+                        category=purposeCategoryEnum.LIVE.value,
+                        intention=purposeIntentionEnum.RENOVATIONS.value
+                    )
+                lp.amount = amount
+                lp.save()
+
+            if json_payload.get('give'):
+                amount = json_payload['give']
+                lp, _ = LoanPurposes.objects.get_or_create(
+                        loan=loan,
+                        category=purposeCategoryEnum.GIVE.value,
+                        intention=purposeIntentionEnum.GIVE_TO_FAMILY.value
+                    )
+                lp.amount = amount
+                lp.save()
+
+            if json_payload.get('care'):
+                amount = json_payload['care']
+                lp, _ = LoanPurposes.objects.get_or_create(
+                        loan=loan,
+                        category=purposeCategoryEnum.CARE.value,
+                        intention=purposeIntentionEnum.LUMP_SUM.value
+                    )
+                lp.amount = amount
+                lp.save()
+        if lead.owner: 
+            app.send_task(
+                'Webcalc_gen_and_email_pre_ql',
+                kwargs={
+                    'caseUID': lead.caseUID
+                }
+            )
+            
 
     def process_payload(self, json_payload):
         # basic payload format 
@@ -332,7 +555,7 @@ class DataIngestion(APIView):
             "API", 
             "API Ingestion - {}".format(marketing_source_value)
         )
-        if marketing_source_value in ["WEBSITE_LEAD", "WEBSITE_CALC", "WEBSITE_CONTACT"]:
+        if marketing_source_value in WEB_SOURCES:
             self.process_website_entry(json_payload)
         else:
             write_applog(
@@ -351,7 +574,7 @@ class DataIngestion(APIView):
                 'lastname': lastname,
                 #'phoneNumber': cleanPhoneNumber(json_payload['phone']),
                 'postcode': json_payload.get('postcode'),
-                'propensityCategory': propensityChoicesReverseDict.get(json_payload['grading']),
+                'propensityCategory': propensityChoicesReverseDict.get(json_payload.get('grading')),
                 'marketingSource': marketingSource,
                 'email': json_payload.get('email'),
                 'valuation':  cleanValuation(json_payload.get('property_value')),

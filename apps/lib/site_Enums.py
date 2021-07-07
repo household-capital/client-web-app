@@ -38,6 +38,7 @@ class caseStagesEnum(Enum):
     SQ_EMAIL_SENT = 16
 
     MEETING_BOOKED = 17
+    SQ_PRE_QUAL = 19
 
     SALES_ACTIVE = 13
 
@@ -53,6 +54,7 @@ PRE_MEETING_STAGES = [
 
     'SQ_NO_ANSWER',
     'SQ_VOICEMAIL',
+    'SQ_PRE_QUAL',
     'SQ_EMAIL_SENT',
     'MEETING_BOOKED',
     
@@ -138,6 +140,7 @@ class directTypesEnum(Enum):
     PARTNER = 5
     SOCIAL = 6
     ADVISER = 7
+    WEB_PREQUAL = 8
     OTHER=100
 
 

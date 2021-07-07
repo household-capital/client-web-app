@@ -25,6 +25,7 @@ class GlobalSettingsForm(forms.ModelForm):
     class Meta:
         model = GlobalSettings
         fields = [
+            'autoassignees_pre_qual',
             'autoassignees_calculators',
             'autoassignees_STARTS_AT_60',
             'autoassignees_CARE_ABOUT',
@@ -66,6 +67,13 @@ class GlobalSettingsForm(forms.ModelForm):
                     Div(HTML("Web Calculators:"), css_class='form-label pb-1'),
                     Div(
                         Field('autoassignees_calculators'),
+                        css_class='pl-5 col-lg-7'
+                    )
+                ),
+                Div(
+                    Div(HTML("Web Pre Qual:"), css_class='form-label pb-1'),
+                    Div(
+                        Field('autoassignees_pre_qual'),
                         css_class='pl-5 col-lg-7'
                     )
                 ),

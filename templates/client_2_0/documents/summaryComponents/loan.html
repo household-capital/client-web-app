@@ -2,7 +2,6 @@
 {% load humanize %}
 
 
-<!-- Include -->
 
 <div class="print-container">
 
@@ -150,13 +149,13 @@
                         <p class="print-text">&nbsp;&nbsp;The total Plan Amount is ${{ totalPlanAmount|intcomma }}
                             (includes establishment fee of ${{ planEstablishmentFee|intcomma }})</p>
                     {% endif %}
+                    {% if obj.head_doc.needs_other %}
+                        <p class="print-text">* Other needs: {{ obj.head_doc.needs_other }}
+                        </p>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-
-<!-- End -->
-
 
