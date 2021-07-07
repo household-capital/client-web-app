@@ -29,7 +29,7 @@
                     {% if purposes.TOP_UP.REGULAR_DRAWDOWN.amount %}
                         <p class="print-text pb-2">Draw-down plan:
                             ${{ purposes.TOP_UP.REGULAR_DRAWDOWN.drawdownAmount }} {{ purposes.TOP_UP.REGULAR_DRAWDOWN.enumDrawdownFrequency }}
-                            for {{ purposes.TOP_UP.REGULAR_DRAWDOWN.planPeriod }} years [ {% widthratio purposes.TOP_UP.REGULAR_DRAWDOWN.contractDrawdowns purposes.TOP_UP.REGULAR_DRAWDOWN.enumDrawdownFreqVal 1 %} year amount]
+                            for {{ purposes.TOP_UP.REGULAR_DRAWDOWN.planPeriod }} years {% if show_top_up_drawdown_years %}[ {% widthratio purposes.TOP_UP.REGULAR_DRAWDOWN.contractDrawdowns purposes.TOP_UP.REGULAR_DRAWDOWN.enumDrawdownFreqVal 1 %} year amount] {% endif %}
                         </p>
                     {% endif %}
 
@@ -113,7 +113,7 @@
                     {% if purposes.CARE.REGULAR_DRAWDOWN.amount %}
                         <p class="print-text pb-2">Draw-down plan:
                             ${{ purposes.CARE.REGULAR_DRAWDOWN.drawdownAmount }} {{ purposes.CARE.REGULAR_DRAWDOWN.enumDrawdownFrequency }}
-                            for {{ purposes.CARE.REGULAR_DRAWDOWN.planPeriod }} years [ {% widthratio purposes.CARE.REGULAR_DRAWDOWN.contractDrawdowns purposes.CARE.REGULAR_DRAWDOWN.enumDrawdownFreqVal 1 %} year amount]
+                            for {{ purposes.CARE.REGULAR_DRAWDOWN.planPeriod }} years {% if show_care_drawdown_years %}[ {% widthratio purposes.CARE.REGULAR_DRAWDOWN.contractDrawdowns purposes.CARE.REGULAR_DRAWDOWN.enumDrawdownFreqVal 1 %} year amount] {% endif %}
                         </p>
                     {% endif %}
                 </div>
@@ -145,7 +145,7 @@
             <div class="row">
                 <div class="col-lg-12">
                     <p class="print-text">* Includes establishment fee of: ${{ establishmentFee|intcomma }}</p>
-                    {% if purposes.TOP_UP.REGULAR_DRAWDOWN.amount or purposes.CARE.REGULAR_DRAWDOWN.amount %}
+                    {% if show_care_drawdown_years or show_top_up_drawdown_years %}
                         <p class="print-text">&nbsp;&nbsp;The total Plan Amount is ${{ totalPlanAmount|intcomma }}
                             (includes establishment fee of ${{ planEstablishmentFee|intcomma }})</p>
                     {% endif %}
