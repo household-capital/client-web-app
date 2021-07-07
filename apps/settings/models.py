@@ -94,6 +94,7 @@ class GlobalSettings(SingletonModel):
             #Q(profile__isCreditRep=True)
         )
     )
+    autoassignees_FACEBOOK_index = models.IntegerField(default=0)
 
     autoassignees_FACEBOOK_INTERACTIVE = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
@@ -104,6 +105,7 @@ class GlobalSettings(SingletonModel):
             #Q(profile__isCreditRep=True)
         )
     )
+    autoassignees_FACEBOOK_INTERACTIVE_index = models.IntegerField(default=0)
 
     autoassignees_FACEBOOK_CALCULATOR = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
@@ -114,6 +116,7 @@ class GlobalSettings(SingletonModel):
             #Q(profile__isCreditRep=True)
         )
     )
+    autoassignees_FACEBOOK_CALCULATOR_index = models.IntegerField(default=0)
 
     autoassignees_LINKEDIN = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
@@ -124,6 +127,7 @@ class GlobalSettings(SingletonModel):
             #Q(profile__isCreditRep=True)
         )
     )
+    autoassignees_LINKEDIN_index = models.IntegerField(default=0)
 
     autocampaigns_STARTS_AT_60 = models.ForeignKey(MarketingCampaign, related_name='autocampaigns_STARTS_AT_60', null=True, blank=True, on_delete=models.SET_NULL)
     autocampaigns_CARE_ABOUT = models.ForeignKey(MarketingCampaign, related_name='autocampaigns_CARE_ABOUT', null=True, blank=True, on_delete=models.SET_NULL)

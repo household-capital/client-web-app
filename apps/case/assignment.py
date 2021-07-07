@@ -181,7 +181,10 @@ def find_auto_assignee(referrer=None, marketing_source=None, email=None, phoneNu
             potential_owners = options['choice_filter'](potential_owners)
         if potential_owners:
             write_applog('INFO', 'case.assignment', 'find_auto_assignee', 'Using settings assignee')
-            return random.choice(potential_owners)
+            round_robin_index = getattr(global_settings, '{}_index'.format(options['settings_assignee_field']))
+            setattr(global_settings, '{}_index'.format(options['settings_assignee_field']), round_robin_index + 1)
+            global_settings.save()
+            return potential_owners[round_robin_index % len(potential_owners)]
 
     write_applog('INFO', 'case.assignment', 'find_auto_assignee', 'Failed to locate potential assignee')
     return None
