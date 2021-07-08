@@ -6,6 +6,7 @@ from datetime import datetime
 # Django Imports
 from django.conf import settings
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.contrib.auth.models import User
 from django.core.files.storage import default_storage
 from django.urls import reverse
 
@@ -124,6 +125,8 @@ def email_preql(pdf, caseObj):
     email_context['loanRate'] = round(ECONOMIC['interestRate'] + ECONOMIC['lendingMargin'], 2)
     email_context['compRate'] = round(email_context['loanRate'] + ECONOMIC['comparisonRateIncrement'], 2)
     email_context['calendlyUrl'] = os.environ.get('HHC_PREQL_ROUNDROBIN')
+    if User.objects.filter(username='Sewell').exists():
+        owner = User.objects.get(username='Sewell')
     email_context['user'] = owner
     subject = "Household Capital: Your Personal Pre Qualification Summary"
     from_email = owner.email
