@@ -56,3 +56,9 @@ variable "route53_name" {
   type = string
   description = "Route53 Hosted Zone Name"
 }
+
+variable "instance_type" {
+  type = string
+  description = "Instance type"
+  default = "t3.small" 
+}
