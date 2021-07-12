@@ -104,7 +104,7 @@ class EnrichEnum:
         self.__logging("Enriching Property Information")
 
         mappify = apiMappify()
-        sf_gnaf = self.loanDict.get('Gnaf_id__c')
+        sf_gnaf = self.loanDict.get('Prop.Gnaf_Id__c')
         addressDict = {
             'gnafId': sf_gnaf,
             'buildingName': "None"
