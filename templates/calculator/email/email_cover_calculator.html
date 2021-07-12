@@ -23,7 +23,7 @@
     <p>Kind regards</p>
     <br>
     <p>{{ user.first_name }} {{ user.last_name }}</p>
-    <p>{{ user.profile.mobile}}</p>
+    <p><a href="tel:{{ user.profile.mobile}}">{{ user.profile.mobile}}</a></p>
     <p>{{ user.email }}</p>
     <br>
     <img src="{{ user.profile.picture.url }}" width="100px">
