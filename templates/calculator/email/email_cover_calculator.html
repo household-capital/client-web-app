@@ -17,7 +17,7 @@
         time that suits you, please use this link: <a href="{{ calendlyUrl }}"> Book a discovery call!</a>
     </p>
     <br/>
-    <p> Alternatively, you can contact me directly on {{ user.profile.mobile}} at your convenience.
+    <p> Alternatively, you can contact me directly on <a href="tel:{{ user.profile.mobile}}">{{ user.profile.mobile}}</a> at your convenience.
     </p>
     <br>
     <p>Kind regards</p>
@@ -29,10 +29,5 @@
     <img src="{{ user.profile.picture.url }}" width="100px">
 
     <br><br>
-    <small>Applications for credit are subject to eligibility and lending criteria.
-        Fees and charges are payable and terms and conditions apply (available on request).
-        Household Capital Pty Limited is a credit representative (512757) of Mortgage Direct Pty Limited
-        ACN 075 721 434, Australian Credit Licence 391876.</small>
-     <br><br>
 
 {% endblock %}

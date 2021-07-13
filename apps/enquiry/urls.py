@@ -31,6 +31,7 @@ urlpatterns = [
     # API Views 
     path('api/', include('apps.enquiry.api_urls')),
 
+    path('EMAILPdfView/<uuid:uid>', views.EMAILPdfView.as_view(), name='lol'),
 
 ]
 

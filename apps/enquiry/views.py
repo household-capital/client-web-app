@@ -575,6 +575,64 @@ class SendEnquirySummary(HouseholdLoginRequiredMixin, UpdateView):
                 return False
         return True
 
+class EMAILPdfView(TemplateView):
+    # Produce Summary Report View (called by Api2Pdf)
+    template_name = 'enquiry/email/email_cover_enquiry.html'
+
+    def get(self, request, *args, **kwargs):
+        enqUID = str(kwargs['uid'])
+        obj = Enquiry.objects.queryset_byUID(enqUID).get()
+
+        return super(EMAILPdfView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(EMAILPdfView, self).get_context_data(**kwargs)
+
+        enqUID = str(kwargs['uid'])
+        
+        # Projection Results (site.utilities)
+        projectionContext = getEnquiryProjections(enqUID)
+        context.update(projectionContext)
+        obj = Enquiry.objects.get(enqUID=enqUID)
+        context['product_type'] = obj.product_type 
+        enq_obj = obj
+        email_context = {}
+        email_context['user'] = enq_obj.user
+        email_context['firstname'] = enq_obj.firstname
+        email_context['max_loan'] = enq_obj.maxLoanAmount
+        email_context['monthly_drawdown'] = enq_obj.maxDrawdownMonthly
+        projectionContext = getEnquiryProjections(enqUID)
+        email_context['loan_text'] = "Household Loan of ${:,}".format(enq_obj.maxLoanAmount)
+        
+        if enq_obj.productType == productTypesEnum.CONTINGENCY_20K.value:
+            email_context['loan_text'] = "Household Loan of $20,000"
+        
+        if enq_obj.productType == productTypesEnum.INCOME.value: 
+            email_context['loan_text'] = "Household Loan of ${:,}/month".format(enq_obj.maxDrawdownMonthly)
+            if enq_obj.calcIncome:
+                email_context['loan_text'] = "Household Loan of ${:,}/month".format(enq_obj.calcIncome)
+
+        if enq_obj.productType == productTypesEnum.REFINANCE.value:
+            email_context['loan_text'] = "Household Loan of ${:,}".format(projectionContext['totalLoanAmount'])
+
+        if enq_obj.productType == productTypesEnum.LUMP_SUM.value:
+            if enq_obj.calcLumpSum: 
+                email_context['loan_text'] = "Household Loan of ${:,}".format(enq_obj.calcLumpSum)
+
+        if enq_obj.productType == productTypesEnum.COMBINATION.value:
+            calc_income = enq_obj.maxDrawdownMonthly
+            if enq_obj.calcIncome:
+                calc_income = enq_obj.calcIncome
+            
+            calc_lump_sum = enq_obj.maxLoanAmount
+            if enq_obj.calcLumpSum:
+                calc_lump_sum = enq_obj.calcLumpSum
+            email_context['loan_text'] = "Household Loan of ${:,} and ${:,}/month".format(
+                calc_lump_sum,
+                calc_income
+            )
+        context.update(email_context)
+        return context
 
 
 
