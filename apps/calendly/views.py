@@ -42,7 +42,7 @@ class CalendlyWebhook(View):
 
     def post(self, request, *args, **kwargs):
 
-        zoom_meeting_set = {'zoom'}
+        zoom_meeting_set = {'zoom', 'prequalification'}
         tracked_meeting_set = {'discovery', 'callback', 'phone'}
 
         #Get webhook ID from environmental settings
