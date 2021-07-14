@@ -129,6 +129,17 @@ class GlobalSettings(SingletonModel):
     )
     autoassignees_LINKEDIN_index = models.IntegerField(default=0)
 
+    autoassignees_GOOGLE_MOBILE = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='autoassignees_GOOGLE_MOBILE',
+        blank=True,
+        limit_choices_to=Q(
+            Q(is_active=True) #&
+            #Q(profile__isCreditRep=True)
+        )
+    )
+    autoassignees_GOOGLE_MOBILE_index = models.IntegerField(default=0)
+
     autocampaigns_STARTS_AT_60 = models.ForeignKey(MarketingCampaign, related_name='autocampaigns_STARTS_AT_60', null=True, blank=True, on_delete=models.SET_NULL)
     autocampaigns_CARE_ABOUT = models.ForeignKey(MarketingCampaign, related_name='autocampaigns_CARE_ABOUT', null=True, blank=True, on_delete=models.SET_NULL)
     autocampaigns_NATIONAL_SENIORS = models.ForeignKey(MarketingCampaign, related_name='autocampaigns_NATIONAL_SENIORS', null=True, blank=True, on_delete=models.SET_NULL)

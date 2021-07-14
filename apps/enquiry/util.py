@@ -23,7 +23,8 @@ def updateCreatePartnerEnquiry(payload, enquiries_to_assign):
             directTypesEnum.PARTNER.value, 
             directTypesEnum.BROKER.value, 
             directTypesEnum.ADVISER.value,
-            directTypesEnum.SOCIAL.value
+            directTypesEnum.SOCIAL.value,
+            directTypesEnum.SEARCH.value
         ]
 
         if lead.caseStage in [
