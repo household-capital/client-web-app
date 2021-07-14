@@ -310,7 +310,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
     mortgageDebt = models.IntegerField(null=True, blank=True)
 
     # Property Data
-    street = models.CharField(max_length=60, null=True, blank=True)
+    street = models.CharField(max_length=80, null=True, blank=True)
     suburb = models.CharField(max_length=30, null=True, blank=True)
     postcode = models.IntegerField(null=True, blank=True)
     state = models.IntegerField(choices=stateTypes, null=True, blank=True)
