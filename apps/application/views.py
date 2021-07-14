@@ -399,7 +399,6 @@ class CreateApplication(CreateAPIView):
     serializer_class = IncomeApplicationSeraliser
 
     def create(self, request, *args, **kwargs):
-    
         serializer = self.get_serializer(data=request.data)
         isValid = serializer.is_valid()
         write_applog("ERROR", 'INFO', 'create', "Source Data: "+ json.dumps(request.data))
