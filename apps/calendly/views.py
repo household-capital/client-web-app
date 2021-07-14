@@ -61,10 +61,11 @@ class CalendlyWebhook(View):
         data = json.loads(request.body)
 
         # Determine event type
-
+        write_applog('INFO','Calendly Webhook', 'post', 'paylaod: {}'.format(request.body))
         hook_event = data["event"]
         meeting_name = data["payload"]["event_type"]["name"]
         meeting_set = set(meeting_name.lower().split())
+        write_applog('INFO','Calendly Webhook', 'post', 'Meeting name {}'.format(meeting_name))
         calendlyID = data['payload']["event"]["uuid"]
         user_email = data['payload']["event"]["extended_assigned_to"][0]['email']
         start_time = data['payload']["event"]["start_time"]
