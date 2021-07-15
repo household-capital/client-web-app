@@ -23,9 +23,9 @@ class IncomeApplicationSeraliser(serializers.ModelSerializer):
     postcode = serializers.IntegerField()
 
     # TO DO - add these fields to the web site submission
-    submissionOrigin = serializers.CharField(source='origin', required=False)
-    origin_timestamp = serializers.DateTimeField(source='timestamp', required=False, default_timezone=utc)
-    origin_id = serializers.CharField(source='uuid', required=False)
+    # submissionOrigin = serializers.CharField(source='origin', required=False)
+    # origin_timestamp = serializers.DateTimeField(source='timestamp', required=False, default_timezone=utc)
+    # origin_id = serializers.CharField(source='uuid', required=False)
 
     class Meta:
         model = Application

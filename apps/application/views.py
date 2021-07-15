@@ -186,48 +186,7 @@ class ConvertEnquiry(HouseholdLoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         appUID = str(self.kwargs['uid'])
 
-        obj = Application.objects.queryset_byUID(appUID).get()
-
-        if obj.productType == productTypesEnum.INCOME.value:
-            message = "[# Income Product Application journey #] \n\r"
-
-        if obj.productType == productTypesEnum.CONTINGENCY_20K.value:
-            message = "[# Contingency 20K Product Application journey #] \n\r"
-
-        # Create an enquiry item
-        message = "Enquiry created from Online Application journey"
-
-        enqObj = Enquiry.objects.create(
-            firstname=obj.firstname_1,
-            lastname=obj.surname_1,
-            email=obj.email,
-            phoneNumber=obj.mobile,
-            enquiryNotes=message,
-            streetAddress=obj.streetAddress,
-            suburb=obj.suburb,
-            state=obj.state,
-            postcode=obj.postcode,
-            loanType=obj.loanType,
-            age_1=obj.age_1,
-            age_2=obj.age_2,
-            dwellingType=obj.dwellingType,
-            valuation=obj.valuation,
-            referrer=directTypesEnum.WEB_ENQUIRY.value,
-            productType=obj.productType,
-            submissionOrigin=obj.submissionOrigin,
-            origin_timestamp=obj.origin_timestamp,
-            origin_id=obj.origin_id
-        )
-
-        # lead = enqObj.case
-        # if should_lead_owner_update(lead): 
-        #     user = request.user
-        #     lead.owner = user 
-        #     lead.save(should_sync=True) 
-
-
-        obj.appStatus = appStatusEnum.CLOSED.value
-        obj.save(update_fields=['appStatus'])
+        enqObj = createEnquiry(appUID)
 
         return HttpResponseRedirect(reverse_lazy('enquiry:enquiryDetail', kwargs={'uid': str(enqObj.enqUID)}))
 
@@ -399,7 +358,6 @@ class CreateApplication(CreateAPIView):
     serializer_class = IncomeApplicationSeraliser
 
     def create(self, request, *args, **kwargs):
-    
         serializer = self.get_serializer(data=request.data)
         isValid = serializer.is_valid()
         write_applog("ERROR", 'INFO', 'create', "Source Data: "+ json.dumps(request.data))
@@ -1787,34 +1745,77 @@ class DocumentsView(SessionIdOnlyMixin, CreateView):
         return HttpResponseRedirect(self.request.path_info)
 
 
+def createEnquiry(appUID):
+    obj = Application.objects.queryset_byUID(appUID).get()
+    if obj.productType == productTypesEnum.INCOME.value:
+            message = "[# Income Product Application journey #] \n\r"
+
+    if obj.productType == productTypesEnum.CONTINGENCY_20K.value:
+        message = "[# Contingency 20K Product Application journey #] \n\r"
+
+    # Create an enquiry item
+    message = "Enquiry created from Online Application journey"
+
+    enqObj = Enquiry.objects.create(
+        firstname=obj.firstname_1,
+        lastname=obj.surname_1,
+        email=obj.email,
+        phoneNumber=obj.mobile,
+        enquiryNotes=message,
+        streetAddress=obj.streetAddress,
+        suburb=obj.suburb,
+        state=obj.state,
+        postcode=obj.postcode,
+        loanType=obj.loanType,
+        age_1=obj.age_1,
+        age_2=obj.age_2,
+        dwellingType=obj.dwellingType,
+        valuation=obj.valuation,
+        referrer=directTypesEnum.WEB_ENQUIRY.value,
+        productType=obj.productType,
+        submissionOrigin=obj.submissionOrigin,
+        origin_timestamp=obj.origin_timestamp,
+        origin_id=obj.origin_id
+    )
+
+
+    obj.appStatus = appStatusEnum.CLOSED.value
+    obj.save(update_fields=['appStatus'])
+    return enqObj
+
 def createCase(appUID):
     appObj = Application.objects.filter(appUID=uuid.UUID(appUID)).get()
+    enq_obj = createEnquiry(appUID)
 
-    caseMapFields = ['productType', 'email', 'loanType', 'salutation_1',
+    caseObj = enq_obj.case
+    caseMapFields = ['productType', 'loanType', 'salutation_1',
                      'surname_1', 'firstname_1', 'birthdate_1', 'age_1', 'sex_1',  # - Borrower 1
                      'surname_2', 'firstname_2', 'birthdate_2', 'age_2', 'sex_2', 'clientType2',  # - Borrower 2
                      'suburb', 'postcode', 'state', 'valuation', 'dwellingType',  # Property Data
                      'summarySentDate']
-
+    if caseStagesEnum(caseObj.caseStage).name not in PRE_MEETING_STAGES:
+        return 
     # CREATE CASE
     casePayload = {
         'appUID': appObj.appUID,
-        'caseStage': caseStagesEnum.UNQUALIFIED_CREATED.value, 
+        'caseStage': caseStagesEnum.SQ_EMAIL_SENT.value, 
         'appType': appTypesEnum.NEW_APPLICATION.value,
         'caseDescription': appObj.surname_1 + " - " + str(appObj.postcode),
         'caseNotes': '[# ONLINE APPLICATION #]',
-        'phoneNumber': appObj.mobile,
+        'phoneNumber_1': appObj.mobile,
         'clientType1': clientTypesEnum.BORROWER.value,
         'street': appObj.streetAddress,
         'salesChannel': channelTypesEnum.DIRECT_ACQUISITION.value,
         'adviser': 'Online Application',
-        'meetingDate': appObj.signingDate
+        'meetingDate': appObj.signingDate,
+        'email_1': appObj.email
     }
 
     for field in caseMapFields:
         casePayload[field] = getattr(appObj, field)
 
-    caseObj = Case.objects.create(**casePayload)
+    for field,value in casePayload.items(): 
+        setattr(caseObj, field, value)
 
     # Copy Loan Summary Reference
     caseObj.summaryDocument = appObj.summaryDocument.name
@@ -1867,8 +1868,10 @@ def createCase(appUID):
 
     for field in applicationMapFields:
         applicationPayload[field] = getattr(appObj, field)
-
-    appObj = LoanApplication.objects.create(**applicationPayload)
+    if LoanApplication.objects.filter(loan=loanObj).exists():
+        LoanApplication.objects.filter(loan=loanObj).update(**applicationPayload)
+    else:
+        appObj = LoanApplication.objects.create(**applicationPayload)
 
     # CREATE CASE SETTINGS
 
