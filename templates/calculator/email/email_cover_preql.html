@@ -19,6 +19,7 @@
     <br>
     {% if user %}
         <p>{{ user.first_name }} {{ user.last_name }}</p>
+        <p>Head Of Customer Operations</p> 
         <p><a href="tel:{{ user.profile.mobile}}">{{ user.profile.mobile}}</a></p>
         <p>{{ user.email }}</p>
         <br>
