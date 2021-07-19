@@ -22,6 +22,7 @@
     <!--[if !mso]><!-->
     <link href="https://fonts.googleapis.com/css?family=Playfair+Display:400,400i,700,700i,900,900i" rel="stylesheet"/>
     <!--<![endif]-->
+    <link href="https://fonts.googleapis.com/css2?family=Karla&display=swap" rel="stylesheet" media="screen">
     <title>Email Template</title>
     <!--[if gte mso 9]>
 	<style type="text/css" media="all">
@@ -31,6 +32,7 @@
 
 
     <style type="text/css" media="screen">
+    
         /* Linked Styles */
         body {
             padding: 0 !important;
@@ -50,6 +52,7 @@
             padding: 0 !important;
             margin: 0 !important
         }
+
 
         img {
             -ms-interpolation-mode: bicubic; /* Allow smoother rendering of resized image in Internet Explorer */
@@ -149,16 +152,88 @@
                 width: 15px !important;
             }
         }
+        @media screen {
+      .all-font-karla {
+        font-family: "Karla", sans-serif !important;
+      }
+    }
     </style>
+    
 </head>
 <body class="body"
       style="padding:0 !important; margin:0 !important; display:block !important; min-width:100% !important; width:100% !important; -webkit-text-size-adjust:none;">
 
+
+<layout label="Footer /w logo">
+    <table style="width: 100%;" cellpadding="0" cellspacing="0" role="presentation" class="all-font-karla">
+    <tr>
+        <td align="center" class="sm-p-0 sm-px-15" style="padding: 0;">
+        <table class="sm-w-full" style="width: 600px; font-size: 0; line-height: 0;" cellpadding="0"
+            cellspacing="0" role="presentation">
+            <tr>
+            <td style="width: 100%;">
+                <table style="width: 100%;" cellpadding="0" cellspacing="0" role="presentation">
+                <tr>
+                    <td>
+                    <table class="sm-px-20"
+                        style="width: 100%; padding-right: 30px;"
+                        cellpadding="0" cellspacing="0" role="presentation">
+                        <tr>
+                        <td align="left" style="padding-top: 20px;">
+                            <table cellpadding="0" cellspacing="0" role="presentation">
+                            <th class="sm-w-full sm-block"
+                                style="width: 300px; text-align: left; vertical-align: top; font-size: 0; font-weight: 400; line-height: 0;"
+                                valign="top">
+                                <table style="width: 100%; padding-right: 20px; padding-top: 20px; padding-bottom: 20px;" cellpadding="0" cellspacing="0"
+                                role="presentation">
+                                <tr>
+                                    <td class="sm-text-center"
+                                    style="padding-bottom: 20px; text-align: center;">
+                                    <img editable="" src="{% static 'img/hhc/HC_Logo_Flat.png' %}" width="100%"
+                                        style="border: 0; max-width: 100%; vertical-align: middle; line-height: 100%;"
+                                        alt="">
+                                    </td>
+                                </tr>
+                                </table>
+                            </th>
+                            <th class="sm-hidden sm-w-full sm-block sm-h-20" style="width: 20px;"></th>
+                            <th class="sm-w-full sm-block"
+                                style="width: 330px; text-align: left; vertical-align: top; font-weight: 400;"
+                                valign="top">
+                                <table style="width: 100%; padding-top: 30px; padding-left: 20px; padding-bottom: 20px;" cellpadding="0" cellspacing="0"
+                                role="presentation">
+                                <tr>
+                                    <td class="sm-pb-10 sm-text-center" style="text-align: right;">
+                                    <multiline>
+                                        <a href="tel:1300622100"><p
+                                        style="margin: 0; padding: 0; font-size: 24px; font-weight: 500; text-transform: uppercase; line-height: 24px; color: #a2c7e3;">
+                                        1300 622 100
+                                        </p></a>
+                                    </multiline>
+                                    </td>
+                                </tr>
+                                </table>
+                            </th>
+                            </table>
+                        </td>
+                        </tr>
+                    </table>
+                    </td>
+                </tr>
+                </table>
+            </td>
+            </tr>
+        </table>
+        </td>
+    </tr>
+    </table>
+</layout>
+
 <!-- Hero Image -->
-<table align='center' max-width="600px" margin-border="0" cellspacing="0" cellpadding="0">
+<table align='center' max-width="600px" margin-border="0" cellspacing="0" cellpadding="0"> 
     <tr>
         <td align="center" style="font-size:0pt; line-height:0pt;">
-            <img src="{% static 'img/document/Banner.png' %}"  border="0" width="600" alt=""/></td>
+            <img src="{% static 'img/document/thankyouBanner.png' %}"  border="0" width="600" alt=""/></td>
     </tr>
 </table>
 <!-- END Hero Image -->
@@ -179,54 +254,175 @@
     </tr>
 </table>
 
-
 <!-- Footer -->
-<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<layout label="Footer /w logo">
+    <table style="width: 100%;" cellpadding="0" cellspacing="0" role="presentation" class="all-font-karla">
     <tr>
-        <td class="p30-15 bbrr" style="padding: 25px 15px; border-radius:0px 0px 26px 26px;" bgcolor="#ffffff">
-            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <td align="center" class="sm-p-0 sm-px-15" style="padding: 0;">
+        <table class="sm-w-full" style="width: 600px; font-size: 0; line-height: 0;" cellpadding="0"
+            cellspacing="0" role="presentation">
+            <tr>
+            <td style="width: 100%;">
+                <table style="width: 100%;" cellpadding="0" cellspacing="0" role="presentation">
                 <tr>
-                    <td align="center" style="padding-bottom: 15px;">
-                        <table border="0" cellspacing="0" cellpadding="0">
+                    <td>
+                    <table class="sm-px-20"
+                        style="width: 100%; background-color: #19263f; padding-left: 30px; padding-right: 30px;"
+                        cellpadding="0" cellspacing="0" role="presentation">
+                        <tr>
+                        <td align="left" style="padding-top: 20px;">
+                            <table cellpadding="0" cellspacing="0" role="presentation">
+                            <th class="sm-w-full sm-block"
+                                style="width: 300px; text-align: left; vertical-align: top; font-size: 0; font-weight: 400; line-height: 0;"
+                                valign="top">
+                                <table style="width: 100%; padding: 20px;" cellpadding="0" cellspacing="0"
+                                role="presentation">
+                                <tr>
+                                    <td class="sm-text-center"
+                                    style="padding-bottom: 20px; text-align: center;">
+                                    <img editable="" src="{% static 'img/hhc/footer-logo.jpg' %}" width="100%"
+                                        style="border: 0; max-width: 100%; vertical-align: middle; line-height: 100%;"
+                                        alt="">
+                                    </td>
+                                </tr>
+                                </table>
+                            </th>
+                            <th class="sm-hidden sm-w-full sm-block sm-h-20" style="width: 20px;"></th>
+                            <th class="sm-w-full sm-block"
+                                style="width: 330px; text-align: left; vertical-align: top; font-weight: 400;"
+                                valign="top">
+                                <table style="width: 100%; padding: 20px;" cellpadding="0" cellspacing="0"
+                                role="presentation">
+                                <tr>
+                                    <td class="sm-pb-10 sm-text-center" style="text-align: right;">
+                                    <multiline>
+                                        <p
+                                        style="margin: 0; padding: 0; font-size: 16px; font-weight: 500; text-transform: uppercase; line-height: 24px; color: #a2c7e3;">
+                                        Connect
+                                        </p>
+                                    </multiline>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="sm-justify-center sm-text-center"
+                                    style="display: block; text-align: right;">
+                                    <a href="https://www.facebook.com/HouseholdCap"
+                                        style="padding-right: 25px;"><img src="{% static 'img/hhc/facebook.png' %}"
+                                        alt="Facebook" width="17"
+                                        style="border: 0; max-width: 100%; vertical-align: middle; line-height: 100%;"></a>
+                                    <a href="https://twitter.com/HouseholdCapit1"
+                                        style="padding-right: 25px;"><img src="{% static 'img/hhc/twitter.png' %}"
+                                        alt="Twitter" width="28"
+                                        style="border: 0; max-width: 100%; vertical-align: middle; line-height: 100%;"></a>
+                                    <a href="https://www.linkedin.com/company/household-capital/"
+                                        style="padding-right: 25px;"><img src="{% static 'img/hhc/linkedin.png' %}"
+                                        alt="LinkedIn" width="28"
+                                        style="border: 0; max-width: 100%; vertical-align: middle; line-height: 100%;"></a>
+                                    <a href="https://www.youtube.com/channel/UC0i5Trr2mDYi_T47LwcX4cQ"><img
+                                        src="{% static 'img/hhc/youtube.png' %}" alt="Youtube" width="28"
+                                        style="border: 0; max-width: 100%; vertical-align: middle; line-height: 100%;"></a>
+                                    </td>
+                                </tr>
+                                </table>
+                            </th>
+                            </table>
+                            <table cellpadding="0" cellspacing="0" role="presentation">
+                            <th class="sm-w-full sm-block"
+                                style="width: 370px; text-align: left; vertical-align: top; font-size: 0; font-weight: 400; line-height: 0;"
+                                valign="top">
+                                <table style="width: 100%; padding: 10px 20px;" cellpadding="0"
+                                cellspacing="0" role="presentation">
+                                <tr>
+                                    <td class="sm-text-center"
+                                    style="padding-bottom: 10px; text-align: left; font-size: 14px; line-height: 22px; color: #ffffff;">
+                                    <multiline>
+                                        <strong>Household Capital Pty Ltd</strong><br>
+                                        PO Box 4232, Fitzroy South, <span class="sm-block">VIC 3065</span><br>
+                                        Copyright Household Capital 2021<br/>
+                                        <a style="color: #ffffff;" href="mailto:info@householdcapital.com"><strong>info@householdcapital.com</strong></a><br>
+                                        <a style="color: #ffffff;" href="https://householdcapital.com.au/"><strong>www.householdcapital.com</strong></a>
+
+                                    </multiline><br>
+                                    </td>
+                                </tr>
+                                </table>
+                            </th>
+                            <th class="sm-hidden sm-w-full sm-block sm-h-20" style="width: 20px;"></th>
+                            <th class="sm-w-full sm-block"
+                                style="width: 210px; text-align: left; vertical-align: top; font-weight: 400;"
+                                valign="top">
+                                <table style="width: 100%; padding: 10px 20px;" cellpadding="0"
+                                cellspacing="0" role="presentation">
+                                <tr>
+                                    <td class="sm-text-center"
+                                    style="padding-bottom: 10px; text-align: right; font-size: 14px; line-height: 22px; color: #ffffff;">
+                                    <singleline>
+                                        <strong><a class="sm-pb-10"
+                                            href="https://householdcapital.com.au/website-privacy-policy/"
+                                            style="color: #ffffff; text-decoration: none;">Privacy
+                                            Policy</a></strong>
+                                    </singleline><br>
+                                    <singleline><strong><a
+                                            href="https://householdcapital.com.au/privacy-credit-reporting-policy/"
+                                            style="color: #ffffff; text-decoration: none;">Credit
+                                            Reporting Policy</a></strong>
+                                    </singleline>
+                                    </td>
+                                </tr>
+                                </table>
+                            </th>
+                            </table>
+                        </td>
+                        </tr>
+                        <tr>
+                        <td>
+                            <table class="sm-px-0" style="width: 100%; padding: 0 20px;" cellpadding="0"
+                            cellspacing="0" role="presentation">
                             <tr>
-                                <td class="img" width="55"
-                                    style="font-size:0pt; line-height:0pt; text-align:left;"><a
-                                        href="https://www.facebook.com/householdcapital" target="_blank"><img
-                                        src="{% static 'img/hhc/t2_facebook.jpg' %}" width="34" height="34"
-                                        border="0" alt=""/></a></td>
-                                <td class="img" width="55"
-                                    style="font-size:0pt; line-height:0pt; text-align:left;"><a
-                                        href="https://twitter.com/HouseholdCapit1" target="_blank"><img
-                                        src="{% static 'img/hhc/t2_twitter.jpg' %}" width="34" height="34"
-                                        border="0"
-                                        alt=""/></a></td>
-                                <td class="img" width="34"
-                                    style="font-size:0pt; line-height:0pt; text-align:left;"><a
-                                        href="https://www.linkedin.com/company/household-capital/about/"
-                                        target="_blank"><img src="{% static 'img/hhc/t2_linkedin.jpg' %}"
-                                                             width="34"
-                                                             height="34" border="0" alt=""/></a></td>
+                                <td style="margin: 0; padding: 0;">
+                                <hr size="1" style="border-top-width: 1px; border-color: #e4e4e4;">
+                                </td>
                             </tr>
-                        </table>
+                            </table>
+                        </td>
+                        </tr>
+                        <tr>
+                        <td style="border-top-width: 1px; border-color: #e0dfdd;">
+                            <table class="sm-px-0"
+                            style="width: 100%; padding-left: 20px; padding-right: 20px;" cellpadding="0"
+                            cellspacing="0" role="presentation">
+                            <tr>
+                                <td class="sm-text-12 sm-leading-16"
+                                style="margin: 0; padding-top: 10px; padding-bottom: 10px; text-align: left; font-size: 12px; font-style: italic; line-height: 18px; color: #ffffff;">
+                                <multiline>Applications for credit are subject to eligibility and lending
+                                    criteria.
+                                    Fees and charges are payable and terms and
+                                    conditions apply (available upon request). Household Capital Pty Limited
+                                    is a
+                                    credit representative (512757) of
+                                    Mortgage Direct Pty Limited ACN 075 721 434, Australian Credit Licence
+                                    391876.
+                                    HOUSEHOLD CAPITAL™. the
+                                    Star Device and Household Capital and the Star Device are trademarks of
+                                    Household
+                                    Capital Pty Ltd.
+                                </multiline>
+                                </td>
+                            </tr>
+                            </table>
+                        </td>
+                        </tr>
+                    </table>
                     </td>
                 </tr>
-                <tr>
-                    <td class="text-footer1 pb10"
-                        style="color:#19263f; font-family:'Muli', Arial,sans-serif; font-size:14px; line-height:20px; text-decoration: none; text-align:center; padding-bottom:10px;">
-                        Household Capital - Live Well At Home
-                    </td>
-                </tr>
-                <tr>
-                    <td class="text-footer2"
-                        style="color:#19263f; font-family:'Muli', Arial,sans-serif; font-size:12px; line-height:26px; text-decoration: none;text-align:center;">
-                        info@householdcapital.com<br>www.householdcapital.com<br>1 Nicholson Street, Melbourne
-                        3002
-                    </td>
-                </tr>
-            </table>
+                </table>
+            </td>
+            </tr>
+        </table>
         </td>
     </tr>
-</table>
+    </table>
+</layout>
 <!-- END Footer -->
 </body>
 </html>

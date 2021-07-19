@@ -20,15 +20,16 @@
 <br>
 <p>I have also attached a brochure containing more general information about our Household Loan – how it works, important consumer protections and a number of frequently asked questions.</p>
 <br>
-<p>If you’d like any further information or have any questions, please call me on 1300 622 100. I can also help you to book a meeting with one of our retirement specialists for a more personalised discussion about your retirement funding needs.</p>
+<p>If you’d like any further information or have any questions, please call me on <a href="tel:1300622100">1300 622 100</a>. I can also help you to book a meeting with one of our retirement specialists for a more personalised discussion about your retirement funding needs.</p>
 <p>Kind regards</p>
 <br>
 <p>{{ user.first_name }}</p>
 {% if user.profile.calendlyUrl %}
-    <p>{{ user.profile.mobile}}</p>
+    <p><a href="tel:{{ user.profile.mobile}}">{{ user.profile.mobile}}</a></p>
     <p>{{ user.email }}</p>
 {% endif %}
 <br>
 <img src="{{ user.profile.picture.url }}" width="100px">
-
+<br/>
+<br/>
 {% endblock %}
