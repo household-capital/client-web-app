@@ -116,6 +116,7 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
         (directTypesEnum.BROKER.value, 'Broker'),
         (directTypesEnum.ADVISER.value, 'Adviser'),
         (directTypesEnum.WEB_PREQUAL.value, 'Pre Qualification'),
+        (directTypesEnum.SEARCH.value, 'Search'),
         (directTypesEnum.OTHER.value,'Other'),
     )
 
@@ -129,6 +130,7 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
         (directTypesEnum.BROKER.value, '<i class="fas fa-user-tie"></i> Broker'),
         (directTypesEnum.ADVISER.value, '<i class="fas fa-comments"></i> Adviser'),
         (directTypesEnum.WEB_PREQUAL.value, '<i class="fas fa-user-check"></i> Pre Qualification'),
+        (directTypesEnum.SEARCH.value, '<i class="fas fa-search"></i> Search'),
         (directTypesEnum.OTHER.value,'<i class="fas fa-question"></i> Other'),
     )
 
@@ -165,6 +167,7 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
         (marketingTypesEnum.FACEBOOK_INTERACTIVE.value, "Facebook Interactive"),
         (marketingTypesEnum.FACEBOOK_CALCULATOR.value, "Facebook Calculator"),
         (marketingTypesEnum.LINKEDIN.value, "LinkedIn"),
+        (marketingTypesEnum.GOOGLE_MOBILE.value, "Google Ads Mobile"),
         (marketingTypesEnum.YOUR_LIFE_CHOICES.value, "Your Life Choices"),
         (marketingTypesEnum.NATIONAL_SENIORS.value, "National Seniors"),
         (marketingTypesEnum.STARTS_AT_60.value, "Starts at 60"),

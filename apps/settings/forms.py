@@ -34,6 +34,7 @@ class GlobalSettingsForm(forms.ModelForm):
             'autoassignees_FACEBOOK',
             'autoassignees_FACEBOOK_INTERACTIVE',
             'autoassignees_FACEBOOK_CALCULATOR',
+            'autoassignees_GOOGLE_MOBILE',
             'autoassignees_LINKEDIN',
             'autocampaigns_STARTS_AT_60',
             'autocampaigns_CARE_ABOUT',
@@ -83,6 +84,10 @@ class GlobalSettingsForm(forms.ModelForm):
                         Div(
                             Div(HTML("Starts at 60:"), css_class='form-label pb-1'),
                             Div(Field('autoassignees_STARTS_AT_60'), css_class='pb-3')
+                        ),
+                        Div(
+                            Div(HTML("Google ads mobile:"), css_class='form-label pb-1'),
+                            Div(Field('autoassignees_GOOGLE_MOBILE'), css_class='pb-3')
                         ),
                         Div(
                             Div(HTML("Care About:"), css_class='form-label pb-1'),

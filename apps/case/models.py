@@ -122,6 +122,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
         (directTypesEnum.BROKER.value, 'Broker'),
         (directTypesEnum.ADVISER.value, 'Adviser'),
         (directTypesEnum.WEB_PREQUAL.value, 'Pre Qualification'),
+        (directTypesEnum.SEARCH.value, 'Search'),
         (directTypesEnum.OTHER.value,'Other'),
     )
 
@@ -202,6 +203,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
         (marketingTypesEnum.FACEBOOK_INTERACTIVE.value, "Facebook Interactive"),
         (marketingTypesEnum.FACEBOOK_CALCULATOR.value, "Facebook Calculator"),
         (marketingTypesEnum.LINKEDIN.value, "LinkedIn"),
+        (marketingTypesEnum.GOOGLE_MOBILE.value, "Google Ads Mobile"),
         (marketingTypesEnum.YOUR_LIFE_CHOICES.value, "Your Life Choices"),
         (marketingTypesEnum.NATIONAL_SENIORS.value, "National Seniors"),
         (marketingTypesEnum.STARTS_AT_60.value, "Starts at 60"),

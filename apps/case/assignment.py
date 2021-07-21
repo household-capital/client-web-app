@@ -140,6 +140,10 @@ _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP = {
         'settings_assignee_field': 'autoassignees_LINKEDIN',
         'choice_filter': _filter_social_assignees,
     },
+    marketingTypesEnum.GOOGLE_MOBILE.value: {
+        'settings_assignee_field': 'autoassignees_GOOGLE_MOBILE',
+        'choice_filter': _filter_social_assignees,
+    },
 }
 
 def find_auto_assignee(referrer=None, marketing_source=None, email=None, phoneNumber=None, global_settings=None):

@@ -141,6 +141,7 @@ class directTypesEnum(Enum):
     SOCIAL = 6
     ADVISER = 7
     WEB_PREQUAL = 8
+    SEARCH = 9
     OTHER=100
 
 
@@ -167,6 +168,7 @@ class marketingTypesEnum(Enum):
     NATIONAL_SENIORS = 19
     FACEBOOK_INTERACTIVE = 20
     FACEBOOK_CALCULATOR = 21
+    GOOGLE_MOBILE = 22 
     OTHER = 100
 
 
@@ -461,7 +463,9 @@ marketingReferrerDict = {
     "FINANCIAL_ADVISER": "ADVISOR", 
     "AGED_CARE_ADVISER": "ADVISOR", 
     "NATIONAL_SENIORS": "PARTNER", 
-    "OTHER": "OTHER" 
+    "OTHER": "OTHER" ,
+
+    "GOOGLE_MOBILE":"SEARCH"
 }
 
 RESET_DO_NOT_MARKET = [
