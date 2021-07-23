@@ -518,6 +518,7 @@ class apiSalesforce():
 
         borrowerCount=0
         poaCount=0
+        boCount = 0 
         for  index, row in results['data'].iterrows():
             if row['Role'] is None:
                 return {'status': "Error", 'responseText' : "No Role set" }
@@ -530,6 +531,11 @@ class apiSalesforce():
                 poaCount +=1
                 loanDict["POA" + str(poaCount) + ".Role"] = row['Role']
                 loanDict.update(self.qryToDict('Contacts', row['ContactId'], "POA" + str(poaCount))['data'])
+            if "Beneficial Owner" in row['Role']: 
+                boCount += 1
+                loanDict["BO" + str(boCount) + ".Role"] = row['Role']
+                loanDict.update(self.qryToDict('Contacts', row['ContactId'], "BO" + str(boCount))['data'])
+
 
         loanDict['Brwr.Number'] = borrowerCount
         loanDict['POA.Number'] = poaCount
