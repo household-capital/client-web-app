@@ -27,7 +27,7 @@ class apiSalesforce():
                       'Opportunities':
                           "Select Id,Name,StageName,CloseDate from Opportunity where RecordType.Name != \'Distribution\' and StageName=\'Loan Approved\' and isDeleted=False",
                       'Opportunity':
-                          "Select Id,Name,StageName,CloseDate, OwnerId, Establishment_Fee_Percent__c from Opportunity where Id=\'{0}\'",
+                          "Select Id,Name,StageName,CloseDate, OwnerId, Establishment_Fee_Percent__c, FeeType__r.Name from Opportunity where Id=\'{0}\'",
                       'OpportunityPropertyLink':
                           "Select Property__c from OpportunityPropertyLink__c where Opportunity__c=\'{0}\'",
                       'Properties':
