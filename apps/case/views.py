@@ -17,9 +17,11 @@ from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import ListView, UpdateView, CreateView, TemplateView, View, FormView
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.core.files.temp import NamedTemporaryFile
 
 # Third-party Imports
 from config.celery import app
+from lxml import etree as ElementTree
 
 # Local Application Imports
 from apps.calculator.models import WebCalculator
@@ -34,7 +36,7 @@ from apps.lib.site_Enums import caseStagesEnum, EDITABLE_STAGES, PRE_MEETING_STA
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
 from apps.lib.site_Logging import write_applog
 from apps.lib.lixi.lixi_CloudBridge import CloudBridge
-from apps.lib.site_Utilities import cleanPhoneNumber, validate_loan 
+from apps.lib.site_Utilities import cleanPhoneNumber, validate_loan, generate_lixi 
 from apps.lib.site_EmailUtils import sendTemplateEmail
 from apps.lib.site_ViewUtils import updateNavQueue
 from apps.lib.site_LoanUtils import validateLoanGetContext, getProjectionResults, getCaseProjections, validateLead
@@ -886,57 +888,71 @@ class CloudbridgeView(HouseholdLoginRequiredMixin, TemplateView):
         if self.request.GET.get('action') == 'generate':
 
             # Generate and Save File Only
-            CB = CloudBridge(caseObj.sfOpportunityID, False, True, True)
-            result = CB.openAPIs()
-
-            logStr = result['responseText']
+            sfAPI = apiSalesforce()
+            result = sfAPI.openAPI(True)
+            
             if result['status'] == "Error":
+                logStr = result['responseText']
                 messages.error(self.request, logStr)
                 return context
+            
+            sf_data = sfAPI.getOpportunityExtract(caseObj.sfOpportunityID)
+            sf_data = {"Opp.Id": "0062P000002srt7QAA", "Opp.Name": "Potter, 30/2A Campbell Parade, Manly Vale, NSW,2093", "Opp.StageName": "Post-Settlement Review", "Opp.CloseDate": "2021-06-30", "Opp.OwnerId": "0052P000000bjYcQAI", "Opp.Establishment_Fee_Percent__c": 1.5, "Opp.FeeType__r": {"attributes": {"type": "Product_Type__c", "url": "/services/data/v48.0/sobjects/Product_Type__c/a2m2P0000007VbGQAU"}, "Name": "HHC.RM.2021"}, "Prop.Id": "a012P000001onEzQAI", "Prop.Name": "Properties-01716", "Prop.Street_Address__c": "Unit 30, 2A Campbell Parade", "Prop.Street_Name__c": "Campbell", "Prop.Street_Number__c": "2A", "Prop.Street_Type__c": "Parade", "Prop.Unit__c": "30",  "Prop.Suburb_City__c": "Manly Vale", "Prop.State__c": "New South Wales", "Prop.Postcode__c": "2093", "Prop.Country__c": "Australia", "Prop.Property_Type__c": "House", "Prop.Last_Valuation_Date__c": "2021-06-29", "Prop.Home_Value_AVM__c": 1540000.0, "Prop.Home_Value_FullVal__c": 1540000.0, "Prop.Valuer__c": "Opteon Solutions", "Prop.Valuer_Name__c": "Karen Dempsey", "Prop.Insurer__c": "Other", "Prop.Policy_Number__c": "QUS Strata Insurance", "Prop.Minimum_Insurance_Value__c": 24610000.0, "Prop.Insurance_Expiry_Date__c": "2022-04-30", "Loan.Loan_Number__c": "Opp-001741", "Loan.Name": "Potter, 30/2A Campbell Parade, Manly Vale, NSW,2093", "Loan.Interest_Type__c": "Variable", "Loan.Establishment_Fee__c": 950.0, "Loan.Planned_Establishment_Fee__c": 950.0, "Loan.Interest_Rate__c": 4.95, "Loan.Loan_Settlement_Date__c": "2021-07-20", "Loan.Protected_Equity_Percent__c": "0", "Loan.Distribution_Partner_Contact__c": None, "Loan.Total_Household_Loan_Amount__c": 150950.0, "Loan.Total_Plan_Amount__c": 150950.0, "User.Id": "0052P000000bjYcQAI", "User.Username": "kate.crosby@householdcapital.com", "User.FirstName": "Kate", "User.LastName": "Crosby", "Purp.NoPurposes": 2, "Purp1.Name": "Purpose-25373", "Purp1.Category__c": "Refinance", "Purp1.Description__c": "Assist with the purchase of home", "Purp1.Intention__c": "Mortgage", "Purp1.Amount__c": 50000.0, "Purp2.Name": "Purpose-25374", "Purp2.Category__c": "Top Up", "Purp2.Description__c": "Contingency", "Purp2.Intention__c": "Contingency", "Purp2.Amount__c": 100000.0, "BO1.Role": "Beneficial Owner", "BO1.Id": "0032P00000C66bmQAB", "BO1.FirstName": None, "BO1.MiddleName": None, "BO1.LastName": "HHC Services P/L", "BO1.Phone": None, "BO1.MobilePhone": None, "BO1.Email": None, "BO1.Birthdate__c": None, "BO1.Age__c": None, "BO1.Gender__c": None, "BO1.Permanent_Resident__c": None, "BO1.Salutation": None, "BO1.Marital_Status__c": None, "BO1.Country_of_Citizenship__c": None, "Brwr1.Role": "Borrower", "Brwr1.Id": "0032P00000CYBPOQA5", "Brwr1.FirstName": "Robert", "Brwr1.MiddleName": "Gavan", "Brwr1.LastName": "Potter", "Brwr1.Phone": None, "Brwr1.MobilePhone": "0417455689", "Brwr1.Email": "rgpotter1937@gmail.com", "Brwr1.Birthdate__c": "1937-11-17", "Brwr1.Age__c": 83.0, "Brwr1.Gender__c": "Male", "Brwr1.Permanent_Resident__c": None, "Brwr1.Salutation": "Mr.", "Brwr1.Marital_Status__c": "Married", "Brwr1.Country_of_Citizenship__c": None, "Brwr2.Role": "Principal Borrower", "Brwr2.Id": "0032P00000CYBTRQA5", "Brwr2.FirstName": "Gail", "Brwr2.MiddleName": "Elspeth", "Brwr2.LastName": "Potter", "Brwr2.Phone": None, "Brwr2.MobilePhone": "0478693692", "Brwr2.Email": "rgpotter1937@gmail.com", "Brwr2.Birthdate__c": "1942-02-13", "Brwr2.Age__c": 79.0, "Brwr2.Gender__c": "Female", "Brwr2.Permanent_Resident__c": None, "Brwr2.Salutation": "Mrs.", "Brwr2.Marital_Status__c": "Married", "Brwr2.Country_of_Citizenship__c": None, "Brwr.Number": 2, "POA.Number": 0, "LoanObject.SFID": "a0i8q0000003rO1AAI", "LoanObject.LoanNumber": "Loan-001101"}
+            lixi_response = generate_lixi(sf_data, 'ACC')
+            if lixi_response['XMLContent'] is None: 
+                messages.error(self.request, lixi_response['ErrorTitle'])
+                context['log'] = lixi_response['OutputLog']
+                return context 
 
-            # Cursory data check
-            result = CB.checkSFData()
-            if result['status'] != "Ok":
-                messages.error(self.request, 'SF Data Error: ' + result['responseText'])
-                return context
+            localfile = NamedTemporaryFile(delete=False)
 
-            result = CB.createLixi()
-            if result['status'] != "Ok":
-                messages.error(self.request, 'Creation Error')
-                context['log'] = result['log']
-                return context
+            filepath = CloudBridge.LIXI_SETTINGS['FILEPATH']
+            localfile.flush()
+            target_file_name = '{}{}.xml'.format(
+                filepath,
+                caseObj.sfOpportunityID
+            )
+            prettyTree = ElementTree.ElementTree(ElementTree.fromstring(lixi_response['XMLContent']))
 
-            caseObj.lixiFile = result['data']['filename']
+            # Write to targetfile
+            prettyTree.write(localfile, encoding='utf-8', xml_declaration=False)
+            try:
+                default_storage.delete(target_file_name)
+            except FileNotFoundError:
+                pass
+            default_storage.save(target_file_name, localfile)
+            localfile.close()
+            
+            caseObj.lixiFile = target_file_name #result['data']['filename']
             caseObj.save(update_fields=["lixiFile"])
             context['isLixiFile'] = True
 
             messages.success(self.request, "Successfully generated and validated")
-            context['log'] = result['log']
+            context['log'] = lixi_response['OutputLog']
+        # if self.request.GET.get('action') == 'development':
 
-        if self.request.GET.get('action') == 'development':
+        #     # Send Generated File to AMAL Development
 
-            # Send Generated File to AMAL Development
+        #     if not caseObj.lixiFile:
+        #         messages.error(self.request, 'No Lixi file saved for this opportunity')
+        #         return context
 
-            if not caseObj.lixiFile:
-                messages.error(self.request, 'No Lixi file saved for this opportunity')
-                return context
+        #     CB = CloudBridge(caseObj.sfOpportunityID, True, True, False)
+        #     result = CB.openAPIs()
 
-            CB = CloudBridge(caseObj.sfOpportunityID, True, True, False)
-            result = CB.openAPIs()
+        #     logStr = result['responseText']
+        #     if result['status'] == "Error":
+        #         messages.error(self.request, logStr)
+        #         return context
 
-            logStr = result['responseText']
-            if result['status'] == "Error":
-                messages.error(self.request, logStr)
-                return context
+        #     result = CB.submitLixiFiles(caseObj.lixiFile.name)
+        #     if result['status'] != "Ok":
+        #         messages.error(self.request, 'Could not send file to Development - refer log')
+        #         context['log'] = result['log']
+        #         return context
 
-            result = CB.submitLixiFiles(caseObj.lixiFile.name)
-            if result['status'] != "Ok":
-                messages.error(self.request, 'Could not send file to Development - refer log')
-                context['log'] = result['log']
-                return context
-
-            context['log'] = result['log']
-            messages.success(self.request, "Successfully sent to AMAL Development")
+        #     context['log'] = result['log']
+        #     messages.success(self.request, "Successfully sent to AMAL Development")
 
         if self.request.GET.get('action') == 'production':
 

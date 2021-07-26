@@ -216,6 +216,57 @@ def loan_api_response(endpoint, payload, params={}, headers={}, return_raw_res_o
         raise Exception(res.content)
     return res.json()
 
+def loan_lixi_response(endpoint, payload, params={}, headers={}, return_raw_res_obj=False): 
+    payload = serialise_payload(payload)
+    
+    res = requests.post(
+        urljoin(
+            os.environ.get('HHC_LIXI_ENDPOINT'),
+            endpoint
+        ),
+        headers={
+            'x-api-key': os.environ.get('HHC_LIXI_KEY'),
+            **headers
+
+        },
+        json=payload,
+        params=params
+    )
+    if return_raw_res_obj:
+        return res
+    if res.status_code != 200: 
+        raise Exception(res.content)
+    return res.json()
+
+def generate_lixi(source_dict, schema_type='ACC'):
+    response = loan_lixi_response(
+        "/api/lixi/v1/generate/{}".format(schema_type),
+        source_dict,
+        return_raw_res_obj=True
+    )
+    returning_dict = {
+        'XMLContent': None,
+        'OutputLog': "",
+        "ErrorTitle": "" 
+    }
+    status_code = response.status_code
+    res_json = response.json()
+    if status_code == 200: 
+        returning_dict['XMLContent'] = res_json['responseText']
+        returning_dict['OutputLog'] = res_json['responseLog']
+    else: 
+        if res_json.get('message') is None: 
+            # raised 500 [handled]
+            returning_dict['ErrorTitle'] = res_json['title']
+            returning_dict['OutputLog'] = res_json['description']
+        else:
+            returning_dict['ErrorTitle'] = 'API Internal Server Error'
+            returning_dict['OutputLog'] = res_json['message']
+            # generic 500 [unhandled]
+
+    return returning_dict
+
+
 def validate_loan(source_dict, product_type="HHC.RM.2021"):
     source_dict['use_refer'] = 1
     response = loan_api_response(
