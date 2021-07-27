@@ -4,6 +4,8 @@ import backports.datetime_fromisoformat
 backports.datetime_fromisoformat.MonkeyPatch.patch_fromisoformat()
 import pytz
 
+from collections import OrderedDict
+
 # Django Imports
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
@@ -185,7 +187,7 @@ def serialise_payload(payload):
             serialise_payload(val)
             for val in payload
         ])
-    if payload_type in [dict]:
+    if payload_type in [dict, OrderedDict]:
         return {
             x: serialise_payload(y)
             for x,y in payload.items()
