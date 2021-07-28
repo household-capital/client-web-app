@@ -64,9 +64,9 @@ class ContextHelper():
         context['dwellingTypesEnum'] = dwellingTypesEnum
         context['pensionTypesEnum'] = pensionTypesEnum
         context['loanTypesEnum'] = loanTypesEnum
-
-        context["transfer_img"] = staticfiles_storage.url("img/icons/transfer_" + str(
-            context['maxLVRPercentile']) + "_icon.png")
+        
+        lvr_percentile = min(context['maxLVRPercentile'], 50)
+        context["transfer_img"] = staticfiles_storage.url("img/icons/transfer_" + str(lvr_percentile) + "_icon.png")
 
         return context
 
