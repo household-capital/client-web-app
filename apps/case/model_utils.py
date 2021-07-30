@@ -8,7 +8,8 @@ from apps.case.models import Case
 from apps.lib.site_Enums import (
     directTypesEnum, 
     channelTypesEnum,
-    caseStagesEnum
+    caseStagesEnum,
+    marketingTypesEnum
 )
 from django_comments.models import Comment
 from apps.case.note_utils import add_case_note
@@ -129,7 +130,8 @@ def _build_case_data_update(enquiry, case=None):
         field_val = getattr(enquiry, enq_field)
         if field_val is not None and field_val != '':
             caseDict[case_field] = field_val
-    caseDict['lead_needs_action'] = True
+    if enquiry.marketingSource != marketingTypesEnum.STARTS_AT_60.value:
+        caseDict['lead_needs_action'] = True
     if is_create: 
         caseDict['referrer'] = enquiry.referrer
     return caseDict
