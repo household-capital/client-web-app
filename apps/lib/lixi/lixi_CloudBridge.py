@@ -254,11 +254,11 @@ class CloudBridge():
 
         identifier=""
         AMAL_LoanId=""
-        self.__logging('Step 5 - Checking file with AMAL Schema Validator')
-        isValid=self.mlAPI.checkLixiFile(filename)
-        if isValid['status']!="Ok":
-            self.__logging(isValid['responseText'])
-            return {'status': 'Error'}
+        # self.__logging('Step 5 - Checking file with AMAL Schema Validator')
+        # isValid=self.mlAPI.checkLixiFile(filename)
+        # if isValid['status']!="Ok":
+        #     self.__logging(isValid['responseText'])
+        #     return {'status': 'Error'}
 
         if sendFiles:
             self.__logging('Step 6 - Sending Lixi file to AMAL')
