@@ -8,6 +8,7 @@ from django.core.files.storage import default_storage
 from django.conf import settings
 from django.utils import timezone
 from django.db.models import F, Max, Q
+from django.urls import reverse
 
 from datetime import timedelta
 
@@ -203,8 +204,29 @@ def catchallSFLeadTask():
         return "Error - could not open Salesforce"
 
     qs = Case.objects.filter(sfLeadID__isnull=True, deleted_on__isnull=True, lossdata__closeDate__isnull=True)
+    failed = []
     for case in qs:
-        createSFLeadCase(str(case.caseUID), sfAPI)
+        try:
+            createSFLeadCase(str(case.caseUID), sfAPI)
+        except:
+            failed.append(case)
+    if failed: 
+        message = "The following lead(s) failed to sync to salesforce \r\n{}".format(
+            '\n'.join(
+                [
+                    urljoin(
+                        settings.SITE_URL, 
+                        reverse('case:caseDetail', kwargs={'uid': str(c.caseUID)})
+                    )
+                    for c in failed
+                ]
+            )
+        )
+        raiseTaskAdminError(
+            'Failed to Sync all unsync Leads in Client App',
+            message
+        )
+        
     write_applog("INFO", 'Case', 'Tasks-catchallSFLead', "Completed")
     return "Finished - Unsuccessfully"
 
