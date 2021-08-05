@@ -426,7 +426,7 @@ class DataIngestion(APIView):
         if in_pre_meet:
             lead.caseStage = caseStagesEnum.SQ_PRE_QUAL.value
 
-        lead.save(should_sync=True)
+        lead.save()
 
         proposed_owner = find_auto_assignee(
             referrer=directTypesEnum.WEB_PREQUAL.value, 
