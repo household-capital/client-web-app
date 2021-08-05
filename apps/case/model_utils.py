@@ -130,7 +130,10 @@ def _build_case_data_update(enquiry, case=None):
         field_val = getattr(enquiry, enq_field)
         if field_val is not None and field_val != '':
             caseDict[case_field] = field_val
-    if enquiry.marketingSource != marketingTypesEnum.STARTS_AT_60.value:
+    if enquiry.marketingSource not in [
+        marketingTypesEnum.STARTS_AT_60.value,
+        marketingTypesEnum.NATIONAL_SENIORS.value
+    ]:
         caseDict['lead_needs_action'] = True
     if is_create: 
         caseDict['referrer'] = enquiry.referrer
