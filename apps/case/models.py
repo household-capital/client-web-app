@@ -212,6 +212,12 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
         (marketingTypesEnum.BROKER_SPECIALIST.value, "Broker Specialist"),
         (marketingTypesEnum.FINANCIAL_ADVISER.value, "Financial Adviser"),
         (marketingTypesEnum.AGED_CARE_ADVISER.value, "Age Care Adviser"),
+
+
+        (marketingTypesEnum.CARE_ABOUT_CALC_LP.value, "Care About - Calculator LP"),
+        (marketingTypesEnum.STARTS_AT_60_CALC_LP.value, "Starts at 60 - Calculator LP"),
+        (marketingTypesEnum.YOUR_LIFE_CHOICES_CALC_LP.value, "Your Life Choices - Calculator LP"),
+
         (marketingTypesEnum.OTHER.value, "Other"),
     )
 

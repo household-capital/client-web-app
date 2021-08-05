@@ -1,4 +1,4 @@
-import datetime, logging, json, traceback
+import datetime, logging, json, traceback, re
 from django.contrib.auth.models import User
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import timezone
@@ -261,6 +261,7 @@ class DataIngestion(APIView):
                 prop_type = dwellingTypesEnum.HOUSE.value
             else: 
                 prop_type = dwellingTypesEnum.APARTMENT.value
+            
             srcDict = {
                 'phoneNumber': cleanPhoneNumber(json_payload['phone']),
                 'origin_timestamp': timezone.localtime(),
