@@ -433,11 +433,11 @@ class DataIngestion(APIView):
             email=enquiry.email, 
             phoneNumber=enquiry.phoneNumber
         )
-        if lead.owner is None: 
-            if proposed_owner is None:
-                auto_assign_leads([lead], notify=False)
-            else:
-                assign_lead(lead, proposed_owner, notify=False)
+        
+        if proposed_owner is None:
+            auto_assign_leads([lead], notify=False)
+        else:
+            assign_lead(lead, proposed_owner, notify=False)
         
         lead.refresh_from_db()
         enquiry.user = lead.owner
