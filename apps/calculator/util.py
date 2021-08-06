@@ -59,11 +59,11 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
         )
         lead_obj = enq_obj.case
 
-        if lead_obj.owner is None:
-            if proposed_owner is None:
-                auto_assign_leads([lead_obj], notify=False)
-            else:
-                assign_lead(lead_obj, proposed_owner, notify=False)
+
+        if proposed_owner is None:
+            auto_assign_leads([lead_obj], notify=False)
+        else:
+            assign_lead(lead_obj, proposed_owner, notify=False)
         
         enq_obj.refresh_from_db()
         return enq_obj

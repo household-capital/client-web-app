@@ -79,7 +79,7 @@ def assign_lead(lead, user, notify=True):
 def _filter_calc_assignees(assignees):
     return [
         assignee for assignee in assignees
-        if assignee.profile.isCreditRep and assignee.profile.calendlyUrl
+        if assignee.profile.isCreditRep and assignee.profile.calendlyUrl and assignee.profile.picture.name
     ]
 
 
