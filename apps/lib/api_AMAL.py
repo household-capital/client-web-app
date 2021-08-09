@@ -19,7 +19,8 @@ class apiAMAL():
     api_url_bpay = '/api/loans/{0}/bpay'
     api_url_transactions = '/api/loans/{0}/transactions'
     api_url_schema = '/api/lixivalidateschema'
-    api_url_documents='/api/lixiapplications/{0}/documents'
+    api_url_documents = '/api/lixiapplications/{0}/documents'
+    api_url_attachments = '/api/lixiapplications/{0}/attachments' # loanID
     api_url_nuke='/api/loanapplicationmaintenance/cleanup'
 
     headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
@@ -36,7 +37,6 @@ class apiAMAL():
             ENV_STR = '_DEV'
 
         self.api_path = os.getenv("AMAL_PATH" + ENV_STR)
-
         jsondata = {'UserNumber': os.getenv("AMAL_USERNUMBER" + ENV_STR+"_CAL"),
                     'Password': os.getenv("AMAL_PASSWORD" + ENV_STR)}
         response = requests.post(self.api_path + self.api_url_session, headers=self.headers, json=jsondata)
@@ -95,14 +95,14 @@ class apiAMAL():
 
         return {'status':"Ok"}
 
-    def sendDocuments(self, objFileIo, filename, identifier):
+    def sendDocuments(self, objFileIo, filename, identifier, amalLoanID):
 
         #Sends documents associated with the loan - using the identifier returned by the lixi submission
         fileDescription=filename[:len(filename)-4]
 
         headers=dict(Accept='application/json',ContentType="multipart/form-data", AccessToken=self.token, FileDescription=fileDescription)
         files={'file':(filename,objFileIo,"application/pdf")}
-        specific_url=self.api_path+self.api_url_documents.format(identifier)
+        specific_url=self.api_path+self.api_url_attachments.format(amalLoanID)
 
         response = requests.post(specific_url, files=files, headers=headers)
 

@@ -349,7 +349,7 @@ def amalDocs(caseUID):
     if not caseObj.amalIdentifier:
         return "Error - " + caseObj.caseDescription + "- no AMAL application ID"
 
-    result = CB.sendDocumentsToAMAL(caseObj.amalIdentifier)
+    result = CB.sendDocumentsToAMAL(caseObj.amalIdentifier, caseObj.amalLoanID)
     if result['status'] == "Error":
         return "Error - " + caseObj.caseDescription + "- " + result['responseText']
     else:
@@ -532,6 +532,7 @@ def emailLoanSummary(caseUID, template_name):
     email_context['is_second_occupant'] = is_second_occupant
 
     email_name_address = ''
+
 
     if caseObj.surname_1:
         email_name_address = caseObj.firstname_1

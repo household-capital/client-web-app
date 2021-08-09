@@ -294,7 +294,7 @@ class CloudBridge():
                 return {"status": "Error"}
 
 
-    def sendDocumentsToAMAL(self, applicationID):
+    def sendDocumentsToAMAL(self, applicationID, amalLoanID):
 
         docList=self.sfAPI.getDocumentList(self.opportunityId)['data']
 
@@ -304,7 +304,7 @@ class CloudBridge():
 
                 for attempt in range(2):
                     #Try sending three times
-                   result = self.__sendDocument(row, applicationID)
+                   result = self.__sendDocument(row, applicationID, amalLoanID)
                    if result['status'] == "Ok":
                        break
 
@@ -314,14 +314,14 @@ class CloudBridge():
         return {'status': "Ok"}
 
     
-    def __sendDocument(self, row, applicationID ):
+    def __sendDocument(self, row, applicationID, amalLoanID):
         srcfileIO = self.sfAPI.getDocumentFileStream(row["Id"])
 
         if srcfileIO['status'] != "Ok":
             return {'status': "Error", 'responseText': 'Did not retrieve ' + row["Name"]}
 
         try:
-            status = self.mlAPI.sendDocuments(srcfileIO['data'], str(row["Name"]) + ".pdf", applicationID)
+            status = self.mlAPI.sendDocuments(srcfileIO['data'], str(row["Name"]) + ".pdf", applicationID, amalLoanID)
             if json.loads(status.text)['status'] != 'ok':
                 return {'status': "Error", 'responseText': 'Error sending ' + row["Name"] + " to AMAL " + status.text}
 
