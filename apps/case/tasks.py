@@ -525,9 +525,27 @@ def emailLoanSummary(caseUID, template_name):
 
     email_context = {}
     caseObj = Case.objects.queryset_byUID(caseUID).get()
+    
+    is_second_occupant = caseObj.surname_2 and len(caseObj.surname_2) > 0 and caseObj.enumClientType()[1] in ["Borrower" , "Power of Attorney"]
 
     email_context['obj'] = caseObj
-    email_context['is_second_occupant'] = caseObj.surname_2 and len(caseObj.surname_2) > 0 and caseObj.enumClientType()[1] in ["Borrower" , "Power of Attorney"]
+    email_context['is_second_occupant'] = is_second_occupant
+
+    email_name_address = ''
+
+    if caseObj.surname_1:
+        email_name_address = caseObj.firstname_1
+        if caseObj.preferredName_1:
+            email_name_address = caseObj.preferredName_1
+
+    if is_second_occupant: 
+        email_name_address += " and "
+        second_name = caseObj.firstname_2
+        if caseObj.preferredName_2:
+            second_name = caseObj.preferredName_2
+        email_name_address += second_name
+
+    email_context['email_name_address'] = email_name_address
 
     attachFilename = "HouseholdLoanSummary.pdf"
     bcc = caseObj.owner.email
