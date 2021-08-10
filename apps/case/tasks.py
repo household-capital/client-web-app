@@ -207,7 +207,9 @@ def catchallSFLeadTask():
     failed = []
     for case in qs:
         try:
-            createSFLeadCase(str(case.caseUID), sfAPI)
+            result = createSFLeadCase(str(case.caseUID), sfAPI)
+            if result['status'] != 'Ok':
+                failed.append(case)
         except:
             failed.append(case)
     if failed: 
