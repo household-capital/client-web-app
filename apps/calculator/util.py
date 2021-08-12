@@ -63,7 +63,7 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
             first_segment = segmented_origin[0]
             origin_to_marketing_source = {
                 r'https://.*pages\.careabout\.com\.au/Landing-Pages_Household-Capital-LP\.html': marketingTypesEnum.CARE_ABOUT_CALC_LP.value,
-                r'https://startsat60\.com/home-equity-calculator-example.*': marketingTypesEnum.STARTS_AT_60_CALC_LP.value,
+                r'https://startsat60\.com.*': marketingTypesEnum.STARTS_AT_60_CALC_LP.value,
                 r'https://.*yourlifechoices\.com\.au/household-capital-calculator.*': marketingTypesEnum.YOUR_LIFE_CHOICES_CALC_LP.value,
                 
             }
