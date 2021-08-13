@@ -206,12 +206,13 @@ def catchallSFLeadTask():
     qs = Case.objects.filter(sfLeadID__isnull=True, deleted_on__isnull=True, lossdata__closeDate__isnull=True)
     failed = []
     for case in qs:
-        try:
-            result = createSFLeadCase(str(case.caseUID), sfAPI)
-            if result['status'] != 'Ok':
+        if case.email_1 or case.phoneNumber_1:
+            try:
+                result = createSFLeadCase(str(case.caseUID), sfAPI)
+                if result['status'] != 'Ok':
+                    failed.append(case)
+            except:
                 failed.append(case)
-        except:
-            failed.append(case)
     if failed: 
         message = "The following lead(s) failed to sync to salesforce \r\n{}".format(
             '\n'.join(
