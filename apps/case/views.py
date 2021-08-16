@@ -276,7 +276,7 @@ class CaseDetailView(HouseholdLoginRequiredMixin, AddressLookUpFormMixin, Update
         should_validate = any(
             getattr(caseObj, x)
             for x in address_fields
-        )
+        ) and not caseObj.gnaf_id
         if should_validate: 
             result = mappify.setAddress(
                 {
