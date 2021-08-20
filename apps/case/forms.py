@@ -624,6 +624,12 @@ class drawdownPurposeForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(drawdownPurposeForm, self).__init__(*args, **kwargs)
+        self.initial['isFunded'] = (
+            self.instance.intention == purposeIntentionEnum.REGULAR_DRAWDOWN_FUNDED.value
+        )
+
     # Form Fields
     drawdownAmount = forms.CharField(required=True, localize=True, widget=widgets.TextInput())
 
@@ -634,6 +640,10 @@ class drawdownPurposeForm(forms.ModelForm):
         ),
         widget=forms.RadioSelect,
         label="")
+
+    isFunded = forms.BooleanField(
+        required=False
+    )
 
     # Form Layout
     helper = FormHelper()
@@ -671,6 +681,9 @@ class drawdownPurposeForm(forms.ModelForm):
                     Div(Field('drawdownStartDate'))),
                 Div(Div(HTML("End Date (info only)"), css_class='form-label pb-2'),
                     Div(Field('drawdownEndDate'))),
+                
+                Div(Div(HTML("Funded"), css_class='form-label pb-2'),
+                    Div(Field('isFunded'))),
 
                 css_class="col-lg-4"),
 

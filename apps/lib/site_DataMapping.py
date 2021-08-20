@@ -520,6 +520,9 @@ def serialisePurposes(loanObj, enum=False):
         'topUpPlanAmount': __getItem('TOP_UP', 'REGULAR_DRAWDOWN', 'planAmount', 0),
         'topUpBuffer': 0,
 
+        'topUpDrawdownFundedAmount':  __getItem('TOP_UP', 'REGULAR_DRAWDOWN_FUNDED', 'amount', 0),
+
+
         'careDrawdownAmount': __getItem('CARE', 'REGULAR_DRAWDOWN', 'amount', 0),
         'careRegularAmount': __getItem('CARE', 'REGULAR_DRAWDOWN', 'drawdownAmount', 0),
         'careFrequency': __getItem('CARE', 'REGULAR_DRAWDOWN', 'drawdownFrequency', 0),
@@ -527,6 +530,8 @@ def serialisePurposes(loanObj, enum=False):
         'carePlanDrawdowns': __getItem('CARE', 'REGULAR_DRAWDOWN', 'planDrawdowns', 0),
         'careContractDrawdowns': __getItem('CARE', 'REGULAR_DRAWDOWN', 'contractDrawdowns', 0),
         'carePlanAmount': __getItem('CARE', 'REGULAR_DRAWDOWN', 'planAmount', 0),
+
+        'careDrawdownFundedAmount':  __getItem('CARE', 'REGULAR_DRAWDOWN_FUNDED', 'amount', 0),
 
         'topUpDescription': __getItem('TOP_UP', 'INVESTMENT', 'description', ""),
         'topUpContingencyDescription': __getItem('TOP_UP', 'CONTINGENCY', 'description', ""),
