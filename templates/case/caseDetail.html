@@ -431,6 +431,10 @@
                                             </p>
                                         {% endif %}
 
+                                        {% if status.data.is_high_density  %}
+                                            <p class="text-info"><i class="fas fa-building"></i>&nbsp;High Density Postcode - Apartment reduction will be applied</p>
+                                        {% endif %}
+
                                         {% if status.status == 'Ok' %}
                                             <p class="small pt-4"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
                                             <p class="small">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
