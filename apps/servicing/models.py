@@ -347,7 +347,8 @@ class FacilityPurposes(models.Model):
         (purposeIntentionEnum.RENOVATIONS.value, "Renovations"),
         (purposeIntentionEnum.TRANSPORT_AND_TRAVEL.value, "Transport and Travel"),
         (purposeIntentionEnum.LUMP_SUM.value, "Lump Sum"),
-        (purposeIntentionEnum.MORTGAGE.value, "Mortgage")
+        (purposeIntentionEnum.MORTGAGE.value, "Mortgage"),
+        (purposeIntentionEnum.REGULAR_DRAWDOWN_FUNDED.value, "Regular Drawdown Funded")
     )
     facility = models.ForeignKey(Facility, on_delete=models.CASCADE)
     sfPurposeID = models.CharField(max_length=20, null=False, blank=False, unique=True)

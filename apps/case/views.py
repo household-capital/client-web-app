@@ -1084,11 +1084,11 @@ class CaseVariationDrawdown(HouseholdLoginRequiredMixin, ContextHelper, UpdateVi
         obj = self.get_object()
         context['obj'] = obj
 
+        
         return context
 
     def form_valid(self, form):
         obj = form.save()
-
         # Update Amounts
         if obj.drawdownFrequency == incomeFrequencyEnum.FORTNIGHTLY.value:
             freqMultiple = 26
@@ -1098,9 +1098,15 @@ class CaseVariationDrawdown(HouseholdLoginRequiredMixin, ContextHelper, UpdateVi
         obj.planAmount = obj.drawdownAmount * obj.planDrawdowns
         obj.amount = obj.drawdownAmount * obj.contractDrawdowns
 
+        
         # if not active plan amount = contract amount
         if not obj.active:
             obj.planAmount = obj.drawdownAmount * obj.contractDrawdowns
+
+        if form.cleaned_data.get('isFunded'):
+            obj.intention = purposeIntentionEnum.REGULAR_DRAWDOWN_FUNDED.value
+        else:
+            obj.intention = purposeIntentionEnum.REGULAR_DRAWDOWN.value
 
         obj.save()
 

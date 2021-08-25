@@ -695,7 +695,8 @@ class LoanPurposes(models.Model):
         (purposeIntentionEnum.RENOVATIONS.value, "RENOVATIONS"),
         (purposeIntentionEnum.TRANSPORT_AND_TRAVEL.value, "TRANSPORT_AND_TRAVEL"),
         (purposeIntentionEnum.LUMP_SUM.value, "LUMP_SUM"),
-        (purposeIntentionEnum.MORTGAGE.value, "MORTGAGE")
+        (purposeIntentionEnum.MORTGAGE.value, "MORTGAGE"),
+        (purposeIntentionEnum.REGULAR_DRAWDOWN_FUNDED.value, "REGULAR_DRAWDOWN_FUNDED")
     )
 
     loan = models.ForeignKey(Loan, on_delete=models.CASCADE)
@@ -749,7 +750,10 @@ class LoanPurposes(models.Model):
             return 12 if self.drawdownFrequency == incomeFrequencyEnum.MONTHLY.value else 26
 
     def get_absolute_url(self):
-        if self.intention == purposeIntentionEnum.REGULAR_DRAWDOWN.value:
+        if self.intention in [
+            purposeIntentionEnum.REGULAR_DRAWDOWN.value,
+            purposeIntentionEnum.REGULAR_DRAWDOWN_FUNDED.value
+        ]:
             return reverse_lazy("case:caseVariationDrawdown", kwargs={"purposeUID": self.purposeUID})
         else:
             return reverse_lazy("case:caseVariationLumpSum", kwargs={"purposeUID": self.purposeUID})

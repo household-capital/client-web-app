@@ -51,7 +51,7 @@
                 <br>
             </div>
 
-            {% if obj.enumIntentionPretty == 'Regular Drawdown'%}
+            {% if obj.enumIntentionPretty == 'Regular Drawdown' or obj.enumIntentionPretty == 'Regular Drawdown Funded'%}
             <div class="col-lg-6">
                 <br>
                 <p class="pb-1"><b>Amount:</b> ${{ obj.amount }}</p>

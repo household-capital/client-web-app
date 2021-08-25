@@ -359,6 +359,7 @@ class purposeIntentionEnum(Enum):
     TRANSPORT_AND_TRAVEL = 6
     LUMP_SUM = 7
     MORTGAGE  = 8
+    REGULAR_DRAWDOWN_FUNDED = 9
 
 @accessInTemplate
 class appStatusEnum(Enum):
