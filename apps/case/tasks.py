@@ -882,6 +882,9 @@ def __buildLeadCasePayload(case):
         payload['Marketing_Campaign__c'] = case.marketing_campaign.campaign_name
     
     payload['LoanRating__c'] = case.enumLoanRating()
+
+    if case.distribution_contact_email: 
+        payload['Distribution_Contact_Email__c'] = case.distribution_contact_email
     return payload
 
 

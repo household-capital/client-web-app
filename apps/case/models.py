@@ -297,6 +297,8 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
     phoneNumber_1 = models.CharField(max_length=20, null=True, blank=True)
     email_1 = models.EmailField(null=True, blank=True)
 
+    distribution_contact_email = models.EmailField(null=True, blank=True)
+
     #- Borrower 2
     clientType2 = models.IntegerField(choices=clientTypes, null=True, blank=True)
     salutation_2 = models.IntegerField(choices=salutationTypes,null=True, blank=True)
