@@ -367,8 +367,15 @@ class LoanDetailBalances(HouseholdLoginRequiredMixin, DetailView):
         context['transList'] = transQs
         context['menuBalances'] = True
         context['facilityObj'] = facilityObj
-        if facilityObj.establishmentFeeRate:
-            context['availableFunds'] = max(facilityObj.totalLoanAmount-facilityObj.advancedAmount,0)/(1+facilityObj.establishmentFeeRate)
+        if facilityObj.product_type == 'HHC.RM.2018':
+            if facilityObj.establishmentFeeRate:
+                context['availableFunds'] = max(facilityObj.totalLoanAmount-facilityObj.advancedAmount,0)/(1+facilityObj.establishmentFeeRate)
+        elif facilityObj.product_type == 'HHC.RM.2021':
+            if facilityObj.advancedAmount and facilityObj.advancedAmount > 0:
+                context['availableFunds'] = max(facilityObj.totalLoanAmount-facilityObj.advancedAmount,0)
+            else: 
+                context['availableFunds'] = max(facilityObj.totalLoanAmount - 950,0)
+
 
         return context
 
