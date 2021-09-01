@@ -448,9 +448,12 @@ def integrityCheck():
                 if errorFlag == True:
                     write_applog("INFO", 'integrityCheck', 'task', "Difference on " + obj.caseDescription)
                     email_template = 'case/email/clientAppEmails/email.html'
+                    feeRate = 'Not set -'
+                    if modelObj.establishmentFeeRate:
+                        feeRate = modelObj.establishmentFeeRate * 100
                     email_context = {"obj": obj,
                                      "loanObj": loanObj,
-                                     'establishmentFeeRate': modelObj.establishmentFeeRate * 100,
+                                     'establishmentFeeRate': feeRate,
                                      'Total_Household_Loan_Amount__c': row['Total_Household_Loan_Amount__c'],
                                      'Total_Plan_Amount__c': row['Total_Plan_Amount__c'],
                                      'Establishment_Fee_Percent__c': row['Establishment_Fee_Percent__c']
