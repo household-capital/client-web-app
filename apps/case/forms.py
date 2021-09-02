@@ -420,10 +420,6 @@ class CaseDetailsForm(AddressFormMixin, forms.ModelForm):
                         Div(HTML("Specific Broker / Adviser"), css_class='form-label'),
                         Div(Field('referralCompany'))
                     ),
-                    Div(
-                        Div(HTML("Introducer or Advisor"), css_class='form-label'),
-                        Div(Field('adviser'))
-                    ),
                     css_class="col-lg-6"
                 ),
                 css_class="row pt-3"
