@@ -34,6 +34,7 @@ class GlobalSettingsForm(forms.ModelForm):
             'autoassignees_FACEBOOK',
             'autoassignees_FACEBOOK_INTERACTIVE',
             'autoassignees_FACEBOOK_CALCULATOR',
+            'autoassignees_FACEBOOK_VISA',
             'autoassignees_GOOGLE_MOBILE',
             'autoassignees_LINKEDIN',
             'autocampaigns_STARTS_AT_60',
@@ -118,6 +119,10 @@ class GlobalSettingsForm(forms.ModelForm):
                         Div(
                             Div(HTML("Facebook Calculator:"), css_class='form-label pb-1'),
                             Div(Field('autoassignees_FACEBOOK_CALCULATOR'), css_class='pb-3')
+                        ),
+                        Div(
+                            Div(HTML("Facebook VISA:"), css_class='form-label pb-1'),
+                            Div(Field('autoassignees_FACEBOOK_VISA'), css_class='pb-3')
                         ),
                         Div(
                             Div(HTML("LinkedIn:"), css_class='form-label pb-1'),

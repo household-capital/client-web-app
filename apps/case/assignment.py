@@ -136,6 +136,10 @@ _AUTO_ASSIGN_MARKETINGSOURCE_LOOKUP = {
         'settings_assignee_field': 'autoassignees_FACEBOOK_CALCULATOR',
         'choice_filter': _filter_social_assignees,
     },
+    marketingTypesEnum.FACEBOOK_VISA.value: {
+        'settings_assignee_field': 'autoassignees_FACEBOOK_VISA',
+        'choice_filter': _filter_social_assignees,
+    },
     marketingTypesEnum.LINKEDIN.value: {
         'settings_assignee_field': 'autoassignees_LINKEDIN',
         'choice_filter': _filter_social_assignees,
