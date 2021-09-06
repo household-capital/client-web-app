@@ -74,7 +74,8 @@ class DataIngestion(APIView):
             'LINKEDIN',
             'FACEBOOK',
             'FACEBOOK_INTERACTIVE',
-            'FACEBOOK_CALCULATOR'
+            'FACEBOOK_CALCULATOR',
+            'FACEBOOK_VISA'
         ]
         upload_type = 'SOCIAL' if is_social else 'PARTNER'
         enquiryString = "[# Updated from {} Upload #]".format(upload_type)

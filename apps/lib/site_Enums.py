@@ -172,6 +172,7 @@ class marketingTypesEnum(Enum):
     CARE_ABOUT_CALC_LP = 23
     STARTS_AT_60_CALC_LP = 24
     YOUR_LIFE_CHOICES_CALC_LP = 25
+    FACEBOOK_VISA = 26
     OTHER = 100
 
 
@@ -458,6 +459,7 @@ marketingReferrerDict = {
     "FACEBOOK": "SOCIAL", 
     "FACEBOOK_INTERACTIVE": "SOCIAL",
     "FACEBOOK_CALCULATOR": "SOCIAL",
+    "FACEBOOK_VISA": "SOCIAL",
     "LINKEDIN": "SOCIAL",
     "YOUR_LIFE_CHOICES": "PARTNER", 
     "STARTS_AT_60": "PARTNER", 

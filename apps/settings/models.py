@@ -118,6 +118,18 @@ class GlobalSettings(SingletonModel):
     )
     autoassignees_FACEBOOK_CALCULATOR_index = models.IntegerField(default=0)
 
+    autoassignees_FACEBOOK_VISA = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='autoassignees_FACEBOOK_VISA',
+        blank=True,
+        limit_choices_to=Q(
+            Q(is_active=True) #&
+            #Q(profile__isCreditRep=True)
+        )
+    )
+    autoassignees_FACEBOOK_VISA_index = models.IntegerField(default=0)
+
+
     autoassignees_LINKEDIN = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         related_name='autoassignees_LINKEDIN',
