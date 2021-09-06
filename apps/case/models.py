@@ -122,6 +122,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
         (directTypesEnum.BROKER.value, 'Broker'),
         (directTypesEnum.ADVISER.value, 'Adviser'),
         (directTypesEnum.WEB_PREQUAL.value, 'Pre Qualification'),
+        (directTypesEnum.WEB_VISA.value, 'Visa Enquiry'),
         (directTypesEnum.SEARCH.value, 'Search'),
         (directTypesEnum.OTHER.value,'Other'),
     )

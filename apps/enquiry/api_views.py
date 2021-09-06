@@ -56,7 +56,8 @@ WEB_SOURCES = [
     "WEBSITE_LEAD", 
     "WEBSITE_CALC", 
     "WEBSITE_CONTACT",
-    "WEBSITE_PRE_QUAL"    
+    "WEBSITE_PRE_QUAL" ,
+    "WEB_VISA"   
 ]
 
 class DataIngestion(APIView):
@@ -255,7 +256,8 @@ class DataIngestion(APIView):
                 '' or json_payload['last']
             )
             enquiryNotes = '[# Website Enquiry #]'
-            enquiryNotes += '\r\n' + json_payload['origin']
+            if json_payload.get('origin'):
+                enquiryNotes += '\r\n' + json_payload['origin']
             if json_payload.get('description') is not None:
                 enquiryNotes += '\r\n' + 'Description: {}'.format(json_payload['description'])
             srcData = {
@@ -263,15 +265,16 @@ class DataIngestion(APIView):
                 'lastname': last,
                 'email': json_payload.get('email'),
                 'origin_timestamp': timezone.localtime(),
-                'phoneNumber': cleanPhoneNumber(json_payload['phone']),
-                'referrer': directTypesEnum.WEB_ENQUIRY.value,
-                'enquiryStage': enquiryStagesEnum.BROCHURE_SENT.value,
+                'referrer': directTypesEnum.WEB_VISA.value,
+                'enquiryStage': enquiryStagesEnum.GENERAL_INFORMATION.value,
                 'enquiryNotes': enquiryNotes,
                 'origin_id': json_payload.get('origin_id'),
-                'submissionOrigin': json_payload['origin'],
+                'submissionOrigin': json_payload.get('origin'),
                 'propensityCategory': propensity
             }
-            
+            if json_payload.get('phone'):
+                srcData['phoneNumber'] = cleanPhoneNumber(json_payload['phone'])
+
             try:
                 web_obj = Enquiry.objects.create(**srcData)
             except:

@@ -117,6 +117,7 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
         (directTypesEnum.ADVISER.value, 'Adviser'),
         (directTypesEnum.WEB_PREQUAL.value, 'Pre Qualification'),
         (directTypesEnum.SEARCH.value, 'Search'),
+        (directTypesEnum.WEB_VISA.value, 'VISA Enquiry'),
         (directTypesEnum.OTHER.value,'Other'),
     )
 
@@ -131,6 +132,7 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
         (directTypesEnum.ADVISER.value, '<i class="fas fa-comments"></i> Adviser'),
         (directTypesEnum.WEB_PREQUAL.value, '<i class="fas fa-user-check"></i> Pre Qualification'),
         (directTypesEnum.SEARCH.value, '<i class="fas fa-search"></i> Search'),
+        (directTypesEnum.WEB_VISA.value, '<i class="fab fa-cc-visa"></i> VISA Enquiry'),
         (directTypesEnum.OTHER.value,'<i class="fas fa-question"></i> Other'),
     )
 
