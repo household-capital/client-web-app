@@ -265,9 +265,10 @@ class DataIngestion(APIView):
                 'lastname': last,
                 'email': json_payload.get('email'),
                 'origin_timestamp': timezone.localtime(),
-                'referrer': directTypesEnum.WEB_VISA.value,
+                'referrer': directTypesEnum.WEB_ENQUIRY.value,
                 'enquiryStage': enquiryStagesEnum.GENERAL_INFORMATION.value,
                 'enquiryNotes': enquiryNotes,
+                'marketingSource':marketingTypesEnum.VISA.value,
                 'origin_id': json_payload.get('origin_id'),
                 'submissionOrigin': json_payload.get('origin'),
                 'propensityCategory': propensity

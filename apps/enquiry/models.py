@@ -184,6 +184,7 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
         (marketingTypesEnum.YOUR_LIFE_CHOICES_CALC_LP.value, "Your Life Choices - Calculator LP"),
 
         (marketingTypesEnum.FACEBOOK_VISA.value, "Facebook Visa"),
+        (marketingTypesEnum.VISA.value, "VISA"),
 
         (marketingTypesEnum.OTHER.value, "Other"),
     )
