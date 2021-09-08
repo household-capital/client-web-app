@@ -142,6 +142,7 @@ class directTypesEnum(Enum):
     ADVISER = 7
     WEB_PREQUAL = 8
     SEARCH = 9
+    WEB_VISA = 10
     OTHER=100
 
 

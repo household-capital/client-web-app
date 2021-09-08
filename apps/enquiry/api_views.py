@@ -56,7 +56,8 @@ WEB_SOURCES = [
     "WEBSITE_LEAD", 
     "WEBSITE_CALC", 
     "WEBSITE_CONTACT",
-    "WEBSITE_PRE_QUAL"    
+    "WEBSITE_PRE_QUAL" ,
+    "WEB_VISA"   
 ]
 
 class DataIngestion(APIView):
@@ -219,13 +220,15 @@ class DataIngestion(APIView):
                 enquiryNotes += '\r\nDescription: ' + json_payload['what_describes_you']
 
             if json_payload.get('description') is not None:
-                    enquiryNotes += '\r\n' + 'Description: {}'.format(json_payload['description'])
+                enquiryNotes += '\r\n' + 'Description: {}'.format(json_payload['description'])
             srcData = {
                 'firstname': first,
                 'lastname': last,
                 'email': json_payload.get('email'),
-                'origin_timestamp': timezone.localtime(),
+                'age_1': json_payload['age_1'],
                 'phoneNumber': cleanPhoneNumber(json_payload['phone']),
+                'origin_timestamp': timezone.localtime(),
+                
                 'referrer': directTypesEnum.WEB_ENQUIRY.value,
                 'enquiryStage': enquiryStagesEnum.BROCHURE_SENT.value,
                 'enquiryNotes': enquiryNotes,
@@ -241,6 +244,42 @@ class DataIngestion(APIView):
 
         elif marketing_source_value == 'WEBSITE_PRE_QUAL':
             self.process_pre_qual(json_payload)
+        elif marketing_source_value == 'WEB_VISA': 
+            write_applog(
+                "INFO",
+                "Enquiry API",
+                "Process Payload", 
+                "API Ingestion - web visa"
+            )
+            first , last, raw_name = parse_api_names(
+                '' or json_payload['first'],
+                '' or json_payload['last']
+            )
+            enquiryNotes = '[# Website Enquiry #]'
+            if json_payload.get('origin'):
+                enquiryNotes += '\r\n' + json_payload['origin']
+            if json_payload.get('description') is not None:
+                enquiryNotes += '\r\n' + 'Description: {}'.format(json_payload['description'])
+            srcData = {
+                'firstname': first,
+                'lastname': last,
+                'email': json_payload.get('email'),
+                'origin_timestamp': timezone.localtime(),
+                'referrer': directTypesEnum.WEB_VISA.value,
+                'enquiryStage': enquiryStagesEnum.GENERAL_INFORMATION.value,
+                'enquiryNotes': enquiryNotes,
+                'origin_id': json_payload.get('origin_id'),
+                'submissionOrigin': json_payload.get('origin'),
+                'propensityCategory': propensity
+            }
+            if json_payload.get('phone'):
+                srcData['phoneNumber'] = cleanPhoneNumber(json_payload['phone'])
+
+            try:
+                web_obj = Enquiry.objects.create(**srcData)
+            except:
+                raise raiseTaskAdminError('Could not save "web enquiry" entry', json.dumps(srcData, cls=DjangoJSONEncoder))
+
         else: 
             # build web_calc obj
             write_applog(
