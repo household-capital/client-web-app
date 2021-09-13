@@ -92,7 +92,7 @@ resource "aws_s3_bucket_object" "deployment_package" {
 resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
   name                = "${var.environment}-${var.instance}-HHC-client-app"
   application         = data.aws_elastic_beanstalk_application.hhc_client_app.name
-  solution_stack_name = "64bit Amazon Linux 2018.03 v2.10.4 running Python 3.6"
+  solution_stack_name = "64bit Amazon Linux 2 v3.3.4 running Python 3.8"
 
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
