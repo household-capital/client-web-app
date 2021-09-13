@@ -1,6 +1,5 @@
 
 #Environment Files
-*env
 *env-dev
 *env-prod
 .vagrant
@@ -28,3 +27,5 @@ postgres/
 # TERRAFORM 
 *.terraform/
 vp/
+terraform/*.tfplan
+terraform/*.json

@@ -1,5 +1,5 @@
 data "aws_elastic_beanstalk_application" "hhc_client_app" {
-  name        = "Client-App-Test"
+  name = "Client-App-Test"
 }
 
 data "aws_iam_policy" "AWSElasticBeanstalkWebTier" {
@@ -26,18 +26,13 @@ data "aws_iam_policy" "AmazonSESFullAccess" {
   arn = "arn:aws:iam::aws:policy/AmazonSESFullAccess"
 }
 
-
-
 data "aws_secretsmanager_secret" "db_creds" {
   name = "${var.environment}/clientapp/db-cred"
 }
 
 data "aws_secretsmanager_secret_version" "db_creds" {
-  secret_id = "${data.aws_secretsmanager_secret.db_creds.id}"
+  secret_id = data.aws_secretsmanager_secret.db_creds.id
 }
-
-
-
 
 data "aws_vpc" "main" {
   state = "available"
@@ -68,7 +63,7 @@ data "aws_subnet_ids" "restricted" {
 data "aws_elastic_beanstalk_hosted_zone" "current" {}
 
 data "aws_route53_zone" "route53zone" {
-  name         = var.route53_name
+  name = var.route53_name
 }
 
 data "aws_acm_certificate" "ssl_cert" {

@@ -1,0 +1,85 @@
+steps:
+  - label: ":python: Build"
+    id: "build"
+    branches: "master"
+    command: ".buildkite/build.sh"
+    agents:
+      queue: stage
+    env:
+      HHC_ENVIRONMENT: "stage"
+      HHC_INSTANCE: "master"
+      HHC_DOCKER_REPO_ID: "149382520491"
+    retry:
+      manual:
+        permit_on_passed: true
+      automatic:
+        - exit_status: -1  # Agent was lost
+          limit: 1
+        - exit_status: 255 # Forced agent shutdown
+          limit: 1
+
+  - wait
+
+  - label: ":terraform: :aws: Deploy Stage"
+    id: "deploy-stage"
+    branches: "master"
+    command: ".buildkite/deploy.sh"
+    agents:
+      queue: stage
+    env:
+      HHC_ENVIRONMENT: "stage"
+      HHC_INSTANCE: "master"
+      HHC_DOCKER_REPO_ID: "149382520491"
+    retry:
+      manual:
+        permit_on_passed: true
+      automatic:
+        - exit_status: -1  # Agent was lost
+          limit: 1
+        - exit_status: 255 # Forced agent shutdown
+          limit: 1
+
+  - wait
+
+  - label: ":terraform: :aws: Plan Production"
+    id: "plan-prod"
+    branches: 'master'
+    command: '.buildkite/plan.sh'
+    agents:
+      queue: prod
+    env:
+      HHC_ENVIRONMENT: "prod"
+      HHC_INSTANCE: "master"
+      HHC_DOCKER_REPO_ID: "149382520491"
+    retry:
+      manual:
+        permit_on_passed: true
+      automatic:
+        - exit_status: -1  # Agent was lost
+          limit: 1
+        - exit_status: 255 # Forced agent shutdown
+          limit: 1
+
+  - block: ':rocket: Release!'
+    prompt: 'Release to production?'
+    branches: 'master'
+
+  - label: ":terraform: :aws: Deploy Production"
+    id: "deploy-prod"
+    branches: 'master'
+    command: '.buildkite/apply.sh'
+    agents:
+      queue: prod
+    env:
+      HHC_ENVIRONMENT: "prod"
+      HHC_INSTANCE: "master"
+      HHC_DOCKER_REPO_ID: "149382520491"
+      PLAN_STEP: ":terraform: :aws: Plan Production"
+    retry:
+      manual:
+        permit_on_passed: true
+      automatic:
+        - exit_status: -1  # Agent was lost
+          limit: 1
+        - exit_status: 255 # Forced agent shutdown
+          limit: 1
