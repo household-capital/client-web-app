@@ -24,19 +24,16 @@ variable "environment" {
   description = "Environment name"
 }
 
-variable "ec2_keypair_name" {
-  type        = string
-  description = "EC2 Key pair name"
-}
-
 variable "n_shards" {
   type        = number
   description = "Number of shards for cluster"
+  default     = 2
 }
 
 variable "replica_nodes" {
   type        = number
   description = "Number of replica nodes in a shard"
+  default     = 1
 }
 
 variable "cache_port" {
@@ -55,11 +52,6 @@ variable "web_domain" {
   type        = string
   description = "Webdomain"
   default     = ""
-}
-
-variable "route53_name" {
-  type        = string
-  description = "Route53 Hosted Zone Name"
 }
 
 variable "instance_type" {

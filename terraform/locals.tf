@@ -6,6 +6,6 @@ locals {
     Application    = var.application
     Product        = var.function
     Owner          = "technology"
-    Data           = "none"
+    Data           = "confidential"
   }
 }

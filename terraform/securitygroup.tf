@@ -3,10 +3,6 @@ resource "aws_security_group" "db_sg" {
   description = "Client App Terraform DB security group - ${var.environment}-${var.instance}"
   vpc_id      = data.aws_vpc.main.id
 
-  tags = {
-    Name = "clientapp-database-${var.environment}-${var.instance}"
-  }
-
   # Inbound
   ingress {
     protocol        = "tcp"
@@ -29,16 +25,14 @@ resource "aws_security_group" "db_sg" {
     to_port     = 0
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = merge(local.common_tags, { "Name" = "clientapp-db-security-${var.environment}-${var.instance}" })
 }
 
 resource "aws_security_group" "elastic_cache" {
   name        = "clientapp-ec-${var.environment}-${var.instance}"
   description = "Client App Terraform DB ec group - ${var.environment}-${var.instance}"
   vpc_id      = data.aws_vpc.main.id
-
-  tags = {
-    Name = "clientapp-database-${var.environment}-${var.instance}"
-  }
 
   # Inbound
   ingress {
@@ -56,23 +50,14 @@ resource "aws_security_group" "elastic_cache" {
     to_port     = 0
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = merge(local.common_tags, { "Name" = "clientapp-ec-${var.environment}-${var.instance}" })
 }
 
 resource "aws_security_group" "web_sg" {
   name        = "clientapp-web-security-${var.environment}-${var.instance}"
   description = "Client App Terraform EC2 security group - ${var.environment}-${var.instance}"
   vpc_id      = data.aws_vpc.main.id
-
-  tags = {
-    Name = "clientapp-web-security-${var.environment}-${var.instance}"
-  }
-
-  ingress { # SSH access
-    protocol    = "tcp"
-    from_port   = 22
-    to_port     = 22
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 
   ingress {
     protocol    = "icmp"
@@ -108,4 +93,6 @@ resource "aws_security_group" "web_sg" {
     to_port     = 0
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = merge(local.common_tags, { "Name" = "clientapp-web-security-${var.environment}-${var.instance}" })
 }

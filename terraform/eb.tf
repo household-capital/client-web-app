@@ -4,8 +4,8 @@
 #                                                       #
 #########################################################
 resource "aws_route53_record" "www" {
-  name    = "${var.web_domain != "" ? var.web_domain : local.full_name}.${var.route53_name}"
-  zone_id = data.aws_route53_zone.route53zone.zone_id
+  name    = "${var.web_domain != "" ? var.web_domain : local.full_name}.${data.aws_ssm_parameter.public_hosted_zone_name.value}"
+  zone_id = data.aws_ssm_parameter.public_hosted_zone_id.value
   type    = "A"
   alias {
     name                   = aws_elastic_beanstalk_environment.hhc_client_app.cname
@@ -23,6 +23,8 @@ resource "aws_route53_record" "www" {
 resource "aws_s3_bucket" "bucket" {
   bucket        = "hhc-client-app-${var.environment}-${var.instance}"
   force_destroy = var.nuke_s3
+
+  tags = local.common_tags
 }
 
 resource "aws_s3_bucket" "bucket_static" {
@@ -33,12 +35,14 @@ resource "aws_s3_bucket" "bucket_static" {
     allowed_headers = ["Authorization"]
     allowed_methods = ["GET", "HEAD"]
     allowed_origins = [
-      "https://${var.web_domain != "" ? var.web_domain : local.full_name}.${var.route53_name}*", # annoyingly aws bucket name is passed to env so cant directly use record_name53 attribute here
+      "https://${var.web_domain != "" ? var.web_domain : local.full_name}.${data.aws_ssm_parameter.public_hosted_zone_name.value}*", # annoyingly aws bucket name is passed to env so cant directly use record_name53 attribute here
       "https://www.householdcapital.app*",
       "https://householdcapital.app*"
     ]
     max_age_seconds = 3000
   }
+
+  tags = local.common_tags
 }
 
 resource "aws_s3_bucket_policy" "s3_bucket_policy_static_media" {
@@ -58,8 +62,8 @@ resource "aws_s3_bucket_policy" "s3_bucket_policy_static_media" {
             "Condition": {
                 "StringLike": {
                     "aws:Referer": [
-                        "https://${var.web_domain != "" ? var.web_domain : local.full_name}.${var.route53_name}*",
-                        "https://www.${var.web_domain != "" ? var.web_domain : local.full_name}.${var.route53_name}*",
+                        "https://${var.web_domain != "" ? var.web_domain : local.full_name}.${data.aws_ssm_parameter.public_hosted_zone_name.value}*",
+                        "https://www.${var.web_domain != "" ? var.web_domain : local.full_name}.${data.aws_ssm_parameter.public_hosted_zone_name.value}*",
                         "https://www.householdcapital.app*",
                         "https://householdcapital.app*"
                     ]
@@ -82,6 +86,8 @@ resource "aws_s3_bucket_object" "deployment_package" {
   bucket = aws_s3_bucket.bucket.id
   key    = "package/package-${timestamp()}.zip"
   source = "../package.zip"
+
+  tags = local.common_tags
 }
 
 #########################################################
@@ -104,11 +110,6 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "IamInstanceProfile"
     value     = aws_iam_instance_profile.elb_profile.name
-  }
-  setting {
-    name      = "EC2KeyName"
-    namespace = "aws:autoscaling:launchconfiguration"
-    value     = var.ec2_keypair_name
   }
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
@@ -191,7 +192,7 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
   setting {
     namespace = "aws:elb:listener:443"
     name      = "SSLCertificateId"
-    value     = data.aws_acm_certificate.ssl_cert.arn
+    value     = data.aws_ssm_parameter.cert_arn.value
   }
   setting {
     namespace = "aws:elb:listener:443"
@@ -217,6 +218,8 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
   }
 
   depends_on = [aws_elastic_beanstalk_application_version.default]
+
+  tags = merge(local.common_tags, { "Name" = "${var.environment}-${var.instance}-HHC-client-app" })
 }
 
 resource "aws_elastic_beanstalk_application_version" "default" {
@@ -225,4 +228,6 @@ resource "aws_elastic_beanstalk_application_version" "default" {
   description = "application version created by terraform"
   bucket      = aws_s3_bucket.bucket.id
   key         = aws_s3_bucket_object.deployment_package.id
+
+  tags = merge(local.common_tags, { "Name" = "hhcclientapp-${var.environment}-${var.instance}-${uuid()}" })
 }
