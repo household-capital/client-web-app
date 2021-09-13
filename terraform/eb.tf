@@ -4,7 +4,7 @@
 #                                                       #
 #########################################################
 resource "aws_route53_record" "www" {
-  name    = var.web_domain
+  name    = "${var.web_domain != "" ? var.web_domain : local.full_name}.${var.route53_name}"
   zone_id = data.aws_route53_zone.route53zone.zone_id
   type    = "A"
   alias {
@@ -21,19 +21,19 @@ resource "aws_route53_record" "www" {
 #                                                       #
 #########################################################
 resource "aws_s3_bucket" "bucket" {
-  bucket        = "hhc-client-app-${var.environment}"
+  bucket        = "hhc-client-app-${var.environment}-${var.instance}"
   force_destroy = var.nuke_s3
 }
 
 resource "aws_s3_bucket" "bucket_static" {
-  bucket        = "hhc-client-app-static-${var.environment}"
+  bucket        = "hhc-client-app-static-${var.environment}-${var.instance}"
   force_destroy = var.nuke_s3
   acl           = "public-read"
   cors_rule {
     allowed_headers = ["Authorization"]
     allowed_methods = ["GET", "HEAD"]
     allowed_origins = [
-      "https://${var.web_domain}.${var.route53_name}*", # annoyingly aws bucket name is passed to env so cant directly use record_name53 attribute here
+      "https://${var.web_domain != "" ? var.web_domain : local.full_name}.${var.route53_name}*", # annoyingly aws bucket name is passed to env so cant directly use record_name53 attribute here
       "https://www.householdcapital.app*",
       "https://householdcapital.app*"
     ]
@@ -58,8 +58,8 @@ resource "aws_s3_bucket_policy" "s3_bucket_policy_static_media" {
             "Condition": {
                 "StringLike": {
                     "aws:Referer": [
-                        "https://${var.web_domain}.${var.route53_name}*",
-                        "https://www.${var.web_domain}.${var.route53_name}*",
+                        "https://${var.web_domain != "" ? var.web_domain : local.full_name}.${var.route53_name}*",
+                        "https://www.${var.web_domain != "" ? var.web_domain : local.full_name}.${var.route53_name}*",
                         "https://www.householdcapital.app*",
                         "https://householdcapital.app*"
                     ]
@@ -90,9 +90,9 @@ resource "aws_s3_bucket_object" "deployment_package" {
 #                                                       #
 #########################################################
 resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
-  name                = "${var.environment}-HHC-client-app"
+  name                = "${var.environment}-${var.instance}-HHC-client-app"
   application         = data.aws_elastic_beanstalk_application.hhc_client_app.name
-  solution_stack_name = "64bit Amazon Linux 2018.03 v2.9.15 running Python 3.6"
+  solution_stack_name = "64bit Amazon Linux 2018.03 v2.10.4 running Python 3.6"
 
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
@@ -168,7 +168,7 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
   setting { # load balancer
     namespace = "aws:ec2:vpc"
     name      = "ELBSubnets"
-    value = join(", ", data.aws_subnet_ids.public.ids)
+    value     = join(", ", data.aws_subnet_ids.public.ids)
   }
 
   setting {
@@ -217,20 +217,8 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
 
 }
 
-# current terraform support for eb env and eb versions cannot be linked using any resources available
-# only possible through the aws cli.
-resource "null_resource" "update-elb-env-with-code" {
-  triggers = {
-    always_run = "${timestamp()}"
-  }
-  provisioner "local-exec" {
-    command = "aws elasticbeanstalk update-environment --region ap-southeast-2 --application-name ${data.aws_elastic_beanstalk_application.hhc_client_app.name} --version-label ${aws_elastic_beanstalk_application_version.default.name} --environment-name ${aws_elastic_beanstalk_environment.hhc_client_app.name}"
-  }
-  depends_on = [aws_elastic_beanstalk_environment.hhc_client_app]
-}
-
 resource "aws_elastic_beanstalk_application_version" "default" {
-  name        = "hhcclientapp-${var.environment}-${uuid()}"
+  name        = "hhcclientapp-${var.environment}-${var.instance}-${uuid()}"
   application = data.aws_elastic_beanstalk_application.hhc_client_app.name
   description = "application version created by terraform"
   bucket      = aws_s3_bucket.bucket.id

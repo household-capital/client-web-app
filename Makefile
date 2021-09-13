@@ -37,7 +37,10 @@ TF_VARS := -var 'function=$(HHC_FUNCTION)' \
            -var 'application=$(HHC_APPLICATION)' \
 		   -var 'instance=$(HHC_INSTANCE)' \
 	       -var-file=./env-vars/$(HHC_ENVIRONMENT).tfvars
-TF_OUTPUT = ./infra/$(HHC_FULL_NAME).json
+TF_OUTPUT = ./terraform/$(HHC_FULL_NAME).json
+TF_OUTPUT_APP_NAME = $(shell cat $(TF_OUTPUT) | jq -r ".app_name.value")
+TF_OUTPUT_APP_VER = $(shell cat $(TF_OUTPUT) | jq -r ".app_ver.value")
+TF_OUTPUT_ENV_NAME = $(shell cat $(TF_OUTPUT) | jq -r ".env_name.value")
 
 # docker-compose calls
 PYTHON = docker-compose run python
@@ -47,7 +50,7 @@ AWSCLI = docker-compose run awscli
 
 ##@ Main targets
 build: pyimage pypublish create-zip ## Package and publish code
-deploy: tfformat tfvalidate tfplan tfapply ## Format, validate, plan, and apply terraform
+deploy: tfformat tfvalidate tfplan tfapply ebupdate ## Format, validate, plan, and apply terraform
 destroy: tfdestroy ## Destroy environment
 
 
@@ -162,7 +165,7 @@ create-zip: pre-deploy-handler zip-package
 rds-snapshot: 
 	sh rds_snapshot.sh $(HHC_ENVIRONMENT)
 
-apply-deploy-with-snapshot: rds-snapshot create-zip tfapply
+apply-deploy-with-snapshot: rds-snapshot create-zip tfapply ebupdate
 
 
 shell_plus: 
@@ -231,6 +234,14 @@ tfapply: _validate ## Apply terraform plan
 	echo -e $(CYAN)Applying terraform$(NC)
 	$(TERRAFORM) apply $(TF_ARTIFACT) && \
 	$(TERRAFORM) output -no-color -json > $(TF_OUTPUT)
+	
+.PHONY: ebupdate
+ebupdate: ## Update elasticbeanstalk
+	echo -e $(CYAN)Updating elasticbeanstalk$(NC)
+	$(AWSCLI) elasticbeanstalk update-environment \
+		--application-name $(TF_OUTPUT_APP_NAME) \
+		--version-label $(TF_OUTPUT_APP_VER) \
+		--environment-name $(TF_OUTPUT_ENV_NAME)
 
 .PHONY: tfdestroy
 tfdestroy: _tfinit ## Destroy infrastructure

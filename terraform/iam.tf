@@ -1,10 +1,10 @@
 resource "aws_iam_instance_profile" "elb_profile" {
-  name = "elb_profile-${var.environment}-client-app"
+  name = "elb_profile-${var.environment}-${var.instance}-client-app"
   role = aws_iam_role.elb.name
 }
 
 resource "aws_iam_policy" "cloudwatchpolicy" {
-  name        = "ec2-cloud-watch-policy-${var.environment}"
+  name        = "ec2-cloud-watch-policy-${var.environment}-${var.instance}"
   path        = "/"
   description = "IAM policy for cloudwatch"
 
@@ -28,7 +28,7 @@ EOF
 }
 
 resource "aws_iam_role" "elb" {
-  name = "${var.environment}-elb-ec2-role-client-app"
+  name = "${var.environment}-${var.instance}-elb-ec2-role-client-app"
 
   assume_role_policy = <<EOF
 {
