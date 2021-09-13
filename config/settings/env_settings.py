@@ -36,7 +36,8 @@ SITE_URL = os.getenv("SITE_URL")
 if os.environ.get('ENV') == 'prod': 
     ALLOWED_HOSTS += [
         '.householdcapital.app', 
-        '.householdcapital.com.au'
+        '.householdcapital.com.au',
+        '.prod.householdcapital.com'
     ]
 
 if SITE_URL is not None: 

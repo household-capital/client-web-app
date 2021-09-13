@@ -20,13 +20,6 @@ resource "aws_route53_record" "www" {
 #                         BUCKET                        #
 #                                                       #
 #########################################################
-resource "aws_s3_bucket" "bucket" {
-  bucket        = "hhc-${local.full_name}-${var.environment}"
-  force_destroy = var.nuke_s3
-
-  tags = local.common_tags
-}
-
 resource "aws_s3_bucket" "bucket_static" {
   bucket        = "hhc-${local.full_name}-${var.environment}-static"
   force_destroy = var.nuke_s3
@@ -83,8 +76,8 @@ POLICY
 }
 
 resource "aws_s3_bucket_object" "deployment_package" {
-  bucket = aws_s3_bucket.bucket.id
-  key    = "package/package-${timestamp()}.zip"
+  bucket = data.aws_ssm_parameter.package_bucket.value
+  key    = "${var.function}-${var.application}/${var.instance}/package-${timestamp()}.zip"
   source = "../package.zip"
 
   tags = local.common_tags
@@ -127,7 +120,7 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name      = "S3_BUCKET"
-    value     = aws_s3_bucket.bucket.bucket
+    value     = data.aws_ssm_parameter.package_bucket.value
   }
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
@@ -225,8 +218,8 @@ resource "aws_elastic_beanstalk_application_version" "default" {
   name        = "${local.full_name}-${uuid()}"
   application = data.aws_elastic_beanstalk_application.hhc_client_app.name
   description = "application version created by terraform"
-  bucket      = aws_s3_bucket.bucket.id
-  key         = aws_s3_bucket_object.deployment_package.id
+  bucket      = aws_s3_bucket_object.deployment_package.bucket
+  key         = aws_s3_bucket_object.deployment_package.key
 
   tags = merge(local.common_tags, { "Name" = "${local.full_name}-${uuid()}" })
 }
