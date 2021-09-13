@@ -49,3 +49,7 @@ data "aws_ssm_parameter" "public_hosted_zone_id" {
 data "aws_ssm_parameter" "cert_arn" {
   name = "/infra/wildcart-cert-arn"
 }
+
+data "aws_ssm_parameter" "package_bucket" {
+  name = "/infra/packages-bucket-name"
+}
