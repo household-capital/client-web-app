@@ -30,7 +30,7 @@ if os.environ.get('ENV') and os.getenv('STORAGE') == "AWS":
     # 
     # Put environment file in bucket `hhc-client-app-env-files` as ${ENV}.env
     #
-    obj = s3.Object('hhc-client-app-env-files-{}'.format(os.getenv('HHC_ENVIRONMENT')), '{}.env'.format(os.environ.get('HHC_ENVIRONMENT')))
+    obj = s3.Object('hhc-client-app-env-files-{}'.format(os.getenv('ENV')), '{}.env'.format(os.environ.get('ENV')))
     stream = StringIO(obj.get()['Body'].read().decode())
     stream.seek(0)
     load_dotenv(stream=stream)
