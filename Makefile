@@ -37,7 +37,10 @@ TF_VARS := -var 'function=$(HHC_FUNCTION)' \
            -var 'application=$(HHC_APPLICATION)' \
 		   -var 'instance=$(HHC_INSTANCE)' \
 	       -var-file=./env-vars/$(HHC_ENVIRONMENT).tfvars
-TF_OUTPUT = ./infra/$(HHC_FULL_NAME).json
+TF_OUTPUT = ./terraform/$(HHC_FULL_NAME).json
+TF_OUTPUT_APP_NAME = $(shell cat $(TF_OUTPUT) | jq -r ".app_name.value")
+TF_OUTPUT_APP_VER = $(shell cat $(TF_OUTPUT) | jq -r ".app_ver.value")
+TF_OUTPUT_ENV_NAME = $(shell cat $(TF_OUTPUT) | jq -r ".env_name.value")
 
 # docker-compose calls
 PYTHON = docker-compose run python
@@ -230,7 +233,11 @@ tfplan: _tfinit ## Generate terraform plan
 tfapply: _validate ## Apply terraform plan
 	echo -e $(CYAN)Applying terraform$(NC)
 	$(TERRAFORM) apply $(TF_ARTIFACT) && \
-	$(TERRAFORM) output -no-color -json > $(TF_OUTPUT)
+	$(TERRAFORM) output -no-color -json > $(TF_OUTPUT) \
+	$(AWSCLI) elasticbeanstalk update-environment --region ap-southeast-2 \
+		--application-name $(TF_OUTPUT_APP_NAME) \
+		--version-label $(TF_OUTPUT_APP_VER) \
+		--environment-name $(TF_OUTPUT_ENV_NAME)
 
 .PHONY: tfdestroy
 tfdestroy: _tfinit ## Destroy infrastructure

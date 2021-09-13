@@ -217,18 +217,6 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
 
 }
 
-# current terraform support for eb env and eb versions cannot be linked using any resources available
-# only possible through the aws cli.
-resource "null_resource" "update-elb-env-with-code" {
-  triggers = {
-    always_run = "${timestamp()}"
-  }
-  provisioner "local-exec" {
-    command = "aws elasticbeanstalk update-environment --region ap-southeast-2 --application-name ${data.aws_elastic_beanstalk_application.hhc_client_app.name} --version-label ${aws_elastic_beanstalk_application_version.default.name} --environment-name ${aws_elastic_beanstalk_environment.hhc_client_app.name}"
-  }
-  depends_on = [aws_elastic_beanstalk_environment.hhc_client_app]
-}
-
 resource "aws_elastic_beanstalk_application_version" "default" {
   name        = "hhcclientapp-${var.environment}-${uuid()}"
   application = data.aws_elastic_beanstalk_application.hhc_client_app.name
