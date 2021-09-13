@@ -1,0 +1,27 @@
+---
+version: '3'
+services:
+  python:
+    image: ${HHC_IMAGE}
+    userns_mode: 'host'
+    env_file: .env
+    working_dir: /opt/app
+    volumes:
+      - ~/.aws:/root/.aws
+      - .:/opt/app:rw
+
+  terraform:
+    image: hashicorp/terraform:1.0.6
+    userns_mode: 'host'
+    env_file: .env
+    working_dir: /opt/app/terraform
+    volumes:
+      - ~/.aws:/root/.aws
+      - .:/opt/app:rw
+
+  awscli:
+    image: amazon/aws-cli:latest
+    userns_mode: 'host'
+    env_file: .env
+    volumes:
+      - ~/.aws:/root/.aws

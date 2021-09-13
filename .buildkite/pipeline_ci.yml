@@ -1,0 +1,58 @@
+steps:
+  - label: ":python: Build"
+    id: "build"
+    branches: "!master"
+    command: ".buildkite/build.sh"
+    agents:
+      queue: devel
+    env:
+      HHC_ENVIRONMENT: "devel"
+      HHC_INSTANCE: "ci${BUILDKITE_COMMIT:0:8}"
+      HHC_DOCKER_REPO_ID: "767894820823"
+    retry:
+      automatic:
+        - exit_status: -1  # Agent was lost
+          limit: 1
+        - exit_status: 255 # Forced agent shutdown
+          limit: 1
+
+  - wait
+
+  - label: ":terraform: :aws: Deploy"
+    id: "deploy"
+    branches: "!master"
+    command: ".buildkite/deploy.sh"
+    agents:
+      queue: devel
+    env:
+      HHC_ENVIRONMENT: "devel"
+      HHC_INSTANCE: "ci${BUILDKITE_COMMIT:0:8}"
+      HHC_DOCKER_REPO_ID: "767894820823"
+    retry:
+      automatic:
+        - exit_status: -1  # Agent was lost
+          limit: 1
+        - exit_status: 255 # Forced agent shutdown
+          limit: 1
+
+  - wait: ~
+    continue_on_failure: true
+
+  - label: ":terraform: :aws: Destroy"
+    id: "destroy"
+    branches: "!master"
+    command: ".buildkite/destroy.sh"
+    agents:
+      queue: devel
+    env:
+      HHC_ENVIRONMENT: "devel"
+      HHC_INSTANCE: "ci${BUILDKITE_COMMIT:0:8}"
+      HHC_DOCKER_REPO_ID: "767894820823"
+    retry:
+      manual:
+        permit_on_passed: true
+      automatic:
+        - exit_status: -1  # Agent was lost
+          limit: 1
+        - exit_status: 255 # Forced agent shutdown
+          limit: 1

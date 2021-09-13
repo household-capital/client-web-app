@@ -10,17 +10,17 @@ resource "aws_security_group" "db_sg" {
   # Inbound
   ingress {
     protocol        = "tcp"
-    from_port       = 5432	
-    to_port         = 5432	
+    from_port       = 5432
+    to_port         = 5432
     cidr_blocks     = []
-    security_groups = [aws_security_group.web_sg.id] 
+    security_groups = [aws_security_group.web_sg.id]
   }
 
   ingress {
-    protocol        = "tcp"
-    from_port       = 5432	
-    to_port         = 5432	
-    cidr_blocks     = ["0.0.0.0/0"]
+    protocol    = "tcp"
+    from_port   = 5432
+    to_port     = 5432
+    cidr_blocks = ["0.0.0.0/0"]
   } # for pg admin access 
   # Outbound
   egress {
@@ -30,7 +30,6 @@ resource "aws_security_group" "db_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
-
 
 resource "aws_security_group" "elastic_cache" {
   name        = "clientapp-ec-${var.environment}"
@@ -44,10 +43,10 @@ resource "aws_security_group" "elastic_cache" {
   # Inbound
   ingress {
     protocol        = "tcp"
-    from_port       = var.cache_port	
-    to_port         = var.cache_port	
+    from_port       = var.cache_port
+    to_port         = var.cache_port
     cidr_blocks     = []
-    security_groups = [aws_security_group.web_sg.id] 
+    security_groups = [aws_security_group.web_sg.id]
   }
 
   # Outbound
@@ -58,7 +57,6 @@ resource "aws_security_group" "elastic_cache" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
-
 
 resource "aws_security_group" "web_sg" {
   name        = "clientapp-web-security-${var.environment}"
