@@ -1,4 +1,4 @@
-environment      = "dev"
+environment      = "devel"
 nuke_s3          = true
 ec2_keypair_name = "client-app-test"
 n_shards         = 2
