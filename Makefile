@@ -145,20 +145,12 @@ rm-old-zip: ## Remove old package
 	echo -e $(CYAN)Removing old package$(NC)
 	$(PYTHON) rm -f package.zip
 
-.PHONY: rm-static
-rm-static: ## Remove static files
-	echo -e $(CYAN)Removing static files$(NC)
-	$(PYTHON) /bin/bash -c \
-		"cd static && find . -type d -not -path "*uncollected*" -not -path "\." | xargs rm -rf"
-
 .PHONY: zip-package
 zip-package: ## Create package
 	echo -e $(CYAN)Creating package$(NC)
 	$(PYTHON) zip -r9g "package.zip" . --exclude "terraform/*" ".git/*" "vp/*" ".buildkite/*"
 
-pre-deploy-handler: rm-static rm-old-zip
-
-create-zip: pre-deploy-handler zip-package
+create-zip: rm-old-zip zip-package
 
 
 # SNAPSHOT 
