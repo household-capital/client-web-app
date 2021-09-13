@@ -38,9 +38,6 @@ TF_VARS := -var 'function=$(HHC_FUNCTION)' \
 		   -var 'instance=$(HHC_INSTANCE)' \
 	       -var-file=./env-vars/$(HHC_ENVIRONMENT).tfvars
 TF_OUTPUT = ./terraform/$(HHC_FULL_NAME).json
-TF_OUTPUT_APP_NAME = $(shell cat $(TF_OUTPUT) | jq -r ".app_name.value")
-TF_OUTPUT_APP_VER = $(shell cat $(TF_OUTPUT) | jq -r ".app_ver.value")
-TF_OUTPUT_ENV_NAME = $(shell cat $(TF_OUTPUT) | jq -r ".env_name.value")
 
 # docker-compose calls
 PYTHON = docker-compose run python
@@ -50,7 +47,7 @@ AWSCLI = docker-compose run awscli
 
 ##@ Main targets
 build: pyimage pypublish create-zip ## Package and publish code
-deploy: tfformat tfvalidate tfplan tfapply ebupdate ## Format, validate, plan, and apply terraform
+deploy: tfformat tfvalidate tfplan tfapply ## Format, validate, plan, and apply terraform
 destroy: tfdestroy ## Destroy environment
 
 
@@ -145,27 +142,19 @@ rm-old-zip: ## Remove old package
 	echo -e $(CYAN)Removing old package$(NC)
 	$(PYTHON) rm -f package.zip
 
-.PHONY: rm-static
-rm-static: ## Remove static files
-	echo -e $(CYAN)Removing static files$(NC)
-	$(PYTHON) /bin/bash -c \
-		"cd static && find . -type d -not -path "*uncollected*" -not -path "\." | xargs rm -rf"
-
 .PHONY: zip-package
 zip-package: ## Create package
 	echo -e $(CYAN)Creating package$(NC)
 	$(PYTHON) zip -r9g "package.zip" . --exclude "terraform/*" ".git/*" "vp/*" ".buildkite/*"
 
-pre-deploy-handler: rm-static rm-old-zip
-
-create-zip: pre-deploy-handler zip-package
+create-zip: rm-old-zip zip-package
 
 
 # SNAPSHOT 
 rds-snapshot: 
 	sh rds_snapshot.sh $(HHC_ENVIRONMENT)
 
-apply-deploy-with-snapshot: rds-snapshot create-zip tfapply ebupdate
+apply-deploy-with-snapshot: rds-snapshot create-zip tfapply
 
 
 shell_plus: 
@@ -234,14 +223,6 @@ tfapply: _validate ## Apply terraform plan
 	echo -e $(CYAN)Applying terraform$(NC)
 	$(TERRAFORM) apply $(TF_ARTIFACT) && \
 	$(TERRAFORM) output -no-color -json > $(TF_OUTPUT)
-	
-.PHONY: ebupdate
-ebupdate: ## Update elasticbeanstalk
-	echo -e $(CYAN)Updating elasticbeanstalk$(NC)
-	$(AWSCLI) elasticbeanstalk update-environment \
-		--application-name $(TF_OUTPUT_APP_NAME) \
-		--version-label $(TF_OUTPUT_APP_VER) \
-		--environment-name $(TF_OUTPUT_ENV_NAME)
 
 .PHONY: tfdestroy
 tfdestroy: _tfinit ## Destroy infrastructure
