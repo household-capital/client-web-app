@@ -1,2 +1,1 @@
-environment = "stage"
-web_domain  = "app"
+web_domain = "app"

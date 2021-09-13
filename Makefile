@@ -36,6 +36,7 @@ TF_ARTIFACT = ./$(HHC_FULL_NAME).tfplan
 TF_VARS := -var 'function=$(HHC_FUNCTION)' \
            -var 'application=$(HHC_APPLICATION)' \
 		   -var 'instance=$(HHC_INSTANCE)' \
+		   -var 'environment=$(HHC_ENVIRONMENT)' \
 	       -var-file=./env-vars/$(HHC_ENVIRONMENT).tfvars
 TF_OUTPUT = ./terraform/$(HHC_FULL_NAME).json
 
@@ -46,18 +47,13 @@ AWSCLI = docker-compose run awscli
 
 
 ##@ Main targets
-build: pyimage pypublish create-zip ## Package and publish code
+build: pyimage pypublish pypackage ## Package and publish code
 deploy: tfformat tfvalidate tfplan tfapply ## Format, validate, plan, and apply terraform
 destroy: tfdestroy ## Destroy environment
 
 
 VENV = vp/bin
 VPYTHON = $(VENV)/python
-
-AWS_PROFILE ?= devel
-# ideally we would export this to make the tfinit use the selected account too - BUT the S3 bucket we use for
-# state storage isn't accessible by any AWS account but the root one yet. We need to tidy that up.
-# export AWS_PROFILE
 
 create_vp: 
 	python3 -m venv vp
@@ -136,27 +132,6 @@ celery:
 	$(VENV)/celery -A config worker -l debug --beat --scheduler django_celery_beat.schedulers:DatabaseScheduler --loglevel=info
 
 
-##@ Zip targets
-.PHONY: rm-old-zip
-rm-old-zip: ## Remove old package
-	echo -e $(CYAN)Removing old package$(NC)
-	$(PYTHON) rm -f package.zip
-
-.PHONY: zip-package
-zip-package: ## Create package
-	echo -e $(CYAN)Creating package$(NC)
-	$(PYTHON) zip -r9g "package.zip" . --exclude "terraform/*" ".git/*" "vp/*" ".buildkite/*"
-
-create-zip: rm-old-zip zip-package
-
-
-# SNAPSHOT 
-rds-snapshot: 
-	sh rds_snapshot.sh $(HHC_ENVIRONMENT)
-
-apply-deploy-with-snapshot: rds-snapshot create-zip tfapply
-
-
 shell_plus: 
 	$(VPYTHON) manage.py shell_plus --print-sql
 
@@ -199,6 +174,12 @@ pypublish: ## Publish Python docker image
 	docker push "$(HHC_DOCKER_REPO)/$(HHC_FUNCTION)-$(HHC_APPLICATION):$(HHC_INSTANCE)-latest"
 	docker push "$(HHC_DOCKER_REPO)/$(HHC_FUNCTION)-$(HHC_APPLICATION):$(HHC_INSTANCE)-$(GIT_BRANCH)"
 	docker push "$(HHC_DOCKER_REPO)/$(HHC_FUNCTION)-$(HHC_APPLICATION):$(HHC_INSTANCE)-$(GIT_HASH)"
+
+.PHONY: pypackage
+pypackage: ## Create Python package
+	echo -e $(CYAN)Creating Python package$(NC)
+	$(PYTHON) rm -f package.zip && \
+	$(PYTHON) zip -r9g "package.zip" . --exclude "terraform/*" ".git/*" "vp/*" ".buildkite/*"
 
 
 ##@ Terraform targets

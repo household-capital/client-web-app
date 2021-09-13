@@ -1,12 +1,12 @@
 resource "aws_iam_instance_profile" "elb_profile" {
-  name = "elb_profile-${var.environment}-${var.instance}-client-app"
+  name = local.full_name
   role = aws_iam_role.elb.name
 
-  tags = merge(local.common_tags, { "Name" = "elb_profile-${var.environment}-${var.instance}-client-app" })
+  tags = merge(local.common_tags, { "Name" = local.full_name })
 }
 
 resource "aws_iam_policy" "cloudwatchpolicy" {
-  name        = "ec2-cloud-watch-policy-${var.environment}-${var.instance}"
+  name        = local.full_name
   path        = "/"
   description = "IAM policy for cloudwatch"
 
@@ -28,11 +28,11 @@ resource "aws_iam_policy" "cloudwatchpolicy" {
 }
 EOF
 
-  tags = merge(local.common_tags, { "Name" = "ec2-cloud-watch-policy-${var.environment}-${var.instance}" })
+  tags = merge(local.common_tags, { "Name" = local.full_name })
 }
 
 resource "aws_iam_role" "elb" {
-  name = "${var.environment}-${var.instance}-elb-ec2-role-client-app"
+  name = local.full_name
 
   assume_role_policy = <<EOF
 {
@@ -49,7 +49,7 @@ resource "aws_iam_role" "elb" {
 }
 EOF
 
-  tags = merge(local.common_tags, { "Name" = "${var.environment}-${var.instance}-elb-ec2-role-client-app" })
+  tags = merge(local.common_tags, { "Name" = local.full_name })
 }
 
 resource "aws_iam_role_policy_attachment" "elb-cloudwatch" {

@@ -1,6 +1,6 @@
 resource "aws_security_group" "db_sg" {
-  name        = "clientapp-db-security-${var.environment}-${var.instance}"
-  description = "Client App Terraform DB security group - ${var.environment}-${var.instance}"
+  name        = "${local.full_name}-db"
+  description = "Client App DB security group - ${var.instance}"
   vpc_id      = data.aws_vpc.main.id
 
   # Inbound
@@ -17,7 +17,8 @@ resource "aws_security_group" "db_sg" {
     from_port   = 5432
     to_port     = 5432
     cidr_blocks = ["0.0.0.0/0"]
-  } # for pg admin access 
+  }
+
   # Outbound
   egress {
     protocol    = -1
@@ -26,12 +27,12 @@ resource "aws_security_group" "db_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = merge(local.common_tags, { "Name" = "clientapp-db-security-${var.environment}-${var.instance}" })
+  tags = merge(local.common_tags, { "Name" = "${local.full_name}-db" })
 }
 
 resource "aws_security_group" "elastic_cache" {
-  name        = "clientapp-ec-${var.environment}-${var.instance}"
-  description = "Client App Terraform DB ec group - ${var.environment}-${var.instance}"
+  name        = "${local.full_name}-ec"
+  description = "Client App EC group - ${var.instance}"
   vpc_id      = data.aws_vpc.main.id
 
   # Inbound
@@ -51,12 +52,12 @@ resource "aws_security_group" "elastic_cache" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = merge(local.common_tags, { "Name" = "clientapp-ec-${var.environment}-${var.instance}" })
+  tags = merge(local.common_tags, { "Name" = "${local.full_name}-ec" })
 }
 
 resource "aws_security_group" "web_sg" {
-  name        = "clientapp-web-security-${var.environment}-${var.instance}"
-  description = "Client App Terraform EC2 security group - ${var.environment}-${var.instance}"
+  name        = "${local.full_name}-web"
+  description = "Client App Web security group - ${var.instance}"
   vpc_id      = data.aws_vpc.main.id
 
   ingress {
@@ -94,5 +95,5 @@ resource "aws_security_group" "web_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = merge(local.common_tags, { "Name" = "clientapp-web-security-${var.environment}-${var.instance}" })
+  tags = merge(local.common_tags, { "Name" = "${local.full_name}-web" })
 }

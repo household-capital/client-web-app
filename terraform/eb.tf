@@ -21,21 +21,21 @@ resource "aws_route53_record" "www" {
 #                                                       #
 #########################################################
 resource "aws_s3_bucket" "bucket" {
-  bucket        = "hhc-client-app-${var.environment}-${var.instance}"
+  bucket        = "hhc-${local.full_name}-${var.environment}"
   force_destroy = var.nuke_s3
 
   tags = local.common_tags
 }
 
 resource "aws_s3_bucket" "bucket_static" {
-  bucket        = "hhc-client-app-static-${var.environment}-${var.instance}"
+  bucket        = "hhc-${local.full_name}-${var.environment}-static"
   force_destroy = var.nuke_s3
   acl           = "public-read"
   cors_rule {
     allowed_headers = ["Authorization"]
     allowed_methods = ["GET", "HEAD"]
     allowed_origins = [
-      "https://${var.web_domain != "" ? var.web_domain : local.full_name}.${data.aws_ssm_parameter.public_hosted_zone_name.value}*", # annoyingly aws bucket name is passed to env so cant directly use record_name53 attribute here
+      "https://${var.web_domain != "" ? var.web_domain : local.full_name}.${data.aws_ssm_parameter.public_hosted_zone_name.value}*",
       "https://www.householdcapital.app*",
       "https://householdcapital.app*"
     ]
@@ -96,7 +96,7 @@ resource "aws_s3_bucket_object" "deployment_package" {
 #                                                       #
 #########################################################
 resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
-  name                = "${var.environment}-${var.instance}-HHC-client-app"
+  name                = local.full_name
   application         = data.aws_elastic_beanstalk_application.hhc_client_app.name
   solution_stack_name = "64bit Amazon Linux 2018.03 v2.10.4 running Python 3.6"
   version_label       = aws_elastic_beanstalk_application_version.default.name
@@ -118,7 +118,7 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
       ", ",
       [for node in aws_elasticache_cluster.redis_cache.cache_nodes : join(":", [node.address, node.port])]
     )
-  } # use terraform for loop
+  }
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name      = "RDS_DATABASE"
@@ -164,7 +164,6 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
     namespace = "aws:ec2:vpc"
     name      = "Subnets"
     value     = join(", ", data.aws_subnet_ids.public.ids)
-    # value = "subnet-0b339b651c1ecff89"
   }
 
   setting { # load balancer
@@ -219,15 +218,15 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
 
   depends_on = [aws_elastic_beanstalk_application_version.default]
 
-  tags = merge(local.common_tags, { "Name" = "${var.environment}-${var.instance}-HHC-client-app" })
+  tags = merge(local.common_tags, { "Name" = local.full_name })
 }
 
 resource "aws_elastic_beanstalk_application_version" "default" {
-  name        = "hhcclientapp-${var.environment}-${var.instance}-${uuid()}"
+  name        = "${local.full_name}-${uuid()}"
   application = data.aws_elastic_beanstalk_application.hhc_client_app.name
   description = "application version created by terraform"
   bucket      = aws_s3_bucket.bucket.id
   key         = aws_s3_bucket_object.deployment_package.id
 
-  tags = merge(local.common_tags, { "Name" = "hhcclientapp-${var.environment}-${var.instance}-${uuid()}" })
+  tags = merge(local.common_tags, { "Name" = "${local.full_name}-${uuid()}" })
 }

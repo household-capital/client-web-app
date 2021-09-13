@@ -1,2 +1,1 @@
-environment = "devel"
-nuke_s3     = true
+nuke_s3 = true
