@@ -86,3 +86,8 @@ resource "aws_iam_role_policy_attachment" "ses-attach-policy" {
   role       = aws_iam_role.elb.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSESFullAccess"
 }
+
+resource "aws_iam_role_policy_attachment" "elb-session-manager" {
+  role       = aws_iam_role.elb.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}

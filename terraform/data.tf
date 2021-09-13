@@ -38,8 +38,12 @@ data "aws_subnet_ids" "restricted" {
 
 data "aws_elastic_beanstalk_hosted_zone" "current" {}
 
-data "aws_route53_zone" "route53zone" {
-  name = var.route53_name
+data "aws_ssm_parameter" "public_hosted_zone_name" {
+  name = "/infra/public-zone-name"
+}
+
+data "aws_ssm_parameter" "public_hosted_zone_id" {
+  name = "/infra/public-zone-id"
 }
 
 data "aws_ssm_parameter" "cert_arn" {

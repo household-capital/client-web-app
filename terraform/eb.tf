@@ -4,8 +4,8 @@
 #                                                       #
 #########################################################
 resource "aws_route53_record" "www" {
-  name    = "${var.web_domain != "" ? var.web_domain : local.full_name}.${var.route53_name}"
-  zone_id = data.aws_route53_zone.route53zone.zone_id
+  name    = "${var.web_domain != "" ? var.web_domain : local.full_name}.${data.aws_ssm_parameter.public_hosted_zone_name.value}"
+  zone_id = data.aws_ssm_parameter.public_hosted_zone_id.value
   type    = "A"
   alias {
     name                   = aws_elastic_beanstalk_environment.hhc_client_app.cname
@@ -35,7 +35,7 @@ resource "aws_s3_bucket" "bucket_static" {
     allowed_headers = ["Authorization"]
     allowed_methods = ["GET", "HEAD"]
     allowed_origins = [
-      "https://${var.web_domain != "" ? var.web_domain : local.full_name}.${var.route53_name}*", # annoyingly aws bucket name is passed to env so cant directly use record_name53 attribute here
+      "https://${var.web_domain != "" ? var.web_domain : local.full_name}.${data.aws_ssm_parameter.public_hosted_zone_name.value}*", # annoyingly aws bucket name is passed to env so cant directly use record_name53 attribute here
       "https://www.householdcapital.app*",
       "https://householdcapital.app*"
     ]
@@ -62,8 +62,8 @@ resource "aws_s3_bucket_policy" "s3_bucket_policy_static_media" {
             "Condition": {
                 "StringLike": {
                     "aws:Referer": [
-                        "https://${var.web_domain != "" ? var.web_domain : local.full_name}.${var.route53_name}*",
-                        "https://www.${var.web_domain != "" ? var.web_domain : local.full_name}.${var.route53_name}*",
+                        "https://${var.web_domain != "" ? var.web_domain : local.full_name}.${data.aws_ssm_parameter.public_hosted_zone_name.value}*",
+                        "https://www.${var.web_domain != "" ? var.web_domain : local.full_name}.${data.aws_ssm_parameter.public_hosted_zone_name.value}*",
                         "https://www.householdcapital.app*",
                         "https://householdcapital.app*"
                     ]
@@ -110,11 +110,6 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "IamInstanceProfile"
     value     = aws_iam_instance_profile.elb_profile.name
-  }
-  setting {
-    name      = "EC2KeyName"
-    namespace = "aws:autoscaling:launchconfiguration"
-    value     = var.ec2_keypair_name
   }
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"

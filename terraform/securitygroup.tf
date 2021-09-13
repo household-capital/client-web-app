@@ -59,13 +59,6 @@ resource "aws_security_group" "web_sg" {
   description = "Client App Terraform EC2 security group - ${var.environment}-${var.instance}"
   vpc_id      = data.aws_vpc.main.id
 
-  ingress { # SSH access
-    protocol    = "tcp"
-    from_port   = 22
-    to_port     = 22
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   ingress {
     protocol    = "icmp"
     from_port   = -1
