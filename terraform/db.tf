@@ -1,26 +1,21 @@
 resource "aws_db_instance" "rds_env_instance" {
+  deletion_protection  = (var.environment == "prod")
+  allocated_storage    = 20
+  storage_type         = "gp2"
+  engine               = "postgres"
+  engine_version       = "12.5"
+  instance_class       = "db.t3.small"
+  storage_encrypted    = true
+  name                 = "clientapp"
+  username             = jsondecode(data.aws_secretsmanager_secret_version.db_creds.secret_string)["Username"]
+  password             = jsondecode(data.aws_secretsmanager_secret_version.db_creds.secret_string)["Password"]
+  parameter_group_name = "default.postgres12"
 
-  # lifecycle {
-  #   prevent_destroy = true
-  # }
-
-  deletion_protection    = (var.environment == "prod")
-  allocated_storage      = 20
-  storage_type           = "gp2"
-  engine                 = "postgres"
-  engine_version         = "12.5"
-  instance_class         = "db.t3.small"
-  storage_encrypted      = true
-  name                   = "clientapp${var.environment}${var.instance}"
-  username               = jsondecode(data.aws_secretsmanager_secret_version.db_creds.secret_string)["Username"]
-  password               = jsondecode(data.aws_secretsmanager_secret_version.db_creds.secret_string)["Password"]
-  parameter_group_name   = "default.postgres12"
-  vpc_security_group_ids = [aws_security_group.db_sg.id] # Security Group
-  # db_subnet_group_name   = var.storage_subnet_group  # Subnet Group
-  db_subnet_group_name = aws_db_subnet_group.db_subnet_group.id # "awseb-e-mdegjcpmbn-stack-awsebrdsdbsubnetgroup-tgen5assryx2"
-  multi_az             = true
-  identifier           = "clientapp-db-${var.environment}-${var.instance}"
-  publicly_accessible  = var.environment != "prod"
+  vpc_security_group_ids = [aws_security_group.db_sg.id]
+  db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.id
+  multi_az               = true
+  identifier             = local.full_name
+  publicly_accessible    = var.environment != "prod"
 
   # RDS Maintenance (1:00am - 3:00am AEDT Monday nights)
   maintenance_window          = "Sun:14:00-Sun:16:00" # UTC
@@ -33,12 +28,12 @@ resource "aws_db_instance" "rds_env_instance" {
   skip_final_snapshot     = true
   backup_retention_period = var.environment == "prod" ? 35 : 0
 
-  tags = merge(local.common_tags, { "Name" = "clientapp${var.environment}${var.instance}" })
+  tags = merge(local.common_tags, { "Name" = local.full_name })
 }
 
 resource "aws_db_subnet_group" "db_subnet_group" {
-  name       = "clientapp-db-subnet-group-${var.environment}-${var.instance}"
+  name       = local.full_name
   subnet_ids = data.aws_subnet_ids.public.ids
 
-  tags = merge(local.common_tags, { "Name" = "clientapp-db-subnet-group-${var.environment}-${var.instance}" })
+  tags = merge(local.common_tags, { "Name" = local.full_name })
 }
