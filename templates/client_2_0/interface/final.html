@@ -1,8 +1,11 @@
 {% load static %}
+
 <!doctype html>
+
 <html lang="en">
-  <head>
-        <!-- Required meta tags -->
+
+<head>
+    <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -11,42 +14,96 @@
     <meta name="author" content="">
     <link rel="icon" href="{% static 'img/favicon/favicon.png' %}">
 
-    {% include 'client_2_0/base/base_client.css.html' %}
+    {% include 'site/base.css.html' %}
+
 
     <title>Household.app</title>
-  </head>
+</head>
 
 
 <body class="landing">
 
 
 <div class="container">
-<br><br>
+    <br><br>
     <div class="row" style="height: 30vh">
     </div>
 
-    <div class="row align-items-center" >
+    <div class="row align-items-center">
         <div class="col-md-12 text-center">
             <img src="{% static 'img/hhc/HC_Logo_Flat.png' %}" class="img-fluid" alt="Responsive image" width="40%">
         </div>
     </div>
 
+    {% if messages %}
+        <div class="row justify-content-md-center pt-5">
+            <div class="col-4 text-center">
+                {% for message in messages %}
+                    <p{% if message.tags == 'success' %}
+                        class="alert alert-HHCBlue text-white"{% endif %}>{{ message }}</p>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+        <div class="row justify-content-md-center pt-5" >
+            <div class="col-4 text-center">
+                    <a href="{{ successCaseUrl }}" > 
+                        <button id="success_case_btn"class="btn btn-hhcBlue" style="display:none"> Go back to Lead</button>
+                    </a>
+            </div>
+        </div>
+
 
 </div>
 
 
-{% include 'client_2_0/base/base_client.js.html' %}
+{% include 'site/base.js.html' %}
 </body>
 </html>
 
 
-{% block javascript %}
-    <script>
-        var pdfURL = '{{ pdfURL }}';
+<script>
 
-        $(document).ready(function() {
-            if (pdfURL.length >0) { window.location.replace(pdfURL)}
-        })
+    var cntr = 0;
+    var timeout = 3000; // 3.0s
 
-    </script>
-{% endblock %}
+    function backgroundPost() {
+        cntr += 1;
+        if (cntr < 30) {
+            return $.ajax({
+                url: window.location.href,
+                type: "post",
+                data: {csrfmiddlewaretoken: '{{csrf_token}}'},
+                success: function (data) {
+                    $(".alert").fadeOut()
+                    $('#success_case_btn').attr('style','display: default');
+                    window.location.replace(data['pdfURL'])
+                },
+                error: function (data) {
+                    setTimeout(function () {
+                        backgroundPost()
+                    }, timeout);
+
+                    if (cntr % 2 == 0) {
+                        $(".alert").fadeIn();
+                    }
+                    else{
+                        $(".alert").fadeOut();
+                    }
+
+                }
+
+            })
+        } else {
+            // after 90s it will fail.
+            window.location.replace('{{failURL}}');
+        }
+    }
+
+    $(document).ready(function () {
+        setTimeout(function () {
+            backgroundPost()
+        }, timeout);
+    })
+
+</script>

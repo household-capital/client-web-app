@@ -1,0 +1,385 @@
+{% extends 'application/base/base_app.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block message_display %}
+    <div class="container">
+        {% if messages %}
+            <div id='messages' class="row justify-content-md-center pt-2">
+                <div class="col-6 text-center">
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %}
+                            class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 pb-3">
+                <br>
+                <div class="secondary_title">{{ secondary_title }}</div>
+
+            </div>
+        </div>
+        <form id="{{ form.id }}" method="post">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+
+            <div class="row justify-content-center">
+                <div class="col-lg-6 text-left">
+
+                    <div class="row justify-content-left pt-1">
+                        <div class="col-sm-7 text-left align-self-center pb-2">
+                            <p>{% if form.choiceProduct.errors %}<span class="text-danger">
+                                <i class="fas fa-question-circle"></i>{% endif %}
+                                </span>
+                                Are you seeking additional retirement income?
+                            </p>
+                        </div>
+
+                        <div class="col-sm-5 text-center ">
+                            <div class=" btn-group-toggle" data-toggle="buttons">
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceProduct == True %} active {% endif %}">
+                                    <input type="radio" name="choiceProduct" value="True" required
+                                           id="id_choiceProduct_0" autocomplete="off"
+                                            {% if formData.choiceProduct == True %} checked {% endif %}>
+                                    Yes
+                                </label>
+                                <span class="pr-3"></span>
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceProduct == False %} active {% endif %}">
+                                    <input type="radio" name="choiceProduct" value="False"
+                                           id="choiceProduct_1" autocomplete="off"
+                                            {% if formData.choiceProduct == False %} checked {% endif %}>
+                                    &nbsp;No&nbsp;
+                                </label>
+                                <span class="pl-2"><button id='info-income' type="button" class=" btn btn-sm infoBtn track-link" data-toggle="modal"
+                                                           data-target="#incomeModal">
+                                    <i class="fas fa-info"></i></button></span>
+                                {{ form.choiceProduct.error }}
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="d-block d-sm-none">
+                        <hr>
+                    </div>
+
+
+                    <div class="row justify-content-left pt-3">
+                        <div class="col-sm-7 text-left align-self-center pb-2">
+                            <p>{% if form.choiceOtherNeeds.errors %}<span class="text-danger">
+                                <i class="fas fa-question-circle"></i>{% endif %}
+                                </span>
+                                Do you require funding for other retirement purposes at this time?
+
+                            </p>
+                        </div>
+                        <div class="col-sm-5 text-center ">
+                            <div class=" btn-group-toggle" data-toggle="buttons">
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceOtherNeeds == True %} active {% endif %}">
+                                    <input type="radio" name="choiceOtherNeeds" value="True" required
+                                           id="id_choiceOtherNeeds_0" autocomplete="off"
+                                            {% if formData.choiceOtherNeeds == True %} checked {% endif %}>
+                                    Yes
+                                </label>
+                                <span class="pr-3"></span>
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceOtherNeeds == False %} active {% endif %}">
+                                    <input type="radio" name="choiceOtherNeeds" value="False"
+                                           id="choiceOtherNeeds_1" autocomplete="off"
+                                            {% if formData.choiceOtherNeeds == False %} checked {% endif %}>
+                                    &nbsp;No&nbsp;
+                                </label>
+                                <span class="pl-2"><button id='info-purposes' type="button" class="btn btn-sm infoBtn track-link" data-toggle="modal"
+                                                           data-target="#otherPurposesModal">
+                                    <i class="fas fa-info"></i></button></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-block d-sm-none">
+                        <hr>
+                    </div>
+
+                    <div class="row justify-content-left pt-3">
+                        <div class="col-sm-7 text-left align-self-center pb-2">
+                            <p>{% if form.choiceOwnership.errors %}<span class="text-danger">
+                                <i class="fas fa-question-circle"></i>{% endif %}
+                                </span>
+                                Do you own your home and are you on the title?
+                            </p>
+                        </div>
+                        <div class="col-sm-5 text-center ">
+                            <div class=" btn-group-toggle" data-toggle="buttons">
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceOwnership == True %} active {% endif %}">
+                                    <input type="radio" name="choiceOwnership" value="True" required
+                                           id="id_choiceOwnership_0" autocomplete="off"
+                                            {% if formData.choiceOwnership == True %} checked {% endif %}>
+                                    Yes
+                                </label>
+                                <span class="pr-3"></span>
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceOwnership == False %} active {% endif %}">
+                                    <input type="radio" name="choiceOwnership" value="False"
+                                           id="choiceOwnership_1" autocomplete="off"
+                                            {% if formData.choiceOwnership == False %} checked {% endif %}>
+                                    &nbsp;No&nbsp;
+                                </label>
+                                <span class="pl-2"><button id='info-ownership' type="button" class="btn btn-sm infoBtn track-link" data-toggle="modal"
+                                                           data-target="#ownershipModal">
+                                    <i class="fas fa-info"></i></button></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-block d-sm-none">
+                        <hr>
+                    </div>
+
+                    <div class="row justify-content-left pt-3">
+                        <div class="col-sm-7 text-left align-self-center pb-2">
+                            <p>{% if form.choiceMortgage.errors %}<span class="text-danger">
+                                <i class="fas fa-question-circle"></i>{% endif %}
+                                </span>
+                                Do you have an existing mortgage on your home?
+                            </p>
+                        </div>
+                        <div class="col-sm-5 text-center ">
+                            <div class=" btn-group-toggle" data-toggle="buttons">
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceMortgage == True %} active {% endif %}">
+                                    <input type="radio" name="choiceMortgage" value="True" required
+                                           id="id_choiceMortgage_0" autocomplete="off"
+                                            {% if formData.choiceMortgage == True %} checked {% endif %}>
+                                    Yes
+                                </label>
+                                <span class="pr-3"></span>
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceMortgage == False %} active {% endif %}">
+                                    <input type="radio" name="choiceMortgage" value="False"
+                                           id="choiceMortgage_1" autocomplete="off"
+                                            {% if formData.choiceMortgage == False %} checked {% endif %}>
+                                    &nbsp;No&nbsp;
+                                </label>
+                                <span class="pl-2"><button id ='info-mortgage' type="button" class="btn btn-sm infoBtn track-link" data-toggle="modal"
+                                                           data-target="#mortgageModal">
+                                    <i class="fas fa-info"></i></button></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-block d-sm-none">
+                        <hr>
+                    </div>
+
+                    <div class="row justify-content-left pt-3">
+                        <div class="col-sm-7 text-left align-self-center pb-2">
+                            <p>{% if form.loanType.errors %}<span class="text-danger">
+                                <i class="fas fa-question-circle"></i>{% endif %}
+                                </span>
+                                Is there a second borrower (e.g., a spouse)? Or is there another occupant that you intend to allow to
+                                live in your home?
+                            </p>
+                        </div>
+                        <div class="col-sm-5 text-center ">
+                            <div class=" btn-group-toggle" data-toggle="buttons">
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceOccupants == True %} active {% endif %}">
+                                    <input type="radio" name="choiceOccupants" value="True" required
+                                           id="id_loanType_0" autocomplete="off"
+                                            {% if formData.choiceOccupants == True %} checked {% endif %}>
+                                    Yes
+                                </label>
+                                <span class="pr-3"></span>
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceOccupants == False %} active {% endif %}">
+                                    <input type="radio" name="choiceOccupants" value="False"
+                                           id="loanType_1" autocomplete="off"
+                                            {% if formData.choiceOccupants == False %} checked {% endif %}>
+                                    &nbsp;No&nbsp;
+                                </label>
+                                <span class="pl-2"><button id = 'info-loanType' type="button" class="btn btn-sm infoBtn track-link" data-toggle="modal"
+                                                           data-target="#loanTypeModal">
+                                    <i class="fas fa-info"></i></button></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br> <br>
+                </div>
+
+                <div class="col-lg-4 text-center"></div>
+            </div>
+        </form>
+        <div class="d-none d-lg-block">
+            <br><br><br><br>
+        </div>
+    </div>
+
+
+
+    <!-- Modals -->
+    <div class="modal fade" id="incomeModal" tabindex="-1" role="dialog" aria-labelledby="incomeModalLabel"
+         aria-hidden="true" data-timeout="10000">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="incomeModalLabel"><i class="far fa-info-circle"></i>&nbsp;
+                        Income objective</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    This application is to create a plan to draw down home equity, in regular instalments, to enhance
+                    retirement income.
+                    <br><br>
+                    Is this your objective to improve your retirement income?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="otherPurposesModal" tabindex="-1" role="dialog"
+         aria-labelledby="otherPurposesModalLabel"
+         aria-hidden="true" data-timeout="10000">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="otherPurposesModalLabel"><i class="far fa-info-circle"></i>&nbsp;
+                        Other purposes</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Household Loans can be used for many different purposes. For example we can help you access home
+                    equity to refinance an existing mortgage, improve your home, help others in your family or pay for
+                    home care and services
+
+
+                    <br><br>
+                    Would you like to explore other ways household capital could be used?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="ownershipModal" tabindex="-1" role="dialog" aria-labelledby="ownershipModalLabel"
+         aria-hidden="true" data-timeout="10000">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="owenershipModalLabel"><i class="far fa-info-circle"></i>&nbsp;
+                        Home ownership</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    To be eligible for a Household Loan you need to own your home and for all owners of the home to be
+                    Borrowers. Your home needs to have a ‘freehold’ or ‘strata’ Certificate of Title.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="mortgageModal" tabindex="-1" role="dialog" aria-labelledby="mortgageModalLabel"
+         aria-hidden="true" data-timeout="10000">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mortgageModalLabel"><i class="far fa-info-circle"></i>&nbsp;
+                        Do you have an existing mortgage?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    To be eligible for a Household Loan we need to be able to register a first mortgage on your home.
+                    <br><br>
+
+                    If you already have a mortgage, for example from an existing home loan, we may be able to switch
+                    this for a Household Loan.
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="loanTypeModal" tabindex="-1" role="dialog" aria-labelledby="loanTypeModalLabel"
+         aria-hidden="true" data-timeout="30000">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loanTypeModalLabel"><i class="far fa-info-circle"></i>&nbsp;
+                        Second borrower or other occupant?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    To be eligible for a Household Loan you need to own your home and for all owners of the home to be
+                    Borrowers. If you live with people that are not owners of the home, we may be able to include them
+                    so some of the loan features apply:<br>
+                    <ul>
+                        <li class="pt-2"> A 'Nominated Occupant' is someone who is not a borrower who you live with and
+                            would like them to be considered similar to a Borrower. This includes the ability to stay in
+                            the home if you pass away without having to repay the loan. They must be older than 60 years
+                            old.
+                        </li>
+                        <li class="pt-2">A 'Permitted Cohabitant' is someone who is not a borrower who you live with,
+                            but is not eligible to be considered a ‘nominated occupant’. For example they may not be 60
+                            years old.
+                        </li>
+
+
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+
+
+{% block javascript %}
+
+{% endblock %}

@@ -4,98 +4,110 @@
 
 
 <!-- Include -->
-<br><br>
-<div class="row pt-5  pl-2">
+<div class="pl-4">
 
-    <div class="col-sm-8"></div>
-    <div class="col-sm-4 text-left pr-5">
-        <img src="{% static 'img/hhc/HC_Logo_Flat.png' %}" width="200px">
-    </div>
-</div>
+    <br><br>
+    <div class="row pt-5  pl-2">
 
-<div class="row pl-2">
-    <div class="col-sm-8"></div>
-    <div class="col-sm-4 text-left pr-5 pt-4 pb-5">
-        <p class="print-text">Household Capital</p>
-        <p class="print-text">Level 12</p>
-        <p class="print-text">1 Nicholson Street</p>
-        <p class="print-text">Melbourne VIC 3002</p>
-        <p class="print-text">1300 622 100</p>
-
+        <div class="col-sm-8"></div>
+        <div class="col-sm-4 text-left pr-5">
+            <img src="{% static 'img/hhc/HC_Logo_Flat.png' %}" width="200px">
+        </div>
     </div>
 
-</div>
+    <div class="row pl-2">
+        <div class="col-sm-8"></div>
+        <div class="col-sm-4 text-left pr-5 pt-4 pb-5">
+            <p class="print-text">Household Capital</p>
+            <p class="print-text">Level 12</p>
+            <p class="print-text">1 Nicholson Street</p>
+            <p class="print-text">Melbourne VIC 3002</p>
+            <p class="print-text">1300 622 100</p>
 
-<div class="row ">
-    <div class="col-sm-9  text-left">
-        {% if obj.loanType == loanTypesEnum.SINGLE_BORROWER.value %}
-            <p class="print-text"> {{ obj.firstname_1 | firstName}}&nbsp;{{ obj.surname_1 }}</p>
-        {% else %}
-            <p class="print-text"> {{ obj.firstname_1 | firstName }}&nbsp;{{ obj.surname_1 }}</p>
-            <p class="print-text"> {{ obj.firstname_2 | firstName}}&nbsp;{{ obj.surname_2 }}</p>
-        {% endif %}
-        <p class="print-text"> {{ obj.street }}</p>
-        <p class="print-text"> {{ obj.suburb }} {{ obj.enumStateType }} {{ obj.postcode|stringformat:"d" }}</p>
-
-        <br><br>
-        <p class="print-text">{% now 'j F Y' %}</p>
-
-        <br><br>
-        <p class="print-text">Dear {% if obj.loanType == loanTypesEnum.SINGLE_BORROWER.value %}
-            {{ obj.firstname_1 | firstName}}
-        {% else %}
-            {{ obj.firstname_1 | firstName}}, {{ obj.firstname_2 | firstName}}&nbsp;
-        {% endif %}
-        </p>
-        <br>
-    </div>
-</div>
-
-<div class="row ">
-    <div class="col-sm-11 text-left">
-
-        <p class="print-text">It was my pleasure to meet you recently. Thank you for the opportunity to discuss your
-            retirement funding needs and to explore how a Household Loan might be able to assist in meeting your
-            objectives.</p>
-        <br>
-        <p class="print_subtitle pb-2"> Confirming that this loan is right for you</p>
-
-        <p class="print-text"> Please find attached the following documents that you will need to read before applying
-            for a Household Loan:</p>
-
-        <ul>
-            <li class="print-text pt-3">your Household Loan Summary - including important loan projections as well as a copy
-                of the consents provided during the meeting;
-            </li>
-
-            <li class="print-text pt-3">our Credit Guide - information about Household Capital; and</li>
-
-
-            <li class="print-text pt-3">a Reverse Mortgage Information Statement - general information to consider when deciding whether a reverse mortgage is right for you.</li>
-        </ul>
-        <br>
-
-        <p class="print-text"> Please don't hesitate to contact me if you have any questions about the attached or would
-            like further information on any aspect.</p>
-
-        <br>
-        <p class="print-text"> If you would like to proceed, please email me at {{ obj.user.email }} or call me
-            on {{ obj.user.profile.mobile }} and I will provide you with an application form.</p><br>
-        <p class="print-text">Yours sincerely</p>
-        <br><br>
-        <p class="print-text">{{ obj.user.first_name }} {{ obj.user.last_name }}</p>
-        <br>
+        </div>
 
     </div>
-</div>
 
-<br><br><br>
-<div class="row no-gutters">
-    <div class="col-sm-6 text-left">
-        <p class="small">Credit Provider: Household Capital Services Pty Limited <br>ACN 625 860 764 <br>Loan Manager: Household Capital Pty Limited ACN 618 068 214</p>
+    <div class="row ">
+        <div class="col-sm-9  text-left">
+            {% if clientType2 == clientTypesEnum.BORROWER.value %}
+                <p class="print-text"> {% if preferredName_1 %}{{ preferredName_1 }}{% else %}{{ firstname_1 }}{% endif %}&nbsp;{{ surname_1 }}</p>
+                <p class="print-text"> {% if preferredName_2 %}{{ preferredName_2 }}{% else %}{{ firstname_2 }}{% endif %}&nbsp;{{ surname_2 }}</p>
+            {% else %}
+                <p class="print-text"> {% if preferredName_1 %}{{ preferredName_1 }}{% else %}{{ firstname_1 }}{% endif %}&nbsp;{{ surname_1 }}</p>
+            {% endif %}
+            <p class="print-text"> {{ street }}</p>
+            <p class="print-text"> {{ suburb }} {{ enumState }} {{ postcode|stringformat:"d" }}</p>
+
+            <br><br>
+            <p class="print-text">{% now 'j F Y' %}</p>
+
+            <br><br>
+            <p class="print-text">Dear
+                {% if clientType2 == clientTypesEnum.BORROWER.value %}
+                    {% if preferredName_1 %}{{ preferredName_1 }}{% else %}{{ firstname_1 }}{% endif %} and {% if preferredName_2 %}{{ preferredName_2 }}{% else %}{{ firstname_2 }}{% endif %}
+                {% else %}
+                    {% if preferredName_1 %}{{ preferredName_1 }}{% else %}{{ firstname_1 }}{% endif %}
+                {% endif %}
+            </p>
+            <br>
+        </div>
     </div>
-    <div class="col-sm-5 text-left">
-        <p class="small">Household Capital Pty Limited is a credit representative (credit representative number 512757) of Mortgage Direct Pty Limited ACN 075 721 434, Australian Credit Licence 391876</p>
+
+    <div class="row ">
+        <div class="col-sm-11 text-left">
+
+            <p class="print-text">It was my pleasure to meet you recently. Thank you for the opportunity to discuss
+                your
+                retirement funding needs and to explore how a Household Loan might be able to assist in meeting your
+                objectives.</p>
+            <br>
+            <p class="print_subtitle pb-2"> Confirming that this loan is right for you</p>
+
+            <p class="print-text"> Please find attached the following documents that you will need to read before
+                applying
+                for a Household Loan:</p>
+
+            <ul>
+                <li class="print-text pt-3">your Household Loan Summary - including important loan projections as
+                    well as a copy
+                    of the consents provided during the meeting;
+                </li>
+
+                <li class="print-text pt-3">our Credit Guide - information about Household Capital; and</li>
+
+
+                <li class="print-text pt-3">a Reverse Mortgage Information Statement - general information to
+                    consider when deciding whether a reverse mortgage is right for you.
+                </li>
+            </ul>
+            <br>
+
+            <p class="print-text"> Please don't hesitate to contact me if you have any questions about the attached
+                or would
+                like further information on any aspect.</p>
+
+            <br>
+            <p class="print-text"> If you would like to proceed, please email me at {{ owner.email }} or call me
+                on {{ owner.profile.mobile }} and I will provide you with an application form.</p><br>
+            <p class="print-text">Yours sincerely</p>
+            <br><br>
+            <p class="print-text">{{ owner.first_name }} {{ owner.last_name }}</p>
+            <br>
+
+        </div>
+    </div>
+
+    <br><br><br>
+    <div class="row ">
+        <div class="col-sm-6 text-left">
+            <p class="small">Credit Provider: Household Capital Services Pty Limited <br>ACN 625 860 764 <br>Loan
+                Manager: Household Capital Pty Limited <br>ACN 618 068 214</p>
+        </div>
+        <div class="col-sm-5 text-left">
+            <p class="small">Household Capital Pty Limited is a credit representative (credit representative number
+                512757) of Mortgage Direct Pty Limited ACN 075 721 434, Australian Credit Licence 391876</p>
+        </div>
     </div>
 </div>
 

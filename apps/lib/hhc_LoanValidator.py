@@ -5,7 +5,7 @@ import csv
 from django.conf import settings
 
 # Local Application Imports
-from apps.lib.site_Enums import dwellingTypesEnum, loanTypesEnum
+from apps.lib.site_Enums import dwellingTypesEnum, loanTypesEnum, productTypesEnum
 from apps.lib.site_Globals import LOAN_LIMITS
 
 
@@ -20,20 +20,23 @@ class LoanValidator():
 
     minimumDataList = ['dwellingType', 'loanType', 'age_1', 'valuation', 'postcode']
 
-    loanDataList = ['topUpAmount', 'topUpDrawdownAmount', 'refinanceAmount', 'giveAmount', 'renovateAmount', 'travelAmount',
+    loanDataList = ['topUpAmount', 'topUpDrawdownAmount', 'refinanceAmount', 'giveAmount', 'renovateAmount',
+                    'travelAmount',
                     'careAmount', 'protectedEquity', 'mortgageDebt', 'careDrawdownAmount', 'topUpContingencyAmount',
-                    'topUpPlanAmount', 'carePlanAmount']
+                    'topUpPlanAmount', 'carePlanAmount', 'accruedInterest']
 
-    POSTCODE_FILE='/apps/lib/hhc_Postcodes.csv'
+    POSTCODE_FILE = '/apps/lib/hhc_Postcodes.csv'
 
-    def __init__(self, clientDict, loanDict=None):
+    def __init__(self, clientDict, loanDict=None, modelDict=None):
 
         # Check for minimum data
         self.initStatus = True
-        self.initDict={}
+        self.initDict = {}
         self.initDict.update(clientDict)
         if loanDict:
             self.initDict.update(loanDict)
+        if modelDict:
+            self.initDict.update(modelDict)
 
         for item in self.minimumDataList:
             if not self.__valueExists(item, self.initDict):
@@ -62,6 +65,11 @@ class LoanValidator():
             if not self.__valueExists(item, self.initDict):
                 self.initDict[item] = 0
 
+        # Set / override establishment fee
+        self.establishmentFee = LOAN_LIMITS['establishmentFee']
+        if self.__valueExists('establishmentFeeRate', self.initDict):
+            self.establishmentFee = self.initDict['establishmentFeeRate']
+
         # Limits
         self.maxLvr = 0
         self.maxLoan = 0
@@ -69,9 +77,18 @@ class LoanValidator():
         self.refinanceLimit = 0
         self.giveLimit = 0
         self.travelLimit = 0
+        self.drawdownLimit = 0
+        self.maxDrawdownMonthly = 0
+        self.lowLVRThreshold = 0
 
         # Refer Postcode
         self.isRefer = False
+
+        # Product Type
+        if 'productType' in self.initDict:
+            self.productType = self.initDict['productType']
+        else:
+            self.productType = productTypesEnum.LUMP_SUM.value
 
     def validateLoan(self):
         # Checks basic borrower and loan restrictions providing a status and dictionary of data
@@ -84,24 +101,28 @@ class LoanValidator():
         if self.initStatus == False:
             response['status'] = "Error"
             response['responseText'] = 'Insufficient data'
+            if self.initDict['postcode']:
+                data['postcode'] = self.checkPostcode(str(self.initDict['postcode']))
+                response['data'] = data
             return response
 
         # Check Valid Postcode
-        reader = csv.reader(open(settings.BASE_DIR + self.POSTCODE_FILE, 'r'))
+        reader = csv.reader(open(settings.BASE_DIR + self.POSTCODE_FILE, 'r', encoding='utf-8'))
         pcodeDict = {}
-    
+
         for row in reader:
-            pcodeDict[row[0]]={"Acceptable":row[1],"MaxLoan":row[2]}
+            pcodeDict[row[0]] = {"Acceptable": row[1], "MaxLoan": row[2]}
 
         if str(self.initDict['postcode']) in pcodeDict:
-            if pcodeDict[str(self.initDict['postcode'])]['Acceptable']=="Refer":
-                data['postcode']="Refer"
+            if pcodeDict[str(self.initDict['postcode'])]['Acceptable'] == "Refer":
+                data['postcode'] = "Refer"
                 self.isRefer = True
             else:
-                data['postcode']="Valid"
+                data['postcode'] = "Valid"
         else:
             response['status'] = "Error"
             response['responseText'] = 'Invalid Postcode'
+            return response
 
         # Get maxLoan (from Postcode file)
         if str(self.initDict['postcode']) in pcodeDict:
@@ -117,17 +138,24 @@ class LoanValidator():
 
         elif self.isCouple and self.clientAge < LOAN_LIMITS['minCoupleAge']:
             response['status'] = "Error"
-            response['responseText'] = 'Youngest joint borrower must be 65'
+            response['responseText'] = 'Youngest borrower must be 60'
             return response
+
 
         # Perform LVR calculations (for loan size validation)
         self.__calcLVR()
 
         # Check Min Loan Size
-        if self.maxLvr / 100 * self.initDict['valuation'] < LOAN_LIMITS['minLoanSize']:
-            response['status'] = "Error"
-            response['responseText'] = 'Minimum Loan Size cannot be met'
-            return response
+        if (self.productType == productTypesEnum.INCOME.value) or (self.productType == productTypesEnum.COMBINATION.value):
+             if int(self.maxDrawdownMonthly) < LOAN_LIMITS['minIncomeDrawdown']:
+                response['status'] = "Error"
+                response['responseText'] = 'Minimum Loan Size cannot be met'
+                return response
+        else:
+            if self.maxLvr / 100 * self.initDict['valuation'] < LOAN_LIMITS['minLoanSize']:
+                response['status'] = "Error"
+                response['responseText'] = 'Minimum Loan Size cannot be met'
+                return response
 
         # Check Mortgage Debt
         if int(self.initDict['mortgageDebt']) > int(
@@ -138,8 +166,7 @@ class LoanValidator():
 
         # data
         data['maxLoan'] = int(self.loanLimit)
-        data['maxFee'] = int(
-        data['maxLoan'] * LOAN_LIMITS['establishmentFee'] / (1 + LOAN_LIMITS['establishmentFee']))
+        data['maxFee'] = int(data['maxLoan'] * self.establishmentFee / (1 + self.establishmentFee))
         data['maxLVR'] = int(self.maxLvr)
         data['maxTopUp'] = LOAN_LIMITS['maxTopUp']
         data['maxCare'] = LOAN_LIMITS['maxCare']
@@ -147,6 +174,9 @@ class LoanValidator():
         data['maxRefi'] = int(self.refinanceLimit)
         data['maxGive'] = int(self.giveLimit)
         data['maxTravel'] = int(self.travelLimit)
+        data['maxDrawdown'] = int(self.drawdownLimit)
+        data['maxDrawdownMonthly'] = int(self.maxDrawdownMonthly)
+        data['lowLVRThreshold'] = int(self.lowLVRThreshold)
 
         response['data'] = data
 
@@ -162,38 +192,44 @@ class LoanValidator():
         # The available amount is an estimate based on the maximum $ establishment fee
         # (hence doesn't vary with the loan size or cause user confusion)
 
-        #Loan may not be validated
+        # Loan may not be validated
         if self.maxLoan == 0:
-            result=self.validateLoan()
+            result = self.validateLoan()
 
         response = {}
         data = {}
         if self.initStatus == False:
             response['status'] = "Error"
-            response['responseText']="Object not instantiated"
+            response['responseText'] = "Object not instantiated"
             return response
 
         self.__calcLVR()
 
         maxEstablishmentFee = self.loanLimit * (
-                LOAN_LIMITS['establishmentFee'] / (1 + LOAN_LIMITS['establishmentFee']))
+                self.establishmentFee / (1 + self.establishmentFee))
 
+        purposeAmount = (self.initDict['topUpAmount'] + self.initDict['topUpContingencyAmount'] + self.initDict[
+            'topUpDrawdownAmount'] + self.initDict['refinanceAmount'] + self.initDict['giveAmount']
+                         + self.initDict['renovateAmount'] + self.initDict['travelAmount'] + self.initDict[
+                             'careAmount'] + self.initDict['careDrawdownAmount'])
 
-        totalLoanAmount = (self.initDict['topUpAmount'] + self.initDict['topUpContingencyAmount']+ self.initDict['topUpDrawdownAmount']+ self.initDict['refinanceAmount'] + self.initDict['giveAmount']
-                           + self.initDict['renovateAmount'] + self.initDict['travelAmount'] + self.initDict[
-                               'careAmount'] + self.initDict['careDrawdownAmount']) * (
-                                  1 + LOAN_LIMITS['establishmentFee'])
+        totalLoanAmount = purposeAmount * (1 + self.establishmentFee)
 
         # This is based on total 'plan' amounts
-        totalPlanAmount = (self.initDict['topUpAmount'] + self.initDict['topUpContingencyAmount']+ self.initDict['topUpPlanAmount']+ self.initDict['refinanceAmount'] + self.initDict['giveAmount']
-                           + self.initDict['renovateAmount'] + self.initDict['travelAmount'] + self.initDict[
-                               'careAmount'] + self.initDict['carePlanAmount']) * (
-                                  1 + LOAN_LIMITS['establishmentFee'])
+
+        planPurposeAmount = (self.initDict['topUpAmount'] + self.initDict['topUpContingencyAmount'] + self.initDict[
+            'topUpPlanAmount'] + self.initDict['refinanceAmount'] + self.initDict['giveAmount']
+                             + self.initDict['renovateAmount'] + self.initDict['travelAmount'] + self.initDict[
+                                 'careAmount'] + self.initDict['carePlanAmount'])
+
+        totalPlanAmount = planPurposeAmount * (1 + self.establishmentFee)
 
         # Available amount always deducts the maximum establishment fee, so need to add back the calculated
-        # establishment fee from the total Loan Amount
+        # establishment fee from the total Loan Amount.
+        # Reduce by any accrued interest
         availableAmount = round(
-            self.loanLimit - totalPlanAmount / (1 + LOAN_LIMITS['establishmentFee']) - maxEstablishmentFee, 0)
+            self.loanLimit - totalPlanAmount / (1 + self.establishmentFee) - maxEstablishmentFee - self.initDict[
+                'accruedInterest'], 0)
 
         # Determine if detailed title search required
         detailedTitle = self._chkDetailedTitle(totalPlanAmount)
@@ -201,37 +237,87 @@ class LoanValidator():
         # Store primary output
         data['maxLVR'] = round(self.maxLvr, 1)
         data['maxNetLoanAmount'] = int(round(self.loanLimit - maxEstablishmentFee, 0))
-        data['maxLoanAmount'] = int(round(self.loanLimit,0))
+        data['maxLoanAmount'] = int(round(self.loanLimit, 0))
         data['availableAmount'] = int(round(availableAmount, 0))
-        data['establishmentFee'] = int(round(
-            totalLoanAmount / (1 + LOAN_LIMITS['establishmentFee']) * LOAN_LIMITS['establishmentFee'], 0))
-        data['planEstablishmentFee'] = int(round(
-            totalPlanAmount / (1 + LOAN_LIMITS['establishmentFee']) * LOAN_LIMITS['establishmentFee'], 0))
+
+        data['maxDrawdownMonthly'] = int(self.maxDrawdownMonthly)
+        data['maxDrawdownAmount'] = int(self.drawdownLimit)
+
+        data['purposeAmount'] = purposeAmount
+        data['establishmentFee'] = int(round(purposeAmount * self.establishmentFee, 0))
         data['totalLoanAmount'] = int(round(totalLoanAmount, 0))
+
+        data['planPurposeAmount'] = planPurposeAmount
+        data['planEstablishmentFee'] = int(round(planPurposeAmount * self.establishmentFee, 0))
         data['totalPlanAmount'] = int(round(totalPlanAmount, 0))
+
         data['actualLVR'] = round(totalLoanAmount / self.initDict['valuation'], 1) * 100
-        data['maxLVRPercentile'] = int(self.__myround(self.maxLvr,5))
+        data['planLVR'] = round(totalPlanAmount / self.initDict['valuation'], 1) * 100
+
+        data['maxLVRPercentile'] = int(self.__myround(self.maxLvr, 5))
+        data['actualLVRPercentile'] = int(max(5 * round(data['actualLVR'] / 5),2))
         data['detailedTitle'] = detailedTitle
+        data['lowLVRThreshold'] = self.lowLVRThreshold
+
+        if data['planLVR'] <= data['lowLVRThreshold']:
+            data['isLowLVR'] = True
+        else:
+            data['isLowLVR'] = False
+
 
         # Validate against limits and add to output dictionary
         data['errors'] = False
         self.__chkStatusItem(data, 'availableStatus', availableAmount, int(0), "LT")
-        self.__chkStatusItem(data, 'minloanAmountStatus', int(round(totalPlanAmount, 0)), LOAN_LIMITS['minLoanSize'], "LT")
         self.__chkStatusItem(data, 'maxloanAmountStatus', int(round(totalPlanAmount, 0)), self.loanLimit, "GTE")
-        self.__chkStatusItem(data, 'topUpStatus', self.initDict['topUpAmount']+ self.initDict['topUpContingencyAmount']+self.initDict['topUpDrawdownAmount'], LOAN_LIMITS['maxTopUp'], "GTE")
-        self.__chkStatusItem(data, 'topUpDrawdownStatus', self.initDict['topUpAmount']+ self.initDict['topUpContingencyAmount']+self.initDict['topUpDrawdownAmount'], LOAN_LIMITS['maxTopUp'], "GTE")
-        self.__chkStatusItem(data, 'topUpContingencyStatus',self.initDict['topUpAmount'] + self.initDict['topUpDrawdownAmount'] + self.initDict['topUpContingencyAmount'],LOAN_LIMITS['maxTopUp'], "GTE")
+        self.__chkStatusItem(data, 'topUpStatus',
+                             self.initDict['topUpAmount'] + self.initDict['topUpContingencyAmount'] + self.initDict[
+                                 'topUpDrawdownAmount'], LOAN_LIMITS['maxTopUp'], "GTE")
+        self.__chkStatusItem(data, 'topUpDrawdownStatus',
+                             self.initDict['topUpAmount'] + self.initDict['topUpContingencyAmount'] + self.initDict[
+                                 'topUpDrawdownAmount'], LOAN_LIMITS['maxTopUp'], "GTE")
+        self.__chkStatusItem(data, 'topUpContingencyStatus',
+                             self.initDict['topUpAmount'] + self.initDict['topUpDrawdownAmount'] + self.initDict[
+                                 'topUpContingencyAmount'], LOAN_LIMITS['maxTopUp'], "GTE")
         self.__chkStatusItem(data, 'refinanceStatus', self.initDict['refinanceAmount'], self.refinanceLimit, "GTE")
         self.__chkStatusItem(data, 'giveStatus', self.initDict['giveAmount'], self.giveLimit, "GTE")
         self.__chkStatusItem(data, 'renovateStatus', self.initDict['renovateAmount'], LOAN_LIMITS['maxReno'], "GTE")
         self.__chkStatusItem(data, 'travelStatus', self.initDict['travelAmount'], self.travelLimit, "GTE")
-        self.__chkStatusItem(data, 'careStatus', self.initDict['careAmount']+self.initDict['careDrawdownAmount'], LOAN_LIMITS['maxCare'], "GTE")
-        self.__chkStatusItem(data, 'careDrawdownStatus', self.initDict['careAmount']+self.initDict['careDrawdownAmount'], LOAN_LIMITS['maxCare'], "GTE")
+        self.__chkStatusItem(data, 'careStatus', self.initDict['careAmount'] + self.initDict['careDrawdownAmount'],
+                             LOAN_LIMITS['maxCare'], "GTE")
+        self.__chkStatusItem(data, 'careDrawdownStatus',
+                             self.initDict['careAmount'] + self.initDict['careDrawdownAmount'], LOAN_LIMITS['maxCare'],
+                             "GTE")
+
+        if self.productType == productTypesEnum.INCOME.value:
+
+            self.__chkStatusItem(data, 'minloanAmountStatus', int(round(self.maxDrawdownMonthly, 0)),
+                                 LOAN_LIMITS['minIncomeDrawdown'], "LT")
+        else:
+            self.__chkStatusItem(data, 'minloanAmountStatus', int(round(totalPlanAmount, 0)),
+                                 LOAN_LIMITS['minLoanSize'],"LT")
 
         response['status'] = "Ok"
-        response['data']=data
+        response['data'] = data
 
         return response
+
+
+    def checkPostcode(self,postcode):
+        # Check Valid Postcode
+        reader = csv.reader(open(settings.BASE_DIR + self.POSTCODE_FILE, 'r', encoding='utf-8'))
+        pcodeDict = {}
+
+        for row in reader:
+            pcodeDict[row[0]] = {"Acceptable": row[1], "MaxLoan": row[2]}
+
+        if str(postcode) in pcodeDict:
+            if pcodeDict[str(postcode)]['Acceptable'] == "Refer":
+                return "Refer"
+            else:
+                return "Valid"
+        else:
+            return "Invalid"
+
 
     def __chkStatusItem(self, data, label, amount, limit, condition):
         # Utility function to check conditions and create response
@@ -274,9 +360,24 @@ class LoanValidator():
 
         # Limits - based actual Lvr adjusted, capped at Loan Limit
         self.refinanceLimit = min(int(lvr * self.initDict['valuation'] * LOAN_LIMITS['maxRefi']), self.loanLimit)
-        self.giveLimit = min(int(lvr * self.initDict['valuation'] * LOAN_LIMITS['maxGive']), self.loanLimit)
-        self.travelLimit = min(int(lvr * self.initDict['valuation'] * LOAN_LIMITS['maxTravel']), self.loanLimit)
+        self.giveLimit = self.loanLimit * LOAN_LIMITS['maxGive']
+        self.travelLimit = self.loanLimit * LOAN_LIMITS['maxTravel']
 
+        # Drawdown Limits
+        self.drawdownLimit = min(int(round(lvr * self.initDict['valuation'], 0)), self.maxLoan)
+        self.maxDrawdownMonthly =  round((self.drawdownLimit / (10 * 12 )),-1)
+
+        # Low LVR Approximation [TEMPORARY]
+        low_lvr = 0.08 + (self.clientAge - LOAN_LIMITS['baseLvrAge']) * 0.012
+        if self.isApartment:
+            low_lvr = low_lvr - LOAN_LIMITS['apartmentLvrAdj']
+        low_lvr = low_lvr * (1 - self.initDict['protectedEquity'] / 100)
+        if low_lvr < 0:
+            low_lvr = 0
+
+        self.lowLVRThreshold = low_lvr * 100
+
+        return
 
     def __valueExists(self, item, sourceDict):
         if item in sourceDict:

@@ -1,0 +1,34 @@
+{% extends 'application/email/email_template.html' %}
+{% load humanize %}
+{% load static %}
+
+
+{% block email_content %}
+
+    <p>Dear {{ obj.firstname_1 }}</p>
+    <br>
+    <p>Thank you for commencing an online application for a Household Loan.</p>
+    <br>
+    <p>You can resume your application by clicking on the following button:</p>
+    <br>
+    <a href="{{ signedURL }}"><button style = "background-color: #ffc107; border: none;color: black; padding: 15px 32px; text-align: center;
+            text-decoration: none; display: inline-block; font-size: 16px; border-radius: 12px">Resume Application</button></a>
+
+    <br><br>
+    <p>For your security, this link will expire in 7 days or when an application is completed.</p>
+    <br>
+    <p>We are here to help.  If you have any questions during the application process, please don't hesitate to call us on <a href="tel:1300622100">1300 622 100</a>.</p>
+    <br>
+    <p>Kind regards</p>
+    <br>
+    <p>The Household Capital Team</p>
+
+    <br><br><br>
+    <small>Applications for credit are subject to eligibility and lending criteria.
+        Fees and charges are payable and terms and conditions apply (available on request).
+        Household Capital Pty Limited is a credit representative (512757) of Mortgage Direct Pty Limited
+        ACN 075 721 434, Australian Credit Licence 391876. HOUSEHOLD CAPITAL<sup>TM</sup>, the Star Device and
+        Household Capital and the Star Device are trademarks of Household Capital Pty Ltd.</small>
+     <br><br>
+
+{% endblock %}

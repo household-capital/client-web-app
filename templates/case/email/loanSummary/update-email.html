@@ -1,0 +1,23 @@
+{% extends 'case/email/loanSummary/email_template.html' %}
+{% load humanize %}
+{% load static %}
+
+
+{% block email_content %}
+
+    <p>{{ email_name_address }}</p>
+<br>
+<p>As discussed, please find attached an updated Loan Summary.</p>
+<br>
+<p>Please don't hesitate to contact me should you have any questions or would like to proceed to an application.</p>
+<br>
+<p>Kind regards</p>
+<br>
+<p>{{ obj.owner.first_name }}&nbsp;{{ obj.owner.last_name }}</p>
+<br>
+<img src="{{ obj.owner.profile.picture.url }}" width="100px">
+
+
+{% endblock %}
+
+

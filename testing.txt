@@ -1,0 +1,51 @@
+
+No automated application tests have been created
+
+
+The following functional tests should be undertaken for any major release (as at Sep-20:
+
+
+CORE FUNCTIONALITY
+
+Contact Queue
+    - website input contact us: appears in contact queue
+    - website gated contact: appears in enquiry
+
+Calculator Queue
+    - website calculator input {Household Loan, Income Loan, Contingency 20K, Combination Loan}: appears in calculator queue
+
+Enquiry
+    - pick up calculator queue item: generates client email with summary
+    - manually create enquiry
+    - synch with Salesforce: Lead
+    - generate distinct client summaries {Household Loan, Income Loan, Contingency 20K, Combination Loan} by changing Product Type
+    - book calendly discovery meeting: associated with the enquiry
+    - convert Enquiry to a Case
+
+Case
+    - load client property image and auto valuation
+    - book Zoom Meeting (from menu)
+    - complete client meeting: meeting (all screens) and produce Loan Summary
+    - synch with Salesforce Opportunity at Meeting Held (check data and documents)
+    - generate Case Summary
+    - send Case Summary to client (email functionality)
+
+Online Journey
+    - website apply online {Contingency20K and Income}
+    - journey communications: {link, loan summary, next steps}
+    - completed journey creates Case
+
+
+
+ADDITIONAL FUNCTIONALITY
+
+Create Variation
+    - existing client: creates new Case with current client information
+    - variation "meeting": generates correct Loan Summary variation document
+    - information synch to Salesforce
+
+Servicing
+    - annual review: send link, complete annual review
+    - additional drawdown: send link, create task in Salesforce
+
+

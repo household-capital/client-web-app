@@ -1,0 +1,22 @@
+<!-- Tealium Universal Data Object -->
+<script type="text/javascript">
+  var utag_data={
+      "post_id"     : "{{ slug }}",
+      "post_title"  : "{{ slug }}",
+      "app_uuid"    : "{{ app_uuid }}"
+};
+</script>
+
+<!-- Tealium Universal Tag -->
+{% if ENV %}
+<script type="text/javascript">
+  (function(a,b,c,d) {
+      a='//tags.tiqcdn.com/utag/householdcapital/main/{{ ENV }}/utag.js';
+      b=document;c='script';d=b.createElement(c);d.src=a;
+      d.type='text/java'+c;d.async=true;
+      a=b.getElementsByTagName(c)[0];a.parentNode.insertBefore(d,a)})();
+</script>
+{% endif %}
+
+
+

@@ -1,0 +1,109 @@
+{% load static %}
+{% load humanize %}
+{% load site_tags %}
+
+
+<!-- Include -->
+<div class="pl-4">
+    <br><br>
+    <div class="row pt-5  pl-2">
+
+        <div class="col-sm-8"></div>
+        <div class="col-sm-4 text-left pr-5">
+            <img src="{% static 'img/hhc/HC_Logo_Flat.png' %}" width="200px">
+        </div>
+    </div>
+
+    <div class="row pl-2">
+        <div class="col-sm-8"></div>
+        <div class="col-sm-4 text-left pr-5 pt-4 pb-5">
+            <p class="print-text">Household Capital</p>
+            <p class="print-text">Level 12</p>
+            <p class="print-text">1 Nicholson Street</p>
+            <p class="print-text">Melbourne VIC 3002</p>
+            <p class="print-text">1300 622 100</p>
+
+        </div>
+
+    </div>
+
+    <div class="row ">
+        <div class="col-sm-9  text-left">
+            {% if clientType2 == clientTypesEnum.BORROWER.value %}
+                <p class="print-text">{% if preferredName_1 %}{{ preferredName_1 }}{% else %}
+                    {{ firstname_1 }}{% endif %}&nbsp;{{ surname_1 }}</p>
+                <p class="print-text">{% if preferredName_2 %}{{ preferredName_2 }}{% else %}
+                    {{ firstname_2 }}{% endif %}&nbsp;{{ surname_2 }}</p>
+            {% else %}
+                <p class="print-text">{% if preferredName_1 %}{{ preferredName_1 }}{% else %}
+                    {{ firstname_1 }}{% endif %}&nbsp;{{ surname_1 }}</p>
+            {% endif %}
+            <p class="print-text"> {{ street }}</p>
+            <p class="print-text"> {{ suburb }} {{ enumState }} {{ postcode|stringformat:"d" }}</p>
+
+            <br><br>
+            <p class="print-text">{% now 'j F Y' %}</p>
+
+            <br><br>
+            <p class="print-text">Dear
+                {% if clientType2 == clientTypesEnum.BORROWER.value %}
+                    {% if preferredName_1 %}{{ preferredName_1 }}{% else %}{{ firstname_1 }}{% endif %} and
+                    {% if preferredName_2 %}{{ preferredName_2 }}{% else %}{{ firstname_2 }}{% endif %}
+                {% else %}
+                    {% if preferredName_1 %}{{ preferredName_1 }}{% else %}{{ firstname_1 }}{% endif %}
+                {% endif %}
+            </p>
+            <br>
+        </div>
+    </div>
+
+    <div class="row ">
+        <div class="col-sm-11 text-left">
+
+            <p class="print-text">Thank you for the opportunity to discuss your additional retirement funding needs.</p>
+            <br>
+            <p class="print-text">We understand that you would like to increase the limit on your existing loan from
+                ${{ orgTotalLoanAmount }} to ${{ totalLoanAmount }}. This is based on an increase of
+                ${{ variationPurposeAmount }},
+                plus an establishment fee of ${{ variationFeeAmount }}.</p>
+            <br>
+            <p class="print_subtitle pb-3"> Confirming that this loan variation is right for you</p>
+            <p class="print-text"> The attached document provides an update of the projections that were provided to you
+                before you applied for your Household Loan. These projections are designed to help you understand how
+                your
+                loan will increase over time, how your house price may be expected to grow and what this may mean for
+                the
+                equity that you have in your home.</p>
+            <br>
+            <p class="print-text">
+                These updated projections are calculated using the proposed increase in the value of your loan and also
+                reflect interest that has accrued on your existing loan. </p>
+            <br>
+            <p class="print-text"> Please don't hesitate to contact me if you have any questions about the attached or
+                would
+                like further information on any aspect.</p>
+
+            <br>
+            <p class="print-text">Yours sincerely</p>
+            <br><br>
+            <p class="print-text">{{ owner.first_name }} {{ owner.last_name }}</p>
+            <br>
+            <br><br>
+        </div>
+    </div>
+
+    <br><br><br><br><br>
+    <div class="row ">
+        <div class="col-sm-6 text-left">
+            <p class="small">Credit Provider: Household Capital Services Pty Limited <br>ACN 625 860 764 <br>Loan
+                Manager: Household Capital Pty Limited <br>ACN 618 068 214</p>
+        </div>
+        <div class="col-sm-5 text-left">
+            <p class="small">Household Capital Pty Limited is a credit representative (credit representative number
+                512757) of Mortgage Direct Pty Limited ACN 075 721 434, Australian Credit Licence 391876</p>
+        </div>
+    </div>
+</div>
+
+<!-- End Include -->
+

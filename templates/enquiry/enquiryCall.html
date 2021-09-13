@@ -1,0 +1,137 @@
+{% extends 'site/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12 title">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div id='messages' class="row justify-content-md-center">
+                <div class="col-6 text-center">
+                    <br>
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning">{{ message }}</p>{% endif %}
+
+                        <p{% if message.tags == 'success' %}
+                            class="alert alert-success">{{ message }}</p>{% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+        <br>
+
+        <div  class="row pt-2">
+            <div class="col-lg-4 text-left">
+                <p id="existAlert" class="alert alert-warning" style="display:none"><a id="existLink"><i class="fas fa-external-link-alt"></i>&nbsp;&nbsp;Enquiry exists for this phone number</a></p>
+            </div>
+            <div class="col-lg-4 text-left">
+                <p id="postcodeAlert" class="alert alert-warning" style="display:none"><i class="fas fa-info-circle"></i>&nbsp;&nbsp;Ineligible postcode</p>
+            </div>
+        </div>
+
+        <div class="row justify-content-left pt-3">
+            <div class="col-6">
+                {% for key, value in form.errors.items %}{% if key == '__all__' %}{{ value }}
+                {% endif %}{% endfor %}
+            </div>
+        </div>
+
+        <div class="row pt-2">
+            <div class="col-lg-8 text-left">
+                {% crispy form %}
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}
+
+
+{% block javascript %}
+    <script>
+
+        function backgroundPost() {
+            var frm = $('#clientForm');
+            return $.ajax({
+                url: window.location.href,
+                type: "post",
+                data: frm.serialize(),
+                success: function (data) {
+                    if(data['success']['phoneNumberExists']==true) {
+                        $('#existLink').attr("href", data['success']['existingUrl']);
+                        $('#existAlert').show();
+                    }
+                    else {
+                        $('#existAlert').hide();
+                    }
+                    if(data['success']['postcodeStatus']=='Invalid') {
+                        $('#postcodeAlert').show();
+                    }
+                    else {
+                        $('#postcodeAlert').hide();
+                    }
+
+                }
+            });
+            }
+
+           //Initialisation
+        $(document).ready(function () {
+
+
+           $('#id_phoneNumber').change(function() {
+               if ($(this).val().length > 9) {
+                   backgroundPost()
+               }
+           });
+
+            $('#id_postcode').change(function() {
+               if ($(this).val().length > 3) {
+                   backgroundPost()
+               }
+           });
+
+           // Prevent form submission on enter
+        $('form input').keydown(function (e) {
+            if (e.keyCode == 13) {
+                 e.preventDefault();
+                 $(':focus').blur();
+                return false;
+            }
+        });
+        })
+
+
+    </script>
+
+{% endblock %}
+

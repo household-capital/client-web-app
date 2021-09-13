@@ -37,11 +37,13 @@
                 <div class="row">
                     <div class="col-lg-8">
                         <br>
-                        <div class="secondary_title">Refinance an existing mortgage</div>
+                        <div class="secondary_title">Refinance existing credit</div>
                         <br>
                         <p>If you have an existing mortgage, we ensure this debt is paid as part
                             of the Household Transfer. </p><br>
                             <p>You can even choose to continue to make payments on your Household Transfer, but there is no obligation to do so.</p>
+                        <br>
+                        <p>If you have a credit card or personal loan, you can repay or consolidate with a Household Transfer.</p>
                         <br>
                     </div>
 
@@ -50,12 +52,10 @@
 
                 <div class="row">
 
-                    <div class="form-inline">
-
                         <div class="col-lg-12">
                             {% crispy form %}
                         </div>
-                    </div>
+
 
                 </div>
             </div>
@@ -72,5 +72,39 @@
 
 
 {% block javascript %}
+
+    <script>
+
+    function currency(obj) {
+        var currentValue = obj.prop("value").replace(/[$,]+/g, "");
+        if ((isNaN(currentValue)) || (currentValue == 0)) {
+
+        } else {
+            var output = new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(currentValue);
+            obj.prop("value", output);
+        }
+    }
+
+       //Initialisation
+    $(document).ready(function () {
+
+        $('#id_amount').change(function () {
+            currency($(this));
+        });
+
+        $('#id_drawdownAmount').change(function () {
+            currency($(this));
+        })
+
+
+    })
+
+
+
+    </script>
+
 
 {% endblock %}

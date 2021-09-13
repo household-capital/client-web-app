@@ -1,13 +1,12 @@
 #Python Imports
 import time
 import json
-import logging
-import os
+
 
 #Django Imports
-from django.conf import settings
+
+from django.core.files.storage import default_storage
 from django.core.files.temp import NamedTemporaryFile
-from django.core import files
 
 #Third-party Imports
 
@@ -20,6 +19,20 @@ from apps.lib.site_Globals import ECONOMIC
 
 
 class CloudBridge():
+    """
+    This was one of the earliest Household apps and has continually changed as data was migrated to
+    Salesforce. Originally, substantial blending, enumeration and validation was required.
+    Accordingly, this app needs to be complely refactored.
+
+    The general approach is to:
+    1. source opportunity data (now almost exclusively from SF);
+    2. generate an XML file;
+    3. validate it against the relevant schema;
+    4. submit to AMAL via API for validation; and
+    5. submit to AMAL
+
+    There are two permissible schemas - CAL AND ACC.  Testing on AAC has not been completed.
+    """
 
     LIXI_SETTINGS = {'LIXI_VERSION_CAL': '2.6.17',
                      'LIXI_VERSION':'0.0.3',
@@ -27,7 +40,7 @@ class CloudBridge():
                      'SCHEMA_FILENAME':"/apps/lib/lixi/LixiSchema/LIXI-ACC-0.0.3".replace(".", "_") + '.xsd',
                      'ORIGINATOR_MARGIN': ECONOMIC['lendingMargin'],
                      'ns_map_':{"xsi": 'http://www/w3/org/2001/XMLSchema-instance'},
-                     'FILEPATH':(settings.MEDIA_ROOT+'/customerReports/'),
+                     'FILEPATH':('customerReports/'),
                      'AMAL_DOCUMENTS':["Application Form", "Loan Contract", "Valuation Report"]
                      }
 
@@ -76,9 +89,6 @@ class CloudBridge():
 
 
     def createLixi(self):
-
-        AMAL_LoanId=""
-        identifier=""
 
         #Generate Lixi File
         try:
@@ -133,7 +143,10 @@ class CloudBridge():
     def checkSFData(self):
 
         msgString=""
-        loanDict = self.sfAPI.getLoanExtract(self.opportunityId)['data']
+        result = self.sfAPI.getOpportunityExtract(self.opportunityId)
+        if result['status'] == "Error":
+            return {"status": "Error", "responseText": result['responseText']}
+        loanDict= result['data']
 
         # Check loan settlement date
         reqs = ['Loan.Loan_Settlement_Date__c']
@@ -164,19 +177,19 @@ class CloudBridge():
     def generateLixiFile(self):
 
         loanDict={}
-        filename=filename = self.filePath + str(self.opportunityId) + ".xml"
+
+        localfile = NamedTemporaryFile(delete=False)
+        # a temporary file is used during xml construction
 
         self.__logging("Generating Lixi File for "+str(self.opportunityId))
 
         self.__logging("Step 1 - Extracting Salesforce Data to Loan Dictionary")
-        loanDict = self.sfAPI.getLoanExtract(self.opportunityId)['data']
-
-
-        self.loanId=loanDict['Loan.Loan_Number__c'] #Loan ID used later - hence instance variable
+        loanDict = self.sfAPI.getOpportunityExtract(self.opportunityId)['data']
 
         self.__logging("Step 2 - Enriching and enumerating the Loan Dictionary")
         objEnrich = EnrichEnum(loanDict)
         result=objEnrich.enrich()
+
         if result['status']!="Ok":
             self.__logging(result['responseText'])
             return {'status': 'Error'}
@@ -189,14 +202,18 @@ class CloudBridge():
         self.__logging(" -  "+str(loanDict))
 
         self.__logging("Step 3 - Generating XML File")
-
+        
         commentStr = str(
-            "This file is for short-form loan ID {0}, short-form property ID {1} and with opportunity description {2}").format(
-            loanDict['Loan.Name'], loanDict['Prop.Name'], loanDict['Opp.Name'])
+            "This file is for short-form loan ID {0}, short-form opportunity ID {1} and with opportunity description {2}").format(
+            loanDict['LoanObject.LoanNumber'], loanDict['Loan.Loan_Number__c'], loanDict['Opp.Name'])
         timestamp = time.strftime("%Y%m%d%H%M%S")
 
         self.__logging(" -  Creating XML Structure")
-        lixiFile = LixiXMLGenerator(self.LIXI_SETTINGS, 'Yes', "HHC-" + str(timestamp), "HHC-" + loanDict['Opp.Id'], commentStr, filename)
+        lixiFile = LixiXMLGenerator(self.LIXI_SETTINGS, 'Yes',
+                                    "HHC-" + str(timestamp),
+                                    "HHC-" + loanDict['Opp.Id'],
+                                    commentStr,
+                                    localfile)
 
         self.__logging(" -  Populating Elements")
         result=lixiFile.populateElements(loanDict)
@@ -211,25 +228,37 @@ class CloudBridge():
             self.__logging(result['responseText'])
             return {'status':'Error'}
 
+        # Save localfile to targetFile storage
+        localfile.flush()
+        targetFileName = self.filePath + str(self.opportunityId) + ".xml"
+
+        try:
+            default_storage.delete(targetFileName)
+        except FileNotFoundError:
+            pass
+
+        default_storage.save(targetFileName, localfile)
+        localfile.close()
+
         self.__logging("Step 4 - Validating XML File against Schema")
-        isValid = lixiFile.ValidateXML(filename, self.schemaFilename)
+        isValid = lixiFile.ValidateXML(targetFileName, self.schemaFilename)
         if isValid['status']=='Error':
             self.__logging(isValid['responseText'])
             return {'status':'Error'}
 
         self.__logging("File Generated and Validated")
 
-        return {'status':'Ok','data':filename}
+        return {'status':'Ok','data':targetFileName}
 
     def sendToAMAL(self, filename, sendFiles):
 
         identifier=""
         AMAL_LoanId=""
-        self.__logging('Step 5 - Checking file with AMAL Schema Validator')
-        isValid=self.mlAPI.checkLixiFile(filename)
-        if isValid['status']!="Ok":
-            self.__logging(isValid['responseText'])
-            return {'status': 'Error'}
+        # self.__logging('Step 5 - Checking file with AMAL Schema Validator')
+        # isValid=self.mlAPI.checkLixiFile(filename)
+        # if isValid['status']!="Ok":
+        #     self.__logging(isValid['responseText'])
+        #     return {'status': 'Error'}
 
         if sendFiles:
             self.__logging('Step 6 - Sending Lixi file to AMAL')
@@ -252,6 +281,7 @@ class CloudBridge():
 
             try:
                 result=self.sfAPI.updateLoanID(oppID,AMAL_LoanId)
+
                 if result['status']=="Ok":
                     self.__logging(" -  Saved " + AMAL_LoanId + " to Opportunity " + oppID)
                     return {"status":"Ok"}
@@ -264,7 +294,7 @@ class CloudBridge():
                 return {"status": "Error"}
 
 
-    def sendDocumentsToAMAL(self, applicationID):
+    def sendDocumentsToAMAL(self, applicationID, amalLoanID):
 
         docList=self.sfAPI.getDocumentList(self.opportunityId)['data']
 
@@ -274,7 +304,7 @@ class CloudBridge():
 
                 for attempt in range(2):
                     #Try sending three times
-                   result = self.__sendDocument(row, applicationID)
+                   result = self.__sendDocument(row, applicationID, amalLoanID)
                    if result['status'] == "Ok":
                        break
 
@@ -284,14 +314,14 @@ class CloudBridge():
         return {'status': "Ok"}
 
     
-    def __sendDocument(self, row, applicationID ):
+    def __sendDocument(self, row, applicationID, amalLoanID):
         srcfileIO = self.sfAPI.getDocumentFileStream(row["Id"])
 
         if srcfileIO['status'] != "Ok":
             return {'status': "Error", 'responseText': 'Did not retrieve ' + row["Name"]}
 
         try:
-            status = self.mlAPI.sendDocuments(srcfileIO['data'], str(row["Name"]) + ".pdf", applicationID)
+            status = self.mlAPI.sendDocuments(srcfileIO['data'], str(row["Name"]) + ".pdf", applicationID, amalLoanID)
             if json.loads(status.text)['status'] != 'ok':
                 return {'status': "Error", 'responseText': 'Error sending ' + row["Name"] + " to AMAL " + status.text}
 

@@ -8,21 +8,22 @@
 {% block message_display %}
 
     <div class="container">
-
         {% if messages %}
-            <div class="row">
-                <div class="col-12">
+            <div id='messages' class="row justify-content-md-center pt-3">
+                <div class="col-6 text-center">
                     {% for message in messages %}
-                        <p{% if message.tags == 'success' %}
-                            class="alert alert-success"{% endif %}>{{ message }}</p>
+                        <p{% if message.tags == 'error' %} class="alert alert-danger"{% endif %}
+                                {% if message.tags == 'warning' %} class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
                     {% endfor %}
+                    <br>
                 </div>
+
             </div>
+
         {% endif %}
-
-        <div class="row">
-
-        </div>
     </div>
 
 {% endblock %}
@@ -30,6 +31,12 @@
 {% block content %}
 
     <div class="container">
+
+        {% if sfOpportunityID %}
+            <p class="larger pt-3 pl-3">
+                {{ sfLoanID }}, {{ surname_1 }}
+            </p>
+        {% endif %}
 
         <div class="row pt-1">
             <div class="col-lg-12">
@@ -66,21 +73,19 @@
 
             <div class="row pt-1">
                 <div class="col-lg-12">
-                    {% include 'fact_find/components/purposes.html' %}
+                    {% include 'fact_find/components/meeting_data.html' %}
                 </div>
             </div>
 
-
             <div class="row pt-1">
                 <div class="col-lg-12">
-                    {% include 'fact_find/components/future.html' %}
+                    {% include 'fact_find/components/customer_data.html' %}
                 </div>
             </div>
 
-
             <div class="row pt-1">
                 <div class="col-lg-12">
-                    {% include 'fact_find/components/conclusion.html' %}
+                    {% include 'fact_find/components/loan_purposes.html' %}
                 </div>
             </div>
         </form>

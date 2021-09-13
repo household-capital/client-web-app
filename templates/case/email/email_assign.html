@@ -1,0 +1,30 @@
+{% load humanize %}
+{% load site_tags %}
+
+<!doctype html>
+<html lang="en">
+
+<body>
+Hey {{ user.first_name }}<br/><br/>
+
+Heads up - you have just been assigned the following leads:<br/><br/>
+{% for lead in leads %}
+    <div style="padding-left: 5px">
+        <a href="{{ base_url }}{{ lead.get_absolute_url}}">
+            <button style="background-color: #ffc107; border: none;color: black; padding: 6px 16px; text-align: center;
+                text-decoration: none; display: inline-block; font-size: 14px; border-radius: 12px">{{ lead.description }} - {{ lead.postcode|stringformat:"d"  }}
+            </button>
+        </a>
+    </div>
+    <br/>
+{% endfor %}
+<br/>
+Check out the Lead List for further details.<br><br>
+
+YOU ROCK!<br><br>
+
+The ClientApp
+
+</body>
+</html>
+

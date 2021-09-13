@@ -1,6 +1,9 @@
 {% load static %}
+
 <!doctype html>
+
 <html lang="en">
+
   <head>
         <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -11,7 +14,8 @@
     <meta name="author" content="">
     <link rel="icon" href="{% static 'img/favicon/favicon.png' %}">
 
-    {% include 'client_2_0/base/base_client.css.html' %}
+    {% include 'site/base.css.html' %}
+
 
     <title>Household.app</title>
   </head>
@@ -35,14 +39,13 @@
     </div>
     <br>
     <div class="row justify-content-center">
-        <div class="col-md-3 text-center">
-            <div class="btn-hhcBlue">PDF not available at this time</div>
+        <div class="col-md-4 text-center">
+            <div class="button btn-lg btn-warning">PDF not available at this time</div>
         </div>
     </div>
 </div>
 
-
-{% include 'client_2_0/base/base_client.js.html' %}
+{% include 'site/base.js.html' %}
 </body>
 </html>
 

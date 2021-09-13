@@ -1,0 +1,25 @@
+{% extends 'case/email/loanSummary/email_template.html' %}
+{% load humanize %}
+{% load static %}
+
+
+{% block email_content %}
+
+    <p>{{ email_name_address }}</p>
+<br>
+    <p>It was my pleasure to meet with you to discuss how a Household Transfer might be used to help meet your objectives.</p>
+<br>
+<p>As promised, I have attached a document that contains your Summary Report from our meeting.</p>
+<br>
+<p>Please don't hesitate to contact me should you have any questions or would like to proceed to an application.</p>
+<br>
+<p>Kind regards</p>
+<br>
+<p>{{ obj.owner.first_name }}&nbsp;{{ obj.user.owner }}</p>
+<br>
+<img src="{{ obj.owner.profile.picture.url }}" width="100px">
+
+
+{% endblock %}
+
+

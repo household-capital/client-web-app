@@ -1,0 +1,37 @@
+{% extends 'calculator/email/email_calc_template.html' %}
+{% load humanize %}
+{% load static %}
+
+
+{% block email_content %}
+
+    <p>{% if customerFirstName %}Dear {{ customerFirstName }} {% else %}Hello {% endif %}</p>
+    <br>
+    <p> I am pleased to provide you with your personalised summary following your interaction with our pre qualification calculator. This summary will show you how a Household Loan may be able to help you meet your retirement needs based on the information you have provided.</p>
+    <br>
+    <p> To  assist you in making an informed decision on whether releasing the savings from your home is the right solution for you, and to discuss your individual circumstances, please schedule a time that suits you by clicking on this <a href="{{ calendlyUrl }}" target="_blank"> link</a>
+    </p>
+    <br/>
+    <p> One  of our experienced Retirement Specialists will follow up your enquiry with a phone call shortly to discuss your enquiry further. They will be able to answer any questions you may have and offer additional details. We will then be in a position to provide you with an obligation free summary of how our Household Loan could work for you. Alternatively, we welcome you to contact our Customer Support team directly on 03 8639 5031.
+    </p>
+    <br>
+    <p>Kind regards</p>
+    <br>
+    {% if user %}
+        <p>{{ user.first_name }} {{ user.last_name }}</p>
+        <p>Head Of Customer Operations</p> 
+        <p><a href="tel:{{ user.profile.mobile}}">{{ user.profile.mobile}}</a></p>
+        <p>{{ user.email }}</p>
+        <br>
+        <img src="{{ user.profile.picture.url }}" width="100px">
+    {% endif %}
+
+    <br><br>
+    <small>Applications for credit are subject to eligibility and lending criteria.
+        Fees and charges are payable and terms and conditions apply (available on request).
+        Household Capital Pty Limited is a credit representative (512757) of Mortgage Direct Pty Limited
+        ACN 075 721 434, Australian Credit Licence 391876. HOUSEHOLD CAPITAL<sup>TM</sup>, the Star Device and
+        Household Capital and the Star Device are trademarks of Household Capital Pty Ltd.</small>
+     <br><br>
+
+{% endblock %}

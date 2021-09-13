@@ -1,0 +1,468 @@
+{% load static %}
+{% load humanize %}
+
+
+<!-- Include -->
+<div class="row">
+    <div class="col-lg-12"><br>
+        <p class="secondary_title">Your Projections</p>
+    </div>
+    <br>
+</div>
+
+<div>
+    <div class="row">
+        <div class="col-lg-12 ">
+            <br>
+            <p class="print-text">This section helps you understand how your loan will increase over time, how your
+                house price may be expected to grow and what
+                this may mean for the equity in your home.</p>
+        </div>
+    </div>
+
+    <div class="row ">
+        <div class="col-lg-12 "><br>
+            <p class="larger HHCLightBlue-Printed pb-3">Summary</p>
+        </div>
+    </div>
+
+    <div class="print-container">
+
+        <div class="row">
+            <div class="col-lg-12 ">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="border pb-3 pt-3 pl-3 rounded secondary">
+
+                            <p class="print-text pb-2">In {{ pointYears1 }} years time,
+                                when {{ personLabel }} <br>{{ pointAge1 }}
+                                years
+                                old</p>
+
+
+                            <div class="row no-gutters">
+                                <div class="col-lg-6 text-center my-auto pb-2">
+                                    <img src="{{ pointImage1 }}"
+                                         width="150px">
+                                </div>
+
+
+                                <div class="col-lg-6 ">
+                                    <br>
+                                    <p class="small">Your home equity will be</p>
+                                    <p class="xx-large">{{ pointHomeEquityPC1 }}%</p>
+                                    <p class="small">of your home value</p>
+
+                                </div>
+                            </div>
+
+
+                            <div class="row">
+                                <div class="col-lg-8 ">
+                                    <p class="small">
+                                        Projected home value: <br>
+                                        <i class="fas fa-square hhcGoldFont"></i>&nbsp;Loan balance (what you owe):<br>
+                                        <i class="fas fa-square hhcLightBlue"></i>&nbsp;Home equity:
+                                    </p>
+                                </div>
+
+                                <div class="col-lg-4 ">
+                                    <p class="small">
+                                        $ {{ pointHouseValue1 }} <br>
+                                        $ {{ pointLoanValue1 }} <br>
+                                        $ {{ pointHomeEquity1 }}
+                                    </p>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 ">
+                        <div class="border pb-3 pt-3 pl-3 rounded secondary">
+
+                            <p class="print-text pb-2">When {{ personLabel }} {{ pointAge2 }} years old</p>
+                            <br>
+                            <div class="row no-gutters">
+                                <div class="col-lg-6 text-center my-auto pb-2">
+                                    <img src="{{ pointImage2 }}"
+                                         width="150px">
+                                </div>
+
+
+                                <div class="col-lg-6 ">
+                                    <br>
+                                    <p class="small">Your home equity will be</p>
+                                    <p class="xx-large">{{ pointHomeEquityPC2 }}%</p>
+                                    <p class="small">of your home value</p>
+
+                                </div>
+                            </div>
+
+
+                            <div class="row">
+                                <div class="col-lg-8 ">
+                                    <p class="small">
+                                        Projected home value: <br>
+                                        <i class="fas fa-square hhcGoldFont"></i>&nbsp;Loan balance (what you owe):<br>
+                                        <i class="fas fa-square hhcLightBlue"></i>&nbsp;Home equity:
+                                    </p>
+                                </div>
+
+                                <div class="col-lg-4 ">
+                                    <p class="small">
+                                        $ {{ pointHouseValue2 }} <br>
+                                        $ {{ pointLoanValue2 }} <br>
+                                        $ {{ pointHomeEquity2 }}
+                                    </p>
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br>
+    <div class="row justify-content-center">
+
+        <div class="col-lg-5 ">
+            <p class="print-text-bold">Property value</p>
+            <div class="row">
+                <div class="col-lg-8">
+                    <p>Current value</p>
+                    <p>Assumed increase in value</p>
+                </div>
+                <div class="col-lg-4">
+                    <p>${{ valuation |intcomma }}</p>
+                    <p>{{ housePriceInflation }}% pa</p>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-lg-5 ">
+            <p class="print-text-bold">The cost of your loan</p>
+            <div class="row">
+                <div class="col-lg-8">
+                    <p>Interest rate</p>
+                    <p>Establishment fee</p>
+                    <p>Ongoing fee</p>
+                </div>
+                <div class="col-lg-4">
+                    <p>{{ totalInterestRate }}% pa</p>
+                    <p>${{ establishmentFee |intcomma }}</p>
+                    <p>$0</p>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="row justify-content-center">
+
+
+    <div class="col-lg-10 pt-2 ">
+        <p class="print-text-bold">Loan amount(s)</p>
+        {% if totalPlanAmount == totalLoanAmount %}
+            <p>The total Loan Amount is
+                ${{ totalLoanAmount |intcomma }}, including establishment fee of ${{ establishmentFee }}</p>
+            <br>
+        {% else %}
+            <p>The total Loan Amount (drawn in the first 12 months) is
+                ${{ totalLoanAmount |intcomma }}, including establishment fee of ${{ establishmentFee }}</p>
+            <p>The total Plan Amount (drawn over {{ planPeriod }} years) is ${{ totalPlanAmount |intcomma }}, including
+            establishment fee of ${{ planEstablishmentFee }}
+        {% endif %}
+    </div>
+</div>
+
+<div class="row ">
+
+    <div class="col-lg-12 "><br>
+        <p class="larger HHCLightBlue-Printed pb-3">Explanatory notes</p>
+
+        <p class="print-text-bold">What is a reverse mortgage?</p>
+        <p class="print-text pb-3">A loan made using the equity in your home as security. Periodic interest
+            payments on the loan are not required and are added to the loan balance. You will need to repay the loan
+            when you stop living in your home.</p>
+
+        <p class=" larger"><b>Home Value</b></p>
+        <p class="print-text pb-3">Your projected home value is based on the specified growth rate.
+            The calculations assume a constant growth rate (although in reality this rate will rise and
+            fall).</p>
+
+        <p class="larger"><b>Interest Rate</b></p>
+        <p class="print-text pb-3">Interest rates are assumed to remain constant over the life of the loan. This
+            loan has a variable rate of interest and should be expected to fluctuate over time. Interest is
+            calculated daily and accrued monthly. </p>
+
+        <p class="larger"><b>Loan Balance</b></p>
+        <p class="print-text pb-3">The outstanding loan balance is calculated each month by adding any planned
+            loan
+            drawdowns,
+            interest charges and any fees to the outstanding
+            loan balance from the previous month. These projections assume that no repayments are made during
+            the
+            life of the loan. </p>
+
+
+        <p class="larger "><b>Home Equity </b></p>
+        <p class="print-text">Your home equity is the value
+            of
+            your
+            home less the outstanding balance of the loan.
+            This is the value you might expect to receive if you were to sell your home, after repaying the loan.
+            The home equity percentage is calculated by dividing your Home Equity by your Home Value.</p>
+
+    </div>
+</div>
+
+
+<!-- Page -->
+<p style="page-break-before: always"></p>
+
+<div>
+
+    <div class="row pt-3 ">
+        <div class="col-sm-12  text-left">
+            <br>
+            <img src="{% static 'img/document/HC_Logo_Flat.png' %}" width="200px">
+        </div>
+
+    </div>
+    <br><br>
+</div>
+
+
+<div>
+    <div class="row ">
+        <div class="col-lg-12 "><br>
+            <p class="larger HHCLightBlue-Printed pb-1">Baseline projection</p>
+            <p class="print-text">This is how your home equity may change over time (assuming {{ housePriceInflation }}%
+                pa increase in home value and loan interest rate of {{ totalInterestRate }}%)</p>
+            <br>
+        </div>
+    </div>
+    <br>
+    <div class="print-container">
+
+        <div class="row padding-10px">
+            <div class="col-lg-12 ">
+                <p class="small"><i class="fas fa-square hhcGoldFont"></i>&nbsp;Loan balance&nbsp;&nbsp;&nbsp;&nbsp;
+                    <i class="fas fa-square hhcLightBlue"></i>&nbsp;Home equity </p>
+            </div>
+        </div>
+
+        <div class="row justify-content-md-center align-items-end">
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-2 text-right">
+                    </div>
+                    <div class="col-lg-2 text-center">
+                        <p class="">Now</p>
+                        <p class="">Age {{ resultsAge.0 }}</p>
+                    </div>
+                    <div class="col-lg-2 text-center">
+                        <p class="">In 5 years</p>
+                        <p class="">Age {{ resultsAge.1 }}</p>
+                    </div>
+                    <div class="col-lg-2 text-center ">
+                        <p class="">In 10 years</p>
+                        <p class="">Age {{ resultsAge.2 }}</p>
+                    </div>
+                    <div class="col-lg-2 text-center">
+                        <p class="">In 15 years</p>
+                        <p class="">Age {{ resultsAge.3 }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-2 text-right">
+                    </div>
+                    <div class="col-lg-2 text-center my-auto">
+                        <div class="imgResults"><img src="{{ resultsHomeImages.0 }}"
+                                                     width="{{ resultsHouseValue.4 }}px">
+                        </div>
+                    </div>
+                    <div class="col-lg-2 text-center my-auto">
+                        <div class="imgResults"><img src="{{ resultsHomeImages.1 }}"
+                                                     width="{{ resultsHouseValue.5 }}px">
+                        </div>
+                    </div>
+
+                    <div class="col-lg-2 text-center my-auto ">
+                        <div class="imgResults"><img src="{{ resultsHomeImages.2 }}"
+                                                     width="{{ resultsHouseValue.6 }}px">
+                        </div>
+                    </div>
+                    <div class="col-lg-2 text-center my-auto">
+                        <div class="imgResults"><img src="{{ resultsHomeImages.3 }}"
+                                                     width="{{ resultsHouseValue.7 }}px">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                <div class="row">
+
+                    <div class="col-lg-2 text-right">
+                        <p class="small">Home value:</p>
+                        <p class="small">Loan balance:</p>
+                        <p class="small">Home equity:</p>
+                        <p class="small">Home equity %:</p>
+                    </div>
+
+                    <div class="col-lg-2 text-center">
+                        <p class="small">${{ resultsHouseValue.0|intcomma }}</p>
+                        <p class="small">${{ resultsLoanBalance.0|intcomma }}</p>
+                        <p class=""><b>${{ resultsHomeEquity.0|intcomma }}</b></p>
+                        <p class="small">{{ resultsHomeEquityPC.0|intcomma }}%</p>
+
+                    </div>
+                    <div class="col-lg-2 text-center">
+                        <p class="small">${{ resultsHouseValue.1|intcomma }}</p>
+                        <p class="small">${{ resultsLoanBalance.1|intcomma }}</p></p>
+                        <p class=""><b>${{ resultsHomeEquity.1|intcomma }}</b></p>
+                        <p class="small">{{ resultsHomeEquityPC.1|intcomma }}%</p>
+
+                    </div>
+                    <div class="col-lg-2 text-center">
+                        <p class="small">${{ resultsHouseValue.2|intcomma }}</p>
+                        <p class="small">${{ resultsLoanBalance.2|intcomma }}</p></p>
+                        <p class=""><b>${{ resultsHomeEquity.2|intcomma }}</b></p>
+                        <p class="small">{{ resultsHomeEquityPC.2|intcomma }}%</p>
+
+                    </div>
+                    <div class="col-lg-2 text-center">
+                        <p class="small">${{ resultsHouseValue.3|intcomma }}</p>
+                        <p class="small">${{ resultsLoanBalance.3|intcomma }}</p></p>
+                        <p class=""><b>${{ resultsHomeEquity.3|intcomma }}</b></p>
+                        <p class="small">{{ resultsHomeEquityPC.3|intcomma }}%</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <br>
+
+        <br><br>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                <p class="small">Detailed breakdown</p>
+                <div class="row no-gutters">
+
+                    <div class="col-lg-4 text-left">
+                        <p class="small ">&nbsp;</p>
+                        <p class="small pb-1">&nbsp;</p>
+                        <p class="small border-top border-bottom pb-1 pt-1">Home value</p>
+                        <p class="small pt-1">Lump sum received</p>
+                        <p class="small pt-1">Regular payments received</p>
+                        <p class="small pt-1">Interest owing</p>
+                        <p class="small pt-1">Fees paid</p>
+                        <p class="small border-top border-bottom pb-1 pt-1">Total owing</p>
+                        <p class="small border-bottom pb-1 pt-1">Your home equity</p>
+                        <p class="small border-bottom pb-1 pt-1">Equity as a % of projected home value</p>
+                    </div>
+
+                    <div class="col-lg-2 text-right">
+                        <p class="small ">Now</p>
+                        <p class="small pb-1">Age {{ resultsAge.0 }}</p>
+                        <p class="small border-top border-bottom pb-1 pt-1">${{ resultsHouseValue.0|intcomma }}</p>
+                        <p class="small pt-1 text-danger">${{ cumLumpSum.0|intcomma }}</p>
+                        <p class="small pt-1 text-danger">${{ cumRegular.0|intcomma }}</p>
+                        <p class="small pt-1 text-danger">${{ cumInt.0|intcomma }}</p>
+                        <p class="small pt-1 text-danger">${{ cumFee.0|intcomma }}</p>
+                        <p class="small border-top border-bottom pb-1 pt-1 text-danger">
+                            ${{ resultsLoanBalance.0|intcomma }}</p>
+                        <p class="small border-bottom pb-1 pt-1">${{ resultsHomeEquity.0|intcomma }}</p>
+                        <p class="small border-bottom pb-1 pt-1">{{ resultsHomeEquityPC.0|intcomma }}%</p>
+
+                    </div>
+                    <div class="col-lg-2 text-right">
+                        <p class="small ">In 5 years</p>
+                        <p class="small pb-1">Age {{ resultsAge.1 }}</p>
+                        <p class="small border-top border-bottom pb-1 pt-1">${{ resultsHouseValue.1|intcomma }}</p>
+                        <p class="small pt-1 text-danger">${{ cumLumpSum.1|intcomma }}</p>
+                        <p class="small pt-1 text-danger">${{ cumRegular.1|intcomma }}</p>
+                        <p class="small pt-1 text-danger">${{ cumInt.1|intcomma }}</p>
+                        <p class="small pt-1 text-danger">${{ cumFee.1|intcomma }}</p>
+                        <p class="small border-top border-bottom pb-1 pt-1 text-danger">
+                            ${{ resultsLoanBalance.1|intcomma }}</p>
+                        <p class="small border-bottom pb-1 pt-1">${{ resultsHomeEquity.1|intcomma }}</p>
+                        <p class="small border-bottom pb-1 pt-1">{{ resultsHomeEquityPC.1|intcomma }}%</p>
+
+                    </div>
+                    <div class="col-lg-2 text-right">
+                        <p class="small ">In 10 years</p>
+                        <p class="small pb-1">Age {{ resultsAge.2 }}</p>
+                        <p class="small border-top border-bottom pb-1 pt-1">${{ resultsHouseValue.2|intcomma }}</p>
+                        <p class="small pt-1 text-danger">${{ cumLumpSum.2|intcomma }}</p>
+                        <p class="small pt-1 text-danger">${{ cumRegular.2|intcomma }}</p>
+                        <p class="small pt-1 text-danger">${{ cumInt.2|intcomma }}</p>
+                        <p class="small pt-1 text-danger">${{ cumFee.2|intcomma }}</p>
+                        <p class="small border-top border-bottom pb-1 pt-1 text-danger">
+                            ${{ resultsLoanBalance.2|intcomma }}</p>
+                        <p class="small border-bottom pb-1 pt-1">${{ resultsHomeEquity.2|intcomma }}</p>
+                        <p class="small border-bottom pb-1 pt-1">{{ resultsHomeEquityPC.2|intcomma }}%</p>
+
+                    </div>
+                    <div class="col-lg-2 text-right">
+                        <p class="small ">In 15 years</p>
+                        <p class="small pb-1">Age {{ resultsAge.3 }}</p>
+                        <p class="small border-top border-bottom pb-1 pt-1">${{ resultsHouseValue.3|intcomma }}</p>
+                        <p class="small pt-1 text-danger">${{ cumLumpSum.3|intcomma }}</p>
+                        <p class="small pt-1 text-danger">${{ cumRegular.3|intcomma }}</p>
+                        <p class="small pt-1 text-danger">${{ cumInt.3|intcomma }}</p>
+                        <p class="small pt-1 text-danger">${{ cumFee.3|intcomma }}</p>
+                        <p class="small border-top border-bottom pb-1 pt-1 text-danger">
+                            ${{ resultsLoanBalance.3|intcomma }}</p>
+                        <p class="small border-bottom pb-1 pt-1">${{ resultsHomeEquity.3|intcomma }}</p>
+                        <p class="small border-bottom pb-1 pt-1">{{ resultsHomeEquityPC.3|intcomma }}%</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <br><br>
+        <div class="row">
+            <div class="col-lg-11 text-left pt-2">
+
+                <p class="small"><b>IMPORTANT: These are estimates only. Actual performance could be very
+                    different</b>
+                </p>
+                <p class="small"><b>You may end up with more or less equity in your home </b></p>
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+</div>
+
+
+
+
+
+

@@ -1,0 +1,69 @@
+{% extends 'servicing/base/base_srv.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+         <div id='messages' class="row justify-content-md-center pt-3">
+            <div class="col-6 text-center">
+                {% for message in messages %}
+                    <div class="pb-1">
+                        <p{% if message.tags == 'error' %} class="alert alert-danger"{% endif %}
+                                {% if message.tags == 'warning' %} class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container">
+
+    <div class="row">
+        <div class="col-lg-9 pb-3">
+            <br><br>
+            <p class="pb-2"><b>Request</b></p>
+            <p class="pb-3">You are requesting a total drawdown of <b>${{ obj.amountTotal|intVal|intcomma }}</b></p>
+
+            <p>This amount is comprised of <b>${{ obj.amountRequested |intVal|intcomma}}</b> to be paid to your bank account, plus an establishment fee of <b>${{ obj.amountEstablishmentFee|intVal|intcomma }}</b>  </p>
+        </div>
+    </div>
+
+
+    <div class="row justify-content-left">
+        <div class="col-lg-10 text-left"><br>
+
+            <p class="pb-2"><b>Confirmation</b></p>
+
+            <p>Please provide confirmation of the following, by ticking each box:</p>
+            <div class="row">
+                <div class="col-lg-12 text-left pt-3">
+                    {% crispy form %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <br><br><br><br>
+</div>
+
+{% endblock %}
+
+

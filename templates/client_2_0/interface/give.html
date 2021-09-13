@@ -39,7 +39,7 @@
                         <br>
                         <div class="secondary_title">Give when it's needed most</div>
                         <br>
-                        <p>Do you have children or granchildren who need financial support? Deposits for first home buyers? School fees?</p>
+                        <p>Do you have children or grandchildren who need financial support? Deposits for first home buyers? School fees?</p>
                         <br>
                     </div>
 
@@ -68,5 +68,39 @@
 
 
 {% block javascript %}
+
+    <script>
+
+    function currency(obj) {
+        var currentValue = obj.prop("value").replace(/[$,]+/g, "");
+        if ((isNaN(currentValue)) || (currentValue == 0)) {
+
+        } else {
+            var output = new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(currentValue);
+            obj.prop("value", output);
+        }
+    }
+
+       //Initialisation
+    $(document).ready(function () {
+
+        $('#id_amount').change(function () {
+            currency($(this));
+        });
+
+        $('#id_drawdownAmount').change(function () {
+            currency($(this));
+        })
+
+
+    })
+
+
+
+    </script>
+
 
 {% endblock %}

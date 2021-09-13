@@ -1,6 +1,9 @@
 {% load static %}
+
 <!doctype html>
+
 <html lang="en">
+
   <head>
         <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -11,13 +14,15 @@
     <meta name="author" content="">
     <link rel="icon" href="{% static 'img/favicon/favicon.png' %}"/>
 
-    {% include 'client_2_0/base/base_client.css.html' %}
+    {% include 'site/base.css.html' %}
+
 
     <title>HouseholdCapital.app</title>
   </head>
 
 
 <body class="landing">
+
 {% include 'client_2_0/base/base_client.navbar.html' %}
 
 <div class="container">
@@ -95,7 +100,7 @@
 </div>
 
 
-{% include 'client_2_0/base/base_client.js.html' %}
+{% include 'site/base.js.html' %}
 </body>
 </html>
 

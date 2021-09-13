@@ -1,21 +1,23 @@
 # Python Imports
-from datetime import datetime
 from datetime import timedelta
 import os
 import json
+
+# Third-party Imports
+from config.celery import app
 
 # Django Imports
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import get_template
+from django.db.models import Q
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils import dateparse
 from django.utils import timezone
+
 
 from django.views.generic import View,  ListView
 from django.views.decorators.csrf import csrf_exempt
@@ -24,16 +26,24 @@ from django.views.decorators.csrf import csrf_exempt
 # Local Application Imports
 from apps.lib.site_Logging import write_applog
 from apps.lib.api_Zoom import apiZoom
-from apps.lib.site_Utilities import sendTemplateEmail
+from apps.lib.site_Utilities import raiseAdminError, cleanPhoneNumber
+from apps.lib.site_EmailUtils import sendTemplateEmail
 from apps.case.models import Case
-from apps.enquiry.models import Enquiry
+from apps.lib.site_Enums import enquiryStagesEnum
+from apps.enquiry.note_utils import add_enquiry_note
+from apps.case.note_utils import add_case_note
 from .models import Calendly
+from urllib.parse import urljoin
 
+# UNAUTHENTICATED VIEWS
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CalendlyWebhook(View):
 
     def post(self, request, *args, **kwargs):
+
+        zoom_meeting_set = {'zoom', 'prequalification', 'preql'}
+        tracked_meeting_set = {'discovery', 'callback', 'phone'}
 
         #Get webhook ID from environmental settings
         calendly_webhook_id = os.getenv("CALENDLY_WEBHOOK_ID")
@@ -51,9 +61,11 @@ class CalendlyWebhook(View):
         data = json.loads(request.body)
 
         # Determine event type
-
+        write_applog('INFO','Calendly Webhook', 'post', 'paylaod: {}'.format(request.body))
         hook_event = data["event"]
         meeting_name = data["payload"]["event_type"]["name"]
+        meeting_set = set(meeting_name.lower().split())
+        write_applog('INFO','Calendly Webhook', 'post', 'Meeting name {}'.format(meeting_name))
         calendlyID = data['payload']["event"]["uuid"]
         user_email = data['payload']["event"]["extended_assigned_to"][0]['email']
         start_time = data['payload']["event"]["start_time"]
@@ -61,7 +73,7 @@ class CalendlyWebhook(View):
         time_zone = data['payload']["invitee"]["timezone"]
         customer_name = data["payload"]["invitee"]["name"]
         customer_email = data["payload"]["invitee"]["email"]
-        customer_phone = phoneNumber = self.getPhoneNumber(data)
+        customer_phone = self.getPhoneNumber(data)
 
         #Look up user (from email)
         try:
@@ -70,7 +82,15 @@ class CalendlyWebhook(View):
             write_applog("ERROR", 'Calendly', 'post', "Not processed - unknown user: " + user_email)
             return HttpResponse(status=200)
 
-        if "Discovery Call" in meeting_name:
+        if 'test' in meeting_name and os.environ.get('ENV') == 'prod':
+            write_applog("ERROR", 'Calendly', 'post', "Ignore all test based events in production" )
+            return HttpResponse(status=200)
+
+        if not 'test' in meeting_name and os.environ.get('ENV') != 'prod': 
+            write_applog("ERROR", 'Calendly', 'post', "Ignore all non-test based events in non-prod environments" )
+            return HttpResponse(status=200)
+
+        if meeting_set & tracked_meeting_set:
 
             if 'created' in hook_event:
                 # Create db entry (or update if exists)
@@ -83,19 +103,21 @@ class CalendlyWebhook(View):
                 obj.customerEmail = customer_email
                 obj.customerPhone = customer_phone
 
-                enqObj = Enquiry.objects.filter(email=customer_email).order_by("-timestamp").first()
-                if enqObj:
-                    obj.enqUID = enqObj.enqUID
+                case_obj = Case.objects.filter(
+                    Q(deleted_on__isnull=True) &(Q(email_1__iexact=customer_email) | Q(phoneNumber_1__iexact=customer_phone))
+                ).order_by("-timestamp").first()
+                if case_obj:
+                    obj.caseUID = case_obj.caseUID
 
-                obj.save(update_fields=['user', 'meetingName', 'startTime', 'timeZone','customerName','customerEmail',
-                                        'customerPhone','enqUID'])
+                
 
+                # Update enquiry object and Synch with SF
+                if case_obj:
+                    self.updateLead(case_obj, meeting_name, customer_phone)
+                
+                obj.save()
 
                 write_applog("INFO", 'Calendly', 'post', "Discovery Call Created:" + customer_email )
-
-                #Update enquiry object
-                if enqObj:
-                    self.updateEnquiry(enqObj, meeting_name, phoneNumber)
 
             elif 'canceled' in hook_event:
                 qs = Calendly.objects.filter(calendlyID=calendlyID)
@@ -107,7 +129,7 @@ class CalendlyWebhook(View):
                 else:
                     write_applog("INFO", 'Calendly', 'post', "Discovery Call Cancelled (but not found):" + customer_email)
 
-        elif "HHC Loan Interview" in meeting_name:
+        elif meeting_set & zoom_meeting_set:
 
             if 'created' in hook_event:
                 # Create db entry (or update if exists)
@@ -121,13 +143,17 @@ class CalendlyWebhook(View):
                 obj.customerPhone = customer_phone
                 obj.isZoomLive = True
 
-                caseObj = Case.objects.filter(email=customer_email).order_by("-timestamp").first()
+                caseObj = Case.objects.filter(email_1__iexact=customer_email, deleted_on__isnull=True).order_by("-timestamp").first()
 
                 if caseObj:
                     obj.caseUID = caseObj.caseUID
 
                 obj.save(update_fields=['user', 'meetingName', 'startTime', 'timeZone','customerName','customerEmail',
                                         'customerPhone','caseUID', 'isZoomLive'])
+
+                # Synch with SF
+                if caseObj:
+                    app.send_task('Update_SF_Case_Lead', kwargs={'caseUID': str(caseObj.caseUID)})
 
                 write_applog("INFO", 'Calendly', 'post', "Loan Interview Created:" + customer_email )
 
@@ -161,6 +187,7 @@ class CalendlyWebhook(View):
 
                     if caseObj:
                         caseObj.isZoomMeeting = True
+                        add_case_note(caseObj, "[# Calendly - " + meeting_name + " #]", user=None)
                         caseObj.save(update_fields=['isZoomMeeting'])
 
                     write_applog("INFO", 'Calendly', 'post', "Loan Interview Zoom Created: " + customer_email)
@@ -177,7 +204,10 @@ class CalendlyWebhook(View):
                                    'meeting_id': str(obj.zoomID),
                                    'start_time':start_time_pretty}
 
-                    email_context['absolute_url'] = settings.SITE_URL + settings.STATIC_URL
+                    email_context['absolute_url'] = urljoin(
+                        settings.SITE_URL,
+                        settings.STATIC_URL
+                    ) 
 
                     emailSent = sendTemplateEmail(template_name, email_context,subject, from_email, to, cc)
 
@@ -204,7 +234,7 @@ class CalendlyWebhook(View):
                         obj.isZoomLive = False
                         obj.save(update_fields=['isZoomLive'])
 
-                    caseObj = Case.objects.filter(email=customer_email).order_by("-timestamp").first()
+                    caseObj = Case.objects.filter(email_1=customer_email, deleted_on__isnull=True).order_by("-timestamp").first()
                     if caseObj:
                         caseObj.isZoomMeeting = False
                         caseObj.save(update_fields=['isZoomMeeting'])
@@ -217,33 +247,27 @@ class CalendlyWebhook(View):
         else:
             write_applog("INFO", 'Calendly', 'post',
                          "Unhandled Meeting:" + meeting_name)
+            raiseAdminError("Calendly - Unhandled Meeting", "The following meeting type was not handled by the webhook" + meeting_name)
 
         return HttpResponse(status=200)
 
-
-    def updateEnquiry(self, obj, meeting_name, phoneNumber):
+    def updateLead(self, obj, meeting_name, phoneNumber):
         if obj:
-            if obj.enquiryNotes:
-                obj.enquiryNotes += "\r\n" + "[# Calendly - " + meeting_name + " #]"
-            else:
-                obj.enquiryNotes = "[# Calendly - " + meeting_name + " #]"
-
-            obj.isCalendly = True
-
-            if phoneNumber and not obj.phoneNumber:
-                obj.phoneNumber = phoneNumber
-
-            obj.save(update_fields=['enquiryNotes', 'isCalendly', 'phoneNumber'])
-
+            add_case_note(obj, "[# Calendly - " + meeting_name + " #]", user=None)
+            if phoneNumber and not obj.phoneNumber_1:
+                obj.phoneNumber_1 = phoneNumber
+            obj.save(should_sync=True)
 
     def getPhoneNumber(self, data):
         phoneNumber = None
         try:
             if 'phone number' in data['payload']['questions_and_answers'][0]['question']:
-                phoneNumber = data['payload']['questions_and_answers'][0]['answer']
+                answer = data['payload']['questions_and_answers'][0]['answer']
+                # strip characters and trim response (shouldn't be required, but in case Calendly field not correctly defined as phone)
+                answer_digits = ''.join([c for c in answer if c in '0123456789'])
+                phoneNumber = cleanPhoneNumber(answer_digits[:15])
         except:
             pass
-
         return phoneNumber
 
 
@@ -279,13 +303,32 @@ class MeetingList(LoginRequiredMixin, ListView):
     def get_queryset(self, **kwargs):
         # overrides queryset to filter search parameter
 
-        delta = timedelta(days=1)
+        delta = timedelta(hours=8)
         windowDate = timezone.now() - delta
 
         queryset = super(MeetingList, self).get_queryset()
 
-        qs = queryset.filter(startTime__gte=windowDate, meetingName__icontains="Loan",
-                              isCalendlyLive=True, user=self.request.user).order_by('startTime')
+        filter = self.request.GET.get('filter')
+
+        if filter == "ZoomGroup":
+            qs = queryset.filter(startTime__gte=windowDate,
+                                 isZoomLive=True,
+                                 isCalendlyLive=True).order_by('startTime')
+
+        elif filter == "CalendlyInd":
+            qs = queryset.filter(startTime__gte=windowDate, isCalendlyLive=True, user=self.request.user)\
+                .exclude(isZoomLive=True)\
+                .order_by('startTime')
+
+        elif filter == "CalendlyGroup":
+            qs = queryset.filter(startTime__gte=windowDate, isCalendlyLive=True)\
+                .exclude(isZoomLive=True)\
+                .order_by('startTime')
+
+        else:
+            qs = queryset.filter(startTime__gte=windowDate, isZoomLive=True,
+                                 isCalendlyLive=True, user=self.request.user).order_by('startTime')
+
         return qs
 
     def get_context_data(self, **kwargs):
@@ -294,5 +337,11 @@ class MeetingList(LoginRequiredMixin, ListView):
         context['zoomUrl'] = self.zoomUrl
         context['calendlyUrl'] =  self.calendlyUrl
         context['customerUrl']  =  self.customerUrl
+        context['filter'] = self.request.GET.get('filter')
+        if context['filter'] == None:
+            context['filter'] = "ZoomInd"
+
+        if "Zoom" in context['filter']:
+            context['isZoom'] = True
 
         return context

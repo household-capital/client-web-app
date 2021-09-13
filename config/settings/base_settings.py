@@ -10,21 +10,32 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
-import os
+import os, boto3
 from dotenv import load_dotenv
+from io import StringIO
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 TEMPLATE_PATH=BASE_DIR+'/templates/'
-
-# Load Environment variables
-load_dotenv()
 
 # Project Settings
 ROOT_URLCONF = 'config.urls'
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # Application definition
+# Load Environment variables
+if os.environ.get('ENV') and os.getenv('STORAGE') == "AWS": 
+    s3 = boto3.resource('s3')
+    # 
+    # Put environment file in bucket `hhc-client-app-env-files` as ${ENV}.env
+    #
+    obj = s3.Object('hhc-client-app-env-files-{}'.format(os.getenv('AWS_DEPLOY_PROFILE')), '{}.env'.format(os.environ.get('ENV')))
+    stream = StringIO(obj.get()['Body'].read().decode())
+    stream.seek(0)
+    load_dotenv(stream=stream)
+else: 
+    load_dotenv(None)
 
 INSTALLED_APPS = [
     # django apps
@@ -35,25 +46,40 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     # third-party apps
     'crispy_forms',
     'rest_framework',
+    'rest_framework.authtoken',
     'django_celery_beat',
     'django_celery_results',
+    'storages',
+    'corsheaders',
+    'reversion',
+    'django_comments',
+    'comments_extension',
+    'django_extensions',
     # my apps
     'apps.accounts',
+    'apps.application',
     'apps.calculator',
     'apps.calendly',
-    'apps.case',
+    'apps.case.apps.LandingConfig',
     'apps.client_2_0',
-    'apps.enquiry',
+    'apps.enquiry.apps.LandingConfig',
     'apps.fact_find',
     'apps.landing',
-    'apps.relationship',
+    'apps.servicing',
+    'apps.referrer',
     'apps.site_tags',
+    'apps.settings',
+    'apps.operational',
+    'apps.base',
+    'apps.helpers'
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -75,19 +101,23 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'config.context_processors.export_env'
             ],
         },
     },
 ]
 
+SITE_ID = 1
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
-STATIC_URL = '/static/'
+STATIC_URL = '/static/collected/' #'/static/'
 MEDIA_URL = '/media/'
 STATIC_ROOT = BASE_DIR + '/static/collected'
 MEDIA_ROOT = BASE_DIR + '/static/media'
 STATICFILES_DIRS = (BASE_DIR + '/static/uncollected',)
 FILE_UPLOAD_PERMISSIONS = 0o644
+
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
@@ -146,7 +176,7 @@ SHORT_DATETIME_FORMAT = 'd M y, h:i A'   # 21 Mar 14, 5:59 PM
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
-CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_BROKER_URL = 'redis://{}'.format(os.environ.get('REDIS_ENDPOINT', 'localhost:6360'))
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -154,5 +184,5 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_ENABLE_UTC = False
 
 # Default URLS
-LOGIN_URL = LOGIN_URL = '/accounts/login/'
+LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/landing/'

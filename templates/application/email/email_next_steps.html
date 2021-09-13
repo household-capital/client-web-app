@@ -1,0 +1,70 @@
+{% extends 'application/email/email_template.html' %}
+{% load humanize %}
+{% load static %}
+
+
+{% block email_content %}
+
+    <p>Hello {{ obj.firstname_1 }}</p>
+    <br>
+    <p>Thank you for completing an online application for a Home Income Loan.</p>
+    <br>
+    <p>We will organise a phone call with one of our Retirement Specialists to discuss your
+        application, answer any questions and confirm that this loan is right for you.  Following that call, we will organise a home valuation to be undertaken.</p>
+    <br>
+    <p>There are some additional steps that we need you to complete before we can assess your application. These steps are detailed below.</p>
+    <br>
+    <p><b>1. Bank statements</b></p>
+    <p>For responsible lending purposes, we need to verify your income and expenses. We do this by reviewing your recent bank statements. Through our partner, illion Bank Statements, we provide an easy way to allow access to this
+        information using yourinternet banking. The service is secure and fast.</p>
+        <br>
+    <p>Please access this service by clicking following link.</p>
+    <br>
+    <p></p><a href="{{ signedURLBS }}">
+        <button style="background-color: #ffc107; border: none;color: black; padding: 15px 32px; text-align: center;
+            text-decoration: none; display: inline-block; font-size: 16px; border-radius: 12px">Bank Statements
+        </button>
+    </a>
+    </p>
+    <br>
+    <p>If you do not have internet banking or are unable to use this service, please contact us to arrange an alternative.</p>
+    <br>
+    <p><b>2. Verification of identity</b></p>
+    <p>We are required to verify the identity of all borrowers. </p>
+    <br>
+    <p>We use Australia Post to perform this verification on our behalf. Attached to this email is an identification form as well as instructions as to the type of forms of identification that you are required to provide. You will need to complete the verification process by taking the form and supporting documentation into an Australia Post branch. They will do the rest.</p>
+    <br>
+    <p>We also offer an online alternative to this service. Please contact us to arrange.</p>
+    <br>
+    <p><b>3. Home related expenses</b></p>
+    <p>We require a copy of your <b>Rates Notice</b> and your <b>Insurance Notice</b> (Certificate of Currency or Annual Renewal). If applicable, we also need to confirm your <b>strata levies</b>. For each of these documents, we need to be able verify the amount you are currently paying.</p>
+    <br>
+    <p>You can upload a copy, scan or photo of these items using our document upload page. If you are on a mobile device, you can even take a picture of these items and send to us. Please use the following button to access this upload page.</p>
+    <br>
+    <p></p><a href="{{ signedURL }}">
+        <button style="background-color: #ffc107; border: none;color: black; padding: 15px 32px; text-align: center;
+            text-decoration: none; display: inline-block; font-size: 16px; border-radius: 12px">Document Upload
+        </button>
+    </a>
+    </p>
+    <br>
+    <p>Alternatively, you can email us this information to customers@householdcapital.com</p>
+    <br>
+    <br>
+    <p><b>We are here to help.</b> If you have any questions or experience difficulties with any of these steps, please call us on <a href="tel:1300622100">1300 622 100</a>.</p>
+    <br>
+    <p>Kind regards</p>
+    <br>
+    <p>The Household Capital Team</p>
+    <br>
+
+    <br><br><br>
+    <small>Applications for credit are subject to eligibility and lending criteria.
+        Fees and charges are payable and terms and conditions apply (available on request).
+        Household Capital Pty Limited is a credit representative (512757) of Mortgage Direct Pty Limited
+        ACN 075 721 434, Australian Credit Licence 391876. HOUSEHOLD CAPITAL<sup>TM</sup>, the Star Device and
+        Household Capital and the Star Device are trademarks of Household Capital Pty Ltd.
+    </small>
+    <br><br>
+
+{% endblock %}

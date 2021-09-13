@@ -1,0 +1,135 @@
+{% extends 'application/base/base_app.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block message_display %}
+    <div class="container">
+        {% if messages %}
+            <div id='messages' class="row justify-content-md-center pt-2">
+                <div class="col-6 text-center">
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %}
+                            class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="container">
+        <form method="post" id="clientForm" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="row justify-content-center">
+                <div class="col-lg-6 pb-3">
+                    <br>
+                    <div class="secondary_title">{{ subtitle }} <span>&nbsp;<button id="info-docs" type="button"
+                                                                                    class="btn btn-sm infoBtn track-link"
+                                                                                    data-toggle="modal"
+                                                                                    data-target="#documentModal">
+                                    <i class="fas fa-info"></i></button></span></p>
+                    </div>
+                    <br>
+                    <p>Hello {{ obj.firstname_1 }}, you can use this page to send requested documents to us.</p>
+                    <br>
+                    <div class="row no-gutters pb-4">
+                        <div class="col-2 text-center">
+                            <button class="btn btn-square-choice-hhcLightBlue active" style="width:35px">1</button>
+                        </div>
+                        <div class="col-8 ">
+                            <p class="pb-2">Please select the type of document</p>
+                            {{ form.documentType|as_crispy_field }}
+                        </div>
+                    </div>
+
+                    <div class="row no-gutters pb-4">
+                        <div class="col-2 text-center">
+                            <button class="btn btn-square-choice-hhcLightBlue active" style="width:35px">2</button>
+                        </div>
+                        <div class="col-8 ">
+                            <p class="pb-3 ">Please use the file chooser to select the file/image on your
+                                device</p>
+
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="id_document" name="document">
+                                <label class="custom-file-label" for="customFile">Choose image/pdf...</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row no-gutters">
+                        <div class="col-2 text-center ">
+                            <button class="btn btn-square-choice-hhcLightBlue active" style="width:35px">3</button>
+                        </div>
+                        <div class="col-10 ">
+                            <p class="pb-2 ">Press the 'send' button below</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-lg-4 pb-3"></div>
+            </div>
+
+        </form>
+        <div class="d-none d-lg-block">
+            <br><br><br><br><br><br>
+        </div>
+    </div>
+
+    <div class="modal fade" id="documentModal" tabindex="-1" role="dialog" aria-labelledby="documentModalLabel"
+         aria-hidden="true" data-timeout="30000">
+        <div class="modal-dialog modal modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="documentModal"><i class="far fa-info-circle"></i>&nbsp;
+                        Send documents</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <b>Document types</b>
+                    <p>You can use this uploader to send us most image file formats and pdf format. If you are not able
+                        to load documents using this page, you can also email them to us at
+                        customers@householdcapital.com</p>
+                    <br>
+                    <b>Mobile devices</b>
+                    <p>On a mobile device you can also take a photo or send a photo of the document using the 'Choose
+                        File' icon</p>
+                    <br>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block javascript %}
+<script>
+
+$(function() {
+    $(document).on("change", "#id_document", function() {
+        $('.custom-file-label').html("File selected")
+    });
+});
+
+</script>
+
+{% endblock %}

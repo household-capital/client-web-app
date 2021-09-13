@@ -7,6 +7,7 @@ from xml.dom import minidom
 
 # Django Imports
 from django.conf import settings
+from django.core.files.storage import default_storage
 
 
 
@@ -20,7 +21,7 @@ class LixiXMLGenerator:
     # Lixi generator for Reverse Mortgage loans
     # This class builds LIXI XML based on paramaters and paramater lists passed to it
 
-    def __init__(self,lixiSettings, productionData,submissionID, applicationID, commentStr, targetFilename):
+    def __init__(self,lixiSettings, productionData,submissionID, applicationID, commentStr, localFile):
         #Create basic structure of LIXI file usine lxml
 
         self.outputLog=""
@@ -37,7 +38,7 @@ class LixiXMLGenerator:
 
         #--Application
         self.application=ElementTree.SubElement(self.content, 'Application',ProductionData=productionData, UniqueID=applicationID)
-        self.targetFilename=targetFilename
+        self.localFile=localFile
 
         #-Instructions
         self.instructions = ElementTree.SubElement(self.root, 'Instructions')
@@ -64,9 +65,16 @@ class LixiXMLGenerator:
                                                Country='AU', Suburb=srcDict['Prop.Suburb_City__c'], Type='Standard', UniqueID="HHC-"+srcDict['Prop.Id'],
                                                                                   GNAF_ID=srcDict['Prop.gnafId']))
 
+            streetDict = dict(
+                StreetNumber=str(srcDict['Prop.numberFirst']),
+                StreetName=srcDict['Prop.streetName'],
+                StreetType=srcDict['Prop.streetType'])
 
-            self.standardAddress=ElementTree.SubElement(self.address,'Standard',dict(StreetNumber=str(srcDict['Prop.numberFirst']),StreetName=srcDict['Prop.streetName']
-                                                                                     ,StreetType=srcDict['Prop.streetType']))
+            if srcDict['Prop.streetType'] == None:
+                # Street Type may be none - remove
+                streetDict.pop('StreetType')
+
+            self.standardAddress = ElementTree.SubElement(self.address, 'Standard', streetDict)
 
             if srcDict['Prop.flatNumber']!="None":
                 self.standardAddress.set("Unit",srcDict['Prop.flatNumber'])
@@ -103,7 +111,7 @@ class LixiXMLGenerator:
         #Loan Details
         try:
             self.__logging("Generating Loan Elements")
-            self.loanDetail = ElementTree.SubElement(self.application, 'LoanDetails',dict(EstimatedSettlementDate=srcDict['Loan.Loan_Settlement_Date__c'],OriginatorReferenceID="HHC-"+srcDict['Loan.Loan_Number__c'],
+            self.loanDetail = ElementTree.SubElement(self.application, 'LoanDetails',dict(EstimatedSettlementDate=srcDict['Loan.Loan_Settlement_Date__c'],OriginatorReferenceID="HHC-"+srcDict['LoanObject.LoanNumber'],
                                                                                       ProductCode='21001259',ProductName='HHC\HHC - Household Capital Longevity Variable IO Loan', LoanType='Reverse Mortgage',
                                                                                       AmountRequested=str(int(round(srcDict['Loan.Total_Household_Loan_Amount__c'],0))),ProposedAnnualInterestRate=str(srcDict['Loan.Interest_Rate__c'])))
         except:
@@ -337,7 +345,8 @@ class LixiXMLGenerator:
             prettyTree = ElementTree.ElementTree(ElementTree.fromstring(treeString))
 
             # Write to targetfile
-            prettyTree.write(self.targetFilename, encoding='utf-8', xml_declaration=False)
+            prettyTree.write(self.localFile, encoding='utf-8', xml_declaration=False)
+            self.localFile.flush()
         except:
             self.__logging("# Could not generate file")
             return {'status': "Error", 'responseText': self.outputLog}
@@ -352,11 +361,11 @@ class LixiXMLGenerator:
         try:
             self.__logging( "Checking schema" )
             # open and read schema file
-            with open(settings.BASE_DIR + xmlSchemaFilename, 'r') as schema_file:
+            with open(settings.BASE_DIR + xmlSchemaFilename, 'r',  encoding='utf-8') as schema_file:
                 schema_to_check = schema_file.read()
 
             # open and read xml file
-            with open(xmlFilename, 'r') as xml_file:
+            with default_storage.open(xmlFilename, 'r') as xml_file:
                 xml_to_check = xml_file.read()
 
             xmlschema_doc = ElementTree.parse(StringIO(schema_to_check))
@@ -379,6 +388,7 @@ class LixiXMLGenerator:
             return {'status': "Error", 'responseText': self.outputLog}
 
         except:
+            logging.exception("# Unknown XML Error")
             self.__logging("# Unknown XML Error")
             return {'status': "Error", 'responseText': self.outputLog}
 

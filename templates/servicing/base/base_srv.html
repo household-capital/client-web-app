@@ -1,0 +1,48 @@
+{% load static %}
+
+<!doctype html>
+
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Other tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="{% static 'img/favicon/favicon.png' %}"/>
+
+    <!-- CSS -->
+    {% include 'site/base.css.html' %}
+
+    <title>HouseholdCapital.app</title>
+
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    {% include 'servicing/base/base_srv.navbar.html' %}
+
+
+    <!-- Header Jumbotron -->
+    {% include 'servicing/base/base_srv.header.html' %}
+
+    <!-- Message Block -->
+    {% block message_display %}{% endblock %}
+
+    <!-- Individual Page Content -->
+    {% block content %}{% endblock %}
+
+    <!-- Footer -->
+     {% include 'servicing/base/base_srv.menubar.html' %}
+
+    <!-- Javascript -->
+    {% include 'site/base.js.html' %}
+    {% block javascript %}{% endblock %}
+
+</body>
+
+</html>
+

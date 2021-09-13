@@ -23,6 +23,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('', lambda r: HttpResponseRedirect('landing/')),
     path('accounts/', include('apps.accounts.urls')),
+    path('application/', include('apps.application.urls')),
     path('calculator/', include('apps.calculator.urls')),
     path('calendly/', include('apps.calendly.urls')),
     path('case/', include('apps.case.urls')),
@@ -31,13 +32,14 @@ urlpatterns = [
     path('factfind/', include('apps.fact_find.urls')),
     path('hhcadmin/', admin.site.urls),
     path('landing/', include('apps.landing.urls')),
-    path('relationship/', include('apps.relationship.urls')),
+    path('referrer/', include('apps.referrer.urls')),
+    path('servicing/', include('apps.servicing.urls')),
+    path('settings/', include('apps.settings.urls')),
+    path('comments/', include('django_comments.urls')),
+    path('comments/', include("comments_extension.urls")),
 ]
 
-
-
-urlpatterns+=static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-urlpatterns+=static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
+urlpatterns+=static('/static/', document_root=settings.STATIC_ROOT)
+urlpatterns+=static('/media/', document_root=settings.MEDIA_ROOT)
 
 

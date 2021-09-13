@@ -1,7 +1,7 @@
 {% load static %}
 {% load site_tags %}
 
-<nav class="navbar navbar-light navbar-expand-lg navbar-fixed-top">
+<nav class="navbar navbar-light navbar-expand-lg navbar-fixed-top pb-4 pt-3">
     <div class="container">
         <div class="navbar-header">
 
@@ -16,8 +16,8 @@
 
             </button>
 
-            <a class="navbar-brand pl-3 pt-1" href="{% url 'landing:landing' %}">
-                <img src="{% static '/img/hhc/HC_Logo_Flat.png' %}" height="40">
+            <a class="navbar-brand pt-1" href="{% url 'landing:landing' %}">
+                <img src="{% static 'img/hhc/HC_Logo_Flat.png' %}" height="40">
             </a>
 
         </div>
@@ -27,20 +27,33 @@
             <ul class="nav navbar-nav pl-3 pt-2">
                 {% if not hideNavbar %}
 
+                    <li>
+
+                        <a href="{% url 'application:appList' %}"><i class="far fa-fw fa-file-upload"></i> Online  &nbsp;&nbsp;
+                            {% if request.session.appQueue|intVal > 0 %}
+                                <span class="badge btn-success align-text-top">{{ request.session.appQueue }}</span>{% endif %}
+                        </a>
+
+                    </li>
+
+                    <li class="d-none d-sm-table-cell pl-2 pr-2"> | &nbsp;&nbsp;
+                    </li>
+
                     <li><a href="{% url 'calculator:calcList' %}"><i class="fas fa-calculator fa-fw"></i> Queue
-                            {% if request.session.webCalcQueue|intVal > 0 %}
-                                <span class="badge btn-success align-text-top">{{ request.session.webCalcQueue }}</span>{% endif %}
-                        </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        {% if request.session.webCalcQueue|intVal > 0 %}
+                            <span class="badge btn-success align-text-top">{{ request.session.webCalcQueue }}</span>{% endif %}
+                    </a>&nbsp;&nbsp;&nbsp
                         <br>
-                    <a href="{% url 'calculator:contactList' %}"><i class="fab fa-safari fa-fw"></i> Queue
-                        {% if request.session.webContQueue|intVal > 0 %}
-                            <span class="badge btn-success align-text-top">{{ request.session.webContQueue }}</span>{% endif %}
-                    </a>
+                        <a href="{% url 'calculator:contactList' %}"><i class="fab fa-safari fa-fw"></i> Queue
+                            {% if request.session.webContQueue|intVal > 0 %}
+                                <span class="badge btn-success align-text-top">{{ request.session.webContQueue }}</span>{% endif %}
+                        </a>
                         &nbsp;&nbsp;&nbsp;
+
                     </li>
 
 
-                    <li class="d-none d-sm-table-cell pl-2 pr-2"> | &nbsp;&nbsp;&nbsp;
+                    <li class="d-none d-sm-table-cell pl-2 pr-2"> | &nbsp;&nbsp;
                     </li>
 
 
@@ -48,42 +61,50 @@
                     <li><a href="{% url 'enquiry:enquiryList' %}"><i class="far fa-list-alt fa-fw"></i> Enquiry List
                         {% if request.session.enquiryQueue|intVal > 0 %}
                             <span class="badge btn-success align-text-top">{{ request.session.enquiryQueue }}</span>{% endif %}
-                    </a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    </a> &nbsp;&nbsp;
                         <br>
-                        <a href="{% url 'enquiry:enquiry' %}"><i class="fas fa-user-check fa-fw"></i> Enquiry</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    </li>
-
-                   <li class="d-none d-sm-table-cell pl-2 pr-2"> | &nbsp;&nbsp;&nbsp;
-                    </li>
-
-                    <li><a href="{% url 'case:caseList' %}"><i class="far fa-list-alt fa-fw"></i> Case List </a>&nbsp;&nbsp;&nbsp;
-                        <br>
-                        <a href="{% url 'calendly:meetings' %}"><i class="fas fa-video fa-fw"></i> Meetings </a>&nbsp;&nbsp;&nbsp;
-                    </li>
-
-
-
-                    <li class="d-none d-sm-table-cell pl-2 pr-2"> | &nbsp;&nbsp;&nbsp;
-                    </li>
-
-                    <li>
-                        <a href="{% url 'landing:dashboard' %}"><i class="fas fa-tachometer-alt fa-fw"></i> Dashboard
+                        <a href="{% url 'enquiry:enquiryCall' %}"><i class="fas fa-headset fa-fw"></i> Phone Call
                         </a>
                     </li>
 
+                    <li class="d-none d-sm-table-cell pl-2 pr-2"> | &nbsp;&nbsp;
+                    </li>
 
+                    <li><a href="{% url 'case:caseList' %}"><i class="far fa-list-alt fa-fw"></i> Lead List
+                        {% if request.session.referrerQueue|intVal > 0 %}
+                            <span class="badge btn-success align-text-top">{{ request.session.referrerQueue }}</span>{% endif %}
+                    </a> &nbsp;&nbsp;
+                        <br>
+                        <a href="{% url 'calendly:meetings' %}"><i class="fas fa-video fa-fw"></i> Meetings </a> &nbsp;&nbsp;
+                    </li>
+
+                    <li class="d-none d-sm-table-cell pl-2 pr-2"> | &nbsp;&nbsp;
+                    </li>
+
+                    <li><a href="{% url 'landing:dashboard' %}"><i class="fas fa-tachometer-alt fa-fw"></i> Dashboard
+                    </a>
+                        <br>
+                        <a href="{% url 'servicing:loanList' %}"><i class="far fa-fw fa-house-user"></i> Servicing
+                            {% if request.session.servicingQueue|intVal > 0 %}
+                                <span class="badge btn-success align-text-top">{{ request.session.servicingQueue }}</span>{% endif %}
+                        </a>
+                        &nbsp;&nbsp;&nbsp;
+                    </li>
 
                 {% endif %}
             </ul>
 
             <ul class="nav navbar-nav ml-auto pt-2">
-                {% if request.user.is_authenticated %}
-                    <li><a href='{% url "accounts:logout" %}'><i class="fas fa-sign-out-alt"></i> Logout </a>
-                        {% else %}
-                    <li><a href='{% url "accounts:login" %}'><i class="fas fa-sign-in-alt"></i> Log In </a><
-                {% endif %}
-                <br>
-                <a href=""><i class="fas fa-user-circle"></i> {{ request.user.username }}&nbsp;&nbsp;&nbsp;</a>
+                <li>
+                    <a href="{% url "settings:globalSettings" %}"><i class="fas fa-cog"></i> Settings </a>
+                    <br/>
+                    {% if request.user.is_authenticated %}
+                        <a href='{% url "accounts:logout" %}'><i class="fas fa-sign-out-alt"></i> Logout </a>
+                            {% else %}
+                        <a href='{% url "accounts:login" %}'><i class="fas fa-sign-in-alt"></i> Log In </a><
+                    {% endif %}
+                    <br>
+                    <a href=""><i class="fas fa-user-circle"></i> {{ request.user.username }}&nbsp;&nbsp;&nbsp;</a>
                 </li>
             </ul>
 

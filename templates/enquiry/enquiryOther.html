@@ -1,0 +1,180 @@
+{% extends 'site/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12 title">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div id='messages' class="row justify-content-md-center">
+                <div class="col-6 text-center">
+                    <br>
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %}
+                            class="alert alert-warning">{{ message }}</p>{% endif %}
+
+                        <p{% if message.tags == 'success' %}
+                            class="alert alert-success">{{ message }}</p>{% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+        <br>
+
+        <div class="row justify-content-left pt-3">
+            <div class="col-6">
+                {% for key, value in form.errors.items %}{% if key == '__all__' %}{{ value }}
+                {% endif %}{% endfor %}
+            </div>
+        </div>
+
+        <div class="row pt-2 pb-5">
+            <div class="col-lg-8 text-left">
+
+
+                {% crispy form %}
+
+            </div>
+
+    </div>
+
+
+{% endblock %}
+
+
+{% block javascript %}
+    <script>
+
+        // Address Functions
+
+        function findAddress() {
+            var source = $("#id_lookup_address");
+            var dropdown = $("#addressSelect");
+            if (source.val().length > 5) {
+                return $.ajax({
+                    url: "{{ ajaxURL }}",
+                    type: "post",
+                    data: {
+                        "lookup_address": source.prop("value"),
+                        "csrfmiddlewaretoken": '{{ csrf_token }}'
+                    },
+                    success: function (data) {
+                        addressData = data;
+                        clearDropdown();
+                        $.each(addressData, function (i) {
+                            dropdown.append($("<option />").val(i).text(this.streetAddress));
+                        dropdown.attr('size',10);
+                        });
+
+                    },
+                });
+            } else {
+                if (dropdown.val() == -1) {
+                    clearDropdown()
+                }
+            }
+        }
+
+        function convert_str (str) { 
+            return str ? str.split(' ').map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(' '): ''
+        }
+
+        function setAddressData(obj) {
+            let address_obj = addressData[obj.val()]
+            let number = (address_obj.numberFirstPrefix || "") + address_obj.numberFirst + (address_obj.numberFirstSuffix||"")
+            if (number === null || number === undefined || number === "null") {
+                number = ''
+            }
+            $('#id_streetAddress').prop("value", address_obj.streetComponent);
+            $('#id_suburb').prop("value", convert_str(address_obj.suburb));
+            $('#id_state').prop("value", address_obj.stateCode);
+            $('#id_postcode').prop("value", address_obj.postCode);
+
+            $('#id_base_specificity').prop("value", address_obj.flatNumber);
+            $('#id_street_number').prop("value", number);
+            $('#id_street_name').prop("value", convert_str(address_obj.streetName));
+            $('#id_street_type').prop("value", convert_str(address_obj.streetType));
+            $('#id_gnaf_id').prop("value", address_obj.gnafId);
+            $("#addressSelect").attr('size', 1.9);
+        }
+
+        function clearDropdown() {
+            $("#addressSelect option").remove();
+            $("#addressSelect").append('<option value="-1"> -- Please Select -- </option>');
+
+        }
+
+        $(document).ready(function () {
+            $("form").one('click focus change', function (e) {
+                $('#submit-id-submit').addClass('btn-warning').removeClass('btn-outline-secondary');
+                $('#btnEnquiryActions').attr('disabled', true)
+
+                $("#lookup_dialogue").click(function () {
+                    $('#addressModal').modal({
+                        keyboard: false
+                    })
+                })
+            });
+
+            $('#lookup').click(function () {
+                var search = $('#id_lookup_address').val();
+                if (search.length > 5) {
+                    $("#addressSelect").show();
+                    $("#addressButton").show();
+                    findAddress();
+                    $('html, body').animate({scrollTop: $("#addressSelect").offset().top - 50}, 'slow');
+                }
+
+            });
+
+            $('#addressSelect').change(function () {
+                if ($(this).val() > -1) {
+                    $('#id_address').val("");
+                    setAddressData($(this))
+                    $('#addressModal').modal('hide')
+                }
+            });
+        });
+
+        // Prevent form submission on enter
+        $('form input').keydown(function (e) {
+            if (e.keyCode == 13) {
+                e.preventDefault();
+                $(':focus').blur();
+                return false;
+            }
+        });
+
+
+    </script>
+
+{% endblock %}
+

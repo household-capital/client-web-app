@@ -52,13 +52,24 @@
                                 <div class="imgContainer"><img src="{% static 'img/icons/person_icon.png' %}"
                                                                width="100px"></div>
                                 <p> {{ firstname_1 }}&nbsp;{{ surname_1 }}</p><br>
-                                <p>{{ age_1 }} years old</p>
+                                <p>{{ age_1 }} years old</p><br>
+                                {% if  obj.head_doc.emp_status  %}
+                                    <p>{{ firstname_1 }}: {{ obj.head_doc.emp_status }} {% if obj.head_doc.age_retire %} - (retiring at {{ obj.head_doc.age_retire }}) {% endif %}</p>
+                                    <br>
+                                {%  endif %}
+                                
                             {% else %}
                                 <div class="imgContainer"><img src="{% static 'img/icons/couple_icon.png' %}"
                                                                width="100px"></div>
                                 <p> {{ firstname_1 }}&nbsp;{{ surname_1 }}</p>
                                 <p> {{ firstname_2 }}&nbsp;{{ surname_2 }}</p><br>
-                                <p>{{ age_1 }} and {{ age_2 }} years old</p>
+                                <p>{{ age_1 }} and {{ age_2 }} years old</p> <br>
+                                {% if  obj.head_doc.emp_status %}
+                                    <p> {{ firstname_1 }}: {{ obj.head_doc.emp_status }} {% if obj.head_doc.age_retire %} - (retiring at {{ obj.head_doc.age_retire }}) {% endif %} </p> 
+                                {%  endif %}
+                                {% if obj.head_doc.emp_status_2  %}
+                                    <p>{{ firstname_2 }}: {{ obj.head_doc.emp_status_2 }} {% if obj.head_doc.age_retire_2 %} - (retiring at {{ obj.head_doc.age_retire_2 }}) {% endif %} </p>
+                                {% endif %}
                             {% endif %}
                         {% else %}
                             <div class="imgContainer"><a href="{% url 'client2:introduction1' %}/1"><img
@@ -76,15 +87,19 @@
                                                            height="100px">
                             </div>
 
-                            <p >{{ obj.superFund.fundName }}</p>
+                            <p >{% if obj.superFund.fundName %}{{ obj.superFund.fundName }}{% else %}{{ obj.enumInvestmentLabel }}{% endif %}</p>
                             <br><p>Balance</p>
                             <p class="pt-1">${{ superAmount|intcomma }}</p>
+                            {% if loanType == loanTypesEnum.JOINT_BORROWER.value and  obj.head_doc.superannuation_2 %}
+                                <br><p>Second Borrower Balance</p>
+                                <p>${{ obj.head_doc.superannuation_2|intcomma }}</p>
+                            {% endif %}
                         {% else %}
                             <div class="imgContainer"><a href="{% url 'client2:introduction1' %}/2"><img id="imgSuper"
                                                                                                          src="{% static 'img/icons/nestEgg_icon.png' %}"
                                                                                                          width="100px"></a>
                             </div>
-                            <p>Superannuation</p>
+                            <p>{{ obj.enumInvestmentLabel }}</p>
                         {% endif %}
                     </div>
 
@@ -101,6 +116,11 @@
                             <p> {{ suburb }}</p>
                             <p class="pt-2">Estimated value</p>
                             <p>${{ valuation|intcomma }}</p>
+                            <br/>
+                            {% if obj.mortgageDebt %}
+                                <p class="pt-2">Mortgage Balance</p>
+                                <p>${{ obj.mortgageDebt|intcomma }}</p>
+                            {% endif %}
                         {% else %}
                             <div class="imgContainer"><a href="{% url 'client2:introduction1' %}/3"><img
                                     src="{% static 'img/icons/home_icon.png' %}" width="100px"></a></div>
@@ -117,7 +137,23 @@
                             </div>
                             <p>Age Pension<p>
                             <br><p class="pt-2">${{  pensionAmount|intcomma}} / fortnight <p>
-                            <p>(${{ annualPensionIncome|intcomma }} p.a.)</p></div>
+                            <p>(${{ annualPensionIncome|intcomma }} p.a.)</p><br/>
+                            {% if obj.head_doc.pension_2 %}
+                                <p>Second Borrower Pension<p>  
+                                <p>${{ obj.head_doc.pension_2|intcomma }}/fortnight</p>
+                                <br/>
+                            {% endif %}
+                            {% if obj.head_doc.wages or obj.head_doc.wages_2 %}
+                                <p>Wages - ${{ obj.head_doc.wages|intcomma }}  {% if obj.head_doc.wages_2 %} and ${{ obj.head_doc.wages_2|intcomma }} {% endif %}</p>
+                            {% endif %}
+                            {% if obj.head_doc.other_income or obj.head_doc.other_income_2 %}
+                                <p>Other Income - ${{ obj.head_doc.other_income|intcomma }}  {% if obj.head_doc.other_income_2 %} and ${{ obj.head_doc.other_income_2|intcomma }} {% endif %}</p>
+                            {% endif %}
+                            {% if obj.head_doc.other_assets or obj.head_doc.other_assets_2 %}
+                                <p>Other Assets - ${{ obj.head_doc.other_assets|intcomma }}  {% if obj.head_doc.other_assets_2 %} and ${{ obj.head_doc.other_assets_2|intcomma }} {% endif %}</p>
+                            {% endif %}
+                            </div>
+                            
                         {% else %}
                             <div class="imgContainer"><a href="{% url 'client2:introduction1' %}/4"><img
                                     src="{% static 'img/icons/dollar_icon.png' %}" width="100px"></a></div>

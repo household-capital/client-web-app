@@ -8,8 +8,9 @@ from datetime import datetime, timedelta
 
 # Application Imports
 
-
 class apiZoom():
+    """Zoom API Wrapper"""
+
     api_key = os.getenv("ZOOM_KEY")
     api_secret = os.getenv("ZOOM_SECRET")
 

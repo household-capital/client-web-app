@@ -48,58 +48,33 @@
     <div class="container">
         <br>
 
-        <div class="row justify-content-center">
+        <div class="row justify-content-center pb-3">
             <div class="col-sm-5">
-
-                <div class="row justify-content-left pb-4">
-
-                    <div class="col-6 my-auto">
-                        <b>Current Pipeline</b><br><br>
-                        <div class="row">
-
-                            <div class="col-12">
-                                <button type="button" class="btn btn-jumbotron">
-                                    Enquiries&nbsp;&nbsp;&nbsp; <span class="badge badge-hhcBlue">{{ openEnquiries }}</span>
-                                </button>
-
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
 
                 <div class="row justify-content-left">
 
                     <div class="col-12">
-                        <div class="row">
+                        <div class="row pt-1 no-gutters">
 
-                            <div class="col-12 ">
-                                <button type="button" class="btn btn-jumbotron">
-                                    Cases&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span
-                                        class="badge badge-hhcBlue">{{ openCases }}</span>
-                                </button>
-
-                            </div>
-                        </div>
-                        <div class="row">
-
-                            <div class="col-5">
-
-                                <p class="">&nbsp;&nbsp;- Discovery</p>
-                                <p class="">&nbsp;&nbsp;- Meeting Held</p>
-                                <p class="">&nbsp;&nbsp;- Application</p>
-                                <p class="">&nbsp;&nbsp;- Documentation</p>
-                            </div>
-                            <div class="col-2 text-right">
-
-                                <p class="">{{ openDiscovery }}</p>
-                                <p class="">{{ openMeetingHeld }}</p>
-                                <p class="">{{ openApplication }}</p>
-                                <p class="">{{ openDocumentation }}</p>
+                            <div class="col-7">
+                                <b>Portfolio</b><br>
+                                <p>Total Plan Amount</p>
+                                <p class="pt-1 pb-1 cal_background_warm border-top border-bottom">Approved Limit</p>
+                                <p class="pt-1">Current Balance</p>
+                                <p class="pt-1">Advanced Amount</p>
+                                <p class="pt-1">W.Ave LVR</p>
+                                <p>Outstanding Loans</p>
                             </div>
 
-
+                            <div class="col-4 text-right">
+                                <b>&nbsp;</b><br>
+                                <p>${{ portfolioPlan|intcomma }}</p>
+                                <p class="pt-1 pb-1 cal_background_warm border-top border-bottom">${{ portfolioLimit|intcomma }}</p>
+                                <p class="pt-1">${{ portfolioBalance|intcomma }}</p>
+                                <p class="pt-1">${{ portfolioFunded|intcomma }}</p>
+                                <p class="pt-1">{{ portfolioLvr }}%</p>
+                                <p>{{ portfolioLoans }}</p>
+                            </div>
                         </div>
 
 
@@ -116,10 +91,13 @@
                     <div class="col-7">
                         <b>Overall Conversion</b><br>
                         <p>Enquiries</p>
-                        <p>Cases</p>
+                        <p>Leads</p>
                         <p>Meetings</p>
-                        <p>Applications</p>
-                        <p>Settled</p>
+                        <p>Settled  {% if clientSFRec %}
+                            <i class="text-success far fa-check-circle"></i>
+                        {% else %}
+                            <i class="text-danger far fa-times-circle"></i>
+                        {% endif %}  </p>
                     </div>
 
                     <div class="col-4 text-right pb-3">
@@ -127,30 +105,12 @@
                         <p>{{ totalEnquiries }}</p>
                         <p>{{ totalCases }}</p>
                         <p>{{ meetings }}</p>
-                        <p>{{ applications }}</p>
-                        <p>{{ funded }}</p>
+                        <p>{{ caseLoans }}</p>
                     </div>
 
                 </div>
 
-                <div class="row pt-1">
 
-                    <div class="col-7">
-                        <b>Portfolio</b><br>
-                        <p>Current Balance</p>
-                        <p>Funded</p>
-                        <p>W.Ave LVR</p>
-                        <p>Funded Loans</p>
-                    </div>
-
-                    <div class="col-4 text-right">
-                        <b>&nbsp;</b><br>
-                        <p>${{ portfolioBalance|intcomma }}</p>
-                        <p>${{ portfolioFunded|intcomma }}</p>
-                        <p>{{ portfolioLvr }}%</p>
-                        <p>{{ portfolioLoans }}</p>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -159,8 +119,8 @@
     <div class="row justify-content-center">
         <div class="col-lg-10 text-left">
 
-            <b>Website Calculator Interactions and Enquiries</b>&nbsp;&nbsp;
-            <div class="chart-container pt-3" style="height:370px;">
+            <b>Daily Enquiries</b>&nbsp;&nbsp;
+            <div class="chart-container pt-3" style="height:300px;">
 
                 <canvas id="interactionChart"></canvas>
             </div>
@@ -188,25 +148,10 @@
                 </thead>
 
                 <tbody>
-                <tr>
-                    <td class="small text-left"><b>Interactions</b></td>
-                    <td></td>
-                     {% for month in dateRange %}
-                        <td class="small">{{ interactionData|getDictItem:month|getDictItem:'interactions' }}</td>
-                    {% endfor %}
-                </tr>
-                    <td></td>
-                    <td></td>
-                     {% for month in dateRange %}
-                        <td>&nbsp;</td>
-                    {% endfor %}
-                <tr>
-
-                </tr>
 
                 <tr>
                     <td class="text-left"><b>Direct</b></td>
-                     <td></td>
+                    <td></td>
                     {% for month in dateRange %}
                         <td></td>{% endfor %}
                 </tr>
@@ -246,43 +191,47 @@
 
                 <tr>
                     <td></td>
+                    <td>Social</td>
+                    {% for month in dateRange %}
+                        <td>{{ directData|getDictItem:month|getDictItem:directTypesEnum.SOCIAL.value }}</td>
+                    {% endfor %}
+                </tr>
+
+
+
+                <tr>
+                    <td></td>
                     <td>Other</td>
                     {% for month in dateRange %}
                         <td>{{ directData|getDictItem:month|getDictItem:directTypesEnum.OTHER.value }}</td>
                     {% endfor %}
                 </tr>
 
-                <tr>
-                    <td class="text-left"><b>Referral</b></td>
-                    <td></td>
-                    {% for month in dateRange %}
-                        <td></td>{% endfor %}
-
-                </tr>
 
                 <tr>
+                    <td class="text-left"><b>Partner</b></td>
                     <td></td>
-                    <td>IFA</td>
                     {% for month in dateRange %}
                         <td>
-                            {{ referralData|getDictItem:month|getDictItem:channelTypesEnum.IND_FINANCIAL_ADVISERS.value }}</td>
+                            {{ directData|getDictItem:month|getDictItem:directTypesEnum.PARTNER.value }}</td>
                     {% endfor %}
                 </tr>
 
                 <tr>
+                    <td class="text-left"><b>Broker</b></td>
                     <td></td>
-                    <td>Brokers</td>
                     {% for month in dateRange %}
-                        <td>{{ referralData|getDictItem:month|getDictItem:channelTypesEnum.BROKERS.value }}</td>
+                        <td>
+                            {{ directData|getDictItem:month|getDictItem:directTypesEnum.BROKER.value }}</td>
                     {% endfor %}
                 </tr>
 
                 <tr>
+                    <td class="text-left"><b>Adviser</b></td>
                     <td></td>
-                    <td>Aged Care</td>
                     {% for month in dateRange %}
                         <td>
-                            {{ referralData|getDictItem:month|getDictItem:channelTypesEnum.AGED_CARE_ADVISERS.value }}</td>
+                            {{ directData|getDictItem:month|getDictItem:directTypesEnum.ADVISER.value }}</td>
                     {% endfor %}
                 </tr>
 
@@ -296,6 +245,66 @@
 
                 </tbody>
             </table>
+
+        </div>
+    </div>
+
+    <div class="row justify-content-center pt-5">
+        <div class="col-lg-10 text-left">
+
+            <b>Lead Generation</b>&nbsp;&nbsp;
+            <div class="chart-container pt-3" style="height:370px;">
+
+                <canvas id="enquiryChart"></canvas>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row justify-content-center pt-5">
+        <div class="col-lg-10 text-left">
+
+            <b>Platform Activity</b>&nbsp;&nbsp;
+            <div class="chart-container pt-3" style="height:370px;">
+
+                <canvas id="activityChart"></canvas>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row justify-content-center pt-5">
+        <div class="col-lg-10 text-left">
+
+            <b>Asset Writing</b>&nbsp;&nbsp;
+            <div class="chart-container pt-3" style="height:370px;">
+
+                <canvas id="portfolioChart"></canvas>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row justify-content-center pt-5">
+        <div class="col-lg-10 text-left">
+
+            <b>Meeting Date to Settlement Date (Days)</b>&nbsp;&nbsp;
+            <div class="chart-container pt-3" style="height:370px;">
+
+                <canvas id="aveDaysChart"></canvas>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row justify-content-center pt-5">
+        <div class="col-lg-10 text-left">
+
+            <b>Conversion Rates (%)</b>&nbsp;&nbsp;
+            <div class="chart-container pt-3" style="height:370px;">
+
+                <canvas id="conversionChart"></canvas>
+            </div>
 
         </div>
     </div>
@@ -324,18 +333,56 @@
             return timeSeriesArray;
         }
 
+        //Formatting
+        function currencyFormat(num) {
+            return '$' + num.toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+        }
+
         // Chart data
-        var chartInteractionData = {{ chartInteractionData|safe}};
         var chartEmailData = {{ chartEmailData|safe}};
         var chartPhoneData = {{ chartPhoneData|safe}};
+        var chartWebData = {{ chartWebData|safe}};
+        var chartMeetingData = {{ chartMeetingData | safe }};
+        var chartZoomMeetingData = {{ chartZoomMeetingData | safe }};
+        var chartSettlementData = {{ chartSettlementData | safe }};
+        var chartNewLoansData = {{ chartNewLoansData | safe }};
+        var chartPortfolioData = {{ chartPortfolioData | safe }};
+        var chartAverageDays = {{ chartAverageDays | safe }};
+        var chartMinDays = {{ chartMinDays | safe }};
+        var chartEnquiry = {{ chartEnquiry | safe }};
+        var chartCalcMthData = {{ chartCalcMthData | safe }};
+        var chartPhoneMthData = {{ chartPhoneMthData | safe }};
+        var chartPartnerMthData = {{ chartPartnerData | safe }};
+        var chartMeetingConversion = {{ chartMeetingConversion | safe }};
+        var chartEnquiryConversion = {{ chartEnquiryConversion | safe }};
+
 
         // Timeseries data
-        var interactionData = createTimeSeries(chartInteractionData);
         var emailData = createTimeSeries(chartEmailData);
         var phoneData = createTimeSeries(chartPhoneData);
+        var webData = createTimeSeries(chartWebData);
+        var meetingData = createTimeSeries(chartMeetingData);
+        var zoomMeetingData = createTimeSeries(chartZoomMeetingData);
+        var settlementData = createTimeSeries(chartSettlementData);
+        var newLoansData = createTimeSeries(chartNewLoansData);
+        var portfolioData = createTimeSeries(chartPortfolioData);
+        var averageDays = createTimeSeries(chartAverageDays);
+        var minDays = createTimeSeries(chartMinDays);
+        var enquiryData = createTimeSeries(chartEnquiry);
+        var calcMthData = createTimeSeries(chartCalcMthData);
+        var partnerMthData = createTimeSeries(chartPartnerMthData);
+        var phoneMthData = createTimeSeries(chartPhoneMthData);
+        var meetingConversionData = createTimeSeries(chartMeetingConversion);
+        var enquiryConversionData = createTimeSeries(chartEnquiryConversion);
+
 
         // Chart references
         var ctx_interaction = document.getElementById('interactionChart').getContext('2d');
+        var ctx_activity = document.getElementById('activityChart').getContext('2d');
+        var ctx_portfolio = document.getElementById('portfolioChart').getContext('2d');
+        var ctx_aveDays = document.getElementById('aveDaysChart').getContext('2d');
+        var ctx_enquiry = document.getElementById('enquiryChart').getContext('2d');
+        var ctx_conversion = document.getElementById('conversionChart').getContext('2d');
 
         // Chart definitions
 
@@ -344,29 +391,287 @@
             data: {
                 datasets: [
                     {
-                    label: "Interactions",
-                    data: interactionData,
-                    borderColor: "#5184a1",
-                    backgroundColor: "#5184a1",
-                    fill: false
-                    },
-
-                    {
                         label: "Calculator Enquiries",
                         data: emailData,
                         borderColor: "#fdb600",
                         backgroundColor: "#fdb600",
                         fill: false
                     },
-
-                   {
+                    {
                         label: "Phone Enquiries",
                         data: phoneData,
                         borderColor: "#86b3b5",
                         backgroundColor: "#86b3b5",
                         fill: false,
+
+                    },
+                    {
+                        label: "Web Enquiries",
+                        data: webData,
+                        borderColor: "#5184a1",
+                        backgroundColor: "#5184a1",
+                        fill: false,
                         borderWidth: 1,
+
+                    }
+                    ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                    display: false,
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'day',
+                            tooltipFormat: 'ddd DD-MMM-YYYY',
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        ticks: {
+                            beginAtZero: true,
+                            max: 40
+                        }
                     }]
+                },
+            }
+        });
+
+        var activityChart = new Chart(ctx_activity, {
+            type: 'line',
+            data: {
+                datasets: [
+                    {
+                        label: "Total Customer Meetings",
+                        data: meetingData,
+                        borderColor: "#5184a1",
+                    },
+                    {
+                        label: "New Loan Settlements",
+                        data: settlementData,
+                        borderColor: "#fdb600",
+                    },
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                    display: false,
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'month',
+                            tooltipFormat: 'ddd DD-MMM-YYYY',
+                        },
+
+
+                    }],
+                    yAxes: [{
+                        display: true,
+                        ticks: {
+                            beginAtZero: true,
+
+                        }
+                    }]
+                },
+
+
+            }
+        });
+
+        var portfolioChart = new Chart(ctx_portfolio, {
+            type: 'line',
+            data: {
+                datasets: [
+                    {
+                        label: "New Loans Written",
+                        data: newLoansData,
+                        borderColor: "#5184a1",
+                        yAxisID: 'y1'
+                    },
+                    {
+                        label: "Total Loans Written",
+                        data: portfolioData,
+                        borderColor: "#fdb600",
+                        yAxisID: 'y2'
+                    },
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                    display: false,
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'month',
+                            tooltipFormat: 'ddd DD-MMM-YYYY',
+                        },
+
+                    }],
+                    yAxes: [{
+                        id: 'y2',
+                        display: true,
+                        position: 'right',
+                        ticks: {
+                            beginAtZero: true,
+                            callback: function (value, index, values) {
+                                return currencyFormat(value);
+
+                            }
+                        }
+                    },
+                        {
+                            id: 'y1',
+                            display: true,
+                            position: 'left',
+                            ticks: {
+                                max: 20000000,
+                                min: 0,
+                                beginAtZero: true,
+                                callback: function (value, index, values) {
+                                    return currencyFormat(value);
+
+                                }
+                            }
+                        }]
+                },
+
+            }
+        });
+
+        var aveDaysChart = new Chart(ctx_aveDays, {
+            type: 'line',
+            data: {
+                datasets: [
+                    {
+                        label: "Average - All Loans",
+                        data: averageDays,
+                        borderColor: "#fdb600",
+                    },
+                    {
+                        label: "Minimum - All Loans",
+                        data: minDays,
+                        borderColor: "#86b3b5",
+                    },
+
+
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                    display: false,
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'month',
+                            tooltipFormat: 'ddd DD-MMM-YYYY',
+                        },
+
+
+                    }],
+                    yAxes: [{
+                        display: true,
+                        ticks: {
+                            beginAtZero: true,
+
+                        }
+                    }]
+                },
+
+
+            }
+        });
+
+        var enquiryChart = new Chart(ctx_enquiry, {
+            type: 'line',
+            data: {
+                datasets: [
+                    {
+                        label: "Total Enquiries",
+                        data: enquiryData,
+                        borderColor: "#fdb600",
+                    },
+
+                    {
+                        label: "Calculator Enquiries",
+                        data: calcMthData,
+                        borderColor: "#5184a1",
+                    },
+                    {
+                        label: "Phone Enquiries",
+                        data: phoneMthData,
+                        borderColor: "#86b3b5",
+                    },
+                     {
+                        label: "Partner Enquiries",
+                        data: partnerMthData,
+                        borderColor: "#A3310C",
+                        borderWidth: 1,
+                    },
+
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                title: {
+                    display: false,
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'month',
+                            tooltipFormat: 'ddd DD-MMM-YYYY',
+                        },
+
+
+                    }],
+                    yAxes: [{
+                        display: true,
+                        ticks: {
+                            beginAtZero: true,
+
+                        }
+                    }]
+                },
+
+
+            }
+        });
+
+        var conversionChart = new Chart(ctx_conversion, {
+            type: 'line',
+            data: {
+                datasets: [
+                    {
+                        label: "Meeting to Settled Loan",
+                        data: meetingConversionData,
+                        borderColor: "#5184a1",
+                        fill: false
+                    },
+                    {
+                        label: "Enquiry to Lead",
+                        data: enquiryConversionData,
+                        borderColor: "#fdb600",
+                        fill: true
+                    },
+                    ]
             },
             options: {
                 responsive: true,
@@ -381,23 +686,17 @@
                             unit: 'month',
                             tooltipFormat: 'ddd DD-MMM-YYYY',
                         }
-
                     }],
                     yAxes: [{
                         display: true,
                         ticks: {
                             beginAtZero: true,
-                            max: 200
+                            max: 100
                         }
                     }]
                 },
-
-
             }
         });
-
-
-
 
 
     </script>

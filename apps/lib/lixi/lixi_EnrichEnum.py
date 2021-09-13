@@ -104,33 +104,53 @@ class EnrichEnum:
         self.__logging("Enriching Property Information")
 
         mappify = apiMappify()
+        sf_gnaf = self.loanDict.get('Prop.Gnaf_Id__c')
+        addressDict = {
+            'gnafId': sf_gnaf,
+            'buildingName': "None"
+        }
+        if not sf_gnaf or sf_gnaf == "None": 
+            # if no gnaf in salesforce (i.e address populated without mappify/geo lib)
+            # use mappify to retrieve
+            concatenated_address = "{} {} {} {}".format(
+                self.loanDict['Prop.Unit__c'],
+                self.loanDict['Prop.Street_Number__c'],
+                self.loanDict['Prop.Street_Name__c'],
+                self.loanDict['Prop.Street_Type__c']
+            )
+            self.__logging("Using Mappify to build gnaf ID")
+            self.__logging('Concating property addreses - Result = {}'.format(concatenated_address))
+            result = mappify.setAddress({"streetAddress": self.loanDict['Prop.Street_Address__c'],
+                                        "suburb": self.loanDict['Prop.Suburb_City__c'],
+                                        "postcode": self.loanDict['Prop.Postcode__c'],
+                                        "state": self.__enumState(self.loanDict['Prop.State__c']),
+                                        "unit": self.loanDict['Prop.Unit__c'],
+                                        "streetnumber": self.loanDict['Prop.Street_Number__c'],
+                                        "streetname": self.loanDict['Prop.Street_Name__c'],
+                                        "streettype":self.loanDict['Prop.Street_Type__c']
+                                        })
 
-        result = mappify.setAddress({"streetAddress": self.loanDict['Prop.Street_Address__c'],
-                                     "suburb": self.loanDict['Prop.Suburb_City__c'],
-                                     "postcode": self.loanDict['Prop.Postcode__c'],
-                                     "state": self.__enumState(self.loanDict['Prop.State__c'])})
+            if result['status'] != 'Ok':
+                self.__logging(result['responseText'])
+                return {'status': "Error"}
 
-        if result['status'] != 'Ok':
-            self.__logging(result['responseText'])
-            return {'status': "Error"}
+            result = mappify.checkPostalAddress()
 
-        result = mappify.checkPostalAddress()
+            if result['status'] == 'Error':
+                self.__logging(result['responseText'])
+                return {'status': "Error"}
 
-        if result['status'] == 'Error':
-            self.__logging(result['responseText'])
-            return {'status': "Error"}
+            addressDict = result["result"]
 
-        addressDict = result["result"]
-
-        self.loanDict['Prop.buildingName'] = str(addressDict['buildingName'])
-        self.loanDict['Prop.flatNumber'] = str(addressDict['flatNumber'])
-        self.loanDict['Prop.numberFirst'] = addressDict['numberFirst']
-        self.loanDict['Prop.streetName'] = self.__firstCap(addressDict['streetName'])
-        self.loanDict['Prop.streetType'] = self.__firstCap(addressDict['streetType'])
-        self.loanDict['Prop.suburb'] = self.__firstCap(addressDict['suburb'])
+        self.loanDict['Prop.buildingName'] =  str(addressDict['buildingName'])
+        self.loanDict['Prop.flatNumber'] = str(self.loanDict['Prop.Unit__c']) 
+        self.loanDict['Prop.numberFirst'] = str(self.loanDict['Prop.Street_Number__c']) 
+        self.loanDict['Prop.streetName'] = self.__firstCap(self.loanDict['Prop.Street_Name__c'])
+        self.loanDict['Prop.streetType'] = self.__firstCap(self.loanDict['Prop.Street_Type__c'])
+        self.loanDict['Prop.suburb'] = self.__firstCap(self.loanDict['Prop.Suburb_City__c'])
         self.loanDict['Prop.gnafId'] = addressDict['gnafId']
-        self.loanDict['Prop.streetAddress'] = addressDict['streetAddress']
-        self.loanDict['Prop.state'] = addressDict['state']
+        self.loanDict['Prop.streetAddress'] = self.loanDict['Prop.Street_Address__c']
+        self.loanDict['Prop.state'] = self.__enumState(self.loanDict['Prop.State__c'])
 
         return {'status': "Ok"}
 
@@ -157,7 +177,7 @@ class EnrichEnum:
             # Purposes
             # Look up ABS and Primary Purpose using associated dictionaries
             maxval = 0
-
+            
             for i in range(int(self.loanDict['Purp.NoPurposes'])):
                 self.loanDict["Purp" + str(i + 1) + ".ABSCode"] = self.ABS_LendingCodes[
                     self.loanDict["Purp" + str(i + 1) + ".Category__c"]]
@@ -193,7 +213,7 @@ class EnrichEnum:
 
             # Remoteness
             self.__logging("Enumerating Remoteness")
-            self.reader = csv.reader(open(settings.BASE_DIR + self.REMOTENESS_FILE, 'r'))
+            self.reader = csv.reader(open(settings.BASE_DIR + self.REMOTENESS_FILE, 'r', encoding='utf-8'))
             self.remoteDict = dict(self.reader)
             self.loanDict["Prop.Remoteness"] = self.remoteDict[self.loanDict["Prop.Postcode__c"]]
 
@@ -228,22 +248,13 @@ class EnrichEnum:
                     else:
                         self.loanDict[prefix + str(i + 1) + ".PrimaryApplicant"] = "No"
 
-                # NameTitle
-                enumTitles = {"Mr.": "Mr", "Mrs.": "Mrs", "Ms.": "Ms", "Dr.": "Dr"}
-                if self.loanDict[prefix + str(i + 1) + ".Salutation"] in enumTitles:
-                    self.loanDict[prefix + str(i + 1) + ".NameTitle"] = enumTitles[
-                        self.loanDict[prefix + str(i + 1) + ".Salutation"]]
-
-                if " " in self.loanDict[prefix + str(i + 1) + ".FirstName"]:
-                    self.loanDict[prefix + str(i + 1) + ".FirstName"], middleName  =self.loanDict[prefix + str(i + 1) + ".FirstName"].split(" ",1)
-                    
-
-                enumMaritalStatus = {"Married": "Married", "Single.": "Single"}
-                if self.loanDict[prefix + str(i + 1) + ".Marital_Status__c"] in enumMaritalStatus:
-                    self.loanDict[prefix + str(i + 1) + ".MaritalStatus"] = enumMaritalStatus[
-                        self.loanDict[prefix + str(i + 1) + ".Marital_Status__c"]]
-                else:
-                    self.loanDict[prefix + str(i + 1) + ".MaritalStatus"] = "Unknown"
+                # NameTitle - Strip dot
+                self.loanDict[prefix + str(i + 1) + ".NameTitle"] = \
+                    self.loanDict[prefix + str(i + 1) + ".Salutation"].replace(".","")
+                
+                if prefix == "Brwr": 
+                    self.loanDict[prefix + str(i + 1) + ".MaritalStatus"] = \
+                            self.loanDict[prefix + str(i + 1) + ".Marital_Status__c"].replace(".","")
 
             return {"status": "Ok"}
         except:
@@ -252,12 +263,13 @@ class EnrichEnum:
     # UTILITY FUNCTIONS
 
     def __firstCap(self, inputString):
-        newString = ''
-        wordList = inputString.split()
-        for word in wordList:
-            newWord = word.lower()
-            newString += newWord.capitalize() + ' '
-        return newString.rstrip()
+        if inputString:
+            newString = ''
+            wordList = inputString.split()
+            for word in wordList:
+                newWord = word.lower()
+                newString += newWord.capitalize() + ' '
+            return newString.rstrip()
 
     def __enumState(self, strState):
         if len(strState) < 4:

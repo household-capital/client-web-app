@@ -1,0 +1,113 @@
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+
+<div>
+    <p class="small-blue pb-2">Meeting Data</p>
+
+    <div class="row">
+        <div class="col">
+            <p class="small">
+                Were all applicant(s) part of the customer engagement?
+            </p>
+            <p class="small">
+                <i>Note: This does not include a nominated occupant.</i>
+            </p>
+        </div>
+        <div class="col">
+            <p>
+                {% if factObj.all_applications_are_engaged %}
+                    Yes
+                {% else %}
+                    No
+                {% endif %}
+            </p>
+        </div>
+    </div>
+    {% if factObj.all_applications_are_engaged is False  %}
+        <p class="small">
+            If no, please describe
+        </p>
+        <div class="row ">
+            <div class="col-lg-8 ">
+                <textarea class="textarea form-control" rows="5" readonly>{{ factObj.applicants_disengagement_reason }}</textarea>
+            </div>
+        </div>
+    {% endif %}
+    <br/>
+    <div class="row">
+        <div class="col">
+            <p class="small">
+                Was there a third party present for the customer engagement?
+            </p>
+            <p class="small">
+                <i>Note: This includes a nominated occupant.</i>
+            </p>
+        </div>
+        <div class="col">
+            <p>
+                {% if factObj.is_third_party_engaged %}
+                    Yes
+                {% else %}
+                    No
+                {% endif %}
+            </p>
+        </div>
+    </div>
+    <br/>
+    {% if factObj.is_third_party_engaged is True  %}
+        <p class="small">
+            If yes, please describe
+        </p>
+        <div class="row ">
+            <div class="col-lg-8 ">
+                <textarea class="textarea form-control" rows="5" readonly>{{ factObj.reason_for_thirdparty_engagement }}</textarea>
+            </div>
+        </div>
+    {% endif %}
+    <br/> 
+    <div class="row">
+        <div class="col">
+            <p class="small">
+                Are either of the applicant(s) signing under a power of attorney?
+            </p>
+        </div>
+        <div class="col">
+            <p>
+                {% if factObj.applicant_poa_signing %}
+                    Yes
+                {% else %}
+                    No
+                {% endif %}
+            </p>
+        </div>
+    </div>
+    <br/> 
+    <div class="row">
+        <div class="col">
+            <p class="small">
+                How long does the applicant(s) plan to stay in their home?
+            </p>
+        </div>
+        <div class="col">
+            <p>
+                {{ factObj.enumPlannedLengthOfStay }}
+            </p>
+        </div>
+    </div>
+    <br/> 
+    <div class="row">
+        <div class="col">
+            <p class="small">
+                What is the applicant(s) planned method of discharge?
+            </p>
+        </div>
+        <div class="col">
+            <p>
+                {{ factObj.enumPlannedMethodOfDischarge }}
+            </p>
+        </div>
+    </div>
+</div>

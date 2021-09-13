@@ -3,12 +3,12 @@ from django import forms
 from django.forms import widgets
 
 # Third-party Imports
-from crispy_forms.bootstrap import (PrependedText, InlineRadios)
+from crispy_forms.bootstrap import PrependedText, InlineRadios
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Field, Div, Fieldset, Button, HTML
 
 # Local Application Imports
-from apps.case.models import Case, Loan, ModelSetting
+from apps.case.models import Case, Loan, ModelSetting, LoanPurposes
 from apps.lib.site_Enums import incomeFrequencyEnum
 
 
@@ -27,10 +27,8 @@ class ClientDetailsForm(forms.ModelForm):
                   'clientType1', 'surname_1', 'firstname_1', 'birthdate_1', 'age_1', 'sex_1',
                   'clientType2', 'surname_2', 'firstname_2', 'birthdate_2', 'age_2', 'sex_2',
                   'street', 'suburb', 'postcode', 'state', 'valuation', 'dwellingType', 'mortgageDebt', 'superFund',
-                  'superAmount', 'pensionType', 'pensionAmount']
-        widgets = {
-            'caseNotes': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
-        }
+                  'superAmount', 'investmentLabel', 'pensionAmount']
+        widgets = {}
 
     # Form Layout
     helper = FormHelper()
@@ -92,6 +90,8 @@ class ClientDetailsForm(forms.ModelForm):
                 css_class="col-lg-4"),
 
             Div(Div(HTML("<i class='fas fa-piggy-bank'></i>&nbsp;&nbsp;Super/Investments"), css_class='form-header'),
+                Div(Div(HTML("Investment Description"), css_class='form-label'),
+                    Div(Field('investmentLabel'))),
                 Div(Div(HTML("Super or Investment Fund"), css_class='form-label'),
                     Div(Field('superFund'))),
                 Div(Div(HTML("Super Fund Assets"), css_class='form-label'),
@@ -99,9 +99,7 @@ class ClientDetailsForm(forms.ModelForm):
 
                 Div(Div(HTML("<i class='fas fa-hand-holding-usd'></i>&nbsp;&nbsp;Pension"), css_class='form-header'),
                     Div(Div(HTML("Pension Amount"), css_class='form-label'),
-                        Div(Field('pensionAmount'))),
-                    Div(Div(HTML("Pension Status"), css_class='form-label'),
-                        Div(Field('pensionType')))),
+                        Div(Field('pensionAmount')))),
                 Div(
                     Div(HTML("<i class='fas fa-users'></i>&nbsp;&nbsp;<small>Meeting</small>")),
                     Div(Div(Field('resetConsents'), css_class="col-lg-1 pl-0"),
@@ -115,6 +113,12 @@ class ClientDetailsForm(forms.ModelForm):
 
             css_class="row")
     )
+
+    def clean_pensionAmount(self):
+        if not self.cleaned_data['pensionAmount']:
+            return 0
+        else:
+            return self.cleaned_data['pensionAmount']
 
     def clean(self):
         loanType = self.cleaned_data['loanType']
@@ -140,7 +144,7 @@ class SettingsForm(forms.ModelForm):
     # Form Fields
     class Meta:
         model = ModelSetting
-        fields = ['housePriceInflation', 'interestRate', 'investmentRate', 'inflationRate', 'projectionAge']
+        fields = ['housePriceInflation', 'interestRate', 'inflationRate', 'establishmentFeeRate']
 
     # Form Layout
     helper = FormHelper()
@@ -157,15 +161,13 @@ class SettingsForm(forms.ModelForm):
                     Div(PrependedText('housePriceInflation', '%'), placeholder='House Price Inflation'),
                     Div(HTML("<i class='fas fa-chart-bar'></i>&nbsp;&nbsp;<small>Base (cash) Interest Rate </small>")),
                     Div(PrependedText('interestRate', '%'), placeholder='Interest Rate'),
-                    Div(HTML("<i class='fas fa-user'></i>&nbsp;&nbsp;<small>Income Projection Age</small>")),
-                    Div(Field('projectionAge', placeholder='Projection Age')),
+                    Div(HTML("<i class='fas fa-chart-line'></i>&nbsp;&nbsp;<small>Inflation</small>")),
+                    Div(PrependedText('inflationRate', '%'), placeholder='inflation'),
                     css_class="col-md-4"),
 
                 Div(
-                    Div(HTML("<i class='fas fa-piggy-bank'></i>&nbsp;&nbsp;<small>Investment Return)</small>")),
-                    Div(PrependedText('investmentRate', '%'), placeholder='Investment Return'),
-                    Div(HTML("<i class='fas fa-chart-line'></i>&nbsp;&nbsp;<small>Inflation</small>")),
-                    Div(PrependedText('inflationRate', '%'), placeholder='inflation'),
+                    Div(HTML("<i class='fas fa-search-dollar'></i>&nbsp;&nbsp;<small>Establishment Fee</small>")),
+                    Div(PrependedText('establishmentFeeRate', '%'), placeholder='establishmentFeeRate'),
                     css_class="col-md-4"),
                 css_class='row justify-content-md-center'),
             Div(
@@ -204,185 +206,6 @@ class IntroChkBoxForm(forms.ModelForm):
                 css_class='row justify-content-center'),
         )
     )
-
-
-
-class debtRepayForm(forms.ModelForm):
-    # Form Fields
-    class Meta:
-        model = Loan
-        fields = ['refinanceAmount']
-
-    refinanceAmount = forms.CharField(required=True, localize=True, widget=widgets.TextInput())
-
-    # Form Layout
-    helper = FormHelper()
-    helper.form_id = 'clientForm'
-    helper.form_method = 'POST'
-    helper.form_class = 'form-horizontal'
-    helper.field_class = 'col-lg-12'
-    helper.form_show_labels = False
-    helper.form_show_errors = True
-    helper.layout = Layout(
-        Div(
-            Div(Div(HTML("Refinance Amount"), css_class='form-label'),
-                Div(PrependedText('refinanceAmount', '$'))),
-            HTML("<br>"),
-            Submit('submit', 'Save', css_class='btn btn-warning'),
-        )
-    )
-
-    def clean_refinanceAmount(self):
-        amount = self.cleaned_data['refinanceAmount'].replace("$", "").replace(',', "")
-        try:
-            return int(amount)
-        except:
-            raise forms.ValidationError("Please enter a valid number")
-
-
-class giveAmountForm(forms.ModelForm):
-    # Nb: Uses two helpers to creata single form
-
-    # Form Fields
-    class Meta:
-        model = Loan
-        fields = ['giveAmount', 'giveDescription']
-
-    giveAmount = forms.CharField(required=True, localize=True, widget=widgets.TextInput())
-    giveDescription = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 1, 'cols': 60}))
-
-    # Form Layout
-    helper = FormHelper()
-    helper.form_id = 'clientForm'
-    helper.form_tag = False
-    helper.form_method = 'POST'
-    helper.form_class = 'form-horizontal'
-    helper.form_show_labels = False
-    helper.form_show_errors = True
-    helper.layout = Layout(
-        Div(
-            Div(Div(HTML("Amount"), css_class='form-label'),
-                Div(PrependedText('giveAmount', '$'), css_class="col-lg-4")),
-            Div(Div(HTML("Description"), css_class='form-label'),
-                Div(Field('giveDescription'), css_class="col-lg-6")),
-
-            Submit('submit', 'Save', css_class='btn btn-warning'),
-        )
-    )
-
-    def clean_giveAmount(self):
-        amount = self.cleaned_data['giveAmount'].replace("$", "").replace(',', "")
-        try:
-            return int(amount)
-        except:
-            raise forms.ValidationError("Please enter a valid number")
-
-
-class renovateAmountForm(forms.ModelForm):
-    # Form Fields
-    class Meta:
-        model = Loan
-        fields = ['renovateAmount', 'renovateDescription']
-
-    renovateAmount = forms.CharField(required=True, localize=True, label='Amount', widget=widgets.TextInput())
-    renovateDescription = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 1, 'cols': 60}))
-
-    # Form Layout
-    helper = FormHelper()
-    helper.form_id = 'clientForm'
-    helper.form_method = 'POST'
-    helper.form_class = 'form-horizontal'
-    helper.form_show_labels = False
-    helper.form_show_errors = True
-    helper.layout = Layout(
-        Div(
-            Div(Div(HTML("Amount"), css_class='form-label'),
-                Div(PrependedText('renovateAmount', '$'), css_class="col-lg-4")),
-            Div(Div(HTML("Description"), css_class='form-label'),
-                Div(Field('renovateDescription'), css_class="col-lg-6")),
-
-            Submit('submit', 'Save', css_class='btn btn-warning'),
-        )
-    )
-
-    def clean_renovateAmount(self):
-        amount = self.cleaned_data['renovateAmount'].replace("$", "").replace(',', "")
-        try:
-            return int(amount)
-        except:
-            raise forms.ValidationError("Please enter a valid number")
-
-
-class travelAmountForm(forms.ModelForm):
-    # Form Fields
-    class Meta:
-        model = Loan
-        fields = ['travelAmount', 'travelDescription']
-
-    travelAmount = forms.CharField(required=True, localize=True, label='Amount', widget=widgets.TextInput())
-    travelDescription = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 1, 'cols': 60}))
-
-    # Form Layout
-    helper = FormHelper()
-    helper.form_id = 'clientForm'
-    helper.form_method = 'POST'
-    helper.form_class = 'form-horizontal'
-    helper.form_show_labels = False
-    helper.form_show_errors = True
-    helper.layout = Layout(
-        Div(
-            Div(Div(HTML("Amount"), css_class='form-label'),
-                Div(PrependedText('travelAmount', '$'), css_class="col-lg-4")),
-            Div(Div(HTML("Description"), css_class='form-label'),
-                Div(Field('travelDescription'), css_class="col-lg-6")),
-
-            Submit('submit', 'Save', css_class='btn btn-warning'),
-        )
-    )
-
-    def clean_travelAmount(self):
-        amount = self.cleaned_data['travelAmount'].replace("$", "").replace(',', "")
-        try:
-            return int(amount)
-        except:
-            raise forms.ValidationError("Please enter a valid number")
-
-
-class careAmountForm(forms.ModelForm):
-    # Form Fields
-
-    class Meta:
-        model = Loan
-        fields = ['careAmount', 'careDescription']
-
-    careAmount = forms.CharField(required=True, localize=True, label='Amount', widget=widgets.TextInput())
-    careDescription = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 1, 'cols': 60}))
-
-    # Form Layout
-    helper = FormHelper()
-    helper.form_id = 'clientForm'
-    helper.form_method = 'POST'
-    helper.form_class = 'form-horizontal'
-    helper.form_show_labels = False
-    helper.form_show_errors = True
-    helper.layout = Layout(
-        Div(
-            Div(Div(HTML("Amount"), css_class='form-label'),
-                Div(PrependedText('careAmount', '$'), css_class="col-lg-4")),
-            Div(Div(HTML("Description"), css_class='form-label'),
-                Div(Field('careDescription'), css_class="col-lg-6")),
-
-            Submit('submit', 'Save', css_class='btn btn-warning'),
-
-        )
-    )
-
-    def clean_careAmount(self):
-        amount = self.cleaned_data['careAmount'].replace("$", "").replace(',', "")
-        try:
-            return int(amount)
-        except:
-            raise forms.ValidationError("Please enter a valid number")
 
 
 class interestPaymentForm(forms.ModelForm):
@@ -456,173 +279,93 @@ class protectedEquityForm(forms.ModelForm):
     )
 
 
-class topUpLumpSumForm(forms.ModelForm):
-    class Meta:
-        model = Loan
-        fields = ['topUpAmount', 'topUpDescription']
+class lumpSumPurposeForm(forms.ModelForm):
 
-    # Form Fields
-    topUpAmount = forms.CharField(required=True, localize=True, widget=widgets.TextInput())
-    topUpDescription = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 1, 'cols': 60}))
+    def __init__(self, *args, **kwargs):
 
-    # Form Layout
-    helper = FormHelper()
-    helper.form_id = 'clientForm'
-    helper.form_method = 'POST'
-    helper.form_class = 'form-horizontal'
-    helper.form_show_labels = False
-    helper.form_show_errors = True
-    helper.layout = Layout(
-        Div(
-            Div(Div(HTML("Amount"), css_class='form-label'),
-                Div(PrependedText('topUpAmount', '$'), css_class="col-lg-4")),
-            Div(Div(HTML("Planned use of top-up funds"), css_class='form-label'),
-                Div(Field('topUpDescription'), css_class="col-lg-8")),
+        if 'amountLabel' in kwargs:
+            amountLabel = kwargs['amountLabel']
+            kwargs.pop('amountLabel')
+        else:
+            amountLabel = "Amount"
 
-            Submit('submit', 'Save', css_class='btn btn-warning'),
-        )
-    )
+        if 'descriptionLabel' in kwargs:
+            descriptionLabel = kwargs['descriptionLabel']
+            kwargs.pop('descriptionLabel')
+        else:
+            descriptionLabel = "Description"
 
-    def clean_topUpAmount(self):
-        amount = self.cleaned_data['topUpAmount'].replace("$", "").replace(',', "")
-        try:
-            return int(amount)
-        except:
-            raise forms.ValidationError("Please enter a valid number")
+        super(lumpSumPurposeForm, self).__init__(*args, **kwargs)
 
-class topUpContingencyForm(forms.ModelForm):
-    class Meta:
-        model = Loan
-        fields = ['topUpContingencyAmount', 'topUpContingencyDescription']
-
-    # Form Fields
-    topUpContingencyAmount = forms.CharField(required=True, localize=True, widget=widgets.TextInput())
-    topUpContingencyDescription = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 1, 'cols': 60}))
-
-    # Form Layout
-    helper = FormHelper()
-    helper.form_id = 'clientForm'
-    helper.form_method = 'POST'
-    helper.form_class = 'form-horizontal'
-    helper.form_show_labels = False
-    helper.form_show_errors = True
-    helper.layout = Layout(
-        Div(
-            Div(Div(HTML("Amount"), css_class='form-label'),
-                Div(PrependedText('topUpContingencyAmount', '$'), css_class="col-lg-4")),
-            Div(Div(HTML("Your objective for contingency funding"), css_class='form-label'),
-                Div(Field('topUpContingencyDescription'), css_class="col-lg-8")),
-
-            Submit('submit', 'Save', css_class='btn btn-warning'),
-        )
-    )
-
-    def clean_topUpContingencyAmount(self):
-        amount = self.cleaned_data['topUpContingencyAmount'].replace("$", "").replace(',', "")
-        try:
-            return int(amount)
-        except:
-            raise forms.ValidationError("Please enter a valid number")
-
-
-
-class topUpDrawdownForm(forms.ModelForm):
-    class Meta:
-        model = Loan
-        fields = ['topUpIncomeAmount', 'topUpFrequency', 'topUpPeriod','topUpBuffer']
-
-    # Form Fields
-    topUpIncomeAmount = forms.CharField(required=True, localize=True, widget=widgets.TextInput())
-    topUpPeriod = forms.ChoiceField(
-        choices=(
-            (5, "5 Years"),
-            (7, "7 Years"),
-            (10, "10 Years"),
-        ),
-        widget=forms.RadioSelect,
-        label="")
-    topUpFrequency = forms.ChoiceField(
-        choices=(
-            (incomeFrequencyEnum.FORTNIGHTLY.value, "Fortnightly"),
-            (incomeFrequencyEnum.MONTHLY.value, "Monthly"),
-        ),
-        widget=forms.RadioSelect,
-        label="")
-
-    topUpBuffer = forms.ChoiceField(
-        choices=(
-            (1, "Yes"),
-            (0, "No"),
-        ),
-        widget=forms.RadioSelect,
-        label="")
-
-    # Form Layout
-    helper = FormHelper()
-    helper.form_id = 'clientForm'
-    helper.form_method = 'POST'
-    helper.form_class = 'form-horizontal sub-container'
-    helper.field_class = 'col-lg-12'
-    helper.form_show_labels = False
-    helper.form_show_errors = True
-    helper.layout = Layout(
-        Div(
+        # Form Layout
+        self.helper = FormHelper()
+        self.helper.form_id = 'clientForm'
+        self.helper.form_method = 'POST'
+        self.helper.form_class = 'form-horizontal'
+        self.helper.form_show_labels = False
+        self.helper.form_show_errors = True
+        self.helper.layout = Layout(
             Div(
-                Div(Div(HTML("Periodic Drawdown Amount"), css_class='form-label'),
-                    Div(PrependedText('topUpIncomeAmount', '$'))),
+                Div(Div(HTML(amountLabel), css_class='form-label'),
+                    Div(PrependedText('amount', '$'), css_class="col-lg-4")),
+                Div(Div(HTML(descriptionLabel), css_class='form-label'),
+                    Div(Field('description'), css_class="col-lg-8")),
 
-                Div(Div(HTML("Drawdown Plan Period (years)*"), css_class='form-label'),
-                    Div(InlineRadios('topUpPeriod'))),
+                Submit('submit', 'Save', css_class='btn btn-warning'),
+            )
+        )
 
-                Div(Div(Submit('submit', 'Save', css_class='btn btn-warning'))),
-
-                css_class="col-lg-5"),
-
-            Div(
-                Div(Div(HTML("Drawdown Frequency"), css_class='form-label'),
-                    Div(InlineRadios('topUpFrequency'))),
-
-                Div(Div(HTML("'Rainy Day' buffer ($5,000)?"), css_class='form-label pt-2'),
-                    Div(InlineRadios('topUpBuffer'))),
-
-                css_class="col-lg-5"),
+    class Meta:
+        model = LoanPurposes
+        fields = ['amount', 'description']
 
 
+    # Form Fields
+    amount = forms.CharField(required=True, localize=True, widget=widgets.TextInput())
+    description = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 1, 'cols': 60}))
 
-        css_class='row')
-    )
 
-    def clean_topUpIncomeAmount(self):
-        amount = self.cleaned_data['topUpIncomeAmount'].replace("$", "").replace(',', "")
+
+    def clean_amount(self):
+        amount = self.cleaned_data['amount'].replace("$", "").replace(',', "")
         try:
             return int(amount)
         except:
             raise forms.ValidationError("Please enter a valid number")
 
 
-class careDrawdownForm(forms.ModelForm):
+
+class drawdownPurposeForm(forms.ModelForm):
     class Meta:
-        model = Loan
-        fields = ['careRegularAmount', 'careFrequency', 'carePeriod', 'careDrawdownDescription']
+        model = LoanPurposes
+        fields = ['drawdownAmount', 'description', 'drawdownFrequency', 'planPeriod']
 
     # Form Fields
-    careRegularAmount = forms.CharField(required=True, localize=True, widget=widgets.TextInput())
-    carePeriod = forms.ChoiceField(
+    drawdownAmount = forms.CharField(required=True, localize=True, widget=widgets.TextInput())
+    planPeriod = forms.ChoiceField(
         choices=(
             (1, "1 Year"),
+            (2, "2 Years"),
             (3, "3 Years"),
+            (4, "4 Years"),
             (5, "5 Years"),
+            (6, "6 Years"),
+            (7, "7 Years"),
+            (8, "8 Years"),
+            (9, "9 Years"),
+            (10, "10 Years")
         ),
-        widget=forms.RadioSelect,
-        label="")
-    careFrequency = forms.ChoiceField(
+    widget=forms.Select)
+
+    description = forms.CharField(widget=widgets.TextInput())
+
+    drawdownFrequency = forms.ChoiceField(
         choices=(
             (incomeFrequencyEnum.FORTNIGHTLY.value, "Fortnightly"),
             (incomeFrequencyEnum.MONTHLY.value, "Monthly"),
         ),
         widget=forms.RadioSelect,
         label="")
-
 
     # Form Layout
     helper = FormHelper()
@@ -636,46 +379,33 @@ class careDrawdownForm(forms.ModelForm):
         Div(
             Div(
                 Div(Div(HTML("Periodic Drawdown Amount"), css_class='form-label'),
-                    Div(PrependedText('careRegularAmount', '$'))),
+                    Div(PrependedText('drawdownAmount', '$'))),
 
                 Div(Div(HTML("Description"), css_class='form-label'),
-                    Div(Field('careDrawdownDescription'))),
+                    Div(Field('description'))),
 
                 Div(Div(Submit('submit', 'Save', css_class='btn btn-warning'))),
 
                 css_class="col-lg-5"),
 
             Div(
-                Div(Div(HTML("Drawdown Frequency"), css_class='form-label'),
-                    Div(InlineRadios('careFrequency'))),
+                Div(Div(HTML("Drawdown Frequency"), css_class='form-label pb-2'),
+                    Div(InlineRadios('drawdownFrequency'))),
 
                 Div(Div(HTML("Drawdown Plan Period (years)*"), css_class='form-label'),
-                    Div(InlineRadios('carePeriod'))),
+                    Div(Field('planPeriod'))),
 
                 css_class="col-lg-5"),
 
-
-
-        css_class='row')
+            css_class='row')
     )
 
-    def clean_careRegularAmount(self):
-        amount = self.cleaned_data['careRegularAmount'].replace("$", "").replace(',', "")
+    def clean_drawdownAmount(self):
+        amount = self.cleaned_data['drawdownAmount'].replace("$", "").replace(',', "")
         try:
             return int(amount)
         except:
             raise forms.ValidationError("Please enter a valid number")
-
-
-
-
-
-
-
-
-
-
-
 
 
 class DetailedChkBoxForm(forms.ModelForm):

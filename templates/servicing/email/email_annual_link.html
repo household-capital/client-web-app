@@ -1,0 +1,32 @@
+{% extends 'servicing/email/email_template.html' %}
+{% load humanize %}
+{% load static %}
+
+
+{% block email_content %}
+
+    <p>Dear {{ firstName }}</p>
+    <br>
+    <p>The anniversary of your Household Loan is approaching and as such, it is time for our annual 'check in' with you.</p>
+    <br>
+    <p>The purpose of this review is to confirm key aspects under your loan contract as well as to see whether there are any additional needs that we may be able to assist you with.</p>
+    <br>
+    <p>You can complete this review online using the following link:</p>
+
+    <br>
+    <a href="{{ signedURL }}"><button style = "background-color: #ffc107; border: none;color: black; padding: 15px 32px; text-align: center;
+            text-decoration: none; display: inline-block; font-size: 16px; border-radius: 12px">Annual Check-in</button></a>
+
+    <br><br>
+    <p>For your security, this link will expire in 7 days. After this period, a new link will need to be requested.</p>
+    <br>
+    <p>Alternatively, we would be pleased to conduct this over the phone. Please call us on <a href="tel:1300622100">1300 622 100</a> at your convenience.</p>
+    <br>
+    <p>Kind regards</p>
+    <br>
+    <p>The Household Capital Team</p>
+
+    <br>
+
+
+{% endblock %}

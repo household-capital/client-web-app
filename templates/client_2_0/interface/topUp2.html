@@ -42,8 +42,8 @@
                             <div class="btn-group" role="group" aria-label="Basic example">
                                 <a href="{% url 'client2:topUp1' %}">
                                     <button type="button" class="btn btn-sm btn-outline-secondary">Lump Sum</button>
-                                 </a>
-                                    <button type="button" class="btn btn-sm btn-secondary">Drawdown</button>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-secondary">Drawdown</button>
                                 <a href="{% url 'client2:topUp3' %}">
                                     <button type="button" class="btn btn-sm btn-outline-secondary">Contingency</button>
                                 </a>
@@ -56,7 +56,8 @@
                         <br>
                         <div class="secondary_title">Top up your retirement income</div>
 
-                        <a>Increase your income with a regular drawdown of your Houeshold Transfer. You can drawdown on a fortnightly or monthly basis to supplement your income and/or pension</a>
+                        <a>Increase your income with a regular drawdown of your Houeshold Transfer. You can drawdown on
+                            a fortnightly or monthly basis to supplement your income and/or pension</a>
                     </div>
                 </div>
 
@@ -72,8 +73,9 @@
                         {% crispy form %}
 
                         <br>
-                        <p class="small">* Drawdowns not guaranteed beyond 12 months. Subject to annual approval process.
-</p>
+                        <p class="small">* Drawdowns not guaranteed beyond 5 years. Subject to annual approval
+                            process.
+                        </p>
 
                     </div>
 
@@ -89,6 +91,43 @@
 
 
 
+
+
+{% endblock %}
+
+{% block javascript %}
+
+    <script>
+
+        function currency(obj) {
+            var currentValue = obj.prop("value").replace(/[$,]+/g, "");
+            if ((isNaN(currentValue)) || (currentValue == 0)) {
+
+            } else {
+                var output = new Intl.NumberFormat('en-US', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(currentValue);
+                obj.prop("value", output);
+            }
+        }
+
+        //Initialisation
+        $(document).ready(function () {
+
+            $('#id_amount').change(function () {
+                currency($(this));
+            });
+
+            $('#id_drawdownAmount').change(function () {
+                currency($(this));
+            })
+
+
+        })
+
+
+    </script>
 
 
 {% endblock %}

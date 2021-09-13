@@ -1,0 +1,105 @@
+{% extends 'servicing/base/base_srv.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div id='messages' class="row justify-content-md-center pt-3">
+            <div class="col-6 text-center">
+                {% for message in messages %}
+                    <div class="pb-1">
+                        <p{% if message.tags == 'error' %} class="alert alert-danger"{% endif %}
+                                {% if message.tags == 'warning' %} class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container">
+
+    <div class="row">
+        <div class="col-lg-9 pb-3">
+            <br><br>
+            <p class="pb-2">Hello {{ obj.identifiedContact.firstName }}</p>
+        </div>
+    </div>
+
+
+    <div class="row justify-content-left">
+        <div class="col-lg-10 text-left">
+            <p class="pb-2"><b>Available amount</b></p>
+            <p class="pb-3">You have an available amount of <b>${{ maxDrawdownAmount|intcomma }}</b> on your Household Loan.</p>
+            <p>This is the amount that you could draw after deducting the associated establishment fee.</p>
+            <br>
+
+            <p class="pb-2"><b>Requested amount</b></p>
+            <p>Please enter below, the amount that you would like to drawdown at this time:</p>
+            <div class="row">
+                <div class="col-lg-3 text-left pt-3">
+                    {% crispy form %}
+                </div>
+
+                <div class="col-lg-4 text-left pt-3">
+
+                    <p class="text-danger">{{ form.errors.amountRequested|striptags }}</p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <br><br><br><br>
+</div>
+
+{% endblock %}
+
+
+{% block javascript %}
+
+    <script>
+
+    function currency(obj) {
+        var currentValue = obj.prop("value").replace(/[$,]+/g, "");
+        if ((isNaN(currentValue)) || (currentValue == 0)) {
+
+        } else {
+            var output = new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(currentValue);
+            obj.prop("value", output);
+        }
+    }
+
+       //Initialisation
+    $(document).ready(function () {
+
+        $('#id_amountRequested').change(function () {
+            currency($(this));
+        })
+    })
+
+
+
+    </script>
+
+
+{% endblock %}

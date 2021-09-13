@@ -1,0 +1,189 @@
+{% extends 'site/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+{% block message_display %}
+
+    <div class="container">
+        {% if messages %}
+            <div class="row justify-content-md-center pt-3">
+                <div class="col-6 text-center">
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %} class="alert alert-danger"{% endif %}
+                                {% if message.tags == 'warning' %} class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                    <br>
+                </div>
+
+            </div>
+
+        {% endif %}
+    </div>
+
+{% endblock %}
+
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                 <div class="col-lg-10 title">{{ title }}</div>
+                <div class="col-lg-2 "><img src="{{ request.user.profile.referrer.companyImage.url }}" width='150'></div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+        <div class="row">
+
+            <div class="col-lg-8">
+
+                <br>
+
+                {% if obj.sfOpportunityID %}
+                    <p class="larger" style="color:deepskyblue"><i class="fas fa-cloud fa-lg pb-4"></i>&nbsp;
+                        Salesforce {{ obj.sfLoanID }}</p>
+
+                {% else %}
+
+                    {% if form.errors %}
+
+                        <i class="far fa-times-circle fa-lg btn-outline-danger pb-3">&nbsp;Form errors</i>
+                    {% else %}
+                        {% if status.status == 'Ok' %}
+                            <i class="far fa-check-circle fa-lg btn-outline-success">&nbsp;Eligible Lead</i>
+                            <br><br>
+                        {% elif status.status == 'Error' %}
+                            <i class="far fa-times-circle fa-lg btn-outline-danger">&nbsp;Ineligible
+                                - {{ status.responseText }}</i>
+                            <br><br>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-lg-8">
+
+                {% crispy form %}
+
+
+            </div>
+
+            <div class="col-lg-4">
+
+
+                <div class="row">
+                    <div class="col-lg-12">
+
+                        <br>
+                        <div class="padding-15px">
+                            <a href="{% url 'referrer:caseList' %}">
+                                <button type="button" class="btn btn-outline-secondary">
+                                    <i class="fas fa-reply fa-fw"></i> Referral List&nbsp;&nbsp;&nbsp;&nbsp;
+                                </button>
+                            </a>
+
+
+                        </div>
+                    </div>
+
+
+                    {% if status.status == 'Ok' %}
+
+                        <div class="row">
+                            <div class="col-lg-12">
+
+                                <div class="jumbotron">
+
+                                    {% if obj.appType == appTypesEnum.VARIATION.value %}
+                                        <p class="large text-success"><i
+                                                class="fas fa-edit btn-outline-success pb-4"></i>&nbsp;
+                                            Loan Variation</p>
+                                    {% endif %}
+
+                                    <p class="small pb-3">Create Date: {{ obj.timestamp | date:'d M y' }}</p>
+
+                                    <p class="larger">Max LVR is: {{ status.data.maxLVR|intcomma }}%</p>
+                                    <br>
+                                    {% if status.data.postcode != 'Valid' %}
+
+                                        <p><i class="fas fa-tractor fa-lg btn-outline-warning"></i>&nbsp;Refer
+                                            Postcode
+                                        </p> <br>
+                                    {% endif %}
+                                    <p class="small"><i class="fas fa-search"></i>&nbsp;Restrictions </p>
+
+                                    <p class="small">Max Loan is: ${{ status.data.maxLoan|intcomma }} (incl
+                                        establishment fee)</p>
+                                    <p class="small">
+                                        {% if status.data.maxLoan > status.data.maxTopUp %}
+                                            Max for
+                                            Super Top Up is: ${{ status.data.maxTopUp|intcomma }}
+                                            </p>{% endif %}
+                                    <p class="small">
+                                        {% if status.data.maxLoan > status.data.maxCare %}
+                                            Max for
+                                            Age Care is: ${{ status.data.maxCare|intcomma }}</p>{% endif %}
+                                    <p class="small">Max for Refinance is:
+                                        ${{ status.data.maxRefi|intcomma }}</p>
+                                    <p class="small">
+                                        {% if status.data.maxLoan > status.data.maxReno %}
+                                            Max for
+                                            Renovations is: ${{ status.data.maxReno|intcomma }}
+                                            </p>{% endif %}
+                                    <p class="small">Max for Giving is:
+                                        ${{ status.data.maxGive|intcomma }}</p>
+                                    <p class="small">Max for Transport and Travel is:
+                                        ${{ status.data.maxTravel|intcomma }}</p>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                    {% endif %}
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+
+{% endblock %}
+
+
+{% block javascript %}
+    <script>
+        $(document).ready(function () {
+            $("form").one('click focus change', function (e) {
+                console.log("Click");
+                $('#submit-id-submit').addClass('btn-warning').removeClass('btn-outline-secondary');
+                $('#btnCaseActions').attr('disabled', true)
+
+            })
+        })
+
+    </script>
+
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends 'site/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+{% block message_display %}
+
+    <div class="container">
+        {% if messages %}
+            <div class="row justify-content-md-center pt-3">
+                <div class="col-6 text-center">
+                    {% for message in messages %}
+                        <p{% if message.tags == 'error' %} class="alert alert-danger"{% endif %}
+                                {% if message.tags == 'warning' %} class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    {% endfor %}
+                    <br>
+                </div>
+
+            </div>
+
+        {% endif %}
+    </div>
+
+{% endblock %}
+
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12 title">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+        {% include 'servicing/loanMenu.html' %}
+
+        <br><br>
+        <div class="row">
+            <div class="col-lg-10 ">
+
+                {% crispy form %}
+            </div>
+        </div>
+        <br>
+        <p><b>Note:</b>You are about to send an 'additional drawdown' link to the selected client.<br>Unless you choose to complete yourself.</p>
+
+    <br><br><br><br>
+
+
+    </div>
+
+
+
+
+{% endblock %}
+
+
+{% block javascript %}
+
+    <script>
+
+        // Role data
+        var dataLookup = {{ dataLookup|safe}};
+
+        $(document).ready(function () {
+            $("#id_identifiedContact").change(function () {
+                var lookup = $(this).find(":selected").text();
+                if (lookup == '---------') {
+                    $("#id_contactEmail").val("");
+                    $("#id_contactPhone").val("");
+                } else {
+                    var email = dataLookup.find(item => item.contact === lookup).email;
+                    var phone = dataLookup.find(item => item.contact === lookup).phone;
+                    $("#id_contactEmail").val(email);
+                    $("#id_contactPhone").val(phone);
+                    console.log(email)
+                }
+
+            })
+        })
+
+        $(document).ready(function () {
+            $("form").one('click focus change', function (e) {
+                console.log("Click");
+                $('#submit-id-submit').addClass('btn-warning').removeClass('btn-outline-secondary');
+            })
+        })
+
+
+    </script>
+
+
+
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends 'servicing/base/base_srv.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+            <div id='messages' class="row justify-content-md-center pt-3">
+            <div class="col-6 text-center">
+                {% for message in messages %}
+                    <div class="pb-1">
+                        <p{% if message.tags == 'error' %} class="alert alert-danger"{% endif %}
+                                {% if message.tags == 'warning' %} class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-lg-9 pb-3">
+                <br><br>
+                <p class="pb-3">A drawdown has already been submitted using this email link</p>
+
+                <p>If you would like to arrange another drawdown or change a recently submitted request, please contact
+                    us at customers@householdcapital.com or call us on 1300 622 100</p>
+                <br>
+                <p>The Household Capital Team</p>
+
+                <br><br><br><br><br><br><br><br>
+
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}
+
+

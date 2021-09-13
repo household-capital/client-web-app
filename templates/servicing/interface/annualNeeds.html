@@ -1,0 +1,202 @@
+{% extends 'servicing/base/base_srv.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load site_tags %}
+
+{% block message_display %}
+
+    <div class="container">
+
+        {% if messages %}
+           <div id='messages' class="row justify-content-md-center pt-3">
+            <div class="col-6 text-center">
+                {% for message in messages %}
+                    <div class="pb-1">
+                        <p{% if message.tags == 'error' %} class="alert alert-danger"{% endif %}
+                                {% if message.tags == 'warning' %} class="alert alert-warning"{% endif %}
+                                {% if message.tags == 'info' %} class="alert alert-info"{% endif %}
+                                {% if message.tags == 'success' %} class="alert alert-success"{% endif %}>
+                            {{ message }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row">
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block jumbotron %}
+    <div class="jumbotron">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12 title">{{ title }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <form id="{{ form.id }}" method="post">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+
+            <div class="row pt-4">
+                <div class="col-lg-6">
+                    <br>
+                    {% if displayLoan %}
+                        <p class="larger"><i class="fas fa-file-contract fa-fw pb-3"></i><b> Your Household Loan</b></p>
+
+                        {% if undrawnAmount %}
+                            <div class="row justify-content-left pt-2">
+                                <div class="col-sm-7 text-left align-self-center pb-2">
+                                    <p>{% if form.choiceUndrawnConfirm.errors %}<span class="text-danger">
+                                        <i class="fas fa-question-circle"></i>{% endif %}
+                                        </span>
+                                        You have undrawn amounts on your loan. We will extend the drawdown period by
+                                        another 12 months. Do you agree?
+                                    </p>
+                                </div>
+                                <div class="col-sm-5 text-center ">
+                                    <div class=" btn-group-toggle" data-toggle="buttons">
+                                        <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceUndrawnConfirm == True %} active {% endif %}">
+                                            <input type="radio" name="choiceUndrawnConfirm" value="True" required
+                                                   id="id_choiceUndrawnConfirm_0" autocomplete="off"
+                                                    {% if formData.choiceUndrawnConfirm == True %} checked {% endif %}>
+                                            Yes
+                                        </label>
+                                        <span class="pr-3"></span>
+                                        <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceUndrawnConfirm == False %} active {% endif %}">
+                                            <input type="radio" name="choiceUndrawnConfirm" value="False"
+                                                   id="id_choiceUndrawnConfirm_1" autocomplete="off"
+                                                    {% if formData.choiceUndrawnConfirm == False %} checked {% endif %}>
+                                            &nbsp;No&nbsp;
+                                        </label>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-block d-sm-none">
+                                <hr>
+                            </div>
+
+                        {% endif %}
+
+                        {% if regularDrawdown %}
+
+                            <div class="row justify-content-left pt-3">
+                                <div class="col-sm-7 text-left align-self-center pb-2">
+                                    <p>{% if form.choiceRatesConfirm.errors %}<span class="text-danger">
+                                        <i class="fas fa-question-circle"></i>{% endif %}
+                                        </span>
+                                        You are currently receiving regular drawdown payments on your loan. Would you like
+                                        to continue receiving the same amount?
+
+                                    </p>
+                                </div>
+                                <div class="col-sm-5 text-center ">
+                                    <div class=" btn-group-toggle" data-toggle="buttons">
+                                        <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceRegularConfirm == True %} active {% endif %}">
+                                            <input type="radio" name="choiceRegularConfirm" value="True" required
+                                                   id="id_choiceRegularConfirm_0" autocomplete="off"
+                                                    {% if formData.choiceRegularConfirm == True %} checked {% endif %}>
+                                            Yes
+                                        </label>
+                                        <span class="pr-3"></span>
+                                        <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceRegularConfirm == False %} active {% endif %}">
+                                            <input type="radio" name="choiceRegularConfirm" value="False"
+                                                   id="id_choiceRegularConfirm_1" autocomplete="off"
+                                                    {% if formData.choiceRegularConfirm == False %} checked {% endif %}>
+                                            &nbsp;No&nbsp;
+                                        </label>
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="d-block d-sm-none">
+                                <hr>
+                            </div>
+                        {% endif %}
+                        <br>
+                    {% endif %}
+
+                    <p class="larger"><i class="fas fa-phone fa-fw pb-3"></i><b> Your future needs</b></p>
+
+
+                    <div class="row justify-content-left pt-2">
+                        <div class="col-sm-7 text-left align-self-center pb-2">
+                            <p>{% if form.choiceCallbackConfirm.errors %}<span class="text-danger">
+                                <i class="fas fa-question-circle"></i>{% endif %}
+                                </span>
+                                Would you like us to call you to discuss your current or future needs?
+
+                            </p>
+                        </div>
+                        <div class="col-sm-5 text-center ">
+                            <div class=" btn-group-toggle" data-toggle="buttons">
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceCallbackConfirm == True %} active {% endif %}">
+                                    <input type="radio" name="choiceCallbackConfirm" value="True" required
+                                           id="id_choiceCallbackConfirm_0" autocomplete="off"
+                                            {% if formData.choiceCallbackConfirm == True %} checked {% endif %}>
+                                    Yes
+                                </label>
+                                <span class="pr-3"></span>
+                                <label class="btn btn-square-choice-hhcLightBlue
+                                    {% if formData.choiceCallbackConfirm == False %} active {% endif %}">
+                                    <input type="radio" name="choiceCallbackConfirm" value="False"
+                                           id="id_choiceCallbackConfirm_1" autocomplete="off"
+                                            {% if formData.choiceCallbackConfirm == False %} checked {% endif %}>
+                                    &nbsp;No&nbsp;
+                                </label>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-block d-sm-none">
+                        <hr>
+                    </div>
+
+                </div>
+
+                <div class="col-lg-5">
+
+                    <div class="row justify-content-left pt-3">
+                        <div class="col-sm-12 text-left align-self-center pb-2">
+                            <div class="d-none d-sm-block">
+                                <br><br>
+                            </div>
+
+                            <p class="pb-1">Please comment (as required)</p>
+
+                            {{ form.needNotes|as_crispy_field }}
+                        </div>
+                    </div>
+
+                    <br>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+
+{% endblock %}
+
+

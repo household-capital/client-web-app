@@ -1,0 +1,24 @@
+{% extends 'enquiry/email/email_template.html' %}
+{% load humanize %}
+{% load static %}
+
+
+{% block email_content %}
+
+    <p>Hello {% if obj.firstname_1 %}{{ obj.firstname_1 }}{% endif %}</p>
+    <br>
+    <p>I am following-up on my previous email in relation to how a Household Loan might be able to help you meet your
+        objectives.</p>
+    <br>
+    <p>I would be happy to discuss your specific circumstances with you. Please don't hesitate to contact me
+        on {{ obj.owner.profile.mobile }} or you can schedule an obligation-free, 15 minute 'discovery call' at a time
+        that best suits you using this link: {{ obj.owner.profile.calendlyUrl }}</p>
+    <br>
+    <p>Kind regards</p>
+    <br>
+    <p>{{ obj.owner.first_name }}&nbsp;{{ obj.owner.last_name }}</p>
+    <br>
+    <img src="{{ obj.owner.profile.picture.url }}" width="100px">
+
+{% endblock %}
+

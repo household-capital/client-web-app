@@ -1,0 +1,45 @@
+<script>
+
+    var currentModal;
+
+    function hideAlerts() {
+        $("#messages").fadeOut();
+    }
+
+    $(document).ready(function () {
+
+        // Popover
+        $('[data-toggle="popover"]').popover();
+
+        $('[data-toggle="popover"]').on('shown.bs.popover', function () {
+            this_popover = $(this);
+            setTimeout(function () {
+                this_popover.popover('hide');
+            }, $(this).data("timeout"));
+        });
+
+        // Modals
+        $('.modal').on('shown.bs.modal', function () {
+            this_modal = $(this);
+            clearTimeout(currentModal);
+            currentModal = setTimeout(function () {
+                this_modal.modal('hide');
+            }, $(this).data("timeout"));
+        });
+
+        // Alerts
+        setTimeout(hideAlerts, 4000)
+
+        // Prevent form submission on enter
+        $('form input').keydown(function (e) {
+            if (e.keyCode == 13) {
+                e.preventDefault();
+                $(':focus').blur()
+                return false;
+            }
+        });
+
+
+    })
+
+</script>

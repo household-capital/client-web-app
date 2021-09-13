@@ -1,0 +1,117 @@
+{% load crispy_forms_tags %}
+
+<div class="row align-items-center">
+    <div class="col-lg-12 ">
+        <br/>
+        <p class="small-blue pb-2">Customer Data</p>
+        <div class="row">
+            <div class="col">
+                <p class="small">
+                    Are either of the applicant(s) a vulnerable customer under any of the following?
+                </p>
+                <ul>
+                    <li> <p class="small"> Age-related impairment </p> </li>
+                    <li> <p class="small"> Cognitive impairment <p> </li>
+                    <li> <p class="small"> Elder abuse </p> </li>
+                    <li> <p class="small"> Family or domestric violence </p> </li>
+                    <li> <p class="small"> Financial abuse </p> </li>
+                    <li> <p class="small"> Mental illness </p> </li>
+                    <li> <p class="small"> Serious illness </p> </li>
+                    <li> <p class="small"> Any other personal, or financial, circumstance causing significant detriment </p> </li>
+                <ul>
+            </div>
+            <div class="col">
+                <div class="form-check form-check-inline">
+                    <label>
+                        <input 
+                            type="radio" 
+                            name="is_vulnerable_customer" 
+                            required 
+                            autocomplete="off"
+                            value="True"
+                            {% if object.is_vulnerable_customer == True %} checked {% endif %}
+                        >
+                        Yes
+                    </label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <label>
+                        <input 
+                            type="radio" 
+                            required 
+                            name="is_vulnerable_customer"
+                            autocomplete="off"
+                            value="False"
+                            {% if object.is_vulnerable_customer == False %} checked {% endif %}
+                        >
+                        No
+                    </label>
+                </div>
+            </div>
+        </div>
+         <p class="small">
+            If yes, please describe
+        </p>
+        <div class="row ">
+            <div class="col-lg-8 ">
+                <textarea class="textarea form-control" rows="5" name="vulnerability_description">{% if object.vulnerability_description != None %}{{ object.vulnerability_description }}{% endif %}</textarea>
+            </div>
+        </div>
+
+        <br/>
+        <div class="row">
+            <div class="col">
+                <p class="small">
+                    Has the applicant(s) consdiered alternative strategies including downsizing? 
+                </p>
+            </div>
+            <div class="col">
+                <div class="form-check form-check-inline">
+                    <label>
+                        <input 
+                            type="radio" 
+                            name="considered_alt_downsizing_opts" 
+                            required 
+                            autocomplete="off"
+                            value="True"
+                            {% if object.considered_alt_downsizing_opts == True %} checked {% endif %}
+                        >
+                        Yes
+                    </label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <label>
+                        <input 
+                            type="radio" 
+                            required 
+                            name="considered_alt_downsizing_opts"
+                            autocomplete="off"
+                            value="False"
+                            {% if object.considered_alt_downsizing_opts == False %} checked {% endif %}
+                        >
+                        No
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <br/>
+        <p class="small">
+            Describe the applicant(s) plan for future giving 
+        </p>
+        <div class="row">
+            <div class="col-lg-8">
+                <textarea class="textarea form-control" rows="5" name="plan_for_future_giving">{% if object.plan_for_future_giving != None %}{{ object.plan_for_future_giving }}{% endif %}</textarea>
+            </div>
+        </div>
+        <br/>
+        <p class="small">
+            Describe the applicant(s) plan for aged care 
+        </p>
+        <div class="row">
+            <div class="col-lg-8">
+                <textarea class="textarea form-control" rows="5" name="plan_for_aged_care">{% if object.plan_for_aged_care != None %}{{ object.plan_for_aged_care }}{% endif %}</textarea>
+            </div>
+        </div>
+    </div>
+</div>

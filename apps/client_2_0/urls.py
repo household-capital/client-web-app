@@ -1,4 +1,5 @@
 #Django Imports
+#Django Imports
 from django.urls import path
 
 
@@ -7,6 +8,9 @@ from . import views
 app_name = 'client2'
 
 urlpatterns = [
+
+    #Authenticated Views
+
     path('meeting/<uuid:uid>', views.LandingView.as_view(), name='meeting'),
     path('meeting/start', views.LandingView.as_view(), name='meetingStart'),
     path('meeting/start/<int:post_id>/', views.LandingView.as_view()),
@@ -48,16 +52,8 @@ urlpatterns = [
     path('finalPdf', views.FinalPDFView.as_view(), name='finalPdf'),
     path('finalError', views.FinalErrorView.as_view(), name='finalError'),
 
-    path('pdfLoanSummary/<uuid:uid>', views.PdfLoanSummary.as_view(), name='pdfLoanSummary'),
-    path('pdfRespLending/<uuid:uid>', views.PdfRespLending.as_view(), name='pdfRespLending'),
-    path('pdfPrivacy/<uuid:uid>', views.PdfPrivacy.as_view(), name='pdfPrivacy'),
-    path('pdfElectronic/<uuid:uid>', views.PdfElectronic.as_view(), name='pdfElectronic'),
-    path('pdfClientData/<uuid:uid>', views.PdfClientData.as_view(), name='pdfClientData'),
-    path('pdfInstruction/<uuid:uid>', views.PdfInstruction.as_view(), name='pdfInstruction'),
-    path('pdfValInstruction/<uuid:uid>', views.PdfValInstruction.as_view(), name='pdfValInstruction'),
-
-    path('newFinalPdf', views.NewFinalPDFView.as_view(), name='newFinalPdf'),
-    path('newPdfLoanSummary/<uuid:uid>', views.NewPdfLoanSummary.as_view(), name='newPdfLoanSummary'),
+    path('pdfLoanSummary/<uuid:uid>', views.pdfLoanSummary.as_view(), name='pdfLoanSummary'),
+    path('pdfPreQualSummary/<uuid:uid>', views.pdfPreQualSummary.as_view(), name='pdfPreQualSummary'),
 
 ]
 
