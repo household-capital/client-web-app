@@ -54,6 +54,7 @@ variable "cache_node_type" {
 variable "web_domain" {
   type        = string
   description = "Webdomain"
+  default     = ""
 }
 
 variable "route53_name" {

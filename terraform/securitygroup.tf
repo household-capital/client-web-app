@@ -1,10 +1,10 @@
 resource "aws_security_group" "db_sg" {
-  name        = "clientapp-db-security-${var.environment}"
-  description = "Client App Terraform DB security group - ${var.environment}"
+  name        = "clientapp-db-security-${var.environment}-${var.instance}"
+  description = "Client App Terraform DB security group - ${var.environment}-${var.instance}"
   vpc_id      = data.aws_vpc.main.id
 
   tags = {
-    Name = "clientapp-database-${var.environment}"
+    Name = "clientapp-database-${var.environment}-${var.instance}"
   }
 
   # Inbound
@@ -32,12 +32,12 @@ resource "aws_security_group" "db_sg" {
 }
 
 resource "aws_security_group" "elastic_cache" {
-  name        = "clientapp-ec-${var.environment}"
-  description = "Client App Terraform DB ec group - ${var.environment}"
+  name        = "clientapp-ec-${var.environment}-${var.instance}"
+  description = "Client App Terraform DB ec group - ${var.environment}-${var.instance}"
   vpc_id      = data.aws_vpc.main.id
 
   tags = {
-    Name = "clientapp-database-${var.environment}"
+    Name = "clientapp-database-${var.environment}-${var.instance}"
   }
 
   # Inbound
@@ -59,12 +59,12 @@ resource "aws_security_group" "elastic_cache" {
 }
 
 resource "aws_security_group" "web_sg" {
-  name        = "clientapp-web-security-${var.environment}"
-  description = "Client App Terraform EC2 security group - ${var.environment}"
+  name        = "clientapp-web-security-${var.environment}-${var.instance}"
+  description = "Client App Terraform EC2 security group - ${var.environment}-${var.instance}"
   vpc_id      = data.aws_vpc.main.id
 
   tags = {
-    Name = "clientapp-web-security-${var.environment}"
+    Name = "clientapp-web-security-${var.environment}-${var.instance}"
   }
 
   ingress { # SSH access

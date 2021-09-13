@@ -50,7 +50,7 @@ AWSCLI = docker-compose run awscli
 
 ##@ Main targets
 build: pyimage pypublish create-zip ## Package and publish code
-deploy: tfformat tfvalidate tfplan tfapply ## Format, validate, plan, and apply terraform
+deploy: tfformat tfvalidate tfplan tfapply ebupdate ## Format, validate, plan, and apply terraform
 destroy: tfdestroy ## Destroy environment
 
 
@@ -165,7 +165,7 @@ create-zip: pre-deploy-handler zip-package
 rds-snapshot: 
 	sh rds_snapshot.sh $(HHC_ENVIRONMENT)
 
-apply-deploy-with-snapshot: rds-snapshot create-zip tfapply
+apply-deploy-with-snapshot: rds-snapshot create-zip tfapply ebupdate
 
 
 shell_plus: 
@@ -233,8 +233,12 @@ tfplan: _tfinit ## Generate terraform plan
 tfapply: _validate ## Apply terraform plan
 	echo -e $(CYAN)Applying terraform$(NC)
 	$(TERRAFORM) apply $(TF_ARTIFACT) && \
-	$(TERRAFORM) output -no-color -json > $(TF_OUTPUT) \
-	$(AWSCLI) elasticbeanstalk update-environment --region ap-southeast-2 \
+	$(TERRAFORM) output -no-color -json > $(TF_OUTPUT)
+	
+.PHONY: ebupdate
+ebupdate: ## Update elasticbeanstalk
+	echo -e $(CYAN)Updating elasticbeanstalk$(NC)
+	$(AWSCLI) elasticbeanstalk update-environment \
 		--application-name $(TF_OUTPUT_APP_NAME) \
 		--version-label $(TF_OUTPUT_APP_VER) \
 		--environment-name $(TF_OUTPUT_ENV_NAME)

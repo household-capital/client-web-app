@@ -11,7 +11,7 @@ resource "aws_db_instance" "rds_env_instance" {
   engine_version         = "12.5"
   instance_class         = "db.t3.small"
   storage_encrypted      = true
-  name                   = "clientapp${var.environment}"
+  name                   = "clientapp${var.environment}${var.instance}"
   username               = jsondecode(data.aws_secretsmanager_secret_version.db_creds.secret_string)["Username"]
   password               = jsondecode(data.aws_secretsmanager_secret_version.db_creds.secret_string)["Password"]
   parameter_group_name   = "default.postgres12"
@@ -19,7 +19,7 @@ resource "aws_db_instance" "rds_env_instance" {
   # db_subnet_group_name   = var.storage_subnet_group  # Subnet Group
   db_subnet_group_name = aws_db_subnet_group.db_subnet_group.id # "awseb-e-mdegjcpmbn-stack-awsebrdsdbsubnetgroup-tgen5assryx2"
   multi_az             = true
-  identifier           = "clientapp-db-${var.environment}"
+  identifier           = "clientapp-db-${var.environment}-${var.instance}"
   publicly_accessible  = var.environment != "prod"
 
   # RDS Maintenance (1:00am - 3:00am AEDT Monday nights)
@@ -35,8 +35,8 @@ resource "aws_db_instance" "rds_env_instance" {
 }
 
 resource "aws_db_subnet_group" "db_subnet_group" {
-  name       = "clientapp-db-subnet-group-${var.environment}"
+  name       = "clientapp-db-subnet-group-${var.environment}-${var.instance}"
   subnet_ids = data.aws_subnet_ids.public.ids
 
-  tags = { "Name" = "clientapp-db-subnet-group-${var.environment}" }
+  tags = { "Name" = "clientapp-db-subnet-group-${var.environment}-${var.instance}" }
 }

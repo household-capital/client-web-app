@@ -23,6 +23,7 @@ customerReports/
 fundImages/
 
 postgres/
+package.zip
 
 # TERRAFORM 
 *.terraform/
