@@ -168,7 +168,6 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
   setting { # load balancer
     namespace = "aws:ec2:vpc"
     name      = "ELBSubnets"
-    # value = join(", ", data.aws_subnet_ids.storage.ids)
     value = join(", ", data.aws_subnet_ids.public.ids)
   }
 
