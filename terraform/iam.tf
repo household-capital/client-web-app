@@ -1,6 +1,8 @@
 resource "aws_iam_instance_profile" "elb_profile" {
   name = "elb_profile-${var.environment}-${var.instance}-client-app"
   role = aws_iam_role.elb.name
+
+  tags = merge(local.common_tags, { "Name" = "elb_profile-${var.environment}-${var.instance}-client-app" })
 }
 
 resource "aws_iam_policy" "cloudwatchpolicy" {
@@ -25,6 +27,8 @@ resource "aws_iam_policy" "cloudwatchpolicy" {
   ]
 }
 EOF
+
+  tags = merge(local.common_tags, { "Name" = "ec2-cloud-watch-policy-${var.environment}-${var.instance}" })
 }
 
 resource "aws_iam_role" "elb" {
@@ -44,6 +48,8 @@ resource "aws_iam_role" "elb" {
   ]
 }
 EOF
+
+  tags = merge(local.common_tags, { "Name" = "${var.environment}-${var.instance}-elb-ec2-role-client-app" })
 }
 
 resource "aws_iam_role_policy_attachment" "elb-cloudwatch" {
@@ -53,30 +59,30 @@ resource "aws_iam_role_policy_attachment" "elb-cloudwatch" {
 
 resource "aws_iam_role_policy_attachment" "elb-attach-ebweb" {
   role       = aws_iam_role.elb.name
-  policy_arn = data.aws_iam_policy.AWSElasticBeanstalkWebTier.arn
+  policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier"
 }
 
 resource "aws_iam_role_policy_attachment" "elb-attach-s3" {
   role       = aws_iam_role.elb.name
-  policy_arn = data.aws_iam_policy.AmazonS3FullAccess.arn
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }
 
 resource "aws_iam_role_policy_attachment" "elb-attach-docker" {
   role       = aws_iam_role.elb.name
-  policy_arn = data.aws_iam_policy.AWSElasticBeanstalkMulticontainerDocker.arn
+  policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkMulticontainerDocker"
 }
 
 resource "aws_iam_role_policy_attachment" "elb-attach-worker" {
   role       = aws_iam_role.elb.name
-  policy_arn = data.aws_iam_policy.AWSElasticBeanstalkWorkerTier.arn
+  policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkWorkerTier"
 }
 
 resource "aws_iam_role_policy_attachment" "elb-attach-secrets" {
   role       = aws_iam_role.elb.name
-  policy_arn = data.aws_iam_policy.SecretsManagerReadWrite.arn
+  policy_arn = "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
 }
 
 resource "aws_iam_role_policy_attachment" "ses-attach-policy" {
   role       = aws_iam_role.elb.name
-  policy_arn = data.aws_iam_policy.AmazonSESFullAccess.arn
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSESFullAccess"
 }

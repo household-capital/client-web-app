@@ -23,6 +23,8 @@ resource "aws_route53_record" "www" {
 resource "aws_s3_bucket" "bucket" {
   bucket        = "hhc-client-app-${var.environment}-${var.instance}"
   force_destroy = var.nuke_s3
+
+  tags = local.common_tags
 }
 
 resource "aws_s3_bucket" "bucket_static" {
@@ -39,6 +41,8 @@ resource "aws_s3_bucket" "bucket_static" {
     ]
     max_age_seconds = 3000
   }
+
+  tags = local.common_tags
 }
 
 resource "aws_s3_bucket_policy" "s3_bucket_policy_static_media" {
@@ -82,6 +86,8 @@ resource "aws_s3_bucket_object" "deployment_package" {
   bucket = aws_s3_bucket.bucket.id
   key    = "package/package-${timestamp()}.zip"
   source = "../package.zip"
+
+  tags = local.common_tags
 }
 
 #########################################################
@@ -191,7 +197,7 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
   setting {
     namespace = "aws:elb:listener:443"
     name      = "SSLCertificateId"
-    value     = data.aws_acm_certificate.ssl_cert.arn
+    value     = data.aws_ssm_parameter.cert_arn.value
   }
   setting {
     namespace = "aws:elb:listener:443"
@@ -217,6 +223,8 @@ resource "aws_elastic_beanstalk_environment" "hhc_client_app" {
   }
 
   depends_on = [aws_elastic_beanstalk_application_version.default]
+
+  tags = merge(local.common_tags, { "Name" = "${var.environment}-${var.instance}-HHC-client-app" })
 }
 
 resource "aws_elastic_beanstalk_application_version" "default" {
@@ -225,4 +233,6 @@ resource "aws_elastic_beanstalk_application_version" "default" {
   description = "application version created by terraform"
   bucket      = aws_s3_bucket.bucket.id
   key         = aws_s3_bucket_object.deployment_package.id
+
+  tags = merge(local.common_tags, { "Name" = "hhcclientapp-${var.environment}-${var.instance}-${uuid()}" })
 }
