@@ -328,7 +328,7 @@ class roleEnum(Enum):
     SOLICITOR = 13
     BENEFICIAL_OWNER = 14
     DOCUMENT_CUSTODIAN = 15
-
+    EMERGENCY_CONTACT = 16
 
 @accessInTemplate
 class authTypesEnum(Enum):
