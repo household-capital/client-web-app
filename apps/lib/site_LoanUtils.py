@@ -63,11 +63,15 @@ def validateLoanGetContext(caseUID):
 
     # Save Variation Amount
     if clientDict['appType'] == appTypesEnum.VARIATION.value:
-        loanQS.update(
-            variationTotalAmount=max(loanStatus['data']['totalLoanAmount'] - loanDict['orgTotalLoanAmount'], 0),
-            variationPurposeAmount=max(loanStatus['data']['purposeAmount'] - loanDict['orgPurposeAmount'], 0),
-            variationFeeAmount=max(loanStatus['data']['establishmentFee'] - loanDict['orgEstablishmentFee'], 0),
-        )
+        to_update = {
+            "variationTotalAmount":max(loanStatus['data']['totalLoanAmount'] - loanDict['orgTotalLoanAmount'], 0),
+            "variationPurposeAmount":max(loanStatus['data']['purposeAmount'] - loanDict['orgPurposeAmount'], 0)
+        }
+        var_est_fee = loanStatus['data']['establishmentFee'] - loanDict['orgEstablishmentFee']
+        if loanDict['product_type'] == "HHC.RM.2021":
+            var_est_fee = loanStatus['data']['establishmentFee']
+        to_update['variationFeeAmount'] = max(var_est_fee, 0)
+        loanQS.update(**to_update)
 
     # 5. Create context
     context = {}
