@@ -104,6 +104,10 @@ _AUTO_ASSIGN_LEADSOURCE_LOOKUP = {
     directTypesEnum.WEB_PREQUAL.value: {
         'settings_assignee_field': 'autoassignees_pre_qual',
         'choice_filter': _filter_calc_assignees,
+    },
+    directTypesEnum.WEB_VISA.value: {
+        'settings_assignee_field': 'autoassignees_web_visa',
+        'choice_filter': _filter_calc_assignees,
     }
 }
 

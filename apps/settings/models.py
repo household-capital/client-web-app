@@ -40,6 +40,19 @@ class GlobalSettings(SingletonModel):
     )
     autoassignees_pre_qual_index = models.IntegerField(default=0)
 
+    autoassignees_web_visa = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='autoassignees_web_visa',
+        blank=True,
+        limit_choices_to=Q(
+            Q(is_active=True) &
+            Q(profile__isCreditRep=True) &
+            Q(profile__calendlyUrl__isnull=False) &
+            ~Q(profile__calendlyUrl='')
+        )
+    )
+    autoassignees_web_visa_index = models.IntegerField(default=0)
+
     autoassignees_STARTS_AT_60 = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         related_name='autoassignees_STARTS_AT_60',
