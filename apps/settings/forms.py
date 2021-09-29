@@ -27,6 +27,7 @@ class GlobalSettingsForm(forms.ModelForm):
         fields = [
             'autoassignees_pre_qual',
             'autoassignees_calculators',
+            'autoassignees_web_visa',
             'autoassignees_STARTS_AT_60',
             'autoassignees_CARE_ABOUT',
             'autoassignees_NATIONAL_SENIORS',
@@ -76,6 +77,13 @@ class GlobalSettingsForm(forms.ModelForm):
                     Div(HTML("Web Pre Qual:"), css_class='form-label pb-1'),
                     Div(
                         Field('autoassignees_pre_qual'),
+                        css_class='pl-5 col-lg-7'
+                    )
+                ),
+                Div(
+                    Div(HTML("Web Visa:"), css_class='form-label pb-1'),
+                    Div(
+                        Field('autoassignees_web_visa'),
                         css_class='pl-5 col-lg-7'
                     )
                 ),
