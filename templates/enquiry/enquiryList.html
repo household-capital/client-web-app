@@ -140,7 +140,8 @@
                     <thead>
                     <tr>
                         <th class="d-none d-sm-table-cell" scope="col">Owner</th>
-                        <th class="d-none d-sm-table-cell">Source</th>
+                        <th class="d-none d-sm-table-cell">LSource</th>
+                        <th class="d-none d-sm-table-cell">MSource</th>
                         <th>Name</th>
                         <th class="d-none d-sm-table-cell">Age</th>
                         <th>Postcode</th>
@@ -177,7 +178,9 @@
                             <td class="d-none d-sm-table-cell">
                                 <a href="{{ obj.get_absolute_url }}">{{ obj.enumReferrerType }}</a>
                             </td>
-
+                            <td class="d-none d-sm-table-cell">
+                                <a href="{{ obj.get_absolute_url }}">{{ obj.enumMarketingSource }}</a>
+                            </td>
                             <td><a href="{{ obj.get_absolute_url }}">{{ obj.name|truncatechars:30 }}</a></td>
                             <td class="d-none d-sm-table-cell"><a href="{{ obj.get_absolute_url }}">{{ obj.age_1 }}
                                 &nbsp;{{ obj.age_2|intBlank }}</a>
