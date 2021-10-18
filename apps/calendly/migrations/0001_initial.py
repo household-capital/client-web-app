@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('meetingUID', models.UUIDField(default=uuid.uuid4, editable=False)),
                 ('meetingName', models.CharField(blank=True, max_length=50, null=True)),
-                ('calendlyID', models.CharField(max_length=16)),
+                ('calendlyID', models.CharField(max_length=256)),
                 ('startTime', models.DateTimeField(blank=True, null=True)),
                 ('timeZone', models.CharField(blank=True, max_length=50, null=True)),
                 ('zoomID', models.CharField(blank=True, max_length=11, null=True)),
