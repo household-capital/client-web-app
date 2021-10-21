@@ -49,7 +49,7 @@ class apiSalesforce():
                       'ContentVersion':
                           "Select VersionData from ContentVersion where ContentDocumentID=\'{0}\'",
                       'DistContact':
-                          "Select FirstName, LastName, AccountId from Contact where Id=\'{0}\' and isDeleted=False",
+                          "Select FirstName, LastName, Id, AccountId from Contact where Id=\'{0}\' and isDeleted=False",
                       'DistCompany':
                           "Select Name from Account where Id=\'{0}\' and isDeleted=False",
                       'User':
