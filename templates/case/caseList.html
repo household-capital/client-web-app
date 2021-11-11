@@ -220,7 +220,7 @@
                             <td class="d-none d-sm-table-cell">
                                 <a href="{{ obj.get_absolute_url }}">
                                     <div style="text-align:center;">
-                                        {% if obj.lead_needs_action %}
+                                        {% if obj.lead_needs_action and obj.enumReferrerType != 'Calculator' %}
                                             <button class="btn btn-warning btn-sm" data-toggle="tooltip"
                                                     data-placement="top"
                                                     title="Assign lead to you"><i class="fas fa-exclamation-circle"></i> New Enquiry
