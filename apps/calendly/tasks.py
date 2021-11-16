@@ -66,7 +66,7 @@ def synchCalendly():
 
                     obj.caseUID = caseObj.caseUID
                     obj.save()
-                    updateCase(caseObj.caseUID, obj.meetingName, obj.customerPhone)
+                    updateCase(caseObj.caseUID, obj.meetingName, obj.customerPhone, obj.startTime)
                     app.send_task('Update_SF_Case_Lead', kwargs={'caseUID': str(caseObj.caseUID)})
 
     write_applog("INFO", 'Calendly', 'Tasks-synchCalendly', "Task completed successfully")
@@ -74,7 +74,7 @@ def synchCalendly():
     return "Finished successfully"
 
 
-def updateCase(caseUID, meeting_name, phoneNumber):
+def updateCase(caseUID, meeting_name, phoneNumber, startTime):
 
     obj = Case.objects.filter(caseUID=caseUID, deleted_on__isnull=True).first()
 
@@ -83,6 +83,8 @@ def updateCase(caseUID, meeting_name, phoneNumber):
         obj.isZoomMeeting = True
         if phoneNumber and not obj.phoneNumber_1:
             obj.phoneNumber_1 = phoneNumber
+        if startTime and not obj.meetingDate:
+            obj.meetingDate = startTime
 
-        obj.save(update_fields=['isZoomMeeting', 'phoneNumber_1'])
+        obj.save(update_fields=['isZoomMeeting', 'phoneNumber_1', 'meetingDate'])
     return
