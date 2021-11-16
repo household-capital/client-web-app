@@ -29,7 +29,7 @@ class apiSalesforce():
                       'Opportunity':
                           "Select Id,Name,StageName,CloseDate, OwnerId, Establishment_Fee_Percent__c, FeeType__r.Name from Opportunity where Id=\'{0}\'",
                       'OpportunityPropertyLink':
-                          "Select Property__c from OpportunityPropertyLink__c where Opportunity__c=\'{0}\'",
+                          "Select Property__c from OpportunityPropertyLink__c where Opportunity__c=\'{0}\' and (Relationship__c = \'Primary Residence and Security\' or Relationship__c = \'Security\')",
                       'Properties':
                           "Select Id, Name, Street_Address__c, Street_Name__c, Street_Number__c, Street_Type__c, Unit__c, Gnaf_id__c, Suburb_City__c,State__c,Postcode__c,Country__c, Property_Type__c, Last_Valuation_Date__c, Home_Value_AVM__c, Home_Value_FullVal__c, Valuer__c, Valuer_Name__c, Insurer__c, Policy_Number__c, Minimum_Insurance_Value__c, Insurance_Expiry_Date__c  from Properties__c where Id=\'{0}\' and isDeleted=False",
                       'OpportunityDetails':
@@ -49,7 +49,7 @@ class apiSalesforce():
                       'ContentVersion':
                           "Select VersionData from ContentVersion where ContentDocumentID=\'{0}\'",
                       'DistContact':
-                          "Select FirstName, LastName, AccountId from Contact where Id=\'{0}\' and isDeleted=False",
+                          "Select FirstName, LastName, Id, AccountId from Contact where Id=\'{0}\' and isDeleted=False",
                       'DistCompany':
                           "Select Name from Account where Id=\'{0}\' and isDeleted=False",
                       'User':

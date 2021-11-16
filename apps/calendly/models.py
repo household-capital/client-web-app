@@ -20,7 +20,7 @@ class Calendly(models.Model):
     meetingUID = models.UUIDField(default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
     meetingName = models.CharField(max_length=50, blank=True, null=True)
-    calendlyID = models.CharField(max_length=16, blank=False, null=False)
+    calendlyID = models.CharField(max_length=256, blank=False, null=False)
     startTime = models.DateTimeField(blank=True, null=True)
     timeZone = models.CharField(max_length=50, blank=True, null=True)
     zoomID = models.CharField(max_length=11, blank=True, null=True)
