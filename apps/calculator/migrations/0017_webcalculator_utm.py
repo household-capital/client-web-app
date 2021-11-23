@@ -14,12 +14,12 @@ class Migration(migrations.Migration):
             field=models.CharField(max_length=256, null=True, blank=True),
         ),
         migrations.AddField(
-            model_name='webcontact',
+            model_name='webcalculator',
             name='utm_medium',
             field=models.CharField(max_length=256, null=True, blank=True),
         ),
         migrations.AddField(
-            model_name='webcontact',
+            model_name='webcalculator',
             name='utm_campaign',
             field=models.CharField(max_length=256, null=True, blank=True),
         ),
