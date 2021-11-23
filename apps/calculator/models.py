@@ -120,6 +120,11 @@ class WebCalculator(AbstractAddressModel):
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
     requestedCallback = models.BooleanField(default=False, blank=False, null=False)
 
+    # UTM
+    utm_source = models.CharField(max_length=256, null=True, blank=True)
+    utm_medium = models.CharField(max_length=256, null=True, blank=True)
+    utm_campaign = models.CharField(max_length=256, null=True, blank=True)
+
     # Other
     calcTopUp = models.IntegerField(blank=True, null=True) #deprecated
     calcRefi = models.IntegerField(blank=True, null=True) #deprecated
