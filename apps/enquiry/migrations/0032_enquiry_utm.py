@@ -11,17 +11,17 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='webcalculator',
+            model_name='enquiry',
             name='utm_source',
             field=models.CharField(max_length=256, null=True, blank=True),
         ),
         migrations.AddField(
-            model_name='webcontact',
+            model_name='enquiry',
             name='utm_medium',
             field=models.CharField(max_length=256, null=True, blank=True),
         ),
         migrations.AddField(
-            model_name='webcontact',
+            model_name='enquiry',
             name='utm_campaign',
             field=models.CharField(max_length=256, null=True, blank=True),
         ),
