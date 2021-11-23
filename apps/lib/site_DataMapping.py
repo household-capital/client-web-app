@@ -57,7 +57,11 @@ def mapEnquiryForSF(enqUID, is_create=False):
         'lastname': 'Last_Name__c',
 
         'product_type': 'Fee_Type__c',
-        'requestedCallback': 'Requested_Callback__c'
+        'requestedCallback': 'Requested_Callback__c',
+
+        'utm_source': 'utm_source__c', 
+        'utm_medium': 'utm_medium__c',
+        'utm_campaign': 'utm_campaign__c',
     }
 
     SF_BOOLEAN_FIELDS = ['isTopUp', 'isRefi', 'isLive', 'isGive', 'isCare', 'doNotMarket', 'requestedCallback']
@@ -157,6 +161,9 @@ def mapEnquiryToLead(enqUID):
         'street_number': 'Street_Number__c',
         'street_name': 'Street_Name__c',
         'street_type': 'Street_Type__c',
+        'utm_source': 'utm_source__c', 
+        'utm_medium': 'utm_medium__c',
+        'utm_campaign': 'utm_campaign__c',
         # gnaf not stored in uat
     }
 

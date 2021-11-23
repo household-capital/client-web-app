@@ -307,6 +307,11 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
     enquiryStage = models.IntegerField(blank=True, null=True, choices=enquiryStageTypes)
     requestedCallback = models.BooleanField(default=False, blank=False, null=False)
 
+    # UTM
+    utm_source = models.CharField(max_length=256, null=True, blank=True)
+    utm_medium = models.CharField(max_length=256, null=True, blank=True)
+    utm_campaign = models.CharField(max_length=256, null=True, blank=True)
+
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
 
