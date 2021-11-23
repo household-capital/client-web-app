@@ -169,7 +169,10 @@ class DataIngestion(APIView):
                 'grading': 'A', 
                 'stream': 'WEBSITE_CALC', 
                 'origin': 'home | Home Equity Calculator', 
-                'requestedCall': 1
+                'requestedCall': 1,
+                'utm_source': 'yourlifechoices',
+                'utm_medium': 'web',
+                'utm_campaign': 'website'
             }
 
         """
@@ -198,7 +201,10 @@ class DataIngestion(APIView):
                 'age_1': json_payload['age_1'],
                 'submissionOrigin': json_payload['origin'],
                 'origin_id': json_payload.get('origin_id'),
-                'phone': cleanPhoneNumber(json_payload['phone'])
+                'phone': cleanPhoneNumber(json_payload['phone']),
+                'utm_source': json_payload.get('utm_source'),
+                'utm_medium': json_payload.get('utm_medium'),
+                'utm_campaign': json_payload.get('utm_campaign'),
             }
 
             web_obj = WebContact.objects.create(**srcDict)
@@ -234,7 +240,10 @@ class DataIngestion(APIView):
                 'enquiryNotes': enquiryNotes,
                 'origin_id': json_payload.get('origin_id'),
                 'submissionOrigin': json_payload['origin'],
-                'propensityCategory': propensity
+                'propensityCategory': propensity,
+                'utm_source': json_payload.get('utm_source'),
+                'utm_medium': json_payload.get('utm_medium'),
+                'utm_campaign': json_payload.get('utm_campaign'),
             }
             
             try:
@@ -271,7 +280,10 @@ class DataIngestion(APIView):
                 'marketingSource':marketingTypesEnum.VISA.value,
                 'origin_id': json_payload.get('origin_id'),
                 'submissionOrigin': json_payload.get('origin'),
-                'propensityCategory': propensity
+                'propensityCategory': propensity,
+                'utm_source': json_payload.get('utm_source'),
+                'utm_medium': json_payload.get('utm_medium'),
+                'utm_campaign': json_payload.get('utm_campaign'),
             }
             if json_payload.get('phone'):
                 srcData['phoneNumber'] = cleanPhoneNumber(json_payload['phone'])
@@ -322,7 +334,10 @@ class DataIngestion(APIView):
                 'requestedCallback': bool(json_payload['requestedCall']),
                 'dwellingType':prop_type  ,
                 'origin_id': json_payload.get('origin_id'),
-                'loanType': loan_type 
+                'loanType': loan_type,
+                'utm_source': json_payload.get('utm_source'),
+                'utm_medium': json_payload.get('utm_medium'),
+                'utm_campaign': json_payload.get('utm_campaign'),
             }
             try:
                 web_obj = WebCalculator.objects.create(**srcDict)
@@ -404,7 +419,10 @@ class DataIngestion(APIView):
             'postcode': int(json_payload['postcode']) if json_payload.get('postcode') else None,
             'mortgageDebt': json_payload['mortgage'],
             'origin_id': json_payload.get('origin_id'),
-            'propensityCategory':propensityChoicesReverseDict.get(json_payload.get('grading'))
+            'propensityCategory':propensityChoicesReverseDict.get(json_payload.get('grading')),
+            'utm_source': json_payload.get('utm_source'),
+            'utm_medium': json_payload.get('utm_medium'),
+            'utm_campaign': json_payload.get('utm_campaign'),
         }
         enquiry_fields_captured = [
             'first',
@@ -428,7 +446,10 @@ class DataIngestion(APIView):
             'mortgage',
             'stream',
             'grading',
-            'origin'
+            'origin',
+            'utm_source',
+            'utm_medium',
+            'utm_campaign',
         ]
         head_doc = {
             x:y 
@@ -632,6 +653,9 @@ class DataIngestion(APIView):
                 'origin_id': json_payload.get('origin_id'),
                 # 'user': integration_user,
                 'marketing_campaign': find_auto_campaign(marketingSource),
+                'utm_source': json_payload.get('utm_source'),
+                'utm_medium': json_payload.get('utm_medium'),
+                'utm_campaign': json_payload.get('utm_campaign'),
             }
             if json_payload.get('phone'):
                 payload['phoneNumber'] = cleanPhoneNumber(json_payload['phone'])
