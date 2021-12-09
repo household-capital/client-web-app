@@ -71,11 +71,22 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
                 if re.match(regex_pat, first_segment) is not None: 
                     calc_dict['marketingSource'] = marketing_value
 
+        if calc_dict.get('utm_source'):
+            calc_dict['enquiryNotes'] += '\r\nutm_source: ' + calc_dict['utm_source']
+            utm_source_to_marketing_source = {
+                'nationalseniors': marketingTypesEnum.NATIONAL_SENIORS.value,
+                'yourlifechoices': marketingTypesEnum.YOUR_LIFE_CHOICES.value,
+                'startsat60': marketingTypesEnum.STARTS_AT_60.value,
+            }
+            for utm_source_value, marketing_value in utm_source_to_marketing_source.items():
+                if utm_source_value == calc_dict['utm_source']:
+                    calc_dict['marketingSource'] = marketing_value
+
         enq_obj = Enquiry.objects.create(
             user=None, referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer, **calc_dict
         )
-        lead_obj = enq_obj.case
 
+        lead_obj = enq_obj.case
 
         if proposed_owner is None:
             auto_assign_leads([lead_obj], notify=False)
