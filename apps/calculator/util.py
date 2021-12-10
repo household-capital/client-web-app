@@ -82,9 +82,13 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
                 if utm_source_value == calc_dict['utm_source']:
                     calc_dict['marketingSource'] = marketing_value
 
-        enq_obj = Enquiry.objects.create(
-            user=None, referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer, **calc_dict
-        )
+            enq_obj = Enquiry.objects.create(
+                user=None, referrer=directTypesEnum.PARTNER.value, referrerID=referrer, **calc_dict
+            )
+        else:
+            enq_obj = Enquiry.objects.create(
+                user=None, referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer, **calc_dict
+            )
 
         lead_obj = enq_obj.case
 
