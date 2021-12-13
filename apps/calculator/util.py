@@ -100,6 +100,9 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
         enq_obj.refresh_from_db()
         return enq_obj
 
+    def send_calc_email(enq_obj):
+        return enq_obj.marketingSource != marketingTypesEnum.MENTOR1_CALC_LP.value
+
     enq_obj = convert_to_enquiry(calculator, proposed_owner)
     if enq_obj.user is None: 
         lead = enq_obj.case
@@ -114,7 +117,7 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
         if not enq_obj.status:
             raise ProcessingError("Age or Postcode Restriction - please respond to customer")
 
-        if enq_obj.user:
+        if enq_obj.user and send_calc_email(enq_obj):
             app.send_task(
                 'Webcalc_gen_and_email', 
                 kwargs={
@@ -122,8 +125,5 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
                     'calcUID': str(calculator.calcUID)
                 }
             )
-            #generate_and_email.delay(enq_obj.enqUID, calculator.calcUID)
-            # pdf = gen_calc_summary(enq_obj, calculator)
-            # email_customer(pdf, enq_obj, calculator)
     finally:
         attempt_sync(enq_obj, pause_for_dups)
