@@ -62,10 +62,10 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
             ]
             first_segment = segmented_origin[0]
             origin_to_marketing_source = {
-                r'https://.*pages\.careabout\.com\.au/Landing-Pages_Household-Capital-LP\.html': marketingTypesEnum.CARE_ABOUT_CALC_LP.value,
-                r'https://startsat60\.com.*': marketingTypesEnum.STARTS_AT_60_CALC_LP.value,
-                r'https://.*yourlifechoices\.com\.au/household-capital-calculator.*': marketingTypesEnum.YOUR_LIFE_CHOICES_CALC_LP.value,
-                r'https://.*mentor1\.com\.au/calculators-and-tools.*': marketingTypesEnum.MENTOR1_CALC_LP.value,
+                r'https://.*careabout\.com\.au.*': marketingTypesEnum.CARE_ABOUT_CALC_LP.value,
+                r'https://.*startsat60\.com.*': marketingTypesEnum.STARTS_AT_60_CALC_LP.value,
+                r'https://.*yourlifechoices\.com\.au.*': marketingTypesEnum.YOUR_LIFE_CHOICES_CALC_LP.value,
+                r'https://.*mentor1\.com\.au.*': marketingTypesEnum.MENTOR1_CALC_LP.value,
             }
             for regex_pat, marketing_value in origin_to_marketing_source.items():
                 if re.match(regex_pat, first_segment) is not None: 
