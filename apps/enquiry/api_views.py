@@ -363,7 +363,7 @@ class DataIngestion(APIView):
                         tb
                     )
 
-    def send_prequal_email(lead_obj):
+    def send_prequal_email(self, lead_obj):
         return lead_obj.channelDetail != marketingTypesEnum.MENTOR1_CALC_LP.value
     
     def process_pre_qual(self, json_payload):
@@ -566,7 +566,7 @@ class DataIngestion(APIView):
                     'caseUID': lead.caseUID
                 }
             )
-            
+
 
     def process_payload(self, json_payload):
         # basic payload format 
