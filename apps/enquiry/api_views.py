@@ -362,6 +362,9 @@ class DataIngestion(APIView):
                         "Failed to convert web calc - {}".format(str(web_obj.calcUID)),
                         tb
                     )
+
+    def send_prequal_email(lead_obj):
+        return lead_obj.channelDetail != marketingTypesEnum.MENTOR1_CALC_LP.value
     
     def process_pre_qual(self, json_payload):
         write_applog(
@@ -556,7 +559,7 @@ class DataIngestion(APIView):
                     )
                 lp.amount = amount
                 lp.save()
-        if lead.owner: 
+        if lead.owner and self.send_prequal_email(lead): 
             app.send_task(
                 'Webcalc_gen_and_email_pre_ql',
                 kwargs={
