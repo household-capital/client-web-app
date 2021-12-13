@@ -186,6 +186,8 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
         (marketingTypesEnum.FACEBOOK_VISA.value, "Facebook Visa"),
         (marketingTypesEnum.VISA.value, "VISA"),
 
+        (marketingTypesEnum.MENTOR1_CALC_LP.value, "Mentor1 - Calculator LP"),
+
         (marketingTypesEnum.OTHER.value, "Other"),
     )
 

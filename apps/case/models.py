@@ -218,9 +218,13 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
         (marketingTypesEnum.CARE_ABOUT_CALC_LP.value, "Care About - Calculator LP"),
         (marketingTypesEnum.STARTS_AT_60_CALC_LP.value, "Starts at 60 - Calculator LP"),
         (marketingTypesEnum.YOUR_LIFE_CHOICES_CALC_LP.value, "Your Life Choices - Calculator LP"),
+        
 
         (marketingTypesEnum.FACEBOOK_VISA.value, "Facebook Visa"),
         (marketingTypesEnum.VISA.value, "VISA"),
+
+        (marketingTypesEnum.MENTOR1_CALC_LP.value, "Mentor1 - Calculator LP"),
+        
         (marketingTypesEnum.OTHER.value, "Other"),
     )
 
