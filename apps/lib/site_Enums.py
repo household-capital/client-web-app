@@ -175,6 +175,7 @@ class marketingTypesEnum(Enum):
     YOUR_LIFE_CHOICES_CALC_LP = 25
     FACEBOOK_VISA = 26
     VISA = 27
+    MENTOR1_CALC_LP = 28
     OTHER = 100
 
 
