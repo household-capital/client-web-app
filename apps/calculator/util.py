@@ -61,15 +61,15 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
                 submission_origin.split('|')
             ]
             first_segment = segmented_origin[0]
-            origin_to_source = {
-                r'https://.*careabout\.com\.au.*': {"marketing": marketingTypesEnum.CARE_ABOUT_CALC_LP.value, "channel": channelTypesEnum.PARTNER.value},
-                r'https://.*startsat60\.com.*': {"marketing": marketingTypesEnum.STARTS_AT_60_CALC_LP.value, "channel": channelTypesEnum.PARTNER.value},
-                r'https://.*yourlifechoices\.com\.au.*': {"marketing": marketingTypesEnum.YOUR_LIFE_CHOICES_CALC_LP.value, "channel": channelTypesEnum.PARTNER.value},
-                r'https://.*mentor1\.com\.au.*': {"marketing": marketingTypesEnum.MENTOR1_CALC_LP.value, "channel": channelTypesEnum.ADVISER.value},
+            origin_to_marketing_source = {
+                r'https://.*careabout\.com\.au.*': marketingTypesEnum.CARE_ABOUT_CALC_LP.value,
+                r'https://.*startsat60\.com.*': marketingTypesEnum.STARTS_AT_60_CALC_LP.value,
+                r'https://.*yourlifechoices\.com\.au.*': marketingTypesEnum.YOUR_LIFE_CHOICES_CALC_LP.value,
+                r'https://.*mentor1\.com\.au.*': marketingTypesEnum.MENTOR1_CALC_LP.value,
             }
-            for regex_pat, source in origin_to_source.items():
+            for regex_pat, marketing_value in origin_to_marketing_source.items():
                 if re.match(regex_pat, first_segment) is not None: 
-                    calc_dict['marketingSource'] = source["marketing"]
+                    calc_dict['marketingSource'] = marketing_value
             enq_obj = Enquiry.objects.create(
                 user=None, referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer, **calc_dict
             )
