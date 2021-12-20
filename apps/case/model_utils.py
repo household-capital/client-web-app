@@ -62,7 +62,7 @@ def _build_case_data_update(enquiry, case=None):
         'enqUID',
         'propensityCategory',
         # 'referrer',
-        'marketing_campaign',
+        # 'marketing_campaign',
 
         'calcLumpSum',
         'calcIncome'
@@ -71,7 +71,7 @@ def _build_case_data_update(enquiry, case=None):
     map_fields = {
         'streetAddress': 'street',
         'timestamp': 'enquiryCreateDate',
-        'marketingSource': 'channelDetail',
+        # 'marketingSource': 'channelDetail',
         'firstname': 'firstname_1',
         'lastname': 'surname_1',
         'email': 'email_1',
@@ -117,10 +117,11 @@ def _build_case_data_update(enquiry, case=None):
 
     caseDict['caseDescription'] = surname + " - " + str(enquiry.postcode)
 
-    if enquiry.marketingSource in salesChannelMap:
-        caseDict['salesChannel'] = salesChannelMap[enquiry.marketingSource]
-    else:
-        caseDict['salesChannel'] = channelTypesEnum.DIRECT_ACQUISITION.value
+    if is_create:
+        if enquiry.marketingSource in salesChannelMap:
+            caseDict['salesChannel'] = salesChannelMap[enquiry.marketingSource]
+        else:
+            caseDict['salesChannel'] = channelTypesEnum.DIRECT_ACQUISITION.value
 
     for field in copyFields:
         field_val = getattr(enquiry, field)
@@ -132,8 +133,12 @@ def _build_case_data_update(enquiry, case=None):
         if field_val is not None and field_val != '':
             caseDict[case_field] = field_val
     caseDict['lead_needs_action'] = True
+
     if is_create: 
         caseDict['referrer'] = enquiry.referrer
+        caseDict['marketing_campaign'] = enquiry.marketing_campaign
+        caseDict['channelDetail'] = enquiry.marketingSource
+
     return caseDict
 
 def move_notes_to_lead(enquiry, case):
