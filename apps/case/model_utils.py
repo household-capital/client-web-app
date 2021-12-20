@@ -116,10 +116,11 @@ def _build_case_data_update(enquiry, case=None):
 
     caseDict['caseDescription'] = surname + " - " + str(enquiry.postcode)
 
-    if enquiry.referrer in salesChannelMap:
-        caseDict['salesChannel'] = salesChannelMap[enquiry.referrer]
-    else:
-        caseDict['salesChannel'] = channelTypesEnum.DIRECT_ACQUISITION.value
+    if 'salesChannel' not in caseDict:
+        if enquiry.referrer in salesChannelMap:
+            caseDict['salesChannel'] = salesChannelMap[enquiry.referrer]
+        else:
+            caseDict['salesChannel'] = channelTypesEnum.DIRECT_ACQUISITION.value
 
     for field in copyFields:
         field_val = getattr(enquiry, field)

@@ -8,7 +8,7 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 
 from config.celery import app
 
-from apps.lib.site_Enums import directTypesEnum, enquiryStagesEnum, marketingTypesEnum
+from apps.lib.site_Enums import directTypesEnum, enquiryStagesEnum, marketingTypesEnum, channelTypesEnum
 from apps.lib.api_Pdf import pdfGenerator
 from apps.lib.site_Logging import write_applog
 from apps.lib.site_Globals import LOAN_LIMITS, ECONOMIC
@@ -61,17 +61,20 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
                 submission_origin.split('|')
             ]
             first_segment = segmented_origin[0]
-            origin_to_marketing_source = {
-                r'https://.*careabout\.com\.au.*': marketingTypesEnum.CARE_ABOUT_CALC_LP.value,
-                r'https://.*startsat60\.com.*': marketingTypesEnum.STARTS_AT_60_CALC_LP.value,
-                r'https://.*yourlifechoices\.com\.au.*': marketingTypesEnum.YOUR_LIFE_CHOICES_CALC_LP.value,
-                r'https://.*mentor1\.com\.au.*': marketingTypesEnum.MENTOR1_CALC_LP.value,
+            origin_to_source = {
+                r'https://.*careabout\.com\.au.*': {"marketing": marketingTypesEnum.CARE_ABOUT_CALC_LP.value, "channel": channelTypesEnum.PARTNER.value},
+                r'https://.*startsat60\.com.*': {"marketing": marketingTypesEnum.STARTS_AT_60_CALC_LP.value, "channel": channelTypesEnum.PARTNER.value},
+                r'https://.*yourlifechoices\.com\.au.*': {"marketing": marketingTypesEnum.YOUR_LIFE_CHOICES_CALC_LP.value, "channel": channelTypesEnum.PARTNER.value},
+                r'https://.*mentor1\.com\.au.*': {"marketing": marketingTypesEnum.MENTOR1_CALC_LP.value, "channel": channelTypesEnum.ADVISER.value},
             }
-            for regex_pat, marketing_value in origin_to_marketing_source.items():
+            for regex_pat, source in origin_to_source.items():
                 if re.match(regex_pat, first_segment) is not None: 
-                    calc_dict['marketingSource'] = marketing_value
-
-        if calc_dict.get('utm_source'):
+                    calc_dict['marketingSource'] = source["marketing"]
+                    calc_dict['salesChannel'] = source["channel"]
+            enq_obj = Enquiry.objects.create(
+                user=None, referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer, **calc_dict
+            )
+        elif calc_dict.get('utm_source'):
             calc_dict['enquiryNotes'] += '\r\nutm_source: ' + calc_dict['utm_source']
             utm_source_to_marketing_source = {
                 'nationalseniors': marketingTypesEnum.NATIONAL_SENIORS.value,
@@ -81,7 +84,8 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
             for utm_source_value, marketing_value in utm_source_to_marketing_source.items():
                 if utm_source_value == calc_dict['utm_source']:
                     calc_dict['marketingSource'] = marketing_value
-
+            
+            calc_dict['salesChannel'] = channelTypesEnum.DIRECT_ACQUISITION.value
             enq_obj = Enquiry.objects.create(
                 user=None, referrer=directTypesEnum.PARTNER.value, referrerID=referrer, **calc_dict
             )
