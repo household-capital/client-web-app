@@ -70,7 +70,6 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
             for regex_pat, source in origin_to_source.items():
                 if re.match(regex_pat, first_segment) is not None: 
                     calc_dict['marketingSource'] = source["marketing"]
-                    calc_dict['salesChannel'] = source["channel"]
             enq_obj = Enquiry.objects.create(
                 user=None, referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer, **calc_dict
             )
@@ -85,7 +84,6 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
                 if utm_source_value == calc_dict['utm_source']:
                     calc_dict['marketingSource'] = marketing_value
             
-            calc_dict['salesChannel'] = channelTypesEnum.DIRECT_ACQUISITION.value
             enq_obj = Enquiry.objects.create(
                 user=None, referrer=directTypesEnum.PARTNER.value, referrerID=referrer, **calc_dict
             )
