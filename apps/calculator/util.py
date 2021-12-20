@@ -70,10 +70,8 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
             for regex_pat, marketing_value in origin_to_marketing_source.items():
                 if re.match(regex_pat, first_segment) is not None: 
                     calc_dict['marketingSource'] = marketing_value
-            enq_obj = Enquiry.objects.create(
-                user=None, referrer=directTypesEnum.WEB_CALCULATOR.value, referrerID=referrer, **calc_dict
-            )
-        elif calc_dict.get('utm_source'):
+        
+        if calc_dict.get('utm_source'):
             calc_dict['enquiryNotes'] += '\r\nutm_source: ' + calc_dict['utm_source']
             utm_source_to_marketing_source = {
                 'nationalseniors': marketingTypesEnum.NATIONAL_SENIORS.value,
