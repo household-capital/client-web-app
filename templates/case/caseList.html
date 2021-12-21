@@ -63,13 +63,13 @@
                                 <label class="d-none d-sm-table-cell" for="search" class="col-form-label"><i
                                         class="fas fa-search fa-lg"></i></label>
 
-                                <div class="col-lg-5 pb-3">
+                                <div class="col-lg-6 pb-3">
                                     <input class='form-control' type='text' name='search' placeholder='Search leads'
                                            value='{{ request.GET.search }}'/>
                                 </div>
 
 
-                                <div class="col-lg-5 text-center">
+                                <div class="col-lg-6 text-center">
                                     {% if request.GET.filter == "Unactioned" %}
                                         <a href="?filter=None&search={{ search }}&order={{ order }}">
                                             <div class="btn btn-secondary" data-toggle="tooltip" data-placement="top"
