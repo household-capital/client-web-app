@@ -6,10 +6,10 @@
 {% block email_content %}
 
 {% if clientType2 == clientTypesEnum.BORROWER.value %}
-<p>Dear {{ firstname_1 }}</p>
+<p>Dear {{ firstname_1 }} and {{ firstname_2 }}</p> 
 <br>
 {% else %}
-<p>Dear {{ firstname_1 }} and {{ firstname_2 }}</p> 
+<p>Dear {{ firstname_1 }}</p>
 <br>
 {% endif %}
 
