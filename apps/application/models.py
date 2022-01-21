@@ -74,11 +74,11 @@ class Application(models.Model):
     )
 
     salutationTypes=(
-        (salutationEnum.MR.value,"Mr"),
-        (salutationEnum.MS.value, "Ms"),
-        (salutationEnum.MRS.value, "Mrs"),
-        (salutationEnum.DR.value, "Dr"),
-        (salutationEnum.PROF.value, "Prof"),
+        (salutationEnum.MR.value,"Mr."),
+        (salutationEnum.MS.value, "Ms."),
+        (salutationEnum.MRS.value, "Mrs."),
+        (salutationEnum.DR.value, "Dr."),
+        (salutationEnum.PROF.value, "Prof."),
     )
 
     dwellingTypes = (

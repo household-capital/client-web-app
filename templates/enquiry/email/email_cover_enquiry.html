@@ -5,14 +5,10 @@
 
 {% block email_content %}
 
-{% if clientType2 == clientTypesEnum.BORROWER.value %}
-<p>Dear {% if preferredName_1 %}{{ preferredName_1 }}{% else %}{{ firstname_1 }}{% endif %} and {% if preferredName_2 %}{{ preferredName_2 }}{% else %}{{ firstname_2 }}{% endif %} </p> 
-<br>
-{% else %}
-<p>Dear {% if preferredName_1 %}{{ preferredName_1 }}{% else %}{{ firstname_1 }}{% endif %} </p>
+{% if firstname %}
+<p>Dear {{ firstname }}</p>
 <br>
 {% endif %}
-
 
 <p>Thank you for your recent enquiry to Household Capital. I am pleased to attach a personalised summary that outlines how our Household Loan could help you meet your retirement objectives. </p>
 <br>
