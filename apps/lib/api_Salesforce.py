@@ -121,12 +121,12 @@ class apiSalesforce():
                                      domain="test",
                                      version='48.0')
 
-            write_applog("INFO", 'apiSalesforce', "Task" + str(taskID) + "-openAPI", 'Salesforce API Opened')
+            write_applog("INFO", 'apiSalesforce', "Task-" + str(taskID) + "-openAPI", 'Salesforce API Opened')
             return {'status':"Ok"}
 
         except Exception as e:
             errorStr = 'API Error: Code: {c}, Message, {m}'.format(c=type(e).__name__, m=str(e))
-            write_applog("ERROR", 'apiSalesforce', "Task" + str(taskID) + "-openAPI", errorStr)
+            write_applog("ERROR", 'apiSalesforce', "Task-" + str(taskID) + "-openAPI", errorStr)
 
             return {'status':"Error", 'responseText':errorStr}
 

@@ -157,21 +157,21 @@ def createSFLeadCaseTask(caseUID):
 @app.task(name="Update_SF_Case_Lead", bind=True)
 def updateSFLeadTask(self, caseUID):
     # Task wrapper to update a SF Lead
-    write_applog("INFO", 'Case', "Task" + str(self.request.id) + "-updateSFLead", "Updating lead for:" + str(caseUID))
+    write_applog("INFO", 'Case', "Task-" + str(self.request.id) + "-updateSFLeadTask", "Updating lead for:" + str(caseUID))
     result = updateSFLead(caseUID, taskID=self.request.id)
     if result['status'] == "Ok":
         result = syncNotes(caseUID)
     if result['status'] == "Ok":
-        write_applog("INFO", 'Case', "Task" + str(self.request.id) + "-updateSFLead", "Finished - Successfully")
+        write_applog("INFO", 'Case', "Task-" + str(self.request.id) + "-updateSFLeadTask", "Finished - Successfully")
         return "Finished - Successfully"
     else:
-        write_applog("INFO", 'Case', "Task" + str(self.request.id) + "-updateSFLead", "Finished - Unsuccessfully")
+        write_applog("INFO", 'Case', "Task-" + str(self.request.id) + "-updateSFLeadTask", "Finished - Unsuccessfully")
         return "Finished - Unsuccessfully"
 
 
-@app.task(name='Upload_Lead_Files')
-def syncLeadFiles(caseUID):
-    write_applog("INFO", 'Case', 'Tasks-syncLeadFiles', "Updating lead files for:" + str(caseUID))
+@app.task(name='Upload_Lead_Files', bind=True)
+def syncLeadFiles(self, caseUID):
+    write_applog("INFO", 'Case', "Task-" + str(self.request.id) + "-syncLeadFiles", "Updating lead files for:" + str(caseUID))
     case = Case.objects.get(caseUID=caseUID)
     DOCUMENT_LIST = {
         "Automated Valuation": case.valuationDocument,
@@ -666,7 +666,7 @@ SF_LEAD_CASE_MAPPING = {
 def createSFLeadCase(caseUID, sfAPIInstance=None, taskID=None):
     '''Creates a SF Lead from a case using the SF Rest API.
     If a duplicate exists - the function retrieves the SF Lead ID using a SOQL query on email or phone'''
-    write_applog("INFO", 'Case', "Task" + str(taskID) + "-createSFLead", "Starting caseUID=" + caseUID)
+    write_applog("INFO", 'Case', "Task-" + str(taskID) + "-createSFLead", "Starting caseUID=" + caseUID)
     # Get object
     qs = Case.objects.queryset_byUID(caseUID)
     case = qs.get()
@@ -680,7 +680,7 @@ def createSFLeadCase(caseUID, sfAPIInstance=None, taskID=None):
         sfAPI = apiSalesforce()
         result = sfAPI.openAPI(True, taskID)
         if result['status'] != "Ok":
-            write_applog("ERROR", 'Case', "Task" + str(taskID) + "-createSFLead", result['responseText'])
+            write_applog("ERROR", 'Case', "Task-" + str(taskID) + "-createSFLead", result['responseText'])
             return {"status": "Error"}
 
     # Check for an email or phoneNumber as well as a user
@@ -689,25 +689,25 @@ def createSFLeadCase(caseUID, sfAPIInstance=None, taskID=None):
         if case.email:
             if (os.environ.get('ENV') == 'prod') and ('householdcapital.com' in case.email):
                 # Don't create LeadID
-                write_applog("INFO", 'Case', "Task" + str(taskID) + "-createSFLead", "Internal email re:" + str(case.email))
+                write_applog("INFO", 'Case', "Task-" + str(taskID) + "-createSFLead", "Internal email re:" + str(case.email))
                 return {"status": "Error", "responseText": "HouseholdCapital email address"}
 
         payload = __buildLeadCasePayload(case)
         payload['CreatedDate'] = case.timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         if case.surname_1:
-            write_applog("INFO", 'Case', "Task" + str(taskID) + "-createSFLead", case.surname_1)
+            write_applog("INFO", 'Case', "Task-" + str(taskID) + "-createSFLead", case.surname_1)
         else:
-            write_applog("INFO", 'Case', "Task" + str(taskID) + "-createSFLead", 'unknown')
+            write_applog("INFO", 'Case', "Task-" + str(taskID) + "-createSFLead", 'unknown')
 
         # Create SF Lead
         result = sfAPI.createLead(payload)
 
-        write_applog("INFO", 'Case', "Task" + str(taskID) + "-createSFLead", result['status'])
+        write_applog("INFO", 'Case', "Task-" + str(taskID) + "-createSFLead", result['status'])
 
         if result['status'] == "Ok":
             case.sfLeadID = result['data']['id']
-            write_applog("INFO", 'Case', "Task" + str(taskID) + "-createSFLead", "Created ID" + str(case.sfLeadID))
+            write_applog("INFO", 'Case', "Task-" + str(taskID) + "-createSFLead", "Created ID" + str(case.sfLeadID))
             case.save(update_fields=['sfLeadID'])
             update_all_unsycned_enquiries(case, taskID)
             return {"status": "Ok"}
@@ -715,7 +715,7 @@ def createSFLeadCase(caseUID, sfAPIInstance=None, taskID=None):
         else:
 
             if isinstance(result['responseText'], dict):
-                write_applog("INFO", 'Case', "Task" + str(taskID) + "-createSFLead", "caseUID: {} \t{}".format(case.caseUID, result['responseText']['message']))
+                write_applog("INFO", 'Case', "Task-" + str(taskID) + "-createSFLead", "caseUID: {} \t{}".format(case.caseUID, result['responseText']['message']))
 
                 # Check for duplicates (as indicated by SF) and attempt to retrieve ID using SOQL
                 if 'existing' in result['responseText']['message']:
@@ -727,12 +727,12 @@ def createSFLeadCase(caseUID, sfAPIInstance=None, taskID=None):
                                 # match on postcode too
                                 case.sfLeadID = result['data']['result.Id']
                                 case.save(update_fields=['sfLeadID'])
-                                write_applog("INFO", 'Case', "Task" + str(taskID) + "-createSFLead",
+                                write_applog("INFO", 'Case', "Task-" + str(taskID) + "-createSFLead",
                                              "Saved ID" + str(case.sfLeadID))
                                 update_all_unsycned_enquiries(case, taskID)
                                 return {"status": "Ok"}
                             else:
-                                write_applog("INFO", 'Case', "Task" + str(taskID) + "-createSFLead", 'Postcode mismatch')
+                                write_applog("INFO", 'Case', "Task-" + str(taskID) + "-createSFLead", 'Postcode mismatch')
                                 return {"status": "Error", "responseText": "Postcode mismatch"}
 
                     if case.phoneNumber:
@@ -743,35 +743,35 @@ def createSFLeadCase(caseUID, sfAPIInstance=None, taskID=None):
                                 # match on postcode too
                                 case.sfLeadID = result['data']['result.Id']
                                 case.save(update_fields=['sfLeadID'])
-                                write_applog("INFO", 'Case', "Task" + str(taskID) + "-createSFLead",
+                                write_applog("INFO", 'Case', "Task-" + str(taskID) + "-createSFLead",
                                              "Saved ID" + str(case.sfLeadID))
                                 update_all_unsycned_enquiries(case, taskID)
                                 return {"status": "Ok"}
 
                             else:
-                                write_applog("INFO", 'Case', "Task" + str(taskID) + "-createSFLead", 'Postcode mismatch')
+                                write_applog("INFO", 'Case', "Task-" + str(taskID) + "-createSFLead", 'Postcode mismatch')
                                 return {"status": "Error", "responseText": "Postcode mismatch"}
 
-                    write_applog("INFO", 'Case', "Task" + str(taskID) + "-createSFLead", 'No SF ID returned')
+                    write_applog("INFO", 'Case', "Task-" + str(taskID) + "-createSFLead", 'No SF ID returned')
                     return {"status": "Error", "responseText": "No SF ID returned"}
 
                 else:
-                    write_applog("INFO", 'Case', "Task" + str(taskID) + "-createSFLead", result['responseText']['message'])
+                    write_applog("INFO", 'Case', "Task-" + str(taskID) + "-createSFLead", result['responseText']['message'])
                     return {"status": "Error", "responseText": result['responseText']['message']}
 
             else:
-                write_applog("INFO", 'Case', "Task" + str(taskID) + "-createSFLead", 'Unknown SF error')
+                write_applog("INFO", 'Case', "Task-" + str(taskID) + "-createSFLead", 'Unknown SF error')
                 return {"status": "Error", "responseText": "Unknown SF error"}
 
     else:
-        write_applog("INFO", 'Case', "Task" + str(taskID) + "-createSFLead", 'No email or phone number')
+        write_applog("INFO", 'Case', "Task-" + str(taskID) + "-createSFLead", 'No email or phone number')
         return {"status": "Error", "responseText": "No email or phone number"}
 
 
 def update_all_unsycned_enquiries(case, taskID=None):
-    write_applog("INFO", 'Case', "Task" + str(taskID) + "-update_all_unsycned_enquiries", "Starting...")
+    write_applog("INFO", 'Case', "Task-" + str(taskID) + "-update_all_unsycned_enquiries", "Starting...")
     for enq in case.enquiries.filter(deleted_on__isnull=True).all():
-        write_applog("INFO", 'Case', "Task" + str(taskID) + "-update_all_unsycned_enquiries", "Calling Update_SF_Enquiry for " + str(enq.enqUID))
+        write_applog("INFO", 'Case', "Task-" + str(taskID) + "-update_all_unsycned_enquiries", "Calling Update_SF_Enquiry for " + str(enq.enqUID))
         app.send_task(
             'Update_SF_Enquiry',
             kwargs={'enqUID': str(enq.enqUID)}
@@ -780,13 +780,13 @@ def update_all_unsycned_enquiries(case, taskID=None):
 
 def updateSFLead(caseUID, sfAPI=None, taskID=None):
     '''Updates a SF Lead from a case using the SF Rest API.'''
-    write_applog("INFO", 'Case', "Task" + str(taskID) + "-updateSFLead", "Starting...")
+    write_applog("INFO", 'Case', "Task-" + str(taskID) + "-updateSFLead", "Starting...")
     # Open SF API
     if sfAPI is None: 
         sfAPI = apiSalesforce()
         result = sfAPI.openAPI(True, taskID)
         if result['status'] != "Ok":
-            write_applog("ERROR", 'Case', "Task" + str(taskID) + "-updateSFLead", result['responseText'])
+            write_applog("ERROR", 'Case', "Task-" + str(taskID) + "-updateSFLead", result['responseText'])
             return {"status": "Error"}
 
     # Get object
@@ -795,7 +795,7 @@ def updateSFLead(caseUID, sfAPI=None, taskID=None):
     if not caseObj.sfLeadID:
         result = createSFLeadCase(caseUID, sfAPI, taskID)
         if result['status'] != "Ok":
-            write_applog("ERROR", 'Case', "Task" + str(taskID) + "-updateSFLead", "No SF ID for: " + str(caseUID))
+            write_applog("ERROR", 'Case', "Task-" + str(taskID) + "-updateSFLead", "No SF ID for: " + str(caseUID))
             return {"status": "Error"}
         else:
             # Update object
@@ -810,7 +810,7 @@ def updateSFLead(caseUID, sfAPI=None, taskID=None):
         app.send_task('Upload_Lead_Files', kwargs={'caseUID': caseUID})
         return {'status': 'Ok'}
     else:
-        write_applog("ERROR", 'Case', "Task" + str(taskID) + "-updateSFLead", result['responseText']['message'])
+        write_applog("ERROR", 'Case', "Task-" + str(taskID) + "-updateSFLead", result['responseText']['message'])
         return {'status': 'Error'}
 
 

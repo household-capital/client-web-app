@@ -59,16 +59,16 @@ def hard_delete_enquiries():
 
 @app.task(name='Update_SF_Enquiry', bind=True)
 def updateSFEnquiryTask(self, enqUID): 
-    write_applog("INFO", 'Enquiry', "Task" + str(self.request.id) + "-updateSFEnquiryTask", "Updating Enquiry for:" + str(enqUID))
+    write_applog("INFO", 'Enquiry', "Task-" + str(self.request.id) + "-updateSFEnquiryTask", "Updating Enquiry for:" + str(enqUID))
     result = updateSFEnquiry(enqUID, taskID=self.request.id)
     if result['status'] == "Ok":
         result = syncNotes(enqUID)
         
     if result['status'] == "Ok":
-        write_applog("INFO", 'Enquiry', "Task" + str(self.request.id) + "-updateSFEnquiryTask" + str(self.request.id), "Finished - Successfully")
+        write_applog("INFO", 'Enquiry', "Task-" + str(self.request.id) + "-updateSFEnquiryTask" + str(self.request.id), "Finished - Successfully")
         return "Finished - Successfully"
     else:
-        write_applog("INFO", 'Enquiry', "Task" + str(self.request.id) + "-updateSFEnquiryTask" + str(self.request.id), "Finished - Unsuccessfully")
+        write_applog("INFO", 'Enquiry', "Task-" + str(self.request.id) + "-updateSFEnquiryTask" + str(self.request.id), "Finished - Unsuccessfully")
         return result['responseText']
 
 
@@ -79,18 +79,18 @@ def updateSFEnquiry(enqUID, sfAPIInstance=None, taskID=None):
         sfAPI = apiSalesforce()
         result = sfAPI.openAPI(True, taskID)
         if result['status'] != "Ok":
-            write_applog("ERROR", 'Enquiry', "Task" + str(taskID) + "-updateSFEnquiry", result['responseText'])
+            write_applog("ERROR", 'Enquiry', "Task-" + str(taskID) + "-updateSFEnquiry", result['responseText'])
             return {"status": "ERROR", 'responseText': result['responseText']}
     try:
         enquiry = Enquiry.objects.get(enqUID=enqUID)
     except Enquiry.DoesNotExist:
-        write_applog("ERROR", 'Enquiry', "Task" + str(taskID) + "-updateSFEnquiry", 'Enquiry {} does not exist'.format(enqUID))
+        write_applog("ERROR", 'Enquiry', "Task-" + str(taskID) + "-updateSFEnquiry", 'Enquiry {} does not exist'.format(enqUID))
         return {"status": "ERROR", 'responseText': 'Enquiry {} does not exist'.format(enqUID)}
     if not enquiry.sfEnqID:
         result = createSFEnquiry(enqUID, sfAPI, taskID)
         # etc ..
         if result['status'] != "Ok":
-            write_applog("ERROR", 'Enquiry', "Task" + str(taskID) + "-updateSFEnquiry", "No SF ID for: " + str(enqUID) + " - " +  result.get('responseText', ''))
+            write_applog("ERROR", 'Enquiry', "Task-" + str(taskID) + "-updateSFEnquiry", "No SF ID for: " + str(enqUID) + " - " +  result.get('responseText', ''))
             return {"status": "ERROR", 'responseText': "No SF ID for: " + str(enqUID) + " - " +  result.get('responseText', '')}
         return result
 
@@ -100,7 +100,7 @@ def updateSFEnquiry(enqUID, sfAPIInstance=None, taskID=None):
         app.send_task('Upload_Enquiry_Files', kwargs={'enqUID': enqUID})
         return {'status': 'Ok'}
     else:
-        write_applog("ERROR", 'Enquiry', "Task" + str(taskID) + "-updateSFEnquiry", json.dumps(result['responseText']))
+        write_applog("ERROR", 'Enquiry', "Task-" + str(taskID) + "-updateSFEnquiry", json.dumps(result['responseText']))
         return {'status': 'Error', 'responseText': json.dumps(result['responseText'])}
 
 
@@ -111,20 +111,20 @@ def createSFEnquiry(enqUID, sfAPIInstance=None, taskID=None):
         sfAPI = apiSalesforce()
         result = sfAPI.openAPI(True, taskID)
         if result['status'] != "Ok":
-            write_applog("ERROR", 'Enquiry', "Task" + str(taskID) + "-createSFEnquiry", result['responseText'])
+            write_applog("ERROR", 'Enquiry', "Task-" + str(taskID) + "-createSFEnquiry", result['responseText'])
             return {"status": "ERROR", 'responseText': result['responseText']}
 
     try:
         enquiry = Enquiry.objects.get(enqUID=enqUID)
     except Enquiry.DoesNotExist:
-        write_applog("ERROR", 'Enquiry', "Task" + str(taskID) + "-createSFEnquiry", 'Enquiry {} does not exist'.format(enqUID))
+        write_applog("ERROR", 'Enquiry', "Task-" + str(taskID) + "-createSFEnquiry", 'Enquiry {} does not exist'.format(enqUID))
         return {"status": "ERROR", 'responseText': 'Enquiry {} does not exist'.format(enqUID)}
     # get lead ID from case
 
     if enquiry.email:
         if (os.environ.get('ENV') == 'prod') and ('householdcapital.com' in enquiry.email):
             # Don't create LeadID
-            write_applog("INFO", 'Enquiry', "Task" + str(taskID) + "-createSFEnquiry", "Internal email re:" + str(enquiry.email))
+            write_applog("INFO", 'Enquiry', "Task-" + str(taskID) + "-createSFEnquiry", "Internal email re:" + str(enquiry.email))
             return {"status": "ERROR", 'responseText': 'Internal email re:' + str(enquiry.email)}
 
     lead_id = enquiry.case.sfLeadID
@@ -135,7 +135,7 @@ def createSFEnquiry(enqUID, sfAPIInstance=None, taskID=None):
         result = sfAPI.createEnquiry(payload)
         if result['status'] == "Ok":
             enquiry.sfEnqID = result['data']['id']
-            write_applog("INFO", 'Enquiry', "Task" + str(taskID) + "-createSFEnquiry", "Created ID" + str(enquiry.sfEnqID))
+            write_applog("INFO", 'Enquiry', "Task-" + str(taskID) + "-createSFEnquiry", "Created ID" + str(enquiry.sfEnqID))
             enquiry.save(update_fields=['sfEnqID'])
             app.send_task('Upload_Enquiry_Files', kwargs={'enqUID': enqUID})
             return {"status": "Ok", "responseText": "Enquiry Created"}
@@ -152,20 +152,20 @@ def createSFEnquiry(enqUID, sfAPIInstance=None, taskID=None):
         }
 
 
-@app.task(name="sfEnquiryLeadSync")
-def sfEnquiryLeadSync(enqUID):
+@app.task(name="sfEnquiryLeadSync", bind=True)
+def sfEnquiryLeadSync(self, enqUID):
     try:
         enquiry = Enquiry.objects.get(enqUID=enqUID)
     except Enquiry.DoesNotExist:
         write_applog("ERROR", 'Enquiry', 'Tasks-updateSFEnquiry', 'Enquiry {} does not exist'.format(enqUID))
         return {"status": "ERROR", 'responseText': 'Enquiry {} does not exist'.format(enqUID)}
     if not enquiry.case.sfLeadID:
-        result = createSFLeadCase(str(enquiry.case.caseUID))
+        result = createSFLeadCase(str(enquiry.case.caseUID), self.request.id)
         if result['status'] != 'Ok':
             return {
                 "status": "ERROR",
                 'responseText': 'Failed to process enquiry: ' + str(enqUID)}
-    return updateSFEnquiry(enqUID)
+    return updateSFEnquiry(enqUID, self.request.id)
 
 
 @app.task(name='SF_Create_Enquiry_Note')
