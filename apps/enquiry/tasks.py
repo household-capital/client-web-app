@@ -65,10 +65,10 @@ def updateSFEnquiryTask(self, enqUID):
         result = syncNotes(enqUID)
         
     if result['status'] == "Ok":
-        write_applog("INFO", 'Enquiry', "Task-" + str(self.request.id) + "-updateSFEnquiryTask" + str(self.request.id), "Finished - Successfully")
+        write_applog("INFO", 'Enquiry', "Task-" + str(self.request.id) + "-updateSFEnquiryTask", "Finished - Successfully")
         return "Finished - Successfully"
     else:
-        write_applog("INFO", 'Enquiry', "Task-" + str(self.request.id) + "-updateSFEnquiryTask" + str(self.request.id), "Finished - Unsuccessfully")
+        write_applog("INFO", 'Enquiry', "Task-" + str(self.request.id) + "-updateSFEnquiryTask", "Finished - Unsuccessfully")
         return result['responseText']
 
 
@@ -160,12 +160,12 @@ def sfEnquiryLeadSync(self, enqUID):
         write_applog("ERROR", 'Enquiry', 'Tasks-updateSFEnquiry', 'Enquiry {} does not exist'.format(enqUID))
         return {"status": "ERROR", 'responseText': 'Enquiry {} does not exist'.format(enqUID)}
     if not enquiry.case.sfLeadID:
-        result = createSFLeadCase(str(enquiry.case.caseUID), self.request.id)
+        result = createSFLeadCase(str(enquiry.case.caseUID), taskID=self.request.id)
         if result['status'] != 'Ok':
             return {
                 "status": "ERROR",
                 'responseText': 'Failed to process enquiry: ' + str(enqUID)}
-    return updateSFEnquiry(enqUID, self.request.id)
+    return updateSFEnquiry(enqUID, taskID=self.request.id)
 
 
 @app.task(name='SF_Create_Enquiry_Note')
