@@ -569,7 +569,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
                 app.send_task('SF_Doc_Synch', kwargs={'caseUID': str(self.caseUID)})
             else:
                 write_applog("INFO", 'Case', 'Case-Saving', "sending UpdateSFCaseLead from save:" + str(self.caseUID))
-                app.send_task('Update_SF_Case_Lead', kwargs={'caseUID': str(self.caseUID)})
+                app.tasks.updateSFLeadTask.apply(kwargs={'caseUID': str(self.caseUID)})
 
 
 
