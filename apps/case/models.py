@@ -1,6 +1,5 @@
 #Python imports
 import uuid, os, reversion, pytz
-from apps.case.tasks import updateSFLeadTask
 from datetime import datetime, timedelta
 import time
 #Django Imports
@@ -570,6 +569,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
                 app.send_task('SF_Doc_Synch', kwargs={'caseUID': str(self.caseUID)})
             else:
                 write_applog("INFO", 'Case', '', "sending from save:" + str(self.caseUID))
+                from apps.case.tasks import updateSFLeadTask
                 updateSFLeadTask.apply(kwargs={'caseUID': str(self.caseUID)})
                 write_applog("INFO", 'Case', '', "sending from save finished:" + str(self.caseUID))
 
