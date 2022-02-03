@@ -494,9 +494,9 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
             # if this is a should_sync which comes from user assignment
             if not self.case.sfLeadID: 
                 # if user didnt exist then sync never passed 
-                app.send_task('sfEnquiryLeadSync', kwargs={'enqUID': str(self.enqUID)})
+                app.tasks.sfEnquiryLeadSync.apply(kwargs={'enqUID': str(self.enqUID)})
             else:
-                app.send_task('Update_SF_Enquiry', kwargs={'enqUID': str(self.enqUID)})
+                app.tasks.updateSFEnquiryTask.apply(kwargs={'enqUID': str(self.enqUID)})
 
     
     class Meta:
