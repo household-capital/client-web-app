@@ -573,11 +573,6 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
                 updateSFLeadTask.apply(kwargs={'caseUID': str(self.caseUID)})
                 write_applog("INFO", 'Case', '', "sending from save finished:" + str(self.caseUID))
 
-                
-                
-
-
-
 # Pre-save function to extend Case
 def create_case_extensions(sender, instance, created, **kwargs):
     if created:
