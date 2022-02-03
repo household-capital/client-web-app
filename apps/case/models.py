@@ -16,6 +16,7 @@ from django.contrib.postgres.fields import JSONField
 #Local Application Imports
 from apps.lib.site_Enums import *
 from apps.lib.site_Utilities import calc_age, get_default_product_now, validate_loan
+from apps.lib.site_Logging import write_applog
 
 from apps.accounts.models import Referer
 from urllib.parse import urljoin
@@ -567,6 +568,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
                 app.send_task('SF_Opp_Synch', kwargs={'caseUID': str(self.caseUID)})
                 app.send_task('SF_Doc_Synch', kwargs={'caseUID': str(self.caseUID)})
             else:
+                write_applog("INFO", 'Case', 'Case-Saving', "sending UpdateSFCaseLead from save:" + str(self.caseUID))
                 app.send_task('Update_SF_Case_Lead', kwargs={'caseUID': str(self.caseUID)})
 
 
