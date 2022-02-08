@@ -317,12 +317,12 @@ class Enquiry(AbstractAddressModel, ReversionModel, models.Model):
     timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
 
-    calcTotal=models.IntegerField(blank=True, null=True) # deprecated
-    calcTopUp=models.IntegerField( blank=True, null=True) # deprecated
-    calcRefi=models.IntegerField(blank=True, null=True)  # deprecated
-    calcLive=models.IntegerField( blank=True, null=True)  # deprecated
-    calcGive=models.IntegerField(blank=True, null=True)  # deprecated
-    calcCare = models.IntegerField( blank=True, null=True)  # deprecated
+    calcTotal=models.IntegerField(blank=True, null=True) 
+    calcTopUp=models.IntegerField( blank=True, null=True) 
+    calcRefi=models.IntegerField(blank=True, null=True)  
+    calcLive=models.IntegerField( blank=True, null=True) 
+    calcGive=models.IntegerField(blank=True, null=True)  
+    calcCare = models.IntegerField( blank=True, null=True)  
     calcDrawdown = models.IntegerField(blank=True, null=True)  # deprecated
     payIntAmount=models.IntegerField(blank=True, null=True)  # deprecated
     payIntPeriod = models.IntegerField(blank=True, null=True)  # deprecated

@@ -62,6 +62,13 @@ def mapEnquiryForSF(enqUID, is_create=False):
         'utm_source': 'utm_source__c', 
         'utm_medium': 'utm_medium__c',
         'utm_campaign': 'utm_campaign__c',
+
+        'calcCare': 'calcCare__c',
+        'calcGive': 'calcGive__c',
+        'calcLive': 'calcLive__c',
+        'calcRefi': 'calcRefi__c',
+        'calcTopUp': 'CalculatorTopUp__c', #yes this is formatted differently to the others
+        'calcTotal': 'calcTotal__c'
     }
 
     SF_BOOLEAN_FIELDS = ['isTopUp', 'isRefi', 'isLive', 'isGive', 'isCare', 'doNotMarket', 'requestedCallback']
