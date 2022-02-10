@@ -440,6 +440,12 @@ class DataIngestion(APIView):
             'utm_source': json_payload.get('utm_source'),
             'utm_medium': json_payload.get('utm_medium'),
             'utm_campaign': json_payload.get('utm_campaign'),
+            'calcCare': json_payload.get('care'),
+            'calcGive' : json_payload.get('give'),
+            'calcLive': json_payload.get('live'),
+            'calcTopUp': json_payload.get('top_up'),
+            'calcRefi': json_payload.get('refinance')
+
         }
         enquiry_fields_captured = [
             'first',
@@ -473,6 +479,12 @@ class DataIngestion(APIView):
             for x,y in json_payload.items()
             if x not in enquiry_fields_captured
         }
+        calc_list = ['calcCare','calcGive', 'calcLive', 'calcTopUp', 'calcRefi']
+        srcDict['calcTotal'] = 0
+        for purpose in calc_list:
+            if srcDict.get(purpose):
+                srcDict['calcTotal'] += srcDict.get(purpose)
+
         srcDict['head_doc'] = head_doc
         enquiry = Enquiry.objects.create(**srcDict)
         lead = enquiry.case
