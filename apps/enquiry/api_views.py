@@ -224,9 +224,21 @@ class DataIngestion(APIView):
             enquiryNotes += '\r\n' + json_payload['origin']
             if json_payload.get('what_describes_you'): 
                 enquiryNotes += '\r\nDescription: ' + json_payload['what_describes_you']
-
             if json_payload.get('description') is not None:
                 enquiryNotes += '\r\n' + 'Description: {}'.format(json_payload['description'])
+
+            if json_payload.get('utm_source'):
+                enquiryNotes += '\r\nutm_source: ' + json_payload['utm_source']
+
+                utm_source_to_marketing_source = {
+                    'nationalseniors': marketingTypesEnum.NATIONAL_SENIORS.value,
+                    'yourlifechoices': marketingTypesEnum.YOUR_LIFE_CHOICES.value,
+                    'startsat60': marketingTypesEnum.STARTS_AT_60.value,
+                }
+                for utm_source_value, marketing_value in utm_source_to_marketing_source.items():
+                    if utm_source_value == json_payload['utm_source']:
+                        marketingSource = marketing_value
+
             srcData = {
                 'firstname': first,
                 'lastname': last,
@@ -245,7 +257,9 @@ class DataIngestion(APIView):
                 'utm_medium': json_payload.get('utm_medium'),
                 'utm_campaign': json_payload.get('utm_campaign'),
             }
-            
+            if marketingSource:
+                srcData['marketingSource'] = marketingSource
+
             try:
                 web_obj = Enquiry.objects.create(**srcData)
             except:
@@ -470,7 +484,7 @@ class DataIngestion(APIView):
         for purpose in calc_list:
             if srcDict.get(purpose):
                 srcDict['calcTotal'] += srcDict.get(purpose)
-       
+
         srcDict['head_doc'] = head_doc
         enquiry = Enquiry.objects.create(**srcDict)
         lead = enquiry.case
