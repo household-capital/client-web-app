@@ -79,10 +79,15 @@ def _build_case_data_update(enquiry, case=None):
     }
 
     salesChannelMap = {
+        # landing pages with calc
         marketingTypesEnum.CARE_ABOUT_CALC_LP.value: channelTypesEnum.PARTNER.value,
         marketingTypesEnum.STARTS_AT_60_CALC_LP.value: channelTypesEnum.PARTNER.value,
         marketingTypesEnum.YOUR_LIFE_CHOICES_CALC_LP.value: channelTypesEnum.PARTNER.value,
         marketingTypesEnum.MENTOR1_CALC_LP.value: channelTypesEnum.ADVISER.value,
+        # links to our website
+        marketingTypesEnum.NATIONAL_SENIORS.value: channelTypesEnum.PARTNER.value,
+        marketingTypesEnum.YOUR_LIFE_CHOICES.value: channelTypesEnum.PARTNER.value,
+        marketingTypesEnum.STARTS_AT_60.value: channelTypesEnum.PARTNER.value,
     }
 
     if not enquiry.lastname:
