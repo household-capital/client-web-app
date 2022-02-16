@@ -176,6 +176,7 @@ class marketingTypesEnum(Enum):
     FACEBOOK_VISA = 26
     VISA = 27
     MENTOR1_CALC_LP = 28
+    MONEYGPS_CALC_LP = 29
     OTHER = 100
 
 

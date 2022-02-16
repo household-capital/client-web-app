@@ -66,6 +66,7 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
                 r'https://.*startsat60\.com.*': marketingTypesEnum.STARTS_AT_60_CALC_LP.value,
                 r'https://.*yourlifechoices\.com\.au.*': marketingTypesEnum.YOUR_LIFE_CHOICES_CALC_LP.value,
                 r'https://.*mentor1\.com\.au.*': marketingTypesEnum.MENTOR1_CALC_LP.value,
+                r'https://.*moneygps\.com\.au.*': marketingTypesEnum.MONEYGPS_CALC_LP.value,
             }
             for regex_pat, marketing_value in origin_to_marketing_source.items():
                 if re.match(regex_pat, first_segment) is not None: 
@@ -97,7 +98,9 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
         return enq_obj
 
     def send_calc_email(enq_obj):
-        return enq_obj.marketingSource != marketingTypesEnum.MENTOR1_CALC_LP.value
+        return enq_obj.marketingSource not in [
+            marketingTypesEnum.MENTOR1_CALC_LP.value,
+        ]
 
     enq_obj = convert_to_enquiry(calculator, proposed_owner)
     if enq_obj.user is None: 

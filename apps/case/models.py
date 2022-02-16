@@ -224,6 +224,7 @@ class Case(AbstractAddressModel, ReversionModel, models.Model):
         (marketingTypesEnum.VISA.value, "VISA"),
 
         (marketingTypesEnum.MENTOR1_CALC_LP.value, "Mentor1 - Calculator LP"),
+        (marketingTypesEnum.MONEYGPS_CALC_LP.value, "MoneyGPS - Calculator LP"),
         
         (marketingTypesEnum.OTHER.value, "Other"),
     )
