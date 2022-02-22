@@ -147,7 +147,7 @@ class EnquiryForm(AddressFormMixin, forms.ModelForm):
     def clean_phoneNumber(self):
         if self.cleaned_data['phoneNumber']:
             number = cleanPhoneNumber(self.cleaned_data['phoneNumber'])
-            if len(number) > 10:
+            if len(number) > 12:
                 raise ValidationError("Invalid phone number")
             else:
                 return number
@@ -381,7 +381,7 @@ class EnquiryDetailForm(AddressFormMixin, forms.ModelForm):
     def clean_phoneNumber(self):
         if self.cleaned_data['phoneNumber']:
             number = cleanPhoneNumber(self.cleaned_data['phoneNumber'])
-            if len(number) > 10:
+            if len(number) > 12:
                 raise ValidationError("Invalid phone number")
             else:
                 return number
@@ -466,7 +466,7 @@ class EnquiryCallForm(forms.ModelForm):
     def clean_phoneNumber(self):
         if self.cleaned_data['phoneNumber']:
             number = cleanPhoneNumber(self.cleaned_data['phoneNumber'])
-            if len(number) > 10:
+            if len(number) > 12:
                 raise ValidationError("Invalid phone number")
             else:
                 return number
