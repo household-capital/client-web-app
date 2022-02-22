@@ -13,7 +13,6 @@ from crispy_forms.bootstrap import InlineRadios
 
 # Local Imports
 from apps.lib.site_Enums import incomeFrequencyEnum, clientTypesEnum
-from apps.lib.site_Utilities import checkMobileNumber
 from .models import Application, ApplicationPurposes, ApplicationDocuments
 
 
@@ -73,12 +72,6 @@ class InitiateForm(forms.ModelForm):
                 css_class='col-lg-10'),
             css_class="row ")
     )
-
-    def clean_mobile(self):
-        if checkMobileNumber(self.cleaned_data['mobile']):
-            return self.cleaned_data['mobile']
-        else:
-            raise ValidationError("Please enter valid mobile number")
 
 
 class TwoFactorForm(forms.Form):
