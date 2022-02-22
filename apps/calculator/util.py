@@ -98,9 +98,7 @@ def convert_calc(calculator, proposed_owner=None, pause_for_dups=True):
         return enq_obj
 
     def send_calc_email(enq_obj):
-        return enq_obj.marketingSource not in [
-            marketingTypesEnum.MENTOR1_CALC_LP.value,
-        ]
+        return False
 
     enq_obj = convert_to_enquiry(calculator, proposed_owner)
     if enq_obj.user is None: 
