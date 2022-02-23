@@ -378,9 +378,7 @@ class DataIngestion(APIView):
                     )
 
     def send_prequal_email(self, lead_obj):
-        return lead_obj.channelDetail not in [
-            marketingTypesEnum.MENTOR1_CALC_LP.value,
-        ]
+        return False
     
     def process_pre_qual(self, json_payload):
         write_applog(
