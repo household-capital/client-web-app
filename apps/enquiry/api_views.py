@@ -342,6 +342,13 @@ class DataIngestion(APIView):
                     'productType', 
                     productTypesEnum.LUMP_SUM.value
                 ),
+                'streetAddress':json_payload.get('property_address'),
+                'base_specificity': json_payload.get('unit'),
+                'street_number': json_payload.get('street_number'),
+                'street_name': json_payload.get('street_name'),
+                "street_type": json_payload.get('street_type'),
+                'suburb': json_payload.get('suburb'),
+                'state': stateTypesEnum[json_payload.get('state')].value if json_payload.get('state') else None,
                 'postcode': json_payload['postcode'],
                 'valuation':json_payload['property_value'],
                 'submissionOrigin': json_payload['origin'],
