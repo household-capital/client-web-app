@@ -189,6 +189,11 @@ class WebContact(models.Model):
     origin_timestamp = models.DateTimeField(null=True, blank=True, auto_now_add=False, auto_now=False)
     origin_id = models.CharField(max_length=36, null=True, blank=True)
 
+    # UTM
+    utm_source = models.CharField(max_length=256, null=True, blank=True)
+    utm_medium = models.CharField(max_length=256, null=True, blank=True)
+    utm_campaign = models.CharField(max_length=256, null=True, blank=True)
+
     objects = WebContactManager()
 
     def __str__(self):
