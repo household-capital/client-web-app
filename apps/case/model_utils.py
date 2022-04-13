@@ -84,7 +84,7 @@ def _build_case_data_update(enquiry, case=None):
         marketingTypesEnum.STARTS_AT_60_CALC_LP.value: channelTypesEnum.PARTNER.value,
         marketingTypesEnum.YOUR_LIFE_CHOICES_CALC_LP.value: channelTypesEnum.PARTNER.value,
         marketingTypesEnum.MENTOR1_CALC_LP.value: channelTypesEnum.ADVISER.value,
-        marketingTypesEnum.MONEYGPS_CALC_LP.value: channelTypesEnum.PARTNER.value,
+        marketingTypesEnum.MONEYGPS_CALC_LP.value: channelTypesEnum.ADVISER.value,
         # links to our website
         marketingTypesEnum.NATIONAL_SENIORS.value: channelTypesEnum.PARTNER.value,
         marketingTypesEnum.YOUR_LIFE_CHOICES.value: channelTypesEnum.PARTNER.value,
