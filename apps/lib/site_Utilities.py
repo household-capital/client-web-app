@@ -3,6 +3,7 @@ import datetime
 import backports.datetime_fromisoformat
 backports.datetime_fromisoformat.MonkeyPatch.patch_fromisoformat()
 import pytz
+import phonenumbers
 
 from collections import OrderedDict
 
@@ -69,28 +70,20 @@ def ensureList(sourceItem):
 def cleanPhoneNumber(phone):
     phone = str(phone) if phone is not None else None 
     if phone:
-        number = phone.replace(" ", "").replace("(", "").replace(")", "").replace("+61", "0").replace("-", "")
-        number = remove_prefix(number,"61")
-        if number[0:1] != "0":
-            return "0"+number
-        else:
-            return number
+        number = phone.replace(" ", "").replace("(", "").replace(")", "").replace("-", "")
+        
+        try:
+            phone = phonenumbers.parse(str(phone), "AU")
+        except phonenumbers.phonenumberutil.NumberParseException:
+            return None
+
+        return phonenumbers.format_number(phone, phonenumbers.PhoneNumberFormat.E164)
 
 
 def remove_prefix(text, prefix):
     if text.startswith(prefix):
         text = text.replace(prefix, "", 1)
     return text
-
-
-def checkMobileNumber(number):
-    result = cleanPhoneNumber(number)
-    if len(result) != 10:
-        return False
-    if result[0:2] == "04":
-        return True
-    else:
-        result = False
 
 
 def chkNone(arg):

@@ -227,18 +227,6 @@ class DataIngestion(APIView):
             if json_payload.get('description') is not None:
                 enquiryNotes += '\r\n' + 'Description: {}'.format(json_payload['description'])
 
-            if json_payload.get('utm_source'):
-                enquiryNotes += '\r\nutm_source: ' + json_payload['utm_source']
-
-                utm_source_to_marketing_source = {
-                    'nationalseniors': marketingTypesEnum.NATIONAL_SENIORS.value,
-                    'yourlifechoices': marketingTypesEnum.YOUR_LIFE_CHOICES.value,
-                    'startsat60': marketingTypesEnum.STARTS_AT_60.value,
-                }
-                for utm_source_value, marketing_value in utm_source_to_marketing_source.items():
-                    if utm_source_value == json_payload['utm_source']:
-                        marketingSource = marketing_value
-
             srcData = {
                 'firstname': first,
                 'lastname': last,
@@ -257,8 +245,19 @@ class DataIngestion(APIView):
                 'utm_medium': json_payload.get('utm_medium'),
                 'utm_campaign': json_payload.get('utm_campaign'),
             }
-            if marketingSource:
-                srcData['marketingSource'] = marketingSource
+
+            if json_payload.get('utm_source'):
+                enquiryNotes += '\r\nutm_source: ' + json_payload['utm_source']
+                srcData['enquiryNotes'] = enquiryNotes
+
+                utm_source_to_marketing_source = {
+                    'nationalseniors': marketingTypesEnum.NATIONAL_SENIORS.value,
+                    'yourlifechoices': marketingTypesEnum.YOUR_LIFE_CHOICES.value,
+                    'startsat60': marketingTypesEnum.STARTS_AT_60.value,
+                }
+                for utm_source_value, marketing_value in utm_source_to_marketing_source.items():
+                    if utm_source_value == json_payload['utm_source']:
+                        srcData['marketingSource'] = marketing_value
 
             try:
                 web_obj = Enquiry.objects.create(**srcData)
@@ -342,6 +341,13 @@ class DataIngestion(APIView):
                     'productType', 
                     productTypesEnum.LUMP_SUM.value
                 ),
+                'streetAddress':json_payload.get('property_address'),
+                'base_specificity': json_payload.get('unit'),
+                'street_number': json_payload.get('street_number'),
+                'street_name': json_payload.get('street_name'),
+                "street_type": json_payload.get('street_type'),
+                'suburb': json_payload.get('suburb'),
+                'state': stateTypesEnum[json_payload.get('state')].value if json_payload.get('state') else None,
                 'postcode': json_payload['postcode'],
                 'valuation':json_payload['property_value'],
                 'submissionOrigin': json_payload['origin'],
@@ -378,9 +384,7 @@ class DataIngestion(APIView):
                     )
 
     def send_prequal_email(self, lead_obj):
-        return lead_obj.channelDetail not in [
-            marketingTypesEnum.MENTOR1_CALC_LP.value,
-        ]
+        return False
     
     def process_pre_qual(self, json_payload):
         write_applog(
