@@ -32,7 +32,7 @@ class LandingView(LoginOnlyRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         if request.user.profile.isHousehold:
-            return HttpResponseRedirect(reverse_lazy("landing:dashboard"))
+            return HttpResponseRedirect(reverse_lazy("case:caseList"))
         else:
             return HttpResponseRedirect(reverse_lazy("referrer:main"))
 
