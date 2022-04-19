@@ -26,7 +26,6 @@
 
             <ul class="nav navbar-nav pl-3 pt-2">
                 {% if not hideNavbar %}
-
                     <li>
                         <a href="{% url 'calculator:contactList' %}"><i class="fab fa-safari fa-fw"></i> Queue
                             {% if request.session.webContQueue|intVal > 0 %}
@@ -34,42 +33,24 @@
                         </a>
                         &nbsp;&nbsp;&nbsp;
                     </li>
-
-
-                    <li class="d-none d-sm-table-cell pl-2 pr-2"> | &nbsp;&nbsp;
-                    </li>
-
-
-
-                    <li><a href="{% url 'enquiry:enquiryList' %}"><i class="far fa-list-alt fa-fw"></i> Enquiry List
-                        {% if request.session.enquiryQueue|intVal > 0 %}
-                            <span class="badge btn-success align-text-top">{{ request.session.enquiryQueue }}</span>{% endif %}
-                    </a> &nbsp;&nbsp;
-                        <br>
+                    <li class="d-none d-sm-table-cell pl-2 pr-2"> | &nbsp;&nbsp; </li>
+                    <li>
                         <a href="{% url 'enquiry:enquiryCall' %}"><i class="fas fa-headset fa-fw"></i> Phone Call
                         </a>
                     </li>
-
-                    <li class="d-none d-sm-table-cell pl-2 pr-2"> | &nbsp;&nbsp;
-                    </li>
-
-                    <li><a href="{% url 'case:caseList' %}"><i class="far fa-list-alt fa-fw"></i> Lead List
-                        {% if request.session.referrerQueue|intVal > 0 %}
-                            <span class="badge btn-success align-text-top">{{ request.session.referrerQueue }}</span>{% endif %}
-                    </a> &nbsp;&nbsp;
-                        <br>
-                        <a href="{% url 'calendly:meetings' %}"><i class="fas fa-video fa-fw"></i> Meetings </a> &nbsp;&nbsp;
-                    </li>
-
-                    <li class="d-none d-sm-table-cell pl-2 pr-2"> | &nbsp;&nbsp;
-                    </li>
-
+                    <li class="d-none d-sm-table-cell pl-2 pr-2"> | &nbsp;&nbsp; </li>
                     <li>
-                        <a href="{% url 'landing:dashboard' %}">
-                            <i class="fas fa-tachometer-alt fa-fw"></i> Dashboard
+                        <a href="{% url 'case:caseList' %}"><i class="far fa-list-alt fa-fw"></i> Lead List
+                            {% if request.session.referrerQueue|intVal > 0 %}
+                                <span class="badge btn-success align-text-top">{{ request.session.referrerQueue }}</span>
+                            {% endif %}
+                        </a> &nbsp;&nbsp;
+                    </li>
+                    <li class="d-none d-sm-table-cell pl-2 pr-2"> | &nbsp;&nbsp; </li>
+                    <li>
+                        <a href="{% url 'calendly:meetings' %}"><i class="fas fa-video fa-fw"></i> Meetings 
                         </a> &nbsp;&nbsp;&nbsp;
                     </li>
-
                 {% endif %}
             </ul>
 
