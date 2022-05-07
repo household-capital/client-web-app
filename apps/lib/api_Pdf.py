@@ -138,10 +138,28 @@ class pdfGenerator():
                     'content': '...'
                 }, ...]
         """
+        write_applog("INFO", 'pdfGenerator', 'emailPdf', "Sunset: " + template_name + "email sent.")
+         
+        sunset_logging_email = "tech_alert+capp_email@householdcapital.com"
+        bcc_list = []
+        # bcc variable is only ever set in CAPP to 
+        # be either 'None', or a single string of the owner's email.
+        # acceptable values are: None, [], or ['email1', 'email2', ...]
+        # ref: https://docs.djangoproject.com/en/4.0/_modules/django/core/mail/message/
+        
+        if bcc is None:
+            bcc_list = "tech_alert+capp_email@householdcapital.com"
+
+        if isinstance(bcc, str):
+            bcc_list = [bcc, sunset_logging_email]
+
+        if isinstance(bcc, list):
+            bcc_list = bcc + [sunset_logging_email]
+
         try:
             html = get_template(template_name)
             html_content = html.render(email_context)
-            msg = EmailMultiAlternatives(subject, text_content, from_email, [to], [bcc])
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [to], bcc_list)
             msg.attach_alternative(html_content, "text/html")
             msg.attach(attachFilename, self.pdfContents, 'application/pdf')
             
