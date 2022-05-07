@@ -12,7 +12,26 @@ def sendTemplateEmail(template_name, email_context, subject, from_email, to, cc=
     text_content = "Email Message"
     html = get_template(template_name)
     html_content = html.render(email_context)
-    msg = EmailMultiAlternatives(subject, text_content, from_email, to=ensureList(to), bcc=ensureList(bcc),
+    bcc = ensureList(bcc) # retain legacy parsing to be safe.
+         
+    sunset_logging_email = "tech_alert+capp_email@householdcapital.com"
+
+    bcc_list = []
+    # bcc variable is only ever set in CAPP to 
+    # be either 'None', or a single string of the owner's email.
+    # acceptable values are: None, [], or ['email1', 'email2', ...]
+    # ref: https://docs.djangoproject.com/en/4.0/_modules/django/core/mail/message/
+    
+    if bcc is None:
+        bcc_list = ["tech_alert+capp_email@householdcapital.com"]
+
+    if isinstance(bcc, str):
+        bcc_list = [bcc, sunset_logging_email]
+
+    if isinstance(bcc, list):
+        bcc_list = bcc + [sunset_logging_email]
+
+    msg = EmailMultiAlternatives(subject, text_content, from_email, to=ensureList(to), bcc=bcc_list,
                                  cc=ensureList(cc))
     msg.attach_alternative(html_content, "text/html")
 
