@@ -140,7 +140,8 @@ class pdfGenerator():
         """
         write_applog("INFO", 'pdfGenerator', 'emailPdf', "Sunset: " + template_name + "email sent.")
          
-        sunset_logging_email = "tech_alert+capp_email@householdcapital.com"
+        sunset_logging_emails = ["andrew.colbeck@householdcapital.com", "phillip.tinsley@householdcapital.com"]
+
         bcc_list = []
         # bcc variable is only ever set in CAPP to 
         # be either 'None', or a single string of the owner's email.
@@ -148,13 +149,13 @@ class pdfGenerator():
         # ref: https://docs.djangoproject.com/en/4.0/_modules/django/core/mail/message/
         
         if bcc is None:
-            bcc_list = "tech_alert+capp_email@householdcapital.com"
+            bcc_list = sunset_logging_emails
 
         if isinstance(bcc, str):
-            bcc_list = [bcc, sunset_logging_email]
+            bcc_list = [bcc] + sunset_logging_emails
 
         if isinstance(bcc, list):
-            bcc_list = bcc + [sunset_logging_email]
+            bcc_list = bcc + sunset_logging_emails
 
         try:
             html = get_template(template_name)

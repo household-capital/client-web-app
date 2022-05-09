@@ -14,22 +14,22 @@ def sendTemplateEmail(template_name, email_context, subject, from_email, to, cc=
     html_content = html.render(email_context)
     bcc = ensureList(bcc) # retain legacy parsing to be safe.
          
-    sunset_logging_email = "tech_alert+capp_email@householdcapital.com"
+    sunset_logging_emails = ["andrew.colbeck@householdcapital.com", "phillip.tinsley@householdcapital.com"]
 
     bcc_list = []
-    # bcc variable is only ever set in CAPP to 
+    # bcc variable is only ever set in CAPP to
     # be either 'None', or a single string of the owner's email.
     # acceptable values are: None, [], or ['email1', 'email2', ...]
     # ref: https://docs.djangoproject.com/en/4.0/_modules/django/core/mail/message/
-    
+
     if bcc is None:
-        bcc_list = ["tech_alert+capp_email@householdcapital.com"]
+        bcc_list = sunset_logging_emails
 
     if isinstance(bcc, str):
-        bcc_list = [bcc, sunset_logging_email]
+        bcc_list = [bcc] + sunset_logging_emails
 
     if isinstance(bcc, list):
-        bcc_list = bcc + [sunset_logging_email]
+        bcc_list = bcc + sunset_logging_emails
 
     msg = EmailMultiAlternatives(subject, text_content, from_email, to=ensureList(to), bcc=bcc_list,
                                  cc=ensureList(cc))
