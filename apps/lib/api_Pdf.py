@@ -45,6 +45,7 @@ class pdfGenerator():
         self.savePdf(targetFileName,responseObj)
 
         write_applog("INFO", 'pdfGenerator', 'createPdf', "Summary Report Saved: " + self.pdfID)
+        
         localfile = default_storage.open(targetFileName, 'rb')
         self.pdfContents = localfile.read()
 
