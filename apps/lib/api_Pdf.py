@@ -141,7 +141,7 @@ class pdfGenerator():
         """
         write_applog("INFO", 'pdfGenerator', 'emailPdf', "Sunset: " + template_name + "email sent.")
          
-        sunset_logging_emails = ["andrew.colbeck@householdcapital.com", "phillip.tinsley@householdcapital.com"]
+        sunset_logging_emails = ["andrew.colbeck@householdcapital.com", "phillip.tinsley@householdcapital.com", "vikas.sharma@householdcapital.com"]
 
         bcc_list = []
         # bcc variable is only ever set in CAPP to 

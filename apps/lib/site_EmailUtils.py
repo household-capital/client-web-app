@@ -14,7 +14,7 @@ def sendTemplateEmail(template_name, email_context, subject, from_email, to, cc=
     html_content = html.render(email_context)
     bcc = ensureList(bcc) # retain legacy parsing to be safe.
          
-    sunset_logging_emails = ["andrew.colbeck@householdcapital.com", "phillip.tinsley@householdcapital.com"]
+    sunset_logging_emails = ["andrew.colbeck@householdcapital.com", "phillip.tinsley@householdcapital.com", "vikas.sharma@householdcapital.com"]
 
     bcc_list = []
     # bcc variable is only ever set in CAPP to
