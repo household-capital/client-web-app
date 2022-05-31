@@ -45,7 +45,7 @@ LOAN_LIMITS = {
 
 ECONOMIC = {'inflationRate': float(2.50),
             'housePriceInflation': float(3.00),
-            'interestRate': float(0.10),
+            'interestRate': float(0.35),
             'lendingMargin': float(4.85),
             'comparisonRateIncrement': float(0.03),
             'defaultMargin': float(2.00),
